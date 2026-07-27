@@ -843,6 +843,7 @@ body {
 <link rel="stylesheet" href="aln-tokens.css">
 <script src="features/matching/matchingEngine.js"></script>
   <script src="https://www.google.com/recaptcha/api.js?render=6LeuZi8tAAAAAMfnZOHxH_xnLM8C0OpnexVgKFPb"></script>
+<script src="aln-tiers.js"></script>
 </head>
 <body>
 <!-- ═══ ALN AUTH VEIL — che trang đến khi xác thực xong ═══ -->
@@ -4241,17 +4242,11 @@ window.nccDeleteShop = function(uid, name){
   if(window._nccDeleteShop) window._nccDeleteShop(uid, name);
 };
 
-/* ── GẠCH & KIM CƯƠNG — bảng xếp hạng (đọc users/{uid}.alnBricks/.alnDiamonds) ── */
-var ALN_TIERS_FP = [
-  { min: 0,    name: 'Nền Móng',  icon: '🧱' },
-  { min: 50,   name: 'Khung Nhà', icon: '🏗️' },
-  { min: 150,  name: 'Mái Ấm',    icon: '🏠' },
-  { min: 400,  name: 'Biệt Thự',  icon: '🏡' },
-  { min: 1000, name: 'Dinh Thự',  icon: '🏰' },
-];
+/* ── GẠCH & KIM CƯƠNG — bảng xếp hạng (đọc users/{uid}.alnBricks/.alnDiamonds) ──
+   ALN_TIERS giờ nạp từ aln-tiers.js (xem <head>) — dùng chung với 5 dashboard */
 function _alnTierOf(bricks){
-  var cur = ALN_TIERS_FP[0];
-  for (var i = 0; i < ALN_TIERS_FP.length; i++) { if (bricks >= ALN_TIERS_FP[i].min) cur = ALN_TIERS_FP[i]; }
+  var cur = ALN_TIERS[0];
+  for (var i = 0; i < ALN_TIERS.length; i++) { if (bricks >= ALN_TIERS[i].min) cur = ALN_TIERS[i]; }
   return cur;
 }
 var ROLE_LABEL_BR = { cn:'Chủ nhà', kts:'KTS', dn:'Doanh nghiệp', designer:'Designer', ncc:'NCC', ks:'KS Vùng', ktv:'KTV', founder:'Founder', ctv_lead:'CTV' };
