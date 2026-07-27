@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <title>App Làm Nhà</title>
+    <!--
+      Kỹ thuật chuẩn "spa-github-pages" (rafgraph/spa-github-pages) — GitHub
+      Pages là static hosting, không tự redirect mọi route về index.html cho
+      Vue Router (history mode) xử lý. Khi Pages không tìm thấy file vật lý
+      khớp URL (vd /app/profile), nó serve file 404.html này thay vì lỗi
+      thẳng. Script dưới đây mã hoá path thật vào query string rồi redirect
+      về /app/ (có index.html thật) — script tương ứng trong index.html sẽ
+      giải mã lại và dùng history.replaceState để Vue Router đọc đúng route.
+
+      pathSegmentsToKeep = 1: app deploy dưới applamnha.vn/app/ (1 segment
+      con "app" cần giữ lại trước khi tới phần route Vue Router xử lý).
+    -->
+    <script type="text/javascript">
+      var pathSegmentsToKeep = 1;
+
+      var l = window.location;
+      l.replace(
+        l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+        l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
+        l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
+        (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+        l.hash
+      );
+    </script>
+  </head>
+  <body></body>
+</html>
