@@ -934,6 +934,7 @@ body {
     <button class="fsub" id="tabPayments" onclick="switchTab('payments')"><i class="ph-duotone ph-money"></i>Thanh toán<span id="paymentsBadge" style="display:none;background:var(--green);color:#fff;border-radius:99px;font-size:9px;padding:1px 5px;margin-left:2px;font-weight:800">0</span></button>
     <button class="fsub" id="tabReport" onclick="switchTab('report')"><i class="ph-duotone ph-chart-bar"></i>Báo cáo thu nhập</button>
     <button class="fsub" id="tabLeads" onclick="switchTab('leads')"><i class="ph-duotone ph-target"></i>Lead<span id="leadsBadge" style="display:none;background:#ef4444;color:#fff;border-radius:99px;font-size:9px;padding:1px 5px;margin-left:2px;font-weight:800">0</span></button>
+    <button class="fsub" id="tabSuaVatAi" onclick="switchTab('suaVatAi')"><i class="ph-duotone ph-robot"></i>AI Sửa Vặt<span id="suaVatAiBadge" style="display:none;background:var(--green);color:#fff;border-radius:99px;font-size:9px;padding:1px 5px;margin-left:2px;font-weight:800">0</span></button>
     <button class="fsub" id="tabContacts" onclick="switchTab('contacts')"><i class="ph-duotone ph-address-book"></i>Liên hệ</button>
     <button class="fsub" id="tabRecruit"  onclick="switchTab('recruit')" ><i class="ph-duotone ph-megaphone"></i>Tuyển dụng</button>
     <button class="fsub" id="tabCompany"  onclick="switchTab('company')" ><i class="ph-duotone ph-buildings"></i>Cài đặt CTY</button>
@@ -1902,6 +1903,46 @@ document.addEventListener('DOMContentLoaded', function() {
         <th style="background:var(--raised);border-bottom:1px solid var(--border);padding:12px 11px"></th>
       </tr></thead>
       <tbody id="leadsBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══ PANEL: AI SỬA VẶT (lớp AI 3 tầng — xem functions/suaVatAI.js, NHÁP 27/07/2026) ══ -->
+<div id="panelSuaVatAi" style="display:none;flex-direction:column;flex:1;overflow-y:auto;padding:24px 28px">
+  <div style="font-size:11px;font-weight:700;color:var(--dim);letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px">VẬN HÀNH · KÊNH SỬA VẶT TP.HCM</div>
+  <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--text1);margin-bottom:6px">AI phân tích lead sửa vặt</div>
+  <div style="font-size:13px;color:var(--sub);margin-bottom:18px;max-width:80ch">Mỗi lead từ <span style="font-family:var(--mono);color:var(--dim)">sua-vat.html</span> được AI phân loại việc, chọn đội gợi ý và soạn sẵn tin Zalo (bấm sao chép rồi dán gửi đội). Lead có <b style="color:var(--gold)">điểm tiềm năng thiết kế ≥60</b> tự vào hàng chờ nuôi dưỡng bên dưới — đây là khách có dấu hiệu sẽ cải tạo lớn/xây mới, ưu tiên chăm sóc bằng Zalo + Cẩm nang đúng bệnh nhà họ.</div>
+
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px">
+    <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text1)">Lead sửa vặt gần đây</div>
+    <button onclick="initSuaVatAiPanel()" style="padding:7px 14px;background:var(--raised);border:1px solid var(--border);border-radius:7px;font-size:12px;font-weight:600;color:var(--sub);cursor:pointer;font-family:var(--sans)"><i class="ph-duotone ph-arrow-clockwise"></i> Tải lại</button>
+  </div>
+  <div style="overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:var(--card);margin-bottom:26px">
+    <table style="width:100%;border-collapse:collapse;min-width:960px">
+      <thead><tr>
+        <th style="font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);text-align:left;padding:12px 11px;background:var(--raised);border-bottom:1px solid var(--border);white-space:nowrap">Khách</th>
+        <th style="font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);text-align:left;padding:12px 11px;background:var(--raised);border-bottom:1px solid var(--border);white-space:nowrap">Việc · Khu vực</th>
+        <th style="font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);text-align:left;padding:12px 11px;background:var(--raised);border-bottom:1px solid var(--border);white-space:nowrap">Độ khẩn</th>
+        <th style="font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);text-align:left;padding:12px 11px;background:var(--raised);border-bottom:1px solid var(--border);white-space:nowrap">Đội AI gợi ý</th>
+        <th style="font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);text-align:left;padding:12px 11px;background:var(--raised);border-bottom:1px solid var(--border);white-space:nowrap">Điểm thiết kế</th>
+        <th style="font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);text-align:left;padding:12px 11px;background:var(--raised);border-bottom:1px solid var(--border);white-space:nowrap">Tin Zalo soạn sẵn</th>
+      </tr></thead>
+      <tbody id="suaVatLeadsBody"></tbody>
+    </table>
+  </div>
+
+  <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text1);margin-bottom:10px">Hàng chờ nuôi dưỡng khách thiết kế <span style="color:var(--dim);font-weight:400">(điểm ≥60)</span></div>
+  <div style="overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:var(--card)">
+    <table style="width:100%;border-collapse:collapse;min-width:900px">
+      <thead><tr>
+        <th style="font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);text-align:left;padding:12px 11px;background:var(--raised);border-bottom:1px solid var(--border);white-space:nowrap">Khách</th>
+        <th style="font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);text-align:left;padding:12px 11px;background:var(--raised);border-bottom:1px solid var(--border);white-space:nowrap">Khu vực</th>
+        <th style="font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);text-align:left;padding:12px 11px;background:var(--raised);border-bottom:1px solid var(--border);white-space:nowrap">Điểm</th>
+        <th style="font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);text-align:left;padding:12px 11px;background:var(--raised);border-bottom:1px solid var(--border);white-space:nowrap">Dấu hiệu</th>
+        <th style="font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);text-align:left;padding:12px 11px;background:var(--raised);border-bottom:1px solid var(--border);white-space:nowrap">Gợi ý nuôi dưỡng</th>
+        <th style="font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);text-align:left;padding:12px 11px;background:var(--raised);border-bottom:1px solid var(--border);white-space:nowrap">Trạng thái</th>
+      </tr></thead>
+      <tbody id="designNurtureBody"></tbody>
     </table>
   </div>
 </div>
@@ -3568,7 +3609,7 @@ window.ALNRealtime = (() => {
 ══════════════════════════════════════════ */
 
 function switchTab(t){
-  var ALL = ['projects','stats','mgKts','mgDn','mgCn','mgKs','mgKtv','mgNcc','bricks','pending','payments','report','leads','contacts','recruit','company','pricing','khomau','mkt','seo','hoikien','waitRoom','matching','c2monitor','liveKts','liveDn','liveCn','liveDes','liveKs','liveKtv','liveKeToan'];
+  var ALL = ['projects','stats','mgKts','mgDn','mgCn','mgKs','mgKtv','mgNcc','bricks','pending','payments','report','leads','suaVatAi','contacts','recruit','company','pricing','khomau','mkt','seo','hoikien','waitRoom','matching','c2monitor','liveKts','liveDn','liveCn','liveDes','liveKs','liveKtv','liveKeToan'];
   var activeStyle  = 'padding:5px 13px;border:1px solid rgba(59,130,246,.25);border-radius:6px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;background:rgba(59,130,246,.15);color:var(--blue);white-space:nowrap';
   var inactiveStyle= 'padding:5px 13px;border:1px solid var(--border);border-radius:6px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;background:var(--raised);color:var(--sub);white-space:nowrap';
   var liveStyles = {
@@ -3617,6 +3658,7 @@ function switchTab(t){
   if(t==='payments') { renderPayments(); if(typeof renderDesignApprovals==='function') renderDesignApprovals(); }
   if(t==='report')   { renderIncomeReport(); if(typeof _fillFeeConfigForm==='function') _fillFeeConfigForm(); }
   if(t==='leads')    initLeadsPanel();
+  if(t==='suaVatAi') initSuaVatAiPanel();
   if(t==='contacts') initContactsPanel();
   if(t==='recruit')  { if(typeof window._recruitRender==='function') window._recruitRender(); }
   if(t==='company')  loadCompanySettings();
@@ -7456,6 +7498,135 @@ window.saveCompanySettings = async function() {
       if(badge){ badge.textContent = staleCount; badge.style.display = staleCount > 0 ? 'inline' : 'none'; }
     } catch(e) {
       alert('Lỗi cập nhật trạng thái: ' + (e.message||e));
+    }
+  };
+})();
+
+/* ══════════════════════════════════════════
+   AI SỬA VẶT — lớp AI 3 tầng kênh sửa vặt (functions/suaVatAI.js, NHÁP 27/07/2026)
+   Lead gốc (leads/, kind sua_vat): đọc THẲNG qua getDocs — leads/{id} đã có
+   rule `allow read: if isFounder()` từ trước, không cần Cloud Function riêng.
+   designNurture: CHƯA mở rule đọc công khai → qua 2 onCall Founder-only
+   (founderListDesignNurture/founderUpdateDesignNurtureStatus), cùng pattern
+   founderListMauNhaLeads.
+══════════════════════════════════════════ */
+(function(){
+  var SV_LEADS = [];
+  var SV_NURTURE = [];
+  var SV_NURTURE_LABEL = { new:'Mới', contacted:'Đã liên hệ', converted:'Đã chuyển đổi', dropped:'Đã bỏ' };
+  var SV_NURTURE_COLOR = { new:'#ef4444', contacted:'#d97706', converted:'#16a34a', dropped:'#94a3b8' };
+
+  function svFmtDate(ms){
+    if(!ms) return '—';
+    try { return new Date(ms).toLocaleString('vi-VN'); } catch(e){ return '—'; }
+  }
+  function svScoreBadge(score){
+    var color = score >= 60 ? 'var(--gold)' : (score >= 30 ? 'var(--blue)' : 'var(--dim)');
+    var bg = score >= 60 ? 'var(--gold-bg)' : 'var(--raised)';
+    return '<span style="display:inline-block;padding:3px 9px;border-radius:99px;font-family:var(--mono);font-size:11.5px;font-weight:800;color:'+color+';background:'+bg+'">'+score+'/100</span>';
+  }
+  window.svCopyZalo = function(leadId, btn){
+    var it = SV_LEADS.filter(function(x){ return x._id === leadId; })[0];
+    var text = it && it.aiAnalysis ? (it.aiAnalysis.zaloDraft || '') : '';
+    if(!text){ toast('Chưa có tin soạn sẵn cho lead này', 'err'); return; }
+    navigator.clipboard.writeText(text).then(function(){
+      var old = btn.innerHTML;
+      btn.innerHTML = '<i class="ph-duotone ph-check"></i> Đã chép';
+      setTimeout(function(){ btn.innerHTML = old; }, 1500);
+    }).catch(function(){ alert('Không sao chép được — chọn thủ công:\n\n' + text); });
+  };
+
+  function svRenderLeads(){
+    var body = document.getElementById('suaVatLeadsBody');
+    if(!body) return;
+    if(!SV_LEADS.length){ body.innerHTML = '<tr><td colspan="6" style="padding:24px;text-align:center;color:var(--dim);font-family:var(--sans);font-size:13px">Chưa có lead sửa vặt nào.</td></tr>'; return; }
+    body.innerHTML = SV_LEADS.map(function(it){
+      var ai = it.aiAnalysis || null;
+      var doiHtml = ai && ai.doiSuggested && ai.doiSuggested.length
+        ? ai.doiSuggested.map(function(s){ return '<div style="font-size:11.5px">'+(s.uid||'')+'<div style="color:var(--dim);font-size:10.5px">'+(s.lyDo||'')+'</div></div>'; }).join('')
+        : '<span style="color:var(--dim);font-size:11.5px">'+(ai ? 'chưa có đội khớp' : 'đang phân tích…')+'</span>';
+      var khanColor = ai && ai.doKhan === 'gap' ? '#ef4444' : 'var(--dim)';
+      var khanText = ai ? (ai.doKhan === 'gap' ? 'Gấp' : 'Thường') : '—';
+      var zaloBtn = ai && ai.zaloDraft
+        ? '<button onclick="svCopyZalo(\''+it._id+'\', this)" style="padding:6px 10px;border-radius:6px;border:1px solid var(--gold-bd);background:var(--gold-bg);color:var(--gold);font-weight:700;font-size:11px;cursor:pointer;font-family:var(--sans);white-space:nowrap"><i class="ph-duotone ph-copy"></i> Sao chép tin</button>'
+        : '<span style="color:var(--dim);font-size:11.5px">—</span>';
+      return '<tr style="border-bottom:1px solid var(--border)">'
+        +'<td style="padding:10px 11px"><div style="font-weight:700;font-size:13px;color:var(--text1)">'+(it.name||'—')+'</div><a href="tel:'+(it.phone||'')+'" style="font-family:var(--mono);font-size:12px;color:var(--blue);text-decoration:none">'+(it.phone||'—')+'</a></td>'
+        +'<td style="padding:10px 11px;font-size:12.5px;color:var(--text2)">'+(it.loaiViecLabel||it.loaiViec||'—')+'<div style="color:var(--dim);font-size:11px">'+(it.khuVuc||'')+'</div></td>'
+        +'<td style="padding:10px 11px;font-size:11.5px;font-weight:700;color:'+khanColor+'">'+khanText+'</td>'
+        +'<td style="padding:10px 11px">'+doiHtml+'</td>'
+        +'<td style="padding:10px 11px">'+(ai ? svScoreBadge(ai.designPotential||0) : '<span style="color:var(--dim);font-size:11px">…</span>')+'</td>'
+        +'<td style="padding:10px 11px">'+zaloBtn+'</td>'
+      +'</tr>';
+    }).join('');
+  }
+
+  function svRenderNurture(){
+    var body = document.getElementById('designNurtureBody');
+    if(!body) return;
+    if(!SV_NURTURE.length){ body.innerHTML = '<tr><td colspan="6" style="padding:24px;text-align:center;color:var(--dim);font-family:var(--sans);font-size:13px">Chưa có khách nào điểm ≥60.</td></tr>'; return; }
+    body.innerHTML = SV_NURTURE.map(function(it){
+      var signals = (it.designSignals||[]).map(function(s){ return '<span style="display:inline-block;background:var(--raised);border:1px solid var(--border);border-radius:99px;padding:2px 8px;font-size:10.5px;color:var(--text2);margin:1px 3px 1px 0">'+s+'</span>'; }).join('');
+      var status = it.status || 'new';
+      var optHtml = Object.keys(SV_NURTURE_LABEL).map(function(k){ return '<option value="'+k+'" '+(k===status?'selected':'')+'>'+SV_NURTURE_LABEL[k]+'</option>'; }).join('');
+      return '<tr style="border-bottom:1px solid var(--border)">'
+        +'<td style="padding:10px 11px"><div style="font-weight:700;font-size:13px;color:var(--text1)">'+(it.name||'—')+'</div><a href="tel:'+(it.phone||'')+'" style="font-family:var(--mono);font-size:12px;color:var(--blue);text-decoration:none">'+(it.phone||'—')+'</a></td>'
+        +'<td style="padding:10px 11px;font-size:12.5px;color:var(--text2)">'+(it.khuVuc||'—')+'</td>'
+        +'<td style="padding:10px 11px">'+svScoreBadge(it.designPotential||0)+'</td>'
+        +'<td style="padding:10px 11px">'+(signals||'<span style="color:var(--dim);font-size:11px">—</span>')+'</td>'
+        +'<td style="padding:10px 11px;font-size:11.5px;color:var(--text2);max-width:240px">'+(it.nurtureNote||'—')+'</td>'
+        +'<td style="padding:10px 11px"><select onchange="svUpdateNurtureStatus(\''+it.id+'\',this.value)" style="padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--raised);color:'+SV_NURTURE_COLOR[status]+';font-weight:700;font-size:11.5px;font-family:var(--sans);cursor:pointer">'+optHtml+'</select></td>'
+      +'</tr>';
+    }).join('');
+  }
+
+  window.svUpdateNurtureStatus = async function(id, status){
+    try {
+      var { getFunctions, httpsCallable } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js');
+      var fns = getFunctions(window.app, 'asia-southeast1');
+      var fn = httpsCallable(fns, 'founderUpdateDesignNurtureStatus');
+      await fn({ id: id, status: status });
+      var it = SV_NURTURE.filter(function(x){ return x.id === id; })[0];
+      if(it) it.status = status;
+      toast('Đã cập nhật trạng thái', 'ok');
+    } catch(e) {
+      toast('Lỗi cập nhật: ' + (e.message||e), 'err');
+    }
+  };
+
+  window.initSuaVatAiPanel = async function(){
+    var leadsBody = document.getElementById('suaVatLeadsBody');
+    var nurtureBody = document.getElementById('designNurtureBody');
+    if(leadsBody) leadsBody.innerHTML = '<tr><td colspan="6" style="padding:20px;text-align:center;color:var(--dim);font-family:var(--mono);font-size:12px">Đang tải...</td></tr>';
+    if(nurtureBody) nurtureBody.innerHTML = '<tr><td colspan="6" style="padding:20px;text-align:center;color:var(--dim);font-family:var(--mono);font-size:12px">Đang tải...</td></tr>';
+
+    try {
+      var q = query(collection(db, 'leads'), orderBy('createdAt', 'desc'), limit(300));
+      var snap = await getDocs(q);
+      SV_LEADS = [];
+      snap.forEach(function(d){
+        var it = d.data();
+        if(it.kind !== 'sua_vat') return;
+        it._id = d.id;
+        SV_LEADS.push(it);
+      });
+      svRenderLeads();
+    } catch(e) {
+      if(leadsBody) leadsBody.innerHTML = '<tr><td colspan="6" style="padding:20px;text-align:center;color:var(--red)">Lỗi tải lead: '+(e.message||e)+'</td></tr>';
+    }
+
+    try {
+      var { getFunctions, httpsCallable } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js');
+      var fns = getFunctions(window.app, 'asia-southeast1');
+      var fn = httpsCallable(fns, 'founderListDesignNurture');
+      var res = await fn();
+      SV_NURTURE = (res.data && res.data.items) || [];
+      svRenderNurture();
+      var newCount = SV_NURTURE.filter(function(x){ return (x.status||'new') === 'new'; }).length;
+      var badge = document.getElementById('suaVatAiBadge');
+      if(badge){ badge.textContent = newCount; badge.style.display = newCount > 0 ? 'inline' : 'none'; }
+    } catch(e) {
+      if(nurtureBody) nurtureBody.innerHTML = '<tr><td colspan="6" style="padding:20px;text-align:center;color:var(--red)">Lỗi tải hàng chờ: '+(e.message||e)+'</td></tr>';
     }
   };
 })();
