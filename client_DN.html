@@ -3882,48 +3882,28 @@ window._dnDownloadZip = async function(pid) {
   if (btn) { btn.innerHTML = '<i class="ph-duotone ph-lock-key"></i> Tải gói ZIP'; btn.disabled = false; }
 };
 
-/* Ghi approval lên Firestore */
+/* Duyệt phương án + advance chặng + ghi payment record — trước đây tự tính
+   amount/netAmount bằng công thức hardcode rồi tự updateDoc; nay gọi Cloud
+   Function approveProjectStagePayment (functions/paymentFees.js, dùng chung
+   với client_CN.html — 2 hàm cũ có thân giống hệt nhau) — công thức + việc
+   ghi Firestore chuyển hết sang server (LỆNH_CODE_KhacPhuc1_CongThucPhi.md
+   Bước 2). File này chưa import sẵn getFunctions/httpsCallable/app ở scope
+   module (khác client_CN.html) nên dùng import() động như submitNewProject
+   đã làm ở trên. Vẫn "bắn và quên" như code cũ, nhưng nay báo lỗi rõ ràng
+   qua toast thay vì chỉ log console nếu Cloud Function thất bại. */
 window._dnFbApprovePA = async function(projId, stage, paId) {
-  var NEXT = { C1:'C2', C2:'C3', C3:'C4' };
-  var PAYMENT_PCT = { C1:0.10, C2:0.20, C3:0.60, C4:0.10 };
-  var PLATFORM_FEE_PCT = 0.20; // mặc định — ghi đè bên dưới nếu Founder đã cấu hình
-  var INCOME_TAX_PCT   = 0.07; // mặc định — ghi đè bên dưới nếu Founder đã cấu hình
   try {
-    var feeSnap = await getDoc(doc(db,'settings','paymentFees'));
-    if (feeSnap.exists()) {
-      var feeCfg = feeSnap.data();
-      if (typeof feeCfg.platformFeePct === 'number') PLATFORM_FEE_PCT = feeCfg.platformFeePct;
-      if (typeof feeCfg.incomeTaxPct === 'number') INCOME_TAX_PCT = feeCfg.incomeTaxPct;
+    var { getFunctions, httpsCallable } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js');
+    var { app } = await import('./firebase-config.js');
+    var fns = getFunctions(app, 'asia-southeast1');
+    var fn = httpsCallable(fns, 'approveProjectStagePayment');
+    await fn({ projectId: projId, stage: stage, proposalId: paId });
+  } catch(e) {
+    console.error('[DN approvePA]', e.code, e.message);
+    if (typeof showToast === 'function') {
+      showToast('⚠ Duyệt phương án chưa ghi được lên hệ thống — thử tải lại trang: ' + (e.message || e.code), 't-red');
     }
-  } catch(e) { console.error('[DN approvePA] Lỗi đọc settings/paymentFees, dùng mặc định', e); }
-  try {
-    await updateDoc(doc(db,'projects',projId,'stages',stage,'proposals',paId), {
-      status: 'approved', approvedAt: serverTimestamp()
-    });
-    var progressPatch = {};
-    progressPatch['progress.' + stage] = 1;
-    progressPatch.stage = NEXT[stage] || 'done';
-    progressPatch.updatedAt = serverTimestamp();
-    var projSnap = await getDoc(doc(db,'projects',projId));
-    if (projSnap.exists()) {
-      var pd = projSnap.data();
-      var pct = PAYMENT_PCT[stage] || 0;
-      var amount = Math.round((pd.totalFee || 0) * pct); // totalFee đơn vị đồng — số gốc theo chặng
-      var netAmount = Math.round(amount * (1 - PLATFORM_FEE_PCT - INCOME_TAX_PCT)); // KTS thực nhận sau phí sàn + thuế TNCN (theo settings/paymentFees)
-      var alreadyStaged = pd.payments && pd.payments[stage]; // C1 đã được ghi sẵn lúc tạo dự án (cọc ký HĐ) — không ghi đè, giữ nguyên trạng thái đã báo/đã xác nhận nếu có
-      if (amount > 0 && pd.kts && pd.kts.uid && !alreadyStaged) {
-        progressPatch['payments.' + stage] = {
-          amount: amount,
-          netAmount: netAmount,
-          status: 'pending',
-          ktsUid: pd.kts.uid,
-          ktsName: pd.kts.name || '',
-          stagedAt: serverTimestamp(),
-        };
-      }
-    }
-    await updateDoc(doc(db,'projects',projId), progressPatch);
-  } catch(e){ console.error('[DN approvePA Firestore]', e.code, e.message); }
+  }
 };
 
 onAuthStateChanged(auth, async (user) => {

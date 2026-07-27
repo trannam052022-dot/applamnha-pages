@@ -202,8 +202,9 @@ a{color:var(--gold)}
 <script>
 function esc(s){ return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function fmtAmt(v){ return v >= 1000000 ? (v/1000000).toFixed(1).replace('.0','') + ' tr' : (v/1000).toFixed(0) + 'K'; }
-var PLATFORM_FEE_PCT = 0.20, INCOME_TAX_PCT = 0.07;
-function fallbackNet(amount){ return Math.round((amount || 0) * (1 - PLATFORM_FEE_PCT - INCOME_TAX_PCT)); }
+// (Từng có PLATFORM_FEE_PCT/INCOME_TAX_PCT/fallbackNet trùng lặp ở đây — dead code,
+// không nơi nào trong file gọi tới; bản dùng thật nằm ở <script type="module"> bên
+// dưới. Xoá theo LỆNH_CODE_KhacPhuc1_CongThucPhi.md Bước 2 khi dọn công thức phí.)
 
 var _tt = null;
 function showToast(msg, type){
@@ -221,6 +222,12 @@ function payCardHTML(pay){
   var bankId = 'bankinfo-' + pay.coll + '-' + pay.projId + '-' + pay.stage;
   var qrId = 'payqr-' + pay.coll + '-' + pay.projId + '-' + pay.stage;
   var checked = pay.check;
+  // Tỷ lệ trừ hiển thị = suy trực tiếp từ 2 số đã có (amount/netAmount) —
+  // không hardcode "27%" nữa (LỆNH_CODE_KhacPhuc1_CongThucPhi.md Bước 2),
+  // cũng không cần gọi thêm Cloud Function vì dữ liệu đã đủ để tự tính đúng.
+  var deductPctText = (pay.amount > 0 && pay.netAmount != null)
+    ? Math.round((1 - pay.netAmount / pay.amount) * 100) + '%'
+    : '—';
   return '<div class="pay-card">'
     + '<div class="pay-icon"><i class="ph-duotone ph-money"></i></div>'
     + '<div style="flex:1;min-width:220px">'
@@ -231,8 +238,8 @@ function payCardHTML(pay){
     + '</div>'
     + '<div class="pay-qr" id="' + qrId + '"></div>'
     + '<div style="text-align:right;flex-shrink:0">'
-      + '<div class="pay-amt">' + fmtAmt(pay.netAmount) + 'đ</div>'
-      + '<div class="pay-amt-sub">gốc ' + fmtAmt(pay.amount) + 'đ · trừ 27%</div>'
+      + '<div class="pay-amt">' + (pay.netAmount != null ? fmtAmt(pay.netAmount) + 'đ' : 'Chưa tính được — thử tải lại') + '</div>'
+      + '<div class="pay-amt-sub">gốc ' + fmtAmt(pay.amount) + 'đ · trừ ' + deductPctText + '</div>'
       + (checked
         ? '<button class="btn-check" disabled><i class="ph-duotone ph-check"></i> Đã kiểm tra</button>'
         : '<button class="btn-check" onclick="markChecked(\'' + pay.coll + '\',\'' + pay.projId + '\',\'' + pay.stage + '\')"><i class="ph-duotone ph-check"></i> Đã kiểm tra</button>')
@@ -334,8 +341,13 @@ import {
   onAuthStateChanged, signOut,
   doc, getDoc, updateDoc,
   collection, onSnapshot, serverTimestamp,
-  updatePassword, reauthenticateWithCredential, EmailAuthProvider
+  updatePassword, reauthenticateWithCredential, EmailAuthProvider,
+  app
 } from './firebase-config.js';
+import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js';
+
+const _ktFunctions = getFunctions(app, 'asia-southeast1');
+const _calcPaymentBreakdownFn = httpsCallable(_ktFunctions, 'calculatePaymentBreakdown');
 
 let ME = null;
 let PROJECTS = [];
@@ -368,9 +380,33 @@ onAuthStateChanged(auth, async function(user){
   }, function(err){ console.error('[ke_toan designProjects]', err.code, err.message); });
 });
 
-function fallbackNet(amount){ return Math.round((amount || 0) * (1 - 0.20 - 0.07)); }
+// Cấu hình phí sàn/thuế TNCN — lấy 1 lần qua Cloud Function calculatePaymentBreakdown
+// (totalFee:0 chỉ để đọc platformFeePct/incomeTaxPct hiện hành), thay vì hardcode
+// 0.20/0.07 như trước (LỆNH_CODE_KhacPhuc1_CongThucPhi.md Bước 2).
+let _feeCfgCache = null, _feeCfgPromise = null;
+function _getFeeCfg(){
+  if (_feeCfgCache) return Promise.resolve(_feeCfgCache);
+  if (_feeCfgPromise) return _feeCfgPromise;
+  _feeCfgPromise = _calcPaymentBreakdownFn({ totalFee: 0, stage: 'C1' }).then(function(res){
+    _feeCfgCache = { platformFeePct: res.data.platformFeePct, incomeTaxPct: res.data.incomeTaxPct };
+    return _feeCfgCache;
+  }).catch(function(e){
+    console.error('[ke_toan] Lỗi lấy cấu hình phí từ Cloud Function', e);
+    _feeCfgPromise = null; // cho phép thử lại lần gọi sau
+    return null;
+  });
+  return _feeCfgPromise;
+}
 
-function rebuild(){
+// Bản ghi cũ chưa có netAmount mới cần fallback này — bản ghi mới đã có
+// netAmount ghi sẵn từ Cloud Function approveProjectStagePayment.
+function fallbackNet(amount){
+  if (!_feeCfgCache) return null; // chưa có cấu hình (Cloud Function lỗi) — KHÔNG đoán mò, để payCardHTML tự hiện "—"
+  return Math.round((amount || 0) * (1 - _feeCfgCache.platformFeePct - _feeCfgCache.incomeTaxPct));
+}
+
+async function rebuild(){
+  await _getFeeCfg();
   var result = [];
   PROJECTS.forEach(function(p){
     var payments = p.payments || {};
@@ -439,6 +475,7 @@ function _inPeriod(dateObj, period){
 window._ktTaxTabActive = false;
 window._ktTaxPeriod = 'month';
 window._buildTaxReport = async function(period){
+  await _getFeeCfg();
   window._ktTaxTabActive = true;
   window._ktTaxPeriod = period || 'month';
   var paid = [];
@@ -454,7 +491,10 @@ window._buildTaxReport = async function(period){
           uid: pay[uidField] || '',
           fallbackName: (p[roleField] && p[roleField].name) || '—',
           amount: pay.amount || 0,
-          netAmount: (pay.netAmount != null ? pay.netAmount : fallbackNet(pay.amount)),
+          // Báo cáo thuế là tổng cộng dồn — null (cấu hình phí chưa lấy được)
+          // phải quy về 0 ở đây để tránh NaN lan ra toàn bộ tổng, khác với
+          // payCardHTML (hiện "—" cho từng dòng thay vì đoán 0).
+          netAmount: (pay.netAmount != null ? pay.netAmount : (fallbackNet(pay.amount) || 0)),
         });
       });
     });

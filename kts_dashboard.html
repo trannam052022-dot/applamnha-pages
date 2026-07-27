@@ -3081,7 +3081,10 @@ window.renderKtsKtvTasks = renderKtsKtvTasks;
 </script>
 
 <script type="module">
-import { auth, db, onAuthStateChanged, signOut, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, addDoc, getDocs, query, where, orderBy, limit, limitToLast, onSnapshot, serverTimestamp, storage, storageRef, uploadBytes, getDownloadURL, getMessaging, getToken, onFcmMessage, fcmSupported, ALN_VAPID_KEY, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "./firebase-config.js";
+import { auth, db, onAuthStateChanged, signOut, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, addDoc, getDocs, query, where, orderBy, limit, limitToLast, onSnapshot, serverTimestamp, storage, storageRef, uploadBytes, getDownloadURL, getMessaging, getToken, onFcmMessage, fcmSupported, ALN_VAPID_KEY, updatePassword, reauthenticateWithCredential, EmailAuthProvider, app } from "./firebase-config.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js";
+const _ktsFunctions = getFunctions(app, "asia-southeast1");
+const _calcPaymentBreakdownFn = httpsCallable(_ktsFunctions, "calculatePaymentBreakdown");
 
 const REQUIRED_ROLE = "kts";
 
@@ -3759,12 +3762,38 @@ window.changeMyPassword = async function changeMyPassword() {
   }
 };
 
+// Cấu hình phí sàn/thuế TNCN — lấy 1 lần qua Cloud Function calculatePaymentBreakdown
+// (totalFee:0 chỉ để đọc platformFeePct/incomeTaxPct hiện hành, không dùng grossAmount)
+// thay vì hardcode 0.20/0.07 như trước (LỆNH_CODE_KhacPhuc1_CongThucPhi.md Bước 2).
+// Cache lại vì _updateWallet có thể chạy lại nhiều lần (mỗi lần onSnapshot bắn).
+var _feeCfgCache = null, _feeCfgPromise = null;
+function _getFeeCfg() {
+  if (_feeCfgCache) return Promise.resolve(_feeCfgCache);
+  if (_feeCfgPromise) return _feeCfgPromise;
+  _feeCfgPromise = _calcPaymentBreakdownFn({ totalFee: 0, stage: 'C1' }).then(function(res) {
+    _feeCfgCache = { platformFeePct: res.data.platformFeePct, incomeTaxPct: res.data.incomeTaxPct };
+    return _feeCfgCache;
+  }).catch(function(e) {
+    console.error('[kts wallet] Lỗi lấy cấu hình phí từ Cloud Function', e);
+    _feeCfgPromise = null; // cho phép thử lại lần gọi sau
+    return null;
+  });
+  return _feeCfgPromise;
+}
+
 // Cập nhật Ví thu nhập từ dữ liệu Firestore thật
-function _updateWallet(allProjs) {
+async function _updateWallet(allProjs) {
   var paid = 0, pending = 0, grossPaid = 0, grossPending = 0, txItems = [];
   var fmtVN = function(v) { return v.toLocaleString('vi-VN') + 'đ'; };
-  // Số hiển thị là THỰC NHẬN — đã trừ 20% phí sàn + 7% thuế TNCN trên số gốc mỗi chặng
-  var _netOf = function(pay) { return pay.netAmount != null ? pay.netAmount : Math.round((pay.amount || 0) * 0.73); };
+  var feeCfg = await _getFeeCfg(); // null nếu Cloud Function lỗi — không đoán mò bằng số hardcode
+  // Số hiển thị là THỰC NHẬN — đã trừ phí sàn + thuế TNCN trên số gốc mỗi chặng.
+  // Bản ghi cũ chưa có netAmount (trước khi có khấu trừ) mới cần fallback này;
+  // bản ghi mới đã có netAmount ghi sẵn từ Cloud Function approveProjectStagePayment.
+  var _netOf = function(pay) {
+    if (pay.netAmount != null) return pay.netAmount;
+    if (!feeCfg) return pay.amount || 0; // chưa lấy được cấu hình phí — hiện tạm số gốc, không đoán sai
+    return Math.round((pay.amount || 0) * (1 - feeCfg.platformFeePct - feeCfg.incomeTaxPct));
+  };
   (allProjs || []).forEach(function(p) {
     var pays = p.payments || {};
     ['C1','C2','C3','C4'].forEach(function(stage) {
@@ -3797,12 +3826,16 @@ function _updateWallet(allProjs) {
   if (dEl) dEl.textContent = fmtVN(grossAll - paid - pending);
   var bEl = document.getElementById('walletBreakdown');
   if (bEl) {
-    if (grossAll > 0) {
+    if (grossAll > 0 && feeCfg) {
+      var platformPctDisp = Math.round(feeCfg.platformFeePct * 100);
+      var taxPctDisp = Math.round(feeCfg.incomeTaxPct * 100);
       bEl.innerHTML = ''
         + '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border)"><span>Giá trị chặng đã duyệt (gốc)</span><span style="color:var(--text);font-weight:600;font-family:var(--mono)">' + fmtVN(grossAll) + '</span></div>'
-        + '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border)"><span>Phí sàn (20%)</span><span style="color:var(--red);font-family:var(--mono)">−' + fmtVN(Math.round(grossAll*0.20)) + '</span></div>'
-        + '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border)"><span>Thuế TNCN (7%)</span><span style="color:var(--red);font-family:var(--mono)">−' + fmtVN(Math.round(grossAll*0.07)) + '</span></div>'
+        + '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border)"><span>Phí sàn (' + platformPctDisp + '%)</span><span style="color:var(--red);font-family:var(--mono)">−' + fmtVN(Math.round(grossAll*feeCfg.platformFeePct)) + '</span></div>'
+        + '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border)"><span>Thuế TNCN (' + taxPctDisp + '%)</span><span style="color:var(--red);font-family:var(--mono)">−' + fmtVN(Math.round(grossAll*feeCfg.incomeTaxPct)) + '</span></div>'
         + '<div style="display:flex;justify-content:space-between;padding:6px 0 0;font-weight:700;color:var(--green)"><span>Thực nhận NET</span><span style="font-family:var(--mono);font-size:13px">' + fmtVN(paid + pending) + '</span></div>';
+    } else if (grossAll > 0 && !feeCfg) {
+      bEl.textContent = 'Không tải được cấu hình phí — thử tải lại trang.';
     } else {
       bEl.textContent = 'Chưa có giao dịch nào.';
     }

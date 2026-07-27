@@ -5775,49 +5775,38 @@ window.renderIncomeReport = function() {
 
 // Rà soát payments.{stage}.amount đã ghi sai (bug nhân dư *1000000 trong client_CN/client_DN,
 // đã sửa ở code — hàm này chỉ sửa dữ liệu CŨ đã lỡ ghi sai trong Firestore).
+// Trước đây tự quét + tự tính lại bằng REPORT_PAYMENT_PCT/PLATFORM_FEE_PCT/
+// INCOME_TAX_PCT hardcode rồi tự updateDoc; nay gọi Cloud Function
+// founderRecalcPaymentAmounts (functions/paymentFees.js) — vẫn giữ đúng UX
+// 2 bước (xem trước bằng apply:false → confirm() → apply:true để ghi thật),
+// theo LỆNH_CODE_KhacPhuc1_CongThucPhi.md Bước 2.
 window.repFixBadAmounts = async function() {
   var msgEl = document.getElementById('repFixMsg');
-  var fixes = [];
-  function _scan(list, coll) {
-    (list || []).forEach(function(p) {
-      var raw = p._raw || {};
-      var payments = raw.payments || {};
-      var totalFee = raw.totalFee || 0;
-      ['C1','C2','C3','C4'].forEach(function(stage) {
-        var pay = payments[stage];
-        if (!pay) return;
-        var correctAmount = Math.round(totalFee * (REPORT_PAYMENT_PCT[stage] || 0));
-        var correctNet = Math.round(correctAmount * (1 - PLATFORM_FEE_PCT - INCOME_TAX_PCT));
-        var badAmount = correctAmount > 0 && pay.amount !== correctAmount;
-        var badNet = correctAmount > 0 && pay.netAmount !== correctNet;
-        if (badAmount || badNet) {
-          fixes.push({ coll: coll, projId: p.id, stage: stage, oldAmount: pay.amount || 0, correctAmount: correctAmount, oldNet: pay.netAmount != null ? pay.netAmount : 0, correctNet: correctNet });
-        }
-      });
-    });
+  try {
+    var { getFunctions, httpsCallable } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js');
+    var fns = getFunctions(app, 'asia-southeast1');
+    var recalcFn = httpsCallable(fns, 'founderRecalcPaymentAmounts');
+
+    if (msgEl) { msgEl.style.display = 'block'; msgEl.style.background = 'var(--raised)'; msgEl.style.color = 'var(--sub)'; msgEl.textContent = 'Đang rà soát...'; }
+    var previewRes = await recalcFn({ apply: false });
+    var fixes = (previewRes.data && previewRes.data.fixes) || [];
+
+    if (!fixes.length) {
+      if (msgEl) { msgEl.style.display = 'block'; msgEl.style.background = 'rgba(16,185,129,.08)'; msgEl.style.color = 'var(--green)'; msgEl.textContent = '✓ Không có số tiền nào sai — mọi payments.{stage} đều khớp công thức totalFee × % và số thực nhận sau khấu trừ.'; }
+      return;
+    }
+    var preview = fixes.slice(0,5).map(function(f){ return f.projId+' · '+f.stage+': gốc '+_fmtVND(f.oldAmount)+' → '+_fmtVND(f.correctAmount)+' · thực nhận '+_fmtVND(f.oldNet)+' → '+_fmtVND(f.correctNet); }).join('\n');
+    var ok = confirm('Tìm thấy ' + fixes.length + ' khoản payments ghi sai (số gốc hoặc số thực nhận sau khấu trừ phí sàn + thuế). Sửa lại đúng ngay bây giờ?\n\n' + preview + (fixes.length > 5 ? '\n... và ' + (fixes.length-5) + ' khoản khác' : ''));
+    if (!ok) return;
+
+    if (msgEl) { msgEl.style.display = 'block'; msgEl.style.background = 'var(--raised)'; msgEl.style.color = 'var(--sub)'; msgEl.textContent = 'Đang sửa...'; }
+    var applyRes = await recalcFn({ apply: true });
+    var done = (applyRes.data && applyRes.data.appliedCount) || 0;
+    if (msgEl) { msgEl.style.background = 'rgba(16,185,129,.08)'; msgEl.style.color = 'var(--green)'; msgEl.textContent = '✓ Đã sửa ' + done + '/' + fixes.length + ' khoản.'; }
+  } catch(e) {
+    console.error('[repFixBadAmounts]', e);
+    if (msgEl) { msgEl.style.display = 'block'; msgEl.style.background = 'rgba(239,68,68,.08)'; msgEl.style.color = '#ef4444'; msgEl.textContent = '❌ Lỗi rà soát/sửa: ' + (e.message || e.code); }
   }
-  _scan(window.DN_PROJECTS, 'projects');
-  _scan(window.DESIGN_PROJECTS, 'designProjects');
-  if (!fixes.length) {
-    if (msgEl) { msgEl.style.display = 'block'; msgEl.style.background = 'rgba(16,185,129,.08)'; msgEl.style.color = 'var(--green)'; msgEl.textContent = '✓ Không có số tiền nào sai — mọi payments.{stage} đều khớp công thức totalFee × % và số thực nhận sau khấu trừ.'; }
-    return;
-  }
-  var preview = fixes.slice(0,5).map(function(f){ return f.projId+' · '+f.stage+': gốc '+_fmtVND(f.oldAmount)+' → '+_fmtVND(f.correctAmount)+' · thực nhận '+_fmtVND(f.oldNet)+' → '+_fmtVND(f.correctNet); }).join('\n');
-  var ok = confirm('Tìm thấy ' + fixes.length + ' khoản payments ghi sai (số gốc hoặc số thực nhận sau khấu trừ 20% phí sàn + 7% thuế). Sửa lại đúng ngay bây giờ?\n\n' + preview + (fixes.length > 5 ? '\n... và ' + (fixes.length-5) + ' khoản khác' : ''));
-  if (!ok) return;
-  if (msgEl) { msgEl.style.display = 'block'; msgEl.style.background = 'var(--raised)'; msgEl.style.color = 'var(--sub)'; msgEl.textContent = 'Đang sửa...'; }
-  var done = 0;
-  for (var i = 0; i < fixes.length; i++) {
-    var f = fixes[i];
-    try {
-      var patch = {};
-      patch['payments.' + f.stage + '.amount'] = f.correctAmount;
-      patch['payments.' + f.stage + '.netAmount'] = f.correctNet;
-      await updateDoc(doc(db, f.coll, f.projId), patch);
-      done++;
-    } catch(e) { console.error('[repFixBadAmounts]', f.projId, f.stage, e); }
-  }
-  if (msgEl) { msgEl.style.background = 'rgba(16,185,129,.08)'; msgEl.style.color = 'var(--green)'; msgEl.textContent = '✓ Đã sửa ' + done + '/' + fixes.length + ' khoản.'; }
 };
 
 window.renderPayments = function renderPayments() {
@@ -6010,8 +5999,18 @@ window._cpFb = {
     const memberUids = [data.cn && data.cn.uid, data.kts.uid, data.dn && data.dn.uid].filter(Boolean);
     // C1 (10%) là tiền cọc ký HĐ — thu NGAY khi tạo dự án, không chờ duyệt phương án
     // (khác C2/C3/C4 — vẫn thu SAU khi duyệt phương án như quy trình cũ).
-    const c1Amount = Math.round((data.totalFee || 0) * 0.10);
-    const c1NetAmount = Math.round(c1Amount * (1 - PLATFORM_FEE_PCT - INCOME_TAX_PCT));
+    // amount/netAmount lấy từ Cloud Function calculatePaymentBreakdown thay vì tự
+    // tính bằng 0.10/PLATFORM_FEE_PCT/INCOME_TAX_PCT hardcode (LỆNH_CODE_KhacPhuc1_
+    // CongThucPhi.md Bước 2). Việc tạo project doc vẫn ở client vì `create` đã bị
+    // khoá founder-only ở firestore.rules từ trước — không có bên thứ 3 khai thác
+    // được, khác hẳn rủi ro ở payments.{stage} bị member tự ghi (đã xử lý ở
+    // approveProjectStagePayment/approveDesignStagePayment).
+    const { getFunctions: _cpGetFunctions, httpsCallable: _cpHttpsCallable } =
+      await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js');
+    const _cpCalcFn = _cpHttpsCallable(_cpGetFunctions(app, 'asia-southeast1'), 'calculatePaymentBreakdown');
+    const _cpBreakdown = await _cpCalcFn({ totalFee: data.totalFee || 0, stage: 'C1' });
+    const c1Amount = _cpBreakdown.data.grossAmount;
+    const c1NetAmount = _cpBreakdown.data.netAmount;
     const projData = {
       code: pid,
       name: data.name,
@@ -6304,30 +6303,16 @@ function _startFounderDesignListen() {
 // Founder duyệt 1 chặng cho dự án Designer NT — vì Chủ nhà/DN chưa có UI duyệt
 // đề xuất Designer trên trang riêng, Founder thao tác thay để tính tiền đúng lúc.
 var DESIGN_PAYMENT_PCT = { C1:0.10, C2:0.20, C3:0.60, C4:0.10 };
+// Trước đây tự tính amount/netAmount bằng DESIGN_PAYMENT_PCT/PLATFORM_FEE_PCT/
+// INCOME_TAX_PCT hardcode rồi tự updateDoc; nay gọi Cloud Function
+// approveDesignStagePayment (functions/paymentFees.js, đã deploy Bước 1) —
+// server tính + ghi Firestore (LỆNH_CODE_KhacPhuc1_CongThucPhi.md Bước 2).
 window.founderApproveDesignStage = async function(pid, stage) {
-  var NEXT = { C1:'C2', C2:'C3', C3:'C4' };
   try {
-    var snap = await getDoc(doc(db,'designProjects',pid));
-    if (!snap.exists()) { alert('Không tìm thấy dự án'); return; }
-    var d = snap.data();
-    var patch = {};
-    patch['progress.' + stage] = 1;
-    patch.stage = NEXT[stage] || 'done';
-    patch.updatedAt = serverTimestamp();
-    var pct = DESIGN_PAYMENT_PCT[stage] || 0;
-    var amount = Math.round((d.totalFee || 0) * pct); // số gốc theo chặng
-    var netAmount = Math.round(amount * (1 - PLATFORM_FEE_PCT - INCOME_TAX_PCT)); // Designer thực nhận sau phí sàn 20% + thuế TNCN 7%
-    if (amount > 0 && d.designer && d.designer.uid) {
-      patch['payments.' + stage] = {
-        amount: amount,
-        netAmount: netAmount,
-        status: 'pending',
-        designerUid: d.designer.uid,
-        designerName: d.designer.name || '',
-        stagedAt: serverTimestamp(),
-      };
-    }
-    await updateDoc(doc(db,'designProjects',pid), patch);
+    var { getFunctions, httpsCallable } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js');
+    var fns = getFunctions(app, 'asia-southeast1');
+    var fn = httpsCallable(fns, 'approveDesignStagePayment');
+    await fn({ projectId: pid, stage: stage });
     if (typeof showToast === 'function') showToast('✓ Đã duyệt chặng ' + stage, 'ok');
   } catch(e) {
     console.error('[founderApproveDesignStage]', e);
