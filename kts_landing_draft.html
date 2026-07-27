@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <script src="error-monitor.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, follow">
+<title>App Làm Nhà</title>
+<style>
+  html,body{margin:0;height:100%;background:#080c14;color:#f0e6cc;font-family:system-ui,-apple-system,'Segoe UI',sans-serif}
+  .box{height:100%;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px}
+  a{color:#C9A84C}
+</style>
+<script>
+// Trang cũ đã thay bằng link định danh sạch /kts/KTS-XXXX.
+// Giữ file này để các bản đăng cũ (dùng ?code=) vẫn chuyển về đúng hồ sơ.
+(function(){
+  var p = new URLSearchParams(location.search);
+  var code = (p.get('code') || '').trim().toUpperCase();
+  var base = location.pathname.replace(/kts_landing_draft\.html$/, '');
+  var extra = [];
+  if(p.get('utm_source')) extra.push('utm_source=' + encodeURIComponent(p.get('utm_source')));
+  if(p.get('clip')) extra.push('clip=' + encodeURIComponent(p.get('clip')));
+  var qs = extra.length ? ('?' + extra.join('&')) : '';
+  if(/^KTS-\d+$/.test(code)){
+    location.replace(base + 'kts/' + code + qs);
+  }
+})();
+</script>
+</head>
+<body>
+<div class="box"><div>Đang chuyển đến hồ sơ Kiến trúc sư…<br><br><a href="/">Về trang App Làm Nhà</a></div></div>
+</body>
+</html>

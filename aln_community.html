@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MB7VRGR5');</script>
+<!-- End Google Tag Manager -->
+
+  <script src="error-monitor.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nhịp sống ALN</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600;700&family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css"/>
+<style>
+:root {
+  --cream:   #f8f6f2;
+  --cream2:  #f2ede6;
+  --white:   #ffffff;
+  --border:  #e8e2d8;
+  --border2: #d8d0c4;
+  --text:    #2a2520;
+  --text2:   #5a5048;
+  --sub:     #8a8078;
+  --muted:   #b8b0a4;
+
+  --arch:    #8a6b4a;   /* Architecture — clay/terracotta */
+  --arch-bg: rgba(138,107,74,.08);
+  --arch-bd: rgba(138,107,74,.25);
+
+  --land:    #5a7a5c;   /* Landscape — sage/forest */
+  --land-bg: rgba(90,122,92,.08);
+  --land-bd: rgba(90,122,92,.25);
+
+  --nat:     #c9a84c;   /* Nature — ALN gold */
+  --nat-bg:  rgba(201,168,76,.08);
+
+  /* Agent colors — overridden by JS based on user gender */
+  --agent-c:    #c9a84c;
+  --agent-g:    linear-gradient(135deg,#c9a84c,#a07838);
+  --agent-glow: rgba(201,168,76,.45);
+  --nat-bd:  rgba(201,168,76,.25);
+
+  --heart:   #e05a5a;
+  --gold:    #c9a84c;
+
+  --r: 14px; --r-sm: 8px; --r-xs: 5px;
+  --sh: 0 2px 12px rgba(60,40,20,.07), 0 1px 3px rgba(60,40,20,.05);
+  --sh-lg: 0 8px 32px rgba(60,40,20,.12), 0 2px 8px rgba(60,40,20,.06);
+
+  --sans:  'DM Sans', sans-serif;
+  --serif: 'Cormorant Garamond', serif;
+  --syne:  'Syne', sans-serif;
+  --mono:  'JetBrains Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; scroll-behavior: smooth; }
+body { font-family: var(--sans); background: var(--cream); color: var(--text); line-height: 1.6; }
+
+/* ── TOPBAR ── */
+.topbar {
+  position: sticky; top: 0; z-index: 80;
+  background: rgba(248,246,242,.92); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 14px;
+  padding: 0 24px; height: 52px;
+}
+.tb-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+.tb-logo-box {
+  width: 30px; height: 30px; border-radius: 7px;
+  background: rgba(201,168,76,.1); border: 1.5px solid rgba(201,168,76,.35);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800; color: var(--gold); font-family: var(--syne);
+}
+.tb-logo-name { font-family: var(--syne); font-size: 13px; font-weight: 800; color: var(--gold); }
+.tb-sep { width: 1px; height: 18px; background: var(--border2); }
+.tb-page { font-family: var(--serif); font-size: 15px; color: var(--text2); font-style: italic; }
+.tb-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.tb-back {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 12px; color: var(--sub); text-decoration: none;
+  padding: 5px 12px; border-radius: 99px;
+  border: 1px solid var(--border); transition: all .15s;
+}
+.tb-back:hover { color: var(--text); border-color: var(--border2); }
+.tb-user {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; font-weight: 600; color: var(--text2);
+}
+.tb-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--arch-bg); border: 1.5px solid var(--arch-bd);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; color: var(--arch); font-weight: 700; flex-shrink: 0;
+  overflow: hidden;
+}
+.tb-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.btn-post {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 18px; border-radius: 99px;
+  background: var(--text); color: var(--white);
+  font-size: 12px; font-weight: 700; font-family: var(--sans);
+  border: none; cursor: pointer; transition: all .18s;
+}
+.btn-post:hover { background: var(--arch); }
+
+/* ── HERO ── */
+.hero {
+  text-align: center;
+  padding: 52px 20px 36px;
+  background: linear-gradient(180deg, var(--cream2) 0%, var(--cream) 100%);
+  border-bottom: 1px solid var(--border);
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 30% 50%, rgba(90,122,92,.06) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 50%, rgba(201,168,76,.06) 0%, transparent 60%);
+  pointer-events: none;
+}
+.hero-aln {
+  display: inline-flex; gap: 6px; margin-bottom: 14px;
+  font-family: var(--mono); font-size: 10px; font-weight: 500;
+  letter-spacing: .18em; color: var(--sub);
+}
+.hero-aln span { color: var(--gold); font-weight: 700; }
+.hero h1 {
+  font-family: var(--serif); font-size: clamp(34px, 6vw, 56px);
+  font-weight: 300; color: var(--text); line-height: 1.1; margin-bottom: 12px;
+}
+.hero h1 em { font-style: italic; color: var(--arch); }
+.hero-sub { font-size: 13px; color: var(--sub); max-width: 420px; margin: 0 auto; }
+.hero-tags { display: flex; justify-content: center; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
+.hero-tag {
+  padding: 5px 14px; border-radius: 99px; font-size: 11px; font-weight: 600;
+  display: flex; align-items: center; gap: 5px;
+}
+.ht-arch { background: var(--arch-bg); border: 1px solid var(--arch-bd); color: var(--arch); }
+.ht-land { background: var(--land-bg); border: 1px solid var(--land-bd); color: var(--land); }
+.ht-nat  { background: var(--nat-bg);  border: 1px solid var(--nat-bd);  color: var(--nat); }
+
+/* ── TOOLBAR ── */
+.toolbar {
+  position: sticky; top: 52px; z-index: 70;
+  background: rgba(248,246,242,.92); backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 24px; display: flex; align-items: center;
+  justify-content: space-between; gap: 12px; flex-wrap: wrap;
+}
+.filter-tabs { display: flex; gap: 5px; flex-wrap: wrap; }
+.ftab {
+  padding: 5px 14px; border-radius: 99px; font-size: 12px; font-weight: 600;
+  cursor: pointer; border: 1px solid var(--border); background: var(--white);
+  color: var(--sub); font-family: var(--sans); transition: all .15s;
+}
+.ftab:hover { color: var(--text); border-color: var(--border2); }
+.ftab.f-all  { border-color: rgba(201,168,76,.4); background: rgba(201,168,76,.08); color: var(--gold); }
+.ftab.f-arch { border-color: var(--arch-bd); background: var(--arch-bg); color: var(--arch); }
+.ftab.f-land { border-color: var(--land-bd); background: var(--land-bg); color: var(--land); }
+.ftab.f-nat  { border-color: var(--nat-bd);  background: var(--nat-bg);  color: var(--nat); }
+.post-count { font-size: 11px; color: var(--muted); font-family: var(--mono); }
+
+/* ── FEED GRID ── */
+.feed-wrap { max-width: 1080px; margin: 0 auto; padding: 28px 20px 60px; }
+.feed-grid {
+  columns: 3; column-gap: 18px;
+}
+@media(max-width:860px){ .feed-grid{ columns:2; } }
+@media(max-width:540px){ .feed-grid{ columns:1; } }
+
+/* ── POST CARD ── */
+.post-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  box-shadow: var(--sh);
+  margin-bottom: 18px;
+  break-inside: avoid;
+  transition: box-shadow .2s, transform .2s;
+  overflow: hidden;
+}
+.post-card:hover { box-shadow: var(--sh-lg); transform: translateY(-2px); }
+
+.pc-header { padding: 14px 16px 10px; display: flex; align-items: center; gap: 10px; }
+.pc-avatar {
+  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+  overflow: hidden; background: var(--cream2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; color: var(--sub);
+}
+.pc-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.pc-meta { flex: 1; min-width: 0; }
+.pc-name { font-size: 13px; font-weight: 700; color: var(--text); }
+.pc-role-badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 9px; font-weight: 700; letter-spacing: .1em;
+  padding: 2px 7px; border-radius: 99px;
+  font-family: var(--mono);
+}
+.badge-kts      { background: rgba(138,107,74,.1); border: 1px solid rgba(138,107,74,.25); color: var(--arch); }
+.badge-designer { background: rgba(155,110,201,.1); border: 1px solid rgba(155,110,201,.25); color: #9b6ec9; }
+.badge-founder  { background: rgba(201,168,76,.1);  border: 1px solid rgba(201,168,76,.25);  color: var(--gold); }
+.badge-host     { background: rgba(90,122,92,.1);   border: 1px solid rgba(90,122,92,.25);   color: var(--land); }
+.pc-time { font-size: 10px; color: var(--muted); font-family: var(--mono); margin-top: 1px; }
+
+/* Images & Video */
+.pc-images { display: flex; flex-direction: column; gap: 2px; }
+.pc-img-grid { display: grid; gap: 2px; }
+.pc-img-grid.cols-1 { grid-template-columns: 1fr; }
+.pc-img-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+.pc-img-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.pc-img-grid img {
+  width: 100%; aspect-ratio: 4/3; object-fit: cover;
+  cursor: pointer; transition: opacity .15s;
+}
+.pc-img-grid img:hover { opacity: .92; }
+.pc-img-grid video {
+  width: 100%; aspect-ratio: 4/3; object-fit: cover;
+  background: #000; display: block;
+}
+.pc-vid-wrap { position: relative; cursor: pointer; }
+.pc-vid-play {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+}
+.pc-vid-play i { font-size: 36px; color: rgba(255,255,255,.9); filter: drop-shadow(0 2px 6px rgba(0,0,0,.5)); }
+/* Founder hide/show */
+.founder-hide-btn {
+  padding: 4px 9px; border-radius: 6px; font-size: 10px; font-weight: 700;
+  border: 1px solid rgba(90,122,92,.35); background: rgba(90,122,92,.06);
+  color: var(--land); cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all .15s;
+}
+.founder-hide-btn:hover { background: rgba(90,122,92,.14); }
+.founder-hide-btn.is-hidden { border-color: rgba(224,90,90,.35); background: rgba(224,90,90,.06); color: #e05a5a; }
+.founder-hide-btn.is-hidden:hover { background: rgba(224,90,90,.14); }
+.post-card.post-hidden { opacity: .42; }
+.post-card.post-hidden .pc-header::after {
+  content: 'ĐÃ ẨN'; font-size: 9px; font-weight: 800; letter-spacing: .1em;
+  color: #e05a5a; border: 1px solid rgba(224,90,90,.4); background: rgba(224,90,90,.08);
+  padding: 2px 6px; border-radius: 4px; margin-left: auto;
+}
+
+/* Text */
+.pc-text { padding: 12px 16px; font-size: 13px; color: var(--text2); line-height: 1.65; }
+
+/* Tag */
+.pc-tag { margin: 0 16px 10px; }
+.pc-tag-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 99px;
+}
+.tag-arch { background: var(--arch-bg); color: var(--arch); }
+.tag-land { background: var(--land-bg); color: var(--land); }
+.tag-nat  { background: var(--nat-bg);  color: var(--nat); }
+
+/* Footer */
+.pc-footer {
+  padding: 10px 16px 14px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-top: 1px solid var(--border);
+}
+.heart-btn {
+  display: flex; align-items: center; gap: 6px;
+  background: none; border: none; cursor: pointer;
+  font-size: 13px; color: var(--sub); font-family: var(--sans);
+  font-weight: 600; padding: 4px 8px; border-radius: 7px;
+  transition: all .15s;
+}
+.heart-btn:hover { background: rgba(224,90,90,.07); color: var(--heart); }
+.heart-btn.hearted { color: var(--heart); }
+.heart-btn.hearted .heart-icon { animation: heartPop .3s ease; }
+@keyframes heartPop {
+  0%  { transform: scale(1); }
+  50% { transform: scale(1.5); }
+  100%{ transform: scale(1); }
+}
+.heart-icon { font-size: 16px; }
+.pc-pin {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 10px; color: var(--nat); font-family: var(--mono); font-weight: 600;
+}
+.pc-options {
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); padding: 4px; border-radius: 5px; transition: color .15s;
+}
+.pc-options:hover { color: var(--text2); }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  text-align: center; padding: 80px 20px; color: var(--muted);
+  grid-column: 1/-1;
+}
+.empty-state i { font-size: 40px; margin-bottom: 14px; display: block; }
+.empty-state p { font-size: 13px; line-height: 1.7; }
+
+/* ── LOADING ── */
+.loading-state { text-align: center; padding: 60px; color: var(--muted); }
+.loading-state i { font-size: 28px; display: block; margin-bottom: 10px; }
+
+/* ── MODAL TẠO BÀI ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  background: rgba(42,37,32,.6); backdrop-filter: blur(6px);
+  align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: var(--white); border-radius: 16px;
+  width: 540px; max-width: 100%; max-height: 90vh;
+  overflow-y: auto; box-shadow: 0 24px 60px rgba(0,0,0,.2);
+}
+.modal-head {
+  padding: 18px 22px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; background: var(--white); z-index: 1;
+}
+.modal-title { font-family: var(--serif); font-size: 20px; font-weight: 400; color: var(--text); }
+.modal-close {
+  background: none; border: none; cursor: pointer; color: var(--sub);
+  font-size: 20px; padding: 4px; line-height: 1;
+}
+.modal-body { padding: 22px; display: flex; flex-direction: column; gap: 16px; }
+
+/* Tag selector */
+.tag-select { display: flex; gap: 8px; }
+.tag-opt {
+  flex: 1; padding: 8px; border-radius: var(--r-sm); text-align: center;
+  cursor: pointer; border: 1.5px solid var(--border); background: var(--cream);
+  font-size: 11px; font-weight: 700; color: var(--sub); transition: all .15s;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+}
+.tag-opt i { font-size: 18px; }
+.tag-opt.sel-arch { border-color: var(--arch); background: var(--arch-bg); color: var(--arch); }
+.tag-opt.sel-land { border-color: var(--land); background: var(--land-bg); color: var(--land); }
+.tag-opt.sel-nat  { border-color: var(--nat);  background: var(--nat-bg);  color: var(--nat); }
+
+/* Textarea */
+.post-textarea {
+  width: 100%; min-height: 120px; resize: vertical;
+  border: 1px solid var(--border); border-radius: var(--r-sm);
+  padding: 12px 14px; font-size: 13px; color: var(--text);
+  font-family: var(--sans); outline: none; background: var(--cream);
+  line-height: 1.65; transition: border-color .15s;
+}
+.post-textarea:focus { border-color: var(--arch); }
+.post-textarea::placeholder { color: var(--muted); }
+
+/* Image upload */
+.img-upload-area {
+  border: 1.5px dashed var(--border2); border-radius: var(--r-sm);
+  padding: 20px; text-align: center; cursor: pointer;
+  transition: all .15s; background: var(--cream);
+}
+.img-upload-area:hover { border-color: var(--arch); background: var(--arch-bg); }
+.img-upload-area i { font-size: 24px; color: var(--muted); display: block; margin-bottom: 6px; }
+.img-upload-area p { font-size: 12px; color: var(--sub); }
+.img-preview { display: flex; gap: 8px; flex-wrap: wrap; }
+.img-prev-item {
+  position: relative; width: 80px; height: 80px; border-radius: var(--r-xs);
+  overflow: hidden; border: 1px solid var(--border);
+}
+.img-prev-item img { width: 100%; height: 100%; object-fit: cover; }
+.img-prev-del {
+  position: absolute; top: 3px; right: 3px;
+  background: rgba(0,0,0,.6); color: #fff; border: none; border-radius: 50%;
+  width: 18px; height: 18px; font-size: 10px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.modal-foot {
+  padding: 14px 22px; border-top: 1px solid var(--border);
+  display: flex; justify-content: flex-end; gap: 10px;
+  position: sticky; bottom: 0; background: var(--white);
+}
+.btn-cancel {
+  padding: 9px 20px; border-radius: 99px; border: 1px solid var(--border);
+  background: none; color: var(--sub); font-family: var(--sans);
+  font-size: 13px; cursor: pointer;
+}
+.btn-submit {
+  padding: 9px 24px; border-radius: 99px; border: none;
+  background: var(--text); color: var(--white); font-family: var(--sans);
+  font-size: 13px; font-weight: 700; cursor: pointer; transition: background .15s;
+}
+.btn-submit:hover { background: var(--arch); }
+.btn-submit:disabled { opacity: .5; cursor: not-allowed; }
+
+/* ── IMAGE LIGHTBOX ── */
+.lightbox {
+  display: none; position: fixed; inset: 0; z-index: 300;
+  background: rgba(0,0,0,.9); align-items: center; justify-content: center;
+}
+.lightbox.open { display: flex; }
+.lightbox img { max-width: 92vw; max-height: 88vh; border-radius: 8px; object-fit: contain; }
+.lightbox-close {
+  position: absolute; top: 20px; right: 20px;
+  background: rgba(255,255,255,.15); border: none; color: #fff;
+  width: 40px; height: 40px; border-radius: 50%; font-size: 18px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+
+/* ── TOAST ── */
+#toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: var(--text); color: var(--white); padding: 10px 22px; border-radius: 99px;
+  font-size: 13px; font-weight: 600; z-index: 500; transition: transform .3s; white-space: nowrap;
+}
+#toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── AUTH VEIL ── */
+#authVeil {
+  position: fixed; inset: 0; z-index: 1000;
+  background: var(--cream); display: flex; align-items: center; justify-content: center;
+}
+.veil-inner { text-align: center; }
+.veil-spin {
+  width: 36px; height: 36px; border: 3px solid var(--border2);
+  border-top-color: var(--arch); border-radius: 50%;
+  animation: spin .8s linear infinite; margin: 0 auto 12px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.veil-text { font-family: var(--serif); font-size: 16px; color: var(--sub); font-style: italic; }
+
+@media(max-width:600px){
+  .toolbar { padding: 8px 16px; }
+  .feed-wrap { padding: 20px 14px 50px; }
+  .hero { padding: 36px 16px 28px; }
+}
+</style>
+<!-- Google Analytics 4 (ALN — G-5CSL1TF0RC, tách riêng khỏi property TK.HOUSE) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-5CSL1TF0RC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-5CSL1TF0RC');
+</script>
+<!-- End GA4 -->
+<script src="aln-tracking.js"></script>
+</head>
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MB7VRGR5"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<div id="authVeil">
+  <div class="veil-inner">
+    <div class="veil-spin"></div>
+    <div class="veil-text">Đang xác thực...</div>
+  </div>
+</div>
+
+<!-- TOP BAR -->
+<nav class="topbar">
+  <a href="#" class="tb-logo" id="tbLogoLink">
+    <div class="tb-logo-box">ALN</div>
+  </a>
+  <div class="tb-sep"></div>
+  <div class="tb-page">Nhịp sống ALN</div>
+  <div class="tb-right">
+    <div class="tb-user" id="tbUser" style="display:none">
+      <div class="tb-avatar" id="tbAvatar"></div>
+      <span id="tbName"></span>
+    </div>
+    <a href="#" class="tb-back" id="tbBack"><i class="ph-duotone ph-arrow-left"></i>Dashboard</a>
+    <button class="btn-post" id="btnPost" style="display:none" onclick="openModal()">
+      <i class="ph-duotone ph-pencil-line"></i>Đăng bài
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-aln">
+    <span>A</span>rchitecture ·
+    <span>L</span>andscape ·
+    <span>N</span>ature
+  </div>
+  <h1>Nhịp sống <em>ALN</em></h1>
+  <p class="hero-sub">Không gian chia sẻ khoảnh khắc, cảm hứng và câu chuyện từ những người làm nghề thiết kế</p>
+  <div class="hero-tags">
+    <span class="hero-tag ht-arch"><i class="ph-duotone ph-buildings"></i>Kiến trúc</span>
+    <span class="hero-tag ht-land"><i class="ph-duotone ph-tree"></i>Cảnh quan</span>
+    <span class="hero-tag ht-nat"><i class="ph-duotone ph-leaf"></i>Thiên nhiên</span>
+  </div>
+</section>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <div class="filter-tabs">
+    <button class="ftab f-all" onclick="setFilter('all',this)">Tất cả</button>
+    <button class="ftab" onclick="setFilter('arch',this)"><i class="ph-duotone ph-buildings"></i> Kiến trúc</button>
+    <button class="ftab" onclick="setFilter('land',this)"><i class="ph-duotone ph-tree"></i> Cảnh quan</button>
+    <button class="ftab" onclick="setFilter('nat',this)"><i class="ph-duotone ph-leaf"></i> Thiên nhiên</button>
+  </div>
+  <div class="post-count" id="postCount"></div>
+</div>
+
+<!-- FEED -->
+<div class="feed-wrap">
+  <div class="feed-grid" id="feedGrid">
+    <div class="loading-state">
+      <i class="ph-duotone ph-spinner-gap ph-spin"></i>
+      <p>Đang tải...</p>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL TẠO BÀI -->
+<div class="modal-overlay" id="postModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title">Chia sẻ khoảnh khắc</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Chọn tag -->
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--sub);letter-spacing:.1em;margin-bottom:8px">CHỦ ĐỀ</div>
+        <div class="tag-select">
+          <div class="tag-opt sel-arch" onclick="selectTag('arch',this)" id="tagArch">
+            <i class="ph-duotone ph-buildings"></i>Kiến trúc
+          </div>
+          <div class="tag-opt" onclick="selectTag('land',this)" id="tagLand">
+            <i class="ph-duotone ph-tree"></i>Cảnh quan
+          </div>
+          <div class="tag-opt" onclick="selectTag('nat',this)" id="tagNat">
+            <i class="ph-duotone ph-leaf"></i>Thiên nhiên
+          </div>
+        </div>
+      </div>
+
+      <!-- Nội dung -->
+      <textarea class="post-textarea" id="postText"
+        placeholder="Chia sẻ khoảnh khắc, cảm nghĩ, hay điều gì đó từ công việc hôm nay..."></textarea>
+
+      <!-- Upload ảnh -->
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--sub);letter-spacing:.1em;margin-bottom:8px">HÌNH ẢNH & CLIP <span style="font-weight:400;text-transform:none">(tối đa 4 files)</span></div>
+        <div id="imgPreview" class="img-preview" style="display:none;margin-bottom:10px"></div>
+        <div class="img-upload-area" onclick="document.getElementById('imgInput').click()">
+          <i class="ph-duotone ph-film-strip"></i>
+          <p>Nhấn để chọn ảnh hoặc clip ngắn</p>
+        </div>
+        <input type="file" id="imgInput" accept="image/*,video/*" multiple style="display:none" onchange="handleImgSelect(this)">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeModal()">Hủy</button>
+      <button class="btn-submit" id="btnSubmit" onclick="submitPost()">
+        <i class="ph-duotone ph-paper-plane-tilt" style="margin-right:5px"></i>Đăng bài
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightboxImg" src="" alt="">
+</div>
+
+<div id="toast"></div>
+
+<!-- ══════════════════════════════════════
+     MYMY — NGƯỜI BẠN NHỎ CỦA CỘNG ĐỒNG ALN
+══════════════════════════════════════ -->
+<style>
+.an-trigger {
+  position: fixed; bottom: 26px; right: 26px; z-index: 120;
+  width: 54px; height: 54px; border-radius: 50%;
+  background: var(--agent-g);
+  border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 20px var(--agent-glow);
+  transition: transform .2s, box-shadow .2s;
+}
+.an-trigger:hover { transform: scale(1.08); box-shadow: 0 6px 28px var(--agent-glow); }
+.an-trigger svg { width: 22px; height: 22px; fill: rgba(255,255,255,.95); }
+.an-dot {
+  position: absolute; top: 6px; right: 6px;
+  width: 11px; height: 11px; border-radius: 50%;
+  background: #e05a5a; border: 2px solid #fff;
+  animation: anPulse 2s infinite;
+}
+@keyframes anPulse {
+  0%,100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.25); opacity: .6; }
+}
+.an-panel {
+  position: fixed; bottom: 92px; right: 26px; z-index: 119;
+  width: 300px; background: var(--white);
+  border: 1px solid var(--border); border-radius: 20px;
+  box-shadow: 0 14px 44px rgba(60,40,20,.16), 0 2px 8px rgba(60,40,20,.06);
+  display: flex; flex-direction: column; overflow: hidden;
+  transform: translateY(18px) scale(.96); opacity: 0;
+  pointer-events: none;
+  transition: transform .24s cubic-bezier(.34,1.56,.64,1), opacity .18s;
+  max-height: 530px;
+}
+.an-panel.open { transform: translateY(0) scale(1); opacity: 1; pointer-events: all; }
+.an-head {
+  padding: 12px 14px 10px;
+  background: linear-gradient(135deg, rgba(201,168,76,.07), rgba(90,122,92,.04));
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+}
+.an-av {
+  width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+  background: var(--agent-g);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--syne); font-size: 12px; font-weight: 800; color: #fff;
+  letter-spacing: -.5px;
+}
+.an-info { flex: 1; min-width: 0; }
+.an-name { font-size: 13px; font-weight: 700; color: var(--text); }
+.an-name span { font-weight: 400; color: var(--sub); font-size: 11px; }
+.an-status { font-size: 10px; color: var(--agent-c); display: flex; align-items: center; gap: 4px; }
+.an-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--agent-c); flex-shrink: 0; }
+.an-close-btn { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 16px; padding: 4px; border-radius: 6px; line-height: 1; transition: color .15s; }
+.an-close-btn:hover { color: var(--text2); }
+.an-msgs {
+  flex: 1; overflow-y: auto; padding: 14px 12px;
+  display: flex; flex-direction: column; gap: 10px;
+  scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+}
+.an-bubble {
+  max-width: 90%; font-size: 12px; line-height: 1.7;
+  padding: 9px 13px; border-radius: 14px; white-space: pre-wrap;
+  animation: anFadeIn .25s ease;
+}
+@keyframes anFadeIn { from { opacity:0; transform:translateY(7px); } }
+.an-bubble.from-an {
+  background: var(--cream2); color: var(--text2);
+  border-bottom-left-radius: 4px; align-self: flex-start;
+  border: 1px solid var(--border);
+}
+.an-bubble.from-user {
+  background: var(--agent-c); color: #fff;
+  border-bottom-right-radius: 4px; align-self: flex-end;
+  font-weight: 500;
+}
+.an-typing {
+  display: flex; gap: 4px; align-items: center;
+  padding: 10px 14px; align-self: flex-start; animation: anFadeIn .2s ease;
+}
+.an-typing span {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--muted);
+  animation: anBounce 1.2s infinite;
+}
+.an-typing span:nth-child(2) { animation-delay: .18s; }
+.an-typing span:nth-child(3) { animation-delay: .36s; }
+@keyframes anBounce {
+  0%,60%,100% { transform: translateY(0); }
+  30%          { transform: translateY(-5px); background: var(--agent-c); }
+}
+.an-bottom {
+  border-top: 1px solid var(--border); background: var(--cream);
+  flex-shrink: 0; display: flex; flex-direction: column; gap: 0;
+}
+.an-options { padding: 8px 10px 6px; display: flex; flex-direction: column; gap: 5px; }
+.an-opt {
+  padding: 7px 12px; border-radius: 99px; font-size: 11px; font-weight: 600;
+  border: 1px solid var(--border2); background: var(--cream2); color: var(--text2);
+  cursor: pointer; text-align: left; font-family: var(--sans); transition: all .15s; width: 100%;
+}
+.an-opt:hover { background: var(--agent-c); color: #fff; border-color: var(--agent-c); }
+.an-input-row {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 10px 10px; border-top: 1px solid var(--border);
+}
+#anInput {
+  flex: 1; font-size: 12px; font-family: var(--sans);
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 99px; padding: 7px 13px; outline: none; color: var(--text);
+  transition: border-color .15s;
+}
+#anInput:focus { border-color: var(--agent-c); }
+#anInput::placeholder { color: var(--muted); }
+.an-send {
+  width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+  background: var(--agent-c); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 13px; transition: opacity .15s;
+}
+.an-send:hover { opacity: .82; }
+</style>
+
+<!-- Trigger -->
+<button class="an-trigger" id="anTrigger" onclick="anToggle()" aria-label="Nói chuyện với MyMy">
+  <div class="an-dot" id="anDot"></div>
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 2C6.477 2 2 6.145 2 11.243c0 3.022 1.56 5.694 3.99 7.387L5 21l3.833-1.54A10.6 10.6 0 0 0 12 20.486c5.523 0 10-4.145 10-9.243C22 6.145 17.523 2 12 2z"/>
+  </svg>
+</button>
+
+<!-- Chat panel -->
+<div class="an-panel" id="anPanel">
+  <div class="an-head">
+    <div class="an-av" id="anAv">MyMy</div>
+    <div class="an-info">
+      <div class="an-name"><span id="anAgentName">MyMy</span> <span>· Nhịp sống ALN</span></div>
+      <div class="an-status" id="anStatus">luôn ở đây với bạn</div>
+    </div>
+    <button class="an-close-btn" onclick="anToggle()">✕</button>
+  </div>
+  <div class="an-msgs" id="anMsgs"></div>
+  <div class="an-bottom">
+    <div class="an-options" id="anOptions"></div>
+    <div class="an-input-row">
+      <input id="anInput" type="text" placeholder="Nhắn gì cho em đi..."
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();anSendText();}">
+      <button class="an-send" onclick="anSendText()" title="Gửi">
+        <i class="ph-duotone ph-paper-plane-tilt"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════
+   MYMY / NAM — AGENT CỘNG ĐỒNG ALN
+═══════════════════════════════ */
+var AN_OPEN    = false;
+var AN_STARTED = false;
+var AN_TIMER   = null;
+var AN_HISTORY = []; /* conversation history for LLM */
+var AN_TYPING_EL = null; /* typing indicator currently shown */
+
+/* Agent config — switched by _initAgent() based on user gender */
+var AGENT = { name:'MyMy', toUser:'bạn', selfRef:'em', color:'#c9a84c', grad:'linear-gradient(135deg,#c9a84c,#a07838)', glow:'rgba(201,168,76,.45)' };
+
+/* Token substitution: {n}=agent name, {u}=user address, {s}=agent self */
+function _tpl(s){ return (s||'').replace(/\{n\}/g,AGENT.name).replace(/\{u\}/g,AGENT.toUser).replace(/\{s\}/g,AGENT.selfRef); }
+
+/* Switch agent persona based on user gender */
+window._initAgent = function(gender){
+  if(gender === 'nu'){
+    AGENT = { name:'Nam', toUser:'chị', selfRef:'em', color:'#2b7a8f', grad:'linear-gradient(135deg,#2b7a8f,#1a5f72)', glow:'rgba(43,122,143,.45)' };
+  } else {
+    AGENT = { name:'MyMy', toUser: gender==='nam' ? 'anh' : 'bạn', selfRef:'em', color:'#c9a84c', grad:'linear-gradient(135deg,#c9a84c,#a07838)', glow:'rgba(201,168,76,.45)' };
+  }
+  var r = document.documentElement.style;
+  r.setProperty('--agent-c',    AGENT.color);
+  r.setProperty('--agent-g',    AGENT.grad);
+  r.setProperty('--agent-glow', AGENT.glow);
+  var avEl = document.getElementById('anAv');        if(avEl) avEl.textContent = AGENT.name;
+  var nmEl = document.getElementById('anAgentName'); if(nmEl) nmEl.textContent = AGENT.name;
+  var arEl = document.getElementById('anTrigger');   if(arEl) arEl.setAttribute('aria-label','Nói chuyện với '+AGENT.name);
+  AN_STARTED = false;
+  AN_HISTORY = [];
+  document.getElementById('anMsgs').innerHTML = '';
+  document.getElementById('anOptions').innerHTML = '';
+};
+
+var AN_FLOWS = {
+  greeting: {
+    msg: function(){
+      var h = new Date().getHours();
+      var time = h<11?'buổi sáng':h<13?'trưa':h<17?'buổi chiều':'buổi tối';
+      var u = window._currentUser;
+      var last = u && u.name ? u.name.trim().split(' ').pop() : '';
+      return _tpl('Chào {u}' + (last ? ' ' + last : '') + ' ' + time + ' ✨\n\n{s} là {n} — người bạn nhỏ của cộng đồng ALN. Hôm nay {u} đang thấy thế nào ạ?');
+    },
+    options: [
+      { label: '✦ Tràn đầy cảm hứng', next: 'energized' },
+      { label: '◎ Bình thường thôi',   next: 'normal'    },
+      { label: '◌ Hơi mệt mỏi',        next: 'tired'     }
+    ]
+  },
+  energized: {
+    msg: 'Ôi vui quá! Cảm hứng đến rồi thì đừng để mất {u} ơi 🌟\n\nHôm nay {u} đang làm gì vậy?',
+    options: [
+      { label: 'Đang bận một dự án',       next: 'busy'       },
+      { label: 'Muốn chia sẻ khoảnh khắc', next: 'post_nudge' },
+      { label: 'Chỉ ghé xem mọi người',    next: 'browse'     }
+    ]
+  },
+  normal: {
+    msg: 'Những ngày "bình thường" nhiều khi lại ẩn chứa quan sát sâu nhất — khi mình không bị kéo đi đâu cả.\n\nBạn có để ý điều gì thú vị gần đây không?',
+    options: [
+      { label: 'Một chi tiết vật liệu', next: 'material'    },
+      { label: 'Ánh sáng ở đâu đó',    next: 'light'       },
+      { label: 'Không có gì đặc biệt', next: 'inspiration' }
+    ]
+  },
+  tired: {
+    msg: 'Mệt rồi thì cần được nghỉ ngơi thật sự — không phải cố thêm đâu {u} ơi.\n\nNghề thiết kế đòi hỏi cả trí lẫn cảm, đôi khi ngồi im nhìn ra cửa sổ cũng là đang làm việc đó.',
+    options: [
+      { label: 'Ừ, mình cần nghỉ thật',      next: 'rest'  },
+      { label: 'Cho tôi nghe điều gì hay đi', next: 'quote' }
+    ]
+  },
+  rest: {
+    msg: 'Bình yên nhé {u} 🌿\n\nNhớ uống đủ nước, và trước khi ngủ nhìn ra cửa sổ một cái — não sẽ tự sắp xếp lại mọi thứ trong lúc nghỉ đó.',
+    options: [{ label: 'Cảm ơn {n} nha', next: 'bye' }]
+  },
+  busy: {
+    msg: 'Đang bận mà vẫn ghé vào đây — chắc trong đầu đang có điều muốn chia sẻ lắm rồi!\n\nDù chỉ một góc nhỏ của bản vẽ, hay ánh sáng qua cửa sổ — cũng đủ đẹp lắm {u} ơi.',
+    options: [
+      { label: 'Đăng ảnh nhỏ thôi',  next: 'post_nudge' },
+      { label: 'Để hôm khác vậy',    next: 'bye_gentle' }
+    ]
+  },
+  browse: {
+    msg: 'Ngắm khoảnh khắc của người khác cũng là cách nạp lại năng lượng rất hay đó!\n\n{u} thường thích loại nội dung nào nhất ạ?',
+    options: [
+      { label: 'Ảnh công trình thực tế',   next: 'like_arch'     },
+      { label: 'Chi tiết nội thất đẹp',    next: 'like_interior' },
+      { label: 'Khoảnh khắc thiên nhiên',  next: 'like_nature'   }
+    ]
+  },
+  like_arch: {
+    msg: 'Mặt tiền, tỉ lệ, cách ánh sáng chạm vào vật liệu — những thứ không bao giờ thấy được trong bản vẽ 2D.\n\nBạn cũng muốn chia sẻ một khoảnh khắc như vậy không?',
+    options: [
+      { label: 'Có, tôi muốn chia sẻ', next: 'post_nudge' },
+      { label: 'Để xem feed trước đã', next: 'bye_gentle' }
+    ]
+  },
+  like_interior: {
+    msg: 'Nội thất là nơi người ta sống thật sự — không phải để ngắm.\n\nKhi Designer chia sẻ một góc phòng, mình thấy cả câu chuyện của không gian đó. Bạn có muốn đăng góc phòng của mình không?',
+    options: [
+      { label: 'Hay đó, tôi thử đăng', next: 'post_nudge' },
+      { label: 'Chưa, để lần sau',     next: 'bye_gentle' }
+    ]
+  },
+  like_nature: {
+    msg: 'Thiên nhiên là kiến trúc sư đầu tiên — và không bao giờ xây thừa, không bao giờ thiếu.\n\nBạn hay nhìn thiên nhiên theo góc nghề nghiệp không ạ?',
+    options: [
+      { label: 'Có, rất nhiều!',   next: 'nature_pro' },
+      { label: 'Chưa nghĩ đến',   next: 'quote'      }
+    ]
+  },
+  material: {
+    msg: 'Texture là thứ tay cảm nhận trước khi mắt kịp nhận ra.\n\nĐá thô, gỗ mộc, bê tông cốt pha — mỗi vật liệu có "nhiệt độ" riêng khi chạm vào. Gần đây bạn đang thích loại nào?',
+    options: [
+      { label: 'Gỗ tự nhiên',           next: 'mat_wood'   },
+      { label: 'Đá và bê tông',         next: 'mat_stone'  },
+      { label: 'Muốn chụp và chia sẻ', next: 'post_nudge' }
+    ]
+  },
+  mat_wood: {
+    msg: 'Gỗ ấm — theo cả nghĩa đen lẫn nghĩa bóng. Nó già đi đẹp hơn phần lớn vật liệu khác.\n\nBạn chụp một chi tiết gỗ đăng lên feed đi — sẽ có người dừng lại ngắm lâu lắm đó!',
+    options: [
+      { label: 'Hay đó, tôi thử!', next: 'post_nudge' },
+      { label: 'Hôm khác nhé',     next: 'bye_gentle' }
+    ]
+  },
+  mat_stone: {
+    msg: 'Đá và bê tông nói chuyện với thời gian — không phải với mốt.\n\nNhững gì còn lại sau 100 năm mới thật sự là kiến trúc. Bạn đang theo đuổi điều gì trong công trình của mình?',
+    options: [
+      { label: 'Sự bền vững',             next: 'depth_time'  },
+      { label: 'Cảm xúc cho người dùng', next: 'depth_space' }
+    ]
+  },
+  light: {
+    msg: 'Ánh sáng tự nhiên không thể thiết kế hoàn toàn — chỉ có thể mời nó vào.\n\nKiến trúc sư giỏi biết cách "bẫy" nắng đúng lúc, đúng góc. Bạn thấy điều đó ở đâu gần đây?',
+    options: [
+      { label: 'Tại công trình đang làm',       next: 'post_nudge' },
+      { label: 'Ở một nơi ngẫu nhiên',           next: 'post_nudge' },
+      { label: 'Chỉ trong đầu, chưa bắt được',  next: 'quote'      }
+    ]
+  },
+  inspiration: {
+    msg: 'Không có gì đặc biệt cũng ổn mà {u} — đôi khi cần khoảng trống để cảm nhận lại.\n\n{n} muốn chia sẻ một điều nhỏ cho {u} nghe — muốn không?',
+    options: [
+      { label: 'Vâng, cho nghe đi nào', next: 'quote'      },
+      { label: 'Thôi, cảm ơn {n}',    next: 'bye_gentle' }
+    ]
+  },
+  quote: {
+    msg: function(){
+      var q = [
+        '"Kiến trúc là âm nhạc đông lại."\n— Goethe\n\nKhi đứng trước một công trình đẹp, bạn có nghe thấy nhịp điệu trong đó không ạ?',
+        '"Thiên nhiên không bao giờ vội — nhưng mọi thứ đều hoàn thành."\n— Lão Tử\n\nNghề thiết kế cũng có nhịp riêng của nó. Bạn đang đi đúng nhịp chưa?',
+        '"Ánh sáng tạo không gian.\nBóng tối tạo chiều sâu."\n\nCông trình của bạn đang có đủ cả hai chưa nhỉ?',
+        '"Vật liệu tốt nhất là thứ tồn tại sau 100 năm và vẫn đẹp."\n\nBạn đang lựa chọn vật liệu theo tiêu chí gì ạ?',
+        '"Người thiết kế không tạo ra vẻ đẹp — họ tạo ra điều kiện để vẻ đẹp xuất hiện."\n\nCâu này có ý nghĩa gì với bạn không?',
+        '"Không gian tốt không được nhận ra — nó chỉ được cảm nhận."\n\nBạn có từng ở một nơi mà không biết tại sao lại thấy dễ chịu không?'
+      ];
+      return q[Math.floor(Math.random() * q.length)];
+    },
+    options: [
+      { label: 'Hay lắm, cảm ơn {n}',         next: 'bye'        },
+      { label: 'Muốn chia sẻ điều này lên feed', next: 'post_nudge' }
+    ]
+  },
+  explore: {
+    msg: 'Cuộn lên và để ý bạn nhé — mỗi bài đăng là một khoảnh khắc có thật từ người làm nghề thật.\n\nKhông phải render, không phải stock photo. Đó là thứ hiếm có lắm đó!',
+    options: [
+      { label: 'Tôi cũng muốn đóng góp', next: 'post_nudge' },
+      { label: 'OK, tôi đi xem',          next: 'bye_gentle' }
+    ]
+  },
+  depth_space: {
+    msg: 'Không gian không có người là bản vẽ.\nKhông gian có người sử dụng mới là kiến trúc.\n\nQuan sát cách người ta di chuyển, dừng lại, ngồi — đó là phản hồi thật nhất bạn có thể nhận đó.',
+    options: [
+      { label: 'Tôi muốn chia sẻ điều này', next: 'post_nudge' },
+      { label: 'Cảm ơn, hôm nay thế thôi', next: 'bye'        }
+    ]
+  },
+  depth_time: {
+    msg: 'Bền vững không chỉ là vật liệu — là cách công trình già đi.\n\nGỗ lên màu, đá mòn nhẹ, cây lớn thêm. Những thứ đó không bao giờ có trong bản vẽ. Bạn thiết kế cho 10 năm sau chưa?',
+    options: [
+      { label: 'Chưa nghĩ đến',               next: 'bye_gentle' },
+      { label: 'Có, đây là điều mình quan tâm', next: 'post_nudge' }
+    ]
+  },
+  nature_pro: {
+    msg: 'Người thiết kế biết đọc thiên nhiên thì hiểu tỉ lệ, ánh sáng và nhịp điệu tốt hơn nhiều!\n\nBạn có khoảnh khắc thiên nhiên nào muốn chia sẻ lên feed không?',
+    options: [
+      { label: 'Có, tôi đăng ngay!',     next: 'post_nudge' },
+      { label: 'Chưa có ảnh ưng ý lắm', next: 'post_help'  }
+    ]
+  },
+  post_nudge: {
+    msg: 'Bấm nút "Đăng bài" ở góc trên bên phải nhé — chọn chủ đề Kiến trúc / Cảnh quan / Thiên nhiên, viết vài dòng hoặc chọn ảnh.\n\nSau khi đăng xong, bài sẽ hiện ngay trên feed — cuộn lên là thấy liền! 🌿',
+    options: [
+      { label: 'OK, tôi đăng ngay!',  next: 'after_post' },
+      { label: 'Chưa biết viết gì',  next: 'post_help'  }
+    ]
+  },
+  post_help: {
+    msg: 'Thử một trong ba hướng này nha:\n\n① Mô tả ánh sáng bạn thấy hôm nay\n② Một chi tiết vật liệu đang thích\n③ Câu hỏi bạn đang tự hỏi về một dự án\n\nNhiêu đó thôi là đủ rồi — không cần hoàn hảo đâu bạn!',
+    options: [
+      { label: 'Hay đó, tôi thử ngay!', next: 'after_post' },
+      { label: 'Cảm ơn {n} nha',       next: 'bye'        }
+    ]
+  },
+  after_post: {
+    msg: 'Tuyệt vời! Bài đã xuất hiện ngay trên feed rồi — cuộn lên để xem nhé!\n\nMọi người trong ALN sẽ thấy và có thể thả tim cho {u} đó 💛',
+    options: [{ label: 'OK, tôi đi xem liền!', next: 'bye_post' }]
+  },
+  bye: {
+    msg: 'Chúc {u} một buổi thật sáng tạo và bình yên 🌿\n\nKhi nào có điều muốn chia sẻ — {n} ở đây nhé!',
+    options: []
+  },
+  bye_post: {
+    msg: 'Cảm ơn {u} đã đóng góp cho cộng đồng ALN!\n\n{n} ở đây nếu {u} cần nói chuyện 🌿',
+    options: []
+  },
+  bye_gentle: {
+    msg: 'Không vội đâu! Khi {u} có điều muốn chia sẻ — {n} luôn ở đây 🌿',
+    options: []
+  },
+  free_reply_tired: {
+    msg: '{s} nghe {u} rồi. Mệt thì cứ để mệt — không phải lúc nào cũng cần cố vượt qua ngay.\n\nNgồi yên một lúc, uống gì ấm ấm, nhìn ra ngoài cửa sổ. Não cần khoảng lặng đó {u} ơi.',
+    options: [
+      { label: 'Ừ, mình làm vậy',         next: 'bye'   },
+      { label: 'Cho mình nghe điều gì đó', next: 'quote' }
+    ]
+  },
+  free_reply_inspired: {
+    msg: 'Nghe {u} nói là {n} cũng thấy vui lây rồi!\n\nCảm hứng đến thì hành động liền đi — đừng để nó qua. {u} có muốn chia sẻ điều đó lên feed không?',
+    options: [
+      { label: 'Có, tôi đăng ngay!',  next: 'post_nudge' },
+      { label: 'Thôi để mình nghĩ thêm', next: 'bye_gentle' }
+    ]
+  },
+  free_reply_default: {
+    msg: function(){
+      var r = [
+        'Cảm ơn {u} đã chia sẻ với {n}!\n\n{u} có muốn đăng điều này lên feed để mọi người cùng cảm nhận không?',
+        '{s} hiểu {u} — những khoảnh khắc như vậy thường rất đáng nhớ.\n\n{u} có thể chụp một cái và chia sẻ lên Nhịp sống ALN không?',
+        'Nghe hay lắm! {u} có thể diễn tả thêm không — {n} muốn hiểu hơn.'
+      ];
+      return r[Math.floor(Math.random() * r.length)];
+    },
+    options: [
+      { label: 'Đăng lên feed luôn!', next: 'post_nudge' },
+      { label: 'Thôi, cảm ơn {n}',  next: 'bye'        }
+    ]
+  }
+};
+
+function anToggle(){
+  if(AN_OPEN){ anClose(); } else { anOpen(); }
+}
+function anOpen(){
+  AN_OPEN = true;
+  document.getElementById('anPanel').classList.add('open');
+  document.getElementById('anDot').style.display = 'none';
+  if(!AN_STARTED){ AN_STARTED = true; setTimeout(anStart, 350); }
+  setTimeout(function(){ var i=document.getElementById('anInput'); if(i) i.focus(); }, 400);
+}
+function anClose(){
+  AN_OPEN = false;
+  document.getElementById('anPanel').classList.remove('open');
+}
+function anStart(){
+  var msgs = document.getElementById('anMsgs');
+  if(!msgs) return;
+  msgs.innerHTML = '';
+  document.getElementById('anOptions').innerHTML = '';
+  anFlow('greeting');
+}
+function anFlow(key){
+  var flow = AN_FLOWS[key];
+  if(!flow) return;
+  var msg = _tpl(typeof flow.msg === 'function' ? flow.msg() : flow.msg);
+  anTypingThen(msg, function(){
+    if(flow.options && flow.options.length > 0){ anShowOptions(flow.options); }
+  });
+}
+function anTypingThen(text, callback){
+  var msgs = document.getElementById('anMsgs');
+  var typing = document.createElement('div');
+  typing.className = 'an-typing';
+  typing.innerHTML = '<span></span><span></span><span></span>';
+  msgs.appendChild(typing);
+  msgs.scrollTop = msgs.scrollHeight;
+  var delay = Math.min(1400, 500 + text.length * 9);
+  clearTimeout(AN_TIMER);
+  AN_TIMER = setTimeout(function(){
+    if(typing.parentNode) typing.parentNode.removeChild(typing);
+    anAddMsg(text, 'an');
+    if(callback) callback();
+  }, delay);
+}
+function anAddMsg(text, side){
+  var msgs = document.getElementById('anMsgs');
+  var b = document.createElement('div');
+  b.className = 'an-bubble from-' + side;
+  b.textContent = text;
+  msgs.appendChild(b);
+  msgs.scrollTop = msgs.scrollHeight;
+  /* push to LLM history */
+  AN_HISTORY.push({ role: side === 'an' ? 'assistant' : 'user', content: text });
+  if(AN_HISTORY.length > 14) AN_HISTORY.splice(0, AN_HISTORY.length - 14);
+}
+
+/* ── LLM reply via Cloud Function ── */
+async function anLLMReply(){
+  var msgs = document.getElementById('anMsgs');
+  /* show typing */
+  var typing = document.createElement('div');
+  typing.className = 'an-typing';
+  typing.innerHTML = '<span></span><span></span><span></span>';
+  msgs.appendChild(typing);
+  msgs.scrollTop = msgs.scrollHeight;
+  AN_TYPING_EL = typing;
+
+  /* disable input while waiting */
+  var input = document.getElementById('anInput');
+  if(input) input.disabled = true;
+
+  try {
+    var fn = window.__ALN_CHAT_FN;
+    if(!fn) throw new Error('fn_not_ready');
+
+    var u = window._currentUser || {};
+    var result = await fn({
+      messages:  AN_HISTORY.slice(-12),
+      agentName: AGENT.name,
+      toUser:    AGENT.toUser,
+      userName:  u.name  || '',
+      role:      u.role  || ''
+    });
+
+    if(AN_TYPING_EL && AN_TYPING_EL.parentNode) AN_TYPING_EL.parentNode.removeChild(AN_TYPING_EL);
+    AN_TYPING_EL = null;
+
+    var reply = result && result.data && result.data.reply;
+    anAddMsg(reply || '...', 'an');
+
+  } catch(e) {
+    if(AN_TYPING_EL && AN_TYPING_EL.parentNode) AN_TYPING_EL.parentNode.removeChild(AN_TYPING_EL);
+    AN_TYPING_EL = null;
+    /* fallback graceful */
+    var fb = AGENT.toUser === 'bạn'
+      ? 'Bạn ơi, em gặp chút sự cố kỹ thuật — thử lại sau nha 🙏'
+      : AGENT.toUser === 'anh'
+        ? 'Anh ơi, em gặp chút sự cố kỹ thuật — thử lại sau nha 🙏'
+        : 'Chị ơi, em gặp chút sự cố kỹ thuật — thử lại sau nha 🙏';
+    anAddMsg(fb, 'an');
+  } finally {
+    if(input) input.disabled = false;
+    if(input) input.focus();
+  }
+}
+function anShowOptions(options){
+  var wrap = document.getElementById('anOptions');
+  wrap.innerHTML = '';
+  options.forEach(function(opt){
+    var btn = document.createElement('button');
+    btn.className = 'an-opt';
+    var label = _tpl(opt.label);
+    btn.textContent = label;
+    btn.onclick = function(){ anPick(label, opt.next); };
+    wrap.appendChild(btn);
+  });
+}
+function anPick(label, next){
+  document.getElementById('anOptions').innerHTML = '';
+  anAddMsg(label, 'user');
+  setTimeout(function(){ anFlow(next); }, 300);
+}
+function anSendText(){
+  var input = document.getElementById('anInput');
+  if(!input || input.disabled) return;
+  var text = (input.value || '').trim();
+  if(!text) return;
+  input.value = '';
+  document.getElementById('anOptions').innerHTML = '';
+  anAddMsg(text, 'user');
+  anLLMReply();
+}
+</script>
+
+<script>
+/* ── GLOBALS ── */
+var CAN_POST_ROLES = ['kts','designer','founder','host'];
+var FILTER = 'all';
+var ALL_POSTS = [];
+var _currentUser = null;
+var _selectedTag = 'arch';
+var _selectedFiles = [];
+var _toastTimer = null;
+
+/* ── TAG SELECT ── */
+function selectTag(tag, el){
+  _selectedTag = tag;
+  ['tagArch','tagLand','tagNat'].forEach(function(id){
+    var btn = document.getElementById(id);
+    if(!btn) return;
+    btn.className = 'tag-opt';
+  });
+  var cls = tag==='arch' ? 'sel-arch' : tag==='land' ? 'sel-land' : 'sel-nat';
+  el.className = 'tag-opt ' + cls;
+}
+
+/* ── IMAGE HANDLING ── */
+function handleImgSelect(input){
+  var files = Array.from(input.files || []);
+  var remaining = 4 - _selectedFiles.length;
+  files = files.slice(0, remaining);
+  files.forEach(function(f){ _selectedFiles.push(f); });
+  renderImgPreview();
+  input.value = '';
+}
+function renderImgPreview(){
+  var wrap = document.getElementById('imgPreview');
+  if(!wrap) return;
+  if(_selectedFiles.length === 0){ wrap.style.display = 'none'; wrap.innerHTML = ''; return; }
+  wrap.style.display = 'flex';
+  wrap.innerHTML = _selectedFiles.map(function(f, i){
+    var url = URL.createObjectURL(f);
+    var isVid = f.type.startsWith('video');
+    var thumb = isVid
+      ? '<video src="'+url+'" muted style="width:80px;height:80px;object-fit:cover;border-radius:6px;display:block"></video>'
+      : '<img src="'+url+'">';
+    return '<div class="img-prev-item" style="position:relative">'+thumb+'<button class="img-prev-del" onclick="removeImg('+i+')">✕</button></div>';
+  }).join('');
+}
+function removeImg(i){
+  _selectedFiles.splice(i, 1);
+  renderImgPreview();
+}
+
+/* ── MODAL ── */
+function openModal(){
+  document.getElementById('postModal').classList.add('open');
+  document.getElementById('postText').focus();
+}
+function closeModal(){
+  document.getElementById('postModal').classList.remove('open');
+  document.getElementById('postText').value = '';
+  _selectedFiles = [];
+  renderImgPreview();
+  _selectedTag = 'arch';
+  selectTag('arch', document.getElementById('tagArch'));
+}
+
+/* ── FILTER ── */
+function setFilter(f, btn){
+  FILTER = f;
+  document.querySelectorAll('.ftab').forEach(function(b){ b.className = 'ftab'; });
+  var cls = f==='all'?'f-all':f==='arch'?'f-arch':f==='land'?'f-land':'f-nat';
+  btn.className = 'ftab ' + cls;
+  renderFeed();
+}
+
+/* ── RENDER FEED ── */
+function renderFeed(){
+  var grid = document.getElementById('feedGrid');
+  var list = FILTER==='all' ? ALL_POSTS : ALL_POSTS.filter(function(p){ return p.tag===FILTER; });
+  if(!_currentUser || _currentUser.role !== 'founder'){
+    list = list.filter(function(p){ return !p.hidden; });
+  }
+  var cnt = document.getElementById('postCount');
+  cnt.textContent = list.length + ' khoảnh khắc';
+  if(list.length===0){
+    grid.innerHTML = '<div class="empty-state" style="columns:unset"><i class="ph-duotone ph-images-square"></i><p>Chưa có bài nào.<br>Hãy là người đầu tiên chia sẻ khoảnh khắc!</p></div>';
+    return;
+  }
+  grid.innerHTML = list.map(function(p){ return renderCard(p); }).join('');
+}
+
+function renderCard(p){
+  var roleLabel = {kts:'KTS',designer:'Designer NT',founder:'Founder ALN',host:'ALN Host'};
+  var roleCls   = {kts:'badge-kts',designer:'badge-designer',founder:'badge-founder',host:'badge-host'};
+  var tagLabel  = {arch:'Kiến trúc',land:'Cảnh quan',nat:'Thiên nhiên'};
+  var tagCls    = {arch:'tag-arch',land:'tag-land',nat:'tag-nat'};
+  var tagIcon   = {arch:'ph-buildings',land:'ph-tree',nat:'ph-leaf'};
+
+  var hearted = _currentUser && p.heartedBy && p.heartedBy.indexOf(_currentUser.uid) !== -1;
+  var hCount  = p.heartCount || 0;
+  var avatarHtml = p.authorAvatar
+    ? '<img src="'+escH(p.authorAvatar)+'" alt="">'
+    : '<span>'+escH((p.authorName||'?')[0].toUpperCase())+'</span>';
+
+  var mediaItems = p.media || (p.images||[]).map(function(u){ return {url:u,type:'image'}; });
+  var imagesHtml = '';
+  if(mediaItems.length > 0){
+    var cols = mediaItems.length >= 3 ? 'cols-3' : mediaItems.length === 2 ? 'cols-2' : 'cols-1';
+    imagesHtml = '<div class="pc-images"><div class="pc-img-grid '+cols+'">'
+      + mediaItems.map(function(m){
+          if(m.type === 'video'){
+            return '<div class="pc-vid-wrap">'
+              +'<video src="'+escH(m.url)+'" autoplay muted loop playsinline></video>'
+              +'<div class="pc-vid-play"><i class="ph-duotone ph-play-circle"></i></div>'
+              +'</div>';
+          }
+          return '<img src="'+escH(m.url)+'" loading="lazy" onclick="openLightbox(\''+escH(m.url)+'\')" alt="">';
+        }).join('')
+      +'</div></div>';
+  }
+
+  var isHidden = !!p.hidden;
+  var pinHtml = p.pinned ? '<span class="pc-pin"><i class="ph-duotone ph-push-pin"></i>Nổi bật</span>' : '<span></span>';
+  var optHtml = '';
+  if(_currentUser && _currentUser.role === 'founder'){
+    optHtml = '<div style="display:flex;gap:6px;align-items:center">'
+      +'<button class="founder-hide-btn'+(isHidden?' is-hidden':'')+'" onclick="toggleHidden(\''+p.id+'\','+isHidden+')">'
+      +(isHidden?'<i class="ph-duotone ph-eye"></i> Hiện':'<i class="ph-duotone ph-eye-slash"></i> Ẩn')
+      +'</button>'
+      +'<button class="pc-options" onclick="deletePost(\''+p.id+'\')"><i class="ph-duotone ph-trash"></i></button>'
+      +'</div>';
+  } else if(_currentUser && _currentUser.uid === p.authorUid){
+    optHtml = '<button class="pc-options" onclick="deletePost(\''+p.id+'\')"><i class="ph-duotone ph-trash"></i></button>';
+  }
+
+  var hasProfile = p.authorRole === 'kts' || p.authorRole === 'designer';
+  var profileHref = hasProfile ? 'href="profile.html?uid='+escH(p.authorUid)+'"' : '';
+  var authorTag   = hasProfile ? 'a' : 'div';
+  var authorStyle = hasProfile ? ' style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:10px;flex:1;min-width:0"' : ' style="display:flex;align-items:center;gap:10px;flex:1;min-width:0"';
+
+  return '<div class="post-card'+(isHidden&&_currentUser&&_currentUser.role==='founder'?' post-hidden':'')+'" id="card-'+p.id+'">'
+    +'<div class="pc-header">'
+      +'<'+authorTag+' '+profileHref+authorStyle+'>'
+        +'<div class="pc-avatar">'+avatarHtml+'</div>'
+        +'<div class="pc-meta">'
+          +'<div class="pc-name">'+escH(p.authorName||'ALN')
+            +' <span class="pc-role-badge '+(roleCls[p.authorRole]||'badge-host')+'">'+escH(roleLabel[p.authorRole]||p.authorRole)+'</span>'
+          +'</div>'
+          +'<div class="pc-time">'+timeAgo(p.createdAt)+(hasProfile ? ' · <span style="color:var(--arch);font-weight:600">Xem hồ sơ →</span>' : '')+'</div>'
+        +'</div>'
+      +'</'+authorTag+'>'
+      +optHtml
+    +'</div>'
+    + imagesHtml
+    +(p.text ? '<div class="pc-text">'+escH(p.text)+'</div>' : '')
+    +(p.tag ? '<div class="pc-tag"><span class="pc-tag-chip '+(tagCls[p.tag]||'')+'"><i class="ph-duotone '+(tagIcon[p.tag]||'ph-tag')+'"></i>'+escH(tagLabel[p.tag]||p.tag)+'</span></div>' : '')
+    +'<div class="pc-footer">'
+      +'<button class="heart-btn'+(hearted?' hearted':'')
+        +'" onclick="toggleHeart(\''+p.id+'\')" id="heart-'+p.id+'">'
+        +'<span class="heart-icon">'+(hearted?'❤️':'🤍')+'</span>'
+        +'<span id="hc-'+p.id+'">'+(hCount>0?hCount:'')+'</span>'
+      +'</button>'
+      + pinHtml
+    +'</div>'
+  +'</div>';
+}
+
+function escH(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function timeAgo(ts){
+  if(!ts) return '';
+  var ms = typeof ts.toMillis === 'function' ? ts.toMillis() : (ts.seconds ? ts.seconds*1000 : Date.now());
+  var diff = Math.floor((Date.now()-ms)/1000);
+  if(diff < 60) return 'vừa xong';
+  if(diff < 3600) return Math.floor(diff/60)+' phút trước';
+  if(diff < 86400) return Math.floor(diff/3600)+' giờ trước';
+  if(diff < 86400*7) return Math.floor(diff/86400)+' ngày trước';
+  return new Date(ms).toLocaleDateString('vi-VN');
+}
+
+/* ── LIGHTBOX ── */
+function openLightbox(url){ var lb=document.getElementById('lightbox'); document.getElementById('lightboxImg').src=url; lb.classList.add('open'); }
+function closeLightbox(){ document.getElementById('lightbox').classList.remove('open'); }
+
+/* ── TOAST ── */
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer=setTimeout(function(){ t.classList.remove('show'); },2800);
+}
+
+/* ── BACK LINK ── */
+var BACK_BY_ROLE = {
+  kts:'kts_dashboard.html', designer:'designer_dashboard.html',
+  founder:'founder_panel.html', dn:'client_DN.html', cn:'client_CN.html', host:'founder_panel.html'
+};
+</script>
+
+<script type="module">
+import {
+  app, auth, db, onAuthStateChanged, signOut,
+  doc, getDoc, updateDoc, deleteDoc,
+  collection, addDoc, getDocs, query, orderBy, onSnapshot,
+  serverTimestamp, storage, storageRef, uploadBytes, getDownloadURL
+} from './firebase-config.js';
+
+import { arrayUnion, arrayRemove, increment }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+import { getFunctions, httpsCallable }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js';
+
+const _fns = getFunctions(app, 'asia-southeast1');
+window.__ALN_CHAT_FN = httpsCallable(_fns, 'alnChat');
+
+/* ── AUTH ── */
+onAuthStateChanged(auth, async function(user){
+  var veil = document.getElementById('authVeil');
+  if(!user){ window.location.replace('login.html'); return; }
+
+  var snap = await getDoc(doc(db,'users',user.uid));
+  if(!snap.exists() && user.uid === 'h4kEguPEyMcwJwl89stc0Q6j2si2'){
+    snap = { exists: function(){ return true; }, data: function(){ return { role:'founder', name:'KTS. Trần Đại Long', username:'founder.tranlong', avatarUrl:'', gender:'' }; } };
+  }
+  if(!snap.exists()){ window.location.replace('login.html'); return; }
+  var profile = snap.data();
+
+  window._currentUser = { uid: user.uid, role: profile.role, name: profile.name, avatar: profile.avatarUrl || '', gender: profile.gender || '' };
+  if(typeof window._initAgent === 'function') window._initAgent(profile.gender || '');
+
+  /* topbar */
+  var tbUser = document.getElementById('tbUser');
+  var tbName = document.getElementById('tbName');
+  var tbAvatar = document.getElementById('tbAvatar');
+  var tbBack = document.getElementById('tbBack');
+  if(tbUser) tbUser.style.display = 'flex';
+  if(tbName) tbName.textContent = profile.name || user.uid;
+  if(tbAvatar){
+    if(profile.avatarUrl){ tbAvatar.innerHTML = '<img src="'+profile.avatarUrl+'" alt="">'; }
+    else { tbAvatar.textContent = (profile.name||'?')[0].toUpperCase(); }
+  }
+  var backUrl = BACK_BY_ROLE[profile.role] || 'login.html';
+  if(tbBack) tbBack.href = backUrl;
+
+  /* back link in logo */
+  var logoLink = document.getElementById('tbLogoLink');
+  if(logoLink) logoLink.href = backUrl;
+
+  /* show post button if allowed */
+  if(CAN_POST_ROLES.indexOf(profile.role) !== -1){
+    var btn = document.getElementById('btnPost');
+    if(btn) btn.style.display = 'flex';
+  }
+
+  if(veil) veil.remove();
+
+  /* load posts realtime */
+  const q = query(collection(db,'alnPosts'), orderBy('createdAt','desc'));
+  onSnapshot(q, function(snap){
+    var posts = [];
+    snap.forEach(function(d){ posts.push(Object.assign({id:d.id}, d.data())); });
+    window.ALL_POSTS = posts;
+    renderFeed();
+  }, function(err){
+    console.warn('[ALN community]', err.message);
+    document.getElementById('feedGrid').innerHTML =
+      '<div class="loading-state"><i class="ph-duotone ph-warning"></i><p>Chưa thể tải bài — kiểm tra lại sau.</p></div>';
+  });
+});
+
+/* ── SUBMIT POST ── */
+window.submitPost = async function(){
+  var text = (document.getElementById('postText').value||'').trim();
+  if(!text && _selectedFiles.length===0){ showToast('Nhập nội dung hoặc chọn ảnh'); return; }
+  var btn = document.getElementById('btnSubmit');
+  btn.disabled = true; btn.textContent = 'Đang đăng...';
+
+  try {
+    var media = [];
+    for(var i=0; i<_selectedFiles.length; i++){
+      var f = _selectedFiles[i];
+      var ref = storageRef(storage, 'community/'+Date.now()+'_'+i+'_'+f.name);
+      var snap = await uploadBytes(ref, f);
+      var url  = await getDownloadURL(snap.ref);
+      media.push({ url: url, type: f.type.startsWith('video') ? 'video' : 'image' });
+    }
+    var u = window._currentUser;
+    await addDoc(collection(db,'alnPosts'), {
+      authorUid:    u.uid,
+      authorName:   u.name,
+      authorRole:   u.role,
+      authorAvatar: u.avatar || '',
+      text:         text,
+      media:        media,
+      images:       media.filter(function(m){ return m.type==='image'; }).map(function(m){ return m.url; }),
+      tag:          _selectedTag,
+      heartCount:   0,
+      heartedBy:    [],
+      hidden:       false,
+      pinned:       false,
+      createdAt:    serverTimestamp()
+    });
+    closeModal();
+    showToast('Đã đăng bài!');
+  } catch(e){
+    showToast('Lỗi: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ph-duotone ph-paper-plane-tilt" style="margin-right:5px"></i>Đăng bài';
+  }
+};
+
+/* ── TOGGLE HEART ── */
+window.toggleHeart = async function(postId){
+  var u = window._currentUser;
+  if(!u){ showToast('Đăng nhập để thả tim'); return; }
+  var postRef = doc(db,'alnPosts',postId);
+  var post = (window.ALL_POSTS||[]).find(function(p){ return p.id===postId; });
+  if(!post) return;
+  var already = post.heartedBy && post.heartedBy.indexOf(u.uid) !== -1;
+  try {
+    if(already){
+      await updateDoc(postRef, { heartedBy: arrayRemove(u.uid), heartCount: increment(-1) });
+    } else {
+      await updateDoc(postRef, { heartedBy: arrayUnion(u.uid), heartCount: increment(1) });
+    }
+  } catch(e){ showToast('Lỗi: '+e.message); }
+};
+
+/* ── TOGGLE HIDDEN (founder only) ── */
+window.toggleHidden = async function(postId, currentHidden){
+  try {
+    await updateDoc(doc(db,'alnPosts',postId), { hidden: !currentHidden });
+  } catch(e){ showToast('Lỗi: '+e.message); }
+};
+
+/* ── DELETE POST ── */
+window.deletePost = async function(postId){
+  if(!confirm('Xóa bài này?')) return;
+  try {
+    await deleteDoc(doc(db,'alnPosts',postId));
+    showToast('Đã xóa');
+  } catch(e){ showToast('Lỗi xóa: '+e.message); }
+};
+</script>
+<script src="ncc-network-badge.js" defer></script>
+</body>
+</html>

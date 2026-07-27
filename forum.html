@@ -1,0 +1,1981 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MB7VRGR5');</script>
+<!-- End Google Tag Manager -->
+
+<!-- Meta Pixel (ALN Pixel) -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1656666692225878');
+fbq('track', 'PageView');
+fbq('track', 'ViewContent', { content_name: 'forum', content_category: 'forum' });
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1656666692225878&ev=PageView&noscript=1"/></noscript>
+<!-- End Meta Pixel -->
+<script>
+/* Bắt UTM/fbclid từ URL quảng cáo → localStorage (last-touch, giữ 7 ngày).
+   window.alnGetUtm/alnGetFbp/alnGetFbc dùng khi user đi tiếp sang kts-apply/tuyen-kts. */
+(function(){
+  try{
+    var parts = location.search.substring(1).split('&');
+    var utm = {}; var found = false;
+    var refUid = '';
+    for (var i = 0; i < parts.length; i++) {
+      var kv = parts[i].split('=');
+      if (kv.length < 2 || !kv[1]) continue;
+      var k = decodeURIComponent(kv[0]);
+      var v = decodeURIComponent(kv[1].replace(/\+/g, ' '));
+      if (k.indexOf('utm_') === 0) { utm[k.substring(4)] = v.slice(0, 120); found = true; }
+      if (k === 'fbclid') { utm.fbclid = v.slice(0, 200); found = true; }
+      if (k === 'ref') { refUid = v.slice(0, 64); }
+    }
+    if (found) { utm.ts = Date.now(); localStorage.setItem('aln_utm', JSON.stringify(utm)); }
+    /* Link mời bạn (?ref=UID) — giữ 7 ngày như UTM, dùng cộng điểm referral
+       cho referrerUid khi người được mời đăng bài đầu tiên (server verify lại). */
+    if (refUid) { localStorage.setItem('aln_ref', JSON.stringify({ uid: refUid, ts: Date.now() })); }
+  }catch(e){}
+  window.alnGetUtm = function(){
+    try{
+      var s = localStorage.getItem('aln_utm');
+      if (!s) return {};
+      var o = JSON.parse(s);
+      if (o.ts && Date.now() - o.ts > 7 * 864e5) return {};
+      return o;
+    }catch(e){ return {}; }
+  };
+  window.alnGetRef = function(){
+    try{
+      var s = localStorage.getItem('aln_ref');
+      if (!s) return '';
+      var o = JSON.parse(s);
+      if (o.ts && Date.now() - o.ts > 7 * 864e5) return '';
+      return o.uid || '';
+    }catch(e){ return ''; }
+  };
+  window.alnGetCookie = function(name){
+    var m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+    return m ? decodeURIComponent(m[1]) : '';
+  };
+  window.alnGetFbp = function(){ return window.alnGetCookie('_fbp'); };
+  window.alnGetFbc = function(){
+    var c = window.alnGetCookie('_fbc');
+    if (c) return c;
+    var u = window.alnGetUtm();
+    if (u.fbclid) return 'fb.1.' + Date.now() + '.' + u.fbclid;
+    return '';
+  };
+})();
+</script>
+<script src="aln-tracking.js"></script>
+
+  <script src="error-monitor.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diễn đàn ALN — Hỏi Kiến trúc sư miễn phí, vật liệu & công trình thực tế</title>
+<meta name="description" content="Diễn đàn ALN: hỏi đáp trực tiếp với Kiến trúc sư đã xác minh, xem giá vật liệu, showcase công trình thực tế. Đọc công khai, miễn phí.">
+<link rel="canonical" href="https://applamnha.vn/forum.html">
+<!-- Open Graph / social (PASS 5 — mặc định; JS cập nhật động khi mở thread) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ALN — App Làm Nhà">
+<meta property="og:url" content="https://applamnha.vn/forum.html">
+<meta property="og:title" content="Diễn đàn ALN — Hỏi Kiến trúc sư miễn phí">
+<meta property="og:description" content="Hỏi đáp trực tiếp với KTS đã xác minh, xem giá vật liệu & công trình thực tế. Đọc công khai, miễn phí.">
+<meta property="og:image" content="https://applamnha.vn/assets/demo/aln-demo-biet-thu-vuon.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Diễn đàn ALN — Hỏi Kiến trúc sư miễn phí">
+<meta name="twitter:description" content="Hỏi đáp trực tiếp với KTS đã xác minh, xem giá vật liệu & công trình thực tế.">
+<meta name="twitter:image" content="https://applamnha.vn/assets/demo/aln-demo-biet-thu-vuon.jpg">
+<!-- JSON-LD structured data (baseline; JS cập nhật động theo thread đang mở) -->
+<script type="application/ld+json" id="forumJsonLd">
+{"@context":"https://schema.org","@type":"WebPage","name":"Diễn đàn ALN — Hỏi Kiến trúc sư miễn phí","url":"https://applamnha.vn/forum.html","description":"Hỏi đáp trực tiếp với Kiến trúc sư đã xác minh, xem giá vật liệu, showcase công trình thực tế. Đọc công khai, miễn phí.","inLanguage":"vi","publisher":{"@type":"Organization","name":"ALN — App Làm Nhà","url":"https://applamnha.vn"}}
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600;700&family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;500&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css"/>
+<link rel="stylesheet" href="aln-tokens.css">
+<style>
+:root {
+  /* ĐỒNG BỘ bảng màu với trang công khai home.html (light luxury, gold trầm) */
+  --cream:   #f7f9fb;   /* = home --bg  */
+  --cream2:  #eef2f6;   /* = home --bg3 */
+  --white:   #ffffff;
+  --border:  #e1e7ee;   /* = home --border  */
+  --border2: #c9d3de;   /* = home --border2 */
+  --text:    #1a2634;   /* = home --text  */
+  --text2:   #3d4b5c;   /* = home --text2 */
+  --sub:     #5b6b7f;   /* = home --sub   */
+  --muted:   #93a1b3;
+  --gold:    #98690a;   /* = home --gold  */
+  --gold2:   #b8860b;   /* = home --gold2 */
+  --gold-bg: rgba(152,105,10,.09);
+  --gold-glow: rgba(152,105,10,.16);
+  --heart:   #e0524f;
+  --amber:   #b45309;
+  --green:   #15803d;
+  --blue:    #1d4ed8;
+  --r: 14px; --r-sm: 8px;
+  --sh: 0 1px 2px rgba(38,28,8,.04), 0 3px 10px rgba(38,28,8,.05);
+  --sh-lg: 0 12px 28px rgba(38,28,8,.09), 0 34px 76px rgba(38,28,8,.12);
+  --ease: cubic-bezier(.16,1,.3,1);
+  --sans:  'DM Sans', sans-serif;
+  --serif: 'Cormorant Garamond', serif;
+  --syne:  'Syne', sans-serif;
+  --mono:  'JetBrains Mono', monospace;
+}
+/* Nền cỡ chữ 16px cho MỌI kích thước → không co lại khi thu nhỏ màn hình; chỉ nhỉnh nhẹ trên màn hình lớn */
+html { font-size: 16px; }
+@media (min-width: 1600px) { html { font-size: 17px; } }
+@media (min-width: 1920px) { html { font-size: 18px; } }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--cream); color: var(--text); line-height: 1.6; font-size: 1rem; }
+
+/* ── TOPBAR ── */
+.topbar {
+  position: sticky; top: 0; z-index: 80;
+  background: rgba(248,246,242,.94); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 12px;
+  padding: 0 20px; height: 52px;
+}
+.tb-logo-box {
+  width: 30px; height: 30px; border-radius: 7px;
+  background: var(--gold-bg); border: 1.5px solid rgba(152,105,10,.32);
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--text-xs); font-weight: 800; color: var(--gold); font-family: var(--syne);
+}
+.tb-page { font-family: var(--serif); font-size: var(--text-md); color: var(--text2); font-style: italic; }
+.tb-right { margin-left: auto; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.tb-user { display: flex; align-items: center; gap: 7px; font-size: var(--text-xs); font-weight: 600; color: var(--text2); }
+.tb-avatar {
+  width: 26px; height: 26px; border-radius: 50%; overflow: hidden; flex-shrink: 0;
+  background: var(--cream2); border: 1.5px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--text-xs); color: var(--sub); font-weight: 700;
+}
+.tb-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.tb-points {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 9px; border-radius: 99px; background: var(--gold-bg);
+  border: 1px solid rgba(152,105,10,.28); color: var(--gold);
+  font-size: var(--text-2xs); font-weight: 700; font-family: var(--mono); cursor: default;
+}
+.tb-link {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: var(--text-xs); color: var(--sub); text-decoration: none;
+  padding: 5px 12px; border-radius: 99px; border: 1px solid var(--border);
+  background: var(--white); cursor: pointer; font-family: var(--sans); transition: all .15s;
+}
+.tb-link:hover { color: var(--text); border-color: var(--border2); }
+.btn-post {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 16px; border-radius: 99px;
+  background: linear-gradient(135deg,var(--gold2),var(--gold)); color: #1a1400;
+  font-size: var(--text-xs); font-weight: 700; font-family: var(--syne); letter-spacing: .03em;
+  border: none; cursor: pointer;
+  box-shadow: 0 4px 14px rgba(152,105,10,.22), inset 0 1px 0 rgba(255,255,255,.28);
+  transition: transform .3s var(--ease), box-shadow .3s var(--ease);
+}
+.btn-post:hover { transform: translateY(-1px); box-shadow: 0 10px 26px rgba(152,105,10,.30), inset 0 1px 0 rgba(255,255,255,.34); }
+
+/* P2 switch (founder only) */
+.p2-switch {
+  display: none; align-items: center; gap: 7px;
+  padding: 4px 10px; border-radius: 99px;
+  border: 1px dashed rgba(180,83,9,.45); background: rgba(180,83,9,.06);
+  font-size: var(--text-2xs); font-weight: 700; color: var(--amber); font-family: var(--mono);
+  cursor: pointer; user-select: none;
+}
+.p2-dot { width: 26px; height: 14px; border-radius: 99px; background: var(--border2); position: relative; transition: background .2s; }
+.p2-dot::after { content:''; position:absolute; top:2px; left:2px; width:10px; height:10px; border-radius:50%; background:#fff; transition: left .2s; }
+.p2-switch.on .p2-dot { background: var(--amber); }
+.p2-switch.on .p2-dot::after { left: 14px; }
+
+/* ── HERO ── */
+.hero { text-align:center; padding: 30px 20px 18px; background: linear-gradient(180deg, var(--cream2), var(--cream)); border-bottom: 1px solid var(--border); }
+.hero h1 { font-family: var(--serif); font-size: clamp(26px, 4vw, 40px); font-weight: 300; }
+.hero h1 em { font-style: italic; color: var(--gold2); }
+.hero-sub { font-size: var(--text-sm); color: var(--sub); max-width: 520px; margin: 4px auto 0; }
+
+/* ── TABS ── */
+.toolbar {
+  position: sticky; top: 52px; z-index: 70;
+  background: rgba(248,246,242,.94); backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 9px 20px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.ftab {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 13px; border-radius: 99px; font-size: var(--text-xs); font-weight: 600;
+  cursor: pointer; border: 1px solid var(--border); background: var(--white);
+  color: var(--sub); font-family: var(--sans); transition: all .15s;
+}
+.ftab:hover { color: var(--text); border-color: var(--border2); }
+.ftab.active { border-color: var(--text); background: var(--text); color: var(--white); }
+.post-count { margin-left: auto; font-size: var(--text-2xs); color: var(--muted); font-family: var(--mono); }
+
+/* ── DISCLAIMER TƯ VẤN ── */
+.tuvan-disclaimer {
+  display: none; max-width: 760px; margin: 16px auto 0; padding: 11px 16px;
+  border: 1px solid rgba(180,83,9,.3); background: rgba(180,83,9,.05);
+  border-radius: var(--r-sm); font-size: var(--text-xs); color: var(--text2); line-height: 1.6;
+}
+.tuvan-disclaimer b { color: var(--amber); }
+
+/* ── FANPAGE CTA (Forum → Fanpage) — không có nút đóng thủ công, chỉ tự ẩn
+   khi server xác nhận đã claim điểm follow (renderMyPoints), xem forumMyPoints ── */
+.fanpage-cta {
+  max-width: 760px; margin: 14px auto 0; padding: 10px 14px;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  background: rgba(74,143,255,.07); border: 1px solid rgba(74,143,255,.28);
+  border-radius: var(--r-sm); font-size: var(--text-xs); color: var(--text2); line-height: 1.5;
+}
+.fanpage-cta > i { font-size: 18px; color: var(--c-blue, #4a8fff); flex-shrink: 0; }
+.fanpage-cta strong { color: var(--text); }
+.fpc-follow {
+  margin-left: auto; display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 14px; border-radius: 99px; text-decoration: none;
+  background: var(--c-blue, #4a8fff); color: #fff; font-weight: 700; font-size: var(--text-xs);
+  font-family: var(--sans); white-space: nowrap; transition: transform .15s, box-shadow .15s;
+}
+.fpc-follow:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(74,143,255,.3); }
+.fpc-claim {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 14px; border-radius: 99px; border: 1px solid var(--border2);
+  background: var(--white); color: var(--text2); font-weight: 600; font-size: var(--text-xs);
+  font-family: var(--sans); white-space: nowrap; cursor: pointer; transition: all .15s;
+}
+.fpc-claim:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
+.fpc-claim:disabled { cursor: default; color: var(--muted); border-color: var(--border); background: var(--cream2); }
+@media (max-width: 480px) { .fpc-follow, .fpc-claim { margin-left: 0; width: 100%; justify-content: center; } }
+
+/* ── FEED ── */
+.feed-wrap { max-width: 760px; margin: 0 auto; padding: 18px 16px 70px; }
+.thread-card {
+  background: var(--white); border: 1px solid var(--border); border-radius: var(--r);
+  box-shadow: var(--sh); margin-bottom: 12px; padding: 14px 16px 12px;
+  cursor: pointer; transition: box-shadow .2s, transform .2s;
+}
+.thread-card:hover { box-shadow: var(--sh-lg); transform: translateY(-1px); }
+.tc-top { display: flex; align-items: center; gap: 9px; margin-bottom: 8px; }
+.tc-avatar {
+  width: 32px; height: 32px; border-radius: 50%; overflow: hidden; flex-shrink: 0;
+  background: var(--cream2); display: flex; align-items: center; justify-content: center;
+  font-size: var(--text-sm); font-weight: 700; color: var(--sub);
+}
+.tc-avatar img { width:100%; height:100%; object-fit:cover; }
+.tc-name { font-size: var(--text-sm); font-weight: 700; }
+.tc-name a { color: inherit; text-decoration: none; }
+.tc-name a:hover { color: var(--gold); }
+.tc-time { font-size: var(--text-2xs); color: var(--muted); font-family: var(--mono); }
+.role-badge {
+  display: inline-flex; align-items: center;
+  font-size: var(--text-2xs); font-weight: 700; letter-spacing: .08em;
+  padding: 1px 7px; border-radius: 99px; font-family: var(--mono); margin-left: 5px;
+}
+.rb-kts      { background: rgba(29,78,216,.09); border:1px solid rgba(29,78,216,.28); color:var(--blue); }
+.rb-founder  { background: var(--gold-bg); border:1px solid rgba(152,105,10,.32); color:var(--gold); }
+.rb-cn       { background: rgba(90,122,92,.1); border:1px solid rgba(90,122,92,.3); color:#5a7a5c; }
+.rb-dn       { background: rgba(43,122,143,.1); border:1px solid rgba(43,122,143,.3); color:#2b7a8f; }
+.rb-designer { background: rgba(155,110,201,.1); border:1px solid rgba(155,110,201,.3); color:#9b6ec9; }
+.cat-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: var(--text-2xs); font-weight: 700; padding: 2px 9px; border-radius: 99px;
+  border: 1px solid; background: var(--cream);
+}
+.tc-text { font-size: var(--text-sm); color: var(--text); line-height: 1.65; white-space: pre-wrap; word-break: break-word; }
+.tc-text.clamp { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.tc-media { display: grid; gap: 3px; margin-top: 9px; border-radius: var(--r-sm); overflow: hidden; }
+.tc-media.m1 { grid-template-columns: 1fr; }
+.tc-media.m2 { grid-template-columns: 1fr 1fr; }
+.tc-media.m3 { grid-template-columns: 1fr 1fr 1fr; }
+.tc-media img, .tc-media video { width: 100%; aspect-ratio: 16/10; object-fit: cover; display: block; }
+.tc-foot { display: flex; align-items: center; gap: 14px; margin-top: 10px; padding-top: 9px; border-top: 1px solid var(--border); }
+.tc-stat { display: inline-flex; align-items: center; gap: 5px; font-size: var(--text-xs); color: var(--sub); font-weight: 600; background: none; border: none; cursor: pointer; font-family: var(--sans); padding: 2px 6px; border-radius: 7px; }
+.tc-stat:hover { background: var(--cream2); color: var(--text); }
+.tc-stat.hearted { color: var(--heart); }
+.badge-ba {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: var(--text-2xs); font-weight: 700; color: #3a7a3e;
+  background: rgba(58,122,62,.09); border: 1px solid rgba(58,122,62,.3);
+  padding: 2px 8px; border-radius: 99px;
+}
+.badge-pin { font-size: var(--text-2xs); color: var(--gold); font-family: var(--mono); font-weight: 700; display: inline-flex; align-items: center; gap: 3px; }
+.badge-pending {
+  font-size: var(--text-2xs); font-weight: 800; letter-spacing: .08em; font-family: var(--mono);
+  color: #b0413e; border: 1px dashed rgba(176,65,62,.5); background: rgba(176,65,62,.06);
+  padding: 2px 8px; border-radius: 6px;
+}
+.brief-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 7px;
+  margin-top: 10px; padding: 11px 12px; border-radius: var(--r-sm);
+  background: rgba(180,83,9,.05); border: 1px solid rgba(180,83,9,.22);
+}
+.brief-item { font-size: var(--text-xs); color: var(--text2); }
+.brief-item b { display: block; font-size: var(--text-2xs); color: var(--amber); font-family: var(--mono); letter-spacing: .06em; font-weight: 700; }
+
+/* ── EMPTY / LOADING / GATE ── */
+.empty-state { text-align: center; padding: 70px 20px; color: var(--muted); }
+.empty-state i { font-size: 38px; display: block; margin-bottom: 12px; }
+.empty-state p { font-size: var(--text-sm); line-height: 1.7; }
+.gate {
+  max-width: 460px; margin: 60px auto; text-align: center;
+  background: var(--white); border: 1px solid var(--border); border-radius: var(--r);
+  box-shadow: var(--sh); padding: 40px 30px;
+}
+.gate i { font-size: 40px; color: var(--gold); display: block; margin-bottom: 14px; }
+.gate h2 { font-family: var(--serif); font-weight: 400; font-size: var(--text-xl); margin-bottom: 8px; }
+.gate p { font-size: var(--text-sm); color: var(--sub); line-height: 1.7; }
+
+/* ── MODALS ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  background: rgba(42,37,32,.62); backdrop-filter: blur(6px);
+  align-items: flex-start; justify-content: center; padding: 26px 14px; overflow-y: auto;
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: var(--white); border-radius: 16px;
+  width: 640px; max-width: 100%; box-shadow: 0 24px 60px rgba(0,0,0,.22);
+  margin-bottom: 30px;
+}
+.modal-head {
+  padding: 15px 20px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; background: var(--white); z-index: 2; border-radius: 16px 16px 0 0;
+}
+.modal-title { font-family: var(--serif); font-size: var(--text-lg); }
+.modal-close { background: none; border: none; cursor: pointer; color: var(--sub); font-size: 18px; line-height: 1; padding: 4px; }
+.modal-body { padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; }
+.modal-foot { padding: 13px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
+.f-label { font-size: var(--text-2xs); font-weight: 700; color: var(--sub); letter-spacing: .1em; margin-bottom: 6px; font-family: var(--mono); }
+.cat-select { display: flex; gap: 7px; flex-wrap: wrap; }
+.cat-opt {
+  padding: 7px 13px; border-radius: 99px; cursor: pointer;
+  border: 1.5px solid var(--border); background: var(--cream);
+  font-size: var(--text-xs); font-weight: 700; color: var(--sub);
+  display: inline-flex; align-items: center; gap: 5px; transition: all .15s; font-family: var(--sans);
+}
+.cat-opt.sel { border-color: var(--text); background: var(--text); color: #fff; }
+.post-textarea {
+  width: 100%; min-height: 110px; resize: vertical;
+  border: 1px solid var(--border); border-radius: var(--r-sm);
+  padding: 11px 13px; font-size: var(--text-sm); color: var(--text);
+  font-family: var(--sans); outline: none; background: var(--cream); line-height: 1.65;
+}
+.post-textarea:focus { border-color: var(--gold); }
+.filter-warn {
+  display: none; padding: 10px 14px; border-radius: var(--r-sm);
+  background: rgba(176,65,62,.07); border: 1px solid rgba(176,65,62,.35);
+  color: #b0413e; font-size: var(--text-xs); font-weight: 600; line-height: 1.6;
+}
+.img-upload-area {
+  border: 1.5px dashed var(--border2); border-radius: var(--r-sm);
+  padding: 14px; text-align: center; cursor: pointer; background: var(--cream);
+  font-size: var(--text-xs); color: var(--sub);
+}
+.img-upload-area:hover { border-color: var(--gold); }
+.img-preview { display: flex; gap: 8px; flex-wrap: wrap; }
+.img-prev-item { position: relative; width: 72px; height: 72px; border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+.img-prev-item img, .img-prev-item video { width: 100%; height: 100%; object-fit: cover; }
+.img-prev-del {
+  position: absolute; top: 3px; right: 3px; background: rgba(0,0,0,.6); color: #fff;
+  border: none; border-radius: 50%; width: 17px; height: 17px; font-size: 10px; cursor: pointer;
+}
+.btn-cancel { padding: 8px 18px; border-radius: 99px; border: 1px solid var(--border); background: none; color: var(--sub); font-family: var(--sans); font-size: var(--text-sm); cursor: pointer; }
+.btn-submit {
+  padding: 8px 22px; border-radius: 99px; border: none;
+  background: linear-gradient(135deg,var(--gold2),var(--gold)); color: #1a1400; font-family: var(--syne);
+  font-size: var(--text-sm); font-weight: 700; letter-spacing: .03em; cursor: pointer;
+  box-shadow: 0 4px 14px rgba(152,105,10,.22), inset 0 1px 0 rgba(255,255,255,.28);
+  transition: transform .3s var(--ease), box-shadow .3s var(--ease);
+}
+.btn-submit:hover { transform: translateY(-1px); box-shadow: 0 10px 26px rgba(152,105,10,.30), inset 0 1px 0 rgba(255,255,255,.34); }
+.btn-submit:disabled { opacity: .5; cursor: not-allowed; }
+
+/* Mini-brief form */
+.brief-form { display: none; flex-direction: column; gap: 11px; padding: 13px 14px; border-radius: var(--r-sm); background: rgba(180,83,9,.04); border: 1px solid rgba(180,83,9,.22); }
+.bf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.bf-field label { display: block; font-size: var(--text-2xs); font-weight: 700; color: var(--amber); font-family: var(--mono); letter-spacing: .06em; margin-bottom: 4px; }
+.bf-field select, .bf-field input[type=text], .bf-field input[type=number] {
+  width: 100%; padding: 8px 10px; border-radius: 7px; border: 1px solid var(--border);
+  background: var(--white); font-family: var(--sans); font-size: var(--text-xs); color: var(--text); outline: none;
+}
+.bf-consent { display: flex; align-items: flex-start; gap: 8px; font-size: var(--text-2xs); color: var(--text2); line-height: 1.55; }
+.bf-consent input { margin-top: 3px; }
+
+/* ── THREAD MODAL ── */
+.thread-box { width: 720px; }
+.cm-list { display: flex; flex-direction: column; gap: 10px; }
+.cm-item { display: flex; gap: 9px; }
+.cm-item.reply { margin-left: 38px; }
+.cm-avatar { width: 28px; height: 28px; border-radius: 50%; overflow: hidden; flex-shrink: 0; background: var(--cream2); display:flex; align-items:center; justify-content:center; font-size: var(--text-xs); font-weight:700; color:var(--sub); }
+.cm-avatar img { width:100%; height:100%; object-fit:cover; }
+.cm-bubble { flex: 1; min-width: 0; background: var(--cream); border: 1px solid var(--border); border-radius: 4px 12px 12px 12px; padding: 8px 12px 7px; }
+.cm-bubble.best { border-color: rgba(58,122,62,.45); background: rgba(58,122,62,.06); }
+.cm-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.cm-name { font-size: var(--text-xs); font-weight: 700; }
+.cm-name a { color: inherit; text-decoration: none; }
+.cm-time { font-size: var(--text-2xs); color: var(--muted); font-family: var(--mono); }
+.cm-text { font-size: var(--text-sm); color: var(--text); line-height: 1.6; margin-top: 3px; white-space: pre-wrap; word-break: break-word; }
+.cm-actions { display: flex; align-items: center; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
+.cm-act { background: none; border: none; cursor: pointer; font-size: var(--text-2xs); font-weight: 700; color: var(--sub); font-family: var(--sans); padding: 2px 7px; border-radius: 6px; }
+.cm-act:hover { background: var(--cream2); color: var(--text); }
+.cm-act.hearted { color: var(--heart); }
+.cm-act.invite { color: var(--gold); border: 1px solid rgba(152,105,10,.35); background: var(--gold-bg); font-weight: 700; }
+.cm-disclaimer { font-size: var(--text-2xs); color: var(--muted); font-style: italic; margin-top: 5px; border-top: 1px dashed var(--border); padding-top: 4px; line-height: 1.5; }
+.cm-composer { display: flex; gap: 8px; align-items: flex-end; margin-top: 6px; }
+.cm-input {
+  flex: 1; min-height: 44px; max-height: 55vh; resize: vertical; overflow-y: auto;
+  border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px;
+  font-size: var(--text-sm); font-family: var(--sans); background: var(--cream); outline: none; line-height: 1.6; color: var(--text);
+}
+.cm-input:focus { border-color: var(--gold); }
+.cm-send { width: 36px; height: 36px; border-radius: 50%; border: none; background: var(--text); color: #fff; cursor: pointer; font-size: 14px; flex-shrink: 0; }
+.reply-tag { display: none; align-items: center; gap: 6px; font-size: var(--text-2xs); color: var(--amber); font-weight: 700; margin-top: 8px; }
+.reply-tag button { background:none; border:none; color: var(--sub); cursor:pointer; font-size: var(--text-2xs); }
+
+/* ── REPORT MODAL ── */
+.rp-reasons { display: flex; flex-direction: column; gap: 7px; }
+.rp-opt { display: flex; align-items: center; gap: 9px; padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--r-sm); cursor: pointer; font-size: var(--text-xs); font-weight: 600; color: var(--text2); background: var(--cream); }
+.rp-opt.sel { border-color: #b0413e; background: rgba(176,65,62,.06); color: #b0413e; }
+
+/* ── LIGHTBOX / TOAST / VEIL ── */
+.lightbox { display:none; position:fixed; inset:0; z-index:300; background:rgba(0,0,0,.9); align-items:center; justify-content:center; }
+.lightbox.open { display:flex; }
+.lightbox img { max-width:92vw; max-height:88vh; border-radius:8px; object-fit:contain; }
+#toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(90px);
+  background: var(--text); color: #fff; padding: 10px 22px; border-radius: 99px;
+  font-size: var(--text-sm); font-weight: 600; z-index: 500; transition: transform .3s;
+  max-width: 90vw; text-align: center;
+}
+#toast.show { transform: translateX(-50%) translateY(0); }
+#authVeil { position: fixed; inset: 0; z-index: 1000; background: var(--cream); display: flex; align-items: center; justify-content: center; }
+.veil-spin { width: 34px; height: 34px; border: 3px solid var(--border2); border-top-color: var(--gold); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 12px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.veil-text { font-family: var(--serif); font-size: var(--text-md); color: var(--sub); font-style: italic; text-align: center; }
+
+/* ── PASS 4: khách vãng lai ── */
+/* Tab chuyên mục KTS-only bị khóa với khách */
+.ftab.locked { opacity:.72; cursor:pointer; }
+.ftab.locked .lock-i { color:var(--gold); margin-right:2px; }
+.ftab.locked:hover { opacity:1; border-color:var(--gold); }
+/* Link đăng nhập/đăng ký trên thanh top cho khách */
+.tb-guest { display:inline-flex; align-items:center; gap:8px; }
+.tb-guest .g-login { font-family:var(--sans); font-size:var(--text-xs); font-weight:600; color:var(--text2); cursor:pointer; text-decoration:none; }
+.tb-guest .g-login:hover { color:var(--gold); }
+.tb-guest .g-reg { font-family:var(--syne); font-size:var(--text-xs); font-weight:700; letter-spacing:.02em; padding:6px 15px; border-radius:99px; color:#1a1400; background:linear-gradient(135deg,var(--gold2),var(--gold)); text-decoration:none; box-shadow:0 3px 10px rgba(152,105,10,.22); }
+/* CTA đăng nhập trong ô bình luận (khách) */
+.guest-cta { margin-top:12px; padding:14px 16px; border-radius:var(--r-sm); background:var(--gold-bg); border:1px dashed rgba(152,105,10,.4); text-align:center; }
+.guest-cta p { font-size:var(--text-sm); color:var(--text2); margin-bottom:10px; }
+.guest-cta button { font-family:var(--syne); font-size:var(--text-xs); font-weight:700; padding:8px 20px; border-radius:99px; border:none; cursor:pointer; color:#1a1400; background:linear-gradient(135deg,var(--gold2),var(--gold)); box-shadow:0 3px 10px rgba(152,105,10,.22); }
+/* Huy hiệu vai trò cạnh tên (đã đăng nhập) */
+#tbRole { font-family:var(--syne); font-size:var(--text-2xs); font-weight:700; letter-spacing:.02em; padding:1px 8px; border-radius:99px; margin-left:2px; }
+
+/* ── Modal đăng nhập/đăng ký (brand công khai: navy + gold, Be Vietnam Pro) ── */
+#loginModal { position:fixed; inset:0; z-index:1200; display:none; align-items:center; justify-content:center; padding:20px; background:rgba(6,18,36,.68); backdrop-filter:blur(3px); font-family:'Be Vietnam Pro', sans-serif; }
+#loginModal.open { display:flex; }
+.lm-box { width:100%; max-width:420px; background:#0f2c52; border:1px solid rgba(212,160,23,.35); border-radius:18px; padding:30px 28px 26px; box-shadow:0 24px 70px rgba(4,12,26,.6); text-align:center; position:relative; }
+.lm-close { position:absolute; top:14px; right:16px; background:none; border:none; color:#8fa6c4; font-size:22px; line-height:1; cursor:pointer; }
+.lm-close:hover { color:#fff; }
+.lm-logo { width:52px; height:52px; margin:0 auto 14px; border-radius:13px; display:flex; align-items:center; justify-content:center; font-family:'Be Vietnam Pro',sans-serif; font-weight:700; font-size:20px; letter-spacing:.04em; color:#0f2c52; background:linear-gradient(135deg,#e2c06a,#d4a017); }
+.lm-title { font-size:20px; font-weight:700; color:#fff; margin-bottom:8px; line-height:1.3; }
+.lm-sub { font-size:14px; color:#b9c9de; line-height:1.6; margin-bottom:22px; }
+.lm-btn-primary { display:block; width:100%; padding:13px; border-radius:11px; border:none; cursor:pointer; font-family:'Be Vietnam Pro',sans-serif; font-weight:700; font-size:15px; color:#0f2c52; background:linear-gradient(135deg,#e2c06a,#d4a017); box-shadow:0 6px 18px rgba(212,160,23,.3); margin-bottom:11px; text-decoration:none; }
+.lm-btn-primary:hover { filter:brightness(1.05); }
+.lm-btn-ghost { display:block; width:100%; padding:12px; border-radius:11px; cursor:pointer; font-family:'Be Vietnam Pro',sans-serif; font-weight:600; font-size:14px; color:#d4a017; background:transparent; border:1px solid rgba(212,160,23,.5); text-decoration:none; }
+.lm-btn-ghost:hover { background:rgba(212,160,23,.1); }
+.lm-note { margin-top:16px; font-size:12px; color:#7f96b4; line-height:1.5; }
+
+@media (max-width: 620px) {
+  .bf-row { grid-template-columns: 1fr; }
+  .cm-item.reply { margin-left: 20px; }
+}
+
+/* ── DIỄN ĐÀN THÔNG MINH ── */
+.rank-badge { display:inline-flex; align-items:center; gap:3px; font-size:var(--text-2xs); font-weight:700; padding:1px 7px; border-radius:99px; font-family:var(--syne); letter-spacing:.03em; margin-left:3px; vertical-align:middle; }
+
+/* KTS gợi ý (phễu chốt) */
+.sug-box { margin:12px 0; padding:13px 14px; border-radius:var(--r-sm); background:var(--gold-bg); border:1px solid rgba(152,105,10,.28); }
+.sug-title { font-size:var(--text-2xs); font-weight:700; color:var(--gold); font-family:var(--mono); letter-spacing:.06em; text-transform:uppercase; margin-bottom:9px; display:flex; align-items:center; gap:6px; }
+.sug-list { display:flex; flex-direction:column; gap:8px; }
+.sug-item { display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:var(--r-sm); background:var(--white); border:1px solid var(--border); }
+.sug-name { font-size:var(--text-sm); font-weight:600; color:var(--text); }
+.sug-name:hover { color:var(--gold); }
+.sug-invite { margin-left:auto; display:inline-flex; align-items:center; gap:5px; padding:5px 14px; border-radius:99px; border:none; cursor:pointer; font-family:var(--syne); font-size:var(--text-2xs); font-weight:700; letter-spacing:.03em; color:#1a1400; background:linear-gradient(135deg,var(--gold2),var(--gold)); box-shadow:0 3px 10px rgba(152,105,10,.22); transition:transform .25s var(--ease); }
+.sug-invite:hover { transform:translateY(-1px); }
+
+/* Tóm tắt AI */
+.ai-summary { margin:10px 0; padding:12px 14px; border-radius:var(--r-sm); background:var(--cream2); border:1px solid var(--border); font-size:var(--text-sm); color:var(--text); line-height:1.65; }
+.ai-tag { font-size:var(--text-2xs); font-weight:700; color:var(--gold); font-family:var(--mono); letter-spacing:.06em; text-transform:uppercase; margin-bottom:6px; display:flex; align-items:center; gap:5px; }
+.ai-tag .ph-circle-notch { animation:spin .8s linear infinite; }
+
+/* Nút AI soạn nháp (KTS) */
+.ai-draft-btn { display:inline-flex; align-items:center; gap:6px; margin:8px 0 6px; padding:6px 14px; border-radius:99px; cursor:pointer; font-family:var(--syne); font-size:var(--text-2xs); font-weight:700; letter-spacing:.03em; color:var(--gold); background:var(--gold-bg); border:1px dashed rgba(152,105,10,.5); transition:background .2s; }
+.ai-draft-btn:hover { background:rgba(152,105,10,.14); }
+.ai-draft-btn.loading { opacity:.6; cursor:wait; }
+.cm-send:disabled { opacity:.4; cursor:not-allowed; }
+
+/* Cổng bắt buộc đọc & xác nhận bản nháp AI */
+.ai-gate { margin-top:8px; padding:9px 12px; border-radius:var(--r-sm); background:rgba(180,83,9,.07); border:1px solid rgba(180,83,9,.3); }
+.ai-gate-label { display:flex; align-items:flex-start; gap:8px; font-size:var(--text-xs); font-weight:600; color:var(--amber); cursor:pointer; line-height:1.45; }
+.ai-gate-label input[type=checkbox] { margin-top:2px; width:15px; height:15px; accent-color:var(--amber); cursor:pointer; flex-shrink:0; }
+.ai-gate-label input:disabled { cursor:wait; }
+
+/* Câu hỏi tương tự */
+.similar-box { margin-top:10px; padding:10px 12px; border-radius:var(--r-sm); background:rgba(29,78,216,.05); border:1px solid rgba(29,78,216,.22); }
+.sim-title { font-size:var(--text-2xs); font-weight:700; color:var(--blue); font-family:var(--mono); letter-spacing:.05em; margin-bottom:7px; display:flex; align-items:center; gap:5px; }
+.sim-item { padding:7px 9px; border-radius:6px; background:var(--white); border:1px solid var(--border); font-size:var(--text-xs); color:var(--text2); cursor:pointer; margin-bottom:5px; transition:border-color .15s; }
+.sim-item:hover { border-color:var(--blue); }
+.sim-best { display:inline-flex; align-items:center; gap:3px; font-size:var(--text-2xs); font-weight:700; color:var(--green); margin-right:6px; }
+
+/* Chọn KTS làm dự án */
+.sug-sub { font-weight:500; color:var(--sub); text-transform:none; letter-spacing:0; }
+.cm-act.choose { color:#1a1400; background:linear-gradient(135deg,var(--gold2),var(--gold)); border:none; font-weight:700; box-shadow:0 2px 8px rgba(152,105,10,.22); }
+.chosen-banner { display:flex; align-items:center; gap:7px; margin:12px 0; padding:11px 14px; border-radius:var(--r-sm); background:rgba(21,128,61,.08); border:1px solid rgba(21,128,61,.3); color:#14532d; font-size:var(--text-sm); font-weight:600; }
+.chosen-banner i { color:var(--green); font-size:1.2em; }
+.choose-kts { font-size:var(--text-sm); color:var(--text); line-height:1.6; margin-bottom:10px; }
+.choose-brief { margin-bottom:10px; }
+.choose-assure { padding:11px 13px; border-radius:var(--r-sm); background:var(--gold-bg); border:1px solid rgba(152,105,10,.28); font-size:var(--text-sm); color:var(--text); line-height:1.55; }
+.choose-assure i { color:var(--gold); }
+.choose-fee { margin-top:7px; font-size:var(--text-xs); color:var(--text2); font-style:italic; }
+.choose-note { margin-top:10px; font-size:var(--text-xs); color:var(--sub); line-height:1.5; }
+
+/* Bảng xếp hạng điểm uy tín (Hạng mục D4 — KTS Creator ALN) */
+.lb-widget { max-width:720px; margin:0 auto 14px; padding:14px 16px; border-radius:var(--r); background:var(--white); border:1px solid var(--border); box-shadow:var(--sh); }
+.lb-title { font-size:var(--text-xs); font-weight:700; color:var(--gold); font-family:var(--mono); letter-spacing:.06em; text-transform:uppercase; margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+.lb-list { display:flex; flex-direction:column; gap:6px; }
+.lb-row { display:flex; align-items:center; gap:10px; padding:6px 8px; border-radius:8px; }
+.lb-row:nth-child(-n+3) { background:var(--gold-bg); }
+.lb-rank-num { width:20px; text-align:center; font-family:var(--syne); font-weight:800; color:var(--sub); font-size:var(--text-sm); flex-shrink:0; }
+.lb-row:nth-child(-n+3) .lb-rank-num { color:var(--gold); }
+.lb-name { flex:1; font-size:var(--text-sm); font-weight:600; color:var(--text); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.lb-points { font-family:var(--mono); font-size:var(--text-xs); font-weight:700; color:var(--gold); flex-shrink:0; }
+</style>
+<!-- Google Analytics 4 (ALN — G-5CSL1TF0RC, tách riêng khỏi property TK.HOUSE) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-5CSL1TF0RC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-5CSL1TF0RC');
+</script>
+<!-- End GA4 -->
+</head>
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MB7VRGR5"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<div id="authVeil"><div><div class="veil-spin"></div><div class="veil-text">Đang xác thực...</div></div></div>
+
+<nav class="topbar">
+  <div class="tb-logo-box">ALN</div>
+  <div class="tb-page">Diễn đàn ALN</div>
+  <div class="tb-right">
+    <div class="p2-switch" id="p2Switch" onclick="toggleP2()" title="Chỉ Founder thấy — bật/tắt Giai đoạn P2 (mở cho CN/DN)">
+      P2 CN/DN <span class="p2-dot"></span><span id="p2Label">TẮT</span>
+    </div>
+    <a class="tb-link" id="lnkAdmin" href="founder_forum.html" style="display:none"><i class="ph-duotone ph-shield-star"></i>Quản trị</a>
+    <div class="tb-user" id="tbUser" style="display:none">
+      <div class="tb-avatar" id="tbAvatar"></div><span id="tbName"></span><span id="tbRole" style="display:none"></span>
+      <span class="tb-points" id="tbPoints" style="display:none"></span>
+      <button class="tb-link" onclick="if(confirm('Đăng xuất?')) forumLogout()" title="Đăng xuất" style="border:none;background:none;cursor:pointer;font-family:inherit;padding:0">
+        <i class="ph-duotone ph-sign-out"></i>
+      </button>
+    </div>
+    <button class="tb-link" id="btnInvite" style="display:none" onclick="shareInviteLink()" title="Mời bạn tham gia diễn đàn — bạn được +15 điểm khi họ đăng bài đầu tiên">
+      <i class="ph-duotone ph-user-plus"></i>Mời bạn
+    </button>
+    <div class="tb-guest" id="tbGuest" style="display:none">
+      <a class="g-login" onclick="requireLogin()">Đăng nhập</a>
+      <a class="g-reg" href="register.html" onclick="return forumGoRegister()">Đăng ký miễn phí</a>
+    </div>
+    <a class="tb-link" id="tbBack" href="#"><i class="ph-duotone ph-arrow-left"></i>Dashboard</a>
+    <button class="btn-post" id="btnPost" style="display:none" onclick="openPostModal()">
+      <i class="ph-duotone ph-pencil-line"></i>Đăng bài
+    </button>
+  </div>
+</nav>
+
+<section class="hero">
+  <h1>Diễn đàn <em>ALN</em></h1>
+  <p class="hero-sub">Hỏi đáp kỹ thuật · Mạng lưới Thiết bị - Vật tư ALN · Showcase công trình · Nghề & Chứng chỉ — mọi trao đổi dự án qua kênh chat sàn ALN</p>
+</section>
+
+<div class="toolbar" id="toolbar" style="display:none">
+  <div id="catTabs" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+  <div class="post-count" id="postCount"></div>
+</div>
+
+<div class="fanpage-cta" id="fanpageCta">
+  <i class="ph-duotone ph-facebook-logo"></i>
+  <span><strong>Thích trang này chưa?</strong> Theo dõi Fanpage <strong>App Làm Nhà</strong> để không bỏ lỡ câu hỏi hay, mẹo xây nhà và tin từ diễn đàn.</span>
+  <a class="fpc-follow" href="https://www.facebook.com/1244358728751633" target="_blank" rel="noopener">
+    <i class="ph-duotone ph-thumbs-up"></i>Theo dõi Fanpage
+  </a>
+  <button class="fpc-claim" id="fpcClaim" style="display:none" onclick="claimFollowPoints()">
+    <i class="ph-duotone ph-seal-check"></i><span id="fpcClaimText">Tôi đã follow, nhận +5 điểm</span>
+  </button>
+</div>
+</script>
+
+<div class="tuvan-disclaimer" id="tuvanDisclaimer">
+  <b>ⓘ Lưu ý pháp lý:</b> Nội dung tư vấn trên diễn đàn là ý kiến tham khảo của cá nhân KTS, không phải hồ sơ thiết kế có chữ ký chủ trì theo NĐ 175/2024 và không thay thế hợp đồng dịch vụ. Mọi giao dịch qua sàn ALN mới được bảo vệ bởi Quy trình 4 bước.
+</div>
+
+<div class="lb-widget" id="lbWidget" style="display:none">
+  <div class="lb-title"><i class="ph-duotone ph-trophy"></i>Bảng xếp hạng điểm uy tín</div>
+  <div class="lb-list" id="lbList"></div>
+</div>
+
+<div class="lb-widget" id="growthLbWidget" style="display:none">
+  <div class="lb-title"><i class="ph-duotone ph-medal"></i>Top thành viên tuần (điểm tăng trưởng)</div>
+  <div class="lb-list" id="growthLbList"></div>
+</div>
+
+<div class="feed-wrap">
+  <div id="feedList">
+    <div class="empty-state"><i class="ph-duotone ph-spinner-gap"></i><p>Đang tải diễn đàn...</p></div>
+  </div>
+</div>
+
+<!-- ══ MODAL ĐĂNG NHẬP (khách vãng lai) ══ -->
+<div id="loginModal" onclick="if(event.target===this)closeLoginModal()">
+  <div class="lm-box">
+    <button class="lm-close" onclick="closeLoginModal()">✕</button>
+    <div class="lm-logo">ALN</div>
+    <div class="lm-title" id="lmTitle">Đăng nhập hoặc tạo tài khoản miễn phí để đặt câu hỏi cho KTS</div>
+    <div class="lm-sub">Miễn phí — hỏi trực tiếp Kiến trúc sư đã xác minh, xem giá vật liệu, theo dõi công trình thực tế.</div>
+    <a class="lm-btn-primary" id="lmRegBtn" href="register.html" onclick="return forumGoRegister()">Đăng ký miễn phí</a>
+    <a class="lm-btn-ghost" id="lmLoginBtn" href="login.html">Tôi đã có tài khoản — Đăng nhập</a>
+    <div class="lm-note">Bạn vẫn đọc được các chủ đề công khai mà không cần đăng nhập.</div>
+  </div>
+</div>
+
+<!-- ══ MODAL ĐĂNG BÀI ══ -->
+<div class="modal-overlay" id="postModal" onclick="if(event.target===this)closePostModal()">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title">Tạo bài viết mới</div>
+      <button class="modal-close" onclick="closePostModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div>
+        <div class="f-label">CHUYÊN MỤC</div>
+        <div class="cat-select" id="catSelect"></div>
+      </div>
+      <div class="brief-form" id="briefForm">
+        <div class="bf-row">
+          <div class="bf-field"><label>LOẠI DỰ ÁN</label>
+            <select id="bfType"><option value="xay_moi">Xây mới</option><option value="thiet_ke">Thiết kế</option><option value="cai_tao">Cải tạo</option></select>
+          </div>
+          <div class="bf-field"><label>DIỆN TÍCH (m²)</label><input type="number" id="bfArea" min="1" placeholder="120"></div>
+        </div>
+        <div class="bf-row">
+          <div class="bf-field"><label>NGÂN SÁCH</label>
+            <select id="bfBudget"><option value="<1ty">Dưới 1 tỷ</option><option value="1-2ty" selected>1 – 2 tỷ</option><option value=">=2ty">Từ 2 tỷ trở lên</option></select>
+          </div>
+          <div class="bf-field"><label>THỜI GIAN DỰ KIẾN</label>
+            <select id="bfTimeline"><option value="<3thang">Dưới 3 tháng</option><option value="3-6thang" selected>3 – 6 tháng</option><option value=">6thang">Trên 6 tháng</option></select>
+          </div>
+        </div>
+        <div class="bf-row">
+          <div class="bf-field"><label>KHU VỰC (chỉ quận/tỉnh — KHÔNG ghi địa chỉ cụ thể)</label><input type="text" id="bfRegion" placeholder="VD: TP. Thủ Đức, TP.HCM"></div>
+          <div class="bf-field"><label>ĐÃ CÓ ĐẤT?</label>
+            <select id="bfHasLand"><option value="yes">Đã có đất</option><option value="no">Chưa có đất</option></select>
+          </div>
+        </div>
+        <label class="bf-consent">
+          <input type="checkbox" id="bfConsent">
+          <span>Tôi đồng ý để ALN xử lý dữ liệu cá nhân trong yêu cầu này nhằm mục đích tư vấn dự án, theo Nghị định 13/2023/NĐ-CP về bảo vệ dữ liệu cá nhân.</span>
+        </label>
+      </div>
+      <div>
+        <div class="f-label">NỘI DUNG</div>
+        <textarea class="post-textarea" id="postText" placeholder="Chia sẻ câu hỏi, kinh nghiệm, hoặc mô tả nhu cầu..." oninput="livePostFilter()"></textarea>
+        <div class="filter-warn" id="postFilterWarn" style="margin-top:8px"></div>
+        <div class="similar-box" id="similarBox" style="display:none"></div>
+      </div>
+      <div>
+        <div class="f-label">HÌNH ẢNH / CLIP (tối đa 4)</div>
+        <div id="imgPreview" class="img-preview" style="display:none;margin-bottom:8px"></div>
+        <div class="img-upload-area" onclick="document.getElementById('imgInput').click()">
+          <i class="ph-duotone ph-film-strip"></i> Nhấn để chọn ảnh hoặc clip
+        </div>
+        <input type="file" id="imgInput" accept="image/*,video/*" multiple style="display:none" onchange="handleImgSelect(this)">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closePostModal()">Hủy</button>
+      <button class="btn-submit" id="btnSubmitPost" onclick="submitPost()">Đăng bài</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL THREAD ══ -->
+<div class="modal-overlay" id="threadModal" onclick="if(event.target===this)closeThread()">
+  <div class="modal-box thread-box">
+    <div class="modal-head">
+      <div class="modal-title">Thảo luận</div>
+      <button class="modal-close" onclick="closeThread()">✕</button>
+    </div>
+    <div class="modal-body" id="threadBody"></div>
+  </div>
+</div>
+
+<!-- ══ MODAL BÁO CÁO ══ -->
+<div class="modal-overlay" id="reportModal" onclick="if(event.target===this)closeReport()">
+  <div class="modal-box" style="width:440px">
+    <div class="modal-head">
+      <div class="modal-title">Báo cáo vi phạm</div>
+      <button class="modal-close" onclick="closeReport()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="rp-reasons" id="rpReasons"></div>
+      <textarea class="post-textarea" id="rpNote" style="min-height:60px" placeholder="Ghi chú thêm (không bắt buộc)"></textarea>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeReport()">Hủy</button>
+      <button class="btn-submit" onclick="submitReport()" style="background:#b0413e">Gửi báo cáo</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="chooseModal" onclick="if(event.target===this)closeChoose()">
+  <div class="modal-box" style="width:460px">
+    <div class="modal-head">
+      <div class="modal-title">Chọn KTS làm dự án</div>
+      <button class="modal-close" onclick="closeChoose()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="choose-kts" id="chooseKtsName"></div>
+      <div class="choose-brief" id="chooseBrief"></div>
+      <div class="choose-assure">
+        <div><i class="ph-duotone ph-shield-check"></i> Thanh toán an toàn qua 4 giai đoạn C1→C4 — tiền giữ tại ALN đến khi anh/chị nghiệm thu từng bước.</div>
+        <div class="choose-fee" id="chooseFee"></div>
+      </div>
+      <div class="choose-note">Sau khi xác nhận, KTS sẽ nhận thông báo và trao đổi tiếp qua kênh chat sàn ALN. Câu trả lời trên diễn đàn là tư vấn sơ bộ; hồ sơ thiết kế chính thức do KTS có chứng chỉ hành nghề ký.</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeChoose()">Hủy</button>
+      <button class="btn-submit" id="chooseConfirmBtn" onclick="confirmChoose()"><i class="ph-duotone ph-handshake"></i> Xác nhận chọn KTS</button>
+    </div>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('open')"><img id="lightboxImg" src="" alt=""></div>
+<div id="toast"></div>
+
+<script type="module">
+import {
+  app, auth, db, onAuthStateChanged, signOut,
+  doc, getDoc, getDocs, collection, query, where, orderBy, limit, onSnapshot,
+  storage, storageRef, uploadBytes, getDownloadURL
+} from './firebase-config.js';
+import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js';
+
+const fns = getFunctions(app, 'asia-southeast1');
+const callPost    = httpsCallable(fns, 'forumPost');
+const callComment = httpsCallable(fns, 'forumComment');
+const callHeart   = httpsCallable(fns, 'forumHeart');
+const callBest    = httpsCallable(fns, 'forumBestAnswer');
+const callReport  = httpsCallable(fns, 'forumReport');
+const callInvite  = httpsCallable(fns, 'forumInvite');
+const callDelete  = httpsCallable(fns, 'forumDelete');
+const callAdmin   = httpsCallable(fns, 'forumAdmin');
+const callSimilar   = httpsCallable(fns, 'forumSimilar');
+const callAiDraft   = httpsCallable(fns, 'forumAiDraftAnswer');
+const callSummarize = httpsCallable(fns, 'forumSummarize');
+const callToCamNang = httpsCallable(fns, 'forumToCamNang');
+const callToMarketingDraft = httpsCallable(fns, 'forumAnswerToMarketingDraft');
+const callChooseKts = httpsCallable(fns, 'forumChooseKts');
+const callMyPoints = httpsCallable(fns, 'forumMyPoints');
+const callFollowClaim = httpsCallable(fns, 'forumFollowFanpageClaim');
+const callGrowthLeaderboard = httpsCallable(fns, 'forumGrowthLeaderboard');
+
+/* ════ CẤU HÌNH CHUYÊN MỤC (đồng bộ với forum.js) ════ */
+const CATS = {
+  hoi_kts:      { label: 'Hỏi KTS Miễn Phí', icon: 'ph-hand-heart',  color: '#0f2c52' },
+  hoi_dap:      { label: 'Hỏi đáp kỹ thuật', icon: 'ph-chats-circle', color: '#1d4ed8' },
+  vat_lieu:     { label: 'Mạng lưới Thiết bị - Vật tư ALN', icon: 'ph-package', color: '#15803d' },
+  showcase:     { label: 'Showcase',          icon: 'ph-image-square', color: '#b8860b' },
+  nghe:         { label: 'Nghề & Chứng chỉ', icon: 'ph-certificate',  color: '#0e7490' },
+  bang_tin:     { label: 'Bảng tin ALN',      icon: 'ph-megaphone',    color: '#dc2626' },
+  tu_van_du_an: { label: 'Tư vấn Dự án',     icon: 'ph-house-line',   color: '#b45309' },
+};
+const OPEN_CATEGORIES = ['hoi_kts', 'tu_van_du_an', 'showcase', 'bang_tin'];
+const KTS_POST_CATEGORIES = ['hoi_kts', 'hoi_dap', 'vat_lieu', 'showcase', 'nghe'];
+const ROLE_LABEL = { kts:'KTS', designer:'Designer', founder:'Founder ALN', cn:'Chủ nhà', dn:'Doanh nghiệp', ncc:'Nhà cung cấp' };
+const BACK_BY_ROLE = { kts:'kts_dashboard.html', designer:'designer_dashboard.html', founder:'founder_panel.html', dn:'client_DN.html', cn:'client_CN.html' };
+const BACK_LABEL_BY_ROLE = { kts:'Văn phòng KTS', designer:'Studio Nội thất', founder:'Bảng điều hành', dn:'Trang Doanh nghiệp', cn:'Văn phòng KTS của bạn' };
+const DISCLAIMER = 'Nội dung tư vấn trên diễn đàn là ý kiến tham khảo của cá nhân KTS, không phải hồ sơ thiết kế có chữ ký chủ trì theo NĐ 175/2024 và không thay thế hợp đồng dịch vụ. Mọi giao dịch qua sàn ALN mới được bảo vệ bởi Quy trình 4 bước.';
+const BLOCK_MSG = 'Trao đổi dự án thực hiện qua kênh chat sàn ALN để được bảo vệ bởi Quy trình 4 bước.';
+
+/* ════ BỘ LỌC CHỐNG LÁCH SÀN — bản client (UX); server là chốt chặn thật ════ */
+const ALLOWED_HOSTS = ['applamnha.vn', 'trannam052022-dot.github.io'];
+const SHORTENER_HOSTS = ['bit.ly','tinyurl.com','cutt.ly','is.gd','t.co','rebrand.ly','tiny.cc','shorte.st','s.id','ouo.io','soo.gd','zii.im','adf.ly','lnkd.in','bit.do'];
+const VN_NUM_WORDS = { khong:'0', mot:'1', hai:'2', ba:'3', bon:'4', tu:'4', nam:'5', lam:'5', sau:'6', bay:'7', tam:'8', chin:'9' };
+function vnNormNoMark(s){ return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/đ/g,'d'); }
+function vnDigitize(text){ return vnNormNoMark(text).replace(/\b(khong|mot|hai|ba|bon|tu|nam|lam|sau|bay|tam|chin)\b/g, m => VN_NUM_WORDS[m]); }
+function filterViolation(text) {
+  if (!text) return null;
+  const t = String(text);
+  const deAt = t.replace(/\s*(\(|\[)?\s*(a còng|a cong|a móc|a moc|at)\s*(\)|\])?\s*/gi, '@').replace(/\s+(chấm|cham|dot)\s+/gi, '.');
+  if (/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/.test(deAt)) return 'email';
+  if (/(zalo|viber|telegram|tele\b|whatsapp|wechat|s[đd]t\b|số\s*[đd]t|số\s*điện\s*thoại|gmail|hotmail|yahoo|facebook\.com|fb\.com|messenger|instagram|tiktok)/i.test(t)) return 'keyword';
+  if (/lien\s*he\s*rieng/i.test(vnNormNoMark(t))) return 'keyword';
+  const linkRe = /(https?:\/\/|www\.)[^\s<>"']+/gi; let m;
+  while ((m = linkRe.exec(t))) {
+    let url = m[0]; if (!/^https?:/i.test(url)) url = 'http://' + url;
+    try {
+      const host = new URL(url).hostname.toLowerCase();
+      if (SHORTENER_HOSTS.some(h => host === h || host.endsWith('.' + h))) return 'link_rut_gon';
+      if (!ALLOWED_HOSTS.some(h => host === h || host.endsWith('.' + h))) return 'link';
+    } catch (e) { return 'link'; }
+  }
+  const PHONE_RE = /(?:\+?84|0)\d{9,10}(?!\d)/;
+  if (PHONE_RE.test(t.replace(/[\s.\-_() ]/g, ''))) return 'phone';
+  if (PHONE_RE.test(vnDigitize(t).replace(/[\s.\-_() ]/g, ''))) return 'phone';
+  return null;
+}
+const VIOLATION_LABEL = { phone:'số điện thoại', keyword:'từ khóa kênh liên lạc ngoài', link:'link ngoài', link_rut_gon:'link rút gọn', email:'địa chỉ email' };
+
+/* ════ STATE ════ */
+let USER = null;            // {uid, role, name, avatar}
+let P2_ON = false;
+let ALL_POSTS = [];
+let FILTER = 'all';
+let selectedCat = null;
+let selectedFiles = [];
+let openThreadId = null;
+let threadComments = [];
+let commentsUnsub = null;
+let replyTo = null;          // {id, name}
+let reportTarget = null;     // {targetType, postId, commentId}
+let reportReason = 'lach_san';
+let postsUnsub = null;
+let toastTimer = null;
+
+/* ════ HELPERS ════ */
+const $ = id => document.getElementById(id);
+function escH(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function showToast(msg){
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 3600);
+}
+function timeAgo(ts){
+  if(!ts) return '';
+  const ms = typeof ts.toMillis === 'function' ? ts.toMillis() : (ts.seconds ? ts.seconds*1000 : Date.now());
+  const diff = Math.floor((Date.now()-ms)/1000);
+  if(diff < 60) return 'vừa xong';
+  if(diff < 3600) return Math.floor(diff/60)+' phút trước';
+  if(diff < 86400) return Math.floor(diff/3600)+' giờ trước';
+  if(diff < 86400*7) return Math.floor(diff/86400)+' ngày trước';
+  return new Date(ms).toLocaleDateString('vi-VN');
+}
+function catOf(p){ return p.category || 'showcase'; } // bài cũ chưa migrate → showcase
+function fnErr(e){
+  const msg = (e && e.message) || 'Có lỗi xảy ra';
+  return msg.replace(/^(functions\/|Firebase: )/i, '');
+}
+
+/* Khách vãng lai (chưa đăng nhập) — dùng USER sentinel role 'guest' */
+function isGuest(){ return !USER || USER.role === 'guest'; }
+/* 5 chuyên mục categoryVisibility=='public' — khớp CATEGORY_VISIBILITY ở functions/forum.js.
+   vat_lieu mở công khai từ 18/07/2026 (đúng tinh thần Gian hàng NCC — khách cần xem được
+   giá/thảo luận NCC mà không phải đăng ký trước). */
+const PUBLIC_CATEGORIES = ['hoi_kts', 'tu_van_du_an', 'showcase', 'bang_tin', 'vat_lieu'];
+/* 2 chuyên mục KTS-only vĩnh viễn — khách thấy tên nhưng khóa nội dung */
+const GUEST_LOCKED_CATEGORIES = ['hoi_dap', 'nghe'];
+
+/* Nhà cung cấp vật liệu — CHỈ chuyên mục "Mạng lưới Thiết bị - Vật tư ALN" (key nội bộ
+   vẫn là vat_lieu, không đổi), không có huy hiệu xếp hạng KTS, không có
+   tính năng "chọn làm dự án" (xem NCC_CATEGORIES phía server,
+   functions/forum.js — giữ đồng bộ 2 nơi). */
+const NCC_CATEGORIES = ['vat_lieu'];
+
+/* Chuyên mục user hiện tại XEM được */
+function viewableCats(){
+  if(isGuest()) return PUBLIC_CATEGORIES;
+  if(USER.role === 'founder' || USER.role === 'kts') return Object.keys(CATS);
+  if(USER.role === 'ncc') return NCC_CATEGORIES;
+  if((USER.role === 'cn' || USER.role === 'dn') && P2_ON) return OPEN_CATEGORIES;
+  return [];
+}
+/* Chuyên mục user hiện tại ĐĂNG được */
+function postableCats(){
+  if(isGuest()) return [];
+  if(USER.role === 'founder') return Object.keys(CATS);
+  if(USER.role === 'kts') return KTS_POST_CATEGORIES;
+  if(USER.role === 'ncc') return NCC_CATEGORIES;
+  if((USER.role === 'cn' || USER.role === 'dn') && P2_ON) return ['hoi_kts', 'tu_van_du_an'];
+  return [];
+}
+
+/* ════ AUTH + BOOT ════ */
+onAuthStateChanged(auth, async user => {
+  if(!user){ bootGuest(); return; }
+  // Diễn đàn phải đọc được công khai — phiên đăng nhập hỏng/hết hạn hay lỗi đọc
+  // hồ sơ KHÔNG được đẩy người dùng ra khỏi trang, chỉ lùi về xem như khách.
+  let snap;
+  try {
+    snap = await getDoc(doc(db, 'users', user.uid));
+  } catch(e) {
+    console.error('[forum] Lỗi đọc hồ sơ, lùi về chế độ khách:', e);
+    try { await signOut(auth); } catch(_){}
+    bootGuest();
+    return;
+  }
+  let profile;
+  if(!snap.exists() && user.uid === 'h4kEguPEyMcwJwl89stc0Q6j2si2'){
+    profile = { role:'founder', name:'KTS. Trần Đại Long', status:'active', avatarUrl:'' };
+  } else if(!snap.exists()){
+    try { await signOut(auth); } catch(_){}
+    bootGuest();
+    return;
+  } else {
+    profile = snap.data();
+  }
+
+  USER = { uid: user.uid, role: profile.role, name: profile.name || '', avatar: profile.avatarUrl || '' };
+  $('tbUser').style.display = 'flex';
+  $('tbGuest').style.display = 'none';
+  $('btnInvite').style.display = 'inline-flex';
+  $('tbName').textContent = USER.name;
+  $('tbAvatar').innerHTML = USER.avatar ? '<img src="'+escH(USER.avatar)+'">' : escH((USER.name||'?')[0].toUpperCase());
+  setTbRole(USER.role);
+  $('tbBack').style.display = 'inline-flex';
+  $('tbBack').href = BACK_BY_ROLE[USER.role] || 'login.html';
+  $('tbBack').innerHTML = '<i class="ph-duotone ph-arrow-left"></i>' + (BACK_LABEL_BY_ROLE[USER.role] || 'Trang của tôi');
+  $('authVeil').remove();
+
+  if((profile.status || 'active') !== 'active'){
+    renderGate('ph-hourglass-medium', 'Tài khoản đang chờ duyệt',
+      'Diễn đàn chỉ mở cho thành viên đã được Founder duyệt. Vui lòng quay lại sau khi tài khoản được kích hoạt.');
+    return;
+  }
+
+  if(USER.role === 'founder'){
+    $('p2Switch').style.display = 'inline-flex';
+    $('lnkAdmin').style.display = 'inline-flex';
+  }
+
+  loadMyPoints();   // điểm thưởng tăng trưởng — không chặn luồng nếu lỗi
+
+  /* Cờ P2 realtime → dựng lại giao diện khi founder gạt công tắc */
+  onSnapshot(doc(db, 'forumConfig', 'flags'), s => {
+    P2_ON = s.exists() && !!s.data().FORUM_P2_ENABLED;
+    updateP2Switch();
+    bootForRole();
+  }, () => { P2_ON = false; updateP2Switch(); bootForRole(); });
+});
+
+/* Khách vãng lai: KHÔNG nghe forumConfig/flags (rules chặn → sẽ lỗi), P2 coi như tắt */
+function bootGuest(){
+  USER = { uid: null, role: 'guest', name: '', avatar: '', guest: true };
+  P2_ON = false;
+  $('tbUser').style.display = 'none';
+  $('tbGuest').style.display = 'inline-flex';
+  $('btnInvite').style.display = 'none';
+  $('tbBack').style.display = 'none';   // khách chưa có dashboard để quay lại
+  const av = $('authVeil'); if(av) av.remove();
+  bootForRole();
+  $('btnPost').style.display = 'inline-flex';   // vẫn hiện (bấm → modal đăng nhập)
+}
+
+/* Huy hiệu vai trò cạnh tên (đã đăng nhập) */
+function setTbRole(role){
+  const el = $('tbRole'); if(!el) return;
+  const isKts = role === 'kts';
+  el.textContent = isKts ? '✓ KTS đã xác minh' : (ROLE_LABEL[role] || role);
+  el.style.color = isKts ? 'var(--gold)' : 'var(--sub)';
+  el.style.background = isKts ? 'var(--gold-bg)' : 'var(--cream2)';
+  el.style.border = '1px solid ' + (isKts ? 'rgba(152,105,10,.35)' : 'var(--border)');
+  el.style.display = 'inline-flex';
+}
+
+/* Modal đăng nhập cho khách — lưu thread + vị trí để quay lại sau khi đăng nhập */
+window.requireLogin = function(){
+  try {
+    sessionStorage.setItem('forumReturn', JSON.stringify({
+      thread: openThreadId || null, scroll: window.scrollY || 0, t: Date.now()
+    }));
+  } catch(e){}
+  $('loginModal').classList.add('open');
+};
+window.closeLoginModal = function(){ $('loginModal').classList.remove('open'); };
+
+/* Khách bấm "Đăng ký miễn phí" → lưu vị trí forum để register.html đưa họ QUAY LẠI forum sau khi tạo tài khoản */
+window.forumGoRegister = function(){
+  try {
+    sessionStorage.setItem('forumReturn', JSON.stringify({
+      thread: openThreadId || null, scroll: window.scrollY || 0, t: Date.now()
+    }));
+  } catch(e){}
+  location.href = 'register.html';
+  return false;
+};
+
+/* Mở lại thread từ ?thread=ID hoặc từ sessionStorage sau khi đăng nhập (≤30 phút) */
+let _deepLinkDone = false;
+function maybeOpenDeepLink(){
+  if(_deepLinkDone) return;
+  _deepLinkDone = true;
+  // ?cat=xxx — dùng cho link chéo SEO từ Cẩm nang (templates.js), dẫn thẳng
+  // vào đúng chuyên mục thay vì "Tất cả". Bỏ qua nếu giá trị không hợp lệ.
+  try {
+    const catParam = new URL(location.href).searchParams.get('cat');
+    if(catParam && CATS[catParam]) setFilter(catParam);
+  } catch(e){}
+  let tid = null;
+  try { tid = new URL(location.href).searchParams.get('thread'); } catch(e){}
+  if(!tid){
+    try {
+      const r = JSON.parse(sessionStorage.getItem('forumReturn') || 'null');
+      if(r && r.thread && (Date.now() - (r.t || 0) < 30*60000)) tid = r.thread;
+    } catch(e){}
+  }
+  try { sessionStorage.removeItem('forumReturn'); } catch(e){}
+  if(tid) openThread(tid);
+}
+
+function updateP2Switch(){
+  const sw = $('p2Switch');
+  sw.classList.toggle('on', P2_ON);
+  $('p2Label').textContent = P2_ON ? 'BẬT' : 'TẮT';
+}
+
+function bootForRole(){
+  const cats = viewableCats();
+  if(cats.length === 0){
+    $('toolbar').style.display = 'none';
+    $('btnPost').style.display = 'none';
+    renderGate('ph-users-three', 'Diễn đàn đang mở nội bộ KTS',
+      USER.role === 'cn' || USER.role === 'dn'
+        ? 'Chuyên mục Tư vấn Dự án dành cho Chủ nhà / Doanh nghiệp sẽ sớm ra mắt. Khi đó bạn có thể đăng nhu cầu và mời KTS tư vấn ngay trên diễn đàn.'
+        : 'Vai trò của bạn chưa có quyền truy cập diễn đàn trong giai đoạn này.');
+    if(postsUnsub){ postsUnsub(); postsUnsub = null; }
+    return;
+  }
+  $('toolbar').style.display = 'flex';
+  $('btnPost').style.display = postableCats().length ? 'inline-flex' : 'none';
+  renderTabs();
+  subscribePosts();
+  maybeOpenDeepLink();
+  loadLeaderboard();
+  loadGrowthLeaderboard();
+}
+
+/* Bảng xếp hạng điểm uy tín top 10 (Hạng mục D4) — chỉ user đã đăng nhập xem được,
+   vì rules ktsReputation yêu cầu signedIn(); khách vãng lai không thấy widget này. */
+async function loadLeaderboard(){
+  try {
+    const snap = await getDocs(query(collection(db, 'ktsReputation'), orderBy('points', 'desc'), limit(10)));
+    const rows = [];
+    snap.forEach(d => rows.push({ uid: d.id, points: d.data().points || 0 }));
+    if(!rows.length) return;
+    const names = await Promise.all(rows.map(r => getDoc(doc(db, 'users', r.uid))));
+    names.forEach((s, i) => { rows[i].name = (s.exists() && s.data().name) || 'KTS ALN'; });
+    $('lbList').innerHTML = rows.map((r, i) =>
+      '<div class="lb-row"><span class="lb-rank-num">'+(i+1)+'</span>'
+      + '<span class="lb-name">'+escH(r.name)+'</span>'
+      + '<span class="lb-points">'+r.points+'đ</span></div>'
+    ).join('');
+    $('lbWidget').style.display = 'block';
+  } catch(e){ console.warn('[forum] leaderboard', e.message); }
+}
+
+/* Top thành viên theo điểm thưởng tăng trưởng (mọi vai trò) — qua callable
+   forumGrowthLeaderboard, KHÔNG đọc thẳng Firestore (forumGrowthPoints chưa
+   mở rules cho client, chỉ server ghi/đọc qua function). */
+async function loadGrowthLeaderboard(){
+  try {
+    const res = await callGrowthLeaderboard({ limit: 10 });
+    const rows = (res.data && res.data.rows) || [];
+    if(!rows.length) return;
+    $('growthLbList').innerHTML = rows.map((r, i) =>
+      '<div class="lb-row"><span class="lb-rank-num">'+(i+1)+'</span>'
+      + '<span class="lb-name">'+escH(r.name)+'</span>'
+      + '<span class="lb-points">'+r.points+'đ</span></div>'
+    ).join('');
+    $('growthLbWidget').style.display = 'block';
+  } catch(e){ console.warn('[forum] growth leaderboard', e.message); }
+}
+
+function renderGate(icon, title, msg){
+  $('feedList').innerHTML =
+    '<div class="gate"><i class="ph-duotone '+icon+'"></i><h2>'+escH(title)+'</h2><p>'+escH(msg)+'</p></div>';
+}
+
+/* ════ TABS ════ */
+function renderTabs(){
+  const cats = viewableCats();
+  let html = '<button class="ftab'+(FILTER==='all'?' active':'')+'" onclick="setFilter(\'all\')">Tất cả</button>';
+  cats.forEach(c => {
+    const m = CATS[c];
+    html += '<button class="ftab'+(FILTER===c?' active':'')+'" onclick="setFilter(\''+c+'\')">'
+      + '<i class="ph-duotone '+m.icon+'"></i>' + escH(m.label) + '</button>';
+  });
+  /* Khách: hiện tên 3 chuyên mục KTS-only kèm ổ khóa — bấm ra modal đăng nhập */
+  if(isGuest()){
+    GUEST_LOCKED_CATEGORIES.forEach(c => {
+      const m = CATS[c];
+      html += '<button class="ftab locked" onclick="requireLogin()" title="Chỉ KTS đã xác minh — đăng nhập để xem">'
+        + '<i class="ph-duotone ph-lock-simple lock-i"></i>' + escH(m.label) + '</button>';
+    });
+  }
+  $('catTabs').innerHTML = html;
+  $('tuvanDisclaimer').style.display = FILTER === 'tu_van_du_an' ? 'block' : 'none';
+}
+/* Tab "Mạng lưới Thiết bị - Vật tư ALN" (key nội bộ vat_lieu) không hiện feed bài viết
+   nữa — bấm vào là sang thẳng ncc-showcase.html (Founder yêu cầu
+   18/07/2026: bấm vào phải thấy gian hàng ngay, không phải bài thảo luận). */
+window.setFilter = function(f){
+  if (f === 'vat_lieu') { window.location.href = 'ncc-showcase.html'; return; }
+  FILTER = f; renderTabs(); renderFeed();
+};
+
+/* ════ SUBSCRIBE POSTS ════ */
+function subscribePosts(){
+  if(postsUnsub) postsUnsub();
+  let q;
+  if(USER.role === 'founder' || USER.role === 'kts'){
+    q = query(collection(db, 'forumPosts'), orderBy('createdAt', 'desc'));
+  } else {
+    /* Khách + CN + DN: chỉ đọc bài public+visible+không ẩn — khớp CHÍNH XÁC rules
+       (fdPublicVisiblePost) nên KHÔNG bao giờ permission-denied. Query cũ của CN/DN
+       (where category in OPEN_CATEGORIES) lấy cả bài hoi_kts đang chờ duyệt/ẩn mà CN/DN
+       không có quyền đọc → cả query fail. Nhiều == + sort client-side → không cần index mới.
+       (CN/DN sẽ thấy bài chờ duyệt của chính mình sau khi được Founder duyệt.) */
+    q = query(collection(db, 'forumPosts'),
+      where('categoryVisibility', '==', 'public'),
+      where('status', '==', 'visible'),
+      where('hidden', '==', false));
+  }
+  postsUnsub = onSnapshot(q, snap => {
+    const posts = [];
+    snap.forEach(d => posts.push(Object.assign({ id: d.id }, d.data())));
+    posts.sort((a, b) => {
+      const am = a.createdAt && a.createdAt.seconds ? a.createdAt.seconds : 0;
+      const bm = b.createdAt && b.createdAt.seconds ? b.createdAt.seconds : 0;
+      return bm - am;
+    });
+    ALL_POSTS = posts;
+    renderFeed();
+    if(openThreadId) renderThread();
+  }, err => {
+    console.warn('[forum]', err.message);
+    renderGate('ph-warning', 'Chưa tải được diễn đàn', 'Kiểm tra kết nối hoặc quyền truy cập rồi thử lại. (' + err.code + ')');
+  });
+}
+
+/* ════ FEED ════ */
+function visiblePosts(){
+  const cats = viewableCats();
+  return ALL_POSTS.filter(p => {
+    if(!cats.includes(catOf(p))) return false;
+    if(p.status === 'removed') return false;
+    if(p.status === 'pending' && p.authorUid !== USER.uid && USER.role !== 'founder') return false;
+    if(p.hidden && USER.role !== 'founder') return false;
+    return true;
+  });
+}
+function renderFeed(){
+  let list = visiblePosts();
+  if(FILTER !== 'all') list = list.filter(p => catOf(p) === FILTER);
+  /* Ghim lên đầu, rồi tới bài "ưu tiên hiển thị" (mốc 50đ điểm thưởng — cờ
+     priority chụp lúc đăng bài, xem forumPost), còn lại giữ nguyên thứ tự */
+  list = list.filter(p => p.pinned)
+    .concat(list.filter(p => !p.pinned && p.priority))
+    .concat(list.filter(p => !p.pinned && !p.priority));
+  $('postCount').textContent = list.length + ' chủ đề';
+  if(!list.length){
+    $('feedList').innerHTML = '<div class="empty-state"><i class="ph-duotone ph-chats-circle"></i><p>Chưa có bài nào trong chuyên mục này.<br>Hãy là người mở chủ đề đầu tiên!</p></div>';
+    return;
+  }
+  $('feedList').innerHTML = list.map(renderCard).join('');
+}
+
+function roleBadge(role){
+  return '<span class="role-badge rb-'+escH(role)+'">'+escH(ROLE_LABEL[role]||role)+'</span>';
+}
+function catChip(p){
+  const c = catOf(p), m = CATS[c] || CATS.showcase;
+  return '<span class="cat-chip" style="color:'+m.color+';border-color:'+m.color+'55">'
+    + '<i class="ph-duotone '+m.icon+'"></i>'+escH(m.label)+'</span>';
+}
+function authorNameHtml(p){
+  if(p.authorRole === 'kts'){
+    return '<a href="kts_profile.html?uid='+escH(p.authorUid)+'" onclick="event.stopPropagation()">'+escH(p.authorName)+'</a>';
+  }
+  return escH(p.authorName);
+}
+/* 3 CẤP BẬC KTS (server tính từ điểm uy tín) — bậc cao được ưu tiên nhận dự án */
+const RANK_META = {
+  chuyen_gia: ['Chuyên gia ALN', '#98690a', 'rgba(152,105,10,.12)', '⭐ '],
+  co_van:     ['Cố vấn',         '#0f2c52', 'rgba(15,44,82,.10)',  ''],
+  tan_binh:   ['Tân binh',       '#5b6b7f', 'rgba(91,107,127,.08)', ''],
+};
+function rankBadge(rank){
+  const m = RANK_META[rank]; if(!m) return '';
+  const pri = (rank === 'chuyen_gia' || rank === 'co_van') ? ' title="Huy hiệu cao — được ưu tiên nhận dự án"' : '';
+  return '<span class="rank-badge"'+pri+' style="color:'+m[1]+';background:'+m[2]+';border:1px solid '+m[1]+'44">'+m[3]+m[0]+'</span>';
+}
+/* Phễu chốt: KTS gợi ý cho thread Tư vấn Dự án (server điền p.suggestedKts) */
+function suggestedKtsHtml(p){
+  if(catOf(p) !== 'tu_van_du_an' || !Array.isArray(p.suggestedKts) || !p.suggestedKts.length) return '';
+  if(p.chosenKts) return '';   // đã chọn KTS làm dự án thì thôi
+  const canChoose = (USER.role === 'cn' || USER.role === 'dn' || USER.role === 'founder');
+  return '<div class="sug-box"><div class="sug-title"><i class="ph-duotone ph-sparkle"></i> KTS phù hợp cho dự án của bạn <span class="sug-sub">(huy hiệu cao được ưu tiên)</span></div>'
+    + '<div class="sug-list">' + p.suggestedKts.map(k =>
+        '<div class="sug-item">'
+        + '<a href="kts_profile.html?uid='+escH(k.uid)+'" class="sug-name">'+escH(k.name||'KTS ALN')+'</a>'
+        + rankBadge(k.rank)
+        + ((canChoose && k.uid !== USER.uid)
+            ? '<button class="sug-invite" onclick="openChoose(\''+escH(k.uid)+'\',\''+escH(k.name||'KTS')+'\')"><i class="ph-duotone ph-handshake"></i> Chọn làm dự án</button>'
+            : '')
+        + '</div>').join('')
+    + '</div></div>';
+}
+function mediaHtml(p, inThread){
+  const media = p.media || [];
+  if(!media.length) return '';
+  const cls = media.length >= 3 ? 'm3' : media.length === 2 ? 'm2' : 'm1';
+  return '<div class="tc-media '+cls+'">' + media.map(m => {
+    if(m.type === 'video') return '<video src="'+escH(m.url)+'" controls muted playsinline></video>';
+    return '<img src="'+escH(m.url)+'" loading="lazy" onclick="event.stopPropagation();openLightbox(\''+escH(m.url)+'\')">';
+  }).join('') + '</div>';
+}
+function briefHtml(p){
+  if(!p.brief) return '';
+  const b = p.brief;
+  const typeLabel = { xay_moi:'Xây mới', thiet_ke:'Thiết kế', cai_tao:'Cải tạo' };
+  const budgetLabel = { '<1ty':'Dưới 1 tỷ', '1-2ty':'1 – 2 tỷ', '>=2ty':'Từ 2 tỷ' };
+  const tlLabel = { '<3thang':'Dưới 3 tháng', '3-6thang':'3 – 6 tháng', '>6thang':'Trên 6 tháng' };
+  return '<div class="brief-grid">'
+    + '<div class="brief-item"><b>LOẠI DỰ ÁN</b>'+escH(typeLabel[b.projectType]||b.projectType)+'</div>'
+    + '<div class="brief-item"><b>DIỆN TÍCH</b>'+escH(b.area)+' m²</div>'
+    + '<div class="brief-item"><b>KHU VỰC</b>'+escH(b.region)+'</div>'
+    + '<div class="brief-item"><b>NGÂN SÁCH</b>'+escH(budgetLabel[b.budget]||b.budget)+'</div>'
+    + '<div class="brief-item"><b>THỜI GIAN</b>'+escH(tlLabel[b.timeline]||b.timeline)+'</div>'
+    + '<div class="brief-item"><b>ĐẤT</b>'+(b.hasLand?'Đã có đất':'Chưa có đất')+'</div>'
+    + '</div>';
+}
+
+function renderCard(p){
+  const hearted = p.heartedBy && p.heartedBy.includes(USER.uid);
+  const av = p.authorAvatar ? '<img src="'+escH(p.authorAvatar)+'">' : escH((p.authorName||'?')[0].toUpperCase());
+  return '<div class="thread-card" onclick="openThread(\''+p.id+'\')">'
+    + '<div class="tc-top">'
+      + '<div class="tc-avatar">'+av+'</div>'
+      + '<div style="flex:1;min-width:0">'
+        + '<div class="tc-name">'+authorNameHtml(p)+roleBadge(p.authorRole)+rankBadge(p.authorRank)+'</div>'
+        + '<div class="tc-time">'+timeAgo(p.createdAt)+'</div>'
+      + '</div>'
+      + (p.status==='pending' ? '<span class="badge-pending">CHỜ DUYỆT</span>' : '')
+      + (p.pinned ? '<span class="badge-pin"><i class="ph-duotone ph-push-pin"></i>GHIM</span>' : '')
+    + '</div>'
+    + '<div style="margin-bottom:7px">'+catChip(p)+(p.hidden?' <span class="badge-pending">ĐÃ ẨN</span>':'')+'</div>'
+    + (p.text ? '<div class="tc-text clamp">'+escH(p.text)+'</div>' : '')
+    + briefHtml(p)
+    + mediaHtml(p)
+    + '<div class="tc-foot">'
+      + '<button class="tc-stat'+(hearted?' hearted':'')+'" onclick="event.stopPropagation();heartPost(\''+p.id+'\')">'
+        + (hearted?'❤️':'🤍') + ' <span>' + (p.heartCount||0) + '</span></button>'
+      + '<span class="tc-stat" style="cursor:pointer"><i class="ph-duotone ph-chat-circle"></i> '+(p.commentCount||0)+' bình luận</span>'
+      + (p.bestAnswerId ? '<span class="badge-ba"><i class="ph-duotone ph-seal-check"></i>Best Answer</span>' : '')
+    + '</div>'
+  + '</div>';
+}
+
+/* ════ P2 SWITCH (founder) ════ */
+window.toggleP2 = async function(){
+  if(!USER || USER.role !== 'founder') return;
+  try {
+    await callAdmin({ action: 'toggleP2', enabled: !P2_ON });
+    showToast(!P2_ON ? 'Đã BẬT P2 — CN/DN vào được diễn đàn' : 'Đã TẮT P2 — diễn đàn nội bộ KTS');
+  } catch(e){ showToast('Lỗi: ' + fnErr(e)); }
+};
+
+/* ════ ĐĂNG BÀI ════ */
+window.openPostModal = function(){
+  if(isGuest()){ requireLogin(); return; }
+  const cats = postableCats();
+  if(!cats.length){ showToast('Vai trò của bạn chưa đăng bài được'); return; }
+  selectedCat = cats[0];
+  $('catSelect').innerHTML = cats.map(c =>
+    '<div class="cat-opt'+(c===selectedCat?' sel':'')+'" onclick="pickCat(\''+c+'\')" id="catOpt-'+c+'">'
+    + '<i class="ph-duotone '+CATS[c].icon+'"></i>'+escH(CATS[c].label)+'</div>').join('');
+  syncBriefForm();
+  $('postModal').classList.add('open');
+  $('postText').focus();
+};
+window.pickCat = function(c){
+  selectedCat = c;
+  document.querySelectorAll('.cat-opt').forEach(el => el.classList.remove('sel'));
+  const el = $('catOpt-'+c); if(el) el.classList.add('sel');
+  syncBriefForm();
+};
+function syncBriefForm(){
+  $('briefForm').style.display = (selectedCat === 'tu_van_du_an' && USER.role !== 'founder') ? 'flex' : 'none';
+}
+window.closePostModal = function(){
+  $('postModal').classList.remove('open');
+  $('postText').value = ''; $('postFilterWarn').style.display = 'none';
+  const sb = $('similarBox'); if(sb){ sb.style.display = 'none'; sb.innerHTML = ''; }
+  selectedFiles = []; renderImgPreview();
+  $('bfConsent').checked = false;
+};
+window.livePostFilter = function(){
+  const v = filterViolation($('postText').value);
+  const warn = $('postFilterWarn');
+  if(v){
+    warn.style.display = 'block';
+    warn.textContent = '⚠ Nội dung chứa ' + VIOLATION_LABEL[v] + ' — sẽ bị chặn. ' + BLOCK_MSG;
+  } else warn.style.display = 'none';
+  if(typeof checkSimilar === 'function') checkSimilar();
+};
+window.handleImgSelect = function(input){
+  const files = Array.from(input.files || []).slice(0, 4 - selectedFiles.length);
+  files.forEach(f => selectedFiles.push(f));
+  renderImgPreview(); input.value = '';
+};
+function renderImgPreview(){
+  const wrap = $('imgPreview');
+  if(!selectedFiles.length){ wrap.style.display = 'none'; wrap.innerHTML = ''; return; }
+  wrap.style.display = 'flex';
+  wrap.innerHTML = selectedFiles.map((f, i) => {
+    const url = URL.createObjectURL(f);
+    const thumb = f.type.startsWith('video') ? '<video src="'+url+'" muted></video>' : '<img src="'+url+'">';
+    return '<div class="img-prev-item">'+thumb+'<button class="img-prev-del" onclick="removeImg('+i+')">✕</button></div>';
+  }).join('');
+}
+window.removeImg = function(i){ selectedFiles.splice(i, 1); renderImgPreview(); };
+
+window.submitPost = async function(){
+  const text = ($('postText').value || '').trim();
+  if(!text && !selectedFiles.length){ showToast('Nhập nội dung hoặc chọn ảnh'); return; }
+  const v = filterViolation(text);
+  if(v){ showToast('⛔ ' + BLOCK_MSG); livePostFilter(); return; }
+
+  let brief = null;
+  if(selectedCat === 'tu_van_du_an' && USER.role !== 'founder'){
+    brief = {
+      projectType: $('bfType').value,
+      area: Number($('bfArea').value),
+      region: ($('bfRegion').value || '').trim(),
+      budget: $('bfBudget').value,
+      timeline: $('bfTimeline').value,
+      hasLand: $('bfHasLand').value === 'yes',
+      consent: $('bfConsent').checked,
+    };
+    if(!brief.area){ showToast('Nhập diện tích'); return; }
+    if(!brief.region){ showToast('Nhập khu vực (quận/tỉnh)'); return; }
+    if(!brief.consent){ showToast('Cần đồng ý xử lý dữ liệu cá nhân (NĐ 13/2023)'); return; }
+  }
+
+  const btn = $('btnSubmitPost');
+  btn.disabled = true; btn.textContent = 'Đang đăng...';
+  try {
+    const media = [];
+    for(let i = 0; i < selectedFiles.length; i++){
+      const f = selectedFiles[i];
+      const ref = storageRef(storage, 'community/draft_'+Date.now()+'_'+i+'_'+f.name);
+      const up = await uploadBytes(ref, f);
+      const url = await getDownloadURL(up.ref);
+      media.push({ url, type: f.type.startsWith('video') ? 'video' : 'image' });
+    }
+    const referrerUid = window.alnGetRef ? window.alnGetRef() : '';
+    const res = await callPost({ category: selectedCat, text, media, brief, referrerUid });
+    try{
+      window.dataLayer = window.dataLayer || [];
+      dataLayer.push({ event: 'aln_forum_thread_created', aln_forum_category: selectedCat });
+      if (window.fbq) fbq('trackCustom', 'ForumThreadCreated', { content_category: selectedCat });
+    }catch(e){}
+    closePostModal();
+    showToast(res.data.status === 'pending'
+      ? 'Đã gửi — bài của bạn chờ Founder duyệt (3 đóng góp đầu tiên)'
+      : 'Đã đăng bài!');
+  } catch(e){
+    showToast('⛔ ' + fnErr(e));
+  } finally {
+    btn.disabled = false; btn.textContent = 'Đăng bài';
+  }
+};
+
+/* ════ THREAD ════ */
+window.openThread = function(pid){
+  openThreadId = pid;
+  replyTo = null;
+  $('threadModal').classList.add('open');
+  renderThread();
+  updateThreadMeta(pid);   // PASS 5: title/OG/URL theo thread để chia sẻ & SEO
+  if(commentsUnsub) commentsUnsub();
+  /* Founder/KTS: đọc mọi comment (orderBy). Khách + CN + DN: chỉ comment public+visible
+     (khớp rules — tránh permission-denied khi thread có comment chờ duyệt/ẩn), sort client-side */
+  const fullReader = (USER.role === 'founder' || USER.role === 'kts');
+  const cq = fullReader
+    ? query(collection(db, 'forumPosts', pid, 'comments'), orderBy('createdAt', 'asc'))
+    : query(collection(db, 'forumPosts', pid, 'comments'),
+        where('categoryVisibility', '==', 'public'), where('status', '==', 'visible'));
+  commentsUnsub = onSnapshot(cq, snap => {
+    threadComments = [];
+    snap.forEach(d => threadComments.push(Object.assign({ id: d.id }, d.data())));
+    if(!fullReader){
+      const cms = t => (t && t.seconds) || 0;
+      threadComments.sort((a, b) => cms(a.createdAt) - cms(b.createdAt));
+    }
+    renderThread();
+  }, err => console.warn('[forum comments]', err.message));
+};
+window.closeThread = function(){
+  openThreadId = null;
+  $('threadModal').classList.remove('open');
+  if(commentsUnsub){ commentsUnsub(); commentsUnsub = null; }
+  threadComments = []; replyTo = null;
+  if(typeof resetAiGate === 'function') resetAiGate();
+  resetForumMeta();   // PASS 5: trả title/OG/URL về mặc định diễn đàn
+};
+
+/* PASS 5 — SEO/chia sẻ: cập nhật <title>, OG, và URL (?thread=ID) theo thread đang mở.
+   Host tĩnh không SSR nên FB/Zalo (không chạy JS) chỉ thấy thẻ mặc định; nhưng link
+   ?thread=ID chia sẻ được (tự mở lại thread) và Google (chạy JS) index được từng thread. */
+const _DEFAULT_TITLE = document.title;
+const _BASELINE_JSONLD = ((document.getElementById('forumJsonLd') || {}).textContent) || '';
+function _setMeta(sel, val){ const el = document.querySelector(sel); if(el) el.setAttribute('content', val); }
+function _setJsonLd(obj){ const el = document.getElementById('forumJsonLd'); if(el) el.textContent = JSON.stringify(obj); }
+function updateThreadMeta(pid){
+  const p = ALL_POSTS.find(x => x.id === pid);
+  const url = 'https://applamnha.vn/forum.html?thread=' + encodeURIComponent(pid);
+  try { history.replaceState({ thread: pid }, '', 'forum.html?thread=' + encodeURIComponent(pid)); } catch(e){}
+  if(!p) return;
+  const raw = (p.text || '').replace(/\s+/g, ' ').trim();
+  const title = (raw.slice(0, 70) || 'Chủ đề') + (raw.length > 70 ? '…' : '');
+  const cat = (CATS[catOf(p)] || {}).label || 'Diễn đàn';
+  document.title = title + ' — ' + cat + ' | Diễn đàn ALN';
+  const desc = raw.slice(0, 155) || 'Trao đổi trên Diễn đàn ALN.';
+  const img = (p.media && p.media[0] && p.media[0].type !== 'video' && p.media[0].url)
+    || 'https://applamnha.vn/assets/demo/aln-demo-biet-thu-vuon.jpg';
+  _setMeta('meta[property="og:title"]', title);
+  _setMeta('meta[property="og:description"]', desc);
+  _setMeta('meta[property="og:url"]', url);
+  _setMeta('meta[property="og:image"]', img);
+  _setMeta('meta[name="twitter:title"]', title);
+  _setMeta('meta[name="twitter:description"]', desc);
+  _setMeta('meta[name="twitter:image"]', img);
+  // JSON-LD DiscussionForumPosting cho thread (rich result Google) — khớp bài thật ALN
+  const ld = {
+    '@context': 'https://schema.org', '@type': 'DiscussionForumPosting',
+    headline: title, articleBody: raw.slice(0, 500), url: url, inLanguage: 'vi',
+    author: { '@type': 'Person', name: p.authorName || 'Thành viên ALN' },
+    interactionStatistic: [
+      { '@type': 'InteractionCounter', interactionType: 'https://schema.org/CommentAction', userInteractionCount: p.commentCount || 0 },
+      { '@type': 'InteractionCounter', interactionType: 'https://schema.org/LikeAction', userInteractionCount: p.heartCount || 0 },
+    ],
+  };
+  if (p.createdAt && p.createdAt.seconds) ld.datePublished = new Date(p.createdAt.seconds * 1000).toISOString();
+  if (p.media && p.media[0] && p.media[0].type !== 'video' && p.media[0].url) ld.image = p.media[0].url;
+  _setJsonLd(ld);
+}
+function resetForumMeta(){
+  document.title = _DEFAULT_TITLE;
+  try { history.replaceState({}, '', 'forum.html'); } catch(e){}
+  _setMeta('meta[property="og:title"]', 'Diễn đàn ALN — Hỏi Kiến trúc sư miễn phí');
+  _setMeta('meta[property="og:description"]', 'Hỏi đáp trực tiếp với KTS đã xác minh, xem giá vật liệu & công trình thực tế. Đọc công khai, miễn phí.');
+  _setMeta('meta[property="og:url"]', 'https://applamnha.vn/forum.html');
+  _setMeta('meta[property="og:image"]', 'https://applamnha.vn/assets/demo/aln-demo-biet-thu-vuon.jpg');
+  const el = document.getElementById('forumJsonLd'); if(el && _BASELINE_JSONLD) el.textContent = _BASELINE_JSONLD;
+}
+
+function canCommentHere(p){
+  if(!USER) return false;
+  if(USER.role === 'founder' || USER.role === 'kts') return true;
+  if((USER.role === 'cn' || USER.role === 'dn') && P2_ON) return p.authorUid === USER.uid;
+  return false;
+}
+
+function renderThread(){
+  const p = ALL_POSTS.find(x => x.id === openThreadId);
+  if(!p){ $('threadBody').innerHTML = '<div class="empty-state"><p>Bài viết không còn tồn tại.</p></div>'; return; }
+  const isTuVan = catOf(p) === 'tu_van_du_an';
+  const av = p.authorAvatar ? '<img src="'+escH(p.authorAvatar)+'">' : escH((p.authorName||'?')[0].toUpperCase());
+  const hearted = p.heartedBy && p.heartedBy.includes(USER.uid);
+  const mine = p.authorUid === USER.uid;
+
+  let html = ''
+    + '<div class="tc-top">'
+      + '<div class="tc-avatar">'+av+'</div>'
+      + '<div style="flex:1;min-width:0">'
+        + '<div class="tc-name">'+authorNameHtml(p)+roleBadge(p.authorRole)+rankBadge(p.authorRank)+'</div>'
+        + '<div class="tc-time">'+timeAgo(p.createdAt)+'</div>'
+      + '</div>'
+      + (p.status==='pending' ? '<span class="badge-pending">CHỜ DUYỆT</span>' : '')
+    + '</div>'
+    + '<div>'+catChip(p)+'</div>'
+    + (isTuVan ? '<div class="tuvan-disclaimer" style="display:block;margin:0">'+escH(DISCLAIMER)+'</div>' : '')
+    + (p.text ? '<div class="tc-text">'+escH(p.text)+'</div>' : '')
+    + briefHtml(p)
+    + mediaHtml(p, true)
+    + (p.chosenKts ? '<div class="chosen-banner"><i class="ph-duotone ph-check-circle"></i> Chủ đầu tư đã chọn <b>'+escH(p.chosenKts.name)+'</b>'+rankBadge(p.chosenKts.rank)+' làm KTS dự án — đang trao đổi qua kênh chat sàn ALN</div>' : '')
+    + suggestedKtsHtml(p)
+    + '<div class="tc-foot" style="border-top:none;padding-top:0">'
+      + '<button class="tc-stat'+(hearted?' hearted':'')+'" onclick="heartPost(\''+p.id+'\')">'+(hearted?'❤️':'🤍')+' '+(p.heartCount||0)+'</button>'
+      + '<button class="tc-stat" onclick="openReport(\'post\',\''+p.id+'\')"><i class="ph-duotone ph-flag"></i> Báo cáo</button>'
+      + ((p.commentCount||0) >= 2 ? '<button class="tc-stat" onclick="summarizeThread(\''+p.id+'\')"><i class="ph-duotone ph-list-bullets"></i> Tóm tắt AI</button>' : '')
+      + ((mine || USER.role==='founder') ? '<button class="tc-stat" onclick="delPost(\''+p.id+'\')"><i class="ph-duotone ph-trash"></i> Xóa</button>' : '')
+      + (USER.role==='founder' ? '<button class="tc-stat" onclick="pinPost(\''+p.id+'\')"><i class="ph-duotone ph-push-pin"></i> '+(p.pinned?'Bỏ ghim':'Ghim')+'</button>' : '')
+      + (USER.role==='founder' && p.bestAnswerId ? '<button class="tc-stat" onclick="toCamNang(\''+p.id+'\')" style="color:var(--gold)"><i class="ph-duotone ph-book-bookmark"></i> '+(p.camNangId?'Đã vào Cẩm nang':'Đưa vào Cẩm nang')+'</button>' : '')
+      + (USER.role==='founder' && p.bestAnswerId ? '<button class="tc-stat" onclick="toMarketingDraft(\''+p.id+'\')" style="color:var(--gold)"><i class="ph-duotone ph-megaphone"></i> '+(p.marketingDraftId?'Đã có nháp Fanpage':'Tạo nháp Fanpage')+'</button>' : '')
+    + '</div>'
+    + '<div id="aiSummaryBox" class="ai-summary" style="display:'+(p.aiSummary?'block':'none')+'">'
+      + (p.aiSummary ? '<div class="ai-tag"><i class="ph-duotone ph-sparkle"></i> Tóm tắt AI</div>'+escH(p.aiSummary).replace(/\n/g,'<br>') : '')
+    + '</div>'
+    + '<div style="border-top:1px solid var(--border);padding-top:12px">'
+      + '<div class="f-label">'+(p.commentCount||0)+' BÌNH LUẬN</div>'
+      + '<div class="cm-list">' + renderComments(p) + '</div>'
+      + renderComposer(p)
+    + '</div>';
+  $('threadBody').innerHTML = html;
+}
+
+function renderComments(p){
+  const isTuVan = catOf(p) === 'tu_van_du_an';
+  const visible = threadComments.filter(c =>
+    c.status === 'visible' || (c.status === 'pending' && (c.authorUid === USER.uid || USER.role === 'founder')));
+  const roots = visible.filter(c => !c.replyToId);
+  /* Xếp hạng thông minh: Best Answer → nhiều tim → cũ trước */
+  const cms = t => (t && t.seconds) || 0;
+  roots.sort((a, b) =>
+    ((b.isBestAnswer?1:0) - (a.isBestAnswer?1:0))
+    || ((b.heartCount||0) - (a.heartCount||0))
+    || (cms(a.createdAt) - cms(b.createdAt)));
+  if(!visible.length) return '<div style="font-size:var(--text-xs);color:var(--muted);padding:8px 0">Chưa có bình luận nào.</div>';
+  return roots.map(c => renderComment(p, c, false)
+    + visible.filter(r => r.replyToId === c.id).map(r => renderComment(p, r, true)).join('')
+  ).join('');
+}
+
+function renderComment(p, c, isReply){
+  const hearted = c.heartedBy && c.heartedBy.includes(USER.uid);
+  const av = c.authorAvatar ? '<img src="'+escH(c.authorAvatar)+'">' : escH((c.authorName||'?')[0].toUpperCase());
+  const isTuVan = catOf(p) === 'tu_van_du_an';
+  const canMarkBest = !isReply && (p.authorUid === USER.uid || USER.role === 'founder') && !c.isBestAnswer && c.authorUid !== USER.uid;
+  const buyerRole = (USER.role === 'cn' || USER.role === 'dn' || USER.role === 'founder');
+  const canInvite = isTuVan && c.authorRole === 'kts' && buyerRole && c.authorUid !== USER.uid;
+  const canChoose = (isTuVan || catOf(p) === 'hoi_kts') && c.authorRole === 'kts'
+    && buyerRole && c.authorUid !== USER.uid && !p.chosenKts;
+  const canShareBest = c.isBestAnswer && c.authorUid === USER.uid;
+  const nameHtml = c.authorRole === 'kts'
+    ? '<a href="kts_profile.html?uid='+escH(c.authorUid)+'">'+escH(c.authorName)+'</a>'
+    : escH(c.authorName);
+
+  return '<div class="cm-item'+(isReply?' reply':'')+'">'
+    + '<div class="cm-avatar">'+av+'</div>'
+    + '<div class="cm-bubble'+(c.isBestAnswer?' best':'')+'">'
+      + '<div class="cm-head">'
+        + '<span class="cm-name">'+nameHtml+'</span>'+roleBadge(c.authorRole)+rankBadge(c.authorRank)
+        + (c.isBestAnswer ? '<span class="badge-ba"><i class="ph-duotone ph-seal-check"></i>Best Answer</span>' : '')
+        + (c.status==='pending' ? '<span class="badge-pending">CHỜ DUYỆT</span>' : '')
+        + '<span class="cm-time">'+timeAgo(c.createdAt)+'</span>'
+      + '</div>'
+      + '<div class="cm-text">'+escH(c.text)+'</div>'
+      + (isTuVan && c.authorRole === 'kts' ? '<div class="cm-disclaimer">'+escH(DISCLAIMER)+'</div>' : '')
+      + '<div class="cm-actions">'
+        + '<button class="cm-act'+(hearted?' hearted':'')+'" onclick="heartComment(\''+p.id+'\',\''+c.id+'\')">'+(hearted?'❤️':'🤍')+' '+(c.heartCount||0)+'</button>'
+        + (canCommentHere(p) ? '<button class="cm-act" onclick="startReply(\''+(c.replyToId||c.id)+'\',\''+escH(c.authorName)+'\')">↩ Trả lời</button>' : '')
+        + (canMarkBest ? '<button class="cm-act" onclick="markBest(\''+p.id+'\',\''+c.id+'\')" style="color:#3a7a3e">✔ Best Answer</button>' : '')
+        + (canInvite ? '<button class="cm-act invite" onclick="inviteKts(\''+escH(c.authorUid)+'\',\''+p.id+'\')"><i class="ph-duotone ph-chats-circle"></i> Mời tư vấn</button>' : '')
+        + (canChoose ? '<button class="cm-act choose" onclick="openChoose(\''+escH(c.authorUid)+'\',\''+escH(c.authorName||'KTS')+'\')"><i class="ph-duotone ph-handshake"></i> Chọn KTS này làm dự án</button>' : '')
+        + (canShareBest ? '<button class="cm-act" onclick="shareBestAnswer(\''+p.id+'\')" style="color:var(--c-blue,#4a8fff)"><i class="ph-duotone ph-share-network"></i> Chia sẻ Best Answer</button>' : '')
+        + (USER.role==='founder' && isTuVan && c.authorRole==='kts' && !p.firstAnswerRewarded
+            ? '<button class="cm-act" onclick="rewardFirst(\''+p.id+'\',\''+c.id+'\')" style="color:var(--gold)">⭐ Thưởng trả lời đầu ×2</button>' : '')
+        + '<button class="cm-act" onclick="openReport(\'comment\',\''+p.id+'\',\''+c.id+'\')">⚑</button>'
+        + ((c.authorUid === USER.uid || USER.role === 'founder') ? '<button class="cm-act" onclick="delComment(\''+p.id+'\',\''+c.id+'\')">🗑</button>' : '')
+      + '</div>'
+    + '</div>'
+  + '</div>';
+}
+
+function renderComposer(p){
+  if(isGuest()){
+    return '<div class="guest-cta"><p>Đăng nhập hoặc tạo tài khoản miễn phí để đặt câu hỏi cho KTS.</p>'
+      + '<button onclick="requireLogin()"><i class="ph-duotone ph-chat-circle-dots"></i> Đăng nhập để bình luận</button></div>';
+  }
+  if(!canCommentHere(p)){
+    if((USER.role === 'cn' || USER.role === 'dn') && P2_ON){
+      return '<div style="font-size:var(--text-2xs);color:var(--muted);margin-top:10px">Bạn chỉ bình luận được trong thread do mình tạo (chuyên mục Tư vấn Dự án).</div>';
+    }
+    return '';
+  }
+  const showAi = (USER.role === 'kts' || USER.role === 'founder');
+  return '<div class="reply-tag" id="replyTag" style="display:'+(replyTo?'flex':'none')+'">'
+      + (replyTo ? '↩ Đang trả lời <b>'+escH(replyTo.name)+'</b>' : '')
+      + '<button onclick="cancelReply()">✕ hủy</button></div>'
+    + (showAi ? '<button class="ai-draft-btn" id="aiDraftBtn" onclick="aiDraft(\''+p.id+'\')"><i class="ph-duotone ph-sparkle"></i> AI soạn nháp trả lời</button>' : '')
+    + '<div class="cm-composer">'
+      + '<textarea class="cm-input" id="cmInput" placeholder="Viết bình luận... (không SĐT / Zalo / link ngoài)" oninput="liveCmFilter()"></textarea>'
+      + '<button class="cm-send" id="cmSendBtn" onclick="submitComment(\''+p.id+'\')"><i class="ph-duotone ph-paper-plane-tilt"></i></button>'
+    + '</div>'
+    + '<div class="ai-gate" id="aiGate" style="display:none">'
+      + '<label class="ai-gate-label"><input type="checkbox" id="aiConfirm" onchange="onAiConfirm()" disabled>'
+      + '<span id="aiGateText"></span></label>'
+    + '</div>'
+    + '<div class="filter-warn" id="cmFilterWarn" style="margin-top:6px"></div>';
+}
+/* Ô trả lời tự giãn theo nội dung (giãn hết ý AI, tối đa 55% màn hình rồi cuộn) */
+function autoGrowCm(){
+  const el = $('cmInput'); if(!el) return;
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight + 2, Math.round(window.innerHeight * 0.55)) + 'px';
+}
+window.liveCmFilter = function(){
+  const el = $('cmInput'), warn = $('cmFilterWarn');
+  if(!el || !warn) return;
+  autoGrowCm();
+  if(cmAiDrafted && el.value.trim() === '') resetAiGate();   // xóa trắng thì bỏ cổng
+  const v = filterViolation(el.value);
+  if(v){ warn.style.display = 'block'; warn.textContent = '⚠ Nội dung chứa ' + VIOLATION_LABEL[v] + ' — sẽ bị chặn. ' + BLOCK_MSG; }
+  else warn.style.display = 'none';
+};
+
+/* ════ DIỄN ĐÀN THÔNG MINH (client) ════ */
+/* Tóm tắt AI thread dài (server cache để tiết kiệm) */
+window.summarizeThread = async function(pid){
+  if(isGuest()){ requireLogin(); return; }
+  const box = $('aiSummaryBox'); if(!box) return;
+  box.style.display = 'block';
+  box.innerHTML = '<div class="ai-tag"><i class="ph-duotone ph-circle-notch"></i> Đang tóm tắt…</div>';
+  try {
+    const r = await callSummarize({ postId: pid });
+    box.innerHTML = '<div class="ai-tag"><i class="ph-duotone ph-sparkle"></i> Tóm tắt AI</div>'
+      + escH(r.data.summary || '').replace(/\n/g, '<br>');
+  } catch(e){ box.style.display='none'; showToast('Lỗi tóm tắt: ' + fnErr(e)); }
+};
+/* Cổng bắt buộc ĐỌC & XÁC NHẬN trước khi gửi bản nháp AI (chống bấm gửi vô tội vạ) */
+let cmAiDrafted = false;
+let _aiCd = null;
+function showAiGate(){
+  cmAiDrafted = true;
+  const gate = $('aiGate'), cb = $('aiConfirm'), txt = $('aiGateText'), send = $('cmSendBtn');
+  if(!gate || !cb || !txt) return;
+  gate.style.display = 'block';
+  if(send) send.disabled = true;
+  cb.checked = false; cb.disabled = true;
+  let s = 6;   // buộc đọc ít nhất 6 giây trước khi được tick
+  txt.textContent = 'Hãy đọc lại nội dung AI đã soạn… (' + s + 's)';
+  clearInterval(_aiCd);
+  _aiCd = setInterval(() => {
+    s--;
+    if(s <= 0){ clearInterval(_aiCd); cb.disabled = false; txt.textContent = 'Tôi đã đọc kỹ, kiểm chứng & chịu trách nhiệm về nội dung này'; }
+    else txt.textContent = 'Hãy đọc lại nội dung AI đã soạn… (' + s + 's)';
+  }, 1000);
+}
+window.onAiConfirm = function(){
+  const send = $('cmSendBtn'), cb = $('aiConfirm');
+  if(send && cb) send.disabled = !cb.checked;
+};
+function resetAiGate(){
+  cmAiDrafted = false; clearInterval(_aiCd);
+  const gate = $('aiGate'), send = $('cmSendBtn');
+  if(gate) gate.style.display = 'none';
+  if(send) send.disabled = false;
+}
+/* KTS: AI soạn NHÁP trả lời — điền vào ô; buộc đọc & xác nhận rồi mới gửi được */
+window.aiDraft = async function(pid){
+  const el = $('cmInput'); if(!el) return;
+  const btn = $('aiDraftBtn'); const prev = el.value;
+  if(btn){ btn.disabled = true; btn.classList.add('loading'); }
+  el.value = 'AI đang soạn nháp…'; el.disabled = true;
+  try {
+    const r = await callAiDraft({ postId: pid, replyToId: replyTo ? replyTo.id : null });
+    el.value = r.data.draft || prev;
+    autoGrowCm(); el.scrollTop = 0; el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    showAiGate();
+    showToast('AI mới soạn NHÁP — đọc kỹ & chỉnh cho đúng ý bạn trước khi gửi');
+  } catch(e){ el.value = prev; showToast('Lỗi AI: ' + fnErr(e)); }
+  finally { el.disabled = false; if(btn){ btn.disabled = false; btn.classList.remove('loading'); } el.focus();
+    const w = $('cmFilterWarn'); if(w){ const v = filterViolation(el.value); w.style.display = v ? 'block' : 'none'; if(v) w.textContent = '⚠ Nội dung chứa ' + VIOLATION_LABEL[v] + ' — sẽ bị chặn. ' + BLOCK_MSG; }
+  }
+};
+/* Chủ đầu tư CHỌN KTS làm dự án — mở modal xác nhận */
+let chooseTarget = null;
+window.openChoose = function(ktsUid, ktsName){
+  const p = ALL_POSTS.find(x => x.id === openThreadId);
+  if(!p) return;
+  chooseTarget = { ktsUid: ktsUid, ktsName: ktsName };
+  $('chooseKtsName').innerHTML = 'Bạn sẽ chọn <b>'+escH(ktsName||'KTS')+'</b> thực hiện dự án này (thông tin lấy sẵn từ câu hỏi — không phải nhập lại).';
+  $('chooseBrief').innerHTML = p.brief ? briefHtml(p) : '';
+  $('chooseFee').textContent = 'Phí thiết kế theo bảng niêm yết công khai của ALN — minh bạch trước khi vào hợp đồng.';
+  $('chooseModal').classList.add('open');
+};
+window.closeChoose = function(){ $('chooseModal').classList.remove('open'); chooseTarget = null; };
+window.confirmChoose = async function(){
+  if(!chooseTarget) return;
+  const btn = $('chooseConfirmBtn'); btn.disabled = true;
+  try {
+    await callChooseKts({ threadId: openThreadId, ktsUid: chooseTarget.ktsUid, ktsName: chooseTarget.ktsName });
+    closeChoose();
+    showToast('🎯 Đã chọn KTS làm dự án! KTS sẽ nhận thông báo — trao đổi tiếp & vào Quy trình 4 bước (C1→C4) qua kênh chat sàn ALN.');
+  } catch(e){ showToast('Lỗi: ' + fnErr(e)); }
+  finally { btn.disabled = false; }
+};
+/* Founder: đề cử Best Answer vào Cẩm nang (nội dung đã kiểm chứng) */
+window.toCamNang = async function(pid){
+  try { await callToCamNang({ postId: pid }); showToast('✅ Đã đưa Best Answer vào Cẩm nang (nháp)'); }
+  catch(e){ showToast('Lỗi: ' + fnErr(e)); }
+};
+/* Founder: tạo nháp bài Fanpage từ 1 Best Answer bất kỳ — vào tab Trợ lý
+   Marketing (founder_panel.html) để duyệt, sửa & tự bấm đăng, KHÔNG tự đăng. */
+window.toMarketingDraft = async function(pid){
+  try { await callToMarketingDraft({ postId: pid }); showToast('✅ Đã tạo nháp Fanpage — vào tab Trợ lý Marketing để duyệt & đăng'); }
+  catch(e){ showToast('Lỗi: ' + fnErr(e)); }
+};
+/* Mời bạn (referral): sinh link forum.html?ref=<uid của chính mình>, dùng Web
+   Share API nếu có (mobile), fallback copy clipboard. +15 điểm được cộng
+   phía server khi người được mời đăng bài đầu tiên (forumPost verify lại). */
+window.shareInviteLink = async function(){
+  if(!USER || !USER.uid) return;
+  const link = 'https://applamnha.vn/forum.html?ref=' + encodeURIComponent(USER.uid);
+  const text = 'Vào Diễn đàn ALN hỏi đáp Kiến trúc sư miễn phí — vật liệu, giá cả, kinh nghiệm xây nhà thực tế:';
+  try {
+    if(navigator.share){
+      await navigator.share({ title: 'Diễn đàn ALN', text, url: link });
+      return;
+    }
+  } catch(e){ /* user hủy share sheet — vẫn thử fallback copy bên dưới */ }
+  try {
+    await navigator.clipboard.writeText(link);
+    showToast('✅ Đã copy link mời bạn — gửi cho bạn bè để nhận +15 điểm khi họ đăng bài đầu tiên');
+  } catch(e){
+    showToast(link);
+  }
+};
+
+/* KTS chia sẻ câu trả lời Best Answer của chính mình lên Facebook cá nhân —
+   mạng lưới cá nhân KTS tiếp cận tự nhiên tốt hơn Fanpage. Dùng Web Share
+   API (giống shareInviteLink) thay vì link Facebook trần: facebook.com/sharer
+   chỉ lấy được OG mặc định của trang (bot Facebook không chạy JS nên không
+   thấy title/mô tả riêng từng thread) — soạn sẵn text đầy đủ để KTS dán
+   thẳng lên bài tự đăng, không phụ thuộc link preview. */
+window.shareBestAnswer = async function(postId){
+  const p = ALL_POSTS.find(x => x.id === postId);
+  if(!p) return;
+  const link = 'https://applamnha.vn/forum.html?thread=' + encodeURIComponent(postId) + '&utm_source=facebook&utm_medium=social&utm_campaign=kts_share';
+  const qShort = (p.text || '').replace(/\s+/g, ' ').trim().slice(0, 150);
+  const text = '🏆 Câu trả lời của tôi vừa được chọn Best Answer trên Diễn đàn ALN!\n\n❓ '+qShort+'\n\nXem đầy đủ và đặt câu hỏi tại:';
+  try {
+    if(navigator.share){
+      await navigator.share({ title: 'Diễn đàn ALN', text, url: link });
+      return;
+    }
+  } catch(e){ /* user hủy share sheet — vẫn thử fallback copy bên dưới */ }
+  try {
+    await navigator.clipboard.writeText(text + ' ' + link);
+    showToast('✅ Đã copy nội dung — dán lên Facebook cá nhân của bạn để chia sẻ');
+  } catch(e){
+    showToast(link);
+  }
+};
+
+/* Đăng xuất — signOut đã import sẵn ở đầu module này */
+window.forumLogout = async function(){
+  try { await signOut(auth); } catch(e){}
+  window.location.reload();
+};
+
+/* Điểm thưởng tăng trưởng: hiện điểm + huy hiệu cạnh tên user, đồng thời
+   đồng bộ trạng thái nút "Tôi đã follow" trong banner Fanpage. */
+async function loadMyPoints(){
+  if(!USER || !USER.uid) return;
+  try {
+    const r = await callMyPoints();
+    renderMyPoints(r.data || {});
+  } catch(e){ console.warn('[forum] forumMyPoints lỗi:', e); }
+}
+function renderMyPoints(data){
+  const points = data.points || 0;
+  const badges = data.badges || [];
+  const ptsEl = $('tbPoints');
+  if(ptsEl){
+    ptsEl.style.display = 'inline-flex';
+    ptsEl.innerHTML = '<i class="ph-duotone ph-medal"></i>' + points + 'đ';
+    const topBadge = badges.length ? badges[badges.length - 1].label : '';
+    const toGo = data.nextBadge ? ('Còn ' + data.nextBadge.pointsToGo + 'đ để đạt "' + data.nextBadge.label + '"') : '';
+    ptsEl.title = [topBadge ? ('Huy hiệu: ' + topBadge) : '', toGo].filter(Boolean).join(' — ');
+  }
+  const claimBtn = $('fpcClaim');
+  if(claimBtn){
+    claimBtn.style.display = 'inline-flex';
+    claimBtn.disabled = !!data.followClaimed;
+    $('fpcClaimText').textContent = data.followClaimed ? 'Đã nhận +5 điểm follow' : 'Tôi đã follow, nhận +5 điểm';
+  }
+  // Banner Fanpage không còn nút đóng thủ công (✕) — chỉ tự ẩn khi hệ thống
+  // xác nhận người dùng ĐÃ follow thật (đã bấm nhận +5 điểm), không phải cứ
+  // đóng 1 lần là ẩn vĩnh viễn như trước (Founder xác nhận 19/07/2026).
+  const ctaEl = $('fanpageCta');
+  if(ctaEl && data.followClaimed) ctaEl.style.display = 'none';
+}
+window.claimFollowPoints = async function(){
+  const btn = $('fpcClaim');
+  if(btn) btn.disabled = true;
+  try {
+    const r = await callFollowClaim();
+    showToast((r.data && r.data.already)
+      ? 'Bạn đã nhận điểm follow trước đó rồi'
+      : '✅ +5 điểm — cảm ơn bạn đã theo dõi Fanpage App Làm Nhà!');
+    loadMyPoints();
+  } catch(e){
+    showToast('Lỗi: ' + fnErr(e));
+    if(btn) btn.disabled = false;
+  }
+};
+
+/* Chống trùng: tìm câu hỏi tương tự khi soạn bài (debounce) */
+let _simTimer = null;
+window.checkSimilar = function(){
+  clearTimeout(_simTimer);
+  _simTimer = setTimeout(async () => {
+    const box = $('similarBox'); if(!box) return;
+    const text = ($('postText').value || '').trim();
+    if(text.length < 12){ box.style.display = 'none'; box.innerHTML = ''; return; }
+    try {
+      const r = await callSimilar({ text });
+      const items = (r.data && r.data.items) || [];
+      if(!items.length){ box.style.display = 'none'; box.innerHTML = ''; return; }
+      box.style.display = 'block';
+      box.innerHTML = '<div class="sim-title"><i class="ph-duotone ph-magnifying-glass"></i> Câu hỏi tương tự đã có — bấm để xem trước khi đăng</div>'
+        + items.map(i => '<div class="sim-item" onclick="closePostModal();openThread(\''+i.id+'\')">'
+            + (i.hasBest ? '<span class="sim-best"><i class="ph-duotone ph-seal-check"></i> Đã có Best Answer</span>' : '')
+            + escH(i.title) + '…</div>').join('');
+    } catch(e){ /* im lặng — không cản người dùng đăng */ }
+  }, 650);
+};
+window.startReply = function(cid, name){
+  replyTo = { id: cid, name };
+  const tag = $('replyTag');
+  if(tag){
+    tag.style.display = 'flex';
+    tag.innerHTML = '↩ Đang trả lời <b>'+escH(name)+'</b> <button onclick="cancelReply()">✕ hủy</button>';
+  }
+  const el = $('cmInput'); if(el) el.focus();
+};
+window.cancelReply = function(){
+  replyTo = null;
+  const tag = $('replyTag'); if(tag) tag.style.display = 'none';
+};
+window.submitComment = async function(pid){
+  const el = $('cmInput');
+  const text = (el && el.value || '').trim();
+  if(!text){ showToast('Nhập nội dung bình luận'); return; }
+  /* Bản nháp AI: bắt buộc đã tick xác nhận đọc & kiểm chứng */
+  if(cmAiDrafted){
+    const cb = $('aiConfirm');
+    if(!cb || !cb.checked){ showToast('✋ Hãy đọc lại bản nháp AI và tick xác nhận đã kiểm chứng trước khi gửi'); return; }
+  }
+  const v = filterViolation(text);
+  if(v){ showToast('⛔ ' + BLOCK_MSG); liveCmFilter(); return; }
+  el.disabled = true;
+  try {
+    const res = await callComment({ postId: pid, text, replyToId: replyTo ? replyTo.id : null, aiAssisted: cmAiDrafted });
+    el.value = ''; resetAiGate(); cancelReply();
+    if(res.data.status === 'pending') showToast('Đã gửi — bình luận chờ Founder duyệt (3 đóng góp đầu)');
+  } catch(e){
+    showToast('⛔ ' + fnErr(e));
+  } finally { el.disabled = false; el.focus(); }
+};
+
+/* ════ ACTIONS ════ */
+window.heartPost = async function(pid){
+  if(isGuest()){ requireLogin(); return; }
+  try { await callHeart({ postId: pid }); } catch(e){ showToast('Lỗi: '+fnErr(e)); }
+};
+window.heartComment = async function(pid, cid){
+  if(isGuest()){ requireLogin(); return; }
+  try { await callHeart({ postId: pid, commentId: cid }); } catch(e){ showToast('Lỗi: '+fnErr(e)); }
+};
+window.markBest = async function(pid, cid){
+  try { await callBest({ postId: pid, commentId: cid }); showToast('Đã đánh dấu Best Answer (+5 điểm uy tín cho KTS)'); }
+  catch(e){ showToast('Lỗi: '+fnErr(e)); }
+};
+window.inviteKts = async function(ktsUid, threadId){
+  try {
+    const res = await callInvite({ ktsUid, threadId });
+    showToast(res.data.existing
+      ? 'Bạn đã có lời mời đang mở với KTS này — mở kênh chat sàn để trao đổi tiếp'
+      : '🤝 Đã gửi lời mời tư vấn! KTS sẽ nhận thông báo — trao đổi tiếp qua kênh chat sàn ALN');
+  } catch(e){ showToast('Lỗi: '+fnErr(e)); }
+};
+window.delPost = async function(pid){
+  if(!confirm('Xóa bài này?')) return;
+  try { await callDelete({ postId: pid }); closeThread(); showToast('Đã xóa'); }
+  catch(e){ showToast('Lỗi: '+fnErr(e)); }
+};
+window.delComment = async function(pid, cid){
+  if(!confirm('Xóa bình luận này?')) return;
+  try { await callDelete({ postId: pid, commentId: cid }); } catch(e){ showToast('Lỗi: '+fnErr(e)); }
+};
+window.pinPost = async function(pid){
+  try { await callAdmin({ action: 'togglePin', postId: pid }); } catch(e){ showToast('Lỗi: '+fnErr(e)); }
+};
+window.rewardFirst = async function(pid, cid){
+  try {
+    await callAdmin({ action: 'rewardFirstAnswer', postId: pid, commentId: cid });
+    showToast('⭐ Đã thưởng câu trả lời đầu tiên đạt chất lượng (+5 điểm uy tín)');
+  } catch(e){ showToast('Lỗi: '+fnErr(e)); }
+};
+
+/* ════ BÁO CÁO ════ */
+const RP_OPTIONS = [
+  { key:'lach_san', label:'Lách sàn — trao đổi SĐT/Zalo/kênh ngoài' },
+  { key:'spam',     label:'Spam / quảng cáo' },
+  { key:'xau',      label:'Nội dung xấu / công kích' },
+  { key:'khac',     label:'Lý do khác' },
+];
+window.openReport = function(targetType, postId, commentId){
+  if(isGuest()){ requireLogin(); return; }
+  reportTarget = { targetType, postId, commentId: commentId || null };
+  reportReason = 'lach_san';
+  $('rpReasons').innerHTML = RP_OPTIONS.map(o =>
+    '<div class="rp-opt'+(o.key===reportReason?' sel':'')+'" onclick="pickReason(\''+o.key+'\')" id="rp-'+o.key+'">'+escH(o.label)+'</div>').join('');
+  $('rpNote').value = '';
+  $('reportModal').classList.add('open');
+};
+window.pickReason = function(k){
+  reportReason = k;
+  document.querySelectorAll('.rp-opt').forEach(el => el.classList.remove('sel'));
+  const el = $('rp-'+k); if(el) el.classList.add('sel');
+};
+window.closeReport = function(){ $('reportModal').classList.remove('open'); reportTarget = null; };
+window.submitReport = async function(){
+  if(!reportTarget) return;
+  try {
+    await callReport(Object.assign({}, reportTarget, { reason: reportReason, note: $('rpNote').value }));
+    closeReport(); showToast('Đã gửi báo cáo — Founder sẽ xử lý');
+  } catch(e){ showToast('Lỗi: '+fnErr(e)); }
+};
+
+/* ════ LIGHTBOX ════ */
+window.openLightbox = function(url){
+  $('lightboxImg').src = url;
+  $('lightbox').classList.add('open');
+};
+</script>
+<script src="ncc-network-badge.js" defer></script>
+</body>
+</html>

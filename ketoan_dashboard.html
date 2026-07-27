@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <script src="error-monitor.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ALN — Kế toán trưởng</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+<style>
+:root{
+  --bg:#080c14;--bg2:#0e1422;--bg3:#141b2e;
+  --card:rgba(14,20,34,.92);--border:rgba(255,255,255,.07);
+  --border-c:rgba(201,168,76,.18);--muted:rgba(220,204,160,.38);
+  --text:#f0ebe0;--text2:rgba(240,235,224,.62);
+  --gold:#C9A84C;--gold2:#e0c675;--green:#3dd68c;--red:#f06060;--amber:#f59e0b;
+  --r:12px;--mono:'JetBrains Mono',monospace;
+  --sans:'DM Sans',sans-serif;--serif:'Cormorant Garamond',serif;
+  --syne:'Syne',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:13px}
+@media(min-width:1440px){html{font-size:14px}}
+@media(min-width:1920px){html{font-size:16px}}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;font-size:1rem;
+  background-image:linear-gradient(rgba(201,168,76,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(201,168,76,.015) 1px,transparent 1px);
+  background-size:56px 56px;}
+body::before{content:'';position:fixed;top:-20%;left:50%;transform:translateX(-50%);width:800px;height:500px;
+  background:radial-gradient(ellipse,rgba(201,168,76,.07) 0%,transparent 65%);pointer-events:none;z-index:0;}
+a{color:var(--gold)}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:rgba(201,168,76,.25);border-radius:99px}
+.topbar{position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:12px;padding:0 24px;height:52px;
+  background:rgba(8,12,20,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border-bottom:1px solid rgba(255,255,255,.06);}
+.topbar-logo{font-family:var(--syne);font-size:13px;font-weight:800;letter-spacing:.18em;color:var(--gold);text-transform:uppercase}
+.topbar-sep{width:1px;height:20px;background:rgba(255,255,255,.1)}
+.topbar-title{font-family:var(--mono);font-size:9px;font-weight:600;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
+.topbar-grow{flex:1}
+.topbar-name{font-size:12px;font-weight:600;color:var(--text2)}
+.topbar-logout{background:transparent;border:1px solid rgba(255,255,255,.1);color:var(--muted);font-size:11px;
+  border-radius:7px;padding:5px 12px;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;gap:5px;transition:all .15s}
+.topbar-logout:hover{border-color:rgba(201,168,76,.3);color:rgba(201,168,76,.8)}
+.layout{max-width:900px;margin:0 auto;padding:28px 20px 72px;position:relative;z-index:1}
+.stats-row{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:24px}
+.stat-card{background:var(--card);border:1px solid var(--border-c);border-radius:var(--r);padding:16px 18px;display:flex;align-items:flex-start;gap:14px}
+.stat-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.stat-icon.gold{background:rgba(201,168,76,.1)}
+.stat-icon.green{background:rgba(61,214,140,.1)}
+.stat-label{font-family:var(--syne);font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.stat-val{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--text);line-height:1}
+.stat-sub{font-size:10px;color:var(--muted);margin-top:3px}
+.notice{padding:14px 16px;background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.18);border-radius:10px;font-size:11.5px;color:var(--text2);line-height:1.6;margin-bottom:20px}
+.notice b{color:var(--gold)}
+.tabs{display:flex;gap:2px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:3px;margin-bottom:20px}
+.tab{flex:1;padding:8px;border-radius:7px;border:none;background:transparent;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--syne);transition:all .18s;text-align:center}
+.tab.active{background:rgba(201,168,76,.12);color:var(--gold);border:1px solid rgba(201,168,76,.22);box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.period-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.period-btn{padding:6px 14px;border-radius:7px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;font-family:var(--sans)}
+.period-btn.active{background:rgba(201,168,76,.14);border-color:rgba(201,168,76,.4);color:var(--gold)}
+.btn-export{margin-left:auto;padding:6px 14px;border-radius:7px;border:1px solid rgba(61,214,140,.35);background:rgba(61,214,140,.1);color:var(--green);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans)}
+.tax-table{width:100%;border-collapse:collapse;font-size:11.5px;background:var(--card);border:1px solid var(--border-c);border-radius:var(--r);overflow:hidden}
+.tax-table th{padding:9px 12px;text-align:left;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:rgba(255,255,255,.03);border-bottom:1px solid var(--border)}
+.tax-table td{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.05);color:var(--text2)}
+.tax-table tr:last-child td{border-bottom:none}
+.tax-table td.num{text-align:right;font-family:var(--mono)}
+.tax-missing{color:var(--red);font-size:10px}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.section-title{font-family:var(--syne);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.badge-count{background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.22);color:var(--gold);
+  font-family:var(--mono);font-size:10px;font-weight:700;border-radius:99px;padding:2px 9px}
+.pay-card{background:var(--card);border:1px solid var(--border-c);border-radius:var(--r);padding:14px 18px;margin-bottom:12px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.pay-icon{width:42px;height:42px;border-radius:10px;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.25);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;color:var(--gold)}
+.pay-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pay-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.pay-bank{font-size:10.5px;color:var(--muted);margin-top:4px;font-family:var(--mono)}
+.pay-checked{font-size:10.5px;color:var(--green);margin-top:4px;font-weight:600}
+.pay-qr{width:84px;height:84px;flex-shrink:0;display:none;background:#fff;border:1px solid var(--border);border-radius:8px;padding:3px;align-items:center;justify-content:center;overflow:hidden}
+.pay-amt{font-family:var(--mono);font-size:17px;font-weight:700;color:var(--gold)}
+.pay-amt-sub{font-size:9.5px;color:var(--muted);font-family:var(--mono)}
+.btn-check{margin-top:6px;padding:6px 14px;background:rgba(61,214,140,.14);border:1.5px solid rgba(61,214,140,.4);border-radius:7px;color:var(--green);font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:var(--syne)}
+.btn-check:hover{background:rgba(61,214,140,.22)}
+.btn-check:disabled{opacity:.5;cursor:not-allowed}
+.empty{text-align:center;padding:44px 20px;color:var(--muted)}
+.empty-icon{font-size:36px;margin-bottom:14px;opacity:.4}
+.empty-text{font-size:13px;line-height:1.6}
+.loader{display:flex;align-items:center;justify-content:center;gap:8px;padding:36px;color:var(--muted);font-size:12px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(14,20,34,.97);
+  border:1px solid rgba(255,255,255,.1);color:var(--text);font-size:12px;font-weight:500;
+  padding:10px 22px;border-radius:99px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,.7);
+  opacity:0;pointer-events:none;transition:opacity .25s;white-space:nowrap;max-width:90vw}
+.toast.show{opacity:1}
+.toast.ok{border-color:rgba(61,214,140,.35);color:#7dffc0}
+.toast.err{border-color:rgba(240,96,96,.35);color:#f09898}
+@keyframes phspin{to{transform:rotate(360deg)}}
+@media(max-width:600px){ .topbar{padding:0 14px} .pay-card{flex-direction:column;align-items:stretch} }
+</style>
+<link rel="stylesheet" href="aln-tokens.css">
+</head>
+<body>
+
+<div class="topbar">
+  <span class="topbar-logo">ALN</span>
+  <div class="topbar-sep"></div>
+  <span class="topbar-title">Kế toán trưởng — Đối chiếu chi tiền</span>
+  <div class="topbar-grow"></div>
+  <span class="topbar-name" id="topName"></span>
+  <button class="topbar-logout" onclick="doLogout()">
+    <i class="ph-duotone ph-sign-out"></i> Đăng xuất
+  </button>
+</div>
+
+<div class="layout">
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon gold"><i class="ph-duotone ph-hourglass-medium"></i></div>
+      <div>
+        <div class="stat-label">Chờ đối chiếu</div>
+        <div class="stat-val" id="statPending">—</div>
+        <div class="stat-sub">Khoản chi KTS/Designer</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon green"><i class="ph-duotone ph-check-circle"></i></div>
+      <div>
+        <div class="stat-label">Đã kiểm tra</div>
+        <div class="stat-val" id="statChecked">—</div>
+        <div class="stat-sub">Đang chờ Founder chuyển</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notice">
+    <i class="ph-duotone ph-info"></i>
+    Bạn chỉ có quyền <b>xem</b> danh sách chờ chi và bấm <b>"Đã kiểm tra"</b> sau khi đối chiếu hồ sơ/số tiền.
+    Việc chuyển tiền thật và bấm "Đã chuyển" vẫn chỉ Founder thực hiện.
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" id="tabPending" onclick="switchKtTab('pending')">
+      <i class="ph-duotone ph-hourglass-medium"></i> Chờ chi
+    </button>
+    <button class="tab" id="tabTax" onclick="switchKtTab('tax')">
+      <i class="ph-duotone ph-receipt"></i> Báo cáo khấu trừ TNCN
+    </button>
+    <button class="tab" id="tabAccount" onclick="switchKtTab('account')">
+      <i class="ph-duotone ph-lock-key"></i> Tài khoản
+    </button>
+  </div>
+
+  <div id="panelPending">
+    <div class="section-head">
+      <span class="section-title">Khoản chờ chi cho KTS / Designer</span>
+      <span class="badge-count" id="countPending">0</span>
+    </div>
+    <div id="listPending"><div class="loader"><i class="ph-duotone ph-spinner" style="animation:phspin 1s linear infinite"></i> Đang tải…</div></div>
+  </div>
+
+  <div id="panelTax" style="display:none">
+    <div class="notice">
+      <i class="ph-duotone ph-info"></i>
+      Tính trên các khoản <b>đã thực chi</b> (Founder đã bấm "Đã chuyển"), theo mốc thời gian chuyển tiền.
+      Mỗi khoản bị khấu trừ <b>7% thuế TNCN</b> — bảng dưới tổng hợp theo từng người để kê khai.
+      Người chưa điền MST trong Hồ sơ sẽ hiện cảnh báo đỏ.
+    </div>
+    <div class="period-row">
+      <button class="period-btn active" onclick="setTaxPeriod('month')">Tháng này</button>
+      <button class="period-btn" onclick="setTaxPeriod('quarter')">Quý này</button>
+      <button class="period-btn" onclick="setTaxPeriod('all')">Tất cả</button>
+      <button class="btn-export" onclick="exportTaxCsv()"><i class="ph-duotone ph-download-simple"></i> Xuất CSV</button>
+    </div>
+    <div id="taxReportWrap"><div class="loader"><i class="ph-duotone ph-spinner" style="animation:phspin 1s linear infinite"></i> Đang tải…</div></div>
+  </div>
+
+  <div id="panelAccount" style="display:none;max-width:420px">
+    <div class="section-head">
+      <span class="section-title">Đổi mật khẩu</span>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border-c);border-radius:var(--r);padding:20px">
+      <div style="margin-bottom:12px">
+        <div style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Mật khẩu hiện tại</div>
+        <input type="password" id="pwCurrent" style="width:100%;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:9px 12px;color:var(--text);font-size:12px;font-family:var(--sans);outline:none;box-sizing:border-box">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px">
+        <div>
+          <div style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Mật khẩu mới</div>
+          <input type="password" id="pwNew" style="width:100%;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:9px 12px;color:var(--text);font-size:12px;font-family:var(--sans);outline:none;box-sizing:border-box">
+        </div>
+        <div>
+          <div style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px">Xác nhận</div>
+          <input type="password" id="pwConfirm" style="width:100%;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:9px 12px;color:var(--text);font-size:12px;font-family:var(--sans);outline:none;box-sizing:border-box">
+        </div>
+      </div>
+      <div style="font-size:9.5px;color:var(--muted);margin-bottom:12px">Ít nhất 6 ký tự. Chỉ bạn biết mật khẩu này — ALN không lưu lại.</div>
+      <button class="btn-check" onclick="changeMyPassword()" style="width:100%;justify-content:center"><i class="ph-duotone ph-key"></i> Đổi mật khẩu</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function esc(s){ return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmtAmt(v){ return v >= 1000000 ? (v/1000000).toFixed(1).replace('.0','') + ' tr' : (v/1000).toFixed(0) + 'K'; }
+var PLATFORM_FEE_PCT = 0.20, INCOME_TAX_PCT = 0.07;
+function fallbackNet(amount){ return Math.round((amount || 0) * (1 - PLATFORM_FEE_PCT - INCOME_TAX_PCT)); }
+
+var _tt = null;
+function showToast(msg, type){
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (type ? ' ' + type : '');
+  clearTimeout(_tt);
+  _tt = setTimeout(function(){ el.className = 'toast'; }, 3000);
+}
+
+function doLogout(){ window._doLogout && window._doLogout(); }
+function markChecked(coll, projId, stage){ window._markChecked && window._markChecked(coll, projId, stage); }
+
+function payCardHTML(pay){
+  var bankId = 'bankinfo-' + pay.coll + '-' + pay.projId + '-' + pay.stage;
+  var qrId = 'payqr-' + pay.coll + '-' + pay.projId + '-' + pay.stage;
+  var checked = pay.check;
+  return '<div class="pay-card">'
+    + '<div class="pay-icon"><i class="ph-duotone ph-money"></i></div>'
+    + '<div style="flex:1;min-width:220px">'
+      + '<div class="pay-name">' + esc(pay.projId) + ' — ' + esc(pay.projName) + '</div>'
+      + '<div class="pay-meta">' + esc(pay.roleLabel) + ': <b style="color:var(--text2)">' + esc(pay.personName) + '</b> · Chặng <b style="color:var(--amber)">' + esc(pay.stage) + '</b></div>'
+      + '<div class="pay-bank" id="' + bankId + '">Đang tải TK ngân hàng...</div>'
+      + (checked ? '<div class="pay-checked"><i class="ph-duotone ph-check-circle"></i> Đã kiểm tra' + (checked.checkedAt && checked.checkedAt.toDate ? ' lúc ' + checked.checkedAt.toDate().toLocaleString('vi-VN') : '') + '</div>' : '')
+    + '</div>'
+    + '<div class="pay-qr" id="' + qrId + '"></div>'
+    + '<div style="text-align:right;flex-shrink:0">'
+      + '<div class="pay-amt">' + fmtAmt(pay.netAmount) + 'đ</div>'
+      + '<div class="pay-amt-sub">gốc ' + fmtAmt(pay.amount) + 'đ · trừ 27%</div>'
+      + (checked
+        ? '<button class="btn-check" disabled><i class="ph-duotone ph-check"></i> Đã kiểm tra</button>'
+        : '<button class="btn-check" onclick="markChecked(\'' + pay.coll + '\',\'' + pay.projId + '\',\'' + pay.stage + '\')"><i class="ph-duotone ph-check"></i> Đã kiểm tra</button>')
+    + '</div>'
+  + '</div>';
+}
+
+function renderList(list){
+  var el = document.getElementById('listPending');
+  var pendingCount = list.filter(function(p){ return !p.check; }).length;
+  var checkedCount = list.filter(function(p){ return !!p.check; }).length;
+  document.getElementById('statPending').textContent = pendingCount;
+  document.getElementById('statChecked').textContent = checkedCount;
+  document.getElementById('countPending').textContent = list.length;
+  if (!list.length){
+    el.innerHTML = '<div class="empty"><div class="empty-icon"><i class="ph-duotone ph-check-circle"></i></div><div class="empty-text">Không có khoản nào đang chờ chi.</div></div>';
+    return;
+  }
+  el.innerHTML = list.map(payCardHTML).join('');
+}
+window.renderList = renderList;
+
+/* ── tabs ── */
+var _ktTab = 'pending';
+function switchKtTab(t){
+  _ktTab = t;
+  document.getElementById('tabPending').classList.toggle('active', t === 'pending');
+  document.getElementById('tabTax').classList.toggle('active', t === 'tax');
+  document.getElementById('tabAccount').classList.toggle('active', t === 'account');
+  document.getElementById('panelPending').style.display = (t === 'pending') ? 'block' : 'none';
+  document.getElementById('panelTax').style.display = (t === 'tax') ? 'block' : 'none';
+  document.getElementById('panelAccount').style.display = (t === 'account') ? 'block' : 'none';
+  window._ktTaxTabActive = (t === 'tax');
+  if (t === 'tax' && window._buildTaxReport) window._buildTaxReport(_taxPeriod);
+}
+
+/* ── báo cáo TNCN ── */
+var _taxPeriod = 'month';
+function setTaxPeriod(p){
+  _taxPeriod = p;
+  var btns = document.querySelectorAll('.period-btn');
+  for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+  event.target.classList.add('active');
+  if (window._buildTaxReport) window._buildTaxReport(p);
+}
+
+var _lastTaxRows = [];
+function renderTaxReport(rows){
+  _lastTaxRows = rows || [];
+  var el = document.getElementById('taxReportWrap');
+  if (!rows || !rows.length){
+    el.innerHTML = '<div class="empty"><div class="empty-icon"><i class="ph-duotone ph-receipt"></i></div><div class="empty-text">Không có khoản chi nào đã thanh toán trong kỳ này.</div></div>';
+    return;
+  }
+  var totalGross = 0, totalTax = 0, totalNet = 0;
+  var body = rows.map(function(r){
+    totalGross += r.gross; totalTax += r.tax; totalNet += r.net;
+    return '<tr>'
+      + '<td>' + esc(r.name) + (r.taxCode ? '' : '<div class="tax-missing"><i class="ph-duotone ph-warning"></i> Chưa có MST</div>') + '</td>'
+      + '<td>' + esc(r.taxCode || '—') + '</td>'
+      + '<td class="num">' + r.count + '</td>'
+      + '<td class="num">' + r.gross.toLocaleString('vi-VN') + 'đ</td>'
+      + '<td class="num" style="color:var(--red)">' + r.tax.toLocaleString('vi-VN') + 'đ</td>'
+      + '<td class="num" style="color:var(--green)">' + r.net.toLocaleString('vi-VN') + 'đ</td>'
+    + '</tr>';
+  }).join('');
+  el.innerHTML = '<div style="overflow-x:auto"><table class="tax-table"><thead><tr>'
+    + '<th>Người nhận</th><th>MST</th><th style="text-align:right">Số khoản</th><th style="text-align:right">Tổng gốc</th><th style="text-align:right">Thuế TNCN (7%)</th><th style="text-align:right">Thực nhận</th>'
+    + '</tr></thead><tbody>' + body
+    + '<tr style="font-weight:700"><td colspan="3">Tổng cộng</td>'
+    + '<td class="num">' + totalGross.toLocaleString('vi-VN') + 'đ</td>'
+    + '<td class="num" style="color:var(--red)">' + totalTax.toLocaleString('vi-VN') + 'đ</td>'
+    + '<td class="num" style="color:var(--green)">' + totalNet.toLocaleString('vi-VN') + 'đ</td></tr>'
+    + '</tbody></table></div>';
+}
+window.renderTaxReport = renderTaxReport;
+
+function exportTaxCsv(){
+  if (!_lastTaxRows.length){ showToast('Chưa có dữ liệu để xuất', 'err'); return; }
+  var lines = ['Người nhận,MST,Số khoản,Tổng gốc,Thuế TNCN 7%,Thực nhận'];
+  _lastTaxRows.forEach(function(r){
+    lines.push([r.name, r.taxCode || '', r.count, r.gross, r.tax, r.net].join(','));
+  });
+  var blob = new Blob(['﻿' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'bao-cao-khau-tru-tncn-' + _taxPeriod + '-' + new Date().toISOString().slice(0,10) + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+</script>
+
+<script type="module">
+import {
+  auth, db,
+  onAuthStateChanged, signOut,
+  doc, getDoc, updateDoc,
+  collection, onSnapshot, serverTimestamp,
+  updatePassword, reauthenticateWithCredential, EmailAuthProvider
+} from './firebase-config.js';
+
+let ME = null;
+let PROJECTS = [];
+let DESIGN_PROJECTS = [];
+
+onAuthStateChanged(auth, async function(user){
+  if (!user){ location.href = 'login.html'; return; }
+  let snap = null;
+  for (let i = 0; i < 3; i++){
+    try { snap = await getDoc(doc(db, 'users', user.uid)); break; }
+    catch(e){ await new Promise(r => setTimeout(r, 800)); }
+  }
+  const role = (snap && snap.exists()) ? snap.data().role : '';
+  if (role !== 'ke_toan' && role !== 'founder'){
+    const PAGE_BY_ROLE = { founder:'founder_panel.html', kts:'kts_dashboard.html', designer:'designer_dashboard.html', dn:'client_DN.html', cn:'client_CN.html', ks:'ks_dashboard.html', ktv:'ktv_dashboard.html' };
+    location.href = PAGE_BY_ROLE[role] || 'login.html'; return;
+  }
+  ME = snap.exists() ? snap.data() : { name:'Founder', role:'founder' };
+  ME.uid = user.uid;
+  document.getElementById('topName').textContent = ME.name || '';
+
+  onSnapshot(collection(db, 'projects'), function(qs){
+    PROJECTS = qs.docs.map(d => Object.assign({ id: d.id }, d.data()));
+    rebuild();
+  }, function(err){ console.error('[ke_toan projects]', err.code, err.message); });
+
+  onSnapshot(collection(db, 'designProjects'), function(qs){
+    DESIGN_PROJECTS = qs.docs.map(d => Object.assign({ id: d.id }, d.data()));
+    rebuild();
+  }, function(err){ console.error('[ke_toan designProjects]', err.code, err.message); });
+});
+
+function fallbackNet(amount){ return Math.round((amount || 0) * (1 - 0.20 - 0.07)); }
+
+function rebuild(){
+  var result = [];
+  PROJECTS.forEach(function(p){
+    var payments = p.payments || {};
+    ['C1','C2','C3','C4'].forEach(function(stage){
+      var pay = payments[stage];
+      if (pay && pay.status === 'pending'){
+        result.push({
+          coll: 'projects', roleLabel: 'KTS', projId: p.code || p.id, docId: p.id,
+          projName: p.name || p.id, personName: (p.kts && p.kts.name) || '—', personUid: pay.ktsUid || '',
+          stage: stage, amount: pay.amount || 0,
+          netAmount: (pay.netAmount != null ? pay.netAmount : fallbackNet(pay.amount)),
+          check: (p.paymentChecks || {})[stage] || null,
+        });
+      }
+    });
+  });
+  DESIGN_PROJECTS.forEach(function(p){
+    var payments = p.payments || {};
+    ['C1','C2','C3','C4'].forEach(function(stage){
+      var pay = payments[stage];
+      if (pay && pay.status === 'pending'){
+        result.push({
+          coll: 'designProjects', roleLabel: 'Designer', projId: p.code || p.id, docId: p.id,
+          projName: p.name || p.id, personName: (p.designer && p.designer.name) || '—', personUid: pay.designerUid || '',
+          stage: stage, amount: pay.amount || 0,
+          netAmount: (pay.netAmount != null ? pay.netAmount : fallbackNet(pay.amount)),
+          check: (p.paymentChecks || {})[stage] || null,
+        });
+      }
+    });
+  });
+  window.renderList(result);
+  result.forEach(function(pay){
+    _fillBankInfo(pay);
+  });
+  if (window._ktTaxTabActive) window._buildTaxReport(window._ktTaxPeriod || 'month');
+}
+
+/* ── báo cáo khấu trừ TNCN — chỉ tính khoản ĐÃ CHUYỂN (status:'paid'), theo paidAt ── */
+var _userCache = {};
+async function _getUserInfo(uid){
+  if (!uid) return { name: '—', taxCode: '' };
+  if (!_userCache[uid]){
+    try {
+      var snap = await getDoc(doc(db, 'users', uid));
+      _userCache[uid] = snap.exists() ? { name: snap.data().name || '', taxCode: snap.data().taxCode || '' } : { name: '', taxCode: '' };
+    } catch(e){ _userCache[uid] = { name: '', taxCode: '' }; }
+  }
+  return _userCache[uid];
+}
+
+function _inPeriod(dateObj, period){
+  if (period === 'all') return true;
+  var now = new Date();
+  if (period === 'month'){
+    return dateObj.getFullYear() === now.getFullYear() && dateObj.getMonth() === now.getMonth();
+  }
+  if (period === 'quarter'){
+    var q = Math.floor(now.getMonth() / 3);
+    var qd = Math.floor(dateObj.getMonth() / 3);
+    return dateObj.getFullYear() === now.getFullYear() && qd === q;
+  }
+  return true;
+}
+
+window._ktTaxTabActive = false;
+window._ktTaxPeriod = 'month';
+window._buildTaxReport = async function(period){
+  window._ktTaxTabActive = true;
+  window._ktTaxPeriod = period || 'month';
+  var paid = [];
+  function collect(list, roleField, uidField){
+    list.forEach(function(p){
+      var payments = p.payments || {};
+      ['C1','C2','C3','C4'].forEach(function(stage){
+        var pay = payments[stage];
+        if (!pay || pay.status !== 'paid' || !pay.paidAt || !pay.paidAt.toDate) return;
+        var d = pay.paidAt.toDate();
+        if (!_inPeriod(d, period)) return;
+        paid.push({
+          uid: pay[uidField] || '',
+          fallbackName: (p[roleField] && p[roleField].name) || '—',
+          amount: pay.amount || 0,
+          netAmount: (pay.netAmount != null ? pay.netAmount : fallbackNet(pay.amount)),
+        });
+      });
+    });
+  }
+  collect(PROJECTS, 'kts', 'ktsUid');
+  collect(DESIGN_PROJECTS, 'designer', 'designerUid');
+
+  var byUid = {};
+  for (var i = 0; i < paid.length; i++){
+    var it = paid[i];
+    var key = it.uid || ('_noname_' + it.fallbackName);
+    if (!byUid[key]) byUid[key] = { uid: it.uid, name: it.fallbackName, count: 0, gross: 0, net: 0 };
+    byUid[key].count += 1;
+    byUid[key].gross += it.amount;
+    byUid[key].net += it.netAmount;
+  }
+  var rows = [];
+  var keys = Object.keys(byUid);
+  for (var j = 0; j < keys.length; j++){
+    var row = byUid[keys[j]];
+    var info = await _getUserInfo(row.uid);
+    rows.push({
+      name: info.name || row.name,
+      taxCode: info.taxCode || '',
+      count: row.count,
+      gross: row.gross,
+      tax: row.gross - row.net,
+      net: row.net,
+    });
+  }
+  rows.sort(function(a, b){ return b.gross - a.gross; });
+  window.renderTaxReport(rows);
+};
+
+var _bankCache = {};
+async function _fillBankInfo(pay){
+  var elId = 'bankinfo-' + pay.coll + '-' + pay.projId + '-' + pay.stage;
+  var el = document.getElementById(elId);
+  if (!el) return;
+  if (!pay.personUid){ el.textContent = '— chưa có UID người nhận —'; return; }
+  try {
+    if (!_bankCache[pay.personUid]){
+      var snap = await getDoc(doc(db, 'users', pay.personUid));
+      _bankCache[pay.personUid] = snap.exists() ? (snap.data().bankAccount || {}) : {};
+    }
+    var ba = _bankCache[pay.personUid];
+    el = document.getElementById(elId);
+    if (!el) return;
+    if (ba.bankName || ba.accountNumber){
+      el.textContent = (ba.bankName || '—') + ' · ' + (ba.accountNumber || '—') + (ba.accountHolder ? ' · ' + ba.accountHolder : '');
+      if (!ba.bankId) el.textContent += ' · (chưa chọn NH — không tạo được QR)';
+    } else {
+      el.textContent = 'Chưa cập nhật tài khoản ngân hàng';
+    }
+    var qrId = 'payqr-' + pay.coll + '-' + pay.projId + '-' + pay.stage;
+    var qrEl = document.getElementById(qrId);
+    if (qrEl && ba.bankId && ba.accountNumber){
+      var qrUrl = 'https://img.vietqr.io/image/' + ba.bankId + '-' + ba.accountNumber + '-compact.png'
+        + '?amount=' + (pay.netAmount || 0)
+        + '&addInfo=' + encodeURIComponent(pay.projId + ' ' + pay.stage)
+        + '&accountName=' + encodeURIComponent(ba.accountHolder || '');
+      qrEl.innerHTML = '<img src="' + qrUrl + '" alt="QR" style="width:100%;height:100%;object-fit:contain">';
+      qrEl.style.display = 'flex';
+    }
+  } catch(e){ if (el) el.textContent = 'Lỗi tải TK ngân hàng'; }
+}
+
+window._markChecked = async function(coll, projId, stage){
+  try {
+    var list = coll === 'projects' ? PROJECTS : DESIGN_PROJECTS;
+    var p = list.find(function(x){ return (x.code || x.id) === projId; });
+    if (!p) return;
+    var patch = {};
+    patch['paymentChecks.' + stage] = { checkedByName: ME.name || '', checkedByUid: ME.uid, checkedAt: serverTimestamp() };
+    await updateDoc(doc(db, coll, p.id), patch);
+    window.showToast('✓ Đã đánh dấu kiểm tra — chờ Founder chuyển', 'ok');
+  } catch(e){
+    console.error('[markChecked]', e);
+    window.showToast('Lỗi: ' + (e.message || e.code), 'err');
+  }
+};
+
+window._doLogout = async function(){
+  try { await signOut(auth); } catch(e){}
+  try { localStorage.removeItem('aln_user'); sessionStorage.removeItem('aln_user'); } catch(e){}
+  location.href = 'login.html';
+};
+
+/* Đổi mật khẩu tự chọn — cần nhập lại mật khẩu hiện tại (Firebase bắt buộc
+   "recent login" mới cho đổi mật khẩu). ALN không lưu lại mật khẩu ở đâu cả. */
+window.changeMyPassword = async function(){
+  var cur = (document.getElementById('pwCurrent')||{}).value || '';
+  var pw1 = (document.getElementById('pwNew')||{}).value || '';
+  var pw2 = (document.getElementById('pwConfirm')||{}).value || '';
+  if (!cur || !pw1 || !pw2){ window.showToast('Nhập đủ 3 ô', 'err'); return; }
+  if (pw1.length < 6){ window.showToast('Mật khẩu mới cần ít nhất 6 ký tự', 'err'); return; }
+  if (pw1 !== pw2){ window.showToast('Mật khẩu mới nhập lại không khớp', 'err'); return; }
+  var user = auth.currentUser;
+  if (!user) return;
+  try {
+    var cred = EmailAuthProvider.credential(user.email, cur);
+    await reauthenticateWithCredential(user, cred);
+    await updatePassword(user, pw1);
+    window.showToast('Đã đổi mật khẩu — lần đăng nhập sau dùng mật khẩu mới', 'ok');
+    document.getElementById('pwCurrent').value = '';
+    document.getElementById('pwNew').value = '';
+    document.getElementById('pwConfirm').value = '';
+  } catch(e){
+    var msg = (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential')
+      ? 'Mật khẩu hiện tại không đúng'
+      : 'Lỗi: ' + (e.code || e.message);
+    window.showToast(msg, 'err');
+  }
+};
+</script>
+</body>
+</html>

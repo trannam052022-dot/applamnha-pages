@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MB7VRGR5');</script>
+<!-- End Google Tag Manager -->
+
+  <script src="error-monitor.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mạng lưới Thiết bị - Vật tư ALN | App Làm Nhà</title>
+<meta name="description" content="Mạng lưới Thiết bị - Vật tư ALN — sắt thép, gỗ, nội thất, gạch, sơn, điện nước, dịch vụ thi công, vận chuyển. Giá tận gốc, giao tận công trình. Xem ảnh sản phẩm, catalog và liên hệ trực tiếp nhà cung cấp.">
+<link rel="canonical" href="https://applamnha.vn/ncc-showcase.html">
+<meta property="og:url" content="https://applamnha.vn/ncc-showcase.html">
+<meta property="og:title" content="Mạng lưới Thiết bị - Vật tư ALN">
+<meta property="og:description" content="Xem ảnh sản phẩm, catalog và liên hệ trực tiếp các nhà cung cấp vật liệu xây dựng trên App Làm Nhà.">
+<meta property="og:image" content="https://applamnha.vn/assets/demo/aln-demo-biet-thu-vuon.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+<link rel="stylesheet" href="aln-tokens.css">
+<style>
+:root{
+  --cream:#f7f9fb;--white:#ffffff;--cream2:#eef2f6;
+  --border:#e1e7ee;--border2:#c9d3de;
+  --text:#1a2634;--text2:#3d4b5c;--sub:#5b6b7f;--muted:#93a1b3;
+  --gold:#98690a;--gold2:#b8860b;--gold-bg:rgba(152,105,10,.09);--gold-glow:rgba(152,105,10,.16);
+  --green:#16a34a;--blue:#1d4ed8;
+  --r:14px;--r-sm:8px;--sh:0 1px 3px rgba(15,30,60,.06);
+  --mono:'JetBrains Mono',monospace;--sans:'DM Sans',sans-serif;--syne:'Syne',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:13px}
+@media(min-width:1440px){html{font-size:14px}}
+@media(min-width:1920px){html{font-size:16px}}
+body{font-family:var(--sans);background:var(--cream);color:var(--text);min-height:100vh;font-size:1rem;line-height:1.6}
+a{color:var(--gold);text-decoration:none}
+.topbar{background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:50}
+.tb-logo-box{background:linear-gradient(135deg,rgba(152,105,10,.14),rgba(184,134,11,.08));color:var(--gold);padding:4px 12px;border-radius:var(--r-sm);border:1.5px solid rgba(152,105,10,.3);font-family:var(--syne);font-size:11px;font-weight:800;letter-spacing:.07em}
+.tb-page{font-family:var(--syne);font-weight:700;font-size:13px;color:var(--text)}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.tb-link{display:inline-flex;align-items:center;gap:5px;font-size:var(--text-xs);color:var(--sub);font-weight:600}
+.wrap{max-width:760px;margin:0 auto;padding:16px 16px 70px}
+h1.sr-h1{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+/* TOOLBAR: search + khu vực */
+.toolbar{display:flex;gap:8px;margin-bottom:16px}
+.search-box{position:relative;flex:1}
+.search-box input{width:100%;padding:10px 14px 10px 36px;border-radius:12px;border:1px solid var(--border2);background:var(--white);color:var(--text);font-family:var(--sans);font-size:var(--text-sm);outline:none}
+.search-box input:focus{border-color:var(--gold)}
+.search-box i{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:15px}
+.prov-select{padding:10px 14px;border-radius:12px;border:1px solid var(--border2);background:var(--white);color:var(--text2);font-family:var(--sans);font-size:var(--text-sm);font-weight:600;cursor:pointer;max-width:150px}
+/* DIAMOND BANNER — 1 slide, dạng thẻ */
+.diamond-wrap{margin-bottom:20px}
+.diamond-track{position:relative;border-radius:var(--r);overflow:hidden}
+.diamond-slide{display:none;background:linear-gradient(120deg,rgba(152,105,10,.08),rgba(184,134,11,.14));border:1px solid rgba(152,105,10,.25);border-radius:var(--r);padding:18px 20px;position:relative}
+.diamond-slide.active{display:block}
+.diamond-eyebrow{font-size:var(--text-2xs);font-weight:700;color:var(--sub)}
+.diamond-name{font-family:var(--syne);font-size:var(--text-md);font-weight:800;color:var(--text);margin-top:4px}
+.diamond-badge{position:absolute;top:16px;right:16px;font-size:var(--text-2xs);font-weight:700;background:var(--white);color:var(--gold);border:1px solid rgba(152,105,10,.35);border-radius:99px;padding:4px 11px}
+.diamond-dots{display:flex;gap:6px;justify-content:center;margin-top:10px}
+.diamond-dot{width:7px;height:7px;border-radius:50%;background:var(--border2);border:none;cursor:pointer;padding:0}
+.diamond-dot.active{background:var(--gold);width:16px;border-radius:4px;transition:width .2s}
+/* KHU NGÀNH HÀNG — icon row */
+.sec-title{font-family:var(--syne);font-size:var(--text-sm);font-weight:800;color:var(--text);margin:20px 0 12px}
+.zone-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:6px}
+@media(min-width:520px){.zone-row{grid-template-columns:repeat(8,1fr)}}
+.zone-btn{display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:none;cursor:pointer;padding:4px 2px}
+.zone-icon{width:46px;height:46px;border-radius:13px;background:var(--white);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:19px;color:var(--sub);transition:all .15s}
+.zone-btn.active .zone-icon{background:var(--text);border-color:var(--text);color:#fff}
+.zone-label{font-size:var(--text-2xs);color:var(--sub);font-weight:600;text-align:center;line-height:1.3}
+.zone-btn.active .zone-label{color:var(--text);font-weight:800}
+.svc-disclaimer{font-size:var(--text-xs);color:var(--gold2);background:var(--gold-bg);border:1px solid rgba(152,105,10,.25);border-radius:9px;padding:9px 14px;line-height:1.6;margin-bottom:16px}
+/* NỔI BẬT — card avatar */
+.featured-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:22px}
+@media(max-width:420px){.featured-grid{grid-template-columns:1fr}}
+.fcard{background:var(--white);border:1px solid var(--border2);border-radius:12px;padding:13px 14px;display:block;color:inherit}
+.fcard-top{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+.avatar{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:var(--syne);font-size:12px;font-weight:800;color:#fff;flex-shrink:0}
+.fcard-name{font-size:var(--text-sm);font-weight:800;color:var(--text);line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fcard-loc{font-size:var(--text-2xs);color:var(--muted)}
+.fcard-meta{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.verified-badge{display:inline-flex;align-items:center;gap:3px;font-size:var(--text-2xs);font-weight:700;color:var(--green);background:rgba(22,163,74,.08);border:1px solid rgba(22,163,74,.25);border-radius:99px;padding:2px 9px}
+.lead-count{font-size:var(--text-2xs);color:var(--muted)}
+.demo-badge{display:inline-flex;align-items:center;gap:3px;font-size:var(--text-2xs);font-weight:700;color:#6b5a2e;background:#f3f0e8;border:1px dashed #ccbd8a;border-radius:99px;padding:2px 9px}
+.diamond-slide.is-demo,.fcard.is-demo{opacity:.88}
+.row-item.is-demo{background:repeating-linear-gradient(135deg,var(--white),var(--white) 10px,#faf8f2 10px,#faf8f2 20px)}
+.contact-btn.disabled{opacity:.5;cursor:default;pointer-events:none}
+/* TẤT CẢ GIAN HÀNG — hàng ngang */
+.list-head{display:flex;align-items:baseline;justify-content:space-between;margin:20px 0 10px}
+.list-head h2{font-family:var(--syne);font-size:var(--text-sm);font-weight:800;color:var(--text)}
+.list-head span{font-size:var(--text-2xs);color:var(--muted);font-weight:600}
+.row-list{display:flex;flex-direction:column;gap:8px}
+.row-item{display:flex;align-items:center;gap:11px;background:var(--white);border:1px solid var(--border);border-radius:11px;padding:11px 13px}
+.row-item .avatar{width:38px;height:38px;border-radius:9px;font-size:12px}
+.row-info{flex:1;min-width:0}
+.row-name{font-size:var(--text-sm);font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row-sub{font-size:var(--text-2xs);color:var(--muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.contact-btn{flex-shrink:0;padding:7px 13px;border-radius:8px;border:1px solid var(--border2);background:var(--cream2);color:var(--text2);font-family:var(--sans);font-size:var(--text-2xs);font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.contact-btn:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-bg)}
+.contact-reveal{margin-top:8px;font-size:var(--text-xs);background:var(--cream2);border-radius:7px;padding:8px 10px;display:flex;flex-direction:column;gap:3px;width:100%}
+.row-item.has-reveal{flex-wrap:wrap}
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty i{font-size:44px;display:block;margin-bottom:12px}
+.page-head{margin-bottom:14px}
+.page-eyebrow{font-family:var(--syne);font-size:var(--text-xs);font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
+.page-h1{font-family:var(--syne);font-size:var(--text-xl);font-weight:800;color:var(--text);margin-bottom:4px}
+.page-sub{font-size:var(--text-sm);color:var(--sub);max-width:520px}
+.invite-banner{background:linear-gradient(135deg,var(--text) 0%,#243447 100%);color:#fff;border-radius:var(--r);padding:20px;position:relative;overflow:hidden;margin-bottom:18px}
+.invite-banner::after{content:"";position:absolute;right:-30px;top:-30px;width:140px;height:140px;border-radius:50%;background:rgba(152,105,10,.18)}
+.invite-banner h2{font-family:var(--syne);font-size:var(--text-lg);margin-bottom:6px;position:relative}
+.invite-banner p{color:#cfd8e3;font-size:var(--text-sm);max-width:480px;margin-bottom:14px;position:relative}
+.invite-banner-mini{padding:14px 20px}
+.invite-banner-mini h2{font-size:var(--text-md);margin-bottom:0}
+.invite-banner-mini .invite-progress{margin-top:10px}
+.invite-bottom{margin:28px 0}
+.invite-progress{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:var(--text-xs);color:#e8edf3;position:relative}
+.invite-progress-track{flex:1;max-width:200px;height:7px;background:rgba(255,255,255,.18);border-radius:99px;overflow:hidden}
+.invite-progress-fill{height:100%;background:var(--gold);border-radius:99px}
+.cat-invite-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}
+@media(min-width:520px){.cat-invite-grid{grid-template-columns:repeat(4,1fr)}}
+.cat-invite-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:14px}
+.cat-icon{width:34px;height:34px;border-radius:9px;background:var(--gold-bg);color:var(--gold);display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.cat-icon svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.cat-invite-card h3{font-size:var(--text-sm);color:var(--text);margin-bottom:4px}
+.cat-invite-card .status{font-size:var(--text-2xs);color:var(--muted);margin-bottom:8px}
+.cat-invite-card a{font-size:var(--text-xs);color:var(--gold);font-weight:700}
+.offer-box{margin-top:14px;border:1px solid var(--gold);background:var(--gold-bg);border-radius:var(--r);padding:18px}
+.offer-box .sub{font-size:var(--text-2xs);color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.offer-box h3{font-size:var(--text-md);color:var(--text);margin-bottom:10px}
+.offer-box ul{list-style:none;display:grid;gap:8px}
+.offer-box li{font-size:var(--text-sm);color:var(--text);display:flex;gap:8px}
+.offer-box li::before{content:"✓";color:var(--gold);font-weight:700;flex-shrink:0}
+.cta-ncc{margin-top:28px;text-align:center;background:var(--white);border:1px dashed var(--border2);border-radius:var(--r);padding:24px}
+.cta-ncc p{font-size:var(--text-sm);color:var(--text2);margin-bottom:12px}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:9px;font-family:var(--syne);font-size:var(--text-sm);font-weight:700;cursor:pointer;border:none;text-decoration:none;background:var(--gold);color:#fff;transition:all .2s}
+.btn:hover{background:var(--gold2)}
+.disclaimer{font-size:var(--text-xs);color:var(--muted);text-align:center;margin-top:20px;line-height:1.6}
+@media(prefers-reduced-motion:reduce){.diamond-dot{transition:none}}
+</style>
+<!-- Google Analytics 4 (ALN — G-5CSL1TF0RC, tách riêng khỏi property TK.HOUSE) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-5CSL1TF0RC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-5CSL1TF0RC');
+</script>
+<!-- End GA4 -->
+<script src="aln-tracking.js"></script>
+</head>
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MB7VRGR5"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+<nav class="topbar">
+  <div class="tb-logo-box">ALN</div>
+  <div class="tb-page">Mạng lưới Thiết bị - Vật tư ALN</div>
+  <div class="tb-right">
+    <a class="tb-link" href="ncc-dashboard.html" id="tbMyShopLink" style="display:none;color:var(--gold)"><i class="ph-duotone ph-storefront"></i>Gian hàng của tôi</a>
+    <a class="tb-link" href="forum.html"><i class="ph-duotone ph-chats-circle"></i>Diễn đàn</a>
+    <a class="tb-link" href="home.html"><i class="ph-duotone ph-house-line"></i>Trang chủ</a>
+  </div>
+</nav>
+
+<div id="demoBanner"></div>
+
+<div class="wrap">
+  <div class="page-head">
+    <p class="page-eyebrow">Mạng lưới Thiết bị - Vật tư ALN</p>
+    <h1 class="page-h1">Giá tận gốc, giao tận công trình</h1>
+    <p class="page-sub">Sắt thép, gỗ nội thất, gạch, sơn, điện nước, dịch vụ thi công — tìm nhà cung cấp thiết bị, vật tư, liên hệ trực tiếp, không qua trung gian.</p>
+  </div>
+
+  <div class="invite-banner invite-banner-mini" id="inviteBannerTop" style="display:none">
+    <h2>Gian hàng đang mở — cơ hội cho các doanh nghiệp, cửa hàng cung cấp thiết bị, vật tư đăng ký sớm</h2>
+    <div class="invite-progress" id="inviteProgress" style="display:none">
+      <span id="inviteWeekText"></span>
+      <div class="invite-progress-track"><div class="invite-progress-fill" id="inviteProgressFill" style="width:0%"></div></div>
+      <span id="inviteProgressLabel"></span>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-box"><i class="ph-duotone ph-magnifying-glass"></i><input type="text" id="searchBox" placeholder="Tìm vật tư, nhà cung cấp…"></div>
+    <select class="prov-select" id="provSelect"></select>
+  </div>
+
+  <div class="diamond-wrap" id="diamondSec" style="display:none">
+    <div class="diamond-track" id="diamondTrack"></div>
+    <div class="diamond-dots" id="diamondDots"></div>
+  </div>
+
+  <div class="sec-title"><i class="ph-duotone ph-squares-four" style="color:var(--gold)"></i> Khu ngành hàng</div>
+  <div class="zone-row" id="zoneRow"></div>
+  <div class="svc-disclaimer" id="svcDisclaimer" style="display:none"></div>
+
+  <div id="loadState" class="empty"><i class="ph-duotone ph-spinner-gap"></i>Đang tải gian hàng…</div>
+  <div id="sections" style="display:none">
+
+    <div id="featuredSec" style="display:none">
+      <div class="sec-title"><i class="ph-duotone ph-star" style="color:var(--gold)"></i> Gian hàng nổi bật</div>
+      <div class="featured-grid" id="featuredGrid"></div>
+    </div>
+
+    <div id="basicSec" style="display:none">
+      <div class="list-head">
+        <h2 id="listHeadTitle">Tất cả gian hàng</h2>
+        <span id="listHeadCount"></span>
+      </div>
+      <div class="row-list" id="basicList"></div>
+    </div>
+
+    <div class="empty" id="emptyState" style="display:none"><i class="ph-duotone ph-storefront"></i>Chưa có gian hàng nào phù hợp bộ lọc.<br>Bạn là nhà cung cấp? Đăng ký mở gian hàng ngay bên dưới!</div>
+  </div>
+
+  <div class="invite-bottom" id="inviteBottom" style="display:none">
+    <div class="sec-title"><i class="ph-duotone ph-megaphone-simple" style="color:var(--gold)"></i> Cơ hội cho nhà cung cấp đăng ký sớm</div>
+    <div class="cat-invite-grid">
+      <div class="cat-invite-card"><div class="cat-icon"><svg viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="6" rx="1"/><path d="M8 9v6M13 9v6M18 9v6"/></svg></div><h3>Gỗ, nội thất</h3><p class="status">Đang mời gọi NCC trên toàn quốc</p><a href="ncc-apply.html">Đăng ký gian hàng đầu tiên →</a></div>
+      <div class="cat-invite-card"><div class="cat-icon"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="1.5"/><path d="M9.5 9 12 6.5 14.5 9M9.5 15 12 17.5 14.5 15"/></svg></div><h3>Thang máy</h3><p class="status">Đang mời gọi NCC trên toàn quốc</p><a href="ncc-apply.html">Đăng ký gian hàng đầu tiên →</a></div>
+      <div class="cat-invite-card"><div class="cat-icon"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg></div><h3>Điện, nước</h3><p class="status">Đang mời gọi NCC trên toàn quốc</p><a href="ncc-apply.html">Đăng ký gian hàng đầu tiên →</a></div>
+      <div class="cat-invite-card"><div class="cat-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="14" height="6" rx="1"/><path d="M10 10v4M10 14h4a2 2 0 0 1 2 2v4"/></svg></div><h3>Sơn, hoàn thiện</h3><p class="status">Đang mời gọi NCC trên toàn quốc</p><a href="ncc-apply.html">Đăng ký gian hàng đầu tiên →</a></div>
+      <div class="cat-invite-card"><div class="cat-icon"><svg viewBox="0 0 24 24"><rect x="1" y="7" width="13" height="9" rx="1"/><path d="M14 10h4l3 3v3h-7z"/><circle cx="6" cy="18" r="1.8"/><circle cx="17" cy="18" r="1.8"/></svg></div><h3>Thiết bị &amp; vận chuyển</h3><p class="status">Đang mời gọi NCC trên toàn quốc</p><a href="ncc-apply.html">Đăng ký gian hàng đầu tiên →</a></div>
+      <div class="cat-invite-card"><div class="cat-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16M4 20h16M8 4v16M16 4v16"/></svg></div><h3>Sắt thép, Gạch, VLXD</h3><p class="status">Đang mời gọi NCC trên toàn quốc</p><a href="ncc-apply.html">Đăng ký gian hàng đầu tiên →</a></div>
+      <div class="cat-invite-card"><div class="cat-icon"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.8 2.8-2-2z"/></svg></div><h3>Thợ - Đội thi công</h3><p class="status">Đang mời gọi NCC trên toàn quốc</p><a href="tho-thi-cong.html">Đăng ký gian hàng đầu tiên →</a></div>
+      <div class="cat-invite-card"><div class="cat-icon"><svg viewBox="0 0 24 24"><path d="M3 8 12 3l9 5v9l-9 5-9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg></div><h3>Vật liệu khác</h3><p class="status">Đang mời gọi NCC trên toàn quốc</p><a href="ncc-apply.html">Đăng ký gian hàng đầu tiên →</a></div>
+    </div>
+    <div class="offer-box">
+      <p class="sub">Ưu đãi 50 doanh nghiệp đầu tiên</p>
+      <h3>Tham gia sớm, giữ quyền lợi lâu dài</h3>
+      <ul>
+        <li>Miễn phí 1 năm gói gian hàng cơ bản</li>
+        <li>Badge "Thành viên uy tín" — hiển thị vĩnh viễn trên gian hàng</li>
+        <li>Ưu tiên xuất hiện đầu danh sách khi chủ nhà tìm theo khu vực</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cta-ncc">
+    <p><strong>Bạn là cửa hàng vật liệu / xưởng sản xuất / đội thi công?</strong><br>Mở gian hàng miễn phí trên ALN — tiếp cận chủ nhà đang chuẩn bị xây, đúng lúc họ cần.</p>
+    <a class="btn" href="ncc-apply.html"><i class="ph-duotone ph-storefront"></i>Đăng ký mở gian hàng</a>
+  </div>
+
+  <div class="disclaimer"><b>ⓘ</b> Thông tin gian hàng do nhà cung cấp tự đăng tải — ALN không thẩm định chất lượng sản phẩm. Quý khách kiểm tra kỹ trước khi giao dịch.</div>
+</div>
+
+<script>
+function escH(s){
+  return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+
+<script type="module">
+import { db, auth, onAuthStateChanged, doc, getDoc, collection, query, where, getDocs, limit, addDoc, serverTimestamp } from './firebase-config.js';
+
+/* Hiện link "Gian hàng của tôi" nếu người đang xem đã đăng nhập VÀ là NCC —
+   chủ yếu phục vụ NCC vừa đăng ký xong (ncc-apply.html redirect thẳng về
+   đây), cần đường quay lại ncc-dashboard.html để hoàn thiện nội dung gian
+   hàng (ảnh/bảng giá/sản phẩm) mà trang này trước đó không có lối vào. */
+onAuthStateChanged(auth, async function(user){
+  if(!user) return;
+  try {
+    var snap = await getDoc(doc(db, 'users', user.uid));
+    if(snap.exists() && snap.data().role === 'ncc'){
+      var el = document.getElementById('tbMyShopLink');
+      if(el) el.style.display = 'inline-flex';
+    }
+  } catch(e){ console.warn('check NCC role:', e.message); }
+});
+
+var PROV_NAME = {HCM:'TP.HCM',HN:'Hà Nội',DN:'Đà Nẵng',CT:'Cần Thơ',HP:'Hải Phòng',BD:'Bình Dương',DNai:'Đồng Nai','BR-VT':'BR–Vũng Tàu',LA:'Long An',TG:'Tiền Giang',KH:'Khánh Hòa',BDinh:'Bình Định',NA:'Nghệ An',TH:'Thanh Hóa',OTHER:'Tỉnh khác'};
+var CATS = {
+  go_noithat:        { label: 'Gỗ, nội thất',           icon: 'ph-tree' },
+  thang_may:         { label: 'Thang máy',                icon: 'ph-elevator' },
+  dien_nuoc:         { label: 'Điện, nước',              icon: 'ph-plug' },
+  son_hoanthien:     { label: 'Sơn, hoàn thiện',        icon: 'ph-paint-roller' },
+  thietbi_vanchuyen: { label: 'Thiết bị & vận chuyển',   icon: 'ph-truck' },
+  sat_thep_vlxd:     { label: 'Sắt thép, Gạch, VLXD',    icon: 'ph-barbell' },
+  dv_thicong:        { label: 'Thợ - Đội thi công',      icon: 'ph-hard-hat' },
+  khac:              { label: 'Khác',                    icon: 'ph-package' },
+};
+var SERVICE_CATS = ['dv_thicong', 'thietbi_vanchuyen'];
+var SERVICE_DISCLAIMER = 'ALN không phải bên cung cấp dịch vụ thi công/vận chuyển, không giám sát thực hiện và không chịu trách nhiệm về chất lượng, an toàn lao động và thiệt hại phát sinh. Quý khách giao kết trực tiếp với nhà cung cấp.';
+/* Bảng màu avatar — cùng tông trầm/luxury với forum.html (role-badge, rank-badge),
+   KHÔNG dùng màu sáng bão hoà lệch tông vàng đồng chủ đạo của ALN. */
+var AVATAR_COLORS = ['#98690a','#1d4ed8','#3a7a3e','#9b6ec9','#b45309','#2b7a8f','#5a7a5c','#8a4a3d'];
+
+/* ── DỮ LIỆU MẪU ──────────────────────────────────────────────
+   Dùng 2 nơi:
+   (a) ?demo=1 — Founder xem TOÀN BỘ trang là mẫu để duyệt giao diện.
+   (b) SHOW_DEMO_FALLBACK — chế độ mặc định (18/07/2026), TRỘN thêm
+       gian hàng mẫu vào sau danh sách thật để trang đỡ trống trong
+       lúc chờ NCC đăng ký, mỗi thẻ có nhãn "Minh hoạ" phân biệt rõ.
+       Từ 20/07/2026: tự ẩn theo TỪNG DANH MỤC — danh mục nào đã có
+       ≥MOCK_HIDE_THRESHOLD NCC thật thì mock của đúng danh mục đó
+       biến mất khỏi trang (không cần Founder sửa tay), danh mục còn
+       trống vẫn giữ mock để đỡ trống. TẮT toàn bộ bằng cách đổi
+       SHOW_DEMO_FALLBACK = false khi đã đủ NCC thật ở mọi danh mục
+       (không cần xoá dữ liệu này, chỉ cần đổi 1 dòng + push).
+   Tên/mô tả KHÔNG dùng thương hiệu thật (tránh hiểu nhầm ALN đại diện
+   hãng đó); KHÔNG có SĐT/Zalo/website (tránh khách gọi trúng số người
+   lạ); KHÔNG có alnProjects (tránh gắn dự án/KTS thật của hệ thống vào
+   gian hàng giả). Ảnh dùng picsum.photos (placeholder, không phải ảnh
+   sản phẩm thật). */
+function img(seed){ return 'https://picsum.photos/seed/ncc-' + seed + '/480/360'; }
+var SHOW_DEMO_FALLBACK = true;
+var MOCK_HIDE_THRESHOLD = 3; // số NCC thật trong 1 danh mục để tự ẩn mock của danh mục đó
+var EARLY_BIRD_TARGET = 50; // Ưu đãi 50 doanh nghiệp đầu tiên — ẩn section mời gọi khi số NCC thật (Firestore) đạt mốc này
+/* Founder đã có quan hệ cá nhân với 23 doanh nghiệp CAM KẾT tham gia khi ALN đi vào hoạt động
+   (19/07/2026) — CHƯA đăng ký chính thức qua ncc-apply.html nên KHÔNG có trong Firestore, phải
+   khai tay ở đây. Khi họ đăng ký thật, số NCC thật (realList.length) sẽ tự tăng và có thể giảm/bỏ
+   hẳn EARLY_BIRD_COMMITTED này — Founder tự cập nhật số khi có thêm cam kết mới. */
+var EARLY_BIRD_COMMITTED = 23;
+var WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+function updateInviteSection(realList){
+  var top = document.getElementById('inviteBannerTop');
+  var bottom = document.getElementById('inviteBottom');
+  if (!top || !bottom) return;
+  var total = realList.length;
+  if (total >= EARLY_BIRD_TARGET) { top.style.display = 'none'; bottom.style.display = 'none'; return; }
+  top.style.display = 'block';
+  bottom.style.display = 'block';
+  var shown = Math.max(total, EARLY_BIRD_COMMITTED);
+  var prog = document.getElementById('inviteProgress');
+  if (shown >= 1) {
+    prog.style.display = 'flex';
+    document.getElementById('inviteWeekText').textContent = 'Đã có ' + shown + ' nhà cung cấp đăng ký';
+    document.getElementById('inviteProgressFill').style.width = Math.min(100, shown / EARLY_BIRD_TARGET * 100) + '%';
+    document.getElementById('inviteProgressLabel').textContent = shown + ' / ' + EARLY_BIRD_TARGET + ' mục tiêu ưu đãi sớm';
+  } else {
+    prog.style.display = 'none';
+  }
+}
+var MOCK_DATA = [
+  { uid:'demo-01', name:'Thép Kim Long Sài Gòn', category:'sat_thep_vlxd', province:'HCM', tier:'diamond', verified:true,
+    address:'Q.Bình Tân, TP.HCM',
+    intro:'Đại lý thép xây dựng các loại — kho 5.000 tấn, giao công trình khu vực TP.HCM trong ngày.',
+    priceList:[{item:'Thép hộp 40x80',unit:'kg',price:19500},{item:'Thép phi 10 (D10)',unit:'kg',price:18200}],
+    gallery:[{url:img('01a')},{url:img('01b')},{url:img('01c')}], leadCount:312 },
+  { uid:'demo-02', name:'Nội Thất Gỗ An Khang', category:'go_noithat', province:'DNai', tier:'diamond', verified:true,
+    address:'TP.Biên Hòa, Đồng Nai',
+    intro:'Xưởng sản xuất tủ bếp, tủ áo theo thiết kế — gỗ công nghiệp phủ melamine, laminate, CNC theo bản vẽ KTS.',
+    priceList:[{item:'Tủ bếp trên/dưới',unit:'md',price:3200000},{item:'Tủ áo cánh lùa',unit:'md',price:2800000}],
+    gallery:[{url:img('02a')},{url:img('02b')}], leadCount:401 },
+  { uid:'demo-03', name:'VLXD Đại Thành Bình Dương', category:'sat_thep_vlxd', province:'BD', tier:'diamond', verified:true,
+    address:'TP.Dĩ An, Bình Dương',
+    intro:'Nhà phân phối vật liệu xây dựng — gạch ốp lát, xi măng — showroom 1.200m², hỗ trợ tính khối lượng theo bản vẽ.',
+    priceList:[{item:'Gạch ốp 60x60 bóng kiếng',unit:'m²',price:285000},{item:'Xi măng PCB40',unit:'bao',price:92000}],
+    gallery:[{url:img('03a')},{url:img('03b')}], leadCount:278 },
+  { uid:'demo-04', name:'Sơn Hoàng Long Sài Gòn', category:'son_hoanthien', province:'HCM', tier:'featured', verified:true,
+    address:'Q.Tân Bình, TP.HCM',
+    intro:'Phân phối sơn nước các dòng phổ thông đến cao cấp — tư vấn phối màu, giao toàn quốc.',
+    priceList:[{item:'Sơn nội thất 18L',unit:'thùng',price:1650000}], gallery:[{url:img('04a')}], leadCount:128 },
+  { uid:'demo-05', name:'Gạch Ốp Lát Bắc Việt', category:'sat_thep_vlxd', province:'HN', tier:'featured', verified:true,
+    address:'Q.Bắc Từ Liêm, Hà Nội',
+    intro:'Đại lý gạch ốp lát khu vực miền Bắc — giao toàn quốc.',
+    priceList:[{item:'Gạch nền 80x80',unit:'m²',price:245000}], gallery:[{url:img('05a')}], leadCount:94 },
+  { uid:'demo-06', name:'Thiết Bị Điện Phú Hưng', category:'dien_nuoc', province:'HCM', tier:'featured', verified:true,
+    address:'Q.Bình Thạnh, TP.HCM',
+    intro:'Thiết bị điện dân dụng và công nghiệp — bóc tách khối lượng M&E miễn phí từ hồ sơ thiết kế.',
+    priceList:[{item:'Aptomat 20A',unit:'cái',price:145000}], gallery:[{url:img('06a')}], leadCount:76 },
+  { uid:'demo-07', name:'Đội Thi Công Thành Phát', category:'dv_thicong', province:'HCM', tier:'featured', verified:false,
+    address:'Q.12, TP.HCM',
+    intro:'Nhóm thợ xây dựng trọn gói phần thô, nhân công lâu năm, nhận thi công theo bản vẽ kiến trúc.',
+    priceList:[{item:'Nhân công xây tô',unit:'m²',price:320000}], gallery:[{url:img('07a')}], leadCount:52 },
+  { uid:'demo-08', name:'VLXD Phương Nam', category:'sat_thep_vlxd', province:'HCM', tier:'basic', verified:false,
+    address:'Q.7, TP.HCM',
+    intro:'Nhà phân phối vật liệu xây dựng — giao trong ngày khu vực Q.7, Nhà Bè.',
+    priceList:[{item:'Xi măng PCB40',unit:'bao',price:89000}], gallery:[{url:img('08a')}] },
+  { uid:'demo-09', name:'Cát Đá Sông Đồng Nai', category:'sat_thep_vlxd', province:'DNai', tier:'basic', verified:false,
+    address:'TP.Biên Hòa, Đồng Nai',
+    intro:'Cát, đá xây dựng khai thác trực tiếp — bán theo vùng Đông Nam Bộ.',
+    priceList:[{item:'Cát xây tô',unit:'m³',price:320000}], gallery:[{url:img('09a')}] },
+  { uid:'demo-10', name:'Nội Thất Mây Tre An Bình', category:'go_noithat', province:'HN', tier:'basic', verified:false,
+    address:'Chương Mỹ, Hà Nội',
+    intro:'Đồ mây tre đan thủ công — sofa, đèn, bình phong phong cách indochine.',
+    priceList:[{item:'Ghế mây đan',unit:'cái',price:1450000}], gallery:[{url:img('10a')}] },
+  { uid:'demo-11', name:'Vận Tải Vật Liệu Phát Lộc', category:'thietbi_vanchuyen', province:'DNai', tier:'basic', verified:true,
+    address:'TP.Biên Hòa, Đồng Nai',
+    intro:'Đội xe tải 1.5–15 tấn chuyên chở vật liệu xây dựng, giao hàng công trình toàn Đông Nam Bộ.',
+    priceList:[{item:'Xe tải 5 tấn nội thành',unit:'chuyến',price:850000}], gallery:[{url:img('11a')}] },
+  { uid:'demo-12', name:'Kính Cường Lực Nam Việt', category:'khac', province:'DNai', tier:'basic', verified:true,
+    address:'TP.Biên Hòa, Đồng Nai',
+    intro:'Kính cường lực, kính hộp, lan can kính — đo đạc tại công trình.',
+    priceList:[{item:'Kính cường lực 10ly',unit:'m²',price:680000}], gallery:[{url:img('12a')}] },
+  { uid:'demo-13', name:'Ống Nhựa Miền Tây', category:'dien_nuoc', province:'TG', tier:'basic', verified:false,
+    address:'TP.Mỹ Tho, Tiền Giang',
+    intro:'Ống nhựa, phụ kiện cấp thoát nước — giao sỉ lẻ khu vực miền Tây.',
+    priceList:[{item:'Ống HDPE D50',unit:'cây',price:62000}], gallery:[{url:img('13a')}] },
+  { uid:'demo-14', name:'Sơn Nhật Minh', category:'son_hoanthien', province:'HCM', tier:'basic', verified:false,
+    address:'Q.Tân Bình, TP.HCM',
+    intro:'Phân phối sơn nước và sơn giả đá, có đội ngũ thi công riêng.',
+    priceList:[{item:'Sơn giả đá hiệu ứng',unit:'m²',price:185000}], gallery:[{url:img('14a')}] },
+].map(function(m){ return Object.assign({}, m, { isDemo: true, phone: null, zalo: null, website: null }); });
+
+var IS_DEMO = new URLSearchParams(location.search).get('demo') === '1';
+if (IS_DEMO) {
+  document.getElementById('demoBanner').innerHTML =
+    '<div style="background:#fff3d6;border-bottom:1px solid #e8c877;color:#7a5410;font-size:12px;font-weight:700;text-align:center;padding:8px 14px">'
+    + '⚠ Đang xem DỮ LIỆU MẪU (demo) để duyệt giao diện — không phải gian hàng thật, chưa ghi vào Firestore.</div>';
+}
+/* Founder yêu cầu bỏ banner giải thích "Minh hoạ" đầu trang (18/07/2026)
+   — badge "Minh hoạ" trên từng thẻ gian hàng mẫu vẫn giữ nguyên, chỉ bỏ
+   dòng ghi chú lặp lại ở đầu trang. */
+
+var FILTER = 'all';
+var PROV = 'all';
+var SEARCH = '';
+var ALL = [];          // toàn bộ gian hàng approved đã tải (tối đa 300)
+var diamondIdx = 0;
+var diamondTimer = null;
+
+function logLead(nccUid, type, extra){
+  try {
+    var payload = Object.assign({ nccUid: nccUid, type: type, page: 'showcase', ts: serverTimestamp() }, extra || {});
+    addDoc(collection(db, 'nccLeads'), payload).catch(function(e){ console.warn('[ncc-lead]', e && e.message); });
+    if (window.gtag) window.gtag('event', 'ncc_contact_view', { ncc_uid: nccUid });
+  } catch(e){ console.warn('[ncc-lead]', e && e.message); }
+}
+
+function initials(name){
+  var parts = (name || '').trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return '?';
+  if (parts.length === 1) return parts[0].slice(0,2).toUpperCase();
+  return (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+}
+function avatarColor(uid){
+  var h = 0;
+  for (var i=0;i<(uid||'').length;i++) h = (h*31 + uid.charCodeAt(i)) >>> 0;
+  return AVATAR_COLORS[h % AVATAR_COLORS.length];
+}
+function avatarHtml(b, size){
+  return '<div class="avatar" style="background:' + avatarColor(b.uid) + (size?';width:'+size+'px;height:'+size+'px':'') + '">' + escH(initials(b.name)) + '</div>';
+}
+
+function renderZones(){
+  var allBtn = '<button class="zone-btn' + (FILTER==='all'?' active':'') + '" data-cat="all">'
+    + '<span class="zone-icon"><i class="ph-duotone ph-squares-four"></i></span><span class="zone-label">Tất cả</span></button>';
+  document.getElementById('zoneRow').innerHTML = allBtn + Object.keys(CATS).map(function(k){
+    return '<button class="zone-btn' + (FILTER===k?' active':'') + '" data-cat="' + k + '">'
+      + '<span class="zone-icon"><i class="ph-duotone ' + CATS[k].icon + '"></i></span><span class="zone-label">' + escH(CATS[k].label) + '</span></button>';
+  }).join('');
+  document.querySelectorAll('.zone-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){ FILTER = btn.getAttribute('data-cat'); renderZones(); renderAll(); });
+  });
+  var svc = document.getElementById('svcDisclaimer');
+  if (SERVICE_CATS.indexOf(FILTER) !== -1) {
+    svc.style.display = 'block';
+    svc.innerHTML = '<b>ⓘ</b> ' + escH(SERVICE_DISCLAIMER);
+  } else {
+    svc.style.display = 'none';
+  }
+}
+
+function renderProvSelect(){
+  var sel = document.getElementById('provSelect');
+  sel.innerHTML = '<option value="all">Toàn quốc</option>' + Object.keys(PROV_NAME).map(function(k){
+    return '<option value="' + escH(k) + '">' + escH(PROV_NAME[k]) + '</option>';
+  }).join('');
+  sel.addEventListener('change', function(){ PROV = sel.value; renderAll(); });
+}
+
+function profileUrl(b){
+  return 'ncc_profile.html?uid=' + escH(b.uid) + ((IS_DEMO || b.isDemo) ? '&demo=1' : '');
+}
+
+function matchesFilter(b){
+  if (FILTER !== 'all' && b.category !== FILTER) return false;
+  if (PROV !== 'all' && b.province !== PROV) return false;
+  if (SEARCH && (b.name || '').toLowerCase().indexOf(SEARCH) === -1) return false;
+  return true;
+}
+
+function contactRevealHtml(b){
+  var lines = [];
+  if (b.phone) lines.push('<span><i class="ph-duotone ph-phone"></i> ' + escH(b.phone) + '</span>');
+  if (b.zalo && b.zalo !== b.phone) lines.push('<span><i class="ph-duotone ph-chat-circle-dots"></i> Zalo: ' + escH(b.zalo) + '</span>');
+  return lines.join('') || '<span>Chưa cập nhật thông tin liên hệ.</span>';
+}
+
+function bindContactBtn(root){
+  root.querySelectorAll('.contact-btn').forEach(function(btn){
+    btn.addEventListener('click', function(ev){
+      ev.preventDefault(); ev.stopPropagation();
+      var uid = btn.getAttribute('data-uid');
+      var b = ALL.filter(function(x){ return x.uid === uid; })[0];
+      if (!b || b.isDemo) return; // gian hàng minh hoạ — không có liên hệ thật, không ghi lead giả
+      var row = btn.closest('.row-item');
+      var existing = row.querySelector('.contact-reveal');
+      if (existing) { existing.style.display = existing.style.display === 'none' ? 'flex' : 'none'; return; }
+      var div = document.createElement('div');
+      div.className = 'contact-reveal';
+      div.innerHTML = contactRevealHtml(b);
+      row.classList.add('has-reveal');
+      row.appendChild(div);
+      btn.style.display = 'none';
+      logLead(uid, 'contact_view');
+    });
+  });
+}
+
+function renderDiamond(items){
+  var sec = document.getElementById('diamondSec');
+  if (!items.length){ sec.style.display = 'none'; return; }
+  sec.style.display = 'block';
+  document.getElementById('diamondTrack').innerHTML = items.map(function(b, i){
+    return '<a class="diamond-slide' + (i===0?' active':'') + (b.isDemo?' is-demo':'') + '" href="' + profileUrl(b) + '" data-i="' + i + '">'
+      + '<span class="diamond-badge">Kim cương</span>'
+      + (b.isDemo ? '<span class="demo-badge" style="position:absolute;top:16px;left:16px">Minh hoạ</span>' : '')
+      + '<div class="diamond-eyebrow">Gian hàng Kim cương · ' + escH((CATS[b.category]||{}).label || '') + '</div>'
+      + '<div class="diamond-name">' + escH(b.name || '') + '</div>'
+    + '</a>';
+  }).join('');
+  document.getElementById('diamondDots').innerHTML = items.map(function(b, i){
+    return '<button class="diamond-dot' + (i===0?' active':'') + '" data-i="' + i + '"></button>';
+  }).join('');
+  document.querySelectorAll('.diamond-dot').forEach(function(dot){
+    dot.addEventListener('click', function(){ goDiamond(parseInt(dot.getAttribute('data-i'),10)); });
+  });
+  diamondIdx = 0;
+  applyDiamondTransform();
+  clearInterval(diamondTimer);
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (items.length > 1 && !reduceMotion) {
+    diamondTimer = setInterval(function(){ goDiamond((diamondIdx + 1) % items.length); }, 4500);
+  }
+}
+function applyDiamondTransform(){
+  document.querySelectorAll('.diamond-slide').forEach(function(s, i){ s.classList.toggle('active', i === diamondIdx); });
+  document.querySelectorAll('.diamond-dot').forEach(function(d, i){ d.classList.toggle('active', i === diamondIdx); });
+}
+function goDiamond(i){ diamondIdx = i; applyDiamondTransform(); }
+
+function renderFeatured(items){
+  var sec = document.getElementById('featuredSec');
+  if (!items.length){ sec.style.display = 'none'; return; }
+  sec.style.display = 'block';
+  document.getElementById('featuredGrid').innerHTML = items.map(function(b){
+    return '<a class="fcard' + (b.isDemo?' is-demo':'') + '" href="' + profileUrl(b) + '">'
+      + '<div class="fcard-top">' + avatarHtml(b) + '<div style="min-width:0"><div class="fcard-name">' + escH(b.name || 'Gian hàng') + '</div><div class="fcard-loc">' + escH(PROV_NAME[b.province] || b.province || '') + '</div></div></div>'
+      + '<div class="fcard-meta">'
+        + (b.isDemo ? '<span class="demo-badge">Minh hoạ</span>' : (b.verified ? '<span class="verified-badge"><i class="ph-duotone ph-seal-check"></i>Đã xác minh</span>' : '<span></span>'))
+        + (typeof b.leadCount === 'number' ? '<span class="lead-count">' + b.leadCount + ' lượt liên hệ</span>' : '')
+      + '</div>'
+    + '</a>';
+  }).join('');
+}
+
+function renderBasic(items){
+  var sec = document.getElementById('basicSec');
+  if (!items.length){ sec.style.display = 'none'; return; }
+  sec.style.display = 'block';
+  document.getElementById('listHeadTitle').textContent = FILTER === 'all' ? 'Tất cả gian hàng' : ('Tất cả gian hàng — ' + ((CATS[FILTER]||{}).label || FILTER));
+  document.getElementById('listHeadCount').textContent = items.length + ' nhà cung cấp';
+  var list = document.getElementById('basicList');
+  list.innerHTML = items.map(function(b){
+    return '<div class="row-item' + (b.isDemo?' is-demo':'') + '">'
+      + avatarHtml(b)
+      + '<div class="row-info"><div class="row-name">' + escH(b.name || 'Gian hàng') + (b.isDemo ? ' <span class="demo-badge">Minh hoạ</span>' : '') + '</div>'
+        + '<div class="row-sub">' + escH(PROV_NAME[b.province] || b.province || '') + (b.intro || b.bio ? ' · ' + escH(b.intro || b.bio) : '') + '</div></div>'
+      + '<a href="' + profileUrl(b) + '" class="contact-btn" style="text-decoration:none"><i class="ph-duotone ph-storefront"></i>Xem gian hàng</a>'
+      + (b.isDemo
+          ? '<button class="contact-btn disabled" disabled title="Gian hàng minh hoạ — chưa có liên hệ thật"><i class="ph-duotone ph-phone"></i>Xem liên hệ</button>'
+          : '<button class="contact-btn" data-uid="' + escH(b.uid) + '"><i class="ph-duotone ph-phone"></i>Xem liên hệ</button>')
+    + '</div>';
+  }).join('');
+  bindContactBtn(list);
+}
+
+function renderAll(){
+  var filtered = ALL.filter(matchesFilter);
+  var diamond = filtered.filter(function(b){ return b.tier === 'diamond'; }).slice(0, 5);
+  var featured = filtered.filter(function(b){ return b.tier === 'featured'; }).slice(0, 6);
+  var basic = filtered.filter(function(b){ return b.tier !== 'diamond' && b.tier !== 'featured'; });
+  renderDiamond(diamond);
+  renderFeatured(featured);
+  renderBasic(basic);
+  document.getElementById('emptyState').style.display = (diamond.length + featured.length + basic.length === 0) ? 'block' : 'none';
+}
+
+async function loadAll(){
+  if (IS_DEMO) {
+    ALL = MOCK_DATA.slice();
+    document.getElementById('loadState').style.display = 'none';
+    document.getElementById('sections').style.display = 'block';
+    renderAll();
+    updateInviteSection([]); // demo=1: xem giao diện mời gọi, không dùng số liệu thật
+    return;
+  }
+  document.getElementById('loadState').style.display = 'block';
+  document.getElementById('sections').style.display = 'none';
+  var realList = [];
+  try {
+    var snap = await getDocs(query(collection(db, 'nccApplications'), where('status', '==', 'approved'), limit(300)));
+    snap.forEach(function(d){ var v = d.data(); v.uid = d.id; realList.push(v); });
+  } catch(e){
+    console.warn('[ncc-showcase]', e && e.message);
+  }
+  ALL = realList.slice();
+  if (SHOW_DEMO_FALLBACK) {
+    var realCountByCat = {};
+    realList.forEach(function(b){ realCountByCat[b.category] = (realCountByCat[b.category] || 0) + 1; });
+    var mockToShow = MOCK_DATA.filter(function(m){ return (realCountByCat[m.category] || 0) < MOCK_HIDE_THRESHOLD; });
+    ALL = ALL.concat(mockToShow); // gian hàng thật luôn đứng trước, mẫu bổ sung phía sau — trừ danh mục đã đủ NCC thật
+  }
+  document.getElementById('loadState').style.display = 'none';
+  document.getElementById('sections').style.display = 'block';
+  renderAll();
+  updateInviteSection(realList);
+}
+
+document.getElementById('searchBox').addEventListener('input', function(){
+  SEARCH = this.value.trim().toLowerCase();
+  renderAll();
+});
+
+renderZones();
+renderProvSelect();
+loadAll();
+</script>
+</body>
+</html>
