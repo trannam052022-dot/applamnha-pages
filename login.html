@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MB7VRGR5');</script>
+<!-- End Google Tag Manager -->
+
+  <script src="error-monitor.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>ALN — Đăng nhập</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+<style>
+:root{
+  --bg:#080c14;--bg2:#0e1422;--bg3:#141b2e;--bg4:#1c2438;
+  --border:rgba(201,168,76,.16);--border2:rgba(201,168,76,.28);
+  --text:#f0e6cc;--text2:rgba(240,230,204,.65);--sub:rgba(240,230,204,.42);--muted:rgba(240,230,204,.27);
+  --gold:#C9A84C;--gold2:#e8d07a;--gold-bg:rgba(201,168,76,.08);--gold-glow:rgba(201,168,76,.22);
+  --green:#3dd68c;--red:#f06060;--amber:#ffaa33;--blue:#5b8fff;
+  --r:13px;--r-sm:9px;
+  --sans:'DM Sans',sans-serif;--mono:'JetBrains Mono',monospace;
+  --syne:'Syne',sans-serif;--serif:'Cormorant Garamond',serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:13px;height:100%}
+@media(min-width:1440px){html{font-size:14px}}
+@media(min-width:1920px){html{font-size:16px}}
+body{
+  font-family:var(--sans);background:var(--bg);color:var(--text);
+  min-height:100vh;display:flex;flex-direction:column;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+  background-image:
+    linear-gradient(rgba(201,168,76,.022) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(201,168,76,.022) 1px,transparent 1px);
+  background-size:56px 56px;
+}
+body::before{
+  content:'';position:fixed;top:-15%;left:50%;transform:translateX(-50%);
+  width:700px;height:500px;
+  background:radial-gradient(ellipse,rgba(201,168,76,.11) 0%,transparent 68%);
+  pointer-events:none;z-index:0;
+}
+input::placeholder{color:var(--muted)}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:rgba(201,168,76,.3);border-radius:99px}
+.ph-spin{animation:phspin 1s linear infinite;display:inline-block}
+@keyframes phspin{to{transform:rotate(360deg)}}
+
+/* ── LAYOUT ── */
+.page{
+  position:relative;z-index:1;display:flex;flex-direction:column;
+  min-height:100vh;align-items:center;justify-content:center;
+  padding:32px 20px 48px;
+}
+
+/* ── HERO BRAND ── */
+.brand{text-align:center;margin-bottom:32px;position:relative;width:100%;max-width:420px}
+.brand-deco{position:absolute;inset:0;pointer-events:none}
+.brand-deco svg{width:100%;height:100%;position:absolute;top:0;left:0}
+.brand-inner{position:relative}
+.brand-eyebrow{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:16px}
+.ey-line{flex:1;max-width:48px;height:1px}
+.ey-line-l{background:linear-gradient(90deg,transparent,rgba(201,168,76,.55))}
+.ey-line-r{background:linear-gradient(270deg,transparent,rgba(201,168,76,.55))}
+.ey-text{font-family:var(--syne);font-size:8px;font-weight:700;letter-spacing:.35em;text-transform:uppercase;color:var(--gold);opacity:.75}
+.brand-monogram{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:48px;height:48px;border-radius:50%;
+  background:rgba(201,168,76,.08);border:1.5px solid rgba(201,168,76,.28);
+  font-family:var(--syne);font-size:16px;font-weight:800;letter-spacing:.08em;color:var(--gold);
+  margin-bottom:12px;
+}
+.brand-title{font-family:var(--serif);font-size:30px;font-weight:300;color:var(--text);line-height:1.15;margin-bottom:6px}
+.brand-title em{font-style:italic;font-weight:600;color:var(--gold2)}
+.brand-sub{font-size:11px;color:var(--sub);letter-spacing:.03em}
+
+/* ── ROLE TABS — lưới 4 cột x 2 hàng (8 vai trò), dễ bấm trên điện thoại
+   hơn nhồi 1 hàng ngang ── */
+.role-tabs{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:5px;
+  background:rgba(255,255,255,.025);border:1px solid rgba(201,168,76,.14);
+  border-radius:12px;padding:4px;
+  width:100%;max-width:420px;
+}
+.role-tab{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:10px 6px;border-radius:9px;cursor:pointer;
+  transition:all .18s;border:1px solid transparent;user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+.role-tab:hover{background:rgba(201,168,76,.05)}
+.role-tab.active{background:rgba(201,168,76,.1);border-color:rgba(201,168,76,.28)}
+.role-tab .rt-icon{font-size:18px;line-height:1;color:var(--muted);transition:color .18s}
+.role-tab.active .rt-icon{color:var(--gold)}
+.role-tab .rt-label{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.04em;text-align:center;transition:color .18s}
+.role-tab.active .rt-label{color:var(--gold)}
+.role-tab .rt-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.12);transition:background .18s}
+.role-tab.active .rt-dot{background:var(--gold)}
+
+/* ── LOGIN CARD ── */
+.login-card{
+  width:100%;max-width:420px;
+  background:rgba(14,20,34,.9);
+  backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);
+  border:1px solid rgba(201,168,76,.18);
+  border-radius:var(--r);overflow:hidden;
+  box-shadow:0 28px 72px rgba(0,0,0,.6),0 0 0 1px rgba(201,168,76,.04);
+  margin-top:8px;
+}
+.card-top{padding:20px 24px 0}
+.role-label-row{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.role-icon-big{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.role-title{font-family:var(--serif);font-size:17px;font-weight:600;font-style:italic;color:var(--text)}
+.role-desc{font-size:11px;color:var(--sub)}
+
+/* ── FORM ── */
+.form-body{padding:0 24px 24px}
+.field{margin-bottom:14px}
+.field label{display:block;font-family:var(--syne);font-size:9px;font-weight:700;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px}
+.field-wrap{position:relative}
+.field-wrap .fi{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none}
+.field input{
+  width:100%;background:rgba(255,255,255,.04);
+  border:1.5px solid rgba(255,255,255,.1);
+  border-radius:var(--r-sm);padding:11px 12px 11px 36px;
+  font-size:13px;font-family:var(--sans);color:var(--text);
+  outline:none;transition:border-color .18s,background .18s;-webkit-appearance:none;
+}
+.field input:focus{border-color:rgba(201,168,76,.45);background:rgba(255,255,255,.06)}
+.field-pw .eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:4px;transition:color .15s;line-height:1}
+.field-pw .eye:hover{color:var(--text2)}
+
+/* ── DEMO ACCOUNTS ── */
+.demo-label{font-size:10px;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.demo-row{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.demo-btn{
+  flex:1;min-width:0;
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:8px;padding:7px 9px;cursor:pointer;transition:all .15s;text-align:left;
+}
+.demo-btn:hover{border-color:rgba(201,168,76,.3);background:rgba(201,168,76,.06)}
+.demo-btn .db-name{font-size:11px;font-weight:600;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.demo-btn .db-hint{font-size:9px;color:var(--muted);font-family:var(--mono)}
+
+/* ── DIVIDER ── */
+.divider{height:1px;background:rgba(255,255,255,.07);margin:16px 0;position:relative}
+.divider span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(14,20,34,.95);padding:0 10px;font-size:10px;color:var(--muted);white-space:nowrap}
+
+/* ── LOGIN BUTTON ── */
+.btn-login{
+  width:100%;padding:13px;
+  background:linear-gradient(100deg,#a07830 0%,#e8d07a 45%,#C9A84C 100%);
+  background-size:200% 100%;background-position:0% 0%;
+  border:none;border-radius:var(--r-sm);
+  font-family:var(--syne);font-size:13px;font-weight:700;letter-spacing:.06em;color:#08090f;
+  cursor:pointer;transition:background-position .3s,box-shadow .2s,opacity .15s;
+  margin-top:4px;display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.btn-login:hover:not(:disabled){background-position:100% 0%;box-shadow:0 0 28px rgba(201,168,76,.3)}
+.btn-login:disabled{opacity:.42;cursor:not-allowed}
+
+/* ── ERROR ── */
+.msg-error{
+  background:rgba(240,96,96,.08);border:1px solid rgba(240,96,96,.25);
+  border-radius:var(--r-sm);padding:9px 12px;font-size:12px;color:#f09898;
+  display:none;align-items:center;gap:8px;margin-bottom:12px;
+}
+.msg-error.show{display:flex}
+
+/* ── REGISTER ROW ── */
+.divider-reg{
+  display:flex;align-items:center;gap:10px;
+  width:100%;max-width:420px;margin-top:14px;
+}
+.divider-reg-line{flex:1;height:1px;background:rgba(255,255,255,.07)}
+.divider-reg span{font-size:10px;color:var(--muted);white-space:nowrap}
+.reg-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;width:100%;max-width:420px;margin-top:8px}
+.reg-btn{
+  display:flex;align-items:center;gap:9px;
+  padding:11px 12px;
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(201,168,76,.2);
+  border-radius:10px;cursor:pointer;
+  text-decoration:none;transition:all .18s;
+}
+.reg-btn:hover{background:rgba(201,168,76,.07);border-color:rgba(201,168,76,.38)}
+.reg-btn i{font-size:18px;color:rgba(201,168,76,.6);flex-shrink:0}
+.reg-btn:hover i{color:var(--gold)}
+.reg-btn-title{font-family:var(--syne);font-size:10px;font-weight:700;color:var(--text2);margin-bottom:1px}
+.reg-btn-sub{font-size:9px;color:var(--muted);line-height:1.3}
+
+/* ── FOOTER ── */
+.login-footer{margin-top:18px;text-align:center;font-size:10px;color:var(--muted);letter-spacing:.04em}
+.login-footer a{color:rgba(201,168,76,.45);text-decoration:none;transition:color .15s}
+.login-footer a:hover{color:var(--gold)}
+
+/* ── REDIRECT OVERLAY ── */
+.redirect-overlay{
+  position:fixed;inset:0;
+  background:var(--bg);
+  z-index:1000;display:none;
+  flex-direction:column;align-items:center;justify-content:center;gap:16px;
+}
+.redirect-overlay.show{display:flex}
+.redirect-spinner{width:40px;height:40px;border:2px solid rgba(201,168,76,.18);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.redirect-msg{font-family:var(--serif);font-size:22px;font-style:italic;color:var(--text2)}
+.redirect-sub{font-size:11px;color:var(--muted);font-family:var(--mono)}
+
+/* ── SHAKE ── */
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+
+/* ── FOUNDER MODAL ── */
+.founder-modal-bg{
+  display:none;position:fixed;inset:0;z-index:200;
+  align-items:center;justify-content:center;padding:24px;
+  background:rgba(0,0,0,.7);backdrop-filter:blur(8px);
+}
+.founder-modal{
+  width:100%;max-width:360px;
+  background:rgba(14,20,34,.97);
+  border:1px solid rgba(201,168,76,.25);
+  border-radius:var(--r);overflow:hidden;
+  box-shadow:0 32px 80px rgba(0,0,0,.8);position:relative;
+}
+.founder-modal .field input{background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.1);border-radius:var(--r-sm);padding:10px 12px 10px 36px;font-size:13px;font-family:var(--sans);color:var(--text);outline:none;width:100%;-webkit-appearance:none}
+.founder-modal .field input:focus{border-color:rgba(201,168,76,.45);background:rgba(255,255,255,.06)}
+
+@media(max-width:460px){
+  .brand-title{font-size:24px}
+  .form-body,.card-top{padding-left:16px;padding-right:16px}
+  .reg-row{grid-template-columns:1fr}
+}
+</style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#080c14">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ALN Studio">
+<link rel="stylesheet" href="aln-tokens.css">
+<!-- Google Analytics 4 (ALN — G-5CSL1TF0RC, tách riêng khỏi property TK.HOUSE) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-5CSL1TF0RC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-5CSL1TF0RC');
+</script>
+<!-- End GA4 -->
+<script src="aln-tracking.js"></script>
+</head>
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MB7VRGR5"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+<!-- REDIRECT OVERLAY -->
+<div class="redirect-overlay" id="redirectOverlay">
+  <div class="redirect-spinner"></div>
+  <div class="redirect-msg" id="redirectMsg">Đang vào trang...</div>
+  <div class="redirect-sub" id="redirectSub">Xin chờ giây lát</div>
+</div>
+
+<div class="page">
+
+  <!-- ── HERO BRAND ── -->
+  <div class="brand">
+    <div class="brand-deco" aria-hidden="true">
+      <svg viewBox="0 0 420 140" xmlns="http://www.w3.org/2000/svg" fill="none">
+        <path d="M8 8 L8 28 M8 8 L28 8" stroke="rgba(201,168,76,.38)" stroke-width="1.5"/>
+        <path d="M412 8 L412 28 M412 8 L392 8" stroke="rgba(201,168,76,.38)" stroke-width="1.5"/>
+        <path d="M8 132 L8 112 M8 132 L28 132" stroke="rgba(201,168,76,.38)" stroke-width="1.5"/>
+        <path d="M412 132 L412 112 M412 132 L392 132" stroke="rgba(201,168,76,.38)" stroke-width="1.5"/>
+        <line x1="8" y1="46" x2="120" y2="46" stroke="rgba(201,168,76,.06)" stroke-width="0.5"/>
+        <line x1="300" y1="46" x2="412" y2="46" stroke="rgba(201,168,76,.06)" stroke-width="0.5"/>
+        <line x1="8" y1="94" x2="120" y2="94" stroke="rgba(201,168,76,.06)" stroke-width="0.5"/>
+        <line x1="300" y1="94" x2="412" y2="94" stroke="rgba(201,168,76,.06)" stroke-width="0.5"/>
+        <line x1="76" y1="42" x2="76" y2="50" stroke="rgba(201,168,76,.2)" stroke-width="0.5"/>
+        <line x1="344" y1="42" x2="344" y2="50" stroke="rgba(201,168,76,.2)" stroke-width="0.5"/>
+        <!-- door arch hint -->
+        <path d="M200 26 Q200 14 210 14 Q220 14 220 26" stroke="rgba(201,168,76,.22)" stroke-width="1" fill="none"/>
+        <rect x="196" y="26" width="28" height="18" fill="none" stroke="rgba(201,168,76,.15)" stroke-width="0.5"/>
+        <line x1="210" y1="26" x2="210" y2="44" stroke="rgba(201,168,76,.12)" stroke-width="0.5"/>
+      </svg>
+    </div>
+    <div class="brand-inner">
+      <div class="brand-eyebrow">
+        <span class="ey-line ey-line-l"></span>
+        <span class="ey-text">App Làm Nhà Corp.</span>
+        <span class="ey-line ey-line-r"></span>
+      </div>
+      <div class="brand-monogram">ALN</div>
+      <div class="brand-title">Cổng Theo dõi<br><em>Công trình</em></div>
+      <div class="brand-sub">Đăng nhập để vào trang quản lý của bạn</div>
+    </div>
+  </div>
+
+  <!-- ── ROLE TABS ── -->
+  <div class="role-tabs" id="roleTabs">
+    <div class="role-tab active" data-role="kts" onclick="switchRole('kts')">
+      <div class="rt-icon"><svg viewBox="0 0 100 100" width="20" height="20" xmlns="http://www.w3.org/2000/svg"><polygon points="94,50 72,88 28,88 6,50 28,12 72,12" fill="none" stroke="#C9A84C" stroke-width="4"/><ellipse cx="33" cy="40" rx="14" ry="21" fill="none" stroke="#C9A84C" stroke-width="8" transform="rotate(-20 33 40)"/><path d="M52 36C54 29 62 28 63 34C64 38 58 39 52 37Z" fill="#C9A84C"/><path d="M27 56C19 62 18 72 24 77C30 82 41 75 41 64C41 57 35 52 28 54Z" fill="#9a7820"/><path d="M26 60C21 66 21 73 25 76" stroke="#C9A84C" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M35 60C30 65 31 73 35 75C39 77 46 73 46 65C46 58 41 56 37 58Z" fill="#7a5810"/><circle cx="51" cy="51" r="5" fill="#C9A84C"/><circle cx="64" cy="42" r="9" fill="#C9A84C"/><circle cx="65" cy="44" r="3.5" fill="#7a5010"/><path d="M68 34Q72 26 75 21" stroke="#C9A84C" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="75" cy="21" r="2.5" fill="#C9A84C"/><path d="M60 33Q57 26 55 21" stroke="#C9A84C" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="55" cy="21" r="2" fill="#C9A84C"/><path d="M53 56C49 63 47 75 51 83C53 89 61 91 66 85C71 77 69 64 64 57C62 53 55 52 53 56Z" fill="#C9A84C"/><path d="M49 68Q57.5 72 66 68" stroke="#5a3c08" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M49 77Q57.5 81 66 77" stroke="#5a3c08" stroke-width="3" fill="none" stroke-linecap="round"/></svg></div>
+      <div class="rt-label">Kiến trúc sư</div>
+      <div class="rt-dot"></div>
+    </div>
+    <div class="role-tab" data-role="dn" onclick="switchRole('dn')">
+      <div class="rt-icon"><i class="ph-duotone ph-building"></i></div>
+      <div class="rt-label">Doanh nghiệp</div>
+      <div class="rt-dot"></div>
+    </div>
+    <div class="role-tab" data-role="cn" onclick="switchRole('cn')">
+      <div class="rt-icon"><i class="ph-duotone ph-user"></i></div>
+      <div class="rt-label">Chủ nhà</div>
+      <div class="rt-dot"></div>
+    </div>
+    <div class="role-tab" data-role="designer" onclick="switchRole('designer')">
+      <div class="rt-icon"><i class="ph-duotone ph-paint-brush-household"></i></div>
+      <div class="rt-label">Designer NT</div>
+      <div class="rt-dot"></div>
+    </div>
+    <div class="role-tab" data-role="ks" onclick="switchRole('ks')">
+      <div class="rt-icon"><i class="ph-duotone ph-map-pin-area"></i></div>
+      <div class="rt-label">KS Vùng</div>
+      <div class="rt-dot"></div>
+    </div>
+    <div class="role-tab" data-role="ke_toan" onclick="switchRole('ke_toan')">
+      <div class="rt-icon"><i class="ph-duotone ph-calculator"></i></div>
+      <div class="rt-label">Kế toán</div>
+      <div class="rt-dot"></div>
+    </div>
+    <div class="role-tab" data-role="ktv" onclick="switchRole('ktv')">
+      <div class="rt-icon"><i class="ph-duotone ph-ruler"></i></div>
+      <div class="rt-label">KTV</div>
+      <div class="rt-dot"></div>
+    </div>
+    <div class="role-tab" data-role="ncc" onclick="switchRole('ncc')">
+      <div class="rt-icon"><i class="ph-duotone ph-package"></i></div>
+      <div class="rt-label">Nhà cung cấp</div>
+      <div class="rt-dot"></div>
+    </div>
+  </div>
+
+  <!-- ── LOGIN CARD ── -->
+  <div class="login-card">
+    <div class="card-top" id="cardTop"></div>
+    <div class="form-body">
+
+      <div class="msg-error" id="msgError">
+        <i class="ph-duotone ph-warning-circle"></i>
+        <span id="msgErrorTxt">Tên đăng nhập hoặc mật khẩu không đúng.</span>
+      </div>
+
+      <div id="demoBlock">
+        <div class="demo-label"><i class="ph-duotone ph-lightning" style="color:var(--gold);font-size:9px"></i> Tài khoản demo — nhấn để điền nhanh</div>
+        <div class="demo-row" id="demoRow"></div>
+      </div>
+
+      <div class="divider"><span>hoặc nhập thủ công</span></div>
+
+      <div class="field">
+        <label>Tên đăng nhập</label>
+        <div class="field-wrap">
+          <i class="fi ph-duotone ph-user" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none"></i>
+          <input type="text" id="inputUser" placeholder="username" autocomplete="username" autocapitalize="none" spellcheck="false">
+        </div>
+      </div>
+
+      <div class="field field-pw">
+        <label>Mật khẩu</label>
+        <div class="field-wrap">
+          <i class="fi ph-duotone ph-lock" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none"></i>
+          <input type="password" id="inputPw" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+          <button class="eye" onclick="togglePw()" id="eyeBtn" tabindex="-1"><i class="ph-duotone ph-eye" id="eyeIcon"></i></button>
+        </div>
+      </div>
+
+      <button class="btn-login" id="btnLogin" onclick="doLogin()">
+        <i class="ph-duotone ph-sign-in"></i> Đăng nhập
+      </button>
+
+    </div>
+  </div>
+
+  <!-- ── ĐĂNG KÝ ── -->
+  <div class="divider-reg">
+    <div class="divider-reg-line"></div>
+    <span>Chưa có tài khoản?</span>
+    <div class="divider-reg-line"></div>
+  </div>
+  <div class="reg-row">
+    <a href="kts-apply.html" class="reg-btn">
+      <i class="ph-duotone ph-ruler"></i>
+      <div>
+        <div class="reg-btn-title">Bạn là KTS?</div>
+        <div class="reg-btn-sub">Đăng ký vào mạng lưới</div>
+      </div>
+    </a>
+    <a href="dn-studio.html" class="reg-btn">
+      <i class="ph-duotone ph-buildings"></i>
+      <div>
+        <div class="reg-btn-title">Bạn là Doanh nghiệp?</div>
+        <div class="reg-btn-sub">Thuê Studio KTS trực tuyến</div>
+      </div>
+    </a>
+    <a href="designer-apply.html" class="reg-btn" style="border-color:rgba(124,58,237,.25)">
+      <i class="ph-duotone ph-paint-brush-household" style="color:rgba(124,58,237,.6)"></i>
+      <div>
+        <div class="reg-btn-title">Bạn là Designer?</div>
+        <div class="reg-btn-sub">Đăng ký thiết kế nội thất</div>
+      </div>
+    </a>
+    <a href="ks-apply.html" class="reg-btn" style="border-color:rgba(201,168,76,.25)">
+      <i class="ph-duotone ph-map-pin-area" style="color:rgba(201,168,76,.6)"></i>
+      <div>
+        <div class="reg-btn-title">Bạn là KS Vùng?</div>
+        <div class="reg-btn-sub">Quản lý mạng lưới KTS địa phương</div>
+      </div>
+    </a>
+  </div>
+
+  <div class="login-footer" style="margin-top:18px">
+    <span>© 2026 ALN Platform — </span>
+    <a href="privacy.html">Chính sách bảo mật</a>
+  </div>
+
+  <!-- Founder entry — hidden -->
+  <div style="margin-top:28px">
+    <button onclick="openFounderModal()" title="Cổng quản trị"
+      style="background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:5px;color:rgba(201,168,76,.15);font-size:10px;font-family:var(--mono);padding:6px 10px;border-radius:6px;transition:all .25s"
+      onmouseover="this.style.color='var(--gold)';this.style.background='var(--gold-bg)'"
+      onmouseout="this.style.color='rgba(201,168,76,.15)';this.style.background='transparent'">
+      <i class="ph-duotone ph-lock-simple" style="font-size:13px"></i> admin
+    </button>
+  </div>
+
+</div>
+
+<!-- ── FOUNDER MODAL ── -->
+<div id="founderModal" class="founder-modal-bg">
+  <div class="founder-modal">
+    <div style="padding:20px 24px 0">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:36px;height:36px;border-radius:9px;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.28);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--gold)"><i class="ph-duotone ph-crown"></i></div>
+          <div>
+            <div style="font-family:var(--serif);font-size:16px;font-weight:600;font-style:italic;color:var(--text)">Hội đồng Sáng lập</div>
+            <div style="font-size:11px;color:var(--sub)">Cổng quản trị nội bộ — không công khai</div>
+          </div>
+        </div>
+        <button onclick="closeFounderModal()" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:18px;padding:4px;line-height:1"><i class="ph-duotone ph-x"></i></button>
+      </div>
+    </div>
+    <div style="padding:0 24px 24px">
+      <div class="msg-error" id="founderError" style="margin-bottom:12px">
+        <i class="ph-duotone ph-warning-circle"></i>
+        <span id="founderErrorTxt"></span>
+      </div>
+      <div class="field">
+        <label>Tên đăng nhập</label>
+        <div class="field-wrap" style="position:relative">
+          <i class="ph-duotone ph-user" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none"></i>
+          <input type="text" id="founderUser" placeholder="founder.username" autocomplete="username" autocapitalize="none" spellcheck="false">
+        </div>
+      </div>
+      <div class="field field-pw" style="margin-bottom:16px">
+        <label>Mật khẩu</label>
+        <div class="field-wrap" style="position:relative">
+          <i class="ph-duotone ph-lock" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none"></i>
+          <input type="password" id="founderPw" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doFounderLogin()">
+          <button class="eye" onclick="toggleFounderPw()" tabindex="-1" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:4px"><i class="ph-duotone ph-eye" id="founderEye"></i></button>
+        </div>
+      </div>
+      <button id="founderBtn" onclick="doFounderLogin()"
+        style="width:100%;padding:12px;background:linear-gradient(100deg,#a07830 0%,#e8d07a 45%,#C9A84C 100%);border:none;border-radius:var(--r-sm);font-family:var(--syne);font-size:13px;font-weight:700;letter-spacing:.06em;color:#08090f;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+        <i class="ph-duotone ph-sign-in"></i> Vào hệ thống
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+window.ALN_FIREBASE_READY = new Promise(function(res){ window.__ALN_FB_RESOLVE = res; });
+
+const ACCOUNTS = {
+  kts: [
+    { user:'kts.minhtran',  pw:'aln2026', name:'KTS. Trần Lê Minh',   file:'kts_dashboard.html', badge:'VIP Vàng' },
+    { user:'kts.lanthi',    pw:'aln2026', name:'KTS. Nguyễn Thị Lan', file:'kts_dashboard.html', badge:'VIP Bạc' },
+    { user:'kts.khoavu',    pw:'aln2026', name:'KTS. Vũ Minh Khoa',   file:'kts_dashboard.html', badge:'VIP Vàng' },
+  ],
+  dn: [
+    { user:'dn.applamnha',   pw:'aln2026', name:'App Làm Nhà Corp.',   file:'client_DN.html', badge:'Doanh nghiệp' },
+    { user:'dn.alnconstruct',pw:'aln2026', name:'ALN Construct',       file:'client_DN.html', badge:'Doanh nghiệp' },
+  ],
+  cn: [
+    { user:'cn.thuannv',  pw:'aln2026', name:'Nguyễn Văn Thuận', file:'client_CN.html', badge:'Chủ nhà' },
+    { user:'cn.binhtt',   pw:'aln2026', name:'Trần Thị Bình',    file:'client_CN.html', badge:'Chủ nhà' },
+    { user:'cn.cuonglq',  pw:'aln2026', name:'Lê Quang Cường',   file:'client_CN.html', badge:'Chủ nhà' },
+  ],
+  designer: [
+    { user:'des.minhchau', pw:'aln2026', name:'Minh Châu Studio',  file:'designer_dashboard.html', badge:'Designer' },
+    { user:'des.thaovan',  pw:'aln2026', name:'Thảo Vân Interiors',file:'designer_dashboard.html', badge:'Designer' },
+  ],
+  founder: [
+    { user:'founder', pw:'aln@2026!', name:'Hội đồng Sáng lập', file:'founder_panel.html', badge:'Founder' },
+  ],
+};
+
+var KTS_BEE = '<svg viewBox="0 0 100 100" width="22" height="22" xmlns="http://www.w3.org/2000/svg"><polygon points="94,50 72,88 28,88 6,50 28,12 72,12" fill="none" stroke="#C9A84C" stroke-width="4"/><ellipse cx="33" cy="40" rx="14" ry="21" fill="none" stroke="#C9A84C" stroke-width="8" transform="rotate(-20 33 40)"/><path d="M52 36C54 29 62 28 63 34C64 38 58 39 52 37Z" fill="#C9A84C"/><path d="M27 56C19 62 18 72 24 77C30 82 41 75 41 64C41 57 35 52 28 54Z" fill="#9a7820"/><path d="M26 60C21 66 21 73 25 76" stroke="#C9A84C" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M35 60C30 65 31 73 35 75C39 77 46 73 46 65C46 58 41 56 37 58Z" fill="#7a5810"/><circle cx="51" cy="51" r="5" fill="#C9A84C"/><circle cx="64" cy="42" r="9" fill="#C9A84C"/><circle cx="65" cy="44" r="3.5" fill="#7a5010"/><path d="M68 34Q72 26 75 21" stroke="#C9A84C" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="75" cy="21" r="2.5" fill="#C9A84C"/><path d="M60 33Q57 26 55 21" stroke="#C9A84C" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="55" cy="21" r="2" fill="#C9A84C"/><path d="M53 56C49 63 47 75 51 83C53 89 61 91 66 85C71 77 69 64 64 57C62 53 55 52 53 56Z" fill="#C9A84C"/><path d="M49 68Q57.5 72 66 68" stroke="#5a3c08" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M49 77Q57.5 81 66 77" stroke="#5a3c08" stroke-width="3" fill="none" stroke-linecap="round"/></svg>';
+
+const ROLE_META = {
+  kts:     { icon:KTS_BEE, title:'Kiến trúc sư',      desc:'Quản lý dự án, bản vẽ & doanh thu',  color:'var(--amber)', bg:'rgba(255,170,51,.1)'  },
+  dn:      { icon:'<i class="ph-duotone ph-building"></i>', title:'Doanh nghiệp', desc:'Tổng quan danh mục & đội ngũ KTS', color:'var(--blue)', bg:'rgba(91,143,255,.1)' },
+  cn:       { icon:'<i class="ph-duotone ph-user"></i>', title:'Chủ nhà', desc:'Theo dõi công trình & trao đổi KTS', color:'var(--green)', bg:'rgba(61,214,140,.1)' },
+  designer: { icon:'<i class="ph-duotone ph-paint-brush-household"></i>', title:'Designer Nội thất', desc:'Quản lý dự án & hồ sơ nội thất', color:'#7c3aed', bg:'rgba(124,58,237,.1)' },
+  ks:       { icon:'<i class="ph-duotone ph-map-pin-area"></i>', title:'KS Vùng', desc:'Xét duyệt KTS & quản lý mạng lưới địa phương', color:'var(--gold)', bg:'rgba(201,168,76,.08)' },
+  founder:  { icon:'<i class="ph-duotone ph-crown"></i>', title:'Hội đồng Sáng lập', desc:'Toàn quyền quản trị hệ thống ALN', color:'var(--gold)', bg:'rgba(201,168,76,.12)' },
+  ke_toan:  { icon:'<i class="ph-duotone ph-calculator"></i>', title:'Kế toán trưởng', desc:'Đối chiếu khoản chi KTS/Designer chờ Founder chuyển', color:'var(--gold)', bg:'rgba(201,168,76,.08)' },
+  ktv:      { icon:'<i class="ph-duotone ph-ruler"></i>', title:'Kỹ thuật viên', desc:'Triển khai bản vẽ được KTS giao', color:'#22d3ee', bg:'rgba(34,211,238,.1)' },
+  ncc:      { icon:'<i class="ph-duotone ph-package"></i>', title:'Nhà cung cấp', desc:'Quản lý gian hàng vật liệu trên ALN', color:'var(--green)', bg:'rgba(61,214,140,.1)' },
+};
+
+let activeRole = 'kts';
+
+function switchRole(role){
+  activeRole = role;
+  document.querySelectorAll('.role-tab').forEach(t=>{
+    t.classList.toggle('active', t.dataset.role===role);
+  });
+  document.getElementById('inputUser').value='';
+  document.getElementById('inputPw').value='';
+  hideError();
+  renderCardTop();
+  renderDemoRow();
+}
+
+function renderCardTop(){
+  const m = ROLE_META[activeRole];
+  document.getElementById('cardTop').innerHTML = `
+    <div class="role-label-row">
+      <div class="role-icon-big" style="background:${m.bg};border:1px solid ${m.color}44">
+        <span style="color:${m.color}">${m.icon}</span>
+      </div>
+      <div>
+        <div class="role-title">Đăng nhập — ${m.title}</div>
+        <div class="role-desc">${m.desc}</div>
+      </div>
+    </div>`;
+}
+
+function renderDemoRow(){
+  // Vai trò nội bộ (ks, ke_toan...) không có tài khoản demo public — ẩn cả khối
+  // thay vì để trống hoặc lỗi .map trên undefined.
+  const accs = ACCOUNTS[activeRole] || [];
+  const block = document.getElementById('demoBlock');
+  if (block) block.style.display = accs.length ? '' : 'none';
+  document.getElementById('demoRow').innerHTML = accs.map(a=>`
+    <button class="demo-btn" onclick="fillDemo('${a.user}','${a.pw}')">
+      <div class="db-name">${a.name}</div>
+      <div class="db-hint">${a.user}</div>
+    </button>`).join('');
+}
+
+function fillDemo(user, pw){
+  document.getElementById('inputUser').value = user;
+  document.getElementById('inputPw').value = pw;
+  hideError();
+  document.getElementById('btnLogin').focus();
+}
+
+function togglePw(){
+  const inp = document.getElementById('inputPw');
+  const ico = document.getElementById('eyeIcon');
+  if(inp.type==='password'){ inp.type='text'; ico.className='ph-duotone ph-eye-slash'; }
+  else { inp.type='password'; ico.className='ph-duotone ph-eye'; }
+}
+function hideError(){ document.getElementById('msgError').classList.remove('show'); }
+function showError(msg){
+  const el = document.getElementById('msgError');
+  document.getElementById('msgErrorTxt').textContent = msg;
+  el.classList.add('show');
+  const card = document.querySelector('.login-card');
+  card.style.animation='none';
+  setTimeout(()=>{ card.style.animation='shake .35s ease'; },10);
+}
+
+// ncc trỏ thẳng ncc-showcase.html ("Mạng lưới Thiết bị - Vật tư ALN") thay vì
+// ncc-dashboard.html — NCC xem gian hàng chung trước, tự bấm "Gian hàng của
+// tôi" (link trên ncc-showcase.html) khi muốn vào trang quản lý riêng.
+const FILE_BY_ROLE = { kts:'kts_dashboard.html', dn:'client_DN.html', cn:'client_CN.html', designer:'designer_dashboard.html', founder:'founder_panel.html', ks:'ks_dashboard.html', ktv:'ktv_dashboard.html', ke_toan:'ketoan_dashboard.html', ncc:'ncc-showcase.html' };
+/* Nếu người dùng bấm đăng nhập TỪ diễn đàn (forum.html lưu sessionStorage.forumReturn),
+   sau khi login xong đưa họ QUAY LẠI forum (đúng thread) thay vì dashboard mặc định. */
+function alnReturnDest(){
+  try {
+    var r = JSON.parse(sessionStorage.getItem('forumReturn') || 'null');
+    if (r && (Date.now() - (r.t || 0) < 30 * 60000)) {
+      sessionStorage.removeItem('forumReturn');
+      return 'forum.html' + (r.thread ? '?thread=' + encodeURIComponent(r.thread) : '');
+    }
+  } catch(e){}
+  return null;
+}
+
+function resetLoginBtn(){
+  const btn = document.getElementById('btnLogin');
+  btn.disabled = false;
+  btn.innerHTML = '<i class="ph-duotone ph-sign-in"></i> Đăng nhập';
+}
+
+async function doLogin(){
+  const user = document.getElementById('inputUser').value.trim().toLowerCase();
+  const pw   = document.getElementById('inputPw').value;
+  hideError();
+  if(!user){ showError('Vui lòng nhập tên đăng nhập.'); document.getElementById('inputUser').focus(); return; }
+  if(!pw)  { showError('Vui lòng nhập mật khẩu.'); document.getElementById('inputPw').focus(); return; }
+  const btn = document.getElementById('btnLogin');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ph-duotone ph-circle-notch ph-spin"></i> Đang kiểm tra...';
+  try {
+    const fb = await Promise.race([
+      window.ALN_FIREBASE_READY,
+      new Promise((_, rej) => setTimeout(() => rej(new Error('SDK_TIMEOUT')), 15000))
+    ]);
+    const email = fb.usernameToEmail(user);
+    const cred  = await fb.signInWithEmailAndPassword(fb.auth, email, pw);
+    await cred.user.getIdToken(true);
+    let snap = null;
+    for (let i = 0; i < 3; i++) {
+      snap = await fb.getDoc(fb.doc(fb.db, 'users', cred.user.uid));
+      if (snap.exists()) break;
+      await new Promise(r => setTimeout(r, 800));
+    }
+    if(!snap.exists()){
+      await fb.signOut(fb.auth);
+      showError('Tài khoản chưa được gán vai trò. Vui lòng liên hệ quản trị viên.');
+      resetLoginBtn(); return;
+    }
+    const profile = snap.data();
+    if(profile.status === 'pending'){
+      await fb.signOut(fb.auth);
+      showError('Tài khoản đang chờ Founder duyệt. Vui lòng thử lại sau khi được kích hoạt.');
+      resetLoginBtn(); return;
+    }
+    if(profile.status === 'rejected'){
+      await fb.signOut(fb.auth);
+      showError('Tài khoản đã bị từ chối. Vui lòng liên hệ quản trị viên.');
+      resetLoginBtn(); return;
+    }
+    const effectiveRole = profile.role;
+    // founder + ke_toan: tài khoản nội bộ, không có tab riêng trên màn hình
+    // đăng nhập (nhập username thủ công) nên bỏ qua kiểm tra khớp tab. Từ
+    // 18/07/2026 ktv/ncc đã có tab riêng nên không cần miễn trừ nữa.
+    const NO_TAB_ROLES = ['founder', 'ke_toan'];
+    if(effectiveRole !== activeRole && NO_TAB_ROLES.indexOf(effectiveRole) === -1){
+      await fb.signOut(fb.auth);
+      const roleTitle = (ROLE_META[effectiveRole] && ROLE_META[effectiveRole].title) || effectiveRole;
+      showError(`Tài khoản này thuộc vai trò "${roleTitle}". Vui lòng chọn đúng loại tài khoản.`);
+      resetLoginBtn(); return;
+    }
+    const redirectRole = NO_TAB_ROLES.indexOf(effectiveRole) !== -1 ? effectiveRole : activeRole;
+    const username = profile.username || user;
+    var userData = JSON.stringify({ name:profile.name||username, userId:username, role:profile.role, badge:profile.badge||'', uid:cred.user.uid });
+    try { localStorage.setItem('aln_user', userData); } catch(e){}
+    try { sessionStorage.setItem('aln_user', userData); } catch(e){}
+    var m = ROLE_META[redirectRole] || ROLE_META[activeRole];
+    var overlay = document.getElementById('redirectOverlay');
+    document.getElementById('redirectMsg').textContent = 'Xin chào, ' + (profile.name || username);
+    document.getElementById('redirectSub').textContent = 'Đang vào trang ' + m.title + '...';
+    overlay.style.display = 'flex';
+    setTimeout(function(){
+      // NCC luôn vào thẳng Mạng lưới Thiết bị - Vật tư ALN, kể cả khi có forumReturn —
+      // bỏ qua luồng "quay lại diễn đàn" cho gọn, vì vai NCC không thật sự
+      // tham gia diễn đàn (chỉ redirect ra ncc-showcase.html).
+      var dest = redirectRole === 'ncc'
+        ? (FILE_BY_ROLE.ncc + '?u=' + encodeURIComponent(username) + '&r=ncc')
+        : (alnReturnDest() || (FILE_BY_ROLE[redirectRole] + '?u=' + encodeURIComponent(username) + '&r=' + redirectRole));
+      window.location.replace(dest);
+    }, 800);
+  } catch(err) {
+    console.error('[ALN Login]', err);
+    const code = err && err.code ? err.code : '';
+    if(code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found' || code === 'auth/invalid-email'){
+      showError('Tên đăng nhập hoặc mật khẩu không đúng.');
+    } else if(code === 'auth/too-many-requests'){
+      showError('Đăng nhập sai quá nhiều lần. Vui lòng thử lại sau ít phút.');
+    } else if(code === 'auth/network-request-failed'){
+      showError('Lỗi kết nối mạng. Vui lòng kiểm tra Internet.');
+    } else if(err && err.message === 'SDK_TIMEOUT'){
+      showError('Không tải được hệ thống xác thực. Kiểm tra kết nối mạng.');
+    } else {
+      showError('Có lỗi xảy ra [' + (err.code||'?') + ']: ' + (err.message||'không xác định'));
+    }
+    resetLoginBtn();
+  }
+}
+
+/* ── FOUNDER MODAL ── */
+function openFounderModal(){
+  var m = document.getElementById('founderModal');
+  m.style.display = 'flex';
+  setTimeout(function(){ document.getElementById('founderUser').focus(); }, 80);
+}
+function closeFounderModal(){
+  document.getElementById('founderModal').style.display = 'none';
+  document.getElementById('founderUser').value = '';
+  document.getElementById('founderPw').value = '';
+  document.getElementById('founderError').classList.remove('show');
+}
+function toggleFounderPw(){
+  var inp = document.getElementById('founderPw');
+  var ico = document.getElementById('founderEye');
+  if(inp.type==='password'){ inp.type='text'; ico.className='ph-duotone ph-eye-slash'; }
+  else { inp.type='password'; ico.className='ph-duotone ph-eye'; }
+}
+function showFounderError(msg){
+  var el = document.getElementById('founderError');
+  document.getElementById('founderErrorTxt').textContent = msg;
+  el.classList.add('show');
+}
+async function doFounderLogin(){
+  var user = document.getElementById('founderUser').value.trim().toLowerCase();
+  var pw   = document.getElementById('founderPw').value;
+  document.getElementById('founderError').classList.remove('show');
+  if(!user || !pw){ showFounderError('Vui lòng nhập đầy đủ thông tin.'); return; }
+  var btn = document.getElementById('founderBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ph-duotone ph-circle-notch ph-spin"></i> Đang xác thực...';
+  try {
+    var fb = await Promise.race([
+      window.ALN_FIREBASE_READY,
+      new Promise(function(_,rej){ setTimeout(function(){ rej(new Error('SDK_TIMEOUT')); }, 15000); })
+    ]);
+    var email = fb.usernameToEmail(user);
+    var cred  = await fb.signInWithEmailAndPassword(fb.auth, email, pw);
+    var FOUNDER_UID = 'h4kEguPEyMcwJwl89stc0Q6j2si2';
+    if(cred.user.uid !== FOUNDER_UID){
+      await fb.signOut(fb.auth);
+      showFounderError('Tài khoản không có quyền truy cập cổng này.');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="ph-duotone ph-sign-in"></i> Vào hệ thống';
+      return;
+    }
+    var userData = JSON.stringify({ name:'KTS. Trần Đại Long', userId:user, role:'founder', badge:'Founder', uid:cred.user.uid });
+    try { localStorage.setItem('aln_user', userData); } catch(e){}
+    try { sessionStorage.setItem('aln_user', userData); } catch(e){}
+    var overlay = document.getElementById('redirectOverlay');
+    document.getElementById('redirectMsg').textContent = 'Xin chào, KTS. Trần Đại Long';
+    document.getElementById('redirectSub').textContent = 'Đang vào Cổng Quản trị Sáng lập...';
+    overlay.style.display = 'flex';
+    setTimeout(function(){ window.location.replace(alnReturnDest() || ('founder_panel.html?u=' + encodeURIComponent(user) + '&r=founder')); }, 900);
+  } catch(err){
+    var code = (err && err.code) || '';
+    if(code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found'){
+      showFounderError('Tên đăng nhập hoặc mật khẩu không đúng.');
+    } else if(err && err.message === 'SDK_TIMEOUT'){
+      showFounderError('Không tải được hệ thống xác thực. Kiểm tra mạng.');
+    } else {
+      showFounderError('Lỗi [' + (code||'?') + ']: ' + ((err && err.message)||''));
+    }
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ph-duotone ph-sign-in"></i> Vào hệ thống';
+  }
+}
+document.getElementById('founderModal').addEventListener('click', function(e){
+  if(e.target === this) closeFounderModal();
+});
+
+renderCardTop();
+renderDemoRow();
+</script>
+
+<script type="module">
+import { auth, db, usernameToEmail, signInWithEmailAndPassword, signOut, doc, getDoc }
+  from "./firebase-config.js";
+window.__ALN_FB_RESOLVE({ auth, db, usernameToEmail, signInWithEmailAndPassword, signOut, doc, getDoc });
+</script>
+<script>
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./firebase-messaging-sw.js', {scope:'./'})
+    .catch(function(){});
+}
+</script>
+</body>
+</html>
