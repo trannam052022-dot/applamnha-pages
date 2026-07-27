@@ -1,29 +1,6 @@
 <!doctype html>
 <html lang="vi">
   <head>
-    <!--
-      Giải mã redirect từ 404.html (kỹ thuật "spa-github-pages") — PHẢI chạy
-      TRƯỚC khi Vue Router đọc URL (đặt đầu <head>, script đồng bộ nên chạy
-      trước mọi script khác kể cả module ở cuối <body>). Nếu URL có dạng
-      /app/?/profile&uid=XXX (đã được 404.html mã hoá), khôi phục lại thành
-      /app/profile?uid=XXX bằng history.replaceState trước khi router mount.
-      Xem public/404.html để rõ chiều mã hoá ngược lại.
-    -->
-    <script type="text/javascript">
-      (function (l) {
-        if (l.search[1] === '/') {
-          var decoded = l.search
-            .slice(1)
-            .split('&')
-            .map(function (s) {
-              return s.replace(/~and~/g, '&');
-            })
-            .join('?');
-          window.history.replaceState(null, null, l.pathname.slice(0, -1) + decoded + l.hash);
-        }
-      })(window.location);
-    </script>
-
     <!-- Google Tag Manager (giữ y hệt GTM-MB7VRGR5 dùng trên profile.html gốc) -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -48,7 +25,7 @@
     </script>
     <!-- End GA4 -->
     <script src="/aln-tracking.js"></script>
-    <script type="module" crossorigin src="/app/assets/index-C1F42ccd.js"></script>
+    <script type="module" crossorigin src="/app/assets/index-A7JnxOZn.js"></script>
     <link rel="stylesheet" crossorigin href="/app/assets/index-DKQNphGc.css">
   </head>
   <body>
