@@ -7542,15 +7542,18 @@ window.saveCompanySettings = async function() {
     if(!SV_LEADS.length){ body.innerHTML = '<tr><td colspan="6" style="padding:24px;text-align:center;color:var(--dim);font-family:var(--sans);font-size:13px">Chưa có lead sửa vặt nào.</td></tr>'; return; }
     body.innerHTML = SV_LEADS.map(function(it){
       var ai = it.aiAnalysis || null;
-      var doiHtml = ai && ai.doiSuggested && ai.doiSuggested.length
-        ? ai.doiSuggested.map(function(s){ return '<div style="font-size:11.5px">'+(s.uid||'')+'<div style="color:var(--dim);font-size:10.5px">'+(s.lyDo||'')+'</div></div>'; }).join('')
-        : '<span style="color:var(--dim);font-size:11.5px">'+(ai ? 'chưa có đội khớp' : 'đang phân tích…')+'</span>';
+      var isSpam = !!(ai && ai.spam);
+      var doiHtml = isSpam
+        ? '<span style="color:#ef4444;font-size:11.5px;font-weight:700" title="'+(ai.spamReason||'').replace(/"/g,'&quot;')+'"><i class="ph-duotone ph-warning"></i> Nghi ngờ spam</span>'
+        : (ai && ai.doiSuggested && ai.doiSuggested.length
+          ? ai.doiSuggested.map(function(s){ return '<div style="font-size:11.5px">'+(s.uid||'')+'<div style="color:var(--dim);font-size:10.5px">'+(s.lyDo||'')+'</div></div>'; }).join('')
+          : '<span style="color:var(--dim);font-size:11.5px">'+(ai ? 'chưa có đội khớp' : 'đang phân tích…')+'</span>');
       var khanColor = ai && ai.doKhan === 'gap' ? '#ef4444' : 'var(--dim)';
       var khanText = ai ? (ai.doKhan === 'gap' ? 'Gấp' : 'Thường') : '—';
-      var zaloBtn = ai && ai.zaloDraft
+      var zaloBtn = ai && ai.zaloDraft && !isSpam
         ? '<button onclick="svCopyZalo(\''+it._id+'\', this)" style="padding:6px 10px;border-radius:6px;border:1px solid var(--gold-bd);background:var(--gold-bg);color:var(--gold);font-weight:700;font-size:11px;cursor:pointer;font-family:var(--sans);white-space:nowrap"><i class="ph-duotone ph-copy"></i> Sao chép tin</button>'
         : '<span style="color:var(--dim);font-size:11.5px">—</span>';
-      return '<tr style="border-bottom:1px solid var(--border)">'
+      return '<tr style="border-bottom:1px solid var(--border)'+(isSpam?';opacity:.6':'')+'">'
         +'<td style="padding:10px 11px"><div style="font-weight:700;font-size:13px;color:var(--text1)">'+(it.name||'—')+'</div><a href="tel:'+(it.phone||'')+'" style="font-family:var(--mono);font-size:12px;color:var(--blue);text-decoration:none">'+(it.phone||'—')+'</a></td>'
         +'<td style="padding:10px 11px;font-size:12.5px;color:var(--text2)">'+(it.loaiViecLabel||it.loaiViec||'—')+'<div style="color:var(--dim);font-size:11px">'+(it.khuVuc||'')+'</div></td>'
         +'<td style="padding:10px 11px;font-size:11.5px;font-weight:700;color:'+khanColor+'">'+khanText+'</td>'
