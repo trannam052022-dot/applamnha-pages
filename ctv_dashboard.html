@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ALN — Đồng hành cùng Kiến trúc sư, tích Gạch xây nhà</title>
+<meta name="description" content="Làm nhiệm vụ nhỏ tích Gạch mỗi ngày, giới thiệu người thân xây nhà cùng ALN — nhận thưởng bằng tiền thật. Chỉ cần Tên + SĐT, không cần đăng ký tài khoản.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://applamnha.vn/ctv_dashboard.html">
+<meta property="og:title" content="ALN — Đồng hành cùng Kiến trúc sư, tích Gạch xây nhà">
+<meta property="og:description" content="Làm nhiệm vụ nhỏ tích Gạch mỗi ngày, giới thiệu người thân xây nhà cùng ALN — nhận thưởng bằng tiền thật. Chỉ cần Tên + SĐT, không cần đăng ký tài khoản.">
+<meta property="og:image" content="https://applamnha.vn/assets/demo/aln-demo-biet-thu-vuon.jpg">
+<meta property="og:image:width" content="1100">
+<meta property="og:image:height" content="733">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#98690a">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+<link rel="stylesheet" href="aln-tokens.css">
+<!-- Google Analytics 4 (ALN — G-5CSL1TF0RC, tách riêng khỏi property TK.HOUSE) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-5CSL1TF0RC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-5CSL1TF0RC');
+</script>
+<!-- End GA4 -->
+<style>
+:root{
+  --bg:#f7f9fb;--bg2:#eef2f6;--card:#ffffff;
+  --border:#e1e7ee;--border2:#c9d3de;
+  --muted:#5b6b7f;--text:#1a2634;--text2:#3d4b5c;
+  --gold:#98690a;--gold2:#b8860b;--green:#15803d;--red:#dc2626;--blue:#1d4ed8;
+  --r:14px;--r-sm:10px;
+  --sans:'DM Sans',sans-serif;--serif:'Cormorant Garamond',serif;--syne:'Syne',sans-serif;--mono:'JetBrains Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:13px}
+@media(min-width:1440px){html{font-size:14px}}
+@media(min-width:1920px){html{font-size:16px}}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh}
+.wrap{max-width:640px;margin:0 auto;padding:0 16px 60px}
+.topbar{background:var(--card);border-bottom:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;justify-content:center}
+.brand{display:flex;align-items:center;gap:8px}
+.brand-box{background:rgba(152,105,10,.1);border:1.5px solid rgba(152,105,10,.3);border-radius:8px;padding:5px 10px;font-family:var(--syne);font-size:13px;font-weight:800;letter-spacing:.06em;color:var(--gold)}
+.brand-sub{font-size:11px;color:var(--muted)}
+
+.hero{padding:20px 0 6px}
+.hero-box{background:linear-gradient(155deg,#0a1224,#111c33 55%,#0d1730);border:1px solid rgba(212,160,23,.25);border-radius:18px;padding:26px 22px;text-align:center;box-shadow:0 10px 30px -12px rgba(0,0,0,.35)}
+.hero-box h1{font-family:var(--serif);font-size:24px;font-weight:600;font-style:italic;color:#f4e7c8}
+.hero-box p{font-size:12px;color:#b8c4dc;margin-top:8px;line-height:1.7}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;margin-top:16px}
+.card-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:6px;margin-bottom:12px}
+
+/* Gạch card */
+.tier-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.tier-name{font-size:12px;font-weight:700;color:var(--gold);letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;gap:6px}
+#alnDiamondsWrap{display:none;font-size:12px;font-weight:700;color:#0891b2;align-items:center;gap:4px}
+#alnHouseWrap{color:var(--gold);margin:6px 0 10px;text-align:center}
+.bricks-row{display:flex;align-items:baseline;gap:6px;justify-content:center;margin-bottom:10px}
+#alnBricksCount{font-family:var(--serif);font-size:30px;font-weight:700;color:var(--text)}
+.bricks-row span.lbl{font-size:12px;color:var(--muted)}
+.bar-track{height:7px;border-radius:99px;background:var(--bg2);overflow:hidden}
+#alnTierBar{height:100%;width:0%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:99px;transition:width .5s}
+#alnTierNext{font-size:11px;color:var(--muted);margin-top:6px;text-align:center}
+#bricksCardEmpty{font-size:12px;color:var(--muted);text-align:center;padding:8px 0}
+
+/* Nhiệm vụ */
+.task{display:flex;gap:12px;padding:12px 0;border-top:1px solid var(--border);align-items:flex-start}
+.task:first-child{border-top:none;padding-top:2px}
+.task-check{margin-top:2px;width:20px;height:20px;flex-shrink:0;accent-color:var(--gold);cursor:pointer}
+.task-body{flex:1}
+.task-title{font-size:12.5px;font-weight:700;color:var(--text)}
+.task-desc{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.6}
+.task-link{font-size:11px;font-weight:700;color:var(--gold);text-decoration:none;display:inline-flex;align-items:center;gap:4px;margin-top:4px}
+.task-link:hover{text-decoration:underline}
+.task-pts{font-size:10.5px;font-weight:800;color:var(--gold);white-space:nowrap;background:rgba(152,105,10,.08);padding:3px 8px;border-radius:99px;height:fit-content}
+.task.done{opacity:.55}
+.task.done .task-check{accent-color:var(--green)}
+.task.weekly .task-pts{background:rgba(220,38,38,.09);color:var(--red)}
+
+/* Bảng xếp hạng */
+.lb-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-top:1px solid var(--border)}
+.lb-row:first-child{border-top:none}
+.lb-left{display:flex;align-items:center;gap:8px;min-width:0}
+.lb-rank{width:20px;text-align:center;flex-shrink:0;font-size:13px}
+.lb-name{font-weight:700;color:var(--text);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb-phone{color:var(--muted);font-family:var(--mono);font-size:10px;flex-shrink:0}
+.lb-bricks{font-weight:800;color:var(--gold);font-size:12px;white-space:nowrap}
+
+/* Chuỗi tuần */
+#alnStreakWrap{display:none;font-size:11px;font-weight:700;color:#c2410c;background:rgba(194,65,12,.07);border-radius:99px;padding:5px 12px;text-align:center;margin-top:8px}
+
+/* Vòng quay may mắn */
+#wheelBox{position:relative;width:230px;margin:6px auto 0}
+#wheelSvg{display:block;width:100%;transition:transform 4s cubic-bezier(.15,.9,.25,1)}
+.wheel-pointer{position:absolute;top:-6px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:11px solid transparent;border-right:11px solid transparent;border-top:16px solid var(--red);z-index:2}
+#spinHint{font-size:11px;color:var(--muted);text-align:center;margin-top:10px;line-height:1.6}
+#btnSpin{margin-top:10px}
+
+/* Bốc Chip May Mắn */
+#chipGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:12px 0}
+.chip-cell{aspect-ratio:1;border-radius:50%;background:linear-gradient(155deg,#0a1224,#111c33 55%,#0d1730);border:2px solid rgba(212,160,23,.55);display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:800;color:#f4e7c8;cursor:pointer;transition:transform .15s,box-shadow .15s;user-select:none;text-align:center}
+.chip-cell.flash{transform:scale(1.15);box-shadow:0 0 0 6px rgba(212,160,23,.3),0 0 22px rgba(212,160,23,.85);background:linear-gradient(155deg,#1a2744,#223564 55%,#1c2c54);border-color:#d4a017;animation:chipPulse .35s ease-in-out infinite alternate}
+@keyframes chipPulse{from{filter:brightness(1)}to{filter:brightness(1.35)}}
+.chip-cell.win{background:linear-gradient(155deg,#0f3d24,#15532d);border-color:#22c55e;color:#bbf7d0}
+.chip-cell.miss{opacity:.4}
+#chipHint{font-size:11px;color:var(--muted);text-align:center;margin-top:10px;line-height:1.6}
+
+/* Form nhận thưởng */
+.field{margin-bottom:12px}
+.field label{display:block;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;margin-bottom:5px}
+.field input{width:100%;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:11px 12px;font-size:13px;font-family:var(--sans);color:var(--text);outline:none}
+.field input:focus{border-color:rgba(152,105,10,.5)}
+.btn-main{width:100%;padding:13px;background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:var(--r-sm);font-family:var(--syne);font-size:13px;font-weight:700;letter-spacing:.05em;color:#fff;cursor:pointer;margin-top:4px}
+.btn-main:hover{opacity:.92}
+.btn-main:disabled{opacity:.5;cursor:not-allowed}
+.btn-link{background:none;border:none;color:var(--muted);font-size:11px;text-decoration:underline;cursor:pointer;display:block;margin:10px auto 0}
+.msg{font-size:12px;border-radius:var(--r-sm);padding:9px 12px;margin-top:10px;display:none}
+.msg.show{display:block}
+.msg.err{background:rgba(220,38,38,.08);color:var(--red)}
+.msg.ok{background:rgba(21,128,61,.08);color:var(--green)}
+
+/* Referral */
+.ref-row{display:flex;gap:8px}
+.ref-input{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 12px;font-size:11.5px;font-family:var(--mono);color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.btn-copy{background:linear-gradient(135deg,var(--gold),var(--gold2));border:none;border-radius:var(--r-sm);padding:0 16px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+.btn-copy:hover{opacity:.9}
+
+.note{font-size:11px;color:var(--muted);text-align:center;margin-top:18px;line-height:1.7}
+
+/* Gói kinh tế — nền xanh đen sang trọng để nổi bật so với các thẻ trắng còn lại */
+#mauNhaCard{background:linear-gradient(155deg,#0a1224,#111c33 55%,#0d1730);border-color:rgba(212,160,23,.35);box-shadow:0 10px 26px -14px rgba(0,0,0,.4)}
+#mauNhaCard .card-title{color:#f4e7c8}
+#mauNhaCard .task-desc{color:#b8c4dc}
+#mauNhaCard .task-desc b{color:#f4e7c8}
+#mauNhaCard .ref-input{background:rgba(255,255,255,.06);border-color:rgba(212,160,23,.3);color:#dce6f4}
+</style>
+<script src="aln-tiers.js"></script>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-box">ALN</div>
+    <div class="brand-sub">Cộng tác viên</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="hero-box">
+      <h1>Đồng hành cùng Kiến trúc sư ALN — Tích Gạch xây nhà</h1>
+      <p>Chỉ cần Tên + SĐT. Làm nhiệm vụ nhỏ tích Gạch mỗi ngày, giới thiệu người thân xây nhà cùng ALN — nhận thưởng bằng tiền thật.</p>
+    </div>
+  </div>
+
+  <div class="card" id="bricksCard">
+    <div class="card-title"><i class="ph-duotone ph-trophy"></i> Gạch &amp; Kim Cương của bạn</div>
+    <div id="bricksCardEmpty">Hoàn thành nhiệm vụ bên dưới hoặc nhập SĐT đã chơi trước đó để xem Gạch của bạn.</div>
+    <div id="bricksCardBody" style="display:none">
+      <div class="tier-row">
+        <div class="tier-name"><span id="alnTierIcon">🧱</span> <span id="alnTierName">Nền Móng</span></div>
+        <div id="alnDiamondsWrap"><i class="ph-duotone ph-diamond"></i> <span id="alnDiamondsCount">0</span></div>
+      </div>
+      <div id="alnHouseWrap"></div>
+      <div class="bricks-row"><span id="alnBricksCount">0</span><span class="lbl">Gạch</span></div>
+      <div class="bar-track"><div id="alnTierBar"></div></div>
+      <div id="alnTierNext">—</div>
+      <div id="alnPendingVndWrap" style="display:none;font-size:11px;color:var(--green);text-align:center;margin-top:8px;font-weight:700"></div>
+      <div id="alnStreakWrap"></div>
+    </div>
+    <button class="btn-link" onclick="showLookup()">Đã chơi rồi? Tra Gạch bằng SĐT</button>
+  </div>
+
+  <div class="card" id="lookupCard" style="display:none">
+    <div class="card-title"><i class="ph-duotone ph-magnifying-glass"></i> Tra Gạch của bạn</div>
+    <div class="field">
+      <label>Số điện thoại đã dùng khi chơi</label>
+      <input type="tel" id="lookupPhone" placeholder="09xxxxxxxx" inputmode="numeric">
+    </div>
+    <button class="btn-main" id="btnLookup" onclick="doLookup()">Xem Gạch của tôi</button>
+    <div class="msg" id="lookupMsg"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="ph-duotone ph-list-checks"></i> Nhiệm vụ hôm nay</div>
+    <div id="taskList"></div>
+  </div>
+
+  <div class="card" id="chipCard">
+    <div class="card-title"><i class="ph-duotone ph-coins"></i> Bốc Chip May Mắn — mỗi ngày 1 lượt</div>
+    <div class="task-desc">Bấm "Bắt đầu", chờ 1 ô chip sáng lên rồi bấm thật nhanh vào đúng ô đó — chip giá trị càng cao càng khó bắt! Lưu ý: từ lần đầu bạn chơi Chip, toàn bộ Gạch của bạn sẽ reset về 0 sau mỗi 90 ngày (mùa Chip mới lại bắt đầu).</div>
+    <div id="chipGrid">
+      <div class="chip-cell" data-idx="0" onclick="clickChip(0)"><span>1.000đ</span></div>
+      <div class="chip-cell" data-idx="1" onclick="clickChip(1)"><span>2.000đ</span></div>
+      <div class="chip-cell" data-idx="2" onclick="clickChip(2)"><span>3.000đ</span></div>
+      <div class="chip-cell" data-idx="3" onclick="clickChip(3)"><span>4.000đ</span></div>
+      <div class="chip-cell" data-idx="4" onclick="clickChip(4)"><span>5.000đ</span></div>
+    </div>
+    <button class="btn-main" id="btnChipStart" onclick="doChipStart()">Bắt đầu</button>
+    <div id="chipHint"></div>
+    <div id="chipSeasonNote" style="display:none;font-size:10.5px;color:var(--muted);text-align:center;margin-top:6px"></div>
+    <div class="msg" id="chipMsg"></div>
+  </div>
+
+  <div class="card" id="wheelCard" style="display:none">
+    <div class="card-title"><i class="ph-duotone ph-spinner-ball"></i> Vòng quay may mắn tuần này</div>
+    <div id="wheelBox">
+      <div class="wheel-pointer"></div>
+      <svg id="wheelSvg" viewBox="0 0 200 200"></svg>
+    </div>
+    <button class="btn-main" id="btnSpin" onclick="doSpin()">Quay ngay!</button>
+    <div id="spinHint"></div>
+    <div class="msg" id="spinMsg"></div>
+  </div>
+
+  <div class="card" id="leaderboardCard">
+    <div class="card-title"><i class="ph-duotone ph-ranking"></i> Bảng xếp hạng CTV</div>
+    <div id="leaderboardList" style="font-size:12px;color:var(--muted)">Đang tải...</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="ph-duotone ph-gift"></i> Nhận thưởng</div>
+    <div class="field">
+      <label>Họ và tên</label>
+      <input type="text" id="claimName" placeholder="Nhập tên của bạn">
+    </div>
+    <div class="field">
+      <label>Số điện thoại</label>
+      <input type="tel" id="claimPhone" placeholder="09xxxxxxxx" inputmode="numeric">
+    </div>
+    <button class="btn-main" id="btnClaim" onclick="doClaim()">Nhận Gạch ngay</button>
+    <div class="msg" id="claimMsg"></div>
+    <div id="forgetCtvWrap" style="display:none;margin-top:8px;text-align:right">
+      <a href="javascript:void(0)" onclick="forgetCtv()" style="font-size:var(--text-xs);color:var(--muted)">Không phải bạn? Quên thông tin trên máy này</a>
+    </div>
+  </div>
+
+  <div class="card" id="inviteCard">
+    <div class="card-title"><i class="ph-duotone ph-users-three"></i> Rủ bạn cùng chơi — nhận Gạch ngay</div>
+    <div class="ref-row">
+      <div class="ref-input" id="inviteLinkText">🔒 Nhập Tên + SĐT ở form bên dưới để nhận link riêng của bạn</div>
+      <button class="btn-copy" onclick="copyInviteLink()"><i class="ph-duotone ph-copy"></i> Sao chép</button>
+    </div>
+    <div class="ref-row" style="margin-top:8px;flex-wrap:wrap">
+      <button class="btn-copy" id="btnInviteShareNative" style="display:none;background:linear-gradient(135deg,#1e40af,#2563eb)" onclick="shareInviteNative()"><i class="ph-duotone ph-share-network"></i> Chia sẻ ngay</button>
+      <button class="btn-copy" style="background:#0068ff" onclick="shareInviteToZalo()"><i class="ph-duotone ph-chat-circle-text"></i> Zalo</button>
+      <button class="btn-copy" style="background:#0084ff" onclick="shareInviteToMessenger()"><i class="ph-duotone ph-paper-plane-tilt"></i> Messenger</button>
+    </div>
+    <div class="task-desc" style="margin-top:8px">Gửi link này cho bạn bè — khi bạn ấy vào chơi và hoàn thành nhiệm vụ đầu tiên, bạn được cộng ngay <b>+15 Gạch</b>.</div>
+  </div>
+
+  <div class="card" id="refCard">
+    <div class="card-title"><i class="ph-duotone ph-share-network"></i> Link giới thiệu khách xây nhà</div>
+    <div class="ref-row">
+      <div class="ref-input" id="refLinkText">🔒 Nhập Tên + SĐT ở form bên dưới để nhận link riêng của bạn</div>
+      <button class="btn-copy" onclick="copyRefLink()"><i class="ph-duotone ph-copy"></i> Sao chép</button>
+    </div>
+    <div class="ref-row" id="quickShareRow" style="margin-top:8px;flex-wrap:wrap">
+      <button class="btn-copy" id="btnShareNative" style="display:none;background:linear-gradient(135deg,#1e40af,#2563eb)" onclick="shareNative()"><i class="ph-duotone ph-share-network"></i> Chia sẻ ngay</button>
+      <button class="btn-copy" style="background:#0068ff" onclick="shareToZalo()"><i class="ph-duotone ph-chat-circle-text"></i> Zalo</button>
+      <button class="btn-copy" style="background:#0084ff" onclick="shareToMessenger()"><i class="ph-duotone ph-paper-plane-tilt"></i> Messenger</button>
+    </div>
+    <div class="task-desc" style="margin-top:8px">Khác với link rủ bạn chơi ở trên — link này dành cho người quen SẮP XÂY NHÀ. Khi họ đăng ký và ký hợp đồng thật với ALN, bạn được thưởng Kim Cương.</div>
+  </div>
+
+  <div class="card" id="mauNhaCard">
+    <div class="card-title"><i class="ph-duotone ph-house-line"></i> Gói Hồ Sơ Bản Vẽ Kinh Tế</div>
+    <div class="task-desc">ALN có sẵn kho hồ sơ mẫu nhà đã bàn giao, giá rẻ hơn thiết kế riêng vì dùng lại bản vẽ — phù hợp giới thiệu cho người quen đang cần xây nhà nhanh, tiết kiệm. Gửi link bên dưới để họ xem mẫu; nếu họ đặt mua, bạn nhận <b>15% hoa hồng</b> trên giá trị gói (ALN xác nhận và trả tay khi chốt đơn).</div>
+    <div class="ref-row">
+      <div class="ref-input" id="mauNhaLinkText">🔒 Nhập Tên + SĐT ở form bên dưới để nhận link riêng của bạn</div>
+      <button class="btn-copy" onclick="copyMauNhaLink()"><i class="ph-duotone ph-copy"></i> Sao chép</button>
+    </div>
+    <div class="ref-row" style="margin-top:8px;flex-wrap:wrap">
+      <button class="btn-copy" id="btnMauNhaShareNative" style="display:none;background:linear-gradient(135deg,#1e40af,#2563eb)" onclick="shareMauNhaNative()"><i class="ph-duotone ph-share-network"></i> Chia sẻ ngay</button>
+      <button class="btn-copy" style="background:#0068ff" onclick="shareMauNhaToZalo()"><i class="ph-duotone ph-chat-circle-text"></i> Zalo</button>
+      <button class="btn-copy" style="background:#0084ff" onclick="shareMauNhaToMessenger()"><i class="ph-duotone ph-paper-plane-tilt"></i> Messenger</button>
+    </div>
+  </div>
+
+  <div class="note">Gạch là điểm thưởng khuyến mãi trong ALN, không mua bằng tiền. Nhiệm vụ tự khai báo — ALN tin bạn đã làm đúng, nộp trùng nhiều lần không được cộng thêm.</div>
+</div>
+
+<script>
+/* Danh sách nhiệm vụ hiển thị — id PHẢI khớp CTV_TASKS trong functions/ctvGame.js */
+var TASKS = [
+  { id:'follow_fanpage', title:'Theo dõi Fanpage Facebook ALN', desc:'Bấm Theo dõi trên trang App Làm Nhà.', url:'https://www.facebook.com/applamnha', pts:5 },
+  { id:'follow_zalo',    title:'Quan tâm Zalo OA ALN',          desc:'Mở Zalo và bấm Quan tâm.',              url:'https://zalo.me/alnsanthietke',        pts:5 },
+  { id:'comment_post',   title:'Bình luận 1 bài viết trên Fanpage', desc:'Để lại vài dòng dưới bài viết mới nhất.', url:'https://www.facebook.com/applamnha', pts:10 },
+  { id:'share_link',     title:'Chia sẻ trang này cho bạn bè',  desc:'Dùng link giới thiệu riêng của bạn (hiện sau khi nhận thưởng lần đầu).', url:'', pts:5 },
+];
+
+/* ALN_TIERS + alnHouseSVG() giờ nạp từ aln-tiers.js (xem <head>) — dùng chung 5 dashboard.
+   Trang này giữ chiều cao SVG riêng 90 (khác mặc định 72 của 4 trang kia) qua tham số thứ 2. */
+function renderAlnBricksCard(bricks, diamonds, pendingVnd){
+  bricks = Number(bricks) || 0;
+  diamonds = Number(diamonds) || 0;
+  pendingVnd = Number(pendingVnd) || 0;
+  document.getElementById('bricksCardEmpty').style.display = 'none';
+  document.getElementById('bricksCardBody').style.display = 'block';
+  var idx = 0;
+  for (var i = 0; i < ALN_TIERS.length; i++) { if (bricks >= ALN_TIERS[i].min) idx = i; }
+  var cur = ALN_TIERS[idx];
+  var next = ALN_TIERS[idx + 1];
+  var houseEl = document.getElementById('alnHouseWrap');
+  if (houseEl) houseEl.innerHTML = alnHouseSVG(idx, 90);
+  document.getElementById('alnTierIcon').textContent = cur.icon;
+  document.getElementById('alnTierName').textContent = cur.name;
+  document.getElementById('alnBricksCount').textContent = bricks.toLocaleString('vi-VN');
+  var barEl = document.getElementById('alnTierBar');
+  var nextEl = document.getElementById('alnTierNext');
+  if (next) {
+    var pct = Math.min(100, Math.round(((bricks - cur.min) / (next.min - cur.min)) * 100));
+    barEl.style.width = pct + '%';
+    nextEl.textContent = 'Còn ' + (next.min - bricks).toLocaleString('vi-VN') + ' Gạch tới hạng ' + next.name;
+  } else {
+    barEl.style.width = '100%';
+    nextEl.textContent = 'Hạng cao nhất — Dinh Thự 🏰';
+  }
+  var dWrap = document.getElementById('alnDiamondsWrap');
+  dWrap.style.display = diamonds > 0 ? 'flex' : 'none';
+  document.getElementById('alnDiamondsCount').textContent = diamonds.toLocaleString('vi-VN');
+  var pendEl = document.getElementById('alnPendingVndWrap');
+  if (pendEl) {
+    pendEl.style.display = pendingVnd > 0 ? 'block' : 'none';
+    if (pendingVnd > 0) pendEl.textContent = '💰 Bạn đang có ' + pendingVnd.toLocaleString('vi-VN') + 'đ tiền thưởng giới thiệu chờ ALN liên hệ chi trả.';
+  }
+}
+
+function escHtml(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+    return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+  });
+}
+
+async function loadLeaderboard(){
+  var el = document.getElementById('leaderboardList');
+  try {
+    var data = await window.ctvLeaderboard();
+    var items = data.items || [];
+    if (!items.length) { el.textContent = 'Chưa có ai trên bảng xếp hạng — hãy là người đầu tiên!'; return; }
+    var medals = ['🥇','🥈','🥉'];
+    el.innerHTML = items.map(function(it, i){
+      return '<div class="lb-row"><div class="lb-left">' +
+        '<span class="lb-rank">' + (medals[i] || (i + 1)) + '</span>' +
+        '<span class="lb-name">' + escHtml(it.name) + '</span>' +
+        '<span class="lb-phone">' + escHtml(it.phoneMasked) + '</span>' +
+        '</div><span class="lb-bricks">' + it.alnBricks.toLocaleString('vi-VN') + ' 🧱</span></div>';
+    }).join('');
+  } catch(e) { el.textContent = 'Chưa tải được bảng xếp hạng.'; }
+}
+
+async function loadWeeklyTask(){
+  try {
+    var wt = await window.ctvGetWeeklyTask();
+    if (wt && wt.taskId && !TASKS.some(function(t){ return t.id === wt.taskId; })) {
+      TASKS.push({ id: wt.taskId, title: '🔥 ' + wt.label, desc: wt.desc, url: wt.url, pts: wt.pts, weekly: true });
+      renderTasks();
+    }
+    buildWheel();
+    document.getElementById('wheelCard').style.display = 'block';
+    updateSpinState(_lastSpinState);
+    updateChipState(_lastChipState);
+  } catch(e){}
+}
+
+/* ── Chuỗi tuần ── */
+function setStreak(n){
+  n = Number(n) || 0;
+  var el = document.getElementById('alnStreakWrap');
+  if (!el) return;
+  if (n < 1) { el.style.display = 'none'; return; }
+  var nextBonus = Math.min(n * 5, 25);
+  el.style.display = 'block';
+  el.textContent = '🔥 Chuỗi ' + n + ' tuần liên tiếp — tuần sau làm nhiệm vụ để nhận thêm +' + nextBonus + ' Gạch bonus!';
+}
+
+/* ── Vòng quay may mắn — giải PHẢI khớp SPIN_PRIZES trong functions/ctvGame.js ── */
+var WHEEL_PRIZES = [5, 10, 15, 20, 50];
+var WHEEL_COLORS = ['#b8860b', '#8a5c08', '#d4a017', '#98690a', '#dc2626'];
+var _lastSpinState = null;
+var _wheelBuilt = false;
+
+function buildWheel(){
+  if (_wheelBuilt) return;
+  _wheelBuilt = true;
+  var svg = document.getElementById('wheelSvg');
+  var seg = 360 / WHEEL_PRIZES.length;
+  var parts = ['<circle cx="100" cy="100" r="99" fill="#fff" stroke="#e1e7ee" stroke-width="2"/>'];
+  function pt(deg, r){
+    var a = deg * Math.PI / 180;
+    return (100 + r * Math.sin(a)).toFixed(2) + ',' + (100 - r * Math.cos(a)).toFixed(2);
+  }
+  for (var i = 0; i < WHEEL_PRIZES.length; i++) {
+    var a0 = i * seg, a1 = (i + 1) * seg, ac = a0 + seg / 2;
+    parts.push('<path d="M100,100 L' + pt(a0, 95) + ' A95,95 0 0,1 ' + pt(a1, 95) + ' Z" fill="' + WHEEL_COLORS[i] + '"/>');
+    var lp = pt(ac, 62).split(',');
+    parts.push('<text x="' + lp[0] + '" y="' + lp[1] + '" fill="#fff" font-size="15" font-weight="800" text-anchor="middle" dominant-baseline="middle" transform="rotate(' + ac + ' ' + lp[0] + ' ' + lp[1] + ')">' + WHEEL_PRIZES[i] + '🧱</text>');
+  }
+  parts.push('<circle cx="100" cy="100" r="14" fill="#fff" stroke="#c9d3de" stroke-width="2"/>');
+  svg.innerHTML = parts.join('');
+}
+
+function updateSpinState(spin){
+  _lastSpinState = spin;
+  var btn = document.getElementById('btnSpin');
+  var hint = document.getElementById('spinHint');
+  if (!btn) return;
+  if (!spin || !spin.eligible) {
+    btn.disabled = true;
+    hint.textContent = 'Hoàn thành nhiệm vụ tuần (🔥) rồi bấm "Nhận Gạch ngay" để mở lượt quay — mỗi tuần 1 lượt, trúng tới 50 Gạch!';
+  } else if (spin.used) {
+    btn.disabled = true;
+    hint.textContent = 'Tuần này bạn đã quay rồi — tuần sau làm nhiệm vụ mới để quay tiếp nhé!';
+  } else {
+    btn.disabled = false;
+    hint.textContent = 'Bạn đang có 1 lượt quay — thử vận may nào!';
+  }
+}
+
+async function doSpin(){
+  if (!_myPhone) { showMsg('spinMsg', 'Nhận Gạch nhiệm vụ tuần trước đã rồi mới quay được nhé!', false); return; }
+  var btn = document.getElementById('btnSpin');
+  btn.disabled = true; btn.textContent = 'Đang quay...';
+  try {
+    var data = await window.ctvSpinWheel({ phone: _myPhone });
+    var idx = WHEEL_PRIZES.indexOf(data.prize);
+    if (idx < 0) idx = 0;
+    var seg = 360 / WHEEL_PRIZES.length;
+    var target = 5 * 360 + (360 - (idx * seg + seg / 2));
+    document.getElementById('wheelSvg').style.transform = 'rotate(' + target + 'deg)';
+    setTimeout(function(){
+      showMsg('spinMsg', '🎉 Chúc mừng! Bạn trúng +' + data.prize + ' Gạch!', true);
+      renderAlnBricksCard(data.alnBricks, data.alnDiamonds, data.referralPendingVnd);
+      updateSpinState({ eligible: true, used: true });
+      btn.textContent = 'Quay ngay!';
+    }, 4200);
+  } catch(e) {
+    showMsg('spinMsg', e.message || 'Có lỗi khi quay — thử lại sau nhé', false);
+    btn.textContent = 'Quay ngay!';
+    updateSpinState(_lastSpinState);
+  }
+}
+
+/* ── Bốc Chip May Mắn — giải PHẢI khớp CHIP_PRIZES trong functions/ctvGame.js ── */
+var _lastChipState = null;
+var _chipTimers = [];
+var _chipActive = false;
+
+function clearChipTimers(){
+  _chipTimers.forEach(function(t){ clearTimeout(t); });
+  _chipTimers = [];
+}
+
+function updateChipState(chip){
+  _lastChipState = chip;
+  var btn = document.getElementById('btnChipStart');
+  var hint = document.getElementById('chipHint');
+  if (!btn) return;
+  if (!chip || !chip.eligible) {
+    btn.disabled = true;
+    hint.textContent = 'Hoàn thành 1 nhiệm vụ bất kỳ ở trên để mở khoá trò chơi Chip nhé!';
+  } else if (chip.usedToday) {
+    btn.disabled = true;
+    hint.textContent = 'Hôm nay bạn chơi Chip rồi — quay lại vào ngày mai nhé!';
+  } else if (chip.budgetExhausted) {
+    btn.disabled = true;
+    hint.textContent = 'Hôm nay ALN đã hết ngân sách thưởng Chip toàn hệ thống — quay lại vào ngày mai nhé!';
+  } else {
+    btn.disabled = false;
+    hint.textContent = 'Bấm "Bắt đầu" rồi chờ 1 ô sáng lên — bắt đúng lúc để nhận thưởng!';
+  }
+  var seasonEl = document.getElementById('chipSeasonNote');
+  if (seasonEl) {
+    if (chip && chip.daysUntilReset != null) {
+      seasonEl.style.display = 'block';
+      seasonEl.textContent = '🕒 Gạch sẽ reset về 0 sau ' + chip.daysUntilReset + ' ngày nữa (mùa Chip 90 ngày kể từ lần đầu bạn chơi).';
+    } else {
+      seasonEl.style.display = 'none';
+    }
+  }
+}
+
+async function doChipStart(){
+  if (!_myPhone) { showMsg('chipMsg', 'Hoàn thành nhiệm vụ trước để chơi Chip nhé!', false); return; }
+  clearChipTimers();
+  document.querySelectorAll('.chip-cell').forEach(function(el){ el.className = 'chip-cell'; });
+  document.getElementById('chipMsg').className = 'msg';
+  var btn = document.getElementById('btnChipStart');
+  btn.disabled = true; btn.textContent = 'Đang chờ...';
+  try {
+    var data = await window.ctvChipStart({ phone: _myPhone });
+    var cell = document.querySelector('.chip-cell[data-idx="' + data.idx + '"]');
+    _chipActive = true;
+    _chipTimers.push(setTimeout(function(){ if (cell) cell.classList.add('flash'); }, data.delayMs));
+    _chipTimers.push(setTimeout(function(){
+      if (_chipActive) finishChipRound(-1);
+    }, data.delayMs + data.windowMs + 200));
+  } catch(e) {
+    showMsg('chipMsg', e.message || 'Có lỗi khi bắt đầu — thử lại sau nhé', false);
+    btn.disabled = false; btn.textContent = 'Bắt đầu';
+    updateChipState(_lastChipState);
+  }
+}
+
+function clickChip(idx){
+  if (!_chipActive) return;
+  finishChipRound(idx);
+}
+
+async function finishChipRound(clickedIdx){
+  if (!_chipActive) return;
+  _chipActive = false;
+  clearChipTimers();
+  document.querySelectorAll('.chip-cell').forEach(function(el){ el.classList.remove('flash'); });
+  var btn = document.getElementById('btnChipStart');
+  try {
+    var data = await window.ctvChipClick({ phone: _myPhone, idx: clickedIdx });
+    var targetCell = document.querySelector('.chip-cell[data-idx="' + data.idx + '"]');
+    if (data.hit) {
+      if (targetCell) targetCell.classList.add('win');
+      showMsg('chipMsg', '🎉 Chính xác! Bạn nhận được +' + data.amount + ' Gạch!', true);
+    } else {
+      if (targetCell) targetCell.classList.add('miss');
+      showMsg('chipMsg', 'Chưa đúng lúc rồi — quay lại chơi vào ngày mai nhé!', false);
+    }
+    renderAlnBricksCard(data.alnBricks, data.alnDiamonds, data.referralPendingVnd);
+    updateChipState({ eligible: true, usedToday: true });
+  } catch(e) {
+    showMsg('chipMsg', e.message || 'Có lỗi khi ghi nhận — thử lại sau nhé', false);
+    updateChipState(_lastChipState);
+  }
+  btn.textContent = 'Bắt đầu';
+}
+
+var doneTasks = {};
+var linkOpened = {};
+
+/* SĐT người mời (nếu vào bằng link ?ref=) — nhớ qua localStorage phòng khi
+   người dùng rời trang rồi quay lại claim sau, không có ?ref= trên URL nữa. */
+var _refByPhone = '';
+var CTV_REFBY_KEY = 'aln_ctv_refby';
+(function captureRefBy(){
+  try {
+    var qp = new URLSearchParams(location.search).get('ref');
+    if (qp && /^0\d{8,10}$/.test(qp)) {
+      _refByPhone = qp;
+      localStorage.setItem(CTV_REFBY_KEY, qp);
+    } else {
+      _refByPhone = localStorage.getItem(CTV_REFBY_KEY) || '';
+    }
+  } catch(e){}
+})();
+
+function markLinkOpened(id){
+  if (linkOpened[id]) return;
+  linkOpened[id] = true;
+  renderTasks();
+}
+
+function renderTasks(){
+  var el = document.getElementById('taskList');
+  /* Nhiệm vụ "Chia sẻ" chỉ có link giới thiệu thật SAU khi đã nhận Gạch lần đầu — chưa hiện trước đó */
+  var visible = TASKS.filter(function(t){ return t.url || _myPhone || doneTasks[t.id]; });
+  el.innerHTML = visible.map(function(t){
+    var isDone = !!doneTasks[t.id];
+    var opened = isDone || !!linkOpened[t.id];
+    var link = t.url ? '<a class="task-link" href="' + t.url + '" target="_blank" rel="noopener" onclick="markLinkOpened(\'' + t.id + '\')"><i class="ph-duotone ph-arrow-square-out"></i> Mở link</a>' : '';
+    var lockedNote = (!t.url && !isDone && !opened) ? '<div class="task-desc" style="color:var(--muted)">Bấm "Sao chép" ở link giới thiệu bên dưới để mở khoá nhiệm vụ này.</div>' : '';
+    var chkAttr = isDone ? 'checked disabled' : (opened ? 'checked' : 'disabled');
+    return '<div class="task' + (isDone ? ' done' : '') + (t.weekly ? ' weekly' : '') + '">' +
+      '<input type="checkbox" class="task-check" id="chk_' + t.id + '" ' + chkAttr + '>' +
+      '<div class="task-body">' +
+        '<div class="task-title">' + t.title + (isDone ? ' <i class="ph-duotone ph-check-circle" style="color:var(--green)"></i>' : '') + '</div>' +
+        '<div class="task-desc">' + t.desc + '</div>' +
+        link + lockedNote +
+      '</div>' +
+      '<div class="task-pts">+' + t.pts + ' Gạch</div>' +
+    '</div>';
+  }).join('');
+}
+function showLookup(){
+  document.getElementById('lookupCard').style.display = 'block';
+  document.getElementById('lookupPhone').focus();
+}
+
+function showMsg(id, text, ok){
+  var el = document.getElementById(id);
+  el.textContent = text;
+  el.className = 'msg show ' + (ok ? 'ok' : 'err');
+}
+
+var _myPhone = '';
+var SHARE_TEXT = 'Mình đang tìm hiểu ALN — nền tảng thiết kế nhà uy tín, có KTS tư vấn miễn phí. Bạn xem thử nhé:';
+function setRefLink(phone){
+  _myPhone = phone;
+  var url = location.origin + location.pathname.replace(/[^/]*$/, '') + 'register.html?cref=' + encodeURIComponent(phone);
+  document.getElementById('refLinkText').textContent = url;
+  document.getElementById('refCard').style.display = 'block';
+  window._refUrl = url;
+  document.getElementById('btnShareNative').style.display = (navigator.share ? 'inline-flex' : 'none');
+}
+function noLinkYet(){ showMsg('claimMsg', 'Nhập Tên + SĐT ở form bên dưới trước để nhận link riêng của bạn nhé!', false); }
+function copyRefLink(){
+  if (!window._refUrl) { noLinkYet(); return; }
+  navigator.clipboard.writeText(window._refUrl).then(function(){
+    showMsg('claimMsg', '✓ Đã sao chép link giới thiệu', true);
+    markLinkOpened('share_link');
+  }).catch(function(){});
+}
+async function shareNative(){
+  if (!window._refUrl) { noLinkYet(); return; }
+  if (!navigator.share) return;
+  try {
+    await navigator.share({ title: 'ALN — App Làm Nhà', text: SHARE_TEXT, url: window._refUrl });
+    markLinkOpened('share_link');
+  } catch(e){ /* người dùng tự huỷ hộp thoại chia sẻ — bỏ qua */ }
+}
+function shareToZalo(){
+  if (!window._refUrl) { noLinkYet(); return; }
+  window.open('https://zalo.me/share/link?u=' + encodeURIComponent(window._refUrl) + '&d=' + encodeURIComponent(SHARE_TEXT), '_blank');
+  markLinkOpened('share_link');
+}
+function shareToMessenger(){
+  if (!window._refUrl) { noLinkYet(); return; }
+  window.open('https://www.messenger.com/share?link=' + encodeURIComponent(window._refUrl), '_blank');
+  markLinkOpened('share_link');
+}
+
+/* ── Link RỦ BẠN CÙNG CHƠI (khác link giới thiệu khách xây nhà ở trên) ── */
+var INVITE_SHARE_TEXT = 'Mình đang chơi game tích Gạch của ALN, có thưởng thật đó — vào chơi cùng mình nè!';
+function setInviteLink(phone){
+  var url = location.origin + location.pathname.replace(/[^/]*$/, '') + 'ctv_dashboard.html?ref=' + encodeURIComponent(phone);
+  document.getElementById('inviteLinkText').textContent = url;
+  document.getElementById('inviteCard').style.display = 'block';
+  window._inviteUrl = url;
+  document.getElementById('btnInviteShareNative').style.display = (navigator.share ? 'inline-flex' : 'none');
+}
+function copyInviteLink(){
+  if (!window._inviteUrl) { noLinkYet(); return; }
+  navigator.clipboard.writeText(window._inviteUrl).then(function(){
+    showMsg('claimMsg', '✓ Đã sao chép link rủ bạn chơi', true);
+  }).catch(function(){});
+}
+async function shareInviteNative(){
+  if (!window._inviteUrl) { noLinkYet(); return; }
+  if (!navigator.share) return;
+  try { await navigator.share({ title: 'ALN — Chơi cùng tích Gạch', text: INVITE_SHARE_TEXT, url: window._inviteUrl }); } catch(e){}
+}
+function shareInviteToZalo(){
+  if (!window._inviteUrl) { noLinkYet(); return; }
+  window.open('https://zalo.me/share/link?u=' + encodeURIComponent(window._inviteUrl) + '&d=' + encodeURIComponent(INVITE_SHARE_TEXT), '_blank');
+}
+function shareInviteToMessenger(){
+  if (!window._inviteUrl) { noLinkYet(); return; }
+  window.open('https://www.messenger.com/share?link=' + encodeURIComponent(window._inviteUrl), '_blank');
+}
+
+/* ── Link GÓI HỒ SƠ BẢN VẼ KINH TẾ (khác 2 link giới thiệu ở trên) ── */
+var MAU_NHA_SHARE_TEXT = 'ALN có sẵn hồ sơ mẫu nhà đã bàn giao, giá rẻ hơn thiết kế riêng — bạn xem thử mẫu nào hợp mình nhé:';
+function setMauNhaLink(phone){
+  var url = location.origin + location.pathname.replace(/[^/]*$/, '') + 'index.html?ctvref=' + encodeURIComponent(phone) + '#khomau';
+  document.getElementById('mauNhaLinkText').textContent = url;
+  window._mauNhaUrl = url;
+  document.getElementById('btnMauNhaShareNative').style.display = (navigator.share ? 'inline-flex' : 'none');
+}
+function copyMauNhaLink(){
+  if (!window._mauNhaUrl) { noLinkYet(); return; }
+  navigator.clipboard.writeText(window._mauNhaUrl).then(function(){
+    showMsg('claimMsg', '✓ Đã sao chép link gói kinh tế', true);
+  }).catch(function(){});
+}
+async function shareMauNhaNative(){
+  if (!window._mauNhaUrl) { noLinkYet(); return; }
+  if (!navigator.share) return;
+  try { await navigator.share({ title: 'ALN — Kho hồ sơ mẫu', text: MAU_NHA_SHARE_TEXT, url: window._mauNhaUrl }); } catch(e){}
+}
+function shareMauNhaToZalo(){
+  if (!window._mauNhaUrl) { noLinkYet(); return; }
+  window.open('https://zalo.me/share/link?u=' + encodeURIComponent(window._mauNhaUrl) + '&d=' + encodeURIComponent(MAU_NHA_SHARE_TEXT), '_blank');
+}
+function shareMauNhaToMessenger(){
+  if (!window._mauNhaUrl) { noLinkYet(); return; }
+  window.open('https://www.messenger.com/share?link=' + encodeURIComponent(window._mauNhaUrl), '_blank');
+}
+
+async function doLookup(){
+  var phone = document.getElementById('lookupPhone').value.replace(/[\s.\-()]/g, '');
+  if (!/^0\d{8,10}$/.test(phone)) { showMsg('lookupMsg', 'Số điện thoại chưa hợp lệ', false); return; }
+  var btn = document.getElementById('btnLookup');
+  btn.disabled = true; btn.textContent = 'Đang tra...';
+  try {
+    var data = await window.ctvGetProfile({ phone: phone });
+    if (!data.exists) {
+      showMsg('lookupMsg', 'Chưa tìm thấy SĐT này — làm nhiệm vụ bên dưới để bắt đầu nhé!', false);
+    } else {
+      renderAlnBricksCard(data.alnBricks, data.alnDiamonds, data.referralPendingVnd);
+      setStreak(data.streak);
+      updateSpinState(data.spin);
+      document.getElementById('chipCard').style.display = 'block';
+      updateChipState(data.chip);
+      doneTasks = {};
+      (data.tasksDone || []).forEach(function(t){ doneTasks[t] = true; });
+      setRefLink(phone);
+      setInviteLink(phone);
+      setMauNhaLink(phone);
+      renderTasks();
+      rememberCtv(phone, '');
+      showMsg('lookupMsg', '✓ Chào mừng trở lại!', true);
+    }
+  } catch(e) {
+    showMsg('lookupMsg', 'Lỗi: ' + (e.message || e), false);
+  }
+  btn.disabled = false; btn.textContent = 'Xem Gạch của tôi';
+}
+
+async function doClaim(){
+  var name = document.getElementById('claimName').value.trim();
+  var phone = document.getElementById('claimPhone').value.replace(/[\s.\-()]/g, '');
+  if (!name) { showMsg('claimMsg', 'Vui lòng nhập tên', false); return; }
+  if (!/^0\d{8,10}$/.test(phone)) { showMsg('claimMsg', 'Số điện thoại chưa hợp lệ', false); return; }
+  var taskIds = TASKS.filter(function(t){
+    var chk = document.getElementById('chk_' + t.id);
+    return chk && chk.checked && !chk.disabled;
+  }).map(function(t){ return t.id; });
+  if (!taskIds.length) { showMsg('claimMsg', 'Hãy tick ít nhất 1 nhiệm vụ đã làm xong', false); return; }
+
+  var btn = document.getElementById('btnClaim');
+  btn.disabled = true; btn.textContent = 'Đang gửi...';
+  try {
+    var data = await window.ctvClaimTasks({ name: name, phone: phone, taskIds: taskIds, refBy: _refByPhone });
+    renderAlnBricksCard(data.alnBricks, data.alnDiamonds, data.referralPendingVnd);
+    setStreak(data.streak);
+    updateSpinState(data.spin);
+    document.getElementById('chipCard').style.display = 'block';
+    updateChipState(data.chip);
+    doneTasks = {};
+    (data.tasksDone || []).forEach(function(t){ doneTasks[t] = true; });
+    setRefLink(phone);
+    setInviteLink(phone);
+    renderTasks();
+    rememberCtv(phone, name);
+    if (data.newlyAwarded > 0) {
+      var extra = data.streakBonus > 0 ? ' 🔥 +' + data.streakBonus + ' Gạch thưởng chuỗi ' + data.streak + ' tuần liên tiếp!' : '';
+      var spinNote = (data.spin && data.spin.eligible && !data.spin.used) ? ' Bạn được 1 lượt Vòng quay may mắn bên dưới 🎡' : '';
+      showMsg('claimMsg', '✓ Nhận được +' + data.newlyAwarded + ' Gạch! Cảm ơn bạn.' + extra + spinNote, true);
+    } else {
+      showMsg('claimMsg', 'Các nhiệm vụ này bạn đã nhận Gạch trước đó rồi — vẫn giữ nguyên số Gạch hiện có.', true);
+    }
+  } catch(e) {
+    showMsg('claimMsg', 'Lỗi: ' + (e.message || e), false);
+  }
+  btn.disabled = false; btn.textContent = 'Nhận Gạch ngay';
+}
+
+/* Nhớ SĐT (+tên nếu có) trên trình duyệt này để lần sau khỏi nhập lại */
+var CTV_REMEMBER_KEY = 'aln_ctv_player';
+function rememberCtv(phone, name){
+  try {
+    var cur = {};
+    try { cur = JSON.parse(localStorage.getItem(CTV_REMEMBER_KEY)) || {}; } catch(e){}
+    localStorage.setItem(CTV_REMEMBER_KEY, JSON.stringify({ phone: phone, name: name || cur.name || '' }));
+  } catch(e){}
+  document.getElementById('forgetCtvWrap').style.display = 'block';
+}
+function getRememberedCtv(){
+  try { return JSON.parse(localStorage.getItem(CTV_REMEMBER_KEY)) || null; } catch(e){ return null; }
+}
+function forgetCtv(){
+  try { localStorage.removeItem(CTV_REMEMBER_KEY); } catch(e){}
+  document.getElementById('claimName').value = '';
+  document.getElementById('claimPhone').value = '';
+  document.getElementById('forgetCtvWrap').style.display = 'none';
+  showMsg('claimMsg', 'Đã quên thông tin trên máy này.', true);
+}
+
+renderTasks();
+
+/* Đọc ?p= trên URL để tự tra Gạch (vd link Founder gửi lại cho người chơi); nếu không có thì
+   dùng thông tin đã nhớ trên trình duyệt này (nếu có) để tự điền + tự tra luôn.
+   Chạy sau khi window.ctvGetProfile sẵn sàng (gán ở <script type="module"> bên dưới, xem autoLookupCtv). */
+function autoLookupCtv(){
+  try {
+    var p = new URLSearchParams(location.search).get('p');
+    var remembered = getRememberedCtv();
+    if (p) {
+      document.getElementById('lookupPhone').value = p; showLookup(); doLookup();
+    } else if (remembered && remembered.phone) {
+      document.getElementById('claimPhone').value = remembered.phone;
+      document.getElementById('claimName').value = remembered.name || '';
+      document.getElementById('lookupPhone').value = remembered.phone;
+      document.getElementById('forgetCtvWrap').style.display = 'block';
+      showLookup(); doLookup();
+    }
+  } catch(e){}
+}
+</script>
+
+<script type="module">
+import { app } from './firebase-config.js';
+
+(async function(){
+  var mod = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js');
+  var fns = mod.getFunctions(app, 'asia-southeast1');
+  window.ctvGetProfile = async function(data){ var r = await mod.httpsCallable(fns, 'ctvGetProfile')(data); return r.data; };
+  window.ctvClaimTasks = async function(data){ var r = await mod.httpsCallable(fns, 'ctvClaimTasks')(data); return r.data; };
+  window.ctvGetWeeklyTask = async function(){ var r = await mod.httpsCallable(fns, 'ctvGetWeeklyTask')(); return r.data; };
+  window.ctvLeaderboard = async function(){ var r = await mod.httpsCallable(fns, 'ctvLeaderboard')(); return r.data; };
+  window.ctvSpinWheel = async function(data){ var r = await mod.httpsCallable(fns, 'ctvSpinWheel')(data); return r.data; };
+  window.ctvChipStart = async function(data){ var r = await mod.httpsCallable(fns, 'ctvChipStart')(data); return r.data; };
+  window.ctvChipClick = async function(data){ var r = await mod.httpsCallable(fns, 'ctvChipClick')(data); return r.data; };
+  if (window.autoLookupCtv) window.autoLookupCtv();
+  if (window.loadWeeklyTask) window.loadWeeklyTask();
+  if (window.loadLeaderboard) window.loadLeaderboard();
+})();
+</script>
+</body>
+</html>
