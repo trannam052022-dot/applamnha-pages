@@ -8690,13 +8690,11 @@ window.loadC2MonitorPanel = function() {
         warn:  { color:'#c9a84c', bg:'#12180a', label:'Chú ý',   icon:'⚡' },
         ok:    { color:'#5ab87a', bg:'#0a1410', label:'Bình thường', icon:'✓' }
       };
-      var SIGNAL_ICONS = { location_match:'📍', chat_drop:'💬', c2_overdue:'⏱' };
       var html = '';
       snap.docs.forEach(function(d) {
         var p = d.data();
         var status = p.suspicionStatus || 'ok';
         var cfg = SUSPICION[status] || SUSPICION.ok;
-        var signals = p.suspicionSignals || [];
         var daysInC2 = p.c2StartedAt && p.c2StartedAt.toDate ? Math.floor((Date.now() - p.c2StartedAt.toDate().getTime()) / 86400000) : null;
         html += '<div style="position:relative;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px">';
         html += '<span style="position:absolute;top:0;left:0;width:12px;height:12px;border-top:1.5px solid #c9a84c55;border-left:1.5px solid #c9a84c55;border-radius:20px 0 0 0"></span>';
@@ -8708,15 +8706,6 @@ window.loadC2MonitorPanel = function() {
         html += '<div style="font-size:13px;font-weight:600;color:#e0d4b0;margin-bottom:3px">' + d.id + '</div>';
         html += '<div style="font-size:11px;color:var(--dim);margin-bottom:10px">KTS: <b style="color:#a0b8cc">' + (p.monitoredPair&&p.monitoredPair.ktsId||'—') + '</b> · CN: <b style="color:#a0b8cc">' + (p.monitoredPair&&p.monitoredPair.cnId||'—') + '</b></div>';
         if (p.locationDenied) html += '<div style="font-size:10px;color:#c85a3a;margin-bottom:6px">⛔ KTS đã từ chối cấp quyền vị trí</div>';
-        if (signals.length) {
-          html += '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px">';
-          signals.forEach(function(s) {
-            var lvlColor = s.level==='red'?'#c85a3a':s.level==='amber'?'#c9a84c':'#5ab87a';
-            var lvlBg    = s.level==='red'?'#140a0a':s.level==='amber'?'#12100a':'#0a1410';
-            html += '<span style="font-size:10px;padding:2px 7px;border-radius:7px;background:'+lvlBg+';color:'+lvlColor+';border:1px solid '+lvlColor+'44">' + (SIGNAL_ICONS[s.type]||'•') + ' ' + (s.label||s.type) + '</span>';
-          });
-          html += '</div>';
-        }
         html += '<div style="display:flex;gap:7px;margin-top:4px">';
         html += '<button onclick="openC2Evidence(\'' + d.id + '\')" style="flex:1;padding:7px 0;border-radius:7px;border:1px solid #c9a84c;background:transparent;color:var(--gold);font-size:11px;font-weight:600;cursor:pointer;font-family:var(--sans)">🔍 Điều tra</button>';
         html += '<button onclick="alert(\'Liên hệ KTS: \'+(\''+((p.monitoredPair&&p.monitoredPair.ktsId)||'').replace(/'/g,"\\'")+'\'))" style="flex:1;padding:7px 0;border-radius:7px;border:1px solid #1c2a3a;background:#102030;color:#8a9ab0;font-size:11px;cursor:pointer;font-family:var(--sans)">💬 Liên hệ KTS</button>';
@@ -8739,10 +8728,16 @@ window.openC2Evidence = async function(projectId) {
     var projSnap = await getDoc(doc(db,'projects',projectId));
     if (!projSnap.exists()) { content.innerHTML = '<div style="color:#c85a3a">Không tìm thấy dự án</div>'; return; }
     var p = projSnap.data();
-    var signals = p.suspicionSignals || [];
+    // Chi tiết tín hiệu KHÔNG còn đọc trực tiếp từ Firestore (stageRiskSignals
+    // đã khoá client SDK hoàn toàn) — gọi Cloud Function Founder-only, nhận
+    // về nhãn tiếng Việt đã dịch sẵn (không có field `type` kỹ thuật).
+    var { getFunctions, httpsCallable } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js');
+    var fns = getFunctions(app, 'asia-southeast1');
+    var riskFn = httpsCallable(fns, 'getStageRiskAssessment');
+    var riskRes = await riskFn({ pid: projectId });
+    var signals = (riskRes.data && riskRes.data.signals) || [];
     var logSnap = await getDocs(query(collection(db,'locationLogs'), where('projectId','==',projectId), orderBy('recordedAt','asc')));
     var logs = logSnap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
-    var SIGNAL_LABEL = { location_match:'Cùng vị trí', chat_drop:'Chat giảm mạnh', c2_overdue:'C2 kéo dài' };
     var html = '<div style="font-family:Cormorant Garamond,serif;font-style:italic;font-size:19px;color:var(--gold);margin-bottom:4px">Bằng chứng — ' + projectId + '</div>';
     var STAT = { alert:{color:'#c85a3a',label:'Cảnh báo'}, warn:{color:'#c9a84c',label:'Chú ý'}, ok:{color:'#5ab87a',label:'Bình thường'} };
     var sc = STAT[p.suspicionStatus||'ok'];
@@ -8752,8 +8747,7 @@ window.openC2Evidence = async function(projectId) {
       html += '<div style="font-size:12px;color:var(--dim);margin-bottom:14px">Không có tín hiệu.</div>';
     } else {
       signals.forEach(function(s,i) {
-        var detail = s.count ? '(' + s.count + ' lần)' : s.percent ? '(giảm ' + s.percent + '%)' : s.days ? '(' + s.days + ' ngày)' : '';
-        html += '<div style="font-size:12px;color:#a0b8cc;padding:5px 0;border-bottom:1px solid var(--border)">' + (i+1) + '. [' + (s.level==='red'?'<span style="color:#c85a3a">Cảnh báo</span>':s.level==='amber'?'<span style="color:var(--gold)">Chú ý</span>':'<span style="color:#5ab87a">OK</span>') + '] ' + (SIGNAL_LABEL[s.type]||s.type) + ' ' + detail + '</div>';
+        html += '<div style="font-size:12px;color:#a0b8cc;padding:5px 0;border-bottom:1px solid var(--border)">' + (i+1) + '. [' + (s.level==='red'?'<span style="color:#c85a3a">Cảnh báo</span>':s.level==='amber'?'<span style="color:var(--gold)">Chú ý</span>':'<span style="color:#5ab87a">OK</span>') + '] ' + s.categoryLabel + ' ' + s.detail + '</div>';
       });
       html += '<div style="margin-bottom:14px"></div>';
     }
@@ -8787,13 +8781,16 @@ window.exportC2PDF = async function(projectId) {
   var projSnap = await getDoc(doc(db,'projects',projectId));
   if (!projSnap.exists()) return;
   var p = projSnap.data();
+  var { getFunctions, httpsCallable } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js');
+  var fns = getFunctions(app, 'asia-southeast1');
+  var riskFn = httpsCallable(fns, 'getStageRiskAssessment');
+  var riskRes = await riskFn({ pid: projectId });
+  var signals = (riskRes.data && riskRes.data.signals) || [];
   var logSnap = await getDocs(query(collection(db,'locationLogs'),where('projectId','==',projectId),orderBy('recordedAt','asc')));
   var logs = logSnap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
-  var signals = p.suspicionSignals || [];
-  var SIGNAL_LABEL = { location_match:'Cùng vị trí', chat_drop:'Chat giảm mạnh', c2_overdue:'C2 kéo dài' };
   var conclusionMap = { alert:'⚠ Có dấu hiệu bất thường nghiêm trọng. Founder cần điều tra ngay.', warn:'⚡ Có tín hiệu đáng chú ý. Nên liên hệ xác nhận với KTS.', ok:'✓ Không phát hiện tín hiệu bất thường.' };
   var sigRows = signals.length
-    ? signals.map(function(s,i){ return '<tr><td>'+(i+1)+'</td><td>'+(SIGNAL_LABEL[s.type]||s.type)+'</td><td style="color:'+(s.level==='red'?'#c0392b':s.level==='amber'?'#d4900a':'#27ae60')+'">'+(s.level==='red'?'Cảnh báo':s.level==='amber'?'Chú ý':'Bình thường')+'</td></tr>'; }).join('')
+    ? signals.map(function(s,i){ return '<tr><td>'+(i+1)+'</td><td>'+s.categoryLabel+'</td><td style="color:'+(s.level==='red'?'#c0392b':s.level==='amber'?'#d4900a':'#27ae60')+'">'+(s.level==='red'?'Cảnh báo':s.level==='amber'?'Chú ý':'Bình thường')+'</td></tr>'; }).join('')
     : '<tr><td colspan="3" style="color:#666">Không phát hiện tín hiệu nghi ngờ.</td></tr>';
   var logRows = logs.length
     ? logs.map(function(l){ var isKts=l.role==='kts'; var t=l.recordedAt&&l.recordedAt.toDate?l.recordedAt.toDate().toLocaleString('vi-VN'):'—'; var lat=l.location&&l.location.latitude?l.location.latitude.toFixed(5):'—'; var lng=l.location&&l.location.longitude?l.location.longitude.toFixed(5):'—'; return '<tr><td style="color:'+(isKts?'#27ae60':'#2980b9')+'">'+(isKts?'KTS':'CN')+'</td><td>'+t+'</td><td>'+lat+', '+lng+'</td></tr>'; }).join('')
