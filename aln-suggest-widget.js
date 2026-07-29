@@ -44,8 +44,8 @@
       'opacity:0;transform:translateY(14px) scale(.94);pointer-events:none;font-family:-apple-system,"Segoe UI",system-ui,sans-serif}' +
     '.aln-sw-chip.aln-sw-show{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}' +
     '@media(prefers-reduced-motion:no-preference){.aln-sw-chip{transition:opacity .5s cubic-bezier(.16,1,.3,1),transform .5s cubic-bezier(.16,1,.3,1)}}' +
-    '.aln-sw-chip-btn{display:flex;align-items:center;gap:9px;background:rgba(15,22,34,.82);backdrop-filter:blur(14px) saturate(1.3);' +
-      '-webkit-backdrop-filter:blur(14px) saturate(1.3);color:#f3ede0;border:1px solid rgba(224,170,62,.35);border-radius:99px;' +
+    '.aln-sw-chip-btn{display:flex;align-items:center;gap:9px;background:rgba(15,22,34,.52);backdrop-filter:blur(18px) saturate(1.5);' +
+      '-webkit-backdrop-filter:blur(18px) saturate(1.5);color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.55);border:1px solid rgba(224,170,62,.4);border-radius:99px;' +
       'padding:11px 16px 11px 12px;cursor:pointer;box-shadow:0 8px 26px rgba(15,20,30,.28);font-size:12.6px;font-weight:700;letter-spacing:.01em}' +
     '.aln-sw-chip-btn .aln-sw-dotwrap{position:relative;width:8px;height:8px;flex-shrink:0}' +
     '.aln-sw-chip-btn .aln-sw-dotcore{position:absolute;inset:0;border-radius:50%;background:#e0aa3e}' +
@@ -56,32 +56,32 @@
       'color:#cfc6b0;margin-left:6px;font-size:12px;cursor:pointer;flex-shrink:0;line-height:1}' +
     '.aln-sw-chip-btn:focus-visible,.aln-sw-chip-x:focus-visible{outline:2px solid #e0aa3e;outline-offset:2px}' +
     '.aln-sw-panel{position:fixed;left:18px;bottom:18px;z-index:51;width:336px;max-width:calc(100vw - 36px);' +
-      'background:rgba(16,23,35,.86);backdrop-filter:blur(18px) saturate(1.35);-webkit-backdrop-filter:blur(18px) saturate(1.35);' +
-      'border:1px solid rgba(224,170,62,.28);border-radius:18px;box-shadow:0 24px 60px rgba(8,12,20,.38);color:#f3ede0;' +
+      'background:rgba(16,23,35,.56);backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6);' +
+      'border:1px solid rgba(224,170,62,.38);border-radius:18px;box-shadow:0 24px 60px rgba(8,12,20,.38);color:#fff;' +
       'overflow:hidden;opacity:0;transform:translateY(10px) scale(.97);pointer-events:none;transform-origin:bottom left;' +
       'font-family:-apple-system,"Segoe UI",system-ui,sans-serif}' +
     '.aln-sw-panel.aln-sw-show{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}' +
     '@media(prefers-reduced-motion:no-preference){.aln-sw-panel{transition:opacity .3s cubic-bezier(.16,1,.3,1),transform .3s cubic-bezier(.16,1,.3,1)}}' +
     '.aln-sw-head{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 10px}' +
-    '.aln-sw-head strong{font-size:13px;font-weight:700}' +
+    '.aln-sw-head strong{font-size:13px;font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,.55)}' +
     '.aln-sw-head button{width:24px;height:24px;border-radius:50%;border:1px solid rgba(255,255,255,.16);background:rgba(0,0,0,.22);' +
       'color:#cfc6b0;font-size:13px;cursor:pointer;line-height:1}' +
     '.aln-sw-tabs{display:flex;gap:5px;padding:0 12px 12px;flex-wrap:wrap}' +
-    '.aln-sw-tab{font-size:11px;font-weight:700;letter-spacing:.01em;padding:6px 11px;border-radius:99px;border:1px solid transparent;' +
-      'background:rgba(255,255,255,.06);color:#c7bea9;cursor:pointer}' +
+    '.aln-sw-tab{font-size:11px;font-weight:700;letter-spacing:.01em;padding:6px 11px;border-radius:99px;border:1px solid rgba(255,255,255,.14);' +
+      'background:rgba(0,0,0,.28);color:#e4ded0;text-shadow:0 1px 2px rgba(0,0,0,.5);cursor:pointer}' +
     '.aln-sw-tab[aria-selected="true"]{background:var(--aln-sw-c,#e0aa3e);color:#1a1400;border-color:var(--aln-sw-c,#e0aa3e)}' +
     '.aln-sw-tab:focus-visible{outline:2px solid #e0aa3e;outline-offset:1px}' +
     '.aln-sw-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 12px 14px}' +
-    '.aln-sw-card{display:flex;flex-direction:column;gap:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);' +
+    '.aln-sw-card{display:flex;flex-direction:column;gap:7px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);' +
       'border-radius:12px;padding:11px 11px 12px;text-decoration:none;color:inherit}' +
     '@media(prefers-reduced-motion:no-preference){.aln-sw-card{transition:background .18s,border-color .18s,transform .18s}}' +
-    '.aln-sw-card:hover,.aln-sw-card:focus-visible{background:rgba(255,255,255,.10);border-color:var(--aln-sw-c,#e0aa3e);transform:translateY(-1px)}' +
+    '.aln-sw-card:hover,.aln-sw-card:focus-visible{background:rgba(255,255,255,.14);border-color:var(--aln-sw-c,#e0aa3e);transform:translateY(-1px)}' +
     '.aln-sw-card:focus-visible{outline:2px solid var(--aln-sw-c,#e0aa3e);outline-offset:1px}' +
     '.aln-sw-badge{align-self:flex-start;font-size:9.5px;font-weight:700;letter-spacing:.02em;color:var(--aln-sw-c,#e0aa3e);' +
-      'background:rgba(255,255,255,.14);padding:2px 7px;border-radius:6px}' +
+      'background:rgba(0,0,0,.32);padding:2px 7px;border-radius:6px}' +
     '.aln-sw-card .aln-sw-ic{width:20px;height:20px;color:var(--aln-sw-c,#e0aa3e)}' +
-    '.aln-sw-card .aln-sw-t{font-size:12.5px;font-weight:700;line-height:1.25}' +
-    '.aln-sw-card .aln-sw-d{font-size:11px;color:#b9b09a;line-height:1.4}' +
+    '.aln-sw-card .aln-sw-t{font-size:12.5px;font-weight:700;line-height:1.25;text-shadow:0 1px 3px rgba(0,0,0,.55)}' +
+    '.aln-sw-card .aln-sw-d{font-size:11px;color:#e4ded0;line-height:1.4;text-shadow:0 1px 2px rgba(0,0,0,.5)}' +
     '.aln-sw-card .aln-sw-go{font-size:11px;font-weight:700;color:var(--aln-sw-c,#e0aa3e);display:flex;align-items:center;gap:4px;margin-top:auto}' +
     '@media(max-width:480px){.aln-sw-chip,.aln-sw-panel{left:12px;bottom:12px}}';
   document.head.appendChild(style);
@@ -116,8 +116,11 @@
   var cardsEl = panel.querySelector('.aln-sw-cards');
   var activeTab = 'cn';
 
-  function renderTabs() {
-    tabsEl.innerHTML = '';
+  // Tạo nút tab đúng 1 lần — KHÔNG vẽ lại (innerHTML='') khi chuyển tab, vì
+  // xoá node đang là e.target giữa lúc xử lý click khiến listener "bấm ra
+  // ngoài" (document click, chạy sau ở giai đoạn bubble) tưởng đã bấm ra
+  // ngoài panel rồi tự thu gọn lại — đây chính là bug "bấm KTS/DN bị thoát".
+  function buildTabsOnce() {
     ORDER.forEach(function (key) {
       var d = DATA[key];
       var b = document.createElement('button');
@@ -125,9 +128,17 @@
       b.setAttribute('aria-selected', key === activeTab ? 'true' : 'false');
       b.style.setProperty('--aln-sw-c', d.color);
       b.textContent = d.label;
-      b.addEventListener('click', function () { activeTab = key; renderTabs(); renderCards(); });
+      b.addEventListener('click', function () { setActiveTab(key); });
       tabsEl.appendChild(b);
     });
+  }
+  function setActiveTab(key) {
+    activeTab = key;
+    var btns = tabsEl.querySelectorAll('.aln-sw-tab');
+    for (var i = 0; i < ORDER.length; i++) {
+      btns[i].setAttribute('aria-selected', ORDER[i] === key ? 'true' : 'false');
+    }
+    renderCards();
   }
 
   function renderCards() {
@@ -147,7 +158,7 @@
       cardsEl.appendChild(a);
     });
   }
-  renderTabs(); renderCards();
+  buildTabsOnce(); renderCards();
 
   function openPanel() {
     panel.classList.add('aln-sw-show'); chip.classList.remove('aln-sw-show');
@@ -163,7 +174,11 @@
     if (e.key === 'Escape' && panel.classList.contains('aln-sw-show')) closePanel(true);
   });
   document.addEventListener('click', function (e) {
-    if (panel.classList.contains('aln-sw-show') && !panel.contains(e.target) && e.target !== chipBtn && !chipBtn.contains(e.target)) {
+    // composedPath() chụp lại đường đi của sự kiện NGAY LÚC bấm — vẫn đúng
+    // dù phần tử bị bấm bị gỡ khỏi DOM trước khi listener này chạy (bubble
+    // luôn chạy sau listener gắn trực tiếp trên phần tử được bấm).
+    var path = typeof e.composedPath === 'function' ? e.composedPath() : [e.target];
+    if (panel.classList.contains('aln-sw-show') && path.indexOf(panel) === -1 && path.indexOf(chipBtn) === -1) {
       closePanel(true);
     }
   });
