@@ -14,6 +14,7 @@ Disallow: /login.html
 Disallow: /board-editor.html
 Disallow: /kts_landing_draft.html
 Disallow: /thi-cong-ai-demo.html
+Disallow: /goi-y-chuong-trinh_draft.html
 Disallow: /ALN_MatranKy_KhungBV.html
 Disallow: /_archive/
 Disallow: /test/
