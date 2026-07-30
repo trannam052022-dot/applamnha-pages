@@ -227,7 +227,9 @@ if (!document.getElementById('mymy-btn')) {
       }
     }).catch((err) => {
       removeTyping();
-      addBot('Dạ hệ thống đang bận, anh/chị thử lại sau ít phút giúp em nha!');
+      addBot(err && err.isMymyTimeout
+        ? 'Dạ trình duyệt của anh/chị có vẻ đang chặn kết nối của em (thường gặp ở chế độ ẩn danh/riêng tư hoặc Safari) 😔 Anh/chị thử tắt chế độ ẩn danh, hoặc đổi sang trình duyệt khác (Chrome, Cốc Cốc...) rồi nhắn lại giúp em nha! Không được thì để lại SĐT ở đây, đội ngũ ALN sẽ liên hệ trực tiếp ạ.'
+        : 'Dạ hệ thống đang bận, anh/chị thử lại sau ít phút giúp em nha!');
       console.error('MyMy lỗi:', err);
     }).finally(() => {
       setSending(false);
@@ -282,7 +284,11 @@ if (!document.getElementById('mymy-btn')) {
       function withTimeout(promise, ms, message){
         return Promise.race([
           promise,
-          new Promise((_, reject) => setTimeout(() => reject(new Error(message)), ms)),
+          new Promise((_, reject) => setTimeout(() => {
+            const e = new Error(message);
+            e.isMymyTimeout = true; // đánh dấu để sendClick() hiện thông báo thân thiện, gợi ý tắt chế độ ẩn danh/đổi trình duyệt
+            reject(e);
+          }, ms)),
         ]);
       }
 
