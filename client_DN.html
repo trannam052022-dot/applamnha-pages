@@ -5167,6 +5167,17 @@ window.closeMymyBrief = function() {
     box.scrollTop = box.scrollHeight;
   }
 
+  function _dmaAppendSuggestion(suggestion) {
+    var box = document.getElementById('dmaMessages');
+    if (!box || !suggestion || !suggestion.url) return;
+    var a = document.createElement('a');
+    a.href = suggestion.url; a.target = '_blank'; a.rel = 'noopener';
+    a.textContent = suggestion.label + ' →';
+    a.style.cssText = 'display:inline-flex;align-items:center;gap:6px;margin:4px 0 8px;padding:7px 14px;border-radius:20px;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.35);color:#c9a84c;font-size:12.5px;font-weight:600;text-decoration:none';
+    box.appendChild(a);
+    box.scrollTop = box.scrollHeight;
+  }
+
   function _dmaShowTyping() {
     var box = document.getElementById('dmaMessages');
     if (!box) return;
@@ -5227,6 +5238,7 @@ window.closeMymyBrief = function() {
       _dmaHideTyping();
 
       if (data.reply) _dmaAppend('assistant', data.reply);
+      if (data.suggestion) _dmaAppendSuggestion(data.suggestion);
 
       if (data.pending_confirmation) {
         _dmaShowConfirmGate(data.pending_confirmation);
