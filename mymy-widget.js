@@ -123,6 +123,20 @@ if (!document.getElementById('mymy-btn')) {
     shownSuggestKeys: new Set(), sending: false,
   };
 
+  /* ── Lời chào chủ động (Part D, ALN_SPEC_MYMY_DIEUHUONG.md) ──
+     MYMY_CHATTED_KEY (localStorage, vĩnh viễn): đánh dấu khách ĐÃ từng
+     tương tác thật với MyMy (chọn xưng hô hoặc gửi tin) — còn cờ này thì
+     không tự mở lại nữa ở bất kỳ trang/phiên nào sau, tránh làm phiền
+     khách quen. MYMY_GREETED_SESSION_KEY (sessionStorage, theo tab hiện
+     tại): đảm bảo chỉ tự mở TỐI ĐA 1 lần mỗi phiên duyệt web, kể cả khi
+     khách lướt qua nhiều trang có gắn widget này (forum.html, nhiều trang
+     mau/*.html) trong cùng 1 lượt ghé thăm. */
+  const MYMY_CHATTED_KEY = 'aln_mymy_has_chatted';
+  const MYMY_GREETED_SESSION_KEY = 'aln_mymy_greeted_session';
+  function markChatted(){
+    try { localStorage.setItem(MYMY_CHATTED_KEY, '1'); } catch (e) { /* private mode — bỏ qua, không chặn chat */ }
+  }
+
   const $msgs = document.getElementById('mymy-msgs');
   function esc(s){ const d = document.createElement('div'); d.textContent = String(s); return d.innerHTML; }
 
@@ -162,6 +176,38 @@ if (!document.getElementById('mymy-btn')) {
   document.getElementById('mymy-btn').addEventListener('click', toggle);
   document.getElementById('mymy-close-btn').addEventListener('click', toggle);
 
+  /* Tự mở khung chat sau vài giây kèm lời chào — không cần khách bấm.
+     Nguyên tắc chống gây khó chịu (đã ghi trong spec): trễ ngẫu nhiên
+     3-5s, tối đa 1 lần/phiên duyệt web (sessionStorage), KHÔNG hiện lại
+     nếu khách từng chat thật (localStorage, vĩnh viễn), có nút đóng rõ
+     ràng (dùng chung #mymy-close-btn sẵn có), và tự huỷ nếu khách đã tự
+     bấm mở trước khi tới giờ hẹn. */
+  function openProactively(){
+    if (S.opened) return; // khách đã tự mở trước khi hết giờ đếm — khỏi chen ngang
+    const win = document.getElementById('mymy-win');
+    win.classList.add('open');
+    document.getElementById('mymy-badge').style.display = 'none';
+    S.opened = true;
+    addBot('Xin chào! Em là MyMy bên ALN 👋 Anh/chị cần gì cứ nhắn em hỗ trợ nhé — hoặc cho em hỏi xưng hô là anh hay chị để em tiện trò chuyện ạ?');
+    askGenderButtons();
+  }
+  function scheduleProactiveGreeting(){
+    let alreadyChatted = false, greetedThisSession = false;
+    try {
+      alreadyChatted = localStorage.getItem(MYMY_CHATTED_KEY) === '1';
+      greetedThisSession = sessionStorage.getItem(MYMY_GREETED_SESSION_KEY) === '1';
+    } catch (e) {
+      return; // Storage bị chặn (chế độ riêng tư nghiêm ngặt) — bỏ qua tính năng chủ động, widget vẫn hoạt động bình thường khi khách tự bấm
+    }
+    if (alreadyChatted || greetedThisSession) return;
+    const delay = 3000 + Math.random() * 2000; // 3-5 giây, ngẫu nhiên hoá cho tự nhiên
+    setTimeout(() => {
+      try { sessionStorage.setItem(MYMY_GREETED_SESSION_KEY, '1'); } catch (e) {}
+      openProactively();
+    }, delay);
+  }
+  scheduleProactiveGreeting();
+
   function askGenderButtons(){
     const row = document.createElement('div');
     row.className = 'mm-row bot'; row.id = 'mymy-gender-ask';
@@ -173,6 +219,7 @@ if (!document.getElementById('mymy-btn')) {
     });
   }
   function setGender(g){
+    markChatted();
     S.addr = g;
     const ask = document.getElementById('mymy-gender-ask');
     if (ask) ask.remove();
@@ -222,6 +269,7 @@ if (!document.getElementById('mymy-btn')) {
     const input = document.getElementById('mymy-input');
     const text = input.value.trim();
     if (!text) return;
+    markChatted();
     input.value = '';
     addUser(text);
     S.history.push({ role: 'user', content: text });
