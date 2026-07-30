@@ -270,22 +270,42 @@ if (!document.getElementById('mymy-btn')) {
 
       const pageContext = (document.title || '').split('|')[0].trim().slice(0, 100);
 
+      /* Bọc timeout cho mọi bước có thể "treo âm thầm" — không chỉ chờ
+         đăng nhập ẩn danh, mà cả chính lệnh gọi Cloud Function. Lý do: SDK
+         Functions tự gắn token App Check (đã initializeAppCheck toàn app
+         qua firebase-config.js) cho MỌI request callable một khi đã bật,
+         KHÔNG phụ thuộc hàm đó có enforceAppCheck:true hay không — nếu
+         bước lấy token reCAPTCHA v3 bị chặn/chậm (mạng công ty, ad-block),
+         SDK tự retry NGẦM, không bắn request thật lẫn không báo lỗi Console
+         (hiện tượng đã ghi nhận thật ở các hàm khác trong hệ thống, xem
+         CLAUDE.md "appCheck/recaptcha-error lặp lại nhiều phút"). Không bọc
+         timeout ở đây thì UI treo vô thời hạn — đúng triệu chứng gặp trên
+         forum.html sau khi deploy. */
+      function withTimeout(promise, ms, message){
+        return Promise.race([
+          promise,
+          new Promise((_, reject) => setTimeout(() => reject(new Error(message)), ms)),
+        ]);
+      }
+
       callAlnChat = async (text, history) => {
         if (!authReady) {
-          // Chờ đăng nhập ẩn danh xong, nhưng KHÔNG chờ vô thời hạn — nếu
-          // signInAnonymously bị chặn (mạng, ad-block...) thì phải rơi vào
-          // catch() của sendClick() thay vì treo giao diện (3 chấm mãi mãi).
-          await Promise.race([
+          await withTimeout(
             new Promise((resolve) => {
               const unsub = authMod.onAuthStateChanged(auth, (u) => { if (u) { unsub(); resolve(); } });
             }),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('Hết thời gian chờ đăng nhập ẩn danh')), 10000)),
-          ]);
+            10000,
+            'Hết thời gian chờ đăng nhập ẩn danh'
+          );
         }
-        const res = await fnAlnChat({
-          messages: history, agentName: 'MyMy', toUser: S.addr,
-          userName: null, role: null, pageContext,
-        });
+        const res = await withTimeout(
+          fnAlnChat({
+            messages: history, agentName: 'MyMy', toUser: S.addr,
+            userName: null, role: null, pageContext,
+          }),
+          20000,
+          'Hết thời gian chờ phản hồi từ MyMy (có thể do App Check token bị chặn)'
+        );
         return res.data || {};
       };
       upsertContact = (phone) => {
