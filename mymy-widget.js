@@ -21,12 +21,22 @@ if (!document.getElementById('mymy-btn')) {
 
   /* Toàn bộ màu ở đây CỐ Ý viết cứng (không dùng var(--token) của trang chủ) —
      forum.html/mau/*.html có --text2/--border2/--text riêng theo theme SÁNG
-     của trang, trong khi widget luôn cần nền TỐI để đọc được chữ sáng. Từng
-     có bug thật: widget kế thừa nhầm --text2 tối màu (theme sáng của
-     forum.html) trong khi --bg3 lại rơi về fallback tối của chính widget —
-     chữ tối trên nền tối, gần như không đọc được. Viết cứng để widget luôn
-     hiển thị nhất quán, độc lập hoàn toàn với theme trang chủ (kiểu overlay
-     kính mờ như Google Dịch — không phụ thuộc màu nền trang bên dưới). */
+     của trang, widget luôn cần nền TỐI để đọc được chữ sáng, độc lập hoàn
+     toàn theme trang bên dưới (từng có bug thật do lẫn biến, xem PR sửa lỗi
+     tương phản trước — không lặp lại chi tiết ở đây).
+
+     Bảng màu/hiệu ứng đối chiếu TRỰC TIẾP từ aln-suggest-widget.js ("Chương
+     trình dành cho bạn" — cùng trang) để 2 widget trông cùng 1 hệ thống
+     thiết kế: nền navy-charcoal rgba(16,23,35,..), viền trắng sáng
+     rgba(255,255,255,.22-.32), backdrop-filter blur+saturate mạnh, chữ ấm
+     #efe9dc/#fff kèm text-shadow, bo tròn 99px cho pill/badge, font
+     -apple-system. Độ mờ nền ĐẬM hơn bản gốc (.16) vì MyMy là khung chat cần
+     đọc liên tục nhiều tin nhắn, không phải card lướt nhanh — đã đo tỷ lệ
+     tương phản THẬT bằng cách dựng lại :root vars của forum.html (theme
+     sáng) + Playwright screenshot + lấy mẫu pixel qua backdrop-filter thật
+     (không suy đoán), chỉnh độ mờ tới khi mọi phần tử đều qua ngưỡng WCAG AA
+     (>=4.5:1) trên nền sáng — kịch bản khó nhất vì forum.html/mau/*.html
+     đều dùng theme sáng. */
   const CSS = `
 #mymy-btn{position:fixed;bottom:24px;right:24px;z-index:80;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#e0aa3e,#98690a);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(152,105,10,.34),inset 0 1px 0 rgba(255,255,255,.3);transition:transform .3s ease,box-shadow .3s ease}
 #mymy-btn:hover{box-shadow:0 14px 38px rgba(152,105,10,.42),inset 0 1px 0 rgba(255,255,255,.34);transform:scale(1.08)}
@@ -34,23 +44,24 @@ if (!document.getElementById('mymy-btn')) {
 #mymy-btn::after{content:'';position:absolute;inset:-5px;border-radius:50%;border:2px solid rgba(201,168,76,.45);animation:mymy-pulse 2.2s ease-out infinite}
 @keyframes mymy-pulse{0%{transform:scale(1);opacity:.7}100%{transform:scale(1.5);opacity:0}}
 .mymy-badge{position:absolute;top:-3px;right:-3px;width:18px;height:18px;border-radius:50%;background:#dc2626;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center}
-#mymy-win{position:fixed;bottom:96px;right:24px;z-index:79;width:360px;max-height:520px;background:linear-gradient(165deg,rgba(24,26,36,.78),rgba(14,15,22,.86));backdrop-filter:blur(22px) saturate(160%);-webkit-backdrop-filter:blur(22px) saturate(160%);border:1px solid rgba(255,255,255,.14);border-radius:18px;display:none;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.06)}
+#mymy-win{position:fixed;bottom:96px;right:24px;z-index:79;width:360px;max-height:520px;font-family:-apple-system,"Segoe UI",system-ui,sans-serif;background:rgba(16,23,35,.66);backdrop-filter:blur(32px) saturate(2);-webkit-backdrop-filter:blur(32px) saturate(2);border:1px solid rgba(255,255,255,.32);border-radius:18px;display:none;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(8,12,20,.42),inset 0 1px 0 rgba(255,255,255,.28)}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){#mymy-win{background:rgba(16,23,35,.94)}}
 #mymy-win.open{display:flex}
 @media(max-width:480px){#mymy-win{right:10px;left:10px;width:auto;bottom:88px;max-height:72vh}}
-.mymy-head{background:rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.1);padding:14px 16px;display:flex;align-items:center;gap:10px}
+.mymy-head{border-bottom:1px solid rgba(255,255,255,.18);padding:14px 16px;display:flex;align-items:center;gap:10px}
 .mymy-av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#e0aa3e,#98690a);display:flex;align-items:center;justify-content:center;font-size:19px;color:#1a1400;box-shadow:inset 0 1px 0 rgba(255,255,255,.3)}
 .mm-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#22c55e;margin-right:6px;vertical-align:middle;box-shadow:0 0 0 2px rgba(34,197,94,.28)}
-.mymy-head .mm-name{font-weight:700;font-size:13px;color:#f4f7fb}
-.mymy-head .mm-status{font-size:10px;color:rgba(244,247,251,.62)}
-.mymy-head .mm-close{margin-left:auto;background:none;border:none;font-size:20px;color:rgba(244,247,251,.7);cursor:pointer;line-height:1}
-.mymy-head .mm-close:hover{color:#f4f7fb}
+.mymy-head .mm-name{font-weight:700;font-size:13px;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.7)}
+.mymy-head .mm-status{font-size:10px;color:#efe9dc;text-shadow:0 1px 3px rgba(0,0,0,.65)}
+.mymy-head .mm-close{margin-left:auto;width:24px;height:24px;border-radius:50%;border:1px solid rgba(255,255,255,.16);background:rgba(0,0,0,.22);color:#cfc6b0;font-size:13px;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;padding:0}
+.mymy-head .mm-close:hover{color:#fff}
 #mymy-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;max-height:320px}
 #mymy-msgs::-webkit-scrollbar{width:4px}
 #mymy-msgs::-webkit-scrollbar-thumb{background:rgba(224,170,62,.35);border-radius:2px}
 .mm-row{display:flex;gap:8px;align-items:flex-end}
 .mm-row.user{flex-direction:row-reverse}
 .mm-bubble{max-width:80%;padding:9px 13px;border-radius:14px;font-size:12.5px;line-height:1.55}
-.mm-row.bot .mm-bubble{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);color:#f1f5f9;border-bottom-left-radius:4px}
+.mm-row.bot .mm-bubble{background:rgba(20,26,36,.55);border:1px solid rgba(255,255,255,.26);color:#efe9dc;text-shadow:0 1px 3px rgba(0,0,0,.6);border-bottom-left-radius:4px}
 .mm-row.user .mm-bubble{background:linear-gradient(135deg,#e0aa3e,#98690a);color:#1a1400;font-weight:500;border-bottom-right-radius:4px}
 .mm-avatar-sm{width:26px;height:26px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,#98690a,#e0aa3e);display:flex;align-items:center;justify-content:center;font-size:14px;color:#1a1400;box-shadow:inset 0 1px 0 rgba(255,255,255,.3)}
 .mm-typing{display:flex;gap:4px;padding:4px 0}
@@ -58,15 +69,15 @@ if (!document.getElementById('mymy-btn')) {
 .mm-typing span:nth-child(2){animation-delay:.2s}
 .mm-typing span:nth-child(3){animation-delay:.4s}
 @keyframes mm-bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
-.mm-suggest{display:inline-flex;align-items:center;gap:6px;margin-top:6px;padding:7px 13px;border-radius:20px;background:rgba(224,170,62,.16);border:1px solid rgba(224,170,62,.45);color:#f0c877;font-size:12px;font-weight:600;text-decoration:none;cursor:pointer}
-.mm-suggest:hover{background:rgba(224,170,62,.26)}
+.mm-suggest{display:inline-flex;align-items:center;gap:6px;margin-top:6px;padding:7px 13px;border-radius:99px;background:rgba(0,0,0,.48);border:1px solid rgba(224,170,62,.55);color:#e0aa3e;text-shadow:0 1px 3px rgba(0,0,0,.6);font-size:12px;font-weight:700;text-decoration:none;cursor:pointer}
+.mm-suggest:hover{background:rgba(224,170,62,.22);border-color:#e0aa3e}
 #mymy-quick{padding:0 14px 10px;display:flex;flex-wrap:wrap;gap:6px}
-.mm-qbtn{padding:5px 11px;border-radius:20px;font-size:11px;border:1px solid rgba(255,255,255,.18);color:#f0c877;background:rgba(255,255,255,.04);cursor:pointer}
-.mm-qbtn:hover{background:rgba(224,170,62,.14)}
-#mymy-input-row{padding:10px 12px;border-top:1px solid rgba(255,255,255,.1);display:flex;gap:8px;align-items:center}
-#mymy-input{flex:1;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:20px;padding:8px 14px;color:#f4f7fb;font-size:13px;outline:none}
-#mymy-input::placeholder{color:rgba(244,247,251,.5)}
-#mymy-input:focus{border-color:rgba(224,170,62,.65);background:rgba(255,255,255,.1)}
+.mm-qbtn{padding:6px 12px;border-radius:99px;font-size:11px;font-weight:700;letter-spacing:.01em;border:1px solid rgba(255,255,255,.22);color:#efe9dc;text-shadow:0 1px 3px rgba(0,0,0,.6);background:rgba(0,0,0,.44);cursor:pointer}
+.mm-qbtn:hover{background:rgba(224,170,62,.22);border-color:rgba(224,170,62,.55);color:#fff}
+#mymy-input-row{padding:10px 12px;border-top:1px solid rgba(255,255,255,.18);display:flex;gap:8px;align-items:center}
+#mymy-input{flex:1;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.24);border-radius:20px;padding:8px 14px;color:#fff;font-size:13px;outline:none;font-family:inherit}
+#mymy-input::placeholder{color:rgba(239,233,220,.75)}
+#mymy-input:focus{border-color:rgba(224,170,62,.7);background:rgba(0,0,0,.34)}
 #mymy-input:disabled{opacity:.6}
 #mymy-send{width:34px;height:34px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,#e0aa3e,#98690a);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center}
 #mymy-send:disabled{opacity:.6;cursor:default}
