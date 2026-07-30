@@ -19,45 +19,57 @@
 
 if (!document.getElementById('mymy-btn')) {
 
+  /* Toàn bộ màu ở đây CỐ Ý viết cứng (không dùng var(--token) của trang chủ) —
+     forum.html/mau/*.html có --text2/--border2/--text riêng theo theme SÁNG
+     của trang, trong khi widget luôn cần nền TỐI để đọc được chữ sáng. Từng
+     có bug thật: widget kế thừa nhầm --text2 tối màu (theme sáng của
+     forum.html) trong khi --bg3 lại rơi về fallback tối của chính widget —
+     chữ tối trên nền tối, gần như không đọc được. Viết cứng để widget luôn
+     hiển thị nhất quán, độc lập hoàn toàn với theme trang chủ (kiểu overlay
+     kính mờ như Google Dịch — không phụ thuộc màu nền trang bên dưới). */
   const CSS = `
-#mymy-btn{position:fixed;bottom:24px;right:24px;z-index:80;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--gold2,#e0aa3e),var(--gold,#98690a));border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(152,105,10,.34),inset 0 1px 0 rgba(255,255,255,.3);transition:transform .3s ease,box-shadow .3s ease}
+#mymy-btn{position:fixed;bottom:24px;right:24px;z-index:80;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#e0aa3e,#98690a);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(152,105,10,.34),inset 0 1px 0 rgba(255,255,255,.3);transition:transform .3s ease,box-shadow .3s ease}
 #mymy-btn:hover{box-shadow:0 14px 38px rgba(152,105,10,.42),inset 0 1px 0 rgba(255,255,255,.34);transform:scale(1.08)}
 #mymy-btn i{font-size:26px;color:#1a1400}
 #mymy-btn::after{content:'';position:absolute;inset:-5px;border-radius:50%;border:2px solid rgba(201,168,76,.45);animation:mymy-pulse 2.2s ease-out infinite}
 @keyframes mymy-pulse{0%{transform:scale(1);opacity:.7}100%{transform:scale(1.5);opacity:0}}
-.mymy-badge{position:absolute;top:-3px;right:-3px;width:18px;height:18px;border-radius:50%;background:var(--red,#dc2626);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center}
-#mymy-win{position:fixed;bottom:96px;right:24px;z-index:79;width:360px;max-height:520px;background:var(--bg2,#12181f);border:1px solid var(--border2,#2a3340);border-radius:18px;display:none;flex-direction:column;overflow:hidden;box-shadow:var(--shadow-lg,0 20px 60px rgba(0,0,0,.4))}
+.mymy-badge{position:absolute;top:-3px;right:-3px;width:18px;height:18px;border-radius:50%;background:#dc2626;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center}
+#mymy-win{position:fixed;bottom:96px;right:24px;z-index:79;width:360px;max-height:520px;background:linear-gradient(165deg,rgba(24,26,36,.78),rgba(14,15,22,.86));backdrop-filter:blur(22px) saturate(160%);-webkit-backdrop-filter:blur(22px) saturate(160%);border:1px solid rgba(255,255,255,.14);border-radius:18px;display:none;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.06)}
 #mymy-win.open{display:flex}
 @media(max-width:480px){#mymy-win{right:10px;left:10px;width:auto;bottom:88px;max-height:72vh}}
-.mymy-head{background:linear-gradient(135deg,var(--gold,#98690a),#a07d12);padding:14px 16px;display:flex;align-items:center;gap:10px}
-.mymy-av{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;font-size:19px;color:#1a1400}
-.mm-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#0f7a37;margin-right:6px;vertical-align:middle;box-shadow:0 0 0 2px rgba(15,122,55,.28)}
-.mymy-head .mm-name{font-weight:700;font-size:13px;color:#1a1400}
-.mymy-head .mm-status{font-size:10px;color:rgba(0,0,0,.6)}
-.mymy-head .mm-close{margin-left:auto;background:none;border:none;font-size:20px;color:rgba(0,0,0,.6);cursor:pointer;line-height:1}
+.mymy-head{background:rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.1);padding:14px 16px;display:flex;align-items:center;gap:10px}
+.mymy-av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#e0aa3e,#98690a);display:flex;align-items:center;justify-content:center;font-size:19px;color:#1a1400;box-shadow:inset 0 1px 0 rgba(255,255,255,.3)}
+.mm-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#22c55e;margin-right:6px;vertical-align:middle;box-shadow:0 0 0 2px rgba(34,197,94,.28)}
+.mymy-head .mm-name{font-weight:700;font-size:13px;color:#f4f7fb}
+.mymy-head .mm-status{font-size:10px;color:rgba(244,247,251,.62)}
+.mymy-head .mm-close{margin-left:auto;background:none;border:none;font-size:20px;color:rgba(244,247,251,.7);cursor:pointer;line-height:1}
+.mymy-head .mm-close:hover{color:#f4f7fb}
 #mymy-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;max-height:320px}
 #mymy-msgs::-webkit-scrollbar{width:4px}
-#mymy-msgs::-webkit-scrollbar-thumb{background:rgba(201,168,76,.3);border-radius:2px}
+#mymy-msgs::-webkit-scrollbar-thumb{background:rgba(224,170,62,.35);border-radius:2px}
 .mm-row{display:flex;gap:8px;align-items:flex-end}
 .mm-row.user{flex-direction:row-reverse}
 .mm-bubble{max-width:80%;padding:9px 13px;border-radius:14px;font-size:12.5px;line-height:1.55}
-.mm-row.bot .mm-bubble{background:var(--bg3,#1a212b);color:var(--text2,#bcc8dc);border-bottom-left-radius:4px}
-.mm-row.user .mm-bubble{background:linear-gradient(135deg,var(--gold,#98690a),#a07d12);color:#1a1400;font-weight:500;border-bottom-right-radius:4px}
-.mm-avatar-sm{width:26px;height:26px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--gold,#98690a),var(--gold2,#e0aa3e));display:flex;align-items:center;justify-content:center;font-size:14px;color:#1a1400;box-shadow:inset 0 1px 0 rgba(255,255,255,.3)}
+.mm-row.bot .mm-bubble{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);color:#f1f5f9;border-bottom-left-radius:4px}
+.mm-row.user .mm-bubble{background:linear-gradient(135deg,#e0aa3e,#98690a);color:#1a1400;font-weight:500;border-bottom-right-radius:4px}
+.mm-avatar-sm{width:26px;height:26px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,#98690a,#e0aa3e);display:flex;align-items:center;justify-content:center;font-size:14px;color:#1a1400;box-shadow:inset 0 1px 0 rgba(255,255,255,.3)}
 .mm-typing{display:flex;gap:4px;padding:4px 0}
-.mm-typing span{width:6px;height:6px;border-radius:50%;background:rgba(201,168,76,.6);animation:mm-bounce 1.2s ease-in-out infinite}
+.mm-typing span{width:6px;height:6px;border-radius:50%;background:rgba(224,170,62,.7);animation:mm-bounce 1.2s ease-in-out infinite}
 .mm-typing span:nth-child(2){animation-delay:.2s}
 .mm-typing span:nth-child(3){animation-delay:.4s}
 @keyframes mm-bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
-.mm-suggest{display:inline-flex;align-items:center;gap:6px;margin-top:6px;padding:7px 13px;border-radius:20px;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.4);color:var(--gold,#c9a84c);font-size:12px;font-weight:600;text-decoration:none;cursor:pointer}
-.mm-suggest:hover{background:rgba(201,168,76,.2)}
+.mm-suggest{display:inline-flex;align-items:center;gap:6px;margin-top:6px;padding:7px 13px;border-radius:20px;background:rgba(224,170,62,.16);border:1px solid rgba(224,170,62,.45);color:#f0c877;font-size:12px;font-weight:600;text-decoration:none;cursor:pointer}
+.mm-suggest:hover{background:rgba(224,170,62,.26)}
 #mymy-quick{padding:0 14px 10px;display:flex;flex-wrap:wrap;gap:6px}
-.mm-qbtn{padding:5px 11px;border-radius:20px;font-size:11px;border:1px solid var(--border2,#2a3340);color:var(--gold,#98690a);background:transparent;cursor:pointer}
-.mm-qbtn:hover{background:rgba(138,109,20,.08)}
-#mymy-input-row{padding:10px 12px;border-top:1px solid var(--border,#232b36);display:flex;gap:8px;align-items:center}
-#mymy-input{flex:1;background:var(--bg3,#1a212b);border:1px solid var(--border2,#2a3340);border-radius:20px;padding:8px 14px;color:var(--text,#1e293b);font-size:13px;outline:none}
-#mymy-input:focus{border-color:var(--gold,#98690a)}
-#mymy-send{width:34px;height:34px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--gold,#98690a),var(--gold2,#e0aa3e));border:none;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.mm-qbtn{padding:5px 11px;border-radius:20px;font-size:11px;border:1px solid rgba(255,255,255,.18);color:#f0c877;background:rgba(255,255,255,.04);cursor:pointer}
+.mm-qbtn:hover{background:rgba(224,170,62,.14)}
+#mymy-input-row{padding:10px 12px;border-top:1px solid rgba(255,255,255,.1);display:flex;gap:8px;align-items:center}
+#mymy-input{flex:1;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:20px;padding:8px 14px;color:#f4f7fb;font-size:13px;outline:none}
+#mymy-input::placeholder{color:rgba(244,247,251,.5)}
+#mymy-input:focus{border-color:rgba(224,170,62,.65);background:rgba(255,255,255,.1)}
+#mymy-input:disabled{opacity:.6}
+#mymy-send{width:34px;height:34px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,#e0aa3e,#98690a);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#mymy-send:disabled{opacity:.6;cursor:default}
 #mymy-send i{color:#1a1400;font-size:15px}
 `;
   const style = document.createElement('style');
