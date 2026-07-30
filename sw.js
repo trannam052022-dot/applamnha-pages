@@ -28,8 +28,14 @@ self.addEventListener('fetch', function(e){
   // Network-first: luôn ưu tiên bản mới, offline mới lấy cache
   e.respondWith(
     fetch(req).then(function(res){
-      var copy = res.clone();
-      caches.open(CACHE).then(function(c){ c.put(req, copy); }).catch(function(){});
+      // Chỉ cache response 200 đầy đủ — 206 (Partial Content, do trình duyệt
+      // gửi Range request), 304, response lỗi hoặc opaque đều KHÔNG cache
+      // được (Cache API ném lỗi với 206, gây "Uncaught (in promise)" nếu
+      // không bắt đúng chỗ — xem lỗi console 206 lúc chat MyMy trên forum.html).
+      if(res.ok && res.status === 200){
+        var copy = res.clone();
+        caches.open(CACHE).then(function(c){ return c.put(req, copy); }).catch(function(){});
+      }
       return res;
     }).catch(function(){ return caches.match(req); })
   );
