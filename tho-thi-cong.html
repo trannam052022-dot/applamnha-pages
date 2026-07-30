@@ -22,8 +22,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <meta property="og:image" content="https://applamnha.vn/assets/demo/aln-demo-biet-thu-vuon.jpg">
 <meta property="og:image:width" content="1100">
 <meta property="og:image:height" content="733">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css">
 <link rel="stylesheet" href="aln-tokens.css">
 <style>
@@ -34,7 +32,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   --gold:#98690a;--gold2:#b8860b;--gold-bg:rgba(152,105,10,.09);
   --green:#16a34a;--blue:#1d4ed8;
   --r:14px;--r-sm:8px;
-  --sans:'DM Sans',sans-serif;--syne:'Syne',sans-serif;
+  --sys-font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  --sans:var(--sys-font);--syne:var(--sys-font);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{font-size:13px}
@@ -123,12 +122,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 
 <nav class="topbar">
-  <div class="tb-logo-box">ALN</div>
+  <a class="tb-logo-box" href="home.html" style="text-decoration:none">ALN</a>
   <div class="tb-page">Thợ - Đội thi công</div>
-  <div class="tb-right">
-    <a class="tb-link" href="ncc-showcase.html"><i class="ph-duotone ph-storefront"></i>Mạng lưới</a>
-    <a class="tb-link" href="home.html"><i class="ph-duotone ph-house-line"></i>Trang chủ</a>
-  </div>
 </nav>
 
 <div class="hero">
