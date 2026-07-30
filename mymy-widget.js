@@ -212,11 +212,14 @@ if (!document.getElementById('mymy-btn')) {
       return;
     }
 
+    console.log('[MyMy DEBUG] sendClick: qua hết các điều kiện chặn, callAlnChat =', typeof callAlnChat);
     if (!callAlnChat) { addBot('Dạ hệ thống đang khởi động, anh/chị thử lại sau vài giây giúp em nha!'); return; }
 
     setSending(true);
     showTyping();
+    console.log('[MyMy DEBUG] sendClick: chuẩn bị gọi callAlnChat() lúc', new Date().toISOString());
     callAlnChat(text, S.history).then((res) => {
+      console.log('[MyMy DEBUG] callAlnChat() đã RESOLVE lúc', new Date().toISOString());
       removeTyping();
       addBot((res.reply || '').replace(/\n/g, '<br>'));
       S.history.push({ role: 'assistant', content: res.reply || '' });
@@ -226,6 +229,7 @@ if (!document.getElementById('mymy-btn')) {
         setTimeout(() => addBot('Để đội ngũ ALN liên hệ tư vấn kỹ hơn, ' + S.addr + ' để lại SĐT giúp em nha?'), 900);
       }
     }).catch((err) => {
+      console.log('[MyMy DEBUG] callAlnChat() đã REJECT lúc', new Date().toISOString(), '— message:', err && err.message);
       removeTyping();
       addBot('Dạ hệ thống đang bận, anh/chị thử lại sau ít phút giúp em nha!');
       console.error('MyMy lỗi:', err);
@@ -252,6 +256,7 @@ if (!document.getElementById('mymy-btn')) {
   autoOpenFromQuery();
 
   /* ── Kết nối Firebase (ẩn danh) — module con, không chặn phần UI ở trên ── */
+  console.log('[MyMy DEBUG] bắt đầu init Firebase lúc', new Date().toISOString());
   (async () => {
     try {
       const [{ app }, authMod, fnMod] = await Promise.all([
@@ -259,14 +264,21 @@ if (!document.getElementById('mymy-btn')) {
         import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js'),
         import('https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js'),
       ]);
+      console.log('[MyMy DEBUG] đã import xong firebase-config.js + firebase-auth.js + firebase-functions.js lúc', new Date().toISOString());
       const auth = authMod.getAuth(app);
       const functions = fnMod.getFunctions(app, 'asia-southeast1');
       const fnAlnChat = fnMod.httpsCallable(functions, 'alnChat');
       const fnUpsertContact = fnMod.httpsCallable(functions, 'upsertContact');
 
       let authReady = false;
-      authMod.signInAnonymously(auth).catch((e) => console.error('MyMy anon-auth lỗi:', e));
-      authMod.onAuthStateChanged(auth, (u) => { authReady = !!u; });
+      authMod.signInAnonymously(auth)
+        .then(() => console.log('[MyMy DEBUG] signInAnonymously() RESOLVE lúc', new Date().toISOString()))
+        .catch((e) => console.error('[MyMy DEBUG] signInAnonymously() REJECT:', e && e.code, e && e.message));
+      authMod.onAuthStateChanged(auth, (u) => {
+        console.log('[MyMy DEBUG] onAuthStateChanged (listener gốc) lúc', new Date().toISOString(), '— u =', u ? ('uid=' + u.uid + ' isAnonymous=' + u.isAnonymous) : null);
+        authReady = !!u;
+      });
+      console.log('[MyMy DEBUG] callAlnChat sắp được gán (setup xong) lúc', new Date().toISOString());
 
       const pageContext = (document.title || '').split('|')[0].trim().slice(0, 100);
 
@@ -288,24 +300,39 @@ if (!document.getElementById('mymy-btn')) {
         ]);
       }
 
+      /* ═══ LOG CHẨN ĐOÁN TẠM THỜI (prefix [MyMy DEBUG]) — xoá sau khi tìm ra
+         chỗ treo thật. Đánh dấu từng bước để xác định CHÍNH XÁC dòng nào
+         không bao giờ chạy tới, thay vì đoán tiếp (App Check/domain đã bị
+         loại trừ bằng bằng chứng Cloud Run log — 0 request tới alnChat
+         trong khi timeout 20s vẫn tự kích hoạt đúng lúc). ═══ */
       callAlnChat = async (text, history) => {
+        console.log('[MyMy DEBUG] callAlnChat() bắt đầu — authReady =', authReady);
         if (!authReady) {
+          console.log('[MyMy DEBUG] authReady=false, bắt đầu chờ onAuthStateChanged (tối đa 10s)...');
           await withTimeout(
             new Promise((resolve) => {
-              const unsub = authMod.onAuthStateChanged(auth, (u) => { if (u) { unsub(); resolve(); } });
+              const unsub = authMod.onAuthStateChanged(auth, (u) => {
+                console.log('[MyMy DEBUG] onAuthStateChanged fired trong lúc chờ — u =', u ? ('uid=' + u.uid + ' isAnonymous=' + u.isAnonymous) : null);
+                if (u) { unsub(); resolve(); }
+              });
             }),
             10000,
             'Hết thời gian chờ đăng nhập ẩn danh'
           );
+          console.log('[MyMy DEBUG] đã qua bước chờ auth (không timeout) lúc', new Date().toISOString());
         }
+        console.log('[MyMy DEBUG] chuẩn bị gọi fnAlnChat(...) lúc', new Date().toISOString(), '— auth.currentUser =', auth.currentUser ? ('uid=' + auth.currentUser.uid) : null);
+        const callPromise = fnAlnChat({
+          messages: history, agentName: 'MyMy', toUser: S.addr,
+          userName: null, role: null, pageContext,
+        });
+        console.log('[MyMy DEBUG] fnAlnChat(...) đã được GỌI (đã return Promise, SDK đang xử lý) lúc', new Date().toISOString());
         const res = await withTimeout(
-          fnAlnChat({
-            messages: history, agentName: 'MyMy', toUser: S.addr,
-            userName: null, role: null, pageContext,
-          }),
+          callPromise,
           20000,
           'Hết thời gian chờ phản hồi từ MyMy (có thể do App Check token bị chặn)'
         );
+        console.log('[MyMy DEBUG] fnAlnChat(...) đã SETTLE (có phản hồi thật từ server) lúc', new Date().toISOString());
         return res.data || {};
       };
       upsertContact = (phone) => {
