@@ -243,52 +243,10 @@ body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 footer{position:relative;z-index:1;text-align:center;padding:28px 20px;
   border-top:1px solid rgba(255,255,255,.05);font-size:11px;color:var(--mute);font-family:var(--mono)}
 
-/* ─── CHATBOT WIDGET ─── */
-#chatWidget{position:fixed;bottom:22px;right:22px;z-index:200;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
-#chatToggle{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#b8922e);
-  border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;
-  box-shadow:0 6px 24px rgba(201,168,76,.4);transition:transform .2s;flex-shrink:0}
-#chatToggle:hover{transform:scale(1.08)}
-#chatBox{display:none;flex-direction:column;background:var(--surface);border:1px solid var(--border);
-  border-radius:14px;width:320px;max-height:460px;box-shadow:0 16px 50px rgba(0,0,0,.6);overflow:hidden}
-#chatBox.open{display:flex}
-.chat-head{padding:14px 16px;background:var(--raised);border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.chat-head-left{display:flex;align-items:center;gap:9px}
-.chat-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#b8922e);
-  display:flex;align-items:center;justify-content:center;font-size:14px}
-.chat-head-name{font-size:13px;font-weight:700;color:var(--text1)}
-.chat-head-status{font-size:10px;color:var(--green);font-family:var(--mono)}
-#chatClose{background:none;border:none;color:var(--sub);cursor:pointer;font-size:16px;padding:2px}
-.chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;min-height:200px}
-.msg{max-width:86%;padding:9px 12px;border-radius:10px;font-size:12.5px;line-height:1.55}
-.msg.bot{background:var(--raised);border:1px solid var(--border);color:var(--text1);align-self:flex-start;border-radius:4px 10px 10px 10px}
-.msg.user{background:linear-gradient(135deg,rgba(201,168,76,.18),rgba(201,168,76,.08));
-  border:1px solid rgba(201,168,76,.3);color:var(--gold2);align-self:flex-end;border-radius:10px 4px 10px 10px}
-.msg a{color:var(--gold);text-decoration:underline}
-.typing{align-self:flex-start;padding:9px 14px;background:var(--raised);border:1px solid var(--border);
-  border-radius:4px 10px 10px 10px;display:flex;gap:5px;align-items:center}
-.typing span{width:6px;height:6px;border-radius:50%;background:var(--sub);animation:blink 1.2s infinite}
-.typing span:nth-child(2){animation-delay:.2s}
-.typing span:nth-child(3){animation-delay:.4s}
-@keyframes blink{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
-.chat-quick{padding:8px 12px;display:flex;gap:6px;flex-wrap:wrap;border-top:1px solid var(--border);flex-shrink:0}
-.qbtn{padding:5px 10px;background:var(--raised);border:1px solid var(--border);border-radius:99px;
-  font-size:11px;color:var(--sub);cursor:pointer;font-family:var(--sans);transition:all .12s;white-space:nowrap}
-.qbtn:hover{border-color:var(--gold);color:var(--gold)}
-.chat-input-row{padding:10px 12px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0}
-#chatInput{flex:1;background:var(--raised);border:1px solid var(--border);border-radius:7px;
-  padding:7px 11px;font-size:12.5px;color:var(--text1);font-family:var(--sans);outline:none;resize:none}
-#chatInput:focus{border-color:rgba(201,168,76,.4)}
-#chatSend{width:32px;height:32px;border-radius:7px;background:var(--gold);border:none;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;transition:all .15s}
-#chatSend:hover{background:var(--gold2)}
-
 @media(max-width:600px){
   .hero{padding:50px 16px 40px}
   .hero-stats{gap:24px}
   .section{padding:0 16px 40px}
-  #chatBox{width:calc(100vw - 36px)}
 }
 </style>
 <!-- Google Analytics 4 (ALN — G-5CSL1TF0RC, tách riêng khỏi property TK.HOUSE) -->
@@ -457,128 +415,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   © 2026 ALN Platform — Nền tảng theo dõi công trình xây dựng · <a href="login.html" style="color:var(--dim);text-decoration:none">Đăng nhập</a>
 </footer>
 
-<!-- CHATBOT WIDGET -->
-<div id="chatWidget">
-  <div id="chatBox">
-    <div class="chat-head">
-      <div class="chat-head-left">
-        <div class="chat-avatar">🤖</div>
-        <div>
-          <div class="chat-head-name">Trợ lý ALN</div>
-          <div class="chat-head-status">● Trực tuyến</div>
-        </div>
-      </div>
-      <button id="chatClose" onclick="toggleChat()">✕</button>
-    </div>
-    <div class="chat-msgs" id="chatMsgs"></div>
-    <div class="chat-quick" id="chatQuick">
-      <button class="qbtn" onclick="quickAsk('Đăng ký như thế nào?')">Đăng ký</button>
-      <button class="qbtn" onclick="quickAsk('Thu nhập bao nhiêu?')">Thu nhập</button>
-      <button class="qbtn" onclick="quickAsk('Yêu cầu KTS?')">Yêu cầu KTS</button>
-      <button class="qbtn" onclick="quickAsk('Quy trình dự án?')">Quy trình</button>
-    </div>
-    <div class="chat-input-row">
-      <textarea id="chatInput" rows="1" placeholder="Hỏi về KTS, DN, đăng ký..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"></textarea>
-      <button id="chatSend" onclick="sendChat()"><i class="ph-duotone ph-paper-plane-tilt"></i></button>
-    </div>
-  </div>
-  <button id="chatToggle" onclick="toggleChat()" title="Chat với trợ lý ALN">
-    <i class="ph-duotone ph-chats-circle" style="color:#fff" id="chatToggleIcon"></i>
-  </button>
-</div>
-
 <script>
-/* ─── CHATBOT ─── */
-var chatOpen = false;
-var chatBusy = false;
-
-var BOT_RULES = [
-  { kw:['xin chào','hello','chào','hi ','bắt đầu','giới thiệu','bạn là ai'], reply:'Xin chào! Tôi là trợ lý tuyển dụng của <b>ALN</b> — nền tảng kết nối Kiến trúc sư, Doanh nghiệp và Chủ nhà.<br><br>Tôi có thể giúp bạn tìm hiểu về các cơ hội nghề nghiệp, yêu cầu, thu nhập, và hướng dẫn đăng ký. Bạn muốn hỏi về vai trò nào?' },
-  { kw:['kts','kiến trúc sư','architect','thiết kế kiến trúc','kiến trúc'], reply:'<b>Kiến trúc sư (KTS)</b> trên ALN nhận dự án thiết kế công trình cao cấp theo 4 giai đoạn: C1 (Thiết kế cơ sở) → C2 (Triển khai) → C3 (Hồ sơ thi công) → C4 (Giám sát).<br><br>Thu nhập theo % tổng giá trị công trình, thanh toán escrow an toàn sau mỗi giai đoạn được duyệt.<br><br><a href="kts-apply.html">→ Đăng ký KTS ngay</a>' },
-  { kw:['dn','doanh nghiệp','nhà thầu','thi công','xây dựng','contractor','công ty xây'], reply:'<b>Doanh nghiệp thi công</b> trên ALN nhận công trình qua hệ thống — ALN phân công trình minh bạch theo khu vực và năng lực với Chủ nhà đã xác minh. Hệ thống quản lý tiến độ minh bạch, thanh toán escrow theo giai đoạn.<br><br>Yêu cầu: pháp nhân đầy đủ, ≥5 năm kinh nghiệm, hồ sơ năng lực.<br><br><a href="dn-studio.html">→ Đăng ký Doanh nghiệp</a>' },
-  { kw:['designer','nội thất','interior','thiết kế nội','trang trí','decor'], reply:'<b>Designer Nội thất</b> trên ALN thiết kế không gian sống cho Chủ nhà cao cấp — đa phong cách (Modern, Classic, Japandi, Scandinavian, Tropical…).<br><br>Dashboard riêng, quản lý dự án <code>DES-XXXX</code>, portfolio được xây dựng qua từng công trình.<br><br><a href="designer-apply.html">→ Đăng ký Designer NT</a>' },
-  { kw:['đăng ký','apply','tham gia','join','ứng tuyển','nộp hồ sơ','ứng tuyển'], reply:'Quy trình đăng ký 3 bước đơn giản:<br><br>• Điền thông tin + tải portfolio/hồ sơ<br>• Founder xét duyệt 24–48h<br>• Kích hoạt tài khoản + nhận dự án<br><br><b>Chọn vai trò:</b><br><a href="kts-apply.html">→ Đăng ký KTS</a><br><a href="dn-studio.html">→ Đăng ký Doanh nghiệp</a><br><a href="designer-apply.html">→ Đăng ký Designer NT</a>' },
-  { kw:['thu nhập','lương','tiền','phí','hoa hồng','bao nhiêu','pay','income','kiếm'], reply:'Thu nhập tính theo <b>% tổng giá trị công trình</b>, được thỏa thuận khi ký hợp đồng với Chủ nhà.<br><br>ALN sử dụng <b>escrow</b> — tiền được giữ an toàn và giải ngân theo từng giai đoạn hoàn thành và được duyệt. Không lo bị quỵt tiền.' },
-  { kw:['escrow','bảo đảm','an toàn','an toan','tin tưởng','trust','bảo vệ'], reply:'<b>Quy trình 4 bước đảm bảo</b>: Chủ nhà thanh toán trực tiếp cho ALN theo hợp đồng. KTS/DN nhận thanh toán ngay sau khi mỗi giai đoạn được Chủ nhà và founder duyệt hoàn thành — minh bạch, đúng hạn theo từng chặng C1–C4.' },
-  { kw:['quy trình','process','giai đoạn','stage','c1','c2','c3','c4','dự án diễn ra'], reply:'Dự án ALN chia <b>4 giai đoạn chuẩn</b>:<br><br>• <b>C1</b> — Thiết kế cơ sở (phương án, mặt bằng)<br>• <b>C2</b> — Triển khai chi tiết (kết cấu, kỹ thuật)<br>• <b>C3</b> — Hồ sơ thi công (bản vẽ đầy đủ)<br>• <b>C4</b> — Giám sát & hoàn công<br><br>Mỗi giai đoạn được Chủ nhà duyệt trước khi chuyển tiếp, escrow giải ngân tương ứng.' },
-  { kw:['yêu cầu','điều kiện','kinh nghiệm','năm','bằng cấp','chứng chỉ','requirement','cần gì','có cần'], reply:'Yêu cầu tối thiểu theo vai trò:<br><br><b>KTS:</b> Chứng chỉ hành nghề, ≥3 năm KN, portfolio ≥5 công trình, thành thạo phần mềm 3D.<br><br><b>Doanh nghiệp:</b> Pháp nhân đầy đủ, ≥5 năm thi công, hồ sơ năng lực ≥10 công trình.<br><br><b>Designer NT:</b> Portfolio ≥3 không gian hoàn chỉnh, ≥1 năm KN thực tế.' },
-  { kw:['chờ duyệt','bao lâu','khi nào','duyệt nhanh','pending','phê duyệt','thời gian'], reply:'Hồ sơ thường được xét duyệt trong <b>24–48 giờ làm việc</b>.<br><br>Sau khi duyệt, bạn sẽ nhận thông báo trực tiếp trên hệ thống và có thể đăng nhập ngay để hoàn thiện hồ sơ.' },
-  { kw:['liên hệ','contact','email','phone','zalo','hỏi thêm','tư vấn thêm'], reply:'Để liên hệ trực tiếp:<br><br>📧 <b>aln.platform@gmail.com</b><br>💬 Zalo OA: ALN Platform<br><br>Chúng tôi phản hồi trong vòng 24 giờ làm việc.' },
-  { kw:['portfolio','hồ sơ năng lực','năng lực','tài liệu','file','upload'], reply:'Khi đăng ký, bạn cần tải lên:<br><br>• <b>KTS:</b> avatar chuyên nghiệp + file portfolio PDF + ảnh công trình<br>• <b>DN:</b> logo + hồ sơ năng lực PDF + ảnh dự án tiêu biểu<br>• <b>Designer:</b> avatar + file portfolio + ảnh không gian đã thực hiện' },
-];
-
-function toggleChat(){
-  chatOpen = !chatOpen;
-  var box = document.getElementById('chatBox');
-  var icon = document.getElementById('chatToggleIcon');
-  box.classList.toggle('open', chatOpen);
-  icon.className = chatOpen ? 'ph-duotone ph-x' : 'ph-duotone ph-chats-circle';
-  if(chatOpen && document.getElementById('chatMsgs').children.length === 0){
-    botSay('Xin chào! 👋 Tôi là trợ lý tuyển dụng của <b>ALN</b>.<br>Tôi có thể giúp bạn tìm hiểu về cơ hội KTS, Doanh nghiệp, Designer — yêu cầu, thu nhập, quy trình đăng ký.<br><br>Bạn muốn hỏi gì?');
-  }
-}
-
-function botSay(html, delay){
-  delay = delay || 0;
-  var msgs = document.getElementById('chatMsgs');
-  var typing = document.createElement('div');
-  typing.className = 'typing';
-  typing.innerHTML = '<span></span><span></span><span></span>';
-  msgs.appendChild(typing);
-  msgs.scrollTop = msgs.scrollHeight;
-  setTimeout(function(){
-    typing.remove();
-    var div = document.createElement('div');
-    div.className = 'msg bot';
-    div.innerHTML = html;
-    msgs.appendChild(div);
-    msgs.scrollTop = msgs.scrollHeight;
-    chatBusy = false;
-  }, delay + 700 + Math.min(html.length * 8, 900));
-}
-
-function userSay(text){
-  var msgs = document.getElementById('chatMsgs');
-  var div = document.createElement('div');
-  div.className = 'msg user';
-  div.textContent = text;
-  msgs.appendChild(div);
-  msgs.scrollTop = msgs.scrollHeight;
-}
-
-function matchBot(text){
-  var t = text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
-  for(var i=0;i<BOT_RULES.length;i++){
-    var rule = BOT_RULES[i];
-    for(var j=0;j<rule.kw.length;j++){
-      var kw = rule.kw[j].normalize('NFD').replace(/[̀-ͯ]/g,'');
-      if(t.indexOf(kw) !== -1) return rule.reply;
-    }
-  }
-  return null;
-}
-
-function sendChat(){
-  if(chatBusy) return;
-  var inp = document.getElementById('chatInput');
-  var text = inp.value.trim();
-  if(!text) return;
-  inp.value = '';
-  chatBusy = true;
-  userSay(text);
-  var reply = matchBot(text);
-  if(reply){
-    botSay(reply);
-  } else {
-    botSay('Cảm ơn câu hỏi của bạn! 😊 Tôi có thể giúp về:<br><br>• <b>Đăng ký</b> KTS / Doanh nghiệp / Designer<br>• <b>Yêu cầu</b> hồ sơ và điều kiện<br>• <b>Thu nhập</b> và cơ chế escrow<br>• <b>Quy trình</b> dự án 4 giai đoạn<br><br>Bạn hỏi thử một trong các chủ đề trên nhé!');
-  }
-}
-
-function quickAsk(text){
-  document.getElementById('chatInput').value = text;
-  sendChat();
-}
-
 /* ─── POST FILTER ─── */
 var ALL_POSTS = [];
 var activeFilter = 'all';
@@ -686,5 +523,7 @@ async function loadPosts(){
 
 loadPosts();
 </script>
+
+<script type="module" src="mymy-widget.js"></script>
 </body>
 </html>
