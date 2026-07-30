@@ -4158,7 +4158,11 @@ window.cnInitMymyFlow = function(){
       else addMM('Em tóm tắt lại thông tin để ' + (honorific || 'bạn') + ' xác nhận trước khi gửi ạ:');
     } else {
       hideConfirm();
-      if(data.reply) addMM(data.reply.replace(/\n/g,'<br>'));
+      var _mmHtml = data.reply ? data.reply.replace(/\n/g,'<br>') : '';
+      if(data.suggestion && data.suggestion.url){
+        _mmHtml += (_mmHtml ? '<br><br>' : '') + '<a href="' + data.suggestion.url + '" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:20px;background:rgba(22,163,74,.08);border:1px solid rgba(22,163,74,.3);color:#16a34a;font-size:12.5px;font-weight:600;text-decoration:none">' + data.suggestion.label + ' →</a>';
+      }
+      if(_mmHtml) addMM(_mmHtml);
       if(data.chips && data.chips.length) showChips(data.chips);
     }
   }
