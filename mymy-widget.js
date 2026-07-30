@@ -97,7 +97,7 @@ if (!document.getElementById('mymy-btn')) {
   /* ── State ── */
   const S = {
     history: [], opened: false, userTurns: 0, askedPhone: false, addr: 'bạn',
-    shownSuggestKeys: new Set(),
+    shownSuggestKeys: new Set(), sending: false,
   };
 
   const $msgs = document.getElementById('mymy-msgs');
@@ -184,7 +184,18 @@ if (!document.getElementById('mymy-btn')) {
 
   let callAlnChat = null, ensureAuth = null, upsertContact = null;
 
+  /* Khoá gửi trong lúc đang chờ phản hồi — chặn double-submit nếu người
+     dùng bấm Enter/click gửi nhiều lần liên tiếp (mạng chậm, sốt ruột...). */
+  function setSending(on){
+    S.sending = on;
+    const btn = document.getElementById('mymy-send');
+    const input = document.getElementById('mymy-input');
+    if (btn) btn.disabled = on;
+    if (input) input.disabled = on;
+  }
+
   function sendClick(){
+    if (S.sending) return;
     const input = document.getElementById('mymy-input');
     const text = input.value.trim();
     if (!text) return;
@@ -203,6 +214,7 @@ if (!document.getElementById('mymy-btn')) {
 
     if (!callAlnChat) { addBot('Dạ hệ thống đang khởi động, anh/chị thử lại sau vài giây giúp em nha!'); return; }
 
+    setSending(true);
     showTyping();
     callAlnChat(text, S.history).then((res) => {
       removeTyping();
@@ -217,6 +229,9 @@ if (!document.getElementById('mymy-btn')) {
       removeTyping();
       addBot('Dạ hệ thống đang bận, anh/chị thử lại sau ít phút giúp em nha!');
       console.error('MyMy lỗi:', err);
+    }).finally(() => {
+      setSending(false);
+      document.getElementById('mymy-input').focus();
     });
   }
   document.getElementById('mymy-send').addEventListener('click', sendClick);
@@ -257,9 +272,15 @@ if (!document.getElementById('mymy-btn')) {
 
       callAlnChat = async (text, history) => {
         if (!authReady) {
-          await new Promise((resolve) => {
-            const unsub = authMod.onAuthStateChanged(auth, (u) => { if (u) { unsub(); resolve(); } });
-          });
+          // Chờ đăng nhập ẩn danh xong, nhưng KHÔNG chờ vô thời hạn — nếu
+          // signInAnonymously bị chặn (mạng, ad-block...) thì phải rơi vào
+          // catch() của sendClick() thay vì treo giao diện (3 chấm mãi mãi).
+          await Promise.race([
+            new Promise((resolve) => {
+              const unsub = authMod.onAuthStateChanged(auth, (u) => { if (u) { unsub(); resolve(); } });
+            }),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Hết thời gian chờ đăng nhập ẩn danh')), 10000)),
+          ]);
         }
         const res = await fnAlnChat({
           messages: history, agentName: 'MyMy', toUser: S.addr,
