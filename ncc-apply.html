@@ -272,7 +272,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <option value="son_hoanthien">Sơn, vật liệu hoàn thiện</option>
         <option value="thietbi_vanchuyen">Thiết bị & vận chuyển</option>
         <option value="sat_thep_vlxd">Sắt thép, Gạch, VLXD</option>
-        <option value="dv_thicong">Thợ - Đội thi công</option>
         <option value="khac">Vật liệu khác</option>
       </select>
     </div>
@@ -384,12 +383,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 var currentStep = 1;
 var generatedUsername = '';
 
-/* Pre-chọn danh mục khi tới từ link có ?cat= (vd tho-thi-cong.html →
-   ncc-apply.html?cat=dv_thicong) — đỡ 1 bước, tránh người xem bấm nhầm
-   danh mục khác vì không tìm thấy mục của mình ngay. */
+/* Pre-chọn danh mục khi tới từ link có ?cat= — đỡ 1 bước, tránh người xem
+   bấm nhầm danh mục khác vì không tìm thấy mục của mình ngay.
+   ?cat=dv_thicong (link cũ từ tho-thi-cong.html/marketing đã đăng trước
+   31/07/2026) redirect THẲNG sang tho-giu-cho.html — danh mục "Thợ - Đội
+   thi công" đã dời hẳn sang form giữ chỗ nhẹ riêng (ALN_SPEC_THO_GIU_CHO_NHAP.md,
+   thay thế hoàn toàn đường đăng ký nặng qua form này), không còn trong dropdown
+   #f_category nữa nên phải chặn ở đây trước khi form render ra cho người dùng thấy. */
 (function preselectCategory(){
   try {
     var cat = new URLSearchParams(location.search).get('cat') || '';
+    if (cat === 'dv_thicong') { location.replace('tho-giu-cho.html'); return; }
     if (!/^[a-z_]+$/.test(cat)) return;
     var sel = document.getElementById('f_category');
     var ok = sel && Array.prototype.some.call(sel.options, function(o){ return o.value === cat; });
