@@ -1967,6 +1967,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <option value="designer_ung_tuyen">Designer ứng tuyển</option>
         <option value="ks_ung_tuyen">KS Vùng ứng tuyển</option>
         <option value="ncc_ung_tuyen">NCC ứng tuyển</option>
+        <option value="tho_ung_tuyen">Thợ/Đội thi công</option>
       </select>
       <select id="ctFilterTrangThai" onchange="ctApplyFilter()" style="padding:7px 10px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--text2);font-size:12px;font-family:var(--sans)">
         <option value="">Tất cả trạng thái</option>
@@ -1998,6 +1999,8 @@ document.addEventListener('DOMContentLoaded', function() {
       <button onclick="ctOpenManualModal()" style="padding:7px 14px;background:var(--gold-bg);border:1px solid var(--gold-bd);border-radius:7px;font-size:12px;font-weight:700;color:var(--gold);cursor:pointer;font-family:var(--sans)"><i class="ph-duotone ph-plus"></i> Thêm liên hệ</button>
       <button onclick="ctExportCsv()" style="padding:7px 14px;background:var(--raised);border:1px solid var(--border);border-radius:7px;font-size:12px;font-weight:600;color:var(--sub);cursor:pointer;font-family:var(--sans)"><i class="ph-duotone ph-download-simple"></i> Xuất CSV</button>
       <button onclick="ctOpenTagModal()" style="padding:7px 14px;background:var(--raised);border:1px solid var(--border);border-radius:7px;font-size:12px;font-weight:600;color:var(--sub);cursor:pointer;font-family:var(--sans)"><i class="ph-duotone ph-tag"></i> Gắn nhãn chiến dịch</button>
+      <button onclick="ctMigrateTho(true)" title="Xem trước — chưa ghi gì vào contacts" style="padding:7px 14px;background:var(--raised);border:1px solid var(--border);border-radius:7px;font-size:12px;font-weight:600;color:var(--sub);cursor:pointer;font-family:var(--sans)"><i class="ph-duotone ph-magnifying-glass"></i> Xem trước migrate Thợ cũ</button>
+      <button onclick="ctMigrateTho(false)" title="Ghi thật vào contacts — không xoá nccApplications cũ" style="padding:7px 14px;background:var(--gold-bg);border:1px solid var(--gold-bd);border-radius:7px;font-size:12px;font-weight:700;color:var(--gold);cursor:pointer;font-family:var(--sans)"><i class="ph-duotone ph-arrows-left-right"></i> Chạy migrate Thợ cũ (dv_thicong)</button>
     </div>
   </div>
 
@@ -2029,6 +2032,13 @@ document.addEventListener('DOMContentLoaded', function() {
       <textarea id="ctHistoryNote" rows="2" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--raised);color:var(--text1);font-family:var(--sans);font-size:12.5px;resize:vertical"></textarea>
       <button onclick="ctSaveNote()" style="margin-top:6px;padding:6px 12px;background:var(--gold-bg);border:1px solid var(--gold-bd);border-radius:6px;font-size:11.5px;font-weight:700;color:var(--gold);cursor:pointer;font-family:var(--sans)">Lưu ghi chú</button>
     </div>
+    <div id="ctThoDetail" style="display:none;margin-bottom:14px;padding:12px 14px;background:var(--raised);border:1px solid var(--border);border-radius:10px">
+      <div style="font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#f97316;margin-bottom:8px">Chi tiết Thợ/Đội thi công</div>
+      <div id="ctThoFields" style="font-size:12.5px;color:var(--text2);line-height:1.7;margin-bottom:10px"></div>
+      <div id="ctThoGallery" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"></div>
+      <button id="ctThoVerifyBtn" onclick="ctVerifyTho()" style="padding:7px 14px;background:var(--green-bg,rgba(21,128,61,.1));border:1px solid rgba(21,128,61,.3);border-radius:7px;font-size:12px;font-weight:700;color:var(--green);cursor:pointer;font-family:var(--sans)"><i class="ph-duotone ph-seal-check"></i> Đánh dấu đã xác minh</button>
+      <span id="ctThoVerifiedNote" style="display:none;font-size:12px;color:var(--green);font-weight:600"><i class="ph-duotone ph-check-circle"></i> Đã xác minh — hiện trong Mạng lưới công khai</span>
+    </div>
     <div id="ctHistoryTimeline" style="display:flex;flex-direction:column;gap:8px"></div>
   </div>
 </div>
@@ -2050,6 +2060,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <option value="designer_ung_tuyen">Designer ứng tuyển</option>
       <option value="ks_ung_tuyen">KS Vùng ứng tuyển</option>
       <option value="ncc_ung_tuyen">NCC ứng tuyển</option>
+      <option value="tho_ung_tuyen">Thợ/Đội thi công</option>
     </select>
     <label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Nguồn</label>
     <select id="ctmNguon" style="width:100%;padding:9px 11px;border-radius:8px;border:1px solid var(--border);background:var(--raised);color:var(--text1);font-family:var(--sans);font-size:13px;margin-bottom:14px">
@@ -7632,11 +7643,19 @@ window.saveCompanySettings = async function() {
     khach_hang: 'Khách hàng', kts_ung_tuyen: 'KTS ứng tuyển', dien_dan: 'Diễn đàn',
     dn_ung_tuyen: 'DN ứng tuyển', designer_ung_tuyen: 'Designer ứng tuyển',
     ks_ung_tuyen: 'KS Vùng ứng tuyển', ncc_ung_tuyen: 'NCC ứng tuyển',
+    tho_ung_tuyen: 'Thợ/Đội thi công',
   };
   var CT_LOAI_COLOR = {
     khach_hang: 'var(--green)', kts_ung_tuyen: 'var(--amber)', dien_dan: 'var(--blue)',
     dn_ung_tuyen: 'var(--blue)', designer_ung_tuyen: '#a78bfa',
     ks_ung_tuyen: 'var(--gold)', ncc_ung_tuyen: 'var(--gold)',
+    tho_ung_tuyen: '#f97316',
+  };
+  var CT_NGHE_LABEL = { dien_nuoc: 'Điện nước', son: 'Sơn', chong_tham: 'Chống thấm', moc: 'Mộc', khac: 'Khác' };
+  var CT_KHUVUC_LABEL = {
+    HCM: 'TP. Hồ Chí Minh', HN: 'Hà Nội', DN: 'Đà Nẵng', CT: 'Cần Thơ', HP: 'Hải Phòng',
+    BD: 'Bình Dương', DNai: 'Đồng Nai', 'BR-VT': 'Bà Rịa – Vũng Tàu', LA: 'Long An',
+    TG: 'Tiền Giang', KH: 'Khánh Hòa', BDinh: 'Bình Định', NA: 'Nghệ An', TH: 'Thanh Hóa', OTHER: 'Tỉnh khác',
   };
   var CT_STATUS_LABEL = {
     moi:'Mới', da_lien_he:'Đã liên hệ', da_chuyen_doi:'Đã chuyển đổi',
@@ -7817,6 +7836,33 @@ window.saveCompanySettings = async function() {
     CT_HISTORY_ID = id;
     document.getElementById('ctHistoryTitle').textContent = (it.name||'—') + ' · ' + it.phone_normalized;
     document.getElementById('ctHistoryNote').value = it.ghi_chu || '';
+
+    var thoBox = document.getElementById('ctThoDetail');
+    if(it.loai_lien_he === 'tho_ung_tuyen'){
+      thoBox.style.display = 'block';
+      document.getElementById('ctThoFields').innerHTML =
+        '<div>Khu vực: <b style="color:var(--text1)">'+(CT_KHUVUC_LABEL[it.khu_vuc]||it.khu_vuc||'—')+'</b></div>' +
+        '<div>Nghề: <b style="color:var(--text1)">'+(CT_NGHE_LABEL[it.nghe]||it.nghe||'—')+'</b></div>';
+      var gallery = Array.isArray(it.anh_cong_trinh) ? it.anh_cong_trinh : [];
+      document.getElementById('ctThoGallery').innerHTML = gallery.length === 0
+        ? '<span style="font-size:11.5px;color:var(--dim)">Không có ảnh/clip kèm theo.</span>'
+        : gallery.map(function(u){
+            var isVid = /\.(mp4|mov|webm)(\?|$)/i.test(u) || u.indexOf('video') !== -1;
+            return '<a href="'+u+'" target="_blank" rel="noopener" style="display:block;width:70px;height:70px;border-radius:8px;overflow:hidden;border:1px solid var(--border)">' +
+              (isVid
+                ? '<div style="width:100%;height:100%;background:var(--bg);display:flex;align-items:center;justify-content:center;color:var(--sub)"><i class="ph-duotone ph-play-circle" style="font-size:22px"></i></div>'
+                : '<img src="'+u+'" style="width:100%;height:100%;object-fit:cover" alt="">') +
+            '</a>';
+          }).join('');
+      var verifyBtn = document.getElementById('ctThoVerifyBtn');
+      var verifiedNote = document.getElementById('ctThoVerifiedNote');
+      var isVerified = it.trang_thai === 'da_duyet';
+      verifyBtn.style.display = isVerified ? 'none' : 'inline-flex';
+      verifiedNote.style.display = isVerified ? 'inline-flex' : 'none';
+    } else {
+      thoBox.style.display = 'none';
+    }
+
     var timeline = (it.lich_su_nguon||[]).slice().sort(function(a,b){ return (b.thoi_gian||0)-(a.thoi_gian||0); });
     var html = '';
     if(timeline.length === 0) html = '<div style="color:var(--dim);font-size:12.5px">Chưa có lịch sử.</div>';
@@ -7840,6 +7886,38 @@ window.saveCompanySettings = async function() {
       document.getElementById('ctHistoryModal').style.display = 'none';
     } catch(e) {
       alert('Lỗi lưu ghi chú: ' + (e.message||e));
+    }
+  };
+
+  window.ctVerifyTho = async function(){
+    if(!CT_HISTORY_ID) return;
+    if(!confirm('Xác nhận đã liên hệ Zalo và đồng ý đưa Thợ/Đội thi công này vào Mạng lưới công khai?')) return;
+    try {
+      await ctCallFn('founderVerifyTho', { id: CT_HISTORY_ID });
+      var it = CT_ITEMS.filter(function(x){ return x.id === CT_HISTORY_ID; })[0];
+      if(it) it.trang_thai = 'da_duyet';
+      document.getElementById('ctThoVerifyBtn').style.display = 'none';
+      document.getElementById('ctThoVerifiedNote').style.display = 'inline-flex';
+      ctRenderTable();
+    } catch(e) {
+      alert('Lỗi đánh dấu đã xác minh: ' + (e.message||e));
+    }
+  };
+
+  window.ctMigrateTho = async function(dryRun){
+    var label = dryRun ? 'xem trước' : 'CHẠY THẬT (ghi vào contacts)';
+    if(!dryRun && !confirm('Xác nhận chạy migrate thật? Sẽ ghi bản ghi mới vào contacts cho từng Thợ/Đội thi công cũ (category dv_thicong) — KHÔNG xoá dữ liệu gốc trong nccApplications.')) return;
+    try {
+      var res = await ctCallFn('founderMigrateDvThicongToContacts', { dryRun: dryRun !== false });
+      if(res.dryRun){
+        var lines = (res.preview||[]).map(function(p){ return '· ' + (p.name||'(không tên)') + ' — ' + p.phone + ' — ' + (p.province||'—'); }).join('\n');
+        alert('Xem trước migrate (' + label + '):\nTổng nccApplications dv_thicong: ' + res.total + '\nBỏ qua (thiếu SĐT): ' + res.skipped + '\nSẽ ghi vào contacts: ' + (res.preview||[]).length + '\n\n' + (lines || '(không có bản ghi nào)'));
+      } else {
+        alert('Đã chạy migrate thật:\nTổng: ' + res.total + '\nĐã ghi vào contacts: ' + res.migrated + '\nBỏ qua (thiếu SĐT): ' + res.skipped + '\nLỗi: ' + (res.errors||[]).length + (res.errors && res.errors.length ? ('\n' + res.errors.map(function(e){ return e.id+': '+e.error; }).join('\n')) : ''));
+        initContactsPanel();
+      }
+    } catch(e) {
+      alert('Lỗi migrate (' + label + '): ' + (e.message||e));
     }
   };
 
