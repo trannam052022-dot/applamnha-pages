@@ -113,6 +113,61 @@ textarea:focus,input:focus{border-color:rgba(152,105,10,.4)}
 .ph-spin{animation:phspin 1s linear infinite;display:inline-block}
 @keyframes phspin{to{transform:rotate(360deg)}}
 @media(max-width:480px){.field-row{grid-template-columns:1fr}.price-row{grid-template-columns:1fr 70px 34px;grid-template-areas:"item unit del" "price price price"}}
+
+/* ── Bản đơn giản cho Thợ/Đội thi công — chữ to, dễ bấm, ưu tiên điện thoại ── */
+.hero-progress{background:var(--card);border:1px solid var(--border-g);border-radius:var(--r);padding:18px 20px;margin-bottom:16px;box-shadow:var(--sh)}
+.hp-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;gap:10px}
+.hp-label{font-family:var(--syne);font-size:16px;font-weight:700;color:var(--text)}
+.hp-pct{font-family:var(--syne);font-size:20px;font-weight:800;color:var(--gold);flex-shrink:0}
+.hp-track{height:10px;border-radius:99px;background:var(--bg2);overflow:hidden}
+.hp-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#98690a,#b8860b);transition:width .3s ease}
+.hp-sub{font-size:13px;color:var(--muted);margin-top:8px}
+.hp-bricks{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);font-size:14px;color:var(--text2)}
+.hp-bricks b{color:var(--gold);font-family:var(--mono)}
+.hp-diamond{align-items:center;gap:4px;color:#0891b2;font-weight:700}
+.hp-next{font-size:12px;color:var(--muted)}
+.hp-pending{font-size:12px;color:var(--green);font-weight:700}
+
+.id-card{background:var(--card);border:1px solid var(--border-g);border-radius:var(--r);padding:16px 20px;margin-bottom:16px;box-shadow:var(--sh)}
+.id-name{font-family:var(--syne);font-size:16px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.id-name i{color:var(--gold)}
+
+.main-card{background:var(--card);border:1px solid var(--border-g);border-radius:16px;padding:22px 20px;margin-bottom:16px;box-shadow:var(--sh)}
+.main-card-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.main-card-icon{width:44px;height:44px;border-radius:12px;background:rgba(152,105,10,.1);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.main-card-title{font-family:var(--syne);font-size:18px;font-weight:800;color:var(--text);line-height:1.25}
+.main-card-desc{font-size:16px;color:var(--text2);line-height:1.6;margin-bottom:16px}
+.main-card .field label{font-size:16px;margin-bottom:8px}
+.main-card input[type=text],.main-card input[type=url],.main-card input[type=number]{font-size:18px;padding:14px 16px;border-radius:10px}
+.btn-xl{display:flex;width:100%;align-items:center;justify-content:center;gap:9px;padding:16px 20px;border-radius:12px;font-family:var(--syne);font-size:17px;font-weight:800;cursor:pointer;border:none;min-height:52px}
+.btn-xl.btn-gold{background:linear-gradient(135deg,#98690a,#b8860b);color:#fff}
+.btn-xl.btn-gold:hover{filter:brightness(1.08)}
+.link-box{display:flex;gap:12px;flex-direction:column}
+.link-box input{font-family:var(--mono);font-size:14px;padding:14px 16px;letter-spacing:-.01em}
+.main-card .gal-grid{grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:12px}
+.main-card .gal-item img,.main-card .gal-add{height:104px}
+.main-card .gal-add{font-size:13px}
+
+.price-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px}
+.price-card input{margin-bottom:10px}
+.price-card input:last-of-type{margin-bottom:0}
+.price-card-item{font-weight:600}
+.price-card-row2{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center}
+.price-card-row2 input{margin-bottom:0 !important}
+.price-card .price-del{width:44px;height:44px;flex-shrink:0}
+
+.accordion{background:var(--card);border:1px solid var(--border-g);border-radius:var(--r);overflow:hidden;margin-bottom:16px;box-shadow:var(--sh)}
+.accordion-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:18px 20px;background:none;border:none;cursor:pointer;font-family:var(--syne);font-size:16px;font-weight:700;color:var(--text);text-align:left}
+.accordion-toggle .acc-left{display:flex;align-items:center;gap:10px}
+.accordion-toggle .acc-left i{color:var(--gold);font-size:20px}
+.accordion-toggle .acc-chevron{color:var(--muted);transition:transform .25s;font-size:18px;flex-shrink:0}
+.accordion-panel{display:none;padding:0 20px 20px}
+.accordion-panel.open{display:block}
+.accordion-sub{padding-top:18px;border-top:1px solid var(--border);margin-top:18px}
+.accordion-sub:first-child{border-top:none;margin-top:0;padding-top:0}
+.accordion-sub-title{font-family:var(--syne);font-size:14px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:7px;margin-bottom:10px}
+.accordion-sub-title i{color:var(--gold)}
+@media(max-width:600px){.price-card-row2{grid-template-columns:1fr 1fr auto}}
 </style>
 <!-- Google Analytics 4 (ALN — G-5CSL1TF0RC, tách riêng khỏi property TK.HOUSE) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-5CSL1TF0RC"></script>
@@ -224,6 +279,7 @@ import {
 } from './firebase-config.js';
 
 const MAX_IMAGES = 12;
+const GALLERY_UI_MAX = 5; // giới hạn hiển thị/thêm mới trong bản đơn giản — MAX_IMAGES giữ nguyên làm trần an toàn khi lưu, tránh mất ảnh cũ của ai đã có >5 ảnh từ trước
 const MAX_IMG_MB = 8;
 const MAX_PDF_MB = 15;
 const MAX_VIDEOS = 5;
@@ -235,6 +291,17 @@ let DATA = null;          // bản nháp đang chỉnh (gallery/intro/pdf/priceL
 let USER_PROFILE = null;  // users/{uid} — alnBricks/alnDiamonds sống ở đây, không phải nccApplications
 let dirty = false;
 let pendingProductIdx = null;
+let accordionOpen = false; // trạng thái mở/đóng khối "Thêm thông tin (không bắt buộc)" — giữ nguyên qua các lần render()
+
+window.toggleAdvanced = function(){
+  accordionOpen = !accordionOpen;
+  const panel = document.getElementById('advPanel');
+  const btn = document.getElementById('advToggle');
+  const chevron = document.getElementById('advChevron');
+  if(panel) panel.classList.toggle('open', accordionOpen);
+  if(btn) btn.setAttribute('aria-expanded', String(accordionOpen));
+  if(chevron) chevron.style.transform = accordionOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+};
 
 window.nccLogout = async function(){
   try { await signOut(auth); } catch(e){}
@@ -307,15 +374,19 @@ window.removeVideo = function(i){
   render();
 };
 
-/* ── Bảng giá tham khảo (NCC tự nhập, ALN không thẩm định) ── */
+/* ── Giá nhân công/vật tư tham khảo (NCC/thợ tự nhập, ALN không thẩm định).
+   Bản đơn giản: mỗi dòng là 1 khối riêng, xếp dọc, dễ chạm trên điện thoại
+   — thay cho layout 4-cột chật hẹp trước đây. ── */
 function priceRowsHtml(){
   const rows = Array.isArray(DATA.priceList) ? DATA.priceList : [];
   let html = rows.map(function(p, i){
-    return '<div class="price-row">'
-      + '<input type="text" placeholder="Hạng mục — VD: Thép hộp 40x80" value="' + escH(p.item || '') + '" oninput="setPriceField(' + i + ',\'item\',this.value)">'
-      + '<input type="text" placeholder="ĐVT" value="' + escH(p.unit || '') + '" oninput="setPriceField(' + i + ',\'unit\',this.value)">'
-      + '<input type="number" min="0" placeholder="Giá (đ)" value="' + (p.price != null ? p.price : '') + '" oninput="setPriceField(' + i + ',\'price\',this.value)">'
-      + '<button class="price-del" onclick="removePriceRow(' + i + ')" title="Xoá dòng"><i class="ph-duotone ph-trash"></i></button>'
+    return '<div class="price-card">'
+      + '<input type="text" class="price-card-item" placeholder="VD: Nhân công xây tô, nhân công hoàn thiện…" value="' + escH(p.item || '') + '" oninput="setPriceField(' + i + ',\'item\',this.value)">'
+      + '<div class="price-card-row2">'
+        + '<input type="text" placeholder="ĐVT (m², ngày công…)" value="' + escH(p.unit || '') + '" oninput="setPriceField(' + i + ',\'unit\',this.value)">'
+        + '<input type="number" min="0" placeholder="Giá (đ)" value="' + (p.price != null ? p.price : '') + '" oninput="setPriceField(' + i + ',\'price\',this.value)">'
+        + '<button class="price-del" onclick="removePriceRow(' + i + ')" title="Xoá dòng"><i class="ph-duotone ph-trash"></i></button>'
+      + '</div>'
     + '</div>';
   }).join('');
   return html;
@@ -334,7 +405,7 @@ window.addPriceRow = function(){
   DATA.priceList.push({ item: '', unit: '', price: null });
   markDirty();
   render();
-  const rows = document.querySelectorAll('#priceRows .price-row input');
+  const rows = document.querySelectorAll('#priceRows .price-card input');
   if(rows.length) rows[rows.length - 3].focus();
 };
 
@@ -447,6 +518,13 @@ function calcCompletion(d){
 
 function render(){
   const d = DATA;
+  // Bản đơn giản: luôn có sẵn ít nhất 2 dòng giá trống để gõ ngay — không
+  // bắt thợ phải tìm nút "+" trước khi nhập được gì (không ảnh hưởng dữ
+  // liệu đã lưu: dòng trống bị lọc bỏ khi bấm "Lưu thay đổi").
+  if(!Array.isArray(d.priceList) || d.priceList.length === 0){
+    d.priceList = [{ item: '', unit: '', price: null }, { item: '', unit: '', price: null }];
+  }
+
   const statusChip = d.status === 'approved'
     ? '<span class="status-chip status-approved"><i class="ph-duotone ph-seal-check"></i>Đã duyệt — gian hàng đang công khai</span>'
     : '<span class="status-chip status-pending"><i class="ph-duotone ph-clock"></i>Chờ Founder duyệt — gian hàng chưa hiển thị công khai</span>';
@@ -462,15 +540,6 @@ function render(){
   }
 
   const comp = calcCompletion(d);
-  const checklistHtml = comp.items.map(function(it){
-    return '<span class="check-item ' + (it.done ? 'done' : 'todo') + '"><i class="ph-duotone ' + (it.done ? 'ph-check-circle' : 'ph-circle-dashed') + '"></i>' + escH(it.label) + '</span>';
-  }).join('');
-  const progressHtml =
-    '<div class="progress-wrap">'
-      + '<div class="progress-head"><span class="hint" style="margin:0">Mức độ hoàn thiện hồ sơ</span><span class="progress-pct">' + comp.pct + '%</span></div>'
-      + '<div class="progress-track"><div class="progress-fill" style="width:' + comp.pct + '%"></div></div>'
-      + '<div class="check-list">' + checklistHtml + '</div>'
-    + '</div>';
 
   const gallery = Array.isArray(d.gallery) ? d.gallery : [];
   let galHtml = gallery.map(function(g, i){
@@ -480,9 +549,9 @@ function render(){
           : '<button class="btn-cover" onclick="setCover(' + i + ')"><i class="ph-duotone ph-star"></i>Đặt làm bìa</button>')
       + '<button class="gal-del" onclick="removeImage(' + i + ')" title="Xoá ảnh">✕</button></div>';
   }).join('');
-  if(gallery.length < MAX_IMAGES){
+  if(gallery.length < GALLERY_UI_MAX){
     galHtml += '<button class="gal-add" onclick="document.getElementById(\'imgInput\').click()">'
-      + '<i class="ph-duotone ph-plus-circle"></i>Thêm ảnh<span style="font-size:9px;font-weight:400">(' + gallery.length + '/' + MAX_IMAGES + ')</span></button>';
+      + '<i class="ph-duotone ph-plus-circle"></i>Thêm ảnh<span style="font-size:9px;font-weight:400">(' + gallery.length + '/' + GALLERY_UI_MAX + ')</span></button>';
   }
 
   const pdfHtml = d.catalogPdfUrl
@@ -492,100 +561,101 @@ function render(){
       + '<button class="btn btn-ghost btn-sm" style="color:var(--red)" onclick="removePdf()">Gỡ</button></div>'
     : '<button class="btn btn-ghost" onclick="document.getElementById(\'pdfInput\').click()"><i class="ph-duotone ph-upload-simple"></i>Tải catalog PDF (tối đa ' + MAX_PDF_MB + 'MB)</button>';
 
-  const priceRows = Array.isArray(d.priceList) ? d.priceList : [];
-
   document.getElementById('content').innerHTML =
-    '<div class="card">'
-      + '<div class="card-title"><i class="ph-duotone ph-storefront"></i>' + escH(d.name || 'Gian hàng') + '</div>'
+    // ── Thanh tiến độ đơn giản + dòng Gạch gọn (thay khối "Gạch & Kim
+    //    Cương ALN" to trước đây) ──
+    '<div class="hero-progress">'
+      + '<div class="hp-row"><span class="hp-label">Gian hàng hoàn thiện</span><span class="hp-pct">' + comp.pct + '%</span></div>'
+      + '<div class="hp-track"><div class="hp-fill" style="width:' + comp.pct + '%"></div></div>'
+      + '<div class="hp-sub">Hoàn thiện hồ sơ để khách tin tưởng hơn</div>'
+      + '<div class="hp-bricks">'
+        + '<span id="alnTierIcon">🧱</span>'
+        + '<span><b id="alnBricksCount">0</b> Gạch — hạng <b id="alnTierName">Nền Móng</b></span>'
+        + '<span id="alnDiamondsWrap" class="hp-diamond" style="display:none"><i class="ph-duotone ph-diamond"></i><span id="alnDiamondsCount">0</span></span>'
+        + '<span class="hp-next" id="alnTierNext" style="width:100%"></span>'
+        + '<span class="hp-pending" id="alnPendingVndWrap" style="display:none;width:100%"></span>'
+      + '</div>'
+    + '</div>'
+
+    + '<div class="id-card">'
+      + '<div class="id-name"><i class="ph-duotone ph-storefront"></i>' + escH(d.name || 'Gian hàng') + '</div>'
       + statusChip
       + '<div class="badge-row">' + badges + '</div>'
-      + (d.status === 'approved' ? '<div class="hint" style="margin:10px 0 0">Hạng và trạng thái xác minh do Founder xét duyệt — không tự đổi được. Bạn tự quản lý nội dung bên dưới.</div>' : '')
-      + progressHtml
+      + (d.status === 'approved' ? '<div class="hint" style="margin-top:10px">Hạng và trạng thái xác minh do Founder xét duyệt — không tự đổi được.</div>' : '')
     + '</div>'
 
-    + '<div class="card" id="alnBricksCard">'
-      + '<div class="card-title"><i class="ph-duotone ph-trophy"></i>Gạch &amp; Kim Cương ALN</div>'
-      + '<div class="hint">Tích Gạch khi có khách đăng ký qua link giới thiệu, hoàn thiện gian hàng và các mốc khác — đổi được ưu đãi hiển thị trong ALN.</div>'
-      + '<div style="display:flex;align-items:center;justify-content:space-between;margin:10px 0 6px">'
-        + '<div style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:6px">'
-          + '<span id="alnTierIcon">🧱</span> <span id="alnTierName">Nền Móng</span>'
-        + '</div>'
-        + '<div id="alnDiamondsWrap" style="display:none;font-size:12px;font-weight:700;color:#0891b2;align-items:center;gap:4px">'
-          + '<i class="ph-duotone ph-diamond"></i> <span id="alnDiamondsCount">0</span>'
-        + '</div>'
+    // ── 3 việc chính — card lớn, dễ bấm ──
+    + '<div class="main-card">'
+      + '<div class="main-card-head"><div class="main-card-icon"><i class="ph-duotone ph-share-network"></i></div><div class="main-card-title">Link giới thiệu của bạn</div></div>'
+      + '<div class="main-card-desc">Gửi link này cho khách — khách ký hợp đồng, bạn nhận thưởng <b style="color:var(--gold)">15%</b> tiền đợt đầu.</div>'
+      + '<div class="link-box">'
+        + '<input type="text" id="fRefLink" readonly value="' + escH(location.origin + '/register.html?ref=' + UID) + '">'
+        + '<button class="btn-xl btn-gold" onclick="copyRefLink()"><i class="ph-duotone ph-copy"></i>Sao chép link</button>'
       + '</div>'
-      + '<div id="alnHouseWrap" style="color:var(--gold);margin:4px 0 8px;text-align:center"></div>'
-      + '<div style="display:flex;align-items:baseline;gap:6px;margin-bottom:8px">'
-        + '<span id="alnBricksCount" style="font-size:22px;font-weight:700;color:var(--text)">0</span>'
-        + '<span style="font-size:11px;color:var(--muted)">Gạch</span>'
-      + '</div>'
-      + '<div style="height:6px;border-radius:99px;background:var(--bg2);overflow:hidden">'
-        + '<div id="alnTierBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--gold),#d4a017);border-radius:99px;transition:width .4s"></div>'
-      + '</div>'
-      + '<div id="alnTierNext" style="font-size:11px;color:var(--muted);margin-top:6px">Cần thêm Gạch để lên hạng tiếp theo</div>'
-      + '<div id="alnPendingVndWrap" style="display:none;font-size:11px;color:var(--green);margin-top:8px;font-weight:700"></div>'
+      + '<div class="main-card-desc" style="margin:14px 0 0;font-size:14px">Đã giới thiệu: <b style="color:var(--gold)">' + (d.referralCount || 0) + '</b> khách đăng ký</div>'
     + '</div>'
 
-    + '<div class="card">'
-      + '<div class="card-title"><i class="ph-duotone ph-users-three"></i>Giới thiệu khách hàng</div>'
-      + '<div class="hint">Gặp khách đang xây nhà chưa có bản vẽ thiết kế? Gửi link này — nếu khách đăng ký và ký hợp đồng thiết kế thật với ALN, bạn được thưởng <b>15% tiền đợt thanh toán đầu (C1)</b> bằng tiền mặt, Founder liên hệ chi trả trực tiếp.</div>'
-      + '<div class="field-row">'
-        + '<div class="field" style="flex:1"><label>Link giới thiệu của bạn</label><input type="text" id="fRefLink" readonly value="' + escH(location.origin + '/register.html?ref=' + UID) + '"></div>'
-        + '<button class="btn btn-ghost" onclick="copyRefLink()" style="align-self:flex-end"><i class="ph-duotone ph-copy"></i>Copy link</button>'
-      + '</div>'
-      + '<div class="hint" style="margin-top:10px">Đã giới thiệu: <b style="color:var(--gold)">' + (d.referralCount || 0) + '</b> khách đăng ký</div>'
-    + '</div>'
-
-    + '<div class="card">'
-      + '<div class="card-title"><i class="ph-duotone ph-text-align-left"></i>Giới thiệu gian hàng</div>'
-      + '<div class="hint">Mô tả mặt hàng chủ lực, thế mạnh, khu vực giao hàng… Nội dung này hiện công khai trên trang gian hàng của bạn.</div>'
-      + '<textarea id="fIntro" maxlength="1000" placeholder="VD: Chuyên sắt thép xây dựng chính hãng Hòa Phát, Pomina — giao tận công trình khu vực Bình Dương, Đồng Nai trong 24h…">' + escH(d.intro || d.bio || '') + '</textarea>'
-      + '<div class="char-count"><span id="introCount">' + String((d.intro || d.bio || '').length) + '</span> / 1000</div>'
-    + '</div>'
-
-    + '<div class="card">'
-      + '<div class="card-title"><i class="ph-duotone ph-address-book"></i>Liên hệ bổ sung</div>'
-      + '<div class="hint">Số điện thoại/địa chỉ đã lấy từ hồ sơ đăng ký. Bổ sung thêm Zalo (nếu khác SĐT). Chưa có website riêng cũng không sao — gian hàng này trên ALN đóng vai trò trang giới thiệu của bạn; nếu đã có website riêng, dán link vào ô bên dưới để khách xem thêm.</div>'
-      + '<div class="field-row">'
-        + '<div class="field"><label>Zalo</label><input type="text" id="fZalo" placeholder="0901 234 567" value="' + escH(d.zalo || '') + '"></div>'
-        + '<div class="field"><label>Website riêng (nếu có)</label><input type="url" id="fWebsite" placeholder="https://tencuahang.vn" value="' + escH(d.website || '') + '"></div>'
-      + '</div>'
-      + '<div class="field" style="margin-top:14px"><label>Địa chỉ hiển thị công khai</label><input type="text" id="fAddress" placeholder="Số nhà, đường, quận/huyện…" value="' + escH(d.address || '') + '"></div>'
-      + '<div class="hint" style="margin-top:14px;background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.2);border-radius:8px;padding:10px 12px">Yêu cầu: nếu có website riêng, vui lòng đặt 1 link trên website đó trỏ về đúng hồ sơ ALN của bạn (ví dụ trong footer hoặc mục "Liên kết") — giúp gian hàng bạn dễ được Google tìm thấy hơn.<br>Link cần dán: <code style="user-select:all">https://applamnha.vn/ncc_profile.html?uid=' + UID + '</code></div>'
-      + '<label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13px;cursor:pointer"><input type="checkbox" id="fBacklinkConfirmed"' + (d.backlinkConfirmed ? ' checked' : '') + '> Tôi đã gắn link về hồ sơ ALN trên website của mình</label>'
-    + '</div>'
-
-    + '<div class="card">'
-      + '<div class="card-title"><i class="ph-duotone ph-tag"></i>Bảng giá tham khảo</div>'
-      + '<div class="hint">Giá do bạn tự nhập, hiển thị công khai kèm dòng "giá tham khảo, có thể thay đổi". Bỏ trống nếu chưa muốn công bố giá.</div>'
-      + '<div id="priceRows">' + priceRowsHtml() + '</div>'
-      + '<button class="btn btn-ghost btn-sm" onclick="addPriceRow()"><i class="ph-duotone ph-plus"></i>Thêm dòng giá</button>'
-    + '</div>'
-
-    + '<div class="card">'
-      + '<div class="card-title"><i class="ph-duotone ph-package"></i>Sản phẩm nổi bật</div>'
-      + '<div class="hint">Đăng từng sản phẩm/thiết bị riêng biệt kèm ảnh, tên, giá — phù hợp khi bạn có nhiều mặt hàng khác nhau (VD: cơ điện, thiết bị công trình). Tối đa ' + MAX_PRODUCTS + ' sản phẩm.</div>'
-      + '<div class="prod-grid" id="prodGrid">' + productsHtml() + '</div>'
-      + '<input type="file" id="prodImgInput" accept="image/*" style="display:none">'
-    + '</div>'
-
-    + '<div class="card">'
-      + '<div class="card-title"><i class="ph-duotone ph-images"></i>Ảnh sản phẩm (bộ sưu tập chung)</div>'
-      + '<div class="hint">Ảnh tổng quan xưởng/kho/công trình — khác với ảnh riêng của từng sản phẩm ở trên. Tối đa ' + MAX_IMAGES + ' ảnh, mỗi ảnh ≤ ' + MAX_IMG_MB + 'MB. Ảnh đầu tiên dùng làm ảnh đại diện gian hàng.</div>'
+    + '<div class="main-card">'
+      + '<div class="main-card-head"><div class="main-card-icon"><i class="ph-duotone ph-images"></i></div><div class="main-card-title">Thêm ảnh công trình đã làm</div></div>'
+      + '<div class="main-card-desc">Thêm tối đa <b>5 ảnh</b> công trình đẹp nhất — khách xem ảnh thật sẽ tin tưởng hơn nhiều. Ảnh đầu tiên dùng làm ảnh đại diện.</div>'
       + '<div class="gal-grid" id="galGrid">' + galHtml + '</div>'
       + '<input type="file" id="imgInput" accept="image/*" multiple style="display:none">'
     + '</div>'
 
-    + '<div class="card">'
-      + '<div class="card-title"><i class="ph-duotone ph-book-open"></i>Catalog PDF</div>'
-      + pdfHtml
-      + '<input type="file" id="pdfInput" accept="application/pdf" style="display:none">'
+    + '<div class="main-card">'
+      + '<div class="main-card-head"><div class="main-card-icon"><i class="ph-duotone ph-tag"></i></div><div class="main-card-title">Giá nhân công tham khảo</div></div>'
+      + '<div class="main-card-desc">Ghi giá 2-3 hạng mục phổ biến nhất — khách xem sơ bộ, giá tham khảo có thể trao đổi thêm khi gặp trực tiếp.</div>'
+      + '<div id="priceRows">' + priceRowsHtml() + '</div>'
+      + '<button class="btn btn-ghost btn-sm" onclick="addPriceRow()"><i class="ph-duotone ph-plus"></i>Thêm dòng giá</button>'
     + '</div>'
 
-    + '<div class="card">'
-      + '<div class="card-title"><i class="ph-duotone ph-video"></i>Video giới thiệu</div>'
-      + '<div class="hint">Dán link video YouTube, TikTok hoặc Facebook của bạn (tối đa ' + MAX_VIDEOS + ' video). Lưu ý: video Facebook phải để chế độ <b>Công khai</b> mới phát được.</div>'
-      + videosHtml()
+    // ── Tuỳ chọn thêm — thu gọn accordion, mặc định đóng ──
+    + '<div class="accordion">'
+      + '<button type="button" class="accordion-toggle" id="advToggle" onclick="toggleAdvanced()" aria-expanded="' + (accordionOpen ? 'true' : 'false') + '">'
+        + '<span class="acc-left"><i class="ph-duotone ph-plus-circle"></i>Thêm thông tin (không bắt buộc)</span>'
+        + '<i class="ph-duotone ph-caret-down acc-chevron" id="advChevron" style="transform:' + (accordionOpen ? 'rotate(180deg)' : 'rotate(0deg)') + '"></i>'
+      + '</button>'
+      + '<div class="accordion-panel' + (accordionOpen ? ' open' : '') + '" id="advPanel">'
+
+        + '<div class="accordion-sub">'
+          + '<div class="accordion-sub-title"><i class="ph-duotone ph-text-align-left"></i>Giới thiệu gian hàng</div>'
+          + '<div class="hint">Mô tả mặt hàng chủ lực, thế mạnh, khu vực giao hàng… Nội dung này hiện công khai trên trang gian hàng của bạn.</div>'
+          + '<textarea id="fIntro" maxlength="1000" placeholder="VD: Chuyên sắt thép xây dựng chính hãng Hòa Phát, Pomina — giao tận công trình khu vực Bình Dương, Đồng Nai trong 24h…">' + escH(d.intro || d.bio || '') + '</textarea>'
+          + '<div class="char-count"><span id="introCount">' + String((d.intro || d.bio || '').length) + '</span> / 1000</div>'
+        + '</div>'
+
+        + '<div class="accordion-sub">'
+          + '<div class="accordion-sub-title"><i class="ph-duotone ph-address-book"></i>Liên kết bổ sung</div>'
+          + '<div class="hint">Số điện thoại/địa chỉ đã lấy từ hồ sơ đăng ký. Bổ sung thêm Zalo (nếu khác SĐT). Chưa có website riêng cũng không sao — gian hàng này trên ALN đóng vai trò trang giới thiệu của bạn; nếu đã có website riêng, dán link vào ô bên dưới để khách xem thêm.</div>'
+          + '<div class="field-row">'
+            + '<div class="field"><label>Zalo</label><input type="text" id="fZalo" placeholder="0901 234 567" value="' + escH(d.zalo || '') + '"></div>'
+            + '<div class="field"><label>Website riêng (nếu có)</label><input type="url" id="fWebsite" placeholder="https://tencuahang.vn" value="' + escH(d.website || '') + '"></div>'
+          + '</div>'
+          + '<div class="field" style="margin-top:14px"><label>Địa chỉ hiển thị công khai</label><input type="text" id="fAddress" placeholder="Số nhà, đường, quận/huyện…" value="' + escH(d.address || '') + '"></div>'
+          + '<div class="hint" style="margin-top:14px;background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.2);border-radius:8px;padding:10px 12px">Yêu cầu: nếu có website riêng, vui lòng đặt 1 link trên website đó trỏ về đúng hồ sơ ALN của bạn (ví dụ trong footer hoặc mục "Liên kết") — giúp gian hàng bạn dễ được Google tìm thấy hơn.<br>Link cần dán: <code style="user-select:all">https://applamnha.vn/ncc_profile.html?uid=' + UID + '</code></div>'
+          + '<label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13px;cursor:pointer"><input type="checkbox" id="fBacklinkConfirmed"' + (d.backlinkConfirmed ? ' checked' : '') + '> Tôi đã gắn link về hồ sơ ALN trên website của mình</label>'
+        + '</div>'
+
+        + '<div class="accordion-sub">'
+          + '<div class="accordion-sub-title"><i class="ph-duotone ph-package"></i>Sản phẩm/thiết bị bán theo mặt hàng (nếu có)</div>'
+          + '<div class="hint">Dành cho ai bán nhiều mặt hàng riêng biệt kèm ảnh/giá (VD: cơ điện, thiết bị công trình) — không bắt buộc với ảnh công trình đã thêm ở trên. Tối đa ' + MAX_PRODUCTS + ' sản phẩm.</div>'
+          + '<div class="prod-grid" id="prodGrid">' + productsHtml() + '</div>'
+          + '<input type="file" id="prodImgInput" accept="image/*" style="display:none">'
+        + '</div>'
+
+        + '<div class="accordion-sub">'
+          + '<div class="accordion-sub-title"><i class="ph-duotone ph-book-open"></i>Catalog PDF</div>'
+          + pdfHtml
+          + '<input type="file" id="pdfInput" accept="application/pdf" style="display:none">'
+        + '</div>'
+
+        + '<div class="accordion-sub">'
+          + '<div class="accordion-sub-title"><i class="ph-duotone ph-video"></i>Video giới thiệu</div>'
+          + '<div class="hint">Dán link video YouTube, TikTok hoặc Facebook của bạn (tối đa ' + MAX_VIDEOS + ' video). Lưu ý: video Facebook phải để chế độ <b>Công khai</b> mới phát được.</div>'
+          + videosHtml()
+        + '</div>'
+
+      + '</div>'
     + '</div>'
 
     + '<div class="save-bar">'
@@ -616,7 +686,7 @@ async function onPickImages(ev){
   if(!files.length) return;
   const gallery = Array.isArray(DATA.gallery) ? DATA.gallery : (DATA.gallery = []);
   for(const f of files){
-    if(gallery.length >= MAX_IMAGES){ showToast('Đã đạt tối đa ' + MAX_IMAGES + ' ảnh', true); break; }
+    if(gallery.length >= GALLERY_UI_MAX){ showToast('Đã đạt tối đa ' + GALLERY_UI_MAX + ' ảnh — xoá bớt ảnh cũ nếu muốn thêm ảnh mới', true); break; }
     if(!f.type.startsWith('image/')){ showToast('Chỉ nhận file ảnh', true); continue; }
     if(f.size > MAX_IMG_MB * 1024 * 1024){ showToast('Ảnh "' + f.name + '" vượt ' + MAX_IMG_MB + 'MB', true); continue; }
     showToast('Đang tải ảnh lên… (' + f.name + ')');
