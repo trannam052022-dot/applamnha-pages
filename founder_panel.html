@@ -2731,7 +2731,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <!-- Benefits -->
       <div>
         <label style="font-size:11px;font-weight:700;color:var(--sub);display:block;margin-bottom:6px;letter-spacing:.08em">QUYỀN LỢI <span style="font-weight:400;text-transform:none">(mỗi dòng = 1 quyền lợi)</span></label>
-        <textarea id="rBenefits" rows="4" placeholder="Thu nhập theo % giá trị công trình&#10;Thanh toán escrow an toàn&#10;Mạng lưới khách hàng VIP..." style="width:100%;background:var(--raised);border:1px solid var(--border);border-radius:7px;padding:9px 12px;font-size:12.5px;color:var(--text1);font-family:var(--sans);resize:vertical;outline:none;line-height:1.6"></textarea>
+        <textarea id="rBenefits" rows="4" placeholder="Thu nhập theo % giá trị công trình&#10;VD: Bước nào cũng nhận tiền, đúng tiến độ&#10;Mạng lưới khách hàng VIP..." style="width:100%;background:var(--raised);border:1px solid var(--border);border-radius:7px;padding:9px 12px;font-size:12.5px;color:var(--text1);font-family:var(--sans);resize:vertical;outline:none;line-height:1.6"></textarea>
       </div>
     </div>
     <div style="padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px">
@@ -5294,15 +5294,15 @@ var _rTabFilter = 'all';
 var RECRUIT_TEMPLATES = {
   kts: {
     title: 'Tuyển Kiến trúc sư Thiết kế Dân dụng – Dự án Cao cấp',
-    body:  'ALN đang tìm kiếm KTS có đam mê sáng tạo, tham gia thiết kế các công trình biệt thự, nhà phố cao cấp cho Chủ nhà. Dự án minh bạch 4 giai đoạn, thanh toán escrow đảm bảo.',
+    body:  'ALN đang tìm kiếm KTS có đam mê sáng tạo, tham gia thiết kế các công trình biệt thự, nhà phố cao cấp cho Chủ nhà. Dự án minh bạch 4 giai đoạn, thanh toán theo 4 chặng — làm xong chặng nào nhận chặng đó.',
     reqs:  'Chứng chỉ hành nghề kiến trúc sư\nTối thiểu 3 năm kinh nghiệm thiết kế dân dụng\nPortfolio ≥5 công trình thực tế\nThành thạo SketchUp / Lumion / Revit\nTrách nhiệm, tận tâm với dự án',
-    bens:  'Thu nhập theo % tổng giá trị dự án — cạnh tranh\nThanh toán escrow an toàn, đúng tiến độ\nChủ nhà được founder ALN giới thiệu trực tiếp\nCơ hội mở rộng mạng lưới khách hàng VIP\nHỗ trợ tư vấn pháp lý và hợp đồng'
+    bens:  'Thu nhập theo % tổng giá trị dự án — cạnh tranh\nBước nào cũng nhận tiền, đúng tiến độ\nChủ nhà được founder ALN giới thiệu trực tiếp\nCơ hội mở rộng mạng lưới khách hàng VIP\nHỗ trợ tư vấn pháp lý và hợp đồng'
   },
   dn: {
     title: 'Tìm kiếm Đối tác Doanh nghiệp Thi công – Hợp tác Dài hạn',
     body:  'ALN hợp tác với Doanh nghiệp xây dựng uy tín để thi công công trình dân dụng cao cấp. Kết nối trực tiếp với Chủ nhà đã xác minh, quản lý tiến độ minh bạch qua hệ thống số.',
     reqs:  'Pháp nhân đầy đủ (ĐKKD, MST)\nTối thiểu 5 năm kinh nghiệm thi công\nHồ sơ năng lực ≥10 công trình\nĐội kỹ thuật ổn định, có giám sát công trình\nCam kết tiến độ và bảo hành',
-    bens:  'Đối tác dự án được founder giới thiệu trực tiếp\nThanh toán theo tiến độ escrow\nBáo cáo tiến độ số hóa, realtime\nXây dựng uy tín qua đánh giá từ Chủ nhà VIP\nCơ hội hợp tác dài hạn với hệ sinh thái ALN'
+    bens:  'Đối tác dự án được founder giới thiệu trực tiếp\nThanh toán theo tiến độ 4 chặng C1–C4\nBáo cáo tiến độ số hóa, realtime\nXây dựng uy tín qua đánh giá từ Chủ nhà VIP\nCơ hội hợp tác dài hạn với hệ sinh thái ALN'
   },
   designer: {
     title: 'Tuyển Designer Nội thất – Dự án Nhà ở Cao cấp',
@@ -7989,13 +7989,13 @@ window.saveCompanySettings = async function() {
       var goal = document.getElementById('mktAdGoal').value;
       var svc = document.getElementById('mktAdService').value;
       var usp = document.getElementById('mktAdUsp').value.trim();
-      return 'Tạo kịch bản quảng cáo Facebook/Google cho ALN:\n- Mục tiêu: '+goal+'\n- Dịch vụ: '+svc+'\n- Điểm mạnh: '+(usp || 'tổng thầu trách nhiệm, KTS có CCHN, thanh toán minh bạch theo C1–C4')+'\nYêu cầu:\n1. Primary text (150-200 từ)\n2. Headline (tối đa 40 ký tự)\n3. Description (30 ký tự)\n4. Gợi ý loại nút CTA nên dùng';
+      return 'Tạo kịch bản quảng cáo Facebook/Google cho ALN:\n- Mục tiêu: '+goal+'\n- Dịch vụ: '+svc+'\n- Điểm mạnh: '+(usp || 'nhà thầu tư vấn thiết kế, ký hợp đồng trực tiếp, thanh toán theo 4 chặng C1–C4')+'\nYêu cầu:\n1. Primary text (150-200 từ)\n2. Headline (tối đa 40 ký tự)\n3. Description (30 ký tự)\n4. Gợi ý loại nút CTA nên dùng';
     }
     if(MKT_KIND === 'reply'){
       var rtype = document.getElementById('mktReplyType').value;
       var info = document.getElementById('mktReplyInfo').value.trim();
       var channel = document.getElementById('mktReplyChannel').value;
-      return 'Viết '+rtype+' cho ALN qua kênh '+channel+'.'+(info ? '\nThông tin khách: '+info : '')+'\nYêu cầu: tự nhiên, thuyết phục, chuyên nghiệp, đúng chất tổng thầu trách nhiệm.';
+      return 'Viết '+rtype+' cho ALN qua kênh '+channel+'.'+(info ? '\nThông tin khách: '+info : '')+'\nYêu cầu: tự nhiên, thuyết phục, chuyên nghiệp, đúng chất nhà thầu tư vấn thiết kế, chịu trách nhiệm trên hợp đồng.';
     }
     return document.getElementById('mktFreeQ').value.trim();
   }
