@@ -290,7 +290,7 @@ body {
 .sb-c3 { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-bd); }
 .sb-c4 { background: rgba(167,139,250,.1); color: var(--purple); border: 1px solid rgba(167,139,250,.25); }
 
-/* Column: Frozen */
+/* .col-money: không còn dùng trong markup sau khi gỡ cột "Tiền đóng băng" (02/08/2026) — giữ lại class phòng khi cần định dạng tiền tệ dạng tương tự sau này */
 .col-money {
   font-family: var(--mono); font-size: 12px; font-weight: 600;
   color: var(--text1); letter-spacing: -.3px;
@@ -377,9 +377,6 @@ body {
   .data-table th { padding: 7px 8px; font-size: 8px; }
   .data-table td { padding: 8px 8px; }
 
-  /* Ẩn cột ít quan trọng trên mobile */
-  .data-table th:nth-child(5),
-  .data-table td:nth-child(5) { display: none; } /* frozen */
 
   /* Drawer: full width bottom sheet */
   .drawer {
@@ -1067,7 +1064,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
         <div style="font-family:var(--mono);font-size:36px;font-weight:700;color:var(--text1);line-height:1" id="stat-dn-total">0</div>
         <div style="font-size:11px;color:var(--sub);margin-top:4px">Tổng tổ chức / công ty</div>
-        <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
           <div style="background:var(--raised);border-radius:6px;padding:8px;text-align:center">
             <div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--blue)" id="stat-dn-active">0</div>
             <div style="font-size:9px;color:var(--dim);margin-top:2px">Đang hoạt động</div>
@@ -1075,10 +1072,6 @@ document.addEventListener('DOMContentLoaded', function() {
           <div style="background:var(--raised);border-radius:6px;padding:8px;text-align:center">
             <div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--green)" id="stat-dn-projects">0</div>
             <div style="font-size:9px;color:var(--dim);margin-top:2px">Tổng dự án</div>
-          </div>
-          <div style="background:var(--raised);border-radius:6px;padding:8px;text-align:center">
-            <div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--cyan)" id="stat-dn-escrow">0</div>
-            <div style="font-size:9px;color:var(--dim);margin-top:2px">Escrow (M)</div>
           </div>
         </div>
         <!-- Mini bar chart -->
@@ -1124,7 +1117,7 @@ document.addEventListener('DOMContentLoaded', function() {
   </div><!-- end heroCards -->
 
   <!-- ── TỔNG HỢP NHANH ── -->
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
     <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;display:flex;align-items:center;gap:12px">
       <i class="ph-duotone ph-users" style="font-size:20px;color:var(--blue);width:24px;text-align:center"></i>
       <div><div style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--text1)" id="stat-total-users">0</div><div style="font-size:10px;color:var(--dim)">Tổng người dùng</div></div>
@@ -1132,10 +1125,6 @@ document.addEventListener('DOMContentLoaded', function() {
     <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;display:flex;align-items:center;gap:12px">
       <i class="ph-duotone ph-file-text" style="font-size:20px;color:var(--gold);width:24px;text-align:center"></i>
       <div><div style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--text1)" id="stat-total-projects">0</div><div style="font-size:10px;color:var(--dim)">Tổng dự án</div></div>
-    </div>
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;display:flex;align-items:center;gap:12px">
-      <i class="ph-duotone ph-lock" style="font-size:20px;color:var(--amber);width:24px;text-align:center"></i>
-      <div><div style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--text1)" id="stat-total-escrow">0</div><div style="font-size:10px;color:var(--dim)">Escrow đang giữ</div></div>
     </div>
     <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;display:flex;align-items:center;gap:12px">
       <i class="ph-duotone ph-star" style="font-size:20px;color:var(--gold);width:24px;text-align:center"></i>
@@ -1179,7 +1168,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <thead><tr style="background:var(--raised)">
           <th class="acc-th">Tổ chức</th><th class="acc-th" style="text-align:center">Dự án</th>
           <th class="acc-th" style="text-align:center">Đang chạy</th><th class="acc-th" style="text-align:right">Tổng GTV</th>
-          <th class="acc-th" style="text-align:right">Escrow</th><th class="acc-th" style="text-align:center">KTS liên kết</th>
+          <th class="acc-th" style="text-align:center">KTS liên kết</th>
           <th class="acc-th" style="text-align:center">Trạng thái</th>
         </tr></thead>
         <tbody id="statDnBody"></tbody>
@@ -1200,7 +1189,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <table style="width:100%;border-collapse:collapse">
         <thead><tr style="background:var(--raised)">
           <th class="acc-th">Chủ nhà</th><th class="acc-th">Dự án</th>
-          <th class="acc-th" style="text-align:center">Chặng</th><th class="acc-th" style="text-align:center">Escrow</th>
+          <th class="acc-th" style="text-align:center">Chặng</th>
           <th class="acc-th" style="text-align:center">Trạng thái</th>
         </tr></thead>
         <tbody id="statCnBody"></tbody>
@@ -1241,7 +1230,7 @@ document.addEventListener('DOMContentLoaded', function() {
   <div class="stat-cell s-done" onclick="setFilter('DONE')">
     <div class="sc-label"><i class="ph-duotone ph-check-circle" style="color:var(--green)"></i> Hoàn thành</div>
     <div class="sc-val" id="cnt-done">00</div>
-    <div class="sc-sub">Đã giải ngân</div>
+    <div class="sc-sub">Đã thanh toán</div>
   </div>
 </div>
 
@@ -1294,12 +1283,11 @@ document.addEventListener('DOMContentLoaded', function() {
         <th onclick="sortTable('cn')">KHÁCH HÀNG <i class="ph-duotone ph-arrows-down-up" style="font-size:.85em;opacity:.6"></i></th>
         <th onclick="sortTable('kts')">CTV THIẾT KẾ <i class="ph-duotone ph-arrows-down-up" style="font-size:.85em;opacity:.6"></i></th>
         <th onclick="sortTable('stage')">CHẶNG HIỆN TẠI <i class="ph-duotone ph-arrows-down-up" style="font-size:.85em;opacity:.6"></i></th>
-        <th onclick="sortTable('frozen')">TIỀN ĐÓNG BĂNG <i class="ph-duotone ph-arrows-down-up" style="font-size:.85em;opacity:.6"></i></th>
         <th onclick="sortTable('status')">TRẠNG THÁI <i class="ph-duotone ph-arrows-down-up" style="font-size:.85em;opacity:.6"></i></th>
         <th>HÀNH ĐỘNG</th>
       </tr>
     </thead>
-    <tbody id="tableBody"><tr><td colspan="7" style="text-align:center;padding:40px;color:var(--mute)"><i class="ph-duotone ph-spinner-gap ph-spin"></i> Đang tải dữ liệu...</td></tr></tbody>
+    <tbody id="tableBody"><tr><td colspan="6" style="text-align:center;padding:40px;color:var(--mute)"><i class="ph-duotone ph-spinner-gap ph-spin"></i> Đang tải dữ liệu...</td></tr></tbody>
   </table>
 </div>
 
@@ -1358,7 +1346,6 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="dn-kpi"><div class="dk-l"><i class="ph-duotone ph-folders"></i> Tổng dự án</div><div class="dk-v" style="color:var(--blue)" id="mgDnV2">0</div></div>
     <div class="dn-kpi"><div class="dk-l">▶ Đang chạy</div><div class="dk-v" style="color:var(--cyan)" id="mgDnV3">0</div></div>
     <div class="dn-kpi" style="flex:2"><div class="dk-l">Tổng GTV</div><div class="dk-v" style="color:var(--gold)" id="mgDnV4">0</div></div>
-    <div class="dn-kpi" style="flex:2"><div class="dk-l">Escrow đang giữ</div><div class="dk-v" style="color:var(--amber)" id="mgDnV5">0</div></div>
   </div>
   <div style="display:flex;align-items:center;gap:8px;padding:10px 20px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap">
     <div style="display:flex;align-items:center;gap:7px;background:var(--raised);border:1px solid var(--border);border-radius:8px;padding:6px 12px;flex:1;min-width:180px;max-width:320px">
@@ -1378,7 +1365,6 @@ document.addEventListener('DOMContentLoaded', function() {
         <th style="padding:9px 14px;text-align:center;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim)">Dự án</th>
         <th style="padding:9px 14px;text-align:center;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim)">Đang chạy</th>
         <th style="padding:9px 14px;text-align:right;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim)">Tổng GTV</th>
-        <th style="padding:9px 14px;text-align:right;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim)">Escrow</th>
         <th style="padding:9px 14px;text-align:center;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim)">KTS liên kết</th>
         <th style="padding:9px 14px;text-align:center;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim)">Trạng thái</th>
         <th style="padding:9px 14px;text-align:center;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim)">Thao tác</th>
@@ -1396,7 +1382,6 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="dn-kpi"><div class="dk-l">⏰ SLA cảnh báo</div><div class="dk-v" style="color:var(--amber)" id="mgCnV2">0</div></div>
     <div class="dn-kpi"><div class="dk-l"><i class="ph-duotone ph-x-circle" style="color:#ef4444"></i> Tranh chấp</div><div class="dk-v" style="color:var(--red)" id="mgCnV3">0</div></div>
     <div class="dn-kpi"><div class="dk-l"><i class="ph-duotone ph-check-circle" style="color:var(--green)"></i> Hoàn thành</div><div class="dk-v" style="color:var(--sub)" id="mgCnV4">0</div></div>
-    <div class="dn-kpi" style="flex:2"><div class="dk-l">Tổng Escrow đóng băng</div><div class="dk-v" style="color:var(--gold)" id="mgCnV5">0</div></div>
   </div>
   <div style="display:flex;align-items:center;gap:8px;padding:10px 20px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap">
     <div style="display:flex;align-items:center;gap:7px;background:var(--raised);border:1px solid var(--border);border-radius:8px;padding:6px 12px;flex:1;min-width:180px;max-width:320px">
@@ -1420,7 +1405,6 @@ document.addEventListener('DOMContentLoaded', function() {
         <th style="padding:9px 14px;text-align:center;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim)">Chặng</th>
         <th style="padding:9px 14px;text-align:left;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim)">Tiến độ</th>
         <th style="padding:9px 14px;text-align:right;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim)">Tổng HĐ</th>
-        <th style="padding:9px 14px;text-align:right;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim)">Escrow</th>
         <th style="padding:9px 14px;text-align:center;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim)">Trạng thái</th>
         <th style="padding:9px 14px;text-align:center;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim)">Thao tác</th>
       </tr></thead>
@@ -1679,7 +1663,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div id="panelPayments" style="display:none;flex-direction:column;flex:1;overflow-y:auto">
   <div style="padding:16px 20px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0;display:flex;align-items:center;justify-content:space-between">
     <div>
-      <div style="font-size:11px;font-weight:700;color:var(--dim);letter-spacing:.14em;text-transform:uppercase;margin-bottom:3px">ESCROW & GIẢI NGÂN</div>
+      <div style="font-size:11px;font-weight:700;color:var(--dim);letter-spacing:.14em;text-transform:uppercase;margin-bottom:3px">THANH TOÁN</div>
       <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--text1)">Xác nhận Thanh toán KTS & Designer</div>
     </div>
     <div style="display:flex;gap:8px">
@@ -2855,12 +2839,6 @@ document.addEventListener('DOMContentLoaded', function() {
           <input id="cp_fee" type="number" placeholder="125000000" min="0" style="width:100%;background:var(--raised);border:1px solid var(--border);color:var(--text1);padding:9px 12px;border-radius:7px;font-family:var(--mono);font-size:13px;outline:none" oninput="cpUpdateFeePreview()">
           <div id="cp_fee_preview" style="font-size:11px;color:var(--sub);margin-top:4px;font-family:var(--mono)"></div>
         </div>
-        <div>
-          <label style="display:block;font-size:11px;font-weight:700;color:var(--amber);letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px">Escrow đóng băng (VND)</label>
-          <input id="cp_escrow" type="number" placeholder="75000000" min="0" style="width:100%;background:var(--raised);border:1px solid var(--amber-bd);color:var(--text1);padding:9px 12px;border-radius:7px;font-family:var(--mono);font-size:13px;outline:none" oninput="cpUpdateFeePreview()">
-          <div id="cp_escrow_preview" style="font-size:11px;color:var(--amber);margin-top:4px;font-family:var(--mono)"></div>
-        </div>
-        <div style="grid-column:1/-1;font-size:10px;color:var(--sub);font-family:var(--mono)">💡 Escrow = số CN đóng giữ (thường 60% tổng phí). Để trống = 0đ.</div>
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
@@ -3038,7 +3016,6 @@ function _adaptDNtoRow(p) {
     invest:_customerSub, contract:p.name||p.id, floor:'Chặng '+p.stage,
     stageLabel:p.stage||'C1', stageClass:STAGE_CLS[p.stage]||'sb-c1',
     stage:p.stage||'C1', status:rowSt,
-    frozen:Math.round((p.escrow||0)/100),
     finance:{total:Math.round((p.total||0)*({C1:0.1,C2:0.2,C3:0.6,C4:0.1}[p.stage]||0.2))},
     aiLog:[{tag:'INFO',text:'Dự án thật từ Firestore · Chặng '+p.stage+' · Trạng thái: '+st}],
     chat:[], rubric:null, commands:cmds,
@@ -3137,8 +3114,8 @@ function renderTable(keepShown) {
   const allRows = getFilteredRows();
   if (!allRows.length) {
     tbody.innerHTML = !_dnLoaded
-      ? `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--mute)"><i class="ph-duotone ph-spinner-gap ph-spin"></i> Đang tải dữ liệu...</td></tr>`
-      : `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--mute)">Không có dự án phù hợp</td></tr>`;
+      ? `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--mute)"><i class="ph-duotone ph-spinner-gap ph-spin"></i> Đang tải dữ liệu...</td></tr>`
+      : `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--mute)">Không có dự án phù hợp</td></tr>`;
     return;
   }
   if (!keepShown) _tblShown = _TBL_PAGE;
@@ -3149,7 +3126,7 @@ function renderTable(keepShown) {
   const dnRows = rows.filter(r =>  r.id.startsWith('ALN-DN-'));
 
   const sectionHeader = (label, color, count) =>
-    `<tr><td colspan="7" style="padding:8px 14px;background:rgba(${color},.06);border-top:1px solid rgba(${color},.2);border-bottom:1px solid rgba(${color},.1)">
+    `<tr><td colspan="6" style="padding:8px 14px;background:rgba(${color},.06);border-top:1px solid rgba(${color},.2);border-bottom:1px solid rgba(${color},.1)">
       <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(${color},1);font-family:var(--sans)">${label}</span>
       <span style="font-size:10px;color:rgba(${color},.6);margin-left:8px">${count} dự án</span>
     </td></tr>`;
@@ -3163,7 +3140,6 @@ function renderTable(keepShown) {
       <td><div class="col-person">${r.cn}</div><div class="col-person-sub">${r.invest}</div></td>
       <td><div class="col-person">${r.ktsName}</div><div class="col-person-sub">${r.floor}</div></td>
       <td><span class="stage-badge ${r.stageClass}">${r.stageLabel}</span></td>
-      <td><div class="col-money">${fmtMoney(r.frozen * 100)}đ</div></td>
       <td><span class="status-badge ${sm.cls}">${sm.label}</span></td>
       <td>
         <button class="action-btn ${am.cls}" onclick="event.stopPropagation();openDrawer('${r._firestoreId}')">${am.label}</button>
@@ -3173,7 +3149,7 @@ function renderTable(keepShown) {
   }).join('');
 
   const moreRow = moreCount > 0
-    ? `<tr><td colspan="7" style="text-align:center;padding:12px"><button onclick="renderTableMore()" style="background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.4);border-radius:8px;padding:9px 22px;color:#C9A84C;font-weight:700;font-size:12px;cursor:pointer">▾ Xem thêm ${moreCount} dự án</button></td></tr>`
+    ? `<tr><td colspan="6" style="text-align:center;padding:12px"><button onclick="renderTableMore()" style="background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.4);border-radius:8px;padding:9px 22px;color:#C9A84C;font-weight:700;font-size:12px;cursor:pointer">▾ Xem thêm ${moreCount} dự án</button></td></tr>`
     : '';
 
   tbody.innerHTML =
@@ -3203,8 +3179,8 @@ function filterTable() {
 function sortTable(key) {
   if (sortKey === key) sortDir *= -1; else { sortKey = key; sortDir = 1; }
   ROWS.sort((a,b) => {
-    const av = {id:a.id,cn:a.cn,kts:a.ktsName,stage:a.stage,frozen:a.frozen,status:a.status}[key]||'';
-    const bv = {id:b.id,cn:b.cn,kts:b.ktsName,stage:b.stage,frozen:b.frozen,status:b.status}[key]||'';
+    const av = {id:a.id,cn:a.cn,kts:a.ktsName,stage:a.stage,status:a.status}[key]||'';
+    const bv = {id:b.id,cn:b.cn,kts:b.ktsName,stage:b.stage,status:b.status}[key]||'';
     if (typeof av === 'number') return (av-bv)*sortDir;
     return av.localeCompare(bv)*sortDir;
   });
@@ -3283,7 +3259,7 @@ function openDrawer(id) {
     rb.style.display = '';
     const pillClass = row.rubric.pass ? 'sp-pass' : 'sp-fail';
     document.getElementById('rubricTotal').innerHTML =
-      `<span class="score-pill ${pillClass}"><b>${row.rubric.total}/100</b> · ${row.rubric.pass?'Đạt — giải ngân được':'Chưa đạt — dưới ngưỡng 80'}</span>`;
+      `<span class="score-pill ${pillClass}"><b>${row.rubric.total}/100</b> · ${row.rubric.pass?'Đạt — thanh toán được':'Chưa đạt — dưới ngưỡng 80'}</span>`;
     document.getElementById('rubricMini').innerHTML = row.rubric.items.map(it => {
       const pct = (it.score/it.max*100).toFixed(0);
       const cls = it.fail ? 'rm-fail' : pct >= 80 ? 'rm-pass' : 'rm-warn';
@@ -3365,9 +3341,9 @@ function closeDrawer() {
    OTP MODAL
 ══════════════════════════════════════════ */
 const OTP_LABELS = {
-  APPROVE:      '🟩 NGHIỆM THU ĐƠN PHƯƠNG — Ép giải ngân thù lao CTV',
+  APPROVE:      '🟩 NGHIỆM THU ĐƠN PHƯƠNG — Ép thanh toán thù lao CTV',
   CANCEL:       '🟥 HỦY DỰ ÁN & ĐỀN BÙ — Hoàn tiền KH + Phạt gậy CTV',
-  C3_APPROVE:   '✅ PHÊ DUYỆT GIẢI NGÂN C3 — Chuyển tiền về TK KTS',
+  C3_APPROVE:   '✅ PHÊ DUYỆT THANH TOÁN C3 — Chuyển tiền về TK KTS',
   REJECT_C3:    '🔍 TỪ CHỐI — Yêu cầu KTV kiểm tra lại hồ sơ',
   WARN_KTS:     '⚠️ PHÁT CẢNH CÁO KTS — Gậy vàng lần 2',
   REASSIGN:     '🔄 CHUYỂN KTS KHÁC — Mở đấu thầu lại dự án',
@@ -3404,9 +3380,9 @@ function confirmOtp() {
 
   // Execute
   const msgs = {
-    APPROVE:    `🟩 Nghiệm thu đơn phương ${projectId} — Giải ngân cho CTV, thu lợi nhuận về Cty`,
+    APPROVE:    `🟩 Nghiệm thu đơn phương ${projectId} — Thanh toán cho CTV, thu lợi nhuận về Cty`,
     CANCEL:     `🟥 Hủy dự án ${projectId} — Hoàn tiền KH, phát gậy trừng phạt CTV`,
-    C3_APPROVE: `✅ Giải ngân C3 ${projectId} — Chuyển tiền KTS + Sinh Signed URL`,
+    C3_APPROVE: `✅ Thanh toán C3 ${projectId} — Chuyển tiền KTS + Sinh Signed URL`,
     REJECT_C3:  `🔍 Trả hồ sơ ${projectId} — Yêu cầu KTV kiểm tra lại`,
     WARN_KTS:   `⚠️ Cảnh cáo KTS dự án ${projectId} — Gậy vàng lần 2`,
     REASSIGN:   `🔄 Chuyển KTS khác cho ${projectId} — Mở đấu thầu`,
@@ -3834,11 +3810,10 @@ function openProfile(type, idx){
         +'</div>'
       +'</div>'
     +'</div>'
-    +'<div class="profile-stats-grid" style="grid-template-columns:repeat(4,1fr)">'
+    +'<div class="profile-stats-grid" style="grid-template-columns:repeat(3,1fr)">'
       +'<div class="pstat"><div class="pstat-val">'+d.projects+'</div><div class="pstat-lbl">Tổng DA</div></div>'
       +'<div class="pstat"><div class="pstat-val" style="color:var(--green)">'+d.activeProjects+'</div><div class="pstat-lbl">Đang chạy</div></div>'
       +'<div class="pstat"><div class="pstat-val" style="color:var(--gold)">'+_fmtM(d.totalGtv)+'</div><div class="pstat-lbl">Tổng GTV</div></div>'
-      +'<div class="pstat"><div class="pstat-val" style="color:var(--amber)">'+_fmtM(d.escrow)+'</div><div class="pstat-lbl">Escrow</div></div>'
     +'</div>'
     +'<div class="profile-section">'
       +'<div class="ps-title"><i class="ph-duotone ph-identification-card" style="color:var(--blue)"></i>Thông tin tài khoản</div>'
@@ -3869,7 +3844,6 @@ function openProfile(type, idx){
           +'<div style="display:flex;height:4px;border-radius:99px;overflow:hidden;gap:1px">'+mini+'</div>'
           +'<div style="display:flex;justify-content:space-between;margin-top:4px">'
             +'<span style="font-size:9px;color:var(--dim)">KTS: '+p.kts.replace('KTS. ','')+'</span>'
-            +'<span style="font-size:9px;font-family:var(--mono);color:var(--amber)">Escrow: '+_fmtM(p.escrow)+'đ</span>'
           +'</div>'
         +'</div>';
       }).join('')
@@ -3901,10 +3875,9 @@ function openProfile(type, idx){
         +'</div>'
       +'</div>'
     +'</div>'
-    +'<div class="profile-stats-grid">'
+    +'<div class="profile-stats-grid" style="grid-template-columns:repeat(2,1fr)">'
       +'<div class="pstat"><div class="pstat-val" style="color:'+(_stgColors[si]||'var(--sub)')+'">'+c.stage+'</div><div class="pstat-lbl">Chặng hiện tại</div></div>'
       +'<div class="pstat"><div class="pstat-val" style="color:var(--text1)">'+_fmtM(c.total)+'</div><div class="pstat-lbl">Tổng HĐ (đ)</div></div>'
-      +'<div class="pstat"><div class="pstat-val" style="color:var(--amber)">'+_fmtM(c.escrow)+'</div><div class="pstat-lbl">Escrow (đ)</div></div>'
     +'</div>'
     +'<div class="profile-section">'
       +'<div class="ps-title"><i class="ph-duotone ph-house" style="color:var(--green)"></i>Thông tin dự án</div>'
@@ -4049,13 +4022,12 @@ function renderMgDn(){
   document.getElementById('mgDnV2').textContent = _mgDnData.reduce(function(a,d){return a+d.projects;},0);
   document.getElementById('mgDnV3').textContent = _mgDnData.reduce(function(a,d){return a+d.activeProjects;},0);
   document.getElementById('mgDnV4').textContent = _fmtM(_mgDnData.reduce(function(a,d){return a+d.totalGtv;},0))+'đ';
-  document.getElementById('mgDnV5').textContent = _fmtM(_mgDnData.reduce(function(a,d){return a+d.escrow;},0))+'đ';
   var tbody = document.getElementById('mgDnBody');
   if(!tbody) return;
   var dnStatusLabel = {active:'🟢 Hoạt động', inactive:'⚫ Tạm dừng'};
   var dnStatusColor = {active:'var(--green)', inactive:'var(--dim)'};
   tbody.innerHTML = rows.length===0
-    ? '<tr><td colspan="9" style="text-align:center;padding:36px;color:var(--dim)">Không có doanh nghiệp phù hợp</td></tr>'
+    ? '<tr><td colspan="8" style="text-align:center;padding:36px;color:var(--dim)">Không có doanh nghiệp phù hợp</td></tr>'
     : rows.map(function(d){
       var idx = _mgDnData.indexOf(d);
       var rid = 'dn-row-'+idx;
@@ -4067,7 +4039,6 @@ function renderMgDn(){
         +'<td style="padding:10px 14px;text-align:center;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text1)">'+d.projects+'</td>'
         +'<td style="padding:10px 14px;text-align:center;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--green)">'+d.activeProjects+'</td>'
         +'<td style="padding:10px 14px;text-align:right;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--text1)">'+_fmtM(d.totalGtv)+'đ</td>'
-        +'<td style="padding:10px 14px;text-align:right;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--amber)">'+_fmtM(d.escrow)+'đ</td>'
         +'<td style="padding:10px 14px;text-align:center;font-family:var(--mono);font-size:12px;color:var(--cyan)">'+d.ktsLinked+'</td>'
         +'<td style="padding:10px 14px;text-align:center;font-size:11px;color:'+(dnStatusColor[d.status]||'var(--dim)')+'">'+( dnStatusLabel[d.status]||d.status)+'</td>'
         +'<td style="padding:10px 14px" onclick="event.stopPropagation()">'+_actionBtns('dn',idx)+'</td>'
@@ -4091,12 +4062,11 @@ function renderMgCn(){
   document.getElementById('mgCnV2').textContent = _mgCnData.filter(function(p){return p.status==='sla_warn';}).length;
   document.getElementById('mgCnV3').textContent = _mgCnData.filter(function(p){return p.status==='dispute';}).length;
   document.getElementById('mgCnV4').textContent = _mgCnData.filter(function(p){return p.status==='done';}).length;
-  document.getElementById('mgCnV5').textContent = _fmtM(_mgCnData.reduce(function(a,p){return a+p.escrow;},0))+'đ';
   var tbody = document.getElementById('mgCnBody');
   if(!tbody) return;
   var stgPct = [10,20,60,10];
   tbody.innerHTML = rows.length===0
-    ? '<tr><td colspan="9" style="text-align:center;padding:36px;color:var(--dim)">Không có chủ nhà phù hợp</td></tr>'
+    ? '<tr><td colspan="8" style="text-align:center;padding:36px;color:var(--dim)">Không có chủ nhà phù hợp</td></tr>'
     : rows.map(function(p){
       var idx = _mgCnData.indexOf(p);
       var rid = 'cn-row-'+idx;
@@ -4113,7 +4083,6 @@ function renderMgCn(){
         +'<td style="padding:10px 14px;text-align:center"><span style="font-family:var(--mono);font-size:11px;font-weight:700;color:'+(_stgColors[si]||'var(--sub)')+'">'+p.stage+'</span></td>'
         +'<td style="padding:10px 14px"><div style="display:flex;height:5px;border-radius:3px;overflow:hidden;gap:1px;width:80px">'+mini+'</div></td>'
         +'<td style="padding:10px 14px;text-align:right;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--text1)">'+_fmtM(p.total)+'đ</td>'
-        +'<td style="padding:10px 14px;text-align:right;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--amber)">'+_fmtM(p.escrow)+'đ</td>'
         +'<td style="padding:10px 14px;text-align:center;font-size:11px;color:'+(_cnStatusColor[p.status]||'var(--sub)')+'">'+(_cnStatusLabel[p.status]||p.status)+'</td>'
         +'<td style="padding:10px 14px" onclick="event.stopPropagation()">'+_actionBtns('cn',idx)+'</td>'
       +'</tr>';
@@ -4639,9 +4608,6 @@ function cpUpdateFeePreview(){
   var v = parseInt(document.getElementById('cp_fee').value, 10);
   var el = document.getElementById('cp_fee_preview');
   if(el) el.textContent = v > 0 ? _fmtM(v) + ' đồng' : '';
-  var e2 = parseInt(document.getElementById('cp_escrow').value, 10);
-  var el2 = document.getElementById('cp_escrow_preview');
-  if(el2) el2.textContent = e2 > 0 ? _fmtM(e2) + ' đồng' : '';
 }
 
 function _cpPopulateSelect(id, users, placeholder){
@@ -4658,9 +4624,7 @@ async function openCreateProj(){
   document.getElementById('cp_addr').value = '';
   document.getElementById('cp_province').value = '';
   document.getElementById('cp_fee').value  = '';
-  document.getElementById('cp_escrow').value = '';
   document.getElementById('cp_fee_preview').textContent = '';
-  document.getElementById('cp_escrow_preview').textContent = '';
   document.getElementById('cp_kts_suggest').style.display = 'none';
   document.getElementById('cp_kts_list').innerHTML = '';
   document.getElementById('cp_err').style.display = 'none';
@@ -4745,7 +4709,6 @@ async function saveCreateProj(){
   var addr     = document.getElementById('cp_addr').value.trim();
   var province = document.getElementById('cp_province').value;
   var fee      = parseInt(document.getElementById('cp_fee').value, 10) || 0;
-  var escrow   = parseInt(document.getElementById('cp_escrow').value, 10) || 0;
   var cnUid    = document.getElementById('cp_cn').value;
   var ktsUid   = document.getElementById('cp_kts').value;
   var dnUid    = document.getElementById('cp_dn').value;
@@ -4788,7 +4751,6 @@ async function saveCreateProj(){
       address:        addr,
       meetingProvince: province,
       totalFee:       fee,
-      escrow:         escrow,
       cn:  cnUser ? { uid: cnUser.uid,  name: cnUser.name,  username: cnUser.username  || cnUser.phone  || cnUser.uid  } : null,
       kts: { uid: ktsUser.uid, name: ktsUser.name, username: ktsUser.username || ktsUser.phone || ktsUser.uid },
       dn:  dnUser ? { uid: dnUser.uid, name: dnUser.name, username: dnUser.username || dnUser.phone || dnUser.uid } : null,
@@ -5086,11 +5048,9 @@ function renderStats(){
   var totalDn = STATS_DN.length;
   var activeDn = STATS_DN.filter(function(d){return d.status==='active';}).length;
   var totalDnProjects = STATS_DN.reduce(function(a,d){return a+d.projects;},0);
-  var totalDnEscrow = STATS_DN.reduce(function(a,d){return a+d.escrow;},0);
   document.getElementById('stat-dn-total').textContent = totalDn;
   document.getElementById('stat-dn-active').textContent = activeDn;
   document.getElementById('stat-dn-projects').textContent = totalDnProjects;
-  document.getElementById('stat-dn-escrow').textContent = _fmtM(totalDnEscrow);
   document.getElementById('dn-count-label').textContent = totalDn + ' tổ chức';
   var dnStatuses = [
     {label:'Hoạt động', count:activeDn, color:'var(--green)'},
@@ -5135,8 +5095,6 @@ function renderStats(){
   /* Summary row */
   document.getElementById('stat-total-users').textContent = totalKts + totalDn + totalCn;
   document.getElementById('stat-total-projects').textContent = DN_PROJECTS.length;
-  var totalEscrow = DN_PROJECTS.reduce(function(a,p){return a+p.escrow;},0);
-  document.getElementById('stat-total-escrow').textContent = _fmtM(totalEscrow) + 'đ';
 
   /* KTS table */
   var statusMap = {active:'🟢 Hoạt động', inactive:'⚫ Tạm dừng', suspended:'🔴 Đình chỉ'};
@@ -5163,7 +5121,6 @@ function renderStats(){
       ? '<div style="font-size:11px;color:var(--text2)">' + c.projects + ' dự án</div>'
       : '<div style="font-size:11px;color:var(--dim);font-style:italic">Chưa có dự án</div>';
     var stageCell = c.projects > 0 ? c.stage : '—';
-    var escrowCell = c.projects > 0 ? _fmtM(c.escrow)+'đ' : '—';
     var statusCell = c.projects > 0
       ? '<span style="color:'+(cnStatusColor[c.status]||'var(--sub)')+'">'+( cnStatusLabel[c.status]||c.status)+'</span>'
       : '<span style="color:var(--dim)">Chờ dự án</span>';
@@ -5171,7 +5128,6 @@ function renderStats(){
       +'<td style="padding:9px 14px"><div style="font-size:12px;font-weight:600;color:var(--text1)">'+c.name+'</div><div style="font-size:9px;color:var(--dim)">'+(c.phone||'')+'</div></td>'
       +'<td style="padding:9px 14px">'+projCell+'</td>'
       +'<td style="padding:9px 14px;text-align:center;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--amber)">'+stageCell+'</td>'
-      +'<td style="padding:9px 14px;text-align:center;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--amber)">'+escrowCell+'</td>'
       +'<td style="padding:9px 14px;text-align:center;font-size:10px">'+statusCell+'</td>'
     +'</tr>';
   }).join('');
@@ -5185,7 +5141,6 @@ function renderStats(){
       +'<td style="padding:9px 14px;text-align:center;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text1)">'+d.projects+'</td>'
       +'<td style="padding:9px 14px;text-align:center;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--green)">'+d.activeProjects+'</td>'
       +'<td style="padding:9px 14px;text-align:right;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--text1)">'+_fmtM(d.totalGtv)+'đ</td>'
-      +'<td style="padding:9px 14px;text-align:right;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--amber)">'+_fmtM(d.escrow)+'đ</td>'
       +'<td style="padding:9px 14px;text-align:center;font-family:var(--mono);font-size:12px;color:var(--cyan)">'+d.ktsLinked+'</td>'
       +'<td style="padding:9px 14px;text-align:center;font-size:10px;color:'+dnStatusColor2[d.status]+'">'+dnStatusLabel[d.status]+'</td>'
     +'</tr>';
@@ -5584,7 +5539,7 @@ window.pricingSaveToFirestore = async function(data) {
 
 function _adaptForFounder(id, d) {
   var prog = d.progress || {};
-  return { id: d.code||id, name: d.name||'', cn: (d.cn&&d.cn.name)||'', kts: (d.kts&&d.kts.name)||'', dn: (d.dn&&d.dn.name)||'', stage: d.stage||'C1', status: d.status||'on_track', progress: [prog.C1||0, prog.C2||0, prog.C3||0, prog.C4||0], escrow: d.escrowBalance||0, total: d.totalFee||0, _raw: d };
+  return { id: d.code||id, name: d.name||'', cn: (d.cn&&d.cn.name)||'', kts: (d.kts&&d.kts.name)||'', dn: (d.dn&&d.dn.name)||'', stage: d.stage||'C1', status: d.status||'on_track', progress: [prog.C1||0, prog.C2||0, prog.C3||0, prog.C4||0], total: d.totalFee||0, _raw: d };
 }
 /* ── THANH TOÁN KTS & DESIGNER NT ── */
 // Bản ghi cũ (trước khi thêm khấu trừ) chưa có netAmount — quy đổi tạm để hiển thị nhất quán.
@@ -6035,7 +5990,6 @@ window._cpFb = {
       status: 'on_track',
       progress: { C1: 0, C2: 0, C3: 0, C4: 0 },
       totalFee: data.totalFee,
-      escrowBalance: data.escrow || 0,
       payments: c1Amount > 0 ? { C1: { amount: c1Amount, netAmount: c1NetAmount, status: 'pending', ktsUid: data.kts.uid, ktsName: data.kts.name || '', stagedAt: serverTimestamp() } } : {},
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
@@ -6522,7 +6476,10 @@ async function _loadMgData() {
         projects:      projs.length,
         activeProjects: active.length,
         rating:        u.rating || app.rating || 0,
-        revenue:       projs.reduce(function(a,p){ return a+(p.escrow||0); }, 0),
+        /* SỬA LỖI 02/08/2026: trước đây cộng p.escrow (escrowBalance — số dư tạm giữ tại 1 thời điểm,
+           không phải doanh thu) — sai so với định nghĩa "Doanh thu = tổng totalFee mỗi dự án" đã dùng
+           ở nơi khác trong file này (báo cáo Doanh thu KTS/DN). Đổi sang p.total cho khớp. */
+        revenue:       projs.reduce(function(a,p){ return a+(p.total||0); }, 0),
         status:        u.status || 'active',
       };
     });
@@ -6538,7 +6495,6 @@ async function _loadMgData() {
         projects:      projs.length,
         activeProjects: active.length,
         totalGtv:      projs.reduce(function(a,p){ return a+(p.total||0); }, 0),
-        escrow:        projs.reduce(function(a,p){ return a+(p.escrow||0); }, 0),
         ktsLinked:     ktsSet.size,
         status:        u.status || 'active',
       };
@@ -6554,7 +6510,6 @@ async function _loadMgData() {
         activeProjects: projs.filter(function(p){ return p.status!=='done'; }).length,
         stage:   projs.length ? projs[0].stage : '—',
         status:  projs.length ? projs[0].status : 'on_track',
-        escrow:  projs.reduce(function(a,p){ return a+(p.escrow||0); }, 0),
         total:   projs.reduce(function(a,p){ return a+(p.total||0); }, 0),
       };
     });
@@ -9007,11 +8962,10 @@ window.closeC2Map = function() {
 window.exportProjectsCSV = async function() {
   try {
     var snap = await getDocs(query(collection(db, 'projects'), orderBy('updatedAt', 'desc')));
-    var rows = [['Mã DA','Tên','CN','KTS','DN','Stage','Status','Tổng phí','Escrow','Ngày tạo']];
+    var rows = [['Mã DA','Tên','CN','KTS','DN','Stage','Status','Tổng phí','Ngày tạo']];
     snap.docs.forEach(function(d) {
       var p = d.data();
       var fee = p.totalFee || 0;
-      var escrow = p.escrowBalance || p.escrow || 0;
       var createdAt = p.createdAt && p.createdAt.toDate ? p.createdAt.toDate().toLocaleDateString('vi-VN') : '';
       // Sinh display ID đúng prefix nếu doc ID chưa có
       var _isDN = !!(p.dn && p.dn.uid);
@@ -9025,7 +8979,6 @@ window.exportProjectsCSV = async function() {
         p.stage || '',
         p.status || '',
         fee,
-        escrow,
         createdAt
       ]);
     });
