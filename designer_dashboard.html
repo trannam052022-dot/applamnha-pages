@@ -497,18 +497,8 @@ body{font-family:var(--sans);background:var(--ink);color:var(--text);min-height:
 
     <!-- ══════════ TAB: VÍ ══════════ -->
     <div id="tab-wallet" style="display:none">
-      <div style="font-family:var(--serif);font-size:20px;font-weight:600;font-style:italic;margin-bottom:16px">Ví & Giải ngân</div>
-      <div class="grid3" style="margin-bottom:20px">
-        <div class="card" style="border-left:3px solid var(--green)">
-          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--green);margin-bottom:6px">Ví chính (khả dụng)</div>
-          <div style="font-family:var(--syne);font-size:28px;font-weight:800;color:var(--text)" id="walletMain">—</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:4px">VND</div>
-        </div>
-        <div class="card" style="border-left:3px solid var(--amber)">
-          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--amber);margin-bottom:6px">Đang tạm giữ</div>
-          <div style="font-family:var(--syne);font-size:28px;font-weight:800;color:var(--text)" id="walletEscrow">—</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:4px">Chờ khách duyệt chặng</div>
-        </div>
+      <div style="font-family:var(--serif);font-size:20px;font-weight:600;font-style:italic;margin-bottom:16px">Ví & Thanh toán</div>
+      <div class="grid3" style="margin-bottom:20px;grid-template-columns:1fr">
         <div class="card" style="border-left:3px solid var(--violet)">
           <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--violet);margin-bottom:6px">Tổng phí hợp đồng</div>
           <div style="font-family:var(--syne);font-size:28px;font-weight:800;color:var(--text)" id="walletTotal">—</div>
@@ -516,7 +506,7 @@ body{font-family:var(--sans);background:var(--ink);color:var(--text);min-height:
         </div>
       </div>
       <div class="card">
-        <div class="card-title"><div class="ct-icon" style="background:var(--violet-bg);color:var(--violet)"><i class="ph-duotone ph-receipt"></i></div>Lịch sử giải ngân</div>
+        <div class="card-title"><div class="ct-icon" style="background:var(--violet-bg);color:var(--violet)"><i class="ph-duotone ph-receipt"></i></div>Lịch sử thanh toán</div>
         <div id="txHistory" style="font-size:13px;color:var(--muted);text-align:center;padding:24px 0">Chưa có giao dịch nào</div>
       </div>
     </div>
@@ -958,8 +948,6 @@ window.desSelectProject = function(pid) {
   if (c3Proj) c3Proj.textContent = pid + (p && p.name ? ' — ' + p.name : '');
 
   if (p) {
-    var w = document.getElementById('walletMain'); if(w) w.textContent = fmtM(p.escrowBalance||0)+'đ';
-    var we = document.getElementById('walletEscrow'); if(we) we.textContent = fmtM((p.totalFee||0)*0.3)+'đ';
     var wt = document.getElementById('walletTotal'); if(wt) wt.textContent = fmtM(p.totalFee||0)+'đ';
   }
 
@@ -1251,8 +1239,6 @@ onAuthStateChanged(auth, async function(user) {
       window.DES_PROJECT_ID   = p.id;
       window.DES_PROJECT_DATA = p;
       ['desActiveId','paProj','docsProj','rvProj'].forEach(function(id){ var e=document.getElementById(id); if(e) e.textContent=p.id+(p.name?' — '+p.name:''); });
-      var w = document.getElementById('walletMain'); if(w) w.textContent=fmtM(p.escrowBalance||0)+'đ';
-      var we = document.getElementById('walletEscrow'); if(we) we.textContent=fmtM((p.totalFee||0)*0.3)+'đ';
       var wt = document.getElementById('walletTotal'); if(wt) wt.textContent=fmtM(p.totalFee||0)+'đ';
     }
 

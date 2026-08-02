@@ -947,7 +947,7 @@ body{font-family:var(--sans);background:var(--ink);color:var(--text);min-height:
       <!-- Ví nhanh -->
       <div class="card card-sm" style="flex:1">
         <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
-          <span>Ví & Giải ngân</span>
+          <span>Ví & Thanh toán</span>
           <i class="ph-duotone ph-wallet" style="color:var(--muted);font-size:14px"></i>
         </div>
         <div style="display:flex;flex-direction:column">
@@ -956,7 +956,7 @@ body{font-family:var(--sans);background:var(--ink);color:var(--text);min-height:
             <span style="font-size:13px;font-weight:700;font-family:var(--mono);color:var(--green)" id="quickWalletMain">0đ</span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
-            <span style="font-size:12px;color:var(--text2)">Chờ giải ngân <span style="color:var(--amber);font-size:10px;font-weight:700;background:var(--amber-bg);padding:1px 5px;border-radius:4px">C3</span></span>
+            <span style="font-size:12px;color:var(--text2)">Chờ thanh toán <span style="color:var(--amber);font-size:10px;font-weight:700;background:var(--amber-bg);padding:1px 5px;border-radius:4px">C3</span></span>
             <span style="font-size:13px;font-weight:700;font-family:var(--mono);color:var(--amber)" id="quickWalletPending">0đ</span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0">
@@ -1108,7 +1108,7 @@ body{font-family:var(--sans);background:var(--ink);color:var(--text);min-height:
 
           <!-- Ví tạm ứng — PAYOUT LOCK -->
           <div class="wallet-pocket wp-locked" id="lockedWallet">
-            <div class="wp-label"><i class="ph-duotone ph-lock" style="font-size:7px"></i> Chờ giải ngân</div>
+            <div class="wp-label"><i class="ph-duotone ph-lock" style="font-size:7px"></i> Chờ thanh toán</div>
             <div class="wp-amount" id="lockedAmount">0đ</div>
             <div class="wp-sub">Chặng đã duyệt · chờ chuyển khoản</div>
             <div class="lock-seal">
@@ -1117,7 +1117,7 @@ body{font-family:var(--sans);background:var(--ink);color:var(--text);min-height:
             </div>
           </div>
 
-          <!-- Chờ giải ngân -->
+          <!-- Chờ thanh toán -->
           <div class="wallet-pocket wp-pending">
             <div class="wp-label"><i class="ph-duotone ph-hourglass-medium" style="font-size:7px"></i> Tổng gốc theo chặng</div>
             <div class="wp-amount" id="walletGrossAmt">0đ</div>
@@ -1137,7 +1137,7 @@ body{font-family:var(--sans);background:var(--ink);color:var(--text);min-height:
         <div id="walletBreakdown" style="font-size:11px;color:var(--muted);background:var(--ink3);border-radius:var(--r-sm);padding:10px;border:1px solid var(--border)">Chưa có giao dịch nào.</div>
         <div style="margin-top:8px;font-size:10px;color:var(--muted);display:flex;align-items:center;gap:6px;background:var(--amber-bg);border:1px solid rgba(255,170,51,.2);border-radius:5px;padding:7px 10px">
           <i class="ph-duotone ph-info" style="color:var(--amber)"></i>
-          <span>Khoản <b style="color:var(--amber)">chờ giải ngân</b> sẽ vào Ví chính khi Founder xác nhận đã chuyển tiền. Số hiển thị là thực nhận sau khấu trừ.</span>
+          <span>Khoản <b style="color:var(--amber)">chờ thanh toán</b> sẽ vào Ví chính khi Founder xác nhận đã chuyển tiền. Số hiển thị là thực nhận sau khấu trừ.</span>
         </div>
       </div>
 
@@ -2621,10 +2621,10 @@ ALNRealtime.init({
     }
     // Stage approved
     if(d.type==='STAGE_APPROVED' && !_isReplay) {
-      showToast(`✅ Chặng ${d.stage} đã được phê duyệt — giải ngân đang xử lý`, 't-green');
-      _addNotif('<i class="ph-duotone ph-check-circle"></i>', `<b>Giải ngân Chặng ${d.stage}</b> được duyệt — đang xử lý`, d.projectId);
+      showToast(`✅ Chặng ${d.stage} đã được phê duyệt — thanh toán đang xử lý`, 't-green');
+      _addNotif('<i class="ph-duotone ph-check-circle"></i>', `<b>Thanh toán Chặng ${d.stage}</b> được duyệt — đang xử lý`, d.projectId);
       try {
-        var _sMsg = '✅ Chủ nhà DUYỆT Chặng ' + (d.stage||'') + ' — dự án ' + (d.projName||d.projectId||'') + '. Giải ngân đang xử lý.';
+        var _sMsg = '✅ Chủ nhà DUYỆT Chặng ' + (d.stage||'') + ' — dự án ' + (d.projName||d.projectId||'') + '. Thanh toán đang xử lý.';
         alnThreads.cn.push({ mine:false, text:_sMsg, senderName:'Hệ thống ALN', ts:new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}) });
         if(_alnThread==='cn') _alnRender();
         if(!d._replay){ _alnUnreadT.cn++; _alnDots(); _alnBadge(); }
@@ -3483,7 +3483,6 @@ function renderMyProjects(projects) {
       <div style="font-size:10px;margin-bottom:16px">${stages}</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px">
         <div class="proj-detail-item"><div class="proj-detail-label">Phí thiết kế</div><div class="proj-detail-val">${fmtM2(p.totalFee||0)}đ</div></div>
-        <div class="proj-detail-item"><div class="proj-detail-label">Escrow</div><div class="proj-detail-val">${fmtM2(p.escrowBalance||0)}đ</div></div>
         <div class="proj-detail-item"><div class="proj-detail-label">Chặng</div><div class="proj-detail-val">${p.stage||'C1'}</div></div>
         <div class="proj-detail-item"><div class="proj-detail-label">Loại</div><div class="proj-detail-val" style="font-size:11px;color:${isDN?'var(--gold)':'var(--green)'}">${isDN?'Doanh nghiệp':'Chủ nhà'}</div></div>
       </div>
@@ -3806,7 +3805,7 @@ async function _updateWallet(allProjs) {
         paid += net;
         grossPaid += (pay.amount || 0);
         dateStr = pay.paidAt && pay.paidAt.toDate ? pay.paidAt.toDate().toLocaleDateString('vi-VN') : '';
-        txItems.push({ type:'paid', label:'Giải ngân ' + stage + ' — ' + projCode, sub:'Founder đã xác nhận' + (dateStr ? ' · ' + dateStr : ''), amount: net });
+        txItems.push({ type:'paid', label:'Thanh toán ' + stage + ' — ' + projCode, sub:'Founder đã xác nhận' + (dateStr ? ' · ' + dateStr : ''), amount: net });
       } else if (pay.status === 'pending') {
         pending += net;
         grossPending += (pay.amount || 0);

@@ -2319,7 +2319,6 @@ function renderMain(){
         <div style="text-align:right;flex-shrink:0">
           <div style="font-size:10px;color:var(--sub);margin-bottom:2px">Tổng giá trị HĐ</div>
           <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--gold)">${fmtM(p.total)}đ</div>
-          <div style="font-size:10px;color:var(--muted)">Escrow giữ: <b style="color:var(--amber)">${fmtM(p.escrow)}đ</b></div>
         </div>
       </div>
 
@@ -2344,18 +2343,12 @@ function renderMain(){
     <div class="content-cn">
 
       <!-- STAT CARDS -->
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
         <div style="background:var(--ink2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;position:relative;overflow:hidden;box-shadow:var(--sh);border-left:3px solid var(--gold)">
           <div style="font-size:9px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px;display:flex;align-items:center;gap:5px"><i class="ph-duotone ph-currency-circle-dollar" style="font-size:11px"></i> Tổng giá trị HĐ</div>
           <div style="font-family:var(--syne);font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.5px">${fmtM(p.total)}đ</div>
           <div style="font-size:10px;color:var(--muted);margin-top:4px">Tổng hợp đồng</div>
           <svg style="position:absolute;bottom:10px;right:10px;opacity:.5" viewBox="0 0 64 24" width="54" height="20" xmlns="http://www.w3.org/2000/svg"><polyline points="0,20 10,16 20,18 30,10 40,12 52,4 64,2" fill="none" stroke="var(--gold)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <div style="background:var(--ink2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;position:relative;overflow:hidden;box-shadow:var(--sh);border-left:3px solid var(--amber)">
-          <div style="font-size:9px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px;display:flex;align-items:center;gap:5px"><i class="ph-duotone ph-lock-simple" style="font-size:11px"></i> Tạm giữ Escrow</div>
-          <div style="font-family:var(--syne);font-size:22px;font-weight:800;color:var(--amber);letter-spacing:-.5px">${fmtM(p.escrow)}đ</div>
-          <div style="font-size:10px;color:var(--muted);margin-top:4px">Chặng ${p.stage} · Sàn ALN giữ</div>
-          <svg style="position:absolute;bottom:10px;right:10px;opacity:.5" viewBox="0 0 64 24" width="54" height="20" xmlns="http://www.w3.org/2000/svg"><polyline points="0,18 10,14 20,16 30,12 40,8 52,10 64,4" fill="none" stroke="var(--amber)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <div style="background:var(--ink2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;position:relative;overflow:hidden;box-shadow:var(--sh);border-left:3px solid ${newCount>0?'var(--green)':'var(--blue)'}">
           <div style="font-size:9px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px;display:flex;align-items:center;gap:5px"><i class="ph-duotone ph-files" style="font-size:11px"></i> Tài liệu</div>
@@ -2996,8 +2989,8 @@ ALNRealtime.init({
 
     if(d.type==='STAGE_APPROVED' && !_isReplay){
       const p=window.PROJECTS_CLIENT.find(x=>x.id===d.projectId);
-      if(p) _addNotif('✅',`<b>Giải ngân ${d.stage||''}</b> được duyệt — ${p.name}`,d.projectId);
-      showToast(`✅ Chặng ${d.stage||''} đã được duyệt giải ngân`,'t-green');
+      if(p) _addNotif('✅',`<b>Thanh toán ${d.stage||''}</b> được duyệt — ${p.name}`,d.projectId);
+      showToast(`✅ Chặng ${d.stage||''} đã được duyệt thanh toán`,'t-green');
     }
     if(d.type==='DISPUTE_OPENED' && !_isReplay){
       const p=window.PROJECTS_CLIENT.find(x=>x.id===d.projectId);
@@ -3137,7 +3130,7 @@ const ZP_SEED = {
   'KTS. Nguyễn Thị Lan': ['Chào anh/chị! Hồ sơ C3 em đang thẩm định lớp 1. Dự kiến nộp trong 2 ngày.'],
   'KTS. Phạm Hoài Nam':  ['Chào anh/chị! Em đã hoàn thiện MB. Anh/chị xem và phê duyệt để em tiến hành 3D ạ.'],
   'KTS. Lê Hoàng Nam':   ['Chào anh/chị! Dự án của anh/chị đã hoàn thành. Cần hỗ trợ gì thêm không ạ?'],
-  'KTS. Vũ Minh Khoa':   ['Chào anh/chị! Toàn bộ hồ sơ C3 đã pass auto-scan. Chờ anh/chị xác nhận để giải ngân.'],
+  'KTS. Vũ Minh Khoa':   ['Chào anh/chị! Toàn bộ hồ sơ C3 đã pass auto-scan. Chờ anh/chị xác nhận để thanh toán.'],
 };
 
 let zpOpen = false;
@@ -3641,7 +3634,7 @@ window.NCC_SUGGEST_LIST = [];
 /* ══ PROJECTS DN: Firestore realtime — DN thấy TẤT CẢ ══ */
 function _adaptProjectDN(id, d) {
   var prog = d.progress || {};
-  return { id:id, code:d.CODE||d.code||id, name:d.name||'', cn:(d.cn&&d.cn.name)||'', kts:(d.kts&&d.kts.name)||'', dn:(d.dn&&d.dn.name)||'', ktsUid:(d.kts&&d.kts.uid)||'', cnUid:(d.cn&&d.cn.uid)||'', stage:d.stage||'C1', status:d.status||'on_track', progress:[prog.C1||0,prog.C2||0,prog.C3||0,prog.C4||0], total:d.totalFee||0, escrow:d.escrowBalance||0, _raw:d };
+  return { id:id, code:d.CODE||d.code||id, name:d.name||'', cn:(d.cn&&d.cn.name)||'', kts:(d.kts&&d.kts.name)||'', dn:(d.dn&&d.dn.name)||'', ktsUid:(d.kts&&d.kts.uid)||'', cnUid:(d.cn&&d.cn.uid)||'', stage:d.stage||'C1', status:d.status||'on_track', progress:[prog.C1||0,prog.C2||0,prog.C3||0,prog.C4||0], total:d.totalFee||0, _raw:d };
 }
 /* ══ Tài khoản nhận tiền ALN — settings/bankAccount, Founder cấu hình, DN chỉ đọc ══ */
 function _startBankAccountListenDN() {
