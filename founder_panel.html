@@ -881,6 +881,13 @@ body {
 .fsub:hover{color:var(--text1);background:var(--border)}
 .fsub.active{color:var(--text1);border-color:var(--line);background:var(--surface)}
 .fnav-clock{margin-left:auto;font-size:10px;color:var(--dim);font-family:var(--mono);white-space:nowrap}
+/* Cụm nhãn trong sub-bar (thêm 03/08/2026 (5)) — gom vài tab liên quan lại
+   với nhau bằng viền đứt + nhãn nhỏ, KHÔNG phải nhóm cấp 1 mới (switchGroup
+   không đổi) — chỉ là gợi ý trực quan trong CÙNG 1 nhóm Vận hành. Cấu trúc
+   cố tình để trống chỗ thêm nút: .fsub-cluster chỉ cần thêm <button
+   class="fsub"> vào bên trong là tự giãn, không cần sửa CSS. */
+.fsub-cluster{display:inline-flex;align-items:center;gap:3px;padding:2px 6px 2px 3px;border:1px dashed var(--border);border-radius:7px;background:rgba(160,112,32,.05)}
+.fsub-cluster-label{font-family:var(--sans);font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);padding:0 3px;white-space:nowrap;user-select:none}
 </style>
 
 <!-- Tầng 1: Group -->
@@ -931,9 +938,20 @@ body {
     <button class="fsub" id="tabPayments" onclick="switchTab('payments')"><i class="ph-duotone ph-money"></i>Thanh toán<span id="paymentsBadge" style="display:none;background:var(--green);color:#fff;border-radius:99px;font-size:9px;padding:1px 5px;margin-left:2px;font-weight:800">0</span></button>
     <button class="fsub" id="tabReport" onclick="switchTab('report')"><i class="ph-duotone ph-chart-bar"></i>Báo cáo thu nhập</button>
     <button class="fsub" id="tabLeads" onclick="switchTab('leads')"><i class="ph-duotone ph-target"></i>Lead<span id="leadsBadge" style="display:none;background:#ef4444;color:#fff;border-radius:99px;font-size:9px;padding:1px 5px;margin-left:2px;font-weight:800">0</span></button>
-    <button class="fsub" id="tabSuaVatAi" onclick="switchTab('suaVatAi')"><i class="ph-duotone ph-robot"></i>AI Sửa Vặt<span id="suaVatAiBadge" style="display:none;background:var(--green);color:#fff;border-radius:99px;font-size:9px;padding:1px 5px;margin-left:2px;font-weight:800">0</span></button>
+    <!-- Cụm "THỢ & SỬA VẶT" (thêm 03/08/2026 (5)) — gom các tab liên quan tới
+         thợ/đội thi công + kênh sửa vặt. Còn "Liên hệ" giữ NGOÀI cụm này (nó
+         gộp mọi loại liên hệ, không riêng thợ — theo yêu cầu Founder).
+         MỞ RỘNG: thêm tab mới (Duyệt thợ, Thợ đã xác minh, Gán đội theo
+         quận...) chỉ cần thêm 1 <button class="fsub" id="tabXxx"
+         onclick="switchTab('xxx')">...</button> vào ngay trong span này —
+         không cần sửa CSS/.fsub-cluster. Nhớ thêm 'xxx' vào mảng ALL trong
+         switchTab() + panel tương ứng, giống các tab khác. -->
+    <span class="fsub-cluster" id="fsubClusterThoSuaVat">
+      <span class="fsub-cluster-label">Thợ &amp; Sửa vặt</span>
+      <button class="fsub" id="tabSuaVatAi" onclick="switchTab('suaVatAi')"><i class="ph-duotone ph-robot"></i>AI Sửa Vặt<span id="suaVatAiBadge" style="display:none;background:var(--green);color:#fff;border-radius:99px;font-size:9px;padding:1px 5px;margin-left:2px;font-weight:800">0</span></button>
+      <button class="fsub" id="tabThoQuan" onclick="switchTab('thoQuan')"><i class="ph-duotone ph-grid-nine"></i>Thợ theo quận</button>
+    </span>
     <button class="fsub" id="tabContacts" onclick="switchTab('contacts')"><i class="ph-duotone ph-address-book"></i>Liên hệ</button>
-    <button class="fsub" id="tabThoQuan" onclick="switchTab('thoQuan')"><i class="ph-duotone ph-grid-nine"></i>Thợ theo quận</button>
     <button class="fsub" id="tabRecruit"  onclick="switchTab('recruit')" ><i class="ph-duotone ph-megaphone"></i>Tuyển dụng</button>
     <button class="fsub" id="tabCompany"  onclick="switchTab('company')" ><i class="ph-duotone ph-buildings"></i>Cài đặt CTY</button>
     <button class="fsub" id="tabPricing"  onclick="switchTab('pricing')" ><i class="ph-duotone ph-tag"></i>Khung giá</button>
@@ -2019,10 +2037,10 @@ document.addEventListener('DOMContentLoaded', function() {
     <button onclick="initThoQuanPanel()" style="padding:7px 14px;background:var(--raised);border:1px solid var(--border);border-radius:7px;font-size:12px;font-weight:600;color:var(--sub);cursor:pointer;font-family:var(--sans)"><i class="ph-duotone ph-arrow-clockwise"></i> Tải lại</button>
   </div>
 
-  <div style="overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:var(--card)">
-    <table style="width:100%;border-collapse:collapse;min-width:1080px">
+  <div style="overflow:auto;max-height:70vh;border:1px solid var(--border);border-radius:12px;background:var(--card)">
+    <table style="width:100%;border-collapse:collapse;min-width:1160px">
       <thead><tr id="thoQuanHeadRow">
-        <th style="font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);text-align:left;padding:10px 11px;background:var(--raised);border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;left:0;z-index:1">Quận</th>
+        <th style="font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);text-align:left;padding:10px 11px;background:var(--raised);border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;left:0;z-index:3">Quận</th>
       </tr></thead>
       <tbody id="thoQuanMatrixBody"><tr><td style="padding:20px;text-align:center;color:var(--dim);font-family:var(--mono);font-size:12px">Đang tải...</td></tr></tbody>
     </table>
@@ -8033,37 +8051,69 @@ window.saveCompanySettings = async function() {
     if(!row) return;
     TQ_NGHE_ORDER.forEach(function(n){
       var th = document.createElement('th');
-      th.style.cssText = 'font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--dim);text-align:center;padding:10px 8px;background:var(--raised);border-bottom:1px solid var(--border);white-space:nowrap';
+      th.style.cssText = 'position:sticky;top:0;z-index:2;font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--dim);text-align:center;padding:10px 8px;background:var(--raised);border-bottom:1px solid var(--border);white-space:nowrap';
       th.textContent = CT_NGHE_LABEL[n] || n;
       row.appendChild(th);
     });
+    // Cột "Tổng" cuối bảng — sticky top như các cột khác, KHÔNG sticky bên phải
+    // (chỉ yêu cầu cột Quận sticky trái). Nền var(--raised) giống các th khác
+    // + border-left tách khỏi lưới nghề, không dùng màu đỏ như ô 0 thợ.
+    var thTotal = document.createElement('th');
+    thTotal.style.cssText = 'position:sticky;top:0;z-index:2;font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--text1);text-align:center;padding:10px 8px;background:var(--raised);border-bottom:1px solid var(--border);border-left:1.5px solid var(--border);white-space:nowrap';
+    thTotal.textContent = 'Tổng';
+    row.appendChild(thTotal);
     TQ_HEAD_BUILT = true;
   }
 
   function tqRenderTable(){
     var body = document.getElementById('thoQuanMatrixBody');
     if(!body) return;
+    var totalCols = TQ_NGHE_ORDER.length + 2; // Quận + 10 nghề + Tổng
+    var colTotals = {}; // nghe -> tổng dồn qua mọi quận (thợ nhiều quận đếm nhiều lần, đúng bản chất "tổng số ô")
+    TQ_NGHE_ORDER.forEach(function(n){ colTotals[n] = 0; });
+    var grandTotal = 0;
     var html = '';
+
     TQ_QUAN_GROUPS.forEach(function(grp){
-      html += '<tr><td colspan="'+(TQ_NGHE_ORDER.length+1)+'" style="padding:7px 11px;background:var(--raised);font-family:var(--mono);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);border-bottom:1px solid var(--border)">'+grp.ten+'</td></tr>';
+      html += '<tr><td colspan="'+totalCols+'" style="padding:7px 11px;background:var(--raised);font-family:var(--mono);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);border-bottom:1px solid var(--border)">'+grp.ten+'</td></tr>';
       grp.items.forEach(function(q){
-        html += '<tr><td style="padding:8px 11px;font-weight:700;color:var(--text1);white-space:nowrap;border-right:1px solid var(--border);position:sticky;left:0;background:var(--card)">'+(CT_QUAN_LABEL[q]||q)+'</td>';
+        var rowTotal = 0;
+        html += '<tr><td style="padding:8px 11px;font-weight:700;color:var(--text1);white-space:nowrap;border-right:1px solid var(--border);border-bottom:1px solid var(--border);position:sticky;left:0;z-index:1;background:var(--card)">'+(CT_QUAN_LABEL[q]||q)+'</td>';
         TQ_NGHE_ORDER.forEach(function(n){
           var count = (TQ_LISTS[q+'|'+n] || []).length;
+          rowTotal += count;
+          colTotals[n] += count;
           var style = 'padding:8px 6px;text-align:center;cursor:pointer;font-family:var(--mono);font-size:12.5px;font-weight:700;border-bottom:1px solid var(--border);'
             + (count === 0 ? 'background:rgba(220,38,38,.09);color:#ef4444' : 'color:var(--text1)');
           html += '<td style="'+style+'" onclick="thoQuanShowCell(\''+q+'\',\''+n+'\')" title="'+(CT_QUAN_LABEL[q]||q)+' · '+(CT_NGHE_LABEL[n]||n)+'">'+count+'</td>';
         });
+        grandTotal += rowTotal;
+        // Cột "Tổng" mỗi hàng — nền trung tính đậm hơn (var(--raised)), KHÔNG
+        // bao giờ tô đỏ dù bằng 0 (khác lưới số liệu — đây là ô tổng hợp, đỏ
+        // chỉ dành riêng cho "chưa có thợ ở đúng 1 cặp quận×nghề").
+        html += '<td style="padding:8px 8px;text-align:center;font-family:var(--mono);font-size:12.5px;font-weight:800;color:var(--text1);background:var(--raised);border-bottom:1px solid var(--border);border-left:1.5px solid var(--border)">'+rowTotal+'</td>';
         html += '</tr>';
       });
     });
+
+    // Hàng "Tổng" cuối bảng — tổng thợ mỗi nghề (dồn qua 22 quận) + tổng chung
+    // góc dưới-phải. Cột đầu (nhãn "Tổng") vẫn sticky trái để luôn thấy được
+    // khi cuộn ngang, giống mọi ô nhãn quận phía trên.
+    html += '<tr>'
+      + '<td style="padding:9px 11px;font-weight:800;color:var(--text1);white-space:nowrap;border-right:1px solid var(--border);border-top:2px solid var(--border);position:sticky;left:0;z-index:1;background:var(--raised)">Tổng</td>';
+    TQ_NGHE_ORDER.forEach(function(n){
+      html += '<td style="padding:9px 6px;text-align:center;font-family:var(--mono);font-size:12.5px;font-weight:800;color:var(--text1);background:var(--raised);border-top:2px solid var(--border)">'+colTotals[n]+'</td>';
+    });
+    html += '<td style="padding:9px 8px;text-align:center;font-family:var(--mono);font-size:13px;font-weight:800;color:var(--text1);background:var(--raised);border-top:2px solid var(--border);border-left:1.5px solid var(--border)">'+grandTotal+'</td>'
+      + '</tr>';
+
     body.innerHTML = html;
   }
 
   window.initThoQuanPanel = async function(){
     tqBuildHead();
     var body = document.getElementById('thoQuanMatrixBody');
-    if(body) body.innerHTML = '<tr><td colspan="'+(TQ_NGHE_ORDER.length+1)+'" style="padding:20px;text-align:center;color:var(--dim);font-family:var(--mono);font-size:12px">Đang tải...</td></tr>';
+    if(body) body.innerHTML = '<tr><td colspan="'+(TQ_NGHE_ORDER.length+2)+'" style="padding:20px;text-align:center;color:var(--dim);font-family:var(--mono);font-size:12px">Đang tải...</td></tr>';
     try {
       var res = await ctCallFn('segmentContacts', { loai_lien_he: 'tho_ung_tuyen' });
       var items = res.items || [];
@@ -8080,7 +8130,7 @@ window.saveCompanySettings = async function() {
       });
       tqRenderTable();
     } catch(e) {
-      if(body) body.innerHTML = '<tr><td colspan="'+(TQ_NGHE_ORDER.length+1)+'" style="padding:20px;text-align:center;color:var(--red)">Lỗi tải dữ liệu: '+(e.message||e)+'</td></tr>';
+      if(body) body.innerHTML = '<tr><td colspan="'+(TQ_NGHE_ORDER.length+2)+'" style="padding:20px;text-align:center;color:var(--red)">Lỗi tải dữ liệu: '+(e.message||e)+'</td></tr>';
     }
   };
 
