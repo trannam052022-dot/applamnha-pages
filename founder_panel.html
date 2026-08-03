@@ -2023,7 +2023,8 @@ document.addEventListener('DOMContentLoaded', function() {
   </div>
 </div>
 
-<!-- ══ PANEL: THỢ THEO QUẬN (ma trận 22 quận × 10 nghề, thêm 03/08/2026 (4)) ══
+<!-- ══ PANEL: THỢ THEO QUẬN (ma trận 22 quận × 12 nghề = 264 ô, thêm
+     03/08/2026 (4), chốt đủ 12 nghề 03/08/2026 (5)) ══
      Đếm contacts loai_lien_he="tho_ung_tuyen" theo từng cặp (quan trong
      quan[], nghe) — 1 thợ chọn 3 quận sẽ đếm ở cả 3 hàng tương ứng, cùng 1
      cột nghề (mỗi thợ chỉ có 1 nghề). Dữ liệu tải qua segmentContacts (cùng
@@ -2038,7 +2039,7 @@ document.addEventListener('DOMContentLoaded', function() {
   </div>
 
   <div style="overflow:auto;max-height:70vh;border:1px solid var(--border);border-radius:12px;background:var(--card)">
-    <table style="width:100%;border-collapse:collapse;min-width:1160px">
+    <table style="width:100%;border-collapse:collapse;min-width:1360px">
       <thead><tr id="thoQuanHeadRow">
         <th style="font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);text-align:left;padding:10px 11px;background:var(--raised);border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;left:0;z-index:3">Quận</th>
       </tr></thead>
@@ -7661,12 +7662,16 @@ window.saveCompanySettings = async function() {
     ks_ung_tuyen: 'var(--gold)', ncc_ung_tuyen: 'var(--gold)',
     tho_ung_tuyen: '#f97316',
   };
-  // 03/08/2026 (4): 5 nghề gốc + 5 nghề thêm sau (khớp NGHE_ENUM trong
-  // functions/thoGiuCho.js) — bản trước chỉ có 5 nghề gốc, thiếu label cho
-  // op_lat/thong_tac/may_lanh/thach_cao/nhom_kinh khiến modal hiện slug thô.
+  // 03/08/2026 (5): CHỐT LẠI đúng 12 nghề (khớp TUYỆT ĐỐI NGHE_ENUM trong
+  // functions/thoGiuCho.js + NGHE_OPTIONS trong tho-giu-cho.html) — bỏ
+  // "thach_cao" (gộp nhãn vào "moc"), thêm xay_to/khoan_cat/sat_mai_ton, đổi
+  // nhãn nhom_kinh. Thứ tự trong object không quan trọng cho tra cứu label,
+  // nhưng THỨ TỰ CỘT của bảng "Thợ theo quận" lấy từ mảng TQ_NGHE_ORDER bên
+  // dưới — sửa 1 nơi mà quên nơi kia sẽ làm modal/bảng lệch nhau.
   var CT_NGHE_LABEL = {
-    dien_nuoc: 'Điện nước', son: 'Sơn', chong_tham: 'Chống thấm', moc: 'Mộc', khac: 'Khác',
-    op_lat: 'Ốp lát', thong_tac: 'Thông tắc', may_lanh: 'Máy lạnh', thach_cao: 'Thạch cao', nhom_kinh: 'Nhôm kính',
+    dien_nuoc: 'Điện nước', chong_tham: 'Chống thấm', thong_tac: 'Thông tắc', may_lanh: 'Máy lạnh',
+    son: 'Sơn', xay_to: 'Xây tô', op_lat: 'Ốp lát', khoan_cat: 'Khoan cắt, đục phá',
+    sat_mai_ton: 'Sắt, hàn, mái tôn', moc: 'Mộc, thạch cao', nhom_kinh: 'Nhôm kính, cửa', khac: 'Khác',
   };
   var CT_KHUVUC_LABEL = {
     HCM: 'TP. Hồ Chí Minh', HN: 'Hà Nội', DN: 'Đà Nẵng', CT: 'Cần Thơ', HP: 'Hải Phòng',
@@ -8035,8 +8040,12 @@ window.saveCompanySettings = async function() {
      để dùng chung CT_QUAN_LABEL/CT_NGHE_LABEL/ctCallFn đã khai báo ở trên,
      tránh tạo thêm 1 bản sao thứ 3 (functions/thoGiuCho.js + tho-giu-cho.html
      đã là 2 nơi phải đồng bộ tay, xem comment ở đó). Gắn window.* vì
-     switchTab() (hàm global, định nghĩa ngoài IIFE này) gọi trực tiếp. */
-  var TQ_NGHE_ORDER = ['dien_nuoc','son','chong_tham','moc','khac','op_lat','thong_tac','may_lanh','thach_cao','nhom_kinh'];
+     switchTab() (hàm global, định nghĩa ngoài IIFE này) gọi trực tiếp.
+     03/08/2026 (5): cập nhật theo đúng 12 nghề đã chốt (NGHE_ENUM trong
+     functions/thoGiuCho.js) — bảng tự thành 22×12 = 264 ô vì mọi vòng lặp
+     bên dưới đều đọc độ dài mảng này (TQ_NGHE_ORDER.length), không hardcode
+     số cột ở đâu khác. */
+  var TQ_NGHE_ORDER = ['dien_nuoc','chong_tham','thong_tac','may_lanh','son','xay_to','op_lat','khoan_cat','sat_mai_ton','moc','nhom_kinh','khac'];
   var TQ_QUAN_GROUPS = [
     { ten: 'Trung tâm', items: ['quan-1','quan-3','quan-4','quan-5','quan-6','quan-8','quan-10','quan-11','phu-nhuan','binh-thanh'] },
     { ten: 'Đông', items: ['thu-duc','quan-7','nha-be','can-gio'] },
@@ -8068,7 +8077,7 @@ window.saveCompanySettings = async function() {
   function tqRenderTable(){
     var body = document.getElementById('thoQuanMatrixBody');
     if(!body) return;
-    var totalCols = TQ_NGHE_ORDER.length + 2; // Quận + 10 nghề + Tổng
+    var totalCols = TQ_NGHE_ORDER.length + 2; // Quận + N nghề (đọc động từ TQ_NGHE_ORDER, hiện 12) + Tổng
     var colTotals = {}; // nghe -> tổng dồn qua mọi quận (thợ nhiều quận đếm nhiều lần, đúng bản chất "tổng số ô")
     TQ_NGHE_ORDER.forEach(function(n){ colTotals[n] = 0; });
     var grandTotal = 0;
