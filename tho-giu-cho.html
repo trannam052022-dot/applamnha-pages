@@ -102,13 +102,21 @@ a{color:var(--gold)}
 .ph-spin{animation:phspin 1s linear infinite;display:inline-block}
 @keyframes phspin{to{transform:rotate(360deg)}}
 
-.success-wrap{text-align:center;padding:26px 4px 6px}
-.success-icon{width:76px;height:76px;border-radius:50%;background:var(--gold-bg);border:1.5px solid rgba(152,105,10,.28);display:flex;align-items:center;justify-content:center;font-size:36px;color:var(--gold);margin:0 auto 18px}
-.success-title{font-family:var(--serif);font-size:28px;font-weight:600;color:var(--text);margin-bottom:10px}
-.success-sub{font-size:16px;color:var(--text2);line-height:1.7;max-width:400px;margin:0 auto}
-.success-wrap .btn-submit{margin-top:26px}
-.success-share-hint{font-size:13.5px;color:var(--muted);line-height:1.6;max-width:340px;margin:22px auto 0}
-.success-copy-btn{display:inline-flex;align-items:center;gap:8px;margin-top:10px;padding:10px 18px;border-radius:99px;border:1.5px solid var(--border2);background:#fff;color:var(--text2);font-family:var(--sans);font-size:13.5px;font-weight:600;cursor:pointer;transition:all .15s}
+/* 03/08/2026 (7) — VIỆC 4: nội dung màn cảm ơn dài hơn hẳn bản trước (thêm
+   đoạn "đơn về theo quận", đoạn ghi chú miễn phí, đường kẻ, dòng nhắc ảnh
+   công trình) — thu nhỏ toàn bộ kích thước/khoảng cách so với bản gốc để
+   vẫn gọn trong khoảng 1 màn hình ~390px, không bắt cuộn nhiều lần. */
+.success-wrap{text-align:center;padding:20px 4px 4px}
+.success-icon{width:56px;height:56px;border-radius:50%;background:var(--gold-bg);border:1.5px solid rgba(152,105,10,.28);display:flex;align-items:center;justify-content:center;font-size:26px;color:var(--gold);margin:0 auto 12px}
+.success-title{font-family:var(--serif);font-size:22px;font-weight:600;color:var(--text);margin-bottom:6px}
+.success-sub{font-size:15px;color:var(--text2);line-height:1.5;max-width:380px;margin:0 auto}
+.success-sub2{font-size:15px;color:var(--text2);line-height:1.5;max-width:380px;margin:5px auto 0}
+.success-note{font-size:12px;color:var(--muted);line-height:1.5;max-width:380px;margin:10px auto 0}
+.success-wrap .btn-submit{margin-top:18px}
+.success-fb-hint{font-size:11.5px;color:var(--muted);line-height:1.4;margin:6px auto 0}
+.success-divider{height:1px;background:var(--border);margin:18px 0}
+.success-share-hint{font-size:12.5px;color:var(--muted);line-height:1.5;max-width:380px;margin:0 auto 8px}
+.success-copy-btn{display:inline-flex;align-items:center;gap:8px;margin-top:6px;padding:10px 18px;border-radius:99px;border:1.5px solid var(--border2);background:#fff;color:var(--text2);font-family:var(--sans);font-size:13.5px;font-weight:600;cursor:pointer;transition:all .15s}
 .success-copy-btn:hover{border-color:rgba(152,105,10,.45);color:var(--gold)}
 
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(20,28,42,.96);border:1px solid rgba(255,255,255,.1);color:#f0f4f8;font-size:13px;font-weight:500;padding:12px 22px;border-radius:99px;z-index:9999;box-shadow:0 8px 32px rgba(20,30,50,.3);opacity:0;pointer-events:none;transition:opacity .25s;white-space:nowrap;max-width:90vw;text-align:center}
@@ -197,13 +205,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="success-wrap">
       <div class="success-icon"><i class="ph-duotone ph-check-circle"></i></div>
       <h2 class="success-title">Đã nhận thông tin!</h2>
-      <p class="success-sub" id="successMsg">Quản lý khu vực sẽ gọi Zalo trong 24h.</p>
+      <p class="success-sub" id="successMsg">ALN khu vực sẽ gọi Zalo trong 24h.</p>
+      <p class="success-sub2">Đơn về theo quận anh chọn — khu nào có khách, bên mình gọi đội gần đó trước.</p>
+      <p class="success-note">Đăng ký miễn phí. ALN không thu phí, không giữ tiền của anh.</p>
 
       <a class="btn-submit" id="successFbBtn" href="https://www.facebook.com/applamnha" target="_blank" rel="noopener" style="text-decoration:none">
-        <i class="ph-duotone ph-facebook-logo"></i> Theo dõi trang ALN để thấy đơn mới ở khu vực anh
+        <i class="ph-duotone ph-facebook-logo"></i> Theo dõi trang ALN
       </a>
+      <p class="success-fb-hint">để thấy đơn mới ở khu vực anh</p>
 
-      <p class="success-share-hint">Anh có bạn cùng nghề đang tìm việc thì gửi link này cho họ</p>
+      <div class="success-divider"></div>
+
+      <p class="success-share-hint">Có ảnh công trình đã làm thì gửi qua Zalo lúc bên mình gọi — hồ sơ có ảnh được ưu tiên nhận việc trước.</p>
+      <p class="success-share-hint">Anh có bạn cùng nghề đang tìm việc thì gửi link này cho họ.</p>
       <button type="button" class="success-copy-btn" id="successCopyBtn" onclick="copyShareLink()">
         <i class="ph-duotone ph-copy"></i> Sao chép link
       </button>
@@ -226,17 +240,23 @@ var KHU_VUC = [
 /* Chốt 12 nghề (03/08/2026 (5)) — thứ tự hiển thị CHÍNH THỨC, khớp TUYỆT ĐỐI
    NGHE_ENUM trong functions/thoGiuCho.js + CT_NGHE_LABEL/TQ_NGHE_ORDER trong
    founder_panel.html. Bỏ "thach_cao" (gộp nhãn vào "moc"), thêm
-   xay_to/khoan_cat/sat_mai_ton, "khac" LUÔN ở cuối cùng — tránh bấm nhầm. */
+   xay_to/khoan_cat/sat_mai_ton, "khac" LUÔN ở cuối cùng — tránh bấm nhầm.
+   03/08/2026 (6): sửa 3 icon Phosphor đoán sai lúc thêm nghề mới — ph-bricks/
+   ph-drill/ph-fire KHÔNG tồn tại trong bộ Phosphor nên hiện trống, đổi đúng
+   sang ph-wall/ph-hammer/ph-wrench. khoan_cat và moc CÙNG dùng ph-hammer
+   (không có icon khoan/đục riêng trong bộ Phosphor) — trùng icon nhưng khác
+   nhãn chữ nên vẫn phân biệt được, chấp nhận được. 9 icon còn lại đã rà lại,
+   đúng tên trong Phosphor, không đổi. */
 var NGHE_OPTIONS = [
   ['dien_nuoc','Điện nước','ph-lightning'],
   ['chong_tham','Chống thấm','ph-drop'],
   ['thong_tac','Thông tắc','ph-toilet'],
   ['may_lanh','Máy lạnh','ph-snowflake'],
   ['son','Sơn','ph-paint-brush'],
-  ['xay_to','Xây tô','ph-bricks'],
+  ['xay_to','Xây tô','ph-wall'],
   ['op_lat','Ốp lát','ph-stack'],
-  ['khoan_cat','Khoan cắt, đục phá','ph-drill'],
-  ['sat_mai_ton','Sắt, hàn, mái tôn','ph-fire'],
+  ['khoan_cat','Khoan cắt, đục phá','ph-hammer'],
+  ['sat_mai_ton','Sắt, hàn, mái tôn','ph-wrench'],
   ['moc','Mộc, thạch cao','ph-hammer'],
   ['nhom_kinh','Nhôm kính, cửa','ph-frame-corners'],
   ['khac','Khác','ph-squares-four'],
@@ -277,9 +297,10 @@ var selectedQuan = [];
 var MAX_QUAN = 3;
 
 /* Tra tên đầy đủ từ slug quận — dùng cho màn hình cảm ơn (VIỆC 3, 03/08/2026
-   (5)): "Quản lý khu vực [tên quận] sẽ gọi Zalo trong 24h." cần tên hiển thị,
-   không phải slug thô. Duyệt thẳng QUAN_GROUPS thay vì tạo thêm 1 object
-   tra cứu — mảng chỉ 22 phần tử, không đáng lo hiệu năng. */
+   (5), sửa câu chữ 03/08/2026 (6)): "ALN khu vực [tên quận] sẽ gọi Zalo
+   trong 24h." cần tên hiển thị, không phải slug thô. Duyệt thẳng QUAN_GROUPS
+   thay vì tạo thêm 1 object tra cứu — mảng chỉ 22 phần tử, không đáng lo
+   hiệu năng. */
 function quanLabelOf(slug) {
   for (var g = 0; g < QUAN_GROUPS.length; g++) {
     var items = QUAN_GROUPS[g].items;
@@ -570,11 +591,13 @@ window._doSubmit = async function(data) {
     // VIỆC 3 (03/08/2026 (5)) — dòng xác nhận nêu tên quận ĐẦU TIÊN nếu thợ
     // có chọn quận (chỉ có ý nghĩa khi khu_vuc="HCM", quanLabelOf định nghĩa
     // ở <script> thường phía trên, gọi được từ đây vì cùng window/document).
+    // 03/08/2026 (6): đổi "Quản lý khu vực" → "ALN khu vực" — tránh lặp chữ
+    // "khu vực"/"Quận" khi ghép với tên quận (VD "Quản lý khu vực Quận 1...").
     const quanArr = Array.isArray(data.quan) ? data.quan : [];
     const quanLabel = quanArr.length && window.quanLabelOf ? window.quanLabelOf(quanArr[0]) : null;
     document.getElementById('successMsg').textContent = quanLabel
-      ? 'Quản lý khu vực ' + quanLabel + ' sẽ gọi Zalo trong 24h.'
-      : 'Quản lý khu vực sẽ gọi Zalo trong 24h.';
+      ? 'ALN khu vực ' + quanLabel + ' sẽ gọi Zalo trong 24h.'
+      : 'ALN khu vực sẽ gọi Zalo trong 24h.';
 
     document.getElementById('formCard').style.display = 'none';
     document.getElementById('successCard').style.display = 'block';
