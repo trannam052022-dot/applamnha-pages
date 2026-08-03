@@ -245,8 +245,15 @@ function updateProgress(realCount){
 
 /* 1 mục minh hoạ (dùng lại đúng nội dung đã duyệt trong ncc-showcase.html
    MOCK_DATA — không phát minh thương hiệu mới) — chỉ hiện khi số đội thật
-   còn ít, tránh trang trông trống trong lúc chiến dịch mới bắt đầu. */
-var MOCK_TEAM = { uid:'demo-07', name:'Đội Thi Công Thành Phát', province:'HCM', verified:false, leadCount:52, isDemo:true };
+   còn ít, tránh trang trông trống trong lúc chiến dịch mới bắt đầu.
+   03/08/2026 (5): GỠ leadCount:52 — thẻ minh hoạ hiện "52 lượt liên hệ"
+   trong khi ngay dưới progress bar ghi "Đã có 0 đội đăng ký", 2 con số chọi
+   nhau khiến đối tượng thợ (vốn đã cảnh giác) nghi ngờ. Không set leadCount
+   (thay vì set 0) — renderTeams() chỉ render badge "N lượt liên hệ" khi
+   typeof leadCount==='number', nên bỏ hẳn field là cách rõ ràng nhất để
+   không bao giờ hiện badge này cho thẻ minh hoạ. Badge "Minh hoạ" và progress
+   bar "0/20 mục tiêu đợt đầu" GIỮ NGUYÊN — không đụng. */
+var MOCK_TEAM = { uid:'demo-07', name:'Đội Thi Công Thành Phát', province:'HCM', verified:false, isDemo:true };
 </script>
 
 <script type="module">

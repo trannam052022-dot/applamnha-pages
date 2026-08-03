@@ -106,6 +106,10 @@ a{color:var(--gold)}
 .success-icon{width:76px;height:76px;border-radius:50%;background:var(--gold-bg);border:1.5px solid rgba(152,105,10,.28);display:flex;align-items:center;justify-content:center;font-size:36px;color:var(--gold);margin:0 auto 18px}
 .success-title{font-family:var(--serif);font-size:28px;font-weight:600;color:var(--text);margin-bottom:10px}
 .success-sub{font-size:16px;color:var(--text2);line-height:1.7;max-width:400px;margin:0 auto}
+.success-wrap .btn-submit{margin-top:26px}
+.success-share-hint{font-size:13.5px;color:var(--muted);line-height:1.6;max-width:340px;margin:22px auto 0}
+.success-copy-btn{display:inline-flex;align-items:center;gap:8px;margin-top:10px;padding:10px 18px;border-radius:99px;border:1.5px solid var(--border2);background:#fff;color:var(--text2);font-family:var(--sans);font-size:13.5px;font-weight:600;cursor:pointer;transition:all .15s}
+.success-copy-btn:hover{border-color:rgba(152,105,10,.45);color:var(--gold)}
 
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(20,28,42,.96);border:1px solid rgba(255,255,255,.1);color:#f0f4f8;font-size:13px;font-weight:500;padding:12px 22px;border-radius:99px;z-index:9999;box-shadow:0 8px 32px rgba(20,30,50,.3);opacity:0;pointer-events:none;transition:opacity .25s;white-space:nowrap;max-width:90vw;text-align:center}
 .toast.show{opacity:1}
@@ -192,8 +196,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="card" id="successCard" style="display:none">
     <div class="success-wrap">
       <div class="success-icon"><i class="ph-duotone ph-check-circle"></i></div>
-      <h2 class="success-title">Đã gửi thành công!</h2>
-      <p class="success-sub">Cảm ơn anh/chị, ALN sẽ liên hệ qua Zalo trong 24h.</p>
+      <h2 class="success-title">Đã nhận thông tin!</h2>
+      <p class="success-sub" id="successMsg">Quản lý khu vực sẽ gọi Zalo trong 24h.</p>
+
+      <a class="btn-submit" id="successFbBtn" href="https://www.facebook.com/applamnha" target="_blank" rel="noopener" style="text-decoration:none">
+        <i class="ph-duotone ph-facebook-logo"></i> Theo dõi trang ALN để thấy đơn mới ở khu vực anh
+      </a>
+
+      <p class="success-share-hint">Anh có bạn cùng nghề đang tìm việc thì gửi link này cho họ</p>
+      <button type="button" class="success-copy-btn" id="successCopyBtn" onclick="copyShareLink()">
+        <i class="ph-duotone ph-copy"></i> Sao chép link
+      </button>
     </div>
   </div>
 
@@ -210,19 +223,23 @@ var KHU_VUC = [
   ['LA','Long An'], ['TG','Tiền Giang'], ['KH','Khánh Hòa'], ['BDinh','Bình Định'],
   ['NA','Nghệ An'], ['TH','Thanh Hóa'], ['OTHER','Tỉnh khác'],
 ];
-/* 5 nghề gốc GIỮ NGUYÊN — 5 nghề thêm 03/08/2026 nối cuối (khớp NGHE_ENUM
-   trong functions/thoGiuCho.js, không chèn giữa để không đổi ý nghĩa dữ liệu cũ). */
+/* Chốt 12 nghề (03/08/2026 (5)) — thứ tự hiển thị CHÍNH THỨC, khớp TUYỆT ĐỐI
+   NGHE_ENUM trong functions/thoGiuCho.js + CT_NGHE_LABEL/TQ_NGHE_ORDER trong
+   founder_panel.html. Bỏ "thach_cao" (gộp nhãn vào "moc"), thêm
+   xay_to/khoan_cat/sat_mai_ton, "khac" LUÔN ở cuối cùng — tránh bấm nhầm. */
 var NGHE_OPTIONS = [
   ['dien_nuoc','Điện nước','ph-lightning'],
-  ['son','Sơn','ph-paint-brush'],
   ['chong_tham','Chống thấm','ph-drop'],
-  ['moc','Mộc','ph-hammer'],
-  ['khac','Khác','ph-squares-four'],
-  ['op_lat','Ốp lát','ph-stack'],
   ['thong_tac','Thông tắc','ph-toilet'],
   ['may_lanh','Máy lạnh','ph-snowflake'],
-  ['thach_cao','Thạch cao','ph-layout'],
-  ['nhom_kinh','Nhôm kính','ph-frame-corners'],
+  ['son','Sơn','ph-paint-brush'],
+  ['xay_to','Xây tô','ph-bricks'],
+  ['op_lat','Ốp lát','ph-stack'],
+  ['khoan_cat','Khoan cắt, đục phá','ph-drill'],
+  ['sat_mai_ton','Sắt, hàn, mái tôn','ph-fire'],
+  ['moc','Mộc, thạch cao','ph-hammer'],
+  ['nhom_kinh','Nhôm kính, cửa','ph-frame-corners'],
+  ['khac','Khác','ph-squares-four'],
 ];
 
 var selectedKhuVuc = '';
@@ -258,6 +275,21 @@ var QUAN_GROUPS = [
 ];
 var selectedQuan = [];
 var MAX_QUAN = 3;
+
+/* Tra tên đầy đủ từ slug quận — dùng cho màn hình cảm ơn (VIỆC 3, 03/08/2026
+   (5)): "Quản lý khu vực [tên quận] sẽ gọi Zalo trong 24h." cần tên hiển thị,
+   không phải slug thô. Duyệt thẳng QUAN_GROUPS thay vì tạo thêm 1 object
+   tra cứu — mảng chỉ 22 phần tử, không đáng lo hiệu năng. */
+function quanLabelOf(slug) {
+  for (var g = 0; g < QUAN_GROUPS.length; g++) {
+    var items = QUAN_GROUPS[g].items;
+    for (var i = 0; i < items.length; i++) {
+      if (items[i][0] === slug) return items[i][1];
+    }
+  }
+  return null;
+}
+window.quanLabelOf = quanLabelOf;
 
 (function renderQuanGrid(){
   var html = '';
@@ -301,6 +333,31 @@ window.pickQuan = pickQuan;
   document.getElementById('ngheGrid').innerHTML = ngheHtml;
 })();
 
+/* VIỆC 2 (03/08/2026 (5)) — đọc query param lúc load trang, phục vụ link gửi
+   thợ qua inbox Facebook (VD applamnha.vn/tho-giu-cho.html?kv=HCM&utm_source=fb_inbox_thau)
+   để thợ chỉ còn 4 thao tác: tên → SĐT → quận → nghề.
+   - ?kv=<mã>: tự chọn sẵn khu vực nếu mã khớp 1 trong KHU_VUC (mọi mã hợp
+     lệ, không riêng HCM) — dùng lại đúng hàm pickKhuVuc() nên trường Quận
+     tự hiện/ẩn đúng như bấm tay. Mã lạ thì BỎ QUA, không báo lỗi, giữ hành
+     vi mặc định (chưa chọn khu vực nào).
+   - ?utm_source=...: lưu vào initialUtmSource, gửi kèm lúc submit thành
+     campaign_tag (server tự validate/cắt độ dài — functions/thoGiuCho.js).
+   Không có param nào thì hành vi giữ nguyên y hệt trước VIỆC 2. */
+var initialUtmSource = '';
+(function applyQueryParams(){
+  var params;
+  try { params = new URLSearchParams(window.location.search); }
+  catch (e) { return; } // trình duyệt không hỗ trợ URLSearchParams — bỏ qua, không chặn form
+  var kv = params.get('kv');
+  if (kv) {
+    var kvValid = false;
+    for (var i = 0; i < KHU_VUC.length; i++) { if (KHU_VUC[i][0] === kv) { kvValid = true; break; } }
+    if (kvValid) pickKhuVuc(kv);
+  }
+  var utm = params.get('utm_source');
+  if (utm) initialUtmSource = utm.trim().slice(0, 80);
+})();
+
 function pickKhuVuc(val) {
   selectedKhuVuc = val;
   document.querySelectorAll('#khuVucGrid .pick-btn').forEach(function(b){
@@ -335,6 +392,36 @@ function showToast(msg, isErr) {
 }
 window.showToast = showToast;
 
+/* VIỆC 3 (03/08/2026 (5)) — nút "Sao chép link" trên màn hình cảm ơn, để thợ
+   gửi lại link tho-giu-cho.html (KHÔNG kèm query param của chính họ — link
+   sạch, ai bấm vào cũng bắt đầu từ đầu) cho người quen cùng nghề. */
+function copyShareLink() {
+  var url = window.location.origin + window.location.pathname;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(function () {
+      showToast('Đã sao chép link');
+    }, function () {
+      showToast('Không sao chép được, anh copy tay giúp: ' + url, true);
+    });
+  } else {
+    // Trình duyệt cũ không có Clipboard API — fallback textarea ẩn + execCommand.
+    var ta = document.createElement('textarea');
+    ta.value = url;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
+      showToast('Đã sao chép link');
+    } catch (e) {
+      showToast('Không sao chép được, anh copy tay giúp: ' + url, true);
+    }
+    document.body.removeChild(ta);
+  }
+}
+window.copyShareLink = copyShareLink;
+
 function validatePhone(v) {
   var digits = v.replace(/[\s.\-()]/g, '');
   return /^(0\d{8,10}|\+?84\d{8,10})$/.test(digits);
@@ -351,7 +438,7 @@ function submitForm() {
   if (!selectedNghe) { showToast('Vui lòng chọn nghề', true); return; }
   if (!dongY) { showToast('Vui lòng đồng ý để ALN liên hệ qua Zalo', true); return; }
 
-  window._doSubmit({ ten: ten, phone: phone, khu_vuc: selectedKhuVuc, nghe: selectedNghe, dong_y: dongY, quan: selectedQuan.slice() });
+  window._doSubmit({ ten: ten, phone: phone, khu_vuc: selectedKhuVuc, nghe: selectedNghe, dong_y: dongY, quan: selectedQuan.slice(), campaign_tag: initialUtmSource || null });
 }
 window.submitForm = submitForm;
 </script>
@@ -477,7 +564,18 @@ window._doSubmit = async function(data) {
       dong_y: data.dong_y,
       anh_cong_trinh: anhCongTrinh,
       quan: data.quan || [],
+      campaign_tag: data.campaign_tag || null,
     });
+
+    // VIỆC 3 (03/08/2026 (5)) — dòng xác nhận nêu tên quận ĐẦU TIÊN nếu thợ
+    // có chọn quận (chỉ có ý nghĩa khi khu_vuc="HCM", quanLabelOf định nghĩa
+    // ở <script> thường phía trên, gọi được từ đây vì cùng window/document).
+    const quanArr = Array.isArray(data.quan) ? data.quan : [];
+    const quanLabel = quanArr.length && window.quanLabelOf ? window.quanLabelOf(quanArr[0]) : null;
+    document.getElementById('successMsg').textContent = quanLabel
+      ? 'Quản lý khu vực ' + quanLabel + ' sẽ gọi Zalo trong 24h.'
+      : 'Quản lý khu vực sẽ gọi Zalo trong 24h.';
+
     document.getElementById('formCard').style.display = 'none';
     document.getElementById('successCard').style.display = 'block';
     window.scrollTo({ top: 0, behavior: 'smooth' });
