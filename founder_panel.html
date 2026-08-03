@@ -933,6 +933,7 @@ body {
     <button class="fsub" id="tabLeads" onclick="switchTab('leads')"><i class="ph-duotone ph-target"></i>Lead<span id="leadsBadge" style="display:none;background:#ef4444;color:#fff;border-radius:99px;font-size:9px;padding:1px 5px;margin-left:2px;font-weight:800">0</span></button>
     <button class="fsub" id="tabSuaVatAi" onclick="switchTab('suaVatAi')"><i class="ph-duotone ph-robot"></i>AI Sửa Vặt<span id="suaVatAiBadge" style="display:none;background:var(--green);color:#fff;border-radius:99px;font-size:9px;padding:1px 5px;margin-left:2px;font-weight:800">0</span></button>
     <button class="fsub" id="tabContacts" onclick="switchTab('contacts')"><i class="ph-duotone ph-address-book"></i>Liên hệ</button>
+    <button class="fsub" id="tabThoQuan" onclick="switchTab('thoQuan')"><i class="ph-duotone ph-grid-nine"></i>Thợ theo quận</button>
     <button class="fsub" id="tabRecruit"  onclick="switchTab('recruit')" ><i class="ph-duotone ph-megaphone"></i>Tuyển dụng</button>
     <button class="fsub" id="tabCompany"  onclick="switchTab('company')" ><i class="ph-duotone ph-buildings"></i>Cài đặt CTY</button>
     <button class="fsub" id="tabPricing"  onclick="switchTab('pricing')" ><i class="ph-duotone ph-tag"></i>Khung giá</button>
@@ -2001,6 +2002,41 @@ document.addEventListener('DOMContentLoaded', function() {
       </tr></thead>
       <tbody id="contactsBody"></tbody>
     </table>
+  </div>
+</div>
+
+<!-- ══ PANEL: THỢ THEO QUẬN (ma trận 22 quận × 10 nghề, thêm 03/08/2026 (4)) ══
+     Đếm contacts loai_lien_he="tho_ung_tuyen" theo từng cặp (quan trong
+     quan[], nghe) — 1 thợ chọn 3 quận sẽ đếm ở cả 3 hàng tương ứng, cùng 1
+     cột nghề (mỗi thợ chỉ có 1 nghề). Dữ liệu tải qua segmentContacts (cùng
+     hàm dùng chung với tab Liên hệ) — không cần Cloud Function riêng. -->
+<div id="panelThoQuan" style="display:none;flex-direction:column;flex:1;overflow-y:auto;padding:24px 28px">
+  <div style="font-size:11px;font-weight:700;color:var(--dim);letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px">VẬN HÀNH · THỢ - ĐỘI THI CÔNG</div>
+  <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--text1);margin-bottom:6px">Thợ theo quận</div>
+  <div style="font-size:13px;color:var(--sub);margin-bottom:18px;max-width:80ch">Ma trận số thợ giữ chỗ (<span style="font-family:var(--mono);color:var(--dim)">tho-giu-cho.html</span>, chỉ tính <code style="color:var(--dim)">loai_lien_he="tho_ung_tuyen"</code>) theo từng quận TP.HCM × nghề. Ô tô đỏ nhạt = chưa có thợ nào — chỗ cần ưu tiên tuyển. Bấm vào 1 ô để xem danh sách tên + SĐT. Thợ không thuộc khu vực TP.HCM hoặc chưa chọn quận nào sẽ không xuất hiện trong bảng này.</div>
+
+  <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+    <button onclick="initThoQuanPanel()" style="padding:7px 14px;background:var(--raised);border:1px solid var(--border);border-radius:7px;font-size:12px;font-weight:600;color:var(--sub);cursor:pointer;font-family:var(--sans)"><i class="ph-duotone ph-arrow-clockwise"></i> Tải lại</button>
+  </div>
+
+  <div style="overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:var(--card)">
+    <table style="width:100%;border-collapse:collapse;min-width:1080px">
+      <thead><tr id="thoQuanHeadRow">
+        <th style="font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);text-align:left;padding:10px 11px;background:var(--raised);border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;left:0;z-index:1">Quận</th>
+      </tr></thead>
+      <tbody id="thoQuanMatrixBody"><tr><td style="padding:20px;text-align:center;color:var(--dim);font-family:var(--mono);font-size:12px">Đang tải...</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal: danh sách thợ trong 1 ô ma trận -->
+<div id="thoQuanCellModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9000;align-items:center;justify-content:center">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;width:min(420px,92vw);max-height:80vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div id="thoQuanCellTitle" style="font-family:var(--mono);font-size:14px;font-weight:700;color:var(--text1)"></div>
+      <button onclick="document.getElementById('thoQuanCellModal').style.display='none'" style="background:none;border:none;color:var(--dim);font-size:20px;cursor:pointer">×</button>
+    </div>
+    <div id="thoQuanCellList"></div>
   </div>
 </div>
 
@@ -3596,7 +3632,7 @@ window.ALNRealtime = (() => {
 ══════════════════════════════════════════ */
 
 function switchTab(t){
-  var ALL = ['projects','stats','mgKts','mgDn','mgCn','mgKs','mgKtv','mgNcc','bricks','pending','payments','report','leads','suaVatAi','contacts','recruit','company','pricing','khomau','mkt','seo','hoikien','waitRoom','matching','c2monitor','liveKts','liveDn','liveCn','liveDes','liveKs','liveKtv','liveKeToan'];
+  var ALL = ['projects','stats','mgKts','mgDn','mgCn','mgKs','mgKtv','mgNcc','bricks','pending','payments','report','leads','suaVatAi','contacts','thoQuan','recruit','company','pricing','khomau','mkt','seo','hoikien','waitRoom','matching','c2monitor','liveKts','liveDn','liveCn','liveDes','liveKs','liveKtv','liveKeToan'];
   var activeStyle  = 'padding:5px 13px;border:1px solid rgba(59,130,246,.25);border-radius:6px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;background:rgba(59,130,246,.15);color:var(--blue);white-space:nowrap';
   var inactiveStyle= 'padding:5px 13px;border:1px solid var(--border);border-radius:6px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;background:var(--raised);color:var(--sub);white-space:nowrap';
   var liveStyles = {
@@ -3647,6 +3683,7 @@ function switchTab(t){
   if(t==='leads')    initLeadsPanel();
   if(t==='suaVatAi') initSuaVatAiPanel();
   if(t==='contacts') initContactsPanel();
+  if(t==='thoQuan')  initThoQuanPanel();
   if(t==='recruit')  { if(typeof window._recruitRender==='function') window._recruitRender(); }
   if(t==='company')  loadCompanySettings();
   if(t==='pricing')  initPricingPanel();
@@ -7606,11 +7643,28 @@ window.saveCompanySettings = async function() {
     ks_ung_tuyen: 'var(--gold)', ncc_ung_tuyen: 'var(--gold)',
     tho_ung_tuyen: '#f97316',
   };
-  var CT_NGHE_LABEL = { dien_nuoc: 'Điện nước', son: 'Sơn', chong_tham: 'Chống thấm', moc: 'Mộc', khac: 'Khác' };
+  // 03/08/2026 (4): 5 nghề gốc + 5 nghề thêm sau (khớp NGHE_ENUM trong
+  // functions/thoGiuCho.js) — bản trước chỉ có 5 nghề gốc, thiếu label cho
+  // op_lat/thong_tac/may_lanh/thach_cao/nhom_kinh khiến modal hiện slug thô.
+  var CT_NGHE_LABEL = {
+    dien_nuoc: 'Điện nước', son: 'Sơn', chong_tham: 'Chống thấm', moc: 'Mộc', khac: 'Khác',
+    op_lat: 'Ốp lát', thong_tac: 'Thông tắc', may_lanh: 'Máy lạnh', thach_cao: 'Thạch cao', nhom_kinh: 'Nhôm kính',
+  };
   var CT_KHUVUC_LABEL = {
     HCM: 'TP. Hồ Chí Minh', HN: 'Hà Nội', DN: 'Đà Nẵng', CT: 'Cần Thơ', HP: 'Hải Phòng',
     BD: 'Bình Dương', DNai: 'Đồng Nai', 'BR-VT': 'Bà Rịa – Vũng Tàu', LA: 'Long An',
     TG: 'Tiền Giang', KH: 'Khánh Hòa', BDinh: 'Bình Định', NA: 'Nghệ An', TH: 'Thanh Hóa', OTHER: 'Tỉnh khác',
+  };
+  // Quận TP.HCM (thêm 03/08/2026 (4)) — khớp TUYỆT ĐỐI QUAN_ENUM trong
+  // functions/thoGiuCho.js + QUAN_GROUPS trong tho-giu-cho.html (3 nơi, đồng
+  // bộ thủ công — xem lý do KHÔNG đọc chung 1 file ở comment tại 2 nơi kia).
+  var CT_QUAN_LABEL = {
+    'quan-1':'Quận 1', 'quan-3':'Quận 3', 'quan-4':'Quận 4', 'quan-5':'Quận 5',
+    'quan-6':'Quận 6', 'quan-8':'Quận 8', 'quan-10':'Quận 10', 'quan-11':'Quận 11',
+    'phu-nhuan':'Phú Nhuận', 'binh-thanh':'Bình Thạnh',
+    'thu-duc':'Thủ Đức', 'quan-7':'Quận 7', 'nha-be':'Nhà Bè', 'can-gio':'Cần Giờ',
+    'go-vap':'Gò Vấp', 'tan-binh':'Tân Bình', 'tan-phu':'Tân Phú', 'binh-tan':'Bình Tân',
+    'quan-12':'Quận 12', 'binh-chanh':'Bình Chánh', 'hoc-mon':'Hóc Môn', 'cu-chi':'Củ Chi',
   };
   var CT_STATUS_LABEL = {
     moi:'Mới', da_lien_he:'Đã liên hệ', da_chuyen_doi:'Đã chuyển đổi',
@@ -7795,8 +7849,15 @@ window.saveCompanySettings = async function() {
     var thoBox = document.getElementById('ctThoDetail');
     if(it.loai_lien_he === 'tho_ung_tuyen'){
       thoBox.style.display = 'block';
+      // Dòng "Quận" CHỈ hiện khi có quan[] và không rỗng (thợ ngoài HCM hoặc
+      // chưa chọn quận nào thì không có dòng này — đúng yêu cầu 03/08/2026 (4)).
+      var quanArr = Array.isArray(it.quan) ? it.quan : [];
+      var quanRow = quanArr.length
+        ? '<div>Quận: <b style="color:var(--text1)">'+quanArr.map(function(q){ return CT_QUAN_LABEL[q]||q; }).join(', ')+'</b></div>'
+        : '';
       document.getElementById('ctThoFields').innerHTML =
         '<div>Khu vực: <b style="color:var(--text1)">'+(CT_KHUVUC_LABEL[it.khu_vuc]||it.khu_vuc||'—')+'</b></div>' +
+        quanRow +
         '<div>Nghề: <b style="color:var(--text1)">'+(CT_NGHE_LABEL[it.nghe]||it.nghe||'—')+'</b></div>';
       var gallery = Array.isArray(it.anh_cong_trinh) ? it.anh_cong_trinh : [];
       document.getElementById('ctThoGallery').innerHTML = gallery.length === 0
@@ -7950,6 +8011,91 @@ window.saveCompanySettings = async function() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  };
+
+  /* ── Tab "Thợ theo quận" (thêm 03/08/2026 (4)) — đặt TRONG cùng IIFE này
+     để dùng chung CT_QUAN_LABEL/CT_NGHE_LABEL/ctCallFn đã khai báo ở trên,
+     tránh tạo thêm 1 bản sao thứ 3 (functions/thoGiuCho.js + tho-giu-cho.html
+     đã là 2 nơi phải đồng bộ tay, xem comment ở đó). Gắn window.* vì
+     switchTab() (hàm global, định nghĩa ngoài IIFE này) gọi trực tiếp. */
+  var TQ_NGHE_ORDER = ['dien_nuoc','son','chong_tham','moc','khac','op_lat','thong_tac','may_lanh','thach_cao','nhom_kinh'];
+  var TQ_QUAN_GROUPS = [
+    { ten: 'Trung tâm', items: ['quan-1','quan-3','quan-4','quan-5','quan-6','quan-8','quan-10','quan-11','phu-nhuan','binh-thanh'] },
+    { ten: 'Đông', items: ['thu-duc','quan-7','nha-be','can-gio'] },
+    { ten: 'Tây - Bắc', items: ['go-vap','tan-binh','tan-phu','binh-tan','quan-12','binh-chanh','hoc-mon','cu-chi'] },
+  ];
+  var TQ_LISTS = {}; // "{quan}|{nghe}" -> [{name, phone}]
+  var TQ_HEAD_BUILT = false;
+
+  function tqBuildHead(){
+    if(TQ_HEAD_BUILT) return;
+    var row = document.getElementById('thoQuanHeadRow');
+    if(!row) return;
+    TQ_NGHE_ORDER.forEach(function(n){
+      var th = document.createElement('th');
+      th.style.cssText = 'font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--dim);text-align:center;padding:10px 8px;background:var(--raised);border-bottom:1px solid var(--border);white-space:nowrap';
+      th.textContent = CT_NGHE_LABEL[n] || n;
+      row.appendChild(th);
+    });
+    TQ_HEAD_BUILT = true;
+  }
+
+  function tqRenderTable(){
+    var body = document.getElementById('thoQuanMatrixBody');
+    if(!body) return;
+    var html = '';
+    TQ_QUAN_GROUPS.forEach(function(grp){
+      html += '<tr><td colspan="'+(TQ_NGHE_ORDER.length+1)+'" style="padding:7px 11px;background:var(--raised);font-family:var(--mono);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);border-bottom:1px solid var(--border)">'+grp.ten+'</td></tr>';
+      grp.items.forEach(function(q){
+        html += '<tr><td style="padding:8px 11px;font-weight:700;color:var(--text1);white-space:nowrap;border-right:1px solid var(--border);position:sticky;left:0;background:var(--card)">'+(CT_QUAN_LABEL[q]||q)+'</td>';
+        TQ_NGHE_ORDER.forEach(function(n){
+          var count = (TQ_LISTS[q+'|'+n] || []).length;
+          var style = 'padding:8px 6px;text-align:center;cursor:pointer;font-family:var(--mono);font-size:12.5px;font-weight:700;border-bottom:1px solid var(--border);'
+            + (count === 0 ? 'background:rgba(220,38,38,.09);color:#ef4444' : 'color:var(--text1)');
+          html += '<td style="'+style+'" onclick="thoQuanShowCell(\''+q+'\',\''+n+'\')" title="'+(CT_QUAN_LABEL[q]||q)+' · '+(CT_NGHE_LABEL[n]||n)+'">'+count+'</td>';
+        });
+        html += '</tr>';
+      });
+    });
+    body.innerHTML = html;
+  }
+
+  window.initThoQuanPanel = async function(){
+    tqBuildHead();
+    var body = document.getElementById('thoQuanMatrixBody');
+    if(body) body.innerHTML = '<tr><td colspan="'+(TQ_NGHE_ORDER.length+1)+'" style="padding:20px;text-align:center;color:var(--dim);font-family:var(--mono);font-size:12px">Đang tải...</td></tr>';
+    try {
+      var res = await ctCallFn('segmentContacts', { loai_lien_he: 'tho_ung_tuyen' });
+      var items = res.items || [];
+      TQ_LISTS = {};
+      items.forEach(function(it){
+        var quanArr = Array.isArray(it.quan) ? it.quan : [];
+        var nghe = it.nghe;
+        if(!quanArr.length || !nghe) return; // không phải TP.HCM / chưa chọn quận → không xuất hiện trong ma trận
+        quanArr.forEach(function(q){
+          var key = q + '|' + nghe;
+          if(!TQ_LISTS[key]) TQ_LISTS[key] = [];
+          TQ_LISTS[key].push({ name: it.name || '(chưa có tên)', phone: it.phone_normalized || '—' });
+        });
+      });
+      tqRenderTable();
+    } catch(e) {
+      if(body) body.innerHTML = '<tr><td colspan="'+(TQ_NGHE_ORDER.length+1)+'" style="padding:20px;text-align:center;color:var(--red)">Lỗi tải dữ liệu: '+(e.message||e)+'</td></tr>';
+    }
+  };
+
+  window.thoQuanShowCell = function(q, n){
+    var list = TQ_LISTS[q+'|'+n] || [];
+    document.getElementById('thoQuanCellTitle').textContent = (CT_QUAN_LABEL[q]||q) + ' · ' + (CT_NGHE_LABEL[n]||n) + ' — ' + list.length + ' thợ';
+    document.getElementById('thoQuanCellList').innerHTML = list.length
+      ? list.map(function(p){
+          return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--border);border-radius:8px;margin-bottom:7px">'
+            + '<span style="font-weight:600;color:var(--text1);font-size:13px">'+p.name+'</span>'
+            + '<span style="font-family:var(--mono);font-size:12.5px;color:var(--dim)">'+p.phone+'</span>'
+          + '</div>';
+        }).join('')
+      : '<span style="font-size:12px;color:var(--dim)">Không có thợ nào trong ô này.</span>';
+    document.getElementById('thoQuanCellModal').style.display = 'flex';
   };
 })();
 
