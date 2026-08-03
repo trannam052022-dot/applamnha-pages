@@ -67,6 +67,10 @@ a{color:var(--gold)}
 .pick-btn:hover{border-color:rgba(152,105,10,.45)}
 .pick-btn.active{border-color:var(--gold);background:var(--gold-bg);color:var(--gold);font-weight:800;box-shadow:0 0 0 3px rgba(152,105,10,.12)}
 
+.quan-group{margin-bottom:14px}
+.quan-group:last-child{margin-bottom:0}
+.quan-group-label{font-family:var(--syne);font-size:12.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+
 .nghe-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media(min-width:520px){.nghe-grid{grid-template-columns:repeat(3,1fr)}}
 .nghe-btn{display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 8px;min-height:88px;border-radius:14px;border:1.5px solid var(--border2);background:#fff;cursor:pointer;font-family:var(--sans);font-size:14px;font-weight:700;color:var(--text2);text-align:center;transition:all .15s}
@@ -153,6 +157,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="pick-grid" id="khuVucGrid"></div>
     </div>
 
+    <div class="field" id="fieldQuan" style="display:none">
+      <label>Quận tại TP.HCM <span class="opt">(không bắt buộc, chọn tối đa 3)</span></label>
+      <div id="quanGrid"></div>
+    </div>
+
     <div class="field">
       <label>Nghề <span class="req">*</span></label>
       <div class="nghe-grid" id="ngheGrid"></div>
@@ -201,16 +210,81 @@ var KHU_VUC = [
   ['LA','Long An'], ['TG','Tiền Giang'], ['KH','Khánh Hòa'], ['BDinh','Bình Định'],
   ['NA','Nghệ An'], ['TH','Thanh Hóa'], ['OTHER','Tỉnh khác'],
 ];
+/* 5 nghề gốc GIỮ NGUYÊN — 5 nghề thêm 03/08/2026 nối cuối (khớp NGHE_ENUM
+   trong functions/thoGiuCho.js, không chèn giữa để không đổi ý nghĩa dữ liệu cũ). */
 var NGHE_OPTIONS = [
   ['dien_nuoc','Điện nước','ph-lightning'],
   ['son','Sơn','ph-paint-brush'],
   ['chong_tham','Chống thấm','ph-drop'],
   ['moc','Mộc','ph-hammer'],
   ['khac','Khác','ph-squares-four'],
+  ['op_lat','Ốp lát','ph-stack'],
+  ['thong_tac','Thông tắc','ph-toilet'],
+  ['may_lanh','Máy lạnh','ph-snowflake'],
+  ['thach_cao','Thạch cao','ph-layout'],
+  ['nhom_kinh','Nhôm kính','ph-frame-corners'],
 ];
 
 var selectedKhuVuc = '';
 var selectedNghe = '';
+
+/* Quận TP.HCM — chỉ hiện/lưu khi khu_vuc="HCM".
+   03/08/2026 (2): TÁCH RIÊNG khỏi data/quan-hcm.json — file đó là input cho
+   generator SEO (tools/gen-quan.js → sua-nha/{slug}.html), chỉ chứa khu vực
+   TRỌNG ĐIỂM chọn cho mục đích xếp hạng tìm kiếm, KHÔNG phải danh sách phủ
+   địa lý để giao việc cho thợ. Bản đầu 8 slug từng khởi tạo trùng
+   quan-hcm.json với comment sai là "khu vực đã có đội thật" — ĐÃ SỬA:
+   `doiUids` trong data/quan-hcm.json đang RỖNG cả 8 mục, không phản ánh đội
+   thật nào, 8 giá trị đó chỉ là danh sách SEO.
+   03/08/2026 (3): mở rộng đủ 22 quận/huyện TP.HCM cũ (16 quận + TP Thủ Đức +
+   5 huyện, trước sáp nhập 01/07/2025). 8 slug gốc GIỮ NGUYÊN không đổi. Khớp
+   TUYỆT ĐỐI với QUAN_ENUM trong functions/thoGiuCho.js (2 nơi, đồng bộ thủ
+   công — không đọc chung 1 file, xem lý do ở trên). Nhóm 3 cụm địa lý
+   (Trung tâm/Đông/Tây-Bắc) chỉ để hiển thị gọn trên màn hình điện thoại —
+   không ảnh hưởng giá trị gửi lên server (vẫn là 1 slug phẳng như cũ). */
+var QUAN_GROUPS = [
+  { ten: 'Trung tâm', items: [
+    ['quan-1','Quận 1'], ['quan-3','Quận 3'], ['quan-4','Quận 4'], ['quan-5','Quận 5'],
+    ['quan-6','Quận 6'], ['quan-8','Quận 8'], ['quan-10','Quận 10'], ['quan-11','Quận 11'],
+    ['phu-nhuan','Phú Nhuận'], ['binh-thanh','Bình Thạnh'],
+  ] },
+  { ten: 'Đông', items: [
+    ['thu-duc','Thủ Đức'], ['quan-7','Quận 7'], ['nha-be','Nhà Bè'], ['can-gio','Cần Giờ'],
+  ] },
+  { ten: 'Tây - Bắc', items: [
+    ['go-vap','Gò Vấp'], ['tan-binh','Tân Bình'], ['tan-phu','Tân Phú'], ['binh-tan','Bình Tân'],
+    ['quan-12','Quận 12'], ['binh-chanh','Bình Chánh'], ['hoc-mon','Hóc Môn'], ['cu-chi','Củ Chi'],
+  ] },
+];
+var selectedQuan = [];
+var MAX_QUAN = 3;
+
+(function renderQuanGrid(){
+  var html = '';
+  for (var g = 0; g < QUAN_GROUPS.length; g++) {
+    var grp = QUAN_GROUPS[g];
+    html += '<div class="quan-group"><div class="quan-group-label">' + grp.ten + '</div><div class="pick-grid">';
+    for (var i = 0; i < grp.items.length; i++) {
+      html += '<button type="button" class="pick-btn" data-val="' + grp.items[i][0] + '" onclick="pickQuan(\'' + grp.items[i][0] + '\')">' + grp.items[i][1] + '</button>';
+    }
+    html += '</div></div>';
+  }
+  document.getElementById('quanGrid').innerHTML = html;
+})();
+
+function pickQuan(val) {
+  var idx = selectedQuan.indexOf(val);
+  if (idx >= 0) {
+    selectedQuan.splice(idx, 1);
+  } else {
+    if (selectedQuan.length >= MAX_QUAN) { showToast('Chỉ chọn tối đa ' + MAX_QUAN + ' quận', true); return; }
+    selectedQuan.push(val);
+  }
+  document.querySelectorAll('#quanGrid .pick-btn').forEach(function(b){
+    b.classList.toggle('active', selectedQuan.indexOf(b.getAttribute('data-val')) >= 0);
+  });
+}
+window.pickQuan = pickQuan;
 
 (function renderPickers(){
   var kvHtml = '';
@@ -232,6 +306,14 @@ function pickKhuVuc(val) {
   document.querySelectorAll('#khuVucGrid .pick-btn').forEach(function(b){
     b.classList.toggle('active', b.getAttribute('data-val') === val);
   });
+  var fieldQuan = document.getElementById('fieldQuan');
+  if (val === 'HCM') {
+    fieldQuan.style.display = '';
+  } else {
+    fieldQuan.style.display = 'none';
+    selectedQuan = [];
+    document.querySelectorAll('#quanGrid .pick-btn').forEach(function(b){ b.classList.remove('active'); });
+  }
 }
 window.pickKhuVuc = pickKhuVuc;
 
@@ -269,7 +351,7 @@ function submitForm() {
   if (!selectedNghe) { showToast('Vui lòng chọn nghề', true); return; }
   if (!dongY) { showToast('Vui lòng đồng ý để ALN liên hệ qua Zalo', true); return; }
 
-  window._doSubmit({ ten: ten, phone: phone, khu_vuc: selectedKhuVuc, nghe: selectedNghe, dong_y: dongY });
+  window._doSubmit({ ten: ten, phone: phone, khu_vuc: selectedKhuVuc, nghe: selectedNghe, dong_y: dongY, quan: selectedQuan.slice() });
 }
 window.submitForm = submitForm;
 </script>
@@ -394,6 +476,7 @@ window._doSubmit = async function(data) {
       nghe: data.nghe,
       dong_y: data.dong_y,
       anh_cong_trinh: anhCongTrinh,
+      quan: data.quan || [],
     });
     document.getElementById('formCard').style.display = 'none';
     document.getElementById('successCard').style.display = 'block';
