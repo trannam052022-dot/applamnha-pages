@@ -725,6 +725,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <button class="ncc-modal-close" id="nccModalClose" aria-label="Đóng" type="button">&times;</button>
       <p class="ncc-modal-eyebrow">Mạng lưới Thiết bị - Vật tư ALN</p>
       <h3 class="ncc-modal-title">Gian hàng đang mở — cơ hội cho các doanh nghiệp, cửa hàng cung cấp thiết bị, vật tư đăng ký sớm</h3>
+      <p class="ncc-modal-desc">ALN đang trong giai đoạn xây dựng mạng lưới. Vì đây là những ngày đầu — nhà cung cấp tham gia lúc này được chọn vị trí trước.</p>
       <p class="ncc-modal-tagline"><i class="ph-duotone ph-seal-check"></i>Thiết bị, vật tư của bạn được KTS và chủ nhà đưa thẳng vào hồ sơ thiết kế, để tính dự toán và lắp đặt khi thi công.</p>
       <p class="ncc-modal-desc">ALN đang mời gọi nhà cung cấp thiết bị, vật tư tham gia Mạng lưới Thiết bị - Vật tư ALN. Là một trong những gian hàng đầu tiên, bạn được ưu tiên hiển thị khi chủ nhà tìm kiếm.</p>
       <div class="ncc-modal-progress" id="nccModalProgress" style="display:none">
@@ -733,11 +734,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span id="nccModalProgressLabel"></span>
       </div>
       <div class="ncc-modal-offer">
-        <p class="sub">Ưu đãi 50 doanh nghiệp đầu tiên</p>
+        <p class="sub">Tham gia sớm</p>
         <ul>
-          <li>Miễn phí 1 năm gói gian hàng cơ bản</li>
-          <li>Badge "Thành viên uy tín" — hiển thị vĩnh viễn trên gian hàng</li>
-          <li>Ưu tiên xuất hiện đầu danh sách khi chủ nhà tìm theo khu vực</li>
+          <li>Chưa thu phí trong giai đoạn này</li>
+          <li>Gian hàng mở trước được xếp đầu danh mục</li>
+          <li>Được thông báo trước khi có thay đổi chính sách</li>
         </ul>
       </div>
       <div class="ncc-modal-actions">
@@ -2323,11 +2324,6 @@ window.leadSubmit = async function(){
 </script>
 
 <script type="module">
-import { db, collection, query, where, getDocs } from './firebase-config.js';
-
-var EARLY_BIRD_TARGET = 50;
-var EARLY_BIRD_COMMITTED = 23; // xem ghi chú cùng biến trong ncc-showcase.html — giữ đồng bộ 2 nơi
-
 function openNccModal(){
   document.getElementById('nccModalOverlay').style.display = 'flex';
   document.body.style.overflow = 'hidden';
@@ -2343,19 +2339,6 @@ if (chip) chip.addEventListener('click', function(e){ e.preventDefault(); openNc
 document.getElementById('nccModalClose').addEventListener('click', closeNccModal);
 overlay.addEventListener('click', function(e){ if (e.target === overlay) closeNccModal(); });
 document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeNccModal(); });
-
-(async function(){
-  try {
-    var snap = await getDocs(query(collection(db, 'nccApplications'), where('status', '==', 'approved')));
-    var total = snap.size;
-    if (total >= EARLY_BIRD_TARGET) return;
-    var shown = Math.max(total, EARLY_BIRD_COMMITTED);
-    document.getElementById('nccModalProgress').style.display = 'flex';
-    document.getElementById('nccModalWeekText').textContent = 'Đã có ' + shown + ' nhà cung cấp đăng ký';
-    document.getElementById('nccModalProgressFill').style.width = Math.min(100, shown / EARLY_BIRD_TARGET * 100) + '%';
-    document.getElementById('nccModalProgressLabel').textContent = shown + ' / ' + EARLY_BIRD_TARGET + ' mục tiêu ưu đãi sớm';
-  } catch(e) { console.warn('[ncc-modal-count]', e && e.message); }
-})();
 </script>
 
 <script src="aln-suggest-widget.js" defer></script>
