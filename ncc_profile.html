@@ -271,7 +271,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <input type="tel" id="qPhone" placeholder="0901 234 567">
     <label class="modal-consent">
       <input type="checkbox" id="qConsent">
-      <span>Tôi đồng ý để ALN và nhà cung cấp này xử lý thông tin trên nhằm mục đích liên hệ báo giá, theo Nghị định 13/2023/NĐ-CP về bảo vệ dữ liệu cá nhân.</span>
+      <span>Tôi đồng ý để ALN và nhà cung cấp này xử lý thông tin trên nhằm mục đích liên hệ báo giá, theo Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 và Nghị định 356/2025/NĐ-CP.</span>
     </label>
     <div class="modal-btns">
       <button class="modal-cancel" id="qCancel">Huỷ</button>
@@ -605,7 +605,7 @@ document.getElementById('qSubmit').addEventListener('click', async function(){
   var phone = phoneEl.value.trim();
   if (!desc) { window.showToast('Vui lòng mô tả nhu cầu'); return; }
   if (!phone || phone.replace(/\D/g,'').length < 9) { window.showToast('Số điện thoại chưa hợp lệ'); return; }
-  if (!consentEl.checked) { window.showToast('Cần đồng ý xử lý dữ liệu cá nhân (NĐ 13/2023)'); return; }
+  if (!consentEl.checked) { window.showToast('Cần đồng ý xử lý dữ liệu cá nhân'); return; }
   var btn = document.getElementById('qSubmit');
   btn.disabled = true;
   btn.innerHTML = '<i class="ph-duotone ph-spinner-gap"></i> Đang gửi…';

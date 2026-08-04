@@ -703,7 +703,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
         <label class="bf-consent">
           <input type="checkbox" id="bfConsent">
-          <span>Tôi đồng ý để ALN xử lý dữ liệu cá nhân trong yêu cầu này nhằm mục đích tư vấn dự án, theo Nghị định 13/2023/NĐ-CP về bảo vệ dữ liệu cá nhân.</span>
+          <span>Tôi đồng ý để ALN xử lý dữ liệu cá nhân trong yêu cầu này nhằm mục đích tư vấn dự án, theo Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 và Nghị định 356/2025/NĐ-CP.</span>
         </label>
       </div>
       <div>
@@ -1391,7 +1391,7 @@ window.submitPost = async function(){
     };
     if(!brief.area){ showToast('Nhập diện tích'); return; }
     if(!brief.region){ showToast('Nhập khu vực (quận/tỉnh)'); return; }
-    if(!brief.consent){ showToast('Cần đồng ý xử lý dữ liệu cá nhân (NĐ 13/2023)'); return; }
+    if(!brief.consent){ showToast('Cần đồng ý xử lý dữ liệu cá nhân'); return; }
   }
 
   const btn = $('btnSubmitPost');
