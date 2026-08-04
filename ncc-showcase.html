@@ -449,7 +449,7 @@ function renderZones(){
 
 function renderProvSelect(){
   var sel = document.getElementById('provSelect');
-  sel.innerHTML = '<option value="all">Toàn quốc</option>' + Object.keys(PROV_NAME).map(function(k){
+  sel.innerHTML = '<option value="all">Tất cả khu vực</option>' + Object.keys(PROV_NAME).map(function(k){
     return '<option value="' + escH(k) + '">' + escH(PROV_NAME[k]) + '</option>';
   }).join('');
   sel.addEventListener('change', function(){ PROV = sel.value; renderAll(); });
