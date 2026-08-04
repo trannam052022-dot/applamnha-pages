@@ -13,12 +13,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Giữ chỗ Thợ - Đội thi công — App Làm Nhà</title>
-<meta name="description" content="Thợ, đội thi công điện nước/sơn/chống thấm/mộc giữ chỗ nhanh với ALN — chỉ 5 thông tin, không mật khẩu, không tài khoản. ALN gọi lại qua Zalo trong 24h.">
+<meta name="description" content="Nhận đơn sửa chữa nhà tại TP.HCM: điện nước, chống thấm, thông tắc, máy lạnh, sơn, ốp lát. Khách trả tiền thẳng cho thợ. Không phí, không gói, không đặt cọc.">
 <link rel="canonical" href="https://applamnha.vn/tho-giu-cho.html">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://applamnha.vn/tho-giu-cho.html">
 <meta property="og:title" content="Giữ chỗ Thợ - Đội thi công — App Làm Nhà">
-<meta property="og:description" content="Chỉ 5 thông tin, không mật khẩu, không tài khoản — ALN gọi lại qua Zalo trong 24h.">
+<meta property="og:description" content="Nhận đơn sửa chữa nhà tại TP.HCM: điện nước, chống thấm, thông tắc, máy lạnh, sơn, ốp lát. Khách trả tiền thẳng cho thợ. Không phí, không gói, không đặt cọc.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css">
@@ -148,7 +148,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <div class="hero">
   <p class="eyebrow">Dành cho Thợ · Đội thi công</p>
   <h1>Giữ chỗ với ALN — chỉ mất 1 phút</h1>
-  <p class="sub">Không cần tài khoản, không mật khẩu. Điền xong, ALN gọi lại qua Zalo trong 24h.</p>
+  <p class="sub">Không cần tài khoản, không mật khẩu. Điền xong là xong — khi có đơn ở khu vực anh, ALN gọi trực tiếp qua Zalo.</p>
 </div>
 
 <div class="wrap">
@@ -296,11 +296,9 @@ var QUAN_GROUPS = [
 var selectedQuan = [];
 var MAX_QUAN = 3;
 
-/* Tra tên đầy đủ từ slug quận — dùng cho màn hình cảm ơn (VIỆC 3, 03/08/2026
-   (5), sửa câu chữ 03/08/2026 (6)): "ALN khu vực [tên quận] sẽ gọi Zalo
-   trong 24h." cần tên hiển thị, không phải slug thô. Duyệt thẳng QUAN_GROUPS
-   thay vì tạo thêm 1 object tra cứu — mảng chỉ 22 phần tử, không đáng lo
-   hiệu năng. */
+/* Tra tên đầy đủ từ slug quận — cần tên hiển thị, không phải slug thô.
+   Duyệt thẳng QUAN_GROUPS thay vì tạo thêm 1 object tra cứu — mảng chỉ
+   22 phần tử, không đáng lo hiệu năng. */
 function quanLabelOf(slug) {
   for (var g = 0; g < QUAN_GROUPS.length; g++) {
     var items = QUAN_GROUPS[g].items;
