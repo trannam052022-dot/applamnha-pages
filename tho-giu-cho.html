@@ -200,6 +200,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <button class="btn-submit" id="submitBtn" onclick="submitForm()">
       <i class="ph-duotone ph-paper-plane-tilt"></i> Gửi thông tin, ALN gọi lại
     </button>
+    <p class="success-note">Đơn về theo quận anh đăng ký. Khu vực nào có khách gọi, ALN liên hệ thợ đã đăng ký ở đó.<br>Không thu phí đăng ký, không bán gói, không nhận đặt cọc.</p>
   </div>
 
   <div class="card" id="successCard" style="display:none">
@@ -598,6 +599,12 @@ window._doSubmit = async function(data) {
   }
 };
 </script>
+<!-- TẠM DỪNG 04/08/2026 — MyMy dùng prompt alnChat chung 12 trang,
+     chưa có KB tuyến thợ nên bịa thông tin (dự án, phòng ban,
+     hỗ trợ điền hộ) và chèn link tuyến KTS.
+     BẬT LẠI khi: có KB riêng tuyến thợ + rẽ nhánh pageContext,
+     hoặc sau khi có ≥6 thợ thật để biết họ hỏi gì.
 <script type="module" src="mymy-widget.js"></script>
+-->
 </body>
 </html>
