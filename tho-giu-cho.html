@@ -205,9 +205,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="success-wrap">
       <div class="success-icon"><i class="ph-duotone ph-check-circle"></i></div>
       <h2 class="success-title">Đã nhận thông tin!</h2>
-      <p class="success-sub" id="successMsg">ALN khu vực sẽ gọi Zalo trong 24h.</p>
-      <p class="success-sub2">Đơn về theo quận anh chọn — khu nào có khách, bên mình gọi đội gần đó trước.</p>
-      <p class="success-note">Đăng ký miễn phí. ALN không thu phí, không giữ tiền của anh.</p>
+      <p class="success-sub" id="successMsg">Đã nhận hồ sơ của anh/chị.</p>
+      <p class="success-sub2">Hồ sơ được xếp theo nghề và khu vực anh/chị đã chọn. Khi có đơn ở khu vực đó, ALN liên hệ trực tiếp qua số điện thoại này.</p>
+      <p class="success-note">ALN không thu phí đăng ký, không bán gói, không nhận đặt cọc.</p>
 
       <a class="btn-submit" id="successFbBtn" href="https://www.facebook.com/applamnha" target="_blank" rel="noopener" style="text-decoration:none">
         <i class="ph-duotone ph-facebook-logo"></i> Theo dõi trang ALN
@@ -587,17 +587,6 @@ window._doSubmit = async function(data) {
       quan: data.quan || [],
       campaign_tag: data.campaign_tag || null,
     });
-
-    // VIỆC 3 (03/08/2026 (5)) — dòng xác nhận nêu tên quận ĐẦU TIÊN nếu thợ
-    // có chọn quận (chỉ có ý nghĩa khi khu_vuc="HCM", quanLabelOf định nghĩa
-    // ở <script> thường phía trên, gọi được từ đây vì cùng window/document).
-    // 03/08/2026 (6): đổi "Quản lý khu vực" → "ALN khu vực" — tránh lặp chữ
-    // "khu vực"/"Quận" khi ghép với tên quận (VD "Quản lý khu vực Quận 1...").
-    const quanArr = Array.isArray(data.quan) ? data.quan : [];
-    const quanLabel = quanArr.length && window.quanLabelOf ? window.quanLabelOf(quanArr[0]) : null;
-    document.getElementById('successMsg').textContent = quanLabel
-      ? 'ALN khu vực ' + quanLabel + ' sẽ gọi Zalo trong 24h.'
-      : 'ALN khu vực sẽ gọi Zalo trong 24h.';
 
     document.getElementById('formCard').style.display = 'none';
     document.getElementById('successCard').style.display = 'block';
