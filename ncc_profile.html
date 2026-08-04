@@ -269,6 +269,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <textarea id="qDesc" placeholder="VD: cần báo giá thép hộp cho nhà 2 tầng, diện tích 80m²…" maxlength="500"></textarea>
     <label for="qPhone">Số điện thoại của bạn <span style="color:var(--gold)">*</span></label>
     <input type="tel" id="qPhone" placeholder="0901 234 567">
+    <!-- Nhãn phải khớp CONSENT_TEXTS.<key>. Sửa một nơi, sửa cả hai. -->
     <label class="modal-consent">
       <input type="checkbox" id="qConsent">
       <span>Tôi đồng ý để ALN và nhà cung cấp này xử lý thông tin trên nhằm mục đích liên hệ báo giá, theo Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 và Nghị định 356/2025/NĐ-CP.</span>
@@ -312,6 +313,7 @@ document.getElementById('btnQuote').addEventListener('click', function(){
 
 <script type="module">
 import { db, doc, getDoc, collection, addDoc, serverTimestamp } from './firebase-config.js';
+import { CONSENT_VERSION, CONSENT_TEXTS, CONSENT_PURPOSES } from './consent-constants.js';
 
 var PROV_NAME = {HCM:'TP.HCM',HN:'Hà Nội',DN:'Đà Nẵng',CT:'Cần Thơ',HP:'Hải Phòng',BD:'Bình Dương',DNai:'Đồng Nai','BR-VT':'BR–Vũng Tàu',LA:'Long An',TG:'Tiền Giang',KH:'Khánh Hòa',BDinh:'Bình Định',NA:'Nghệ An',TH:'Thanh Hóa',OTHER:'Tỉnh khác'};
 var CATS = {
@@ -610,7 +612,14 @@ document.getElementById('qSubmit').addEventListener('click', async function(){
   btn.disabled = true;
   btn.innerHTML = '<i class="ph-duotone ph-spinner-gap"></i> Đang gửi…';
   try {
-    logLead(NCC_UID, 'quote_request', { content: desc, buyerPhone: phone, consent: true });
+    logLead(NCC_UID, 'quote_request', {
+      content: desc, buyerPhone: phone, consent: true,
+      consentAt: serverTimestamp(),
+      consentVersion: CONSENT_VERSION,
+      consentText: CONSENT_TEXTS.ncc,
+      consentPurpose: CONSENT_PURPOSES.ncc,
+      consentUid: null,
+    });
     document.getElementById('quoteModal').classList.remove('open');
     descEl.value = ''; phoneEl.value = ''; consentEl.checked = false;
     window.showToast('Đã gửi yêu cầu — ' + (NCC && NCC.name ? NCC.name : 'nhà cung cấp') + ' sẽ liên hệ lại.');
