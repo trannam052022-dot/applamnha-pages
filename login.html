@@ -749,11 +749,11 @@ async function doFounderLogin(){
       btn.innerHTML = '<i class="ph-duotone ph-sign-in"></i> Vào hệ thống';
       return;
     }
-    var userData = JSON.stringify({ name:'KTS. Trần Đại Long', userId:user, role:'founder', badge:'Founder', uid:cred.user.uid });
+    var userData = JSON.stringify({ name:'KTS. Trần Long', userId:user, role:'founder', badge:'Founder', uid:cred.user.uid });
     try { localStorage.setItem('aln_user', userData); } catch(e){}
     try { sessionStorage.setItem('aln_user', userData); } catch(e){}
     var overlay = document.getElementById('redirectOverlay');
-    document.getElementById('redirectMsg').textContent = 'Xin chào, KTS. Trần Đại Long';
+    document.getElementById('redirectMsg').textContent = 'Xin chào, KTS. Trần Long';
     document.getElementById('redirectSub').textContent = 'Đang vào Cổng Quản trị Sáng lập...';
     overlay.style.display = 'flex';
     setTimeout(function(){ window.location.replace(alnReturnDest() || ('founder_panel.html?u=' + encodeURIComponent(user) + '&r=founder')); }, 900);

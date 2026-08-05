@@ -835,7 +835,7 @@ body{font-family:var(--sans);background:var(--ink);color:var(--text);min-height:
         <span id="greetingDate">—</span>
         <span style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--green);background:var(--green-bg);border:1px solid rgba(21,128,61,.2);padding:2px 9px;border-radius:99px"><span style="width:5px;height:5px;border-radius:50%;background:var(--green);display:inline-block"></span>Online</span>
       </div>
-      <div style="font-family:var(--serif);font-size:28px;font-weight:700;color:var(--text);letter-spacing:-.4px;line-height:1.15" id="greetingName">KTS. Trần Đại Long</div>
+      <div style="font-family:var(--serif);font-size:28px;font-weight:700;color:var(--text);letter-spacing:-.4px;line-height:1.15" id="greetingName">KTS. Trần Long</div>
     </div>
 
     <!-- 4 HERO CARDS -->
@@ -1472,7 +1472,7 @@ body{font-family:var(--sans);background:var(--ink);color:var(--text);min-height:
     </div>
     <div class="profile-field">
       <label>Họ tên</label>
-      <input type="text" id="profileName" placeholder="KTS. Trần Đại Long">
+      <input type="text" id="profileName" placeholder="KTS. Trần Long">
     </div>
     <div class="profile-field">
       <label>Email liên hệ</label>
@@ -1951,7 +1951,7 @@ function openLibItem(id){var d=LIB_DATA.find(function(x){return x.id===id;});if(
     var params = new URLSearchParams(window.location.search);
     var u = params.get("u"), r = params.get("r");
     if(u && r) {
-      var names = {"kts.minhtran":"KTS. Trần Đại Long","kts.lanthi":"KTS. Nguyễn Thị Lan","kts.khoavu":"KTS. Vũ Minh Khoa","dn.applamnha":"App Làm Nhà Corp.","dn.alnconstruct":"ALN Construct","cn.thuannv":"Nguyễn Văn Thuận","cn.binhtt":"Trần Thị Bình","cn.cuonglq":"Lê Quang Cường"};
+      var names = {"kts.minhtran":"KTS. Trần Long","kts.lanthi":"KTS. Nguyễn Thị Lan","kts.khoavu":"KTS. Vũ Minh Khoa","dn.applamnha":"App Làm Nhà Corp.","dn.alnconstruct":"ALN Construct","cn.thuannv":"Nguyễn Văn Thuận","cn.binhtt":"Trần Thị Bình","cn.cuonglq":"Lê Quang Cường"};
       var ud = JSON.stringify({name:names[u]||u, userId:u, role:r});
       try{localStorage.setItem("aln_user",ud);}catch(e){}
       try{sessionStorage.setItem("aln_user",ud);}catch(e){}
@@ -2550,7 +2550,7 @@ document.querySelectorAll('.modal-bg').forEach(bg => {
 /* ══════════════════════════════════════
    ALN REALTIME — KTS Dashboard
 ══════════════════════════════════════ */
-const KTS_USER = JSON.parse(sessionStorage.getItem('aln_user') || '{"name":"KTS. Trần Đại Long","userId":"kts.minhtran"}');
+const KTS_USER = JSON.parse(sessionStorage.getItem('aln_user') || '{"name":"KTS. Trần Long","userId":"kts.minhtran"}');
 
 ALNRealtime.init({
   role: 'kts',
@@ -2635,7 +2635,7 @@ ALNRealtime.init({
 
 /* ── KTS CHAT ── */
 let _ktsChatUnread = 0;
-const _ktsName = KTS_USER.name || 'KTS. Trần Đại Long';
+const _ktsName = KTS_USER.name || 'KTS. Trần Long';
 
 function _ktsUpdateChatBadge() {
   // Hiện badge trên nút chat nếu có unread
@@ -3969,7 +3969,7 @@ onAuthStateChanged(auth, async (user) => {
     }
     if (lastErr) throw lastErr;
     if (user.uid === 'h4kEguPEyMcwJwl89stc0Q6j2si2' && (!snap || !snap.exists())) {
-      snap = { exists: () => true, data: () => ({ role:'founder', name:'KTS. Trần Đại Long', username:'founder.tranlong', email:'tranlongkts.vn@gmail.com' }) };
+      snap = { exists: () => true, data: () => ({ role:'founder', name:'KTS. Trần Long', username:'founder.tranlong', email:'tranlongkts.vn@gmail.com' }) };
     }
     const profile = (snap && snap.exists()) ? snap.data() : null;
 
@@ -4341,7 +4341,7 @@ onAuthStateChanged(auth, async function(user){
   try {
     let snap = await getDoc(doc(db, 'users', user.uid));
     const profile = snap.exists() ? snap.data()
-      : (user.uid === 'h4kEguPEyMcwJwl89stc0Q6j2si2' ? { role: 'founder', name: 'KTS. Trần Đại Long' } : null);
+      : (user.uid === 'h4kEguPEyMcwJwl89stc0Q6j2si2' ? { role: 'founder', name: 'KTS. Trần Long' } : null);
     if (!profile || (profile.role !== 'kts' && profile.role !== 'founder')) return;
     KTSC_ME = { uid: user.uid, name: profile.name };
     KTSC_PROFILE = await ktscEnsureProfile(user.uid, profile.name);

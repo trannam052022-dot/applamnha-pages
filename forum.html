@@ -949,7 +949,7 @@ onAuthStateChanged(auth, async user => {
   }
   let profile;
   if(!snap.exists() && user.uid === 'h4kEguPEyMcwJwl89stc0Q6j2si2'){
-    profile = { role:'founder', name:'KTS. Trần Đại Long', status:'active', avatarUrl:'' };
+    profile = { role:'founder', name:'KTS. Trần Long', status:'active', avatarUrl:'' };
   } else if(!snap.exists()){
     if(!user.isAnonymous){ try { await signOut(auth); } catch(_){} }
     bootGuest();

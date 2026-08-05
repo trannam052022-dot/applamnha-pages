@@ -430,7 +430,7 @@ onAuthStateChanged(auth, async function(user) {
     var PAGE_BY_ROLE = { founder:'founder_panel.html', kts:'kts_dashboard.html', designer:'designer_dashboard.html', dn:'client_DN.html', cn:'client_CN.html' };
     location.href = PAGE_BY_ROLE[_ksRole] || 'login.html'; return;
   }
-  if (_ksRole === 'founder') { CTV = { role:'ks', name:'KTS. Trần Đại Long (Founder)', tinh:'', uid: user.uid }; }
+  if (_ksRole === 'founder') { CTV = { role:'ks', name:'KTS. Trần Long (Founder)', tinh:'', uid: user.uid }; }
 
   CTV = snap.data();
   CTV.uid = user.uid;

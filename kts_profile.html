@@ -234,7 +234,7 @@ onAuthStateChanged(auth, async user => {
 
   let meSnap = await getDoc(doc(db, 'users', user.uid));
   ME = meSnap.exists() ? Object.assign({ uid: user.uid }, meSnap.data())
-     : (user.uid === 'h4kEguPEyMcwJwl89stc0Q6j2si2' ? { uid: user.uid, role: 'founder', name: 'KTS. Trần Đại Long' } : null);
+     : (user.uid === 'h4kEguPEyMcwJwl89stc0Q6j2si2' ? { uid: user.uid, role: 'founder', name: 'KTS. Trần Long' } : null);
   if(!ME){ location.replace('login.html'); return; }
 
   /* Hồ sơ KTS — CHỈ lấy tên + avatar, TUYỆT ĐỐI không hiển thị liên hệ */
