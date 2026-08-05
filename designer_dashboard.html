@@ -1141,7 +1141,7 @@ onAuthStateChanged(auth, async function(user) {
   }
 
   if (user.uid === 'h4kEguPEyMcwJwl89stc0Q6j2si2' && (!snap || !snap.exists())) {
-    snap = { exists: function(){ return true; }, data: function(){ return { role:'founder', name:'KTS. Trần Đại Long', username:'founder.tranlong' }; } };
+    snap = { exists: function(){ return true; }, data: function(){ return { role:'founder', name:'KTS. Trần Long', username:'founder.tranlong' }; } };
   }
   var profile = (snap && snap.exists()) ? snap.data() : null;
   if (!profile) { await signOut(auth); window.location.replace('login.html'); return; }

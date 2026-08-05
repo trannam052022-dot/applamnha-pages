@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
   <script src="error-monitor.js"></script>
@@ -876,7 +876,7 @@ button,.btn,a[role="button"]{transition:transform .25s var(--ease),box-shadow .2
   <div class="zp-head">
     <div class="zp-head-av" id="zpAvatar">👷</div>
     <div class="zp-head-info">
-      <div class="zp-name" id="zpKtsName">KTS. Trần Đại Long</div>
+      <div class="zp-name" id="zpKtsName">KTS. Trần Long</div>
       <div class="zp-status"><span class="zp-online-dot"></span> Đang hoạt động</div>
     </div>
     <!-- Call actions in header -->
@@ -926,7 +926,7 @@ button,.btn,a[role="button"]{transition:transform .25s var(--ease),box-shadow .2
     var params = new URLSearchParams(window.location.search);
     var u = params.get("u"), r = params.get("r");
     if(u && r) {
-      var names = {"kts.minhtran":"KTS. Trần Đại Long","kts.lanthi":"KTS. Nguyễn Thị Lan","kts.khoavu":"KTS. Vũ Minh Khoa","dn.applamnha":"App Làm Nhà Corp.","dn.alnconstruct":"ALN Construct","cn.thuannv":"Nguyễn Văn Thuận","cn.binhtt":"Trần Thị Bình","cn.cuonglq":"Lê Quang Cường"};
+      var names = {"kts.minhtran":"KTS. Trần Long","kts.lanthi":"KTS. Nguyễn Thị Lan","kts.khoavu":"KTS. Vũ Minh Khoa","dn.applamnha":"App Làm Nhà Corp.","dn.alnconstruct":"ALN Construct","cn.thuannv":"Nguyễn Văn Thuận","cn.binhtt":"Trần Thị Bình","cn.cuonglq":"Lê Quang Cường"};
       var ud = JSON.stringify({name:names[u]||u, userId:u, role:r});
       try{localStorage.setItem("aln_user",ud);}catch(e){}
       try{sessionStorage.setItem("aln_user",ud);}catch(e){}
@@ -1096,7 +1096,7 @@ function setReviewStage(projId, stage){
   if(!_reviewState[projId]) _reviewState[projId] = {stage, subTab:'all'};
   else _reviewState[projId].stage = stage;
   renderMain();
-  setTimeout(()=>{const c=document.getElementById('ktsHeroAv');const p2=window.PROJECTS_CLIENT.find(x=>x.id===projId);const KP={'KTS. Trần Đại Long':{skin:'#d8a878',shirt:'#2a3a5a',bg:'#14141e'},'KTS. Nguyễn Thị Lan':{skin:'#e0b898',shirt:'#1a5040',bg:'#0e181e'},'KTS. Phạm Hoài Nam':{skin:'#d4a880',shirt:'#5a3818',bg:'#120e08'},'KTS. Lê Hoàng Nam':{skin:'#d8c0a0',shirt:'#1e3a2a',bg:'#0c1410'},'KTS. Vũ Minh Khoa':{skin:'#c8a878',shirt:'#3a2a5a',bg:'#10101e'}};if(c&&p2)drawPortrait(c,KP[p2.kts]||{});},30);
+  setTimeout(()=>{const c=document.getElementById('ktsHeroAv');const p2=window.PROJECTS_CLIENT.find(x=>x.id===projId);const KP={'KTS. Trần Long':{skin:'#d8a878',shirt:'#2a3a5a',bg:'#14141e'},'KTS. Nguyễn Thị Lan':{skin:'#e0b898',shirt:'#1a5040',bg:'#0e181e'},'KTS. Phạm Hoài Nam':{skin:'#d4a880',shirt:'#5a3818',bg:'#120e08'},'KTS. Lê Hoàng Nam':{skin:'#d8c0a0',shirt:'#1e3a2a',bg:'#0c1410'},'KTS. Vũ Minh Khoa':{skin:'#c8a878',shirt:'#3a2a5a',bg:'#10101e'}};if(c&&p2)drawPortrait(c,KP[p2.kts]||{});},30);
 }
 
 function selectPA(projId, stage, paId){
@@ -1120,7 +1120,7 @@ function approvePA(projId, stage, paId){
     ts: new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}), mine:true
   });
   renderMain();
-  setTimeout(()=>{const c=document.getElementById('ktsHeroAv');const p2=window.PROJECTS_CLIENT.find(x=>x.id===projId);const KP={'KTS. Trần Đại Long':{skin:'#d8a878',shirt:'#2a3a5a',bg:'#14141e'},'KTS. Nguyễn Thị Lan':{skin:'#e0b898',shirt:'#1a5040',bg:'#0e181e'},'KTS. Phạm Hoài Nam':{skin:'#d4a880',shirt:'#5a3818',bg:'#120e08'},'KTS. Lê Hoàng Nam':{skin:'#d8c0a0',shirt:'#1e3a2a',bg:'#0c1410'},'KTS. Vũ Minh Khoa':{skin:'#c8a878',shirt:'#3a2a5a',bg:'#10101e'}};if(c&&p2)drawPortrait(c,KP[p2.kts]||{});},30);
+  setTimeout(()=>{const c=document.getElementById('ktsHeroAv');const p2=window.PROJECTS_CLIENT.find(x=>x.id===projId);const KP={'KTS. Trần Long':{skin:'#d8a878',shirt:'#2a3a5a',bg:'#14141e'},'KTS. Nguyễn Thị Lan':{skin:'#e0b898',shirt:'#1a5040',bg:'#0e181e'},'KTS. Phạm Hoài Nam':{skin:'#d4a880',shirt:'#5a3818',bg:'#120e08'},'KTS. Lê Hoàng Nam':{skin:'#d8c0a0',shirt:'#1e3a2a',bg:'#0c1410'},'KTS. Vũ Minh Khoa':{skin:'#c8a878',shirt:'#3a2a5a',bg:'#10101e'}};if(c&&p2)drawPortrait(c,KP[p2.kts]||{});},30);
   showToast(`✅ Đã phê duyệt phương án "${pa.name}"`, 't-green');
   if (typeof window._cnFbApprovePA === 'function') window._cnFbApprovePA(projId, stage, paId);
   // Broadcast to kts_dashboard
@@ -1519,7 +1519,7 @@ function resolvePin(projId, stage, paId, pinId){
   _renderAnnotModal();
   // Also re-render main to update pin counts on cards
   renderMain();
-  setTimeout(()=>{const cv=document.getElementById('ktsHeroAv');if(cv){const p2=window.PROJECTS_CLIENT.find(x=>x.id===projId);const KP={'KTS. Trần Đại Long':{skin:'#d8a878',shirt:'#2a3a5a',bg:'#14141e'},'KTS. Nguyễn Thị Lan':{skin:'#e0b898',shirt:'#1a5040',bg:'#0e181e'},'KTS. Phạm Hoài Nam':{skin:'#d4a880',shirt:'#5a3818',bg:'#120e08'},'KTS. Lê Hoàng Nam':{skin:'#d8c0a0',shirt:'#1e3a2a',bg:'#0c1410'},'KTS. Vũ Minh Khoa':{skin:'#c8a878',shirt:'#3a2a5a',bg:'#10101e'}};if(p2)drawPortrait(cv,KP[p2.kts]||{});}},30);
+  setTimeout(()=>{const cv=document.getElementById('ktsHeroAv');if(cv){const p2=window.PROJECTS_CLIENT.find(x=>x.id===projId);const KP={'KTS. Trần Long':{skin:'#d8a878',shirt:'#2a3a5a',bg:'#14141e'},'KTS. Nguyễn Thị Lan':{skin:'#e0b898',shirt:'#1a5040',bg:'#0e181e'},'KTS. Phạm Hoài Nam':{skin:'#d4a880',shirt:'#5a3818',bg:'#120e08'},'KTS. Lê Hoàng Nam':{skin:'#d8c0a0',shirt:'#1e3a2a',bg:'#0c1410'},'KTS. Vũ Minh Khoa':{skin:'#c8a878',shirt:'#3a2a5a',bg:'#10101e'}};if(p2)drawPortrait(cv,KP[p2.kts]||{});}},30);
 }
 
 function highlightPin(pinId){
@@ -1545,7 +1545,7 @@ function setReviewSubTab(projId, subTab){
   if(!_reviewState[projId]) _reviewState[projId]={stage:'C1',subTab};
   _reviewState[projId].subTab = subTab;
   renderMain();
-  setTimeout(()=>{const cv=document.getElementById('ktsHeroAv');if(cv){const p2=window.PROJECTS_CLIENT.find(x=>x.id===projId);const KP={'KTS. Trần Đại Long':{skin:'#d8a878',shirt:'#2a3a5a',bg:'#14141e'},'KTS. Nguyễn Thị Lan':{skin:'#e0b898',shirt:'#1a5040',bg:'#0e181e'},'KTS. Phạm Hoài Nam':{skin:'#d4a880',shirt:'#5a3818',bg:'#120e08'},'KTS. Lê Hoàng Nam':{skin:'#d8c0a0',shirt:'#1e3a2a',bg:'#0c1410'},'KTS. Vũ Minh Khoa':{skin:'#c8a878',shirt:'#3a2a5a',bg:'#10101e'}};if(p2)drawPortrait(cv,KP[p2.kts]||{});}},30);
+  setTimeout(()=>{const cv=document.getElementById('ktsHeroAv');if(cv){const p2=window.PROJECTS_CLIENT.find(x=>x.id===projId);const KP={'KTS. Trần Long':{skin:'#d8a878',shirt:'#2a3a5a',bg:'#14141e'},'KTS. Nguyễn Thị Lan':{skin:'#e0b898',shirt:'#1a5040',bg:'#0e181e'},'KTS. Phạm Hoài Nam':{skin:'#d4a880',shirt:'#5a3818',bg:'#120e08'},'KTS. Lê Hoàng Nam':{skin:'#d8c0a0',shirt:'#1e3a2a',bg:'#0c1410'},'KTS. Vũ Minh Khoa':{skin:'#c8a878',shirt:'#3a2a5a',bg:'#10101e'}};if(p2)drawPortrait(cv,KP[p2.kts]||{});}},30);
 }
 
 // ESC to close annotation
@@ -1815,7 +1815,7 @@ function _stagePending(files, projId, paId) {
 }
 function _redrawHero(projId){
   const cv=document.getElementById('ktsHeroAv');const p2=window.PROJECTS_CLIENT.find(x=>x.id===projId);
-  const KP={'KTS. Trần Đại Long':{skin:'#d8a878',shirt:'#2a3a5a',bg:'#14141e'},'KTS. Nguyễn Thị Lan':{skin:'#e0b898',shirt:'#1a5040',bg:'#0e181e'},'KTS. Phạm Hoài Nam':{skin:'#d4a880',shirt:'#5a3818',bg:'#120e08'},'KTS. Lê Hoàng Nam':{skin:'#d8c0a0',shirt:'#1e3a2a',bg:'#0c1410'},'KTS. Vũ Minh Khoa':{skin:'#c8a878',shirt:'#3a2a5a',bg:'#10101e'}};
+  const KP={'KTS. Trần Long':{skin:'#d8a878',shirt:'#2a3a5a',bg:'#14141e'},'KTS. Nguyễn Thị Lan':{skin:'#e0b898',shirt:'#1a5040',bg:'#0e181e'},'KTS. Phạm Hoài Nam':{skin:'#d4a880',shirt:'#5a3818',bg:'#120e08'},'KTS. Lê Hoàng Nam':{skin:'#d8c0a0',shirt:'#1e3a2a',bg:'#0c1410'},'KTS. Vũ Minh Khoa':{skin:'#c8a878',shirt:'#3a2a5a',bg:'#10101e'}};
   if(cv&&p2)drawPortrait(cv,KP[p2.kts]||{});
 }
 function viewUploadedFile(uploadId,projId,stage,paId){
@@ -1851,14 +1851,14 @@ function deleteCNUpload(projId,stage,paId,uploadId){
    CALL MODAL — Gọi điện / Video / Zalo
 ════════════════════════════════════════ */
 const KTS_CONTACTS = {
-  'KTS. Trần Đại Long':   {phone:'0901-234-567', virtualNum:'028-7300-0101', zalo:'0901234567', email:'minhtran@kts.vn'},
+  'KTS. Trần Long':   {phone:'0901-234-567', virtualNum:'028-7300-0101', zalo:'0901234567', email:'minhtran@kts.vn'},
   'KTS. Nguyễn Thị Lan': {phone:'0912-345-678', virtualNum:'028-7300-0102', zalo:'0912345678', email:'lannguyen@kts.vn'},
   'KTS. Phạm Hoài Nam':  {phone:'0923-456-789', virtualNum:'028-7300-0103', zalo:'0923456789', email:'nampham@kts.vn'},
   'KTS. Lê Hoàng Nam':   {phone:'0934-567-890', virtualNum:'028-7300-0104', zalo:'0934567890', email:'namle@kts.vn'},
   'KTS. Vũ Minh Khoa':   {phone:'0945-678-901', virtualNum:'028-7300-0105', zalo:'0945678901', email:'khoavu@kts.vn'},
 };
 const KTS_PORTRAITS_CALL = {
-  'KTS. Trần Đại Long':   {skin:'#d8a878',shirt:'#2a3a5a',bg:'#14141e'},
+  'KTS. Trần Long':   {skin:'#d8a878',shirt:'#2a3a5a',bg:'#14141e'},
   'KTS. Nguyễn Thị Lan': {skin:'#e0b898',shirt:'#1a5040',bg:'#0e181e'},
   'KTS. Phạm Hoài Nam':  {skin:'#d4a880',shirt:'#5a3818',bg:'#120e08'},
   'KTS. Lê Hoàng Nam':   {skin:'#d8c0a0',shirt:'#1e3a2a',bg:'#0c1410'},
@@ -1869,7 +1869,7 @@ function openCallModal(type, projId, ktsName){
   // If called from topbar without context, get from active project
   if(!ktsName){
     const p = window.PROJECTS_CLIENT.find(x=>x.id===window.activeProj);
-    ktsName = (p ? p.kts : null) || 'KTS. Trần Đại Long';
+    ktsName = (p ? p.kts : null) || 'KTS. Trần Long';
     projId  = (p ? p.id : null);
   }
   const contact = KTS_CONTACTS[ktsName] || {phone:'—', zalo:'—', email:'—'};
@@ -2052,7 +2052,7 @@ function renderMain(){
 
   /* KTS portraits map */
   const KTS_PORTRAITS = {
-    'KTS. Trần Đại Long':   {skin:'#d8a878',shirt:'#2a3a5a',bg:'#14141e',cchn:'KTS-2021-04821',tier:'VIP Vàng', rating:'4.8',projects:23},
+    'KTS. Trần Long':   {skin:'#d8a878',shirt:'#2a3a5a',bg:'#14141e',cchn:'KTS-2021-04821',tier:'VIP Vàng', rating:'4.8',projects:23},
     'KTS. Nguyễn Thị Lan': {skin:'#e0b898',shirt:'#1a5040',bg:'#0e181e',cchn:'KTS-2022-07663',tier:'VIP Bạc',  rating:'4.9',projects:14},
     'KTS. Phạm Hoài Nam':  {skin:'#d4a880',shirt:'#5a3818',bg:'#120e08',cchn:'KTS-2021-09312',tier:'Chuẩn',    rating:'4.7',projects:18},
     'KTS. Lê Hoàng Nam':   {skin:'#d8c0a0',shirt:'#1e3a2a',bg:'#0c1410',cchn:'KTS-2023-03201',tier:'VIP Bạc',  rating:'4.8',projects:11},
@@ -2689,7 +2689,7 @@ function generateSignedUrl(fileName, projectId){
 }
 
 function setFolder(f){activeFolder=f;renderMain();
-  setTimeout(()=>{const c=document.getElementById('ktsHeroAv');if(c){const p2=window.PROJECTS_CLIENT.find(x=>x.id===window.activeProj);const KP={'KTS. Trần Đại Long':{skin:'#d8a878',shirt:'#2a3a5a',bg:'#14141e'},'KTS. Nguyễn Thị Lan':{skin:'#e0b898',shirt:'#1a5040',bg:'#0e181e'},'KTS. Phạm Hoài Nam':{skin:'#d4a880',shirt:'#5a3818',bg:'#120e08'},'KTS. Lê Hoàng Nam':{skin:'#d8c0a0',shirt:'#1e3a2a',bg:'#0c1410'},'KTS. Vũ Minh Khoa':{skin:'#c8a878',shirt:'#3a2a5a',bg:'#10101e'}};drawPortrait(c,KP[(p2 ? p2.kts : null)]||{});}},30);
+  setTimeout(()=>{const c=document.getElementById('ktsHeroAv');if(c){const p2=window.PROJECTS_CLIENT.find(x=>x.id===window.activeProj);const KP={'KTS. Trần Long':{skin:'#d8a878',shirt:'#2a3a5a',bg:'#14141e'},'KTS. Nguyễn Thị Lan':{skin:'#e0b898',shirt:'#1a5040',bg:'#0e181e'},'KTS. Phạm Hoài Nam':{skin:'#d4a880',shirt:'#5a3818',bg:'#120e08'},'KTS. Lê Hoàng Nam':{skin:'#d8c0a0',shirt:'#1e3a2a',bg:'#0c1410'},'KTS. Vũ Minh Khoa':{skin:'#c8a878',shirt:'#3a2a5a',bg:'#10101e'}};drawPortrait(c,KP[(p2 ? p2.kts : null)]||{});}},30);
 }
 
 /* Portrait canvas — đồng bộ với kts_dashboard */
@@ -2998,7 +2998,7 @@ setTimeout(()=>{
 
 
 const ZP_SEED = {
-  'KTS. Trần Đại Long':   ['Chào anh/chị! Em đang làm việc trên phương án C2. Anh/chị có góp ý gì không?', 'Em vừa upload 3 góc phối cảnh. Anh/chị vào xem và đánh dấu pin chỗ cần sửa nhé!'],
+  'KTS. Trần Long':   ['Chào anh/chị! Em đang làm việc trên phương án C2. Anh/chị có góp ý gì không?', 'Em vừa upload 3 góc phối cảnh. Anh/chị vào xem và đánh dấu pin chỗ cần sửa nhé!'],
   'KTS. Nguyễn Thị Lan': ['Chào anh/chị! Hồ sơ C3 em đang thẩm định lớp 1. Dự kiến nộp trong 2 ngày.'],
   'KTS. Phạm Hoài Nam':  ['Chào anh/chị! Em đã hoàn thiện MB. Anh/chị xem và phê duyệt để em tiến hành 3D ạ.'],
   'KTS. Lê Hoàng Nam':   ['Chào anh/chị! Dự án của anh/chị đã hoàn thành. Cần hỗ trợ gì thêm không ạ?'],
@@ -3007,7 +3007,7 @@ const ZP_SEED = {
 
 let zpOpen = false;
 let zpMessages = [];
-let zpKts = 'KTS. Trần Đại Long';
+let zpKts = 'KTS. Trần Long';
 
 function toggleZaloPopup(){
   zpOpen = !zpOpen;
@@ -3024,7 +3024,7 @@ function toggleZaloPopup(){
 function _zpInit(){
   document.getElementById('zpKtsName').textContent = zpKts;
   // Avatar emoji by KTS
-  const avMap = {'KTS. Trần Đại Long':'👨‍🎨','KTS. Nguyễn Thị Lan':'👩‍🎨','KTS. Phạm Hoài Nam':'👨‍💼','KTS. Lê Hoàng Nam':'👨‍🔧','KTS. Vũ Minh Khoa':'🧑‍💻'};
+  const avMap = {'KTS. Trần Long':'👨‍🎨','KTS. Nguyễn Thị Lan':'👩‍🎨','KTS. Phạm Hoài Nam':'👨‍💼','KTS. Lê Hoàng Nam':'👨‍🔧','KTS. Vũ Minh Khoa':'🧑‍💻'};
   document.getElementById('zpAvatar').textContent = avMap[zpKts]||'👷';
   // Seed messages — GIỮ LẠI tin nhắn realtime đã nhận/gửi, chỉ nạp lại phần demo mở đầu
   const _rtKept = zpMessages.filter(m => !String(m.id).startsWith('seed_'));
@@ -3776,7 +3776,7 @@ onAuthStateChanged(auth, async (user) => {
     }
     if (lastErr) throw lastErr;
     if (user.uid === 'h4kEguPEyMcwJwl89stc0Q6j2si2' && (!snap || !snap.exists())) {
-      snap = { exists: () => true, data: () => ({ role:'founder', name:'KTS. Trần Đại Long', username:'founder.tranlong', email:'tranlongkts.vn@gmail.com' }) };
+      snap = { exists: () => true, data: () => ({ role:'founder', name:'KTS. Trần Long', username:'founder.tranlong', email:'tranlongkts.vn@gmail.com' }) };
     }
     const profile = (snap && snap.exists()) ? snap.data() : null;
 
