@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Xây Nhà Với KTS Có Chứng Chỉ Hành Nghề — Giá Công Khai | App Làm Nhà</title>
+<meta name="description" content="Thiết kế nhà với kiến trúc sư có CCHN, báo giá công khai trước khi ký. Thanh toán theo 4 bước — hoàn thành bước nào, thanh toán bước đó. Xem 26 mẫu nhà miễn phí.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,500&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MB7VRGR5');</script>
+<!-- End Google Tag Manager -->
+
+<!-- Google Analytics 4 (bắt buộc trên mọi trang công khai — CLAUDE.md) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-5CSL1TF0RC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-5CSL1TF0RC');
+</script>
+<!-- End GA4 -->
+
+<!-- ── Meta Pixel (ALN Pixel) — điểm chuyển đổi Lead của quảng cáo chủ nhà.
+     Hardcode trực tiếp, KHÔNG đi qua GTM — cùng cách index.html/recruit.html/
+     tuyen-kts.html/kts-apply.html/aln-giu-cho/phong-cho.html đang làm. GTM ở
+     trang này (container GTM-MB7VRGR5) không quản lý Pixel. ── -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1656666692225878');
+fbq('track', 'PageView');
+fbq('track', 'ViewContent', { content_name: 'chu-nha-ads', content_category: 'cn-funnel' });
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1656666692225878&ev=PageView&noscript=1"/></noscript>
+<!-- End Meta Pixel -->
+
+<script src="aln-tracking.js"></script>
+
+<script>
+/* Bắt UTM/fbclid từ URL quảng cáo → localStorage (last-touch, giữ 7 ngày) +
+   đọc cookie _fbp/_fbc do Pixel ở trên set — cùng pattern index.html/
+   phong-cho.html dùng cho form lead nhanh chủ nhà (window.alnGetUtm/
+   alnGetFbp/alnGetFbc, dùng khi gọi submitHomeLead bên dưới). */
+(function(){
+  try{
+    var parts = location.search.substring(1).split('&');
+    var utm = {}; var found = false;
+    for (var i = 0; i < parts.length; i++) {
+      var kv = parts[i].split('=');
+      if (kv.length < 2 || !kv[1]) continue;
+      var k = decodeURIComponent(kv[0]);
+      var v = decodeURIComponent(kv[1].replace(/\+/g, ' '));
+      if (k.indexOf('utm_') === 0) { utm[k.substring(4)] = v.slice(0, 120); found = true; }
+      if (k === 'fbclid') { utm.fbclid = v.slice(0, 200); found = true; }
+    }
+    if (found) { utm.ts = Date.now(); localStorage.setItem('aln_utm', JSON.stringify(utm)); }
+  }catch(e){}
+  window.alnGetUtm = function(){
+    try{
+      var s = localStorage.getItem('aln_utm');
+      if (!s) return {};
+      var o = JSON.parse(s);
+      if (o.ts && Date.now() - o.ts > 7 * 864e5) return {};
+      return o;
+    }catch(e){ return {}; }
+  };
+  window.alnGetCookie = function(name){
+    var m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+    return m ? decodeURIComponent(m[1]) : '';
+  };
+  window.alnGetFbp = function(){ return window.alnGetCookie('_fbp'); };
+  window.alnGetFbc = function(){
+    var c = window.alnGetCookie('_fbc');
+    if (c) return c;
+    var u = window.alnGetUtm();
+    if (u.fbclid) return 'fb.1.' + Date.now() + '.' + u.fbclid;
+    return '';
+  };
+})();
+</script>
+
+<style>
+:root{
+  --navy-0:#0a1224;
+  --navy-1:#111c33;
+  --navy-2:#182741;
+  --gold:#d4a017;
+  --gold-deep:#98690a;
+  --gold-soft:rgba(212,160,23,.14);
+  --ink:#eef1f7;
+  --ink-dim:#9aa5bc;
+  --line:rgba(212,160,23,.22);
+  --line-faint:rgba(255,255,255,.08);
+  --radius:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:linear-gradient(160deg,var(--navy-0) 0%,var(--navy-1) 100%);
+  color:var(--ink);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+img,svg{display:block}
+a{color:inherit;text-decoration:none}
+.container{max-width:1080px;margin:0 auto;padding:0 22px}
+
+/* ---------- Utility ---------- */
+.eyebrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--gold);display:flex;align-items:center;gap:10px;
+}
+.eyebrow::before{content:"";width:26px;height:1px;background:var(--gold);display:inline-block}
+.display{
+  font-family:'Cormorant Garamond',serif;
+  font-weight:600;line-height:1.15;letter-spacing:.005em;
+}
+.gold{color:var(--gold)}
+.section{padding:84px 0}
+@media(max-width:640px){.section{padding:56px 0}}
+
+/* ---------- Header ---------- */
+header{
+  position:sticky;top:0;z-index:50;
+  background:rgba(10,18,36,.86);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line-faint);
+}
+.nav{display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:1.35rem;letter-spacing:.02em}
+.logo span{color:var(--gold)}
+.nav-cta{
+  font-size:.86rem;font-weight:600;padding:10px 20px;border-radius:999px;
+  background:var(--gold);color:var(--navy-0);transition:background .2s;
+}
+.nav-cta:hover{background:#e3b332}
+
+/* ---------- Hero ---------- */
+.hero{padding:88px 0 72px;position:relative;overflow:hidden}
+.hero::after{
+  content:"";position:absolute;top:-160px;right:-160px;width:520px;height:520px;
+  background:radial-gradient(circle,rgba(212,160,23,.10) 0%,transparent 65%);
+  pointer-events:none;
+}
+.hero-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:56px;align-items:center}
+@media(max-width:880px){.hero-grid{grid-template-columns:1fr;gap:40px}}
+.hero h1{font-size:clamp(2.2rem,5vw,3.4rem);margin:18px 0 20px}
+.hero h1 em{font-style:italic;color:var(--gold);font-weight:600}
+.hero-sub{color:var(--ink-dim);font-size:1.05rem;max-width:34rem;margin-bottom:30px}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap}
+.btn{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:14px 26px;border-radius:999px;font-weight:600;font-size:.95rem;
+  transition:transform .15s,background .2s,border-color .2s;
+}
+.btn:active{transform:scale(.98)}
+.btn-gold{background:var(--gold);color:var(--navy-0)}
+.btn-gold:hover{background:#e3b332}
+.btn-line{border:1px solid var(--line);color:var(--ink)}
+.btn-line:hover{border-color:var(--gold)}
+.btn svg{width:18px;height:18px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+
+/* Trust strip */
+.trust{display:flex;gap:26px;flex-wrap:wrap;margin-top:36px;padding-top:26px;border-top:1px solid var(--line-faint)}
+.trust-item{display:flex;align-items:center;gap:10px;font-size:.85rem;color:var(--ink-dim)}
+.trust-item svg{width:20px;height:20px;stroke:var(--gold);stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+
+/* Hero card — bảng giá thu nhỏ */
+.quote-card{
+  background:linear-gradient(175deg,var(--navy-2),var(--navy-1));
+  border:1px solid var(--line);border-radius:var(--radius);
+  padding:28px;position:relative;
+}
+.quote-card::before{
+  content:"ƯỚC TÍNH NHANH — 2 GIÂY";
+  position:absolute;top:-11px;left:24px;
+  font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.2em;
+  background:var(--navy-0);border:1px solid var(--line);color:var(--gold);
+  padding:4px 12px;border-radius:999px;
+}
+.quote-row{
+  display:flex;justify-content:space-between;align-items:baseline;
+  padding:13px 0;border-bottom:1px dashed var(--line-faint);gap:14px;
+}
+.quote-row:last-of-type{border-bottom:none}
+.quote-row[style*="column"]{padding-top:0}
+.quote-label{font-size:.88rem;color:var(--ink-dim)}
+.quote-val{font-family:'JetBrains Mono',monospace;font-size:.9rem;color:var(--ink);white-space:nowrap}
+.quote-val.gold{color:var(--gold)}
+.quote-note{font-size:.75rem;color:var(--ink-dim);margin-top:14px;font-style:italic}
+
+/* ---------- Vấn đề / khác biệt ---------- */
+.pain{
+  background:var(--navy-1);border-top:1px solid var(--line-faint);border-bottom:1px solid var(--line-faint);
+  position:relative;overflow:hidden;
+}
+.pain::before{
+  content:"";position:absolute;top:-120px;left:10%;width:420px;height:420px;
+  background:radial-gradient(circle,rgba(212,160,23,.10) 0%,transparent 70%);
+  pointer-events:none;
+}
+.pain::after{
+  content:"";position:absolute;bottom:-140px;right:10%;width:380px;height:380px;
+  background:radial-gradient(circle,rgba(120,150,220,.08) 0%,transparent 70%);
+  pointer-events:none;
+}
+.pain .container{position:relative;z-index:1}
+.pain h2,.sec-title{font-size:clamp(1.7rem,3.4vw,2.4rem);margin:16px 0 14px}
+.sec-lead{color:var(--ink-dim);max-width:40rem;margin-bottom:44px}
+.cards3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media(max-width:880px){.cards3{grid-template-columns:1fr}}
+.card{
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:20px;
+  padding:28px;
+  background:rgba(15,22,40,.45);
+  backdrop-filter:blur(20px) saturate(160%);
+  -webkit-backdrop-filter:blur(20px) saturate(160%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.07),
+    0 8px 32px rgba(0,0,0,.28);
+  transition:border-color .2s,background .2s,transform .2s;
+}
+.card:hover{
+  border-color:rgba(212,160,23,.35);
+  background:rgba(20,28,48,.55);
+  transform:translateY(-2px);
+}
+.card svg{width:30px;height:30px;stroke:var(--gold);stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round;margin-bottom:18px}
+.card h3{font-size:1.06rem;font-weight:600;margin-bottom:10px}
+.card p{font-size:.9rem;color:var(--ink-dim)}
+
+/* ---------- 4 bước ---------- */
+.steps{counter-reset:step}
+.step-list{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:10px}
+@media(max-width:880px){.step-list{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.step-list{grid-template-columns:1fr}}
+.step{
+  border:1px solid var(--line-faint);border-radius:var(--radius);padding:26px 22px;
+  background:rgba(255,255,255,.02);position:relative;
+}
+.step-num{
+  font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:600;
+  color:var(--gold);line-height:1;margin-bottom:14px;
+}
+.step h3{font-size:1rem;margin-bottom:8px}
+.step p{font-size:.85rem;color:var(--ink-dim)}
+.step-pay{
+  display:inline-flex;align-items:center;gap:6px;margin-top:14px;
+  font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.08em;
+  color:var(--gold);border:1px solid var(--line);border-radius:999px;padding:5px 12px;
+}
+.step-pay svg{width:13px;height:13px;stroke:var(--gold);stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.steps-motto{
+  margin-top:34px;text-align:center;font-family:'Cormorant Garamond',serif;
+  font-size:clamp(1.25rem,2.6vw,1.7rem);font-style:italic;color:var(--gold);
+}
+
+/* ---------- Kho mẫu ---------- */
+.kho{background:var(--navy-1);border-top:1px solid var(--line-faint);border-bottom:1px solid var(--line-faint)}
+.kho-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:8px}
+@media(max-width:880px){.kho-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.kho-grid{grid-template-columns:1fr}}
+.kho-item{
+  aspect-ratio:4/3;border-radius:var(--radius);overflow:hidden;position:relative;
+  border:1px solid var(--line-faint);
+  background:
+    linear-gradient(160deg,rgba(212,160,23,.10),transparent 60%),
+    linear-gradient(200deg,var(--navy-2),var(--navy-0));
+  display:flex;align-items:flex-end;padding:18px;
+}
+.kho-item .roof{
+  position:absolute;top:0;left:0;right:0;height:60%;opacity:.5;
+}
+.kho-item .roof svg{width:100%;height:100%;stroke:var(--gold);stroke-width:1;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.kho-item .tag{
+  position:absolute;top:14px;right:14px;
+  font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;
+  color:var(--gold);border:1px solid var(--line);border-radius:999px;padding:3px 9px;
+  background:rgba(10,18,36,.6);
+}
+.kho-item span{
+  position:relative;z-index:1;
+  font-size:.82rem;font-weight:500;color:var(--ink);
+  border-left:2px solid var(--gold);padding-left:10px;
+}
+.kho-cta{text-align:center;margin-top:34px}
+
+/* ---------- Form ---------- */
+.lead{position:relative}
+.lead-box{
+  max-width:620px;margin:0 auto;
+  border:1px solid var(--line);border-radius:var(--radius);
+  background:linear-gradient(175deg,var(--navy-2),var(--navy-1));
+  padding:44px 40px;
+}
+@media(max-width:560px){.lead-box{padding:32px 22px}}
+.lead-box .sec-title{text-align:center}
+.lead-box .sec-lead{text-align:center;margin:0 auto 32px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:.8rem;color:var(--ink-dim);margin-bottom:7px;letter-spacing:.03em}
+.field input,.field select{
+  width:100%;padding:13px 16px;border-radius:10px;
+  background:rgba(10,18,36,.6);border:1px solid var(--line-faint);
+  color:var(--ink);font-family:'DM Sans',sans-serif;font-size:.95rem;
+  transition:border-color .2s;
+}
+.field input:focus,.field select:focus{outline:none;border-color:var(--gold)}
+.lead-submit{width:100%;justify-content:center;margin-top:8px;font-size:1rem;cursor:pointer;border:none;font-family:'DM Sans',sans-serif}
+.lead-note{font-size:.75rem;color:var(--ink-dim);text-align:center;margin-top:16px}
+.lead-success{
+  display:none;text-align:center;padding:30px 0;
+}
+.lead-success svg{width:44px;height:44px;stroke:var(--gold);stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round;margin:0 auto 16px}
+
+/* ---------- FAQ ---------- */
+.faq details{
+  border:1px solid var(--line-faint);border-radius:12px;
+  padding:0;margin-bottom:12px;background:rgba(255,255,255,.02);
+}
+.faq summary{
+  cursor:pointer;padding:18px 22px;font-weight:600;font-size:.95rem;
+  list-style:none;display:flex;justify-content:space-between;align-items:center;gap:16px;
+}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--gold);line-height:1}
+.faq details[open] summary::after{content:"−"}
+.faq details p{padding:0 22px 18px;font-size:.9rem;color:var(--ink-dim)}
+
+/* ---------- Footer ---------- */
+footer{border-top:1px solid var(--line-faint);padding:40px 0 100px;text-align:center;color:var(--ink-dim);font-size:.82rem}
+footer .logo{justify-content:center;display:flex;margin-bottom:10px}
+
+/* ---------- Sticky mobile CTA ---------- */
+.sticky-cta{
+  position:fixed;bottom:0;left:0;right:0;z-index:60;
+  display:none;gap:10px;padding:12px 16px;
+  background:rgba(10,18,36,.94);backdrop-filter:blur(12px);
+  border-top:1px solid var(--line);
+}
+.sticky-cta .btn{flex:1;justify-content:center;padding:13px 10px;font-size:.88rem}
+@media(max-width:720px){.sticky-cta{display:flex}}
+
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *{transition:none!important;animation:none!important}
+}
+</style>
+</head>
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MB7VRGR5"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+<header>
+  <div class="container nav">
+    <a class="logo" href="https://applamnha.vn">App <span>Làm Nhà</span></a>
+    <a class="nav-cta" href="https://zalo.me/0909829696" target="_blank" rel="noopener">Chat Zalo tư vấn</a>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <div class="eyebrow">Dành cho chủ nhà</div>
+      <!--
+        HEADLINE A/B TEST — 3 biến thể, mỗi biến thể nhắm 1 nỗi lo khác nhau của chủ nhà.
+        Đổi thủ công bằng cách thay nội dung h1 + hero-sub bên dưới, hoặc tách 3 bản landing riêng (chu-nha-a.html, -b.html, -c.html) để chạy song song trên TikTok/Facebook Ads.
+
+        [A] ĐANG DÙNG — Trục: MINH BẠCH GIÁ (khai thác nỗi sợ báo giá mập mờ/phát sinh)
+        H1:  Xây nhà với kiến trúc sư <em>có chứng chỉ hành nghề</em> — giá công khai trước khi ký
+        Sub: Không báo giá mập mờ. Không phát sinh bất ngờ. Bạn biết chính xác chi phí thiết kế và từng hạng mục trước khi đặt bút ký — và chỉ thanh toán khi mỗi bước hoàn thành.
+
+        [B] Trục: RỦI RO PHÁP LÝ / CCHN (khai thác nỗi sợ thợ "vẽ dạo", hồ sơ không xin phép được)
+        H1:  Đừng để nhà bạn do người <em>không chứng chỉ hành nghề</em> thiết kế
+        Sub: Hồ sơ không đủ CCHN dễ bị từ chối khi xin phép xây dựng. App Làm Nhà chỉ kết nối kiến trúc sư có CCHN được xác minh — hồ sơ chuẩn pháp lý ngay từ đầu.
+
+        [C] Trục: KIỂM SOÁT DÒNG TIỀN (khai thác nỗi sợ mất tiền cọc, chủ thầu bỏ ngang)
+        H1:  Thanh toán theo <em>tiến độ thật</em> — không đặt cọc cho việc chưa làm
+        Sub: 4 bước, bước nào xong mới trả tiền bước đó. Bạn luôn là người quyết định có đi tiếp hay dừng lại, không bị "cầm chân" bởi khoản cọc lớn ban đầu.
+      -->
+      <h1 class="display">Xây nhà với kiến trúc sư <em>có chứng chỉ hành nghề</em> — giá công khai trước khi ký</h1>
+      <p class="hero-sub">Không báo giá mập mờ. Không phát sinh bất ngờ. Bạn biết chính xác chi phí thiết kế và từng hạng mục trước khi đặt bút ký — và chỉ thanh toán khi mỗi bước hoàn thành.</p>
+      <div class="hero-actions">
+        <a class="btn btn-gold" href="https://zalo.me/0909829696" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          Chat Zalo tư vấn ngay
+        </a>
+        <a class="btn btn-line" href="tel:0909829696">
+          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          0909 829 696
+        </a>
+      </div>
+      <p style="font-size:.78rem;color:var(--ink-dim);margin-top:14px">Không đặt cọc trước khi thấy phương án. Trả lời trên Zalo trong giờ làm việc.</p>
+      <div class="trust">
+        <div class="trust-item">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+          KTS có CCHN được xác minh
+        </div>
+        <div class="trust-item">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          Báo giá trong 24 giờ
+        </div>
+        <div class="trust-item">
+          <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          Thanh toán theo từng bước
+        </div>
+      </div>
+    </div>
+
+    <div class="quote-card">
+      <div class="field" style="margin-top:14px;margin-bottom:20px">
+        <label for="calc-area" style="display:block;font-size:.8rem;color:var(--ink-dim);margin-bottom:8px">Diện tích sàn xây dựng (m²)</label>
+        <input id="calc-area" type="number" inputmode="numeric" placeholder="Ví dụ: 120" value="120"
+          style="width:100%;padding:13px 16px;border-radius:10px;background:rgba(10,18,36,.6);border:1px solid var(--line-faint);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:1.1rem">
+      </div>
+      <div class="quote-row" style="flex-direction:column;align-items:flex-start;gap:8px;padding-bottom:16px">
+        <span class="quote-label">Chi phí phần thô ước tính (mức khá)</span>
+        <span class="quote-val gold" id="calc-result" style="font-size:1.4rem;white-space:normal">—</span>
+      </div>
+      <div class="quote-row" style="flex-direction:column;align-items:flex-start;gap:8px">
+        <span class="quote-label">Đơn giá tham chiếu</span>
+        <span class="quote-val" style="white-space:normal">3.500.000 – 3.900.000 đ/m²</span>
+      </div>
+      <p class="quote-note">Khoảng giá tham khảo cho phần thô, mức khá. Chưa gồm phần hoàn thiện — nhận dự toán đầy đủ theo mức hoàn thiện bạn chọn bên dưới.</p>
+      <a class="btn btn-line" href="https://applamnha.vn/du-toan/" style="width:100%;justify-content:center;margin-top:14px;padding:12px">
+        Xem dự toán đầy đủ, có hoàn thiện
+        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round"><line x1="5" y1="12" x2="19" y2="12"/><path d="M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ VÌ SAO ============ -->
+<section class="section pain">
+  <div class="container">
+    <div class="eyebrow">Vì sao chọn App Làm Nhà</div>
+    <h2 class="display sec-title">Ba điều chủ nhà lo nhất — chúng tôi giải quyết trước tiên</h2>
+    <p class="sec-lead">Xây nhà là khoản đầu tư lớn nhất đời người. Bạn xứng đáng được biết rõ mình đang trả tiền cho ai, cho việc gì, và khi nào.</p>
+    <div class="cards3">
+      <div class="card">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+        <h3>Đúng người có chứng chỉ</h3>
+        <p>Mỗi kiến trúc sư trên nền tảng đều có Chứng chỉ hành nghề (CCHN) được xác minh. Hồ sơ thiết kế do chính KTS có CCHN ký — đủ pháp lý để xin phép xây dựng.</p>
+      </div>
+      <div class="card">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.5-1.25 2-2.5 3"/><line x1="12" y1="16" x2="12" y2="16.01"/></svg>
+        <h3>Giá rõ ràng từ đầu</h3>
+        <p>Bảng phí thiết kế công khai trên website — thấp hơn mặt bằng thị trường vì kết nối trực tiếp, không qua trung gian. Bạn so sánh được trước khi quyết định.</p>
+      </div>
+      <div class="card">
+        <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><line x1="6" y1="15" x2="10" y2="15"/></svg>
+        <h3>Tiền đi theo tiến độ</h3>
+        <p>Quy trình 4 bước: mỗi bước có sản phẩm bàn giao rõ ràng, và bạn chỉ thanh toán khi bước đó hoàn thành. Không đặt cọc lớn cho việc chưa thấy.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4 BƯỚC ============ -->
+<section class="section steps">
+  <div class="container">
+    <div class="eyebrow">Quy trình</div>
+    <h2 class="display sec-title">Không hài lòng bước nào — dừng ngay bước đó, không mất thêm 1 đồng</h2>
+    <p class="sec-lead">4 bước, mỗi bước có sản phẩm bàn giao rõ ràng. Bạn nghiệm thu, hài lòng, rồi mới thanh toán cho bước đó — toàn quyền quyết định đi tiếp hay dừng lại, không bị ràng buộc bởi khoản cọc lớn ban đầu.</p>
+    <div class="step-list">
+      <div class="step">
+        <div class="step-num">C1</div>
+        <h3>Tư vấn &amp; phương án</h3>
+        <p>Gặp KTS, trao đổi nhu cầu, nhận phương án sơ bộ và khái toán chi phí cho ngôi nhà của bạn.</p>
+        <span class="step-pay"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Nghiệm thu → thanh toán</span>
+      </div>
+      <div class="step">
+        <div class="step-num">C2</div>
+        <h3>Hồ sơ thiết kế</h3>
+        <p>Nhận bộ hồ sơ thiết kế đầy đủ, do KTS có CCHN ký — sẵn sàng cho thủ tục xin phép xây dựng.</p>
+        <span class="step-pay"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Nghiệm thu → thanh toán</span>
+      </div>
+      <div class="step">
+        <div class="step-num">C3</div>
+        <h3>Thi công</h3>
+        <p>Kết nối nhà thầu uy tín, thi công theo đúng hồ sơ thiết kế với sự giám sát của KTS.</p>
+        <span class="step-pay"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Nghiệm thu → thanh toán</span>
+      </div>
+      <div class="step">
+        <div class="step-num">C4</div>
+        <h3>Hoàn thiện &amp; bàn giao</h3>
+        <p>Nghiệm thu tổng thể, bàn giao nhà hoàn thiện cùng đầy đủ hồ sơ để bạn an tâm vào ở.</p>
+        <span class="step-pay"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Nghiệm thu → thanh toán</span>
+      </div>
+    </div>
+    <p class="steps-motto">"Bước nào cũng nhận tiền — vì bước nào cũng có giá trị bàn giao."</p>
+  </div>
+</section>
+
+<!-- ============ KHO MẪU ============ -->
+<section class="section kho">
+  <div class="container">
+    <div class="eyebrow">Kho mẫu</div>
+    <h2 class="display sec-title">26 mẫu nhà — xem miễn phí, chọn phong cách của bạn</h2>
+    <p class="sec-lead">Nhà phố, biệt thự, shophouse, nhà cấp 4 sân vườn — mỗi mẫu đều kèm định hướng phong cách và có thể điều chỉnh theo khu đất thực tế của bạn.</p>
+    <div class="kho-grid">
+      <a class="kho-item" href="https://applamnha.vn/kho-mau/">
+        <div class="tag">Gói kinh tế</div>
+        <div class="roof"><svg viewBox="0 0 200 150"><path d="M20 90L100 30L180 90"/><line x1="35" y1="90" x2="35" y2="130"/><line x1="165" y1="90" x2="165" y2="130"/><line x1="35" y1="130" x2="165" y2="130"/></svg></div>
+        <span>Nhà cấp 4 mái Thái</span>
+      </a>
+      <a class="kho-item" href="https://applamnha.vn/kho-mau/">
+        <div class="tag">Gói kinh tế</div>
+        <div class="roof"><svg viewBox="0 0 200 150"><path d="M20 100L100 40L180 100"/><rect x="45" y="100" width="110" height="35"/></svg></div>
+        <span>Nhà vườn nghỉ dưỡng</span>
+      </a>
+      <a class="kho-item" href="https://applamnha.vn/kho-mau/">
+        <div class="tag">Phổ thông</div>
+        <div class="roof"><svg viewBox="0 0 200 150"><line x1="30" y1="60" x2="170" y2="60"/><line x1="30" y1="60" x2="30" y2="130"/><line x1="170" y1="60" x2="170" y2="130"/><line x1="80" y1="60" x2="80" y2="130"/></svg></div>
+        <span>Nhà phố hiện đại</span>
+      </a>
+      <a class="kho-item" href="https://applamnha.vn/kho-mau/">
+        <div class="tag">Phổ thông</div>
+        <div class="roof"><svg viewBox="0 0 200 150"><rect x="30" y="50" width="140" height="80"/><line x1="30" y1="90" x2="170" y2="90"/></svg></div>
+        <span>Shophouse kinh doanh</span>
+      </a>
+      <a class="kho-item" href="https://applamnha.vn/kho-mau/">
+        <div class="tag">Cao cấp</div>
+        <div class="roof"><svg viewBox="0 0 200 150"><path d="M15 70L100 25L185 70"/><rect x="35" y="70" width="130" height="60"/><line x1="100" y1="70" x2="100" y2="130"/></svg></div>
+        <span>Biệt thự sân vườn</span>
+      </a>
+      <a class="kho-item" href="https://applamnha.vn/kho-mau/">
+        <div class="tag">Hạ tầng ngoại thất</div>
+        <div class="roof"><svg viewBox="0 0 200 150"><path d="M20 120q30-60 80-60t80 60"/><circle cx="60" cy="100" r="6"/><circle cx="140" cy="105" r="8"/></svg></div>
+        <span>Cảnh quan &amp; sân vườn</span>
+      </a>
+    </div>
+    <div class="kho-cta">
+      <a class="btn btn-line" href="https://applamnha.vn/kho-mau/">
+        Xem toàn bộ 26 mẫu
+        <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><path d="M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FORM ============ -->
+<section class="section lead" id="dang-ky">
+  <div class="container">
+    <div class="lead-box">
+      <div id="leadForm">
+        <h2 class="display sec-title">Nhận tư vấn miễn phí từ KTS</h2>
+        <p class="sec-lead">Để lại thông tin — KTS sẽ liên hệ trong 24 giờ với phương án và báo giá rõ ràng cho ngôi nhà của bạn.</p>
+        <div class="field">
+          <label for="f-name">Họ và tên</label>
+          <input id="f-name" type="text" autocomplete="name" placeholder="Nguyễn Văn A">
+        </div>
+        <div class="field">
+          <label for="f-phone">Số điện thoại</label>
+          <input id="f-phone" type="tel" autocomplete="tel" inputmode="numeric" placeholder="09xx xxx xxx">
+        </div>
+        <div class="field">
+          <label for="f-need">Bạn đang cần</label>
+          <select id="f-need">
+            <option value="thiet-ke">Thiết kế nhà mới</option>
+            <option value="du-toan">Dự toán chi phí xây dựng</option>
+            <option value="sua-chua">Sửa chữa / cải tạo</option>
+            <option value="tu-van">Tư vấn chung</option>
+          </select>
+        </div>
+        <button class="btn btn-gold lead-submit" id="btnSubmit" type="button">Gửi thông tin — nhận tư vấn</button>
+        <p class="lead-note">Thông tin của bạn chỉ dùng để KTS liên hệ tư vấn. Không spam.</p>
+        <div style="text-align:center;margin-top:18px;padding-top:18px;border-top:1px solid var(--line-faint)">
+          <p style="font-size:.82rem;color:var(--ink-dim);margin-bottom:10px">Ngại điền form? Nhắn Zalo — trả lời nhanh hơn.</p>
+          <a class="btn btn-line" href="https://zalo.me/0909829696" target="_blank" rel="noopener" style="display:inline-flex">
+            <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+            Chat Zalo 0909 829 696
+          </a>
+        </div>
+      </div>
+      <div class="lead-success" id="leadSuccess">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg>
+        <h2 class="display sec-title">Đã nhận thông tin</h2>
+        <p class="sec-lead" style="margin-bottom:0">Cảm ơn bạn. KTS của App Làm Nhà sẽ liên hệ trong vòng 24 giờ làm việc.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="section faq">
+  <div class="container" style="max-width:760px">
+    <div class="eyebrow">Câu hỏi thường gặp</div>
+    <h2 class="display sec-title">Chủ nhà hay hỏi</h2>
+    <details>
+      <summary>Phí thiết kế của App Làm Nhà tính thế nào?</summary>
+      <p>Phí thiết kế được công khai theo m² trên website, thấp hơn mặt bằng thị trường vì bạn kết nối trực tiếp với KTS, không qua trung gian. Bạn thấy con số trước khi ký — không có phụ phí ẩn.</p>
+    </details>
+    <details>
+      <summary>CCHN là gì và vì sao quan trọng?</summary>
+      <p>CCHN là Chứng chỉ hành nghề kiến trúc do cơ quan nhà nước cấp. Hồ sơ thiết kế do KTS có CCHN ký mới đủ điều kiện pháp lý cho thủ tục xin phép xây dựng. Mọi KTS trên App Làm Nhà đều được xác minh CCHN.</p>
+    </details>
+    <details>
+      <summary>Tôi có phải thanh toán trước toàn bộ không?</summary>
+      <p>Không. Quy trình 4 bước (C1–C4) — mỗi bước có sản phẩm bàn giao rõ ràng, bạn nghiệm thu xong mới thanh toán cho bước đó. Sau mỗi bước, bạn hoàn toàn chủ động quyết định có đi tiếp hay không.</p>
+    </details>
+    <details>
+      <summary>Tôi muốn biết chi phí xây nhà trước khi thiết kế?</summary>
+      <p>Bạn có thể dùng công cụ dự toán miễn phí tại applamnha.vn/du-toan — chỉ cần nhập diện tích và mức hoàn thiện mong muốn để xem ngay khung chi phí tham khảo, dựa trên dữ liệu công trình thực tế.</p>
+    </details>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="logo">App <span>Làm Nhà</span></div>
+    <p>Nền tảng kết nối chủ nhà với kiến trúc sư có CCHN, nhà thầu và nhà cung cấp vật liệu.</p>
+    <p style="margin-top:8px">© 2026 App Làm Nhà — applamnha.vn</p>
+  </div>
+</footer>
+
+<!-- Sticky CTA mobile -->
+<div class="sticky-cta">
+  <a class="btn btn-line" href="tel:0909829696">
+    <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+    Gọi ngay
+  </a>
+  <a class="btn btn-gold" href="https://zalo.me/0909829696" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+    Chat Zalo
+  </a>
+</div>
+
+<script>
+// ==============================================
+// Máy tính ước tính nhanh trong hero — dùng khoảng đơn giá phần thô (mức khá).
+// Đây là ước tính sơ bộ, không phải báo giá chính thức — mục đích tạo hook tương tác,
+// đẩy traffic sang /du-toan/ để có số chính xác theo hồ sơ thật.
+// ==============================================
+const DON_GIA_PHAN_THO_MIN = 3500000; // đ/m² — mức khá, cận dưới
+const DON_GIA_PHAN_THO_MAX = 3900000; // đ/m² — mức khá, cận trên
+
+function capNhatUocTinh(){
+  const area = parseFloat(document.getElementById('calc-area').value);
+  const resultEl = document.getElementById('calc-result');
+  if(!area || area <= 0){
+    resultEl.textContent = '—';
+    return;
+  }
+  const low = Math.round(area * DON_GIA_PHAN_THO_MIN);
+  const high = Math.round(area * DON_GIA_PHAN_THO_MAX);
+  resultEl.textContent = low.toLocaleString('vi-VN') + ' – ' + high.toLocaleString('vi-VN') + ' đ';
+}
+document.getElementById('calc-area').addEventListener('input', capNhatUocTinh);
+capNhatUocTinh(); // tính sẵn giá trị mặc định khi tải trang
+</script>
+
+<script type="module">
+/* ==============================================
+ * Gửi lead qua Cloud Function callable "submitHomeLead" (functions/ktsFunnel.js,
+ * region asia-southeast1, project aln-platform) — hàm ĐÃ CHẠY THẬT trên
+ * production cho form Tên+SĐT của index.html, tái dùng nguyên cho trang ads
+ * riêng này (thêm 14/08/2026: 2 field tuỳ chọn `need`/`landingPage`, additive,
+ * không đổi hành vi caller cũ như index.html).
+ *
+ * KHÔNG gọi thẳng upsertContact/upsertContactCore hay fetch() tới URL tự chế
+ * như bản nháp trước — lý do:
+ *   - submitHomeLead ghi vào landingLeads → vào dailyDigest Founder (lead mới),
+ *     có chống gửi trùng SĐT trong 10 phút, và tự bắn Meta CAPI "Lead"
+ *     server-side qua onHomeLeadCreated (dedup với Pixel client qua event_id
+ *     'lead-'+id — xem fbq('track','Lead',...) bên dưới).
+ *   - upsertContact chỉ ghi vào bảng CRM nội bộ "contacts" — Founder sẽ
+ *     KHÔNG thấy lead này trong báo cáo lead mới, và không có CAPI dedup.
+ * Gọi qua Firebase SDK (httpsCallable) — callable function không nhận
+ * fetch() POST body phẳng như REST thường (wire protocol {"data":{...}}).
+ * ============================================== */
+import { app } from './firebase-config.js';
+import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js';
+
+const functions = getFunctions(app, 'asia-southeast1');
+const callSubmitHomeLead = httpsCallable(functions, 'submitHomeLead', { timeout: 20000 });
+
+document.getElementById('btnSubmit').addEventListener('click', async function(){
+  const btn = this;
+  const btnLabel = btn.textContent;
+  const nameEl = document.getElementById('f-name');
+  const phoneEl = document.getElementById('f-phone');
+  const name = nameEl.value.trim();
+  const phone = phoneEl.value.trim().replace(/\s/g, '');
+  const need = document.getElementById('f-need').value;
+
+  if(!name){
+    nameEl.style.borderColor = '#d4a017';
+    nameEl.focus();
+    return;
+  }
+  if(!phone || !/^0\d{9}$/.test(phone)){
+    phoneEl.style.borderColor = '#d4a017';
+    phoneEl.focus();
+    return;
+  }
+
+  btn.disabled = true; btn.textContent = 'Đang gửi...';
+
+  try{
+    const res = await callSubmitHomeLead({
+      name, phone, need,
+      landingPage: 'chu-nha-ads',
+      utm: window.alnGetUtm ? window.alnGetUtm() : {},
+      fbp: window.alnGetFbp ? window.alnGetFbp() : '',
+      fbc: window.alnGetFbc ? window.alnGetFbc() : '',
+      sourceUrl: location.origin + location.pathname,
+    });
+    const leadId = (res && res.data && res.data.id) || '';
+
+    /* Pixel Lead client — cùng eventID 'lead-'+leadId với CAPI server-side
+       (onHomeLeadCreated bắn event_id 'lead-'+id) để Facebook tự dedup,
+       không đếm đôi — đúng mẫu aln-giu-cho/phong-cho.html hàm fireLeadPixel(). */
+    try{
+      if (window.fbq && leadId) fbq('track', 'Lead',
+        { content_name: 'chu-nha-ads-lead-form', content_category: 'cn-funnel' },
+        { eventID: 'lead-' + leadId });
+    }catch(e){}
+
+    try{
+      window.dataLayer = window.dataLayer || [];
+      dataLayer.push({ event: 'lead_form_submit', form_name: 'chu_nha_ads_landing' });
+      dataLayer.push({
+        event: 'aln_lead_submit',
+        aln_funnel_tier: 1,
+        aln_source_page: 'chu-nha-ads',
+        aln_lead_need: need
+      });
+    }catch(e){}
+
+    if(typeof gtag === 'function'){
+      gtag('event', 'generate_lead', { source: 'landing-chu-nha-ads', need: need });
+    }
+
+    document.getElementById('leadForm').style.display = 'none';
+    document.getElementById('leadSuccess').style.display = 'block';
+  }catch(e){
+    btn.disabled = false; btn.textContent = btnLabel;
+    const code = (e && e.code) ? String(e.code).replace('functions/', '') : '?';
+    const msg = (code === 'invalid-argument' && e.message)
+      ? e.message
+      : 'Chưa gửi được (' + code + '). Vui lòng thử lại hoặc gọi 0909 829 696.';
+    alert(msg);
+  }
+});
+</script>
+
+</body>
+</html>
