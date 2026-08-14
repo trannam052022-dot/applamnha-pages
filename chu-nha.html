@@ -438,10 +438,27 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span class="quote-label">Đơn giá tham chiếu</span>
         <span class="quote-val" style="white-space:normal">3.500.000 – 3.900.000 đ/m²</span>
       </div>
-      <p class="quote-note">Khoảng giá tham khảo cho phần thô, mức khá. Chưa gồm phần hoàn thiện — nhận dự toán đầy đủ theo mức hoàn thiện bạn chọn bên dưới.</p>
-      <a class="btn btn-line" href="https://applamnha.vn/du-toan/" style="width:100%;justify-content:center;margin-top:14px;padding:12px">
-        Xem dự toán đầy đủ, có hoàn thiện
-        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round"><line x1="5" y1="12" x2="19" y2="12"/><path d="M12 5l7 7-7 7"/></svg>
+      <p class="quote-note">Khoảng giá tham khảo cho phần thô, mức khá. Chưa gồm phần hoàn thiện — để lại SĐT để nhận báo giá chính xác theo đúng khu đất và mức hoàn thiện bạn chọn.</p>
+
+      <div id="heroLeadForm" style="margin-top:16px;padding-top:16px;border-top:1px dashed var(--line-faint)">
+        <label style="display:block;font-size:.78rem;color:var(--ink-dim);margin-bottom:8px">Nhận báo giá chính xác — có KTS tư vấn</label>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <input id="hero-name" type="text" autocomplete="name" placeholder="Họ và tên"
+            style="width:100%;padding:12px 14px;border-radius:10px;background:rgba(10,18,36,.6);border:1px solid var(--line-faint);color:var(--ink);font-family:'DM Sans',sans-serif;font-size:.92rem">
+          <input id="hero-phone" type="tel" autocomplete="tel" inputmode="numeric" placeholder="Số điện thoại"
+            style="width:100%;padding:12px 14px;border-radius:10px;background:rgba(10,18,36,.6);border:1px solid var(--line-faint);color:var(--ink);font-family:'DM Sans',sans-serif;font-size:.92rem">
+        </div>
+        <button id="heroBtnSubmit" type="button" class="btn btn-gold" style="width:100%;justify-content:center;margin-top:10px;padding:12px;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;font-size:.92rem">Nhận báo giá ngay</button>
+        <p id="heroLeadErr" style="display:none;color:#e88a8a;font-size:.72rem;margin-top:8px"></p>
+      </div>
+      <div id="heroLeadSuccess" style="display:none;margin-top:16px;padding-top:16px;border-top:1px dashed var(--line-faint);text-align:center">
+        <p style="color:var(--gold);font-weight:600;font-size:.92rem">✓ Đã nhận thông tin</p>
+        <p style="font-size:.78rem;color:var(--ink-dim);margin-top:4px">KTS sẽ liên hệ trong 24 giờ làm việc.</p>
+      </div>
+
+      <a class="btn btn-line" href="https://applamnha.vn/du-toan/" style="width:100%;justify-content:center;margin-top:12px;padding:9px;font-size:.78rem;opacity:.8">
+        Hoặc tự xem dự toán đầy đủ, có hoàn thiện
+        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round"><line x1="5" y1="12" x2="19" y2="12"/><path d="M12 5l7 7-7 7"/></svg>
       </a>
     </div>
   </div>
@@ -692,6 +709,51 @@ import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/
 const functions = getFunctions(app, 'asia-southeast1');
 const callSubmitHomeLead = httpsCallable(functions, 'submitHomeLead', { timeout: 20000 });
 
+/* Hàm gửi lead DÙNG CHUNG cho form chính (#leadForm, cuối trang) và mini-form
+   trong hero (#heroLeadForm) — thêm 14/08/2026 vì máy tính ước tính trong hero
+   trước đó chỉ có 1 nút "Xem dự toán đầy đủ" đẩy khách RỜI TRANG sang /du-toan/,
+   mất khách ads ngay tại điểm tương tác cao nhất. `landingPage` khác nhau giữa
+   2 form (chu-nha-ads-hero / chu-nha-ads) để phân biệt được form nào chuyển đổi
+   tốt hơn khi xem lại trong dailyDigest/tab Lead. Ném lỗi ra ngoài — nơi gọi tự
+   xử lý UI theo ngữ cảnh riêng (alert cho form chính, hiện err inline cho hero). */
+async function sendLead({ name, phone, need, landingPage, contentName }){
+  const res = await callSubmitHomeLead({
+    name, phone, need: need || null,
+    landingPage,
+    utm: window.alnGetUtm ? window.alnGetUtm() : {},
+    fbp: window.alnGetFbp ? window.alnGetFbp() : '',
+    fbc: window.alnGetFbc ? window.alnGetFbc() : '',
+    sourceUrl: location.origin + location.pathname,
+  });
+  const leadId = (res && res.data && res.data.id) || '';
+
+  /* Pixel Lead client — cùng eventID 'lead-'+leadId với CAPI server-side
+     (onHomeLeadCreated bắn event_id 'lead-'+id) để Facebook tự dedup,
+     không đếm đôi — đúng mẫu aln-giu-cho/phong-cho.html hàm fireLeadPixel(). */
+  try{
+    if (window.fbq && leadId) fbq('track', 'Lead',
+      { content_name: contentName, content_category: 'cn-funnel' },
+      { eventID: 'lead-' + leadId });
+  }catch(e){}
+
+  try{
+    window.dataLayer = window.dataLayer || [];
+    dataLayer.push({ event: 'lead_form_submit', form_name: landingPage.replace(/-/g, '_') });
+    dataLayer.push({
+      event: 'aln_lead_submit',
+      aln_funnel_tier: 1,
+      aln_source_page: landingPage,
+      aln_lead_need: need || ''
+    });
+  }catch(e){}
+
+  if(typeof gtag === 'function'){
+    gtag('event', 'generate_lead', { source: landingPage, need: need || '' });
+  }
+
+  return leadId;
+}
+
 document.getElementById('btnSubmit').addEventListener('click', async function(){
   const btn = this;
   const btnLabel = btn.textContent;
@@ -715,40 +777,7 @@ document.getElementById('btnSubmit').addEventListener('click', async function(){
   btn.disabled = true; btn.textContent = 'Đang gửi...';
 
   try{
-    const res = await callSubmitHomeLead({
-      name, phone, need,
-      landingPage: 'chu-nha-ads',
-      utm: window.alnGetUtm ? window.alnGetUtm() : {},
-      fbp: window.alnGetFbp ? window.alnGetFbp() : '',
-      fbc: window.alnGetFbc ? window.alnGetFbc() : '',
-      sourceUrl: location.origin + location.pathname,
-    });
-    const leadId = (res && res.data && res.data.id) || '';
-
-    /* Pixel Lead client — cùng eventID 'lead-'+leadId với CAPI server-side
-       (onHomeLeadCreated bắn event_id 'lead-'+id) để Facebook tự dedup,
-       không đếm đôi — đúng mẫu aln-giu-cho/phong-cho.html hàm fireLeadPixel(). */
-    try{
-      if (window.fbq && leadId) fbq('track', 'Lead',
-        { content_name: 'chu-nha-ads-lead-form', content_category: 'cn-funnel' },
-        { eventID: 'lead-' + leadId });
-    }catch(e){}
-
-    try{
-      window.dataLayer = window.dataLayer || [];
-      dataLayer.push({ event: 'lead_form_submit', form_name: 'chu_nha_ads_landing' });
-      dataLayer.push({
-        event: 'aln_lead_submit',
-        aln_funnel_tier: 1,
-        aln_source_page: 'chu-nha-ads',
-        aln_lead_need: need
-      });
-    }catch(e){}
-
-    if(typeof gtag === 'function'){
-      gtag('event', 'generate_lead', { source: 'landing-chu-nha-ads', need: need });
-    }
-
+    await sendLead({ name, phone, need, landingPage: 'chu-nha-ads', contentName: 'chu-nha-ads-lead-form' });
     document.getElementById('leadForm').style.display = 'none';
     document.getElementById('leadSuccess').style.display = 'block';
   }catch(e){
@@ -758,6 +787,52 @@ document.getElementById('btnSubmit').addEventListener('click', async function(){
       ? e.message
       : 'Chưa gửi được (' + code + '). Vui lòng thử lại hoặc gọi 0909 829 696.';
     alert(msg);
+  }
+});
+
+/* Mini-form trong hero — cạnh máy tính ước tính, xem comment sendLead() ở trên. */
+document.getElementById('heroBtnSubmit').addEventListener('click', async function(){
+  const btn = this;
+  const btnLabel = btn.textContent;
+  const nameEl = document.getElementById('hero-name');
+  const phoneEl = document.getElementById('hero-phone');
+  const errEl = document.getElementById('heroLeadErr');
+  const name = nameEl.value.trim();
+  const phone = phoneEl.value.trim().replace(/\s/g, '');
+  errEl.style.display = 'none';
+
+  if(!name){
+    errEl.textContent = 'Vui lòng nhập họ tên.';
+    errEl.style.display = 'block';
+    nameEl.focus();
+    return;
+  }
+  if(!phone || !/^0\d{9}$/.test(phone)){
+    errEl.textContent = 'SĐT chưa đúng (VD: 0909xxxxxx).';
+    errEl.style.display = 'block';
+    phoneEl.focus();
+    return;
+  }
+
+  btn.disabled = true; btn.textContent = 'Đang gửi...';
+
+  try{
+    const areaVal = document.getElementById('calc-area').value;
+    await sendLead({
+      name, phone,
+      need: areaVal ? 'du-toan' : null,
+      landingPage: 'chu-nha-ads-hero',
+      contentName: 'chu-nha-ads-hero-lead-form',
+    });
+    document.getElementById('heroLeadForm').style.display = 'none';
+    document.getElementById('heroLeadSuccess').style.display = 'block';
+  }catch(e){
+    btn.disabled = false; btn.textContent = btnLabel;
+    const code = (e && e.code) ? String(e.code).replace('functions/', '') : '?';
+    errEl.textContent = (code === 'invalid-argument' && e.message)
+      ? e.message
+      : 'Chưa gửi được (' + code + '). Vui lòng thử lại hoặc gọi 0909 829 696.';
+    errEl.style.display = 'block';
   }
 });
 </script>
