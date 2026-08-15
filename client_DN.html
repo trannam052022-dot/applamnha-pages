@@ -2194,13 +2194,13 @@ function renderMain(){
 
   /* KTS portraits map */
   const KTS_PORTRAITS = {
-    'KTS. Trần Long':   {skin:'#d8a878',shirt:'#2a3a5a',bg:'#14141e',cchn:'KTS-2021-04821',tier:'VIP Vàng', rating:'4.8',projects:23},
-    'KTS. Nguyễn Thị Lan': {skin:'#e0b898',shirt:'#1a5040',bg:'#0e181e',cchn:'KTS-2022-07663',tier:'VIP Bạc',  rating:'4.9',projects:14},
-    'KTS. Phạm Hoài Nam':  {skin:'#d4a880',shirt:'#5a3818',bg:'#120e08',cchn:'KTS-2021-09312',tier:'Chuẩn',    rating:'4.7',projects:18},
-    'KTS. Lê Hoàng Nam':   {skin:'#d8c0a0',shirt:'#1e3a2a',bg:'#0c1410',cchn:'KTS-2023-03201',tier:'VIP Bạc',  rating:'4.8',projects:11},
-    'KTS. Vũ Minh Khoa':   {skin:'#c8a878',shirt:'#3a2a5a',bg:'#10101e',cchn:'KTS-2020-11542',tier:'VIP Vàng', rating:'5.0',projects:27},
+    'KTS. Trần Long':   {skin:'#d8a878',shirt:'#2a3a5a',bg:'#14141e',tier:'VIP Vàng', rating:'4.8',projects:23},
+    'KTS. Nguyễn Thị Lan': {skin:'#e0b898',shirt:'#1a5040',bg:'#0e181e',tier:'VIP Bạc',  rating:'4.9',projects:14},
+    'KTS. Phạm Hoài Nam':  {skin:'#d4a880',shirt:'#5a3818',bg:'#120e08',tier:'Chuẩn',    rating:'4.7',projects:18},
+    'KTS. Lê Hoàng Nam':   {skin:'#d8c0a0',shirt:'#1e3a2a',bg:'#0c1410',tier:'VIP Bạc',  rating:'4.8',projects:11},
+    'KTS. Vũ Minh Khoa':   {skin:'#c8a878',shirt:'#3a2a5a',bg:'#10101e',tier:'VIP Vàng', rating:'5.0',projects:27},
   };
-  const ki = KTS_PORTRAITS[p.kts] || {skin:'#d8a878',shirt:'#2a3a5a',bg:'#14141e',cchn:'—',tier:'Chuẩn',rating:'4.8',projects:0};
+  const ki = KTS_PORTRAITS[p.kts] || {skin:'#d8a878',shirt:'#2a3a5a',bg:'#14141e',tier:'Chuẩn',rating:'4.8',projects:0};
   const tierStyle = ki.tier.includes('Vàng')
     ? 'background:linear-gradient(135deg,rgba(184,146,42,.2),rgba(212,169,58,.15));color:#d4a93a;border:1px solid rgba(212,169,58,.25)'
     : ki.tier.includes('Bạc')
@@ -2328,7 +2328,7 @@ function renderMain(){
           <div id="ktsHeroAv" style="width:38px;height:38px;border-radius:50%;border:1.5px solid rgba(201,168,76,.45);flex-shrink:0;background:rgba(201,168,76,.14);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--gold);font-family:var(--syne);letter-spacing:-.5px">${(function(){var nm=(p.kts||'').replace(/^KTS\.\s*/,'');var pts=nm.split(' ').filter(Boolean);if(!pts.length)return 'KT';return pts[0][0].toUpperCase()+(pts.length>1?pts[pts.length-1][0].toUpperCase():'');}())}</div>
           <div style="flex:1;min-width:0">
             <div style="font-size:12px;font-weight:700;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.kts}</div>
-            <div style="font-size:9px;color:var(--muted);margin-top:1px;font-family:var(--mono)">${ki.cchn}</div>
+            <div style="font-size:9px;color:var(--muted);margin-top:1px;font-family:var(--mono)"><i class="ph-duotone ph-seal-check" style="color:var(--gold)"></i> KTS có CCHN được xác minh</div>
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
