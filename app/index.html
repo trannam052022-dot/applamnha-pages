@@ -1,6 +1,13 @@
 <!doctype html>
 <html lang="vi">
   <head>
+    <!-- ALN opt-out guard — PHẢI nạp trước gtag/GTM (xem scripts/aln-optout.js).
+         Dùng đường dẫn TUYỆT ĐỐI /scripts/aln-optout.js (không phải tương đối)
+         — khớp đúng cách /aln-tracking.js bên dưới đang làm: Vite build app
+         này ra _site_output/app/, nhưng site phục vụ ở gốc domain nên path
+         tuyệt đối luôn đúng bất kể độ sâu, và Vite không cố bundle nó (chỉ
+         bundle script type="module" trỏ file cục bộ tương đối). -->
+    <script src="/scripts/aln-optout.js"></script>
     <!-- Google Tag Manager (giữ y hệt GTM-MB7VRGR5 dùng trên profile.html gốc) -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],

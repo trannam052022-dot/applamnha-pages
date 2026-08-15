@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+<!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM (xem scripts/aln-optout.js) -->
+<script src="../scripts/aln-optout.js"></script>
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -339,7 +341,7 @@ form.addEventListener('submit', async (e) => {
         { content_name: 'mau-MAU-0012', content_category: 'kho-mau' },
         { eventID: 'lead-' + leadId });
       window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push({ event: 'lead_form_submit', form_name: 'mau-MAU-0012' });
+      window.dataLayer.push({ event: 'aln_lead_submit', form_name: 'mau-MAU-0012' });
     } catch (e) {}
     msg.textContent = 'Đã nhận thông tin — ALN sẽ liên hệ trong ít phút. Cảm ơn bạn!';
     msg.className = 'mn-lead-msg ok';
@@ -354,6 +356,5 @@ form.addEventListener('submit', async (e) => {
 });
 </script>
 
-<script type="module" src="../mymy-widget.js"></script>
 </body>
 </html>

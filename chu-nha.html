@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+<!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM (xem scripts/aln-optout.js) -->
+<script src="scripts/aln-optout.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Phí thiết kế nhà công khai theo m² — KTS có CCHN ký hồ sơ | App Làm Nhà</title>
@@ -808,7 +810,6 @@ btn.addEventListener('click', async function(){
 
     try {
       window.dataLayer = window.dataLayer || [];
-      dataLayer.push({ event: 'lead_form_submit', form_name: 'chu_nha' });
       dataLayer.push({ event: 'aln_lead_submit', aln_funnel_tier: 1, aln_source_page: 'chu-nha', aln_lead_need: needEl.value || '' });
     } catch (e) {}
 
