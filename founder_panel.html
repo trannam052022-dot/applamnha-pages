@@ -2023,8 +2023,8 @@ document.addEventListener('DOMContentLoaded', function() {
   </div>
 </div>
 
-<!-- ══ PANEL: THỢ THEO QUẬN (ma trận 22 quận × 12 nghề = 264 ô, thêm
-     03/08/2026 (4), chốt đủ 12 nghề 03/08/2026 (5)) ══
+<!-- ══ PANEL: THỢ THEO QUẬN (ma trận 22 quận × 14 nghề = 308 ô, thêm
+     03/08/2026 (4), chốt đủ 12 nghề 03/08/2026 (5), mở rộng 14 nghề 18/08/2026) ══
      Đếm contacts loai_lien_he="tho_ung_tuyen" theo từng cặp (quan trong
      quan[], nghe) — 1 thợ chọn 3 quận sẽ đếm ở cả 3 hàng tương ứng, cùng 1
      cột nghề (mỗi thợ chỉ có 1 nghề). Dữ liệu tải qua segmentContacts (cùng
@@ -7668,9 +7668,13 @@ window.saveCompanySettings = async function() {
   // nhãn nhom_kinh. Thứ tự trong object không quan trọng cho tra cứu label,
   // nhưng THỨ TỰ CỘT của bảng "Thợ theo quận" lấy từ mảng TQ_NGHE_ORDER bên
   // dưới — sửa 1 nơi mà quên nơi kia sẽ làm modal/bảng lệch nhau.
+  // 18/08/2026: mở rộng 12 → 14, thêm dao_mong_be_tong/cau_thang_be_tong
+  // ngay sau xay_to (khớp NGHE_ENUM/NGHE_OPTIONS đã cập nhật cùng ngày).
   var CT_NGHE_LABEL = {
     dien_nuoc: 'Điện nước', chong_tham: 'Chống thấm', thong_tac: 'Thông tắc', may_lanh: 'Máy lạnh',
-    son: 'Sơn', xay_to: 'Xây tô', op_lat: 'Ốp lát', khoan_cat: 'Khoan cắt, đục phá',
+    son: 'Sơn', xay_to: 'Xây tô',
+    dao_mong_be_tong: 'Đào móng, đúc bê tông', cau_thang_be_tong: 'Cầu thang bê tông — cốp pha, cốt thép, đổ BT',
+    op_lat: 'Ốp lát', khoan_cat: 'Khoan cắt, đục phá',
     sat_mai_ton: 'Sắt, hàn, mái tôn', moc: 'Mộc, thạch cao', nhom_kinh: 'Nhôm kính, cửa', khac: 'Khác',
   };
   var CT_KHUVUC_LABEL = {
@@ -8044,8 +8048,10 @@ window.saveCompanySettings = async function() {
      03/08/2026 (5): cập nhật theo đúng 12 nghề đã chốt (NGHE_ENUM trong
      functions/thoGiuCho.js) — bảng tự thành 22×12 = 264 ô vì mọi vòng lặp
      bên dưới đều đọc độ dài mảng này (TQ_NGHE_ORDER.length), không hardcode
-     số cột ở đâu khác. */
-  var TQ_NGHE_ORDER = ['dien_nuoc','chong_tham','thong_tac','may_lanh','son','xay_to','op_lat','khoan_cat','sat_mai_ton','moc','nhom_kinh','khac'];
+     số cột ở đâu khác.
+     18/08/2026: mở rộng 12 → 14 (bảng tự thành 22×14 = 308 ô, vẫn không
+     hardcode số cột ở đâu — colspan/tổng cột đều đọc TQ_NGHE_ORDER.length). */
+  var TQ_NGHE_ORDER = ['dien_nuoc','chong_tham','thong_tac','may_lanh','son','xay_to','dao_mong_be_tong','cau_thang_be_tong','op_lat','khoan_cat','sat_mai_ton','moc','nhom_kinh','khac'];
   var TQ_QUAN_GROUPS = [
     { ten: 'Trung tâm', items: ['quan-1','quan-3','quan-4','quan-5','quan-6','quan-8','quan-10','quan-11','phu-nhuan','binh-thanh'] },
     { ten: 'Đông', items: ['thu-duc','quan-7','nha-be','can-gio'] },
@@ -8077,7 +8083,7 @@ window.saveCompanySettings = async function() {
   function tqRenderTable(){
     var body = document.getElementById('thoQuanMatrixBody');
     if(!body) return;
-    var totalCols = TQ_NGHE_ORDER.length + 2; // Quận + N nghề (đọc động từ TQ_NGHE_ORDER, hiện 12) + Tổng
+    var totalCols = TQ_NGHE_ORDER.length + 2; // Quận + N nghề (đọc động từ TQ_NGHE_ORDER, hiện 14) + Tổng
     var colTotals = {}; // nghe -> tổng dồn qua mọi quận (thợ nhiều quận đếm nhiều lần, đúng bản chất "tổng số ô")
     TQ_NGHE_ORDER.forEach(function(n){ colTotals[n] = 0; });
     var grandTotal = 0;
