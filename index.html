@@ -665,11 +665,27 @@ src="https://www.facebook.com/tr?id=1656666692225878&ev=PageView&noscript=1"/></
     return m ? decodeURIComponent(m[1]) : '';
   };
   window.alnGetFbp = function(){ return window.alnGetCookie('_fbp'); };
+  /* fbc: ưu tiên cookie _fbc (Pixel tự set); nếu chưa có nhưng URL đang có
+     ?fbclid= thì tự dựng theo đúng định dạng Meta rồi LƯU vào localStorage
+     (key aln_fbc, TTL 90 ngày, khớp cửa sổ click-through CAPI khuyến nghị)
+     để giữ được qua điều hướng nhiều trang trước khi khách điền form —
+     khác aln_utm (TTL 7 ngày, dùng cho UTM last-touch). */
   window.alnGetFbc = function(){
     var c = window.alnGetCookie('_fbc');
     if (c) return c;
     var u = window.alnGetUtm();
-    if (u.fbclid) return 'fb.1.' + Date.now() + '.' + u.fbclid;
+    if (u.fbclid) {
+      var built = 'fb.1.' + Date.now() + '.' + u.fbclid;
+      try { localStorage.setItem('aln_fbc', JSON.stringify({ v: built, ts: Date.now() })); } catch(e){}
+      return built;
+    }
+    try {
+      var s = localStorage.getItem('aln_fbc');
+      if (s) {
+        var o = JSON.parse(s);
+        if (o && o.v && o.ts && Date.now() - o.ts <= 90 * 864e5) return o.v;
+      }
+    } catch(e){}
     return '';
   };
 })();
