@@ -325,7 +325,15 @@ src="https://www.facebook.com/tr?id=1656666692225878&ev=PageView&noscript=1"/></
      khác aln_utm (TTL 7 ngày, dùng cho UTM last-touch). */
   window.alnGetFbc = function(){
     var c = window.alnGetCookie('_fbc');
-    if (c) return c;
+    if (c) {
+      // Ghi lại bản sao vào localStorage ở MỌI lần đọc cookie thành công (không
+      // chỉ lúc mới dựng từ fbclid) — Safari ITP cắt cookie JS-readable xuống
+      // còn 7 ngày, không có bản sao này thì mất fbc của khách iPhone sau tuần
+      // đầu. Giá trị v giữ NGUYÊN chuỗi cookie (timestamp click gốc đã nằm sẵn
+      // trong đó) — chỉ ts (mốc cache nội bộ) được làm mới mỗi lần thấy cookie.
+      try { localStorage.setItem('aln_fbc', JSON.stringify({ v: c, ts: Date.now() })); } catch(e){}
+      return c;
+    }
     var u = window.alnGetUtm();
     if (u.fbclid) {
       var built = 'fb.1.' + Date.now() + '.' + u.fbclid;
@@ -336,7 +344,20 @@ src="https://www.facebook.com/tr?id=1656666692225878&ev=PageView&noscript=1"/></
       var s = localStorage.getItem('aln_fbc');
       if (s) {
         var o = JSON.parse(s);
-        if (o && o.v && o.ts && Date.now() - o.ts <= 90 * 864e5) return o.v;
+        if (o && o.v) {
+          // TTL tính từ TIMESTAMP GỐC nhúng trong chính chuỗi fbc
+          // (fb.1.{timestamp}.{fbclid}, phần tử thứ 3 khi tách theo dấu
+          // chấm) — KHÔNG dùng o.ts (mốc lần cache gần nhất), vì cookie
+          // _fbc còn sống sẽ tự làm mới o.ts mỗi lần đọc, khiến fbc
+          // không bao giờ hết hạn dù click đã cũ. fbc quá 90 ngày phải
+          // bị coi là hết hạn — Meta sẽ quy kết lead mới cho chiến dịch
+          // đã tắt nếu vẫn gửi kèm.
+          var seg = String(o.v).split('.');
+          var origTs = seg.length > 2 ? parseInt(seg[2], 10) : NaN;
+          if (!isNaN(origTs) && Date.now() - origTs <= 90 * 864e5) return o.v;
+          localStorage.removeItem('aln_fbc');
+          return null;
+        }
       }
     } catch(e){}
     return '';
