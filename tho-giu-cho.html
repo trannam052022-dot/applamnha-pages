@@ -241,16 +241,21 @@ var KHU_VUC = [
   ['LA','Long An'], ['TG','Tiền Giang'], ['KH','Khánh Hòa'], ['BDinh','Bình Định'],
   ['NA','Nghệ An'], ['TH','Thanh Hóa'], ['OTHER','Tỉnh khác'],
 ];
-/* Chốt 12 nghề (03/08/2026 (5)) — thứ tự hiển thị CHÍNH THỨC, khớp TUYỆT ĐỐI
-   NGHE_ENUM trong functions/thoGiuCho.js + CT_NGHE_LABEL/TQ_NGHE_ORDER trong
-   founder_panel.html. Bỏ "thach_cao" (gộp nhãn vào "moc"), thêm
-   xay_to/khoan_cat/sat_mai_ton, "khac" LUÔN ở cuối cùng — tránh bấm nhầm.
+/* Chốt 14 nghề (mở rộng 18/08/2026 từ 12, chốt 03/08/2026 (5)) — thứ tự hiển
+   thị CHÍNH THỨC, khớp TUYỆT ĐỐI NGHE_ENUM trong functions/thoGiuCho.js +
+   CT_NGHE_LABEL/TQ_NGHE_ORDER trong founder_panel.html. Bỏ "thach_cao" (gộp
+   nhãn vào "moc"), thêm xay_to/khoan_cat/sat_mai_ton, "khac" LUÔN ở cuối
+   cùng — tránh bấm nhầm.
    03/08/2026 (6): sửa 3 icon Phosphor đoán sai lúc thêm nghề mới — ph-bricks/
    ph-drill/ph-fire KHÔNG tồn tại trong bộ Phosphor nên hiện trống, đổi đúng
    sang ph-wall/ph-hammer/ph-wrench. khoan_cat và moc CÙNG dùng ph-hammer
    (không có icon khoan/đục riêng trong bộ Phosphor) — trùng icon nhưng khác
    nhãn chữ nên vẫn phân biệt được, chấp nhận được. 9 icon còn lại đã rà lại,
-   đúng tên trong Phosphor, không đổi. */
+   đúng tên trong Phosphor, không đổi.
+   18/08/2026: thêm dao_mong_be_tong (ph-shovel) và cau_thang_be_tong
+   (ph-stairs) ngay sau xay_to — cả 2 icon đã xác minh tồn tại thật trong
+   @phosphor-icons/web@2.1.1 (đúng version CDN pin ở <head>, xem file CSS
+   duotone gốc) trước khi dùng, tránh lặp lỗi đoán tên icon ở 03/08/2026 (6). */
 var NGHE_OPTIONS = [
   ['dien_nuoc','Điện nước','ph-lightning'],
   ['chong_tham','Chống thấm','ph-drop'],
@@ -258,6 +263,8 @@ var NGHE_OPTIONS = [
   ['may_lanh','Máy lạnh','ph-snowflake'],
   ['son','Sơn','ph-paint-brush'],
   ['xay_to','Xây tô','ph-wall'],
+  ['dao_mong_be_tong','Đào móng, đúc bê tông','ph-shovel'],
+  ['cau_thang_be_tong','Cầu thang bê tông — cốp pha, cốt thép, đổ BT','ph-stairs'],
   ['op_lat','Ốp lát','ph-stack'],
   ['khoan_cat','Khoan cắt, đục phá','ph-hammer'],
   ['sat_mai_ton','Sắt, hàn, mái tôn','ph-wrench'],
