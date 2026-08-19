@@ -69,6 +69,14 @@ a{color:var(--gold)}
 .pick-btn:hover{border-color:rgba(152,105,10,.45)}
 .pick-btn.active{border-color:var(--gold);background:var(--gold-bg);color:var(--gold);font-weight:800;box-shadow:0 0 0 3px rgba(152,105,10,.12)}
 
+/* VIỆC 3 (19/08/2026) — cụm TP.HCM/Bình Dương/Bà Rịa-Vũng Tàu tô vàng ALN
+   #d4a017 để tách khỏi nhóm tỉnh còn lại (3 khu vực này chung 1 vùng phân
+   đơn sau sáp nhập 01/07/2025). */
+.kv-cluster-note{font-size:12px;color:#8a6c10;line-height:1.45;margin-top:9px}
+.pick-btn.kv-gold{border-color:#d4a017;background:rgba(212,160,23,.10);color:#8a6c10}
+.pick-btn.kv-gold:hover{border-color:#d4a017}
+.pick-btn.kv-gold.active{border-color:#d4a017;background:rgba(212,160,23,.22);color:#8a6c10;font-weight:800;box-shadow:0 0 0 3px rgba(212,160,23,.18)}
+
 .quan-group{margin-bottom:14px}
 .quan-group:last-child{margin-bottom:0}
 .quan-group-label{font-family:var(--syne);font-size:12.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
@@ -168,17 +176,28 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     <div class="field">
       <label>Khu vực hoạt động <span class="req">*</span></label>
-      <div class="pick-grid" id="khuVucGrid"></div>
+      <div class="pick-grid" id="khuVucClusterGrid"></div>
+      <p class="kv-cluster-note">Cùng khu vực TP.HCM sau sáp nhập 1/7/2025 — ALN ưu tiên phân đơn ở đây</p>
+      <div class="pick-grid" id="khuVucGrid" style="margin-top:12px"></div>
     </div>
 
     <div class="field" id="fieldQuan" style="display:none">
-      <label>Quận tại TP.HCM <span class="opt">(không bắt buộc, chọn tối đa 3)</span></label>
+      <label>Quận/huyện tại <span id="quanFieldPlace">TP.HCM</span> <span class="opt">(không bắt buộc, chọn tối đa 3)</span></label>
       <div id="quanGrid"></div>
     </div>
 
     <div class="field">
       <label>Nghề <span class="req">*</span></label>
       <div class="nghe-grid" id="ngheGrid"></div>
+    </div>
+
+    <!-- VIỆC B (19/08/2026) — chỉ hiện khi chọn "doi_thi_cong": nghề vốn
+         chọn-một, nhưng 1 đội thi công thường nhận nhiều hạng mục cùng lúc,
+         nên cần ô ghi chú tự do để không mất thông tin đó. Ghi vào field
+         ghi_chu đã có sẵn trên contacts (functions/contacts.js). -->
+    <div class="field" id="fieldGhiChu" style="display:none">
+      <label>Đội anh/chị nhận những hạng mục nào? <span class="opt">(không bắt buộc)</span></label>
+      <input type="text" id="f_ghi_chu" placeholder="VD: móng, phần thô, hoàn thiện" maxlength="300">
     </div>
 
     <div class="field">
@@ -241,11 +260,16 @@ var KHU_VUC = [
   ['LA','Long An'], ['TG','Tiền Giang'], ['KH','Khánh Hòa'], ['BDinh','Bình Định'],
   ['NA','Nghệ An'], ['TH','Thanh Hóa'], ['OTHER','Tỉnh khác'],
 ];
-/* Chốt 14 nghề (mở rộng 18/08/2026 từ 12, chốt 03/08/2026 (5)) — thứ tự hiển
-   thị CHÍNH THỨC, khớp TUYỆT ĐỐI NGHE_ENUM trong functions/thoGiuCho.js +
-   CT_NGHE_LABEL/TQ_NGHE_ORDER trong founder_panel.html. Bỏ "thach_cao" (gộp
-   nhãn vào "moc"), thêm xay_to/khoan_cat/sat_mai_ton, "khac" LUÔN ở cuối
-   cùng — tránh bấm nhầm.
+/* VIỆC 3 (19/08/2026) — 3 khu vực cùng cụm TP.HCM sau sáp nhập 01/07/2025,
+   luôn hiện đầu danh sách theo đúng thứ tự này, tách riêng grid + tô vàng
+   (xem .kv-gold). Không đổi mảng KHU_VUC gốc (giữ khớp thứ tự KHU_VUC_ENUM
+   server) — chỉ lọc ra lúc render, xem renderPickers(). */
+var KV_CLUSTER_CODES = ['HCM','BD','BR-VT'];
+/* Chốt 15 nghề (mở rộng 19/08/2026 từ 14, mở rộng 18/08/2026 từ 12, chốt
+   03/08/2026 (5)) — thứ tự hiển thị CHÍNH THỨC, khớp TUYỆT ĐỐI NGHE_ENUM
+   trong functions/thoGiuCho.js + CT_NGHE_LABEL/TQ_NGHE_ORDER trong
+   founder_panel.html. Bỏ "thach_cao" (gộp nhãn vào "moc"), thêm
+   xay_to/khoan_cat/sat_mai_ton, "khac" LUÔN ở cuối cùng — tránh bấm nhầm.
    03/08/2026 (6): sửa 3 icon Phosphor đoán sai lúc thêm nghề mới — ph-bricks/
    ph-drill/ph-fire KHÔNG tồn tại trong bộ Phosphor nên hiện trống, đổi đúng
    sang ph-wall/ph-hammer/ph-wrench. khoan_cat và moc CÙNG dùng ph-hammer
@@ -255,8 +279,16 @@ var KHU_VUC = [
    18/08/2026: thêm dao_mong_be_tong (ph-shovel) và cau_thang_be_tong
    (ph-stairs) ngay sau xay_to — cả 2 icon đã xác minh tồn tại thật trong
    @phosphor-icons/web@2.1.1 (đúng version CDN pin ở <head>, xem file CSS
-   duotone gốc) trước khi dùng, tránh lặp lỗi đoán tên icon ở 03/08/2026 (6). */
+   duotone gốc) trước khi dùng, tránh lặp lỗi đoán tên icon ở 03/08/2026 (6).
+   19/08/2026 (VIỆC A): thêm "doi_thi_cong" — ĐẶT ĐẦU danh sách vì đây là
+   LOẠI ĐƠN VỊ (đội nhận trọn gói nhiều hạng mục), không phải 1 nghề lẻ như
+   13 mục còn lại. Môi trường sửa lỗi này không truy cập được CDN Phosphor để
+   xác minh icon mới (egress bị chặn) — thay vì đoán tên icon mới (đã 2 lần
+   đoán sai ở 03/08/2026 (6)), CỐ Ý dùng lại ph-hammer đã xác minh tồn tại
+   (đang dùng chung cho khoan_cat/moc) — trùng icon nhưng phân biệt được qua
+   nhãn chữ, cùng cách xử lý đã chấp nhận trước đó. */
 var NGHE_OPTIONS = [
+  ['doi_thi_cong','Đội thi công (nhận trọn gói phần thô / cả nhà)','ph-hammer'],
   ['dien_nuoc','Điện nước','ph-lightning'],
   ['chong_tham','Chống thấm','ph-drop'],
   ['thong_tac','Thông tắc','ph-toilet'],
@@ -276,63 +308,82 @@ var NGHE_OPTIONS = [
 var selectedKhuVuc = '';
 var selectedNghe = '';
 
-/* Quận TP.HCM — chỉ hiện/lưu khi khu_vuc="HCM".
-   03/08/2026 (2): TÁCH RIÊNG khỏi data/quan-hcm.json — file đó là input cho
-   generator SEO (tools/gen-quan.js → sua-nha/{slug}.html), chỉ chứa khu vực
-   TRỌNG ĐIỂM chọn cho mục đích xếp hạng tìm kiếm, KHÔNG phải danh sách phủ
-   địa lý để giao việc cho thợ. Bản đầu 8 slug từng khởi tạo trùng
-   quan-hcm.json với comment sai là "khu vực đã có đội thật" — ĐÃ SỬA:
-   `doiUids` trong data/quan-hcm.json đang RỖNG cả 8 mục, không phản ánh đội
-   thật nào, 8 giá trị đó chỉ là danh sách SEO.
-   03/08/2026 (3): mở rộng đủ 22 quận/huyện TP.HCM cũ (16 quận + TP Thủ Đức +
-   5 huyện, trước sáp nhập 01/07/2025). 8 slug gốc GIỮ NGUYÊN không đổi. Khớp
-   TUYỆT ĐỐI với QUAN_ENUM trong functions/thoGiuCho.js (2 nơi, đồng bộ thủ
-   công — không đọc chung 1 file, xem lý do ở trên). Nhóm 3 cụm địa lý
-   (Trung tâm/Đông/Tây-Bắc) chỉ để hiển thị gọn trên màn hình điện thoại —
-   không ảnh hưởng giá trị gửi lên server (vẫn là 1 slug phẳng như cũ). */
-var QUAN_GROUPS = [
-  { ten: 'Trung tâm', items: [
-    ['quan-1','Quận 1'], ['quan-3','Quận 3'], ['quan-4','Quận 4'], ['quan-5','Quận 5'],
-    ['quan-6','Quận 6'], ['quan-8','Quận 8'], ['quan-10','Quận 10'], ['quan-11','Quận 11'],
-    ['phu-nhuan','Phú Nhuận'], ['binh-thanh','Bình Thạnh'],
-  ] },
-  { ten: 'Đông', items: [
-    ['thu-duc','Thủ Đức'], ['quan-7','Quận 7'], ['nha-be','Nhà Bè'], ['can-gio','Cần Giờ'],
-  ] },
-  { ten: 'Tây - Bắc', items: [
-    ['go-vap','Gò Vấp'], ['tan-binh','Tân Bình'], ['tan-phu','Tân Phú'], ['binh-tan','Bình Tân'],
-    ['quan-12','Quận 12'], ['binh-chanh','Bình Chánh'], ['hoc-mon','Hóc Môn'], ['cu-chi','Củ Chi'],
-  ] },
-];
+/* Quận/huyện theo khu vực — VIỆC 2 (19/08/2026): mở rộng từ chỉ-HCM sang
+   thêm BD (Bình Dương) và BR-VT (Bà Rịa – Vũng Tàu). Nguyên nhân gốc của
+   bằng chứng lỗi (contact jxAQPg8sJzOSdE8sJvQb, khu_vuc="BD" → quan=[]):
+   server sanitizeQuan() (functions/thoGiuCho.js) trước đây CỐ Ý luôn trả
+   mảng rỗng khi khu_vuc !== "HCM" — không phải lỗi, mà đơn giản là BD/BR-VT
+   chưa từng có danh sách quận nào để chọn. Đã sửa đồng bộ cả 2 nơi.
+   Dùng TÊN CŨ trước sáp nhập 01/07/2025 (quy ước ALN — thợ chưa quen tên
+   mới). Khớp TUYỆT ĐỐI với QUAN_ENUM_BY_KV trong functions/thoGiuCho.js
+   (2 nơi, đồng bộ thủ công — không đọc chung 1 file).
+   Các mã khu vực khác (HN/DN/CT/HP/DNai/LA/TG/KH/BDinh/NA/TH/OTHER) chưa có
+   danh sách quận — KHÔNG có key trong QUAN_BY_KV bên dưới nên trường Quận
+   tự ẩn, form vẫn gửi được bình thường với quan=[] (không bắt buộc). */
+var QUAN_BY_KV = {
+  HCM: [
+    { ten: 'Trung tâm', items: [
+      ['quan-1','Quận 1'], ['quan-3','Quận 3'], ['quan-4','Quận 4'], ['quan-5','Quận 5'],
+      ['quan-6','Quận 6'], ['quan-8','Quận 8'], ['quan-10','Quận 10'], ['quan-11','Quận 11'],
+      ['phu-nhuan','Phú Nhuận'], ['binh-thanh','Bình Thạnh'],
+    ] },
+    { ten: 'Đông', items: [
+      ['thu-duc','Thủ Đức'], ['quan-7','Quận 7'], ['nha-be','Nhà Bè'], ['can-gio','Cần Giờ'],
+    ] },
+    { ten: 'Tây - Bắc', items: [
+      ['go-vap','Gò Vấp'], ['tan-binh','Tân Bình'], ['tan-phu','Tân Phú'], ['binh-tan','Bình Tân'],
+      ['quan-12','Quận 12'], ['binh-chanh','Bình Chánh'], ['hoc-mon','Hóc Môn'], ['cu-chi','Củ Chi'],
+    ] },
+  ],
+  BD: [
+    { ten: '', items: [
+      ['di-an','Dĩ An'], ['thuan-an','Thuận An'], ['thu-dau-mot','Thủ Dầu Một'],
+      ['tan-uyen','Tân Uyên'], ['ben-cat','Bến Cát'], ['bau-bang','Bàu Bàng'],
+      ['phu-giao','Phú Giáo'], ['dau-tieng','Dầu Tiếng'], ['bac-tan-uyen','Bắc Tân Uyên'],
+    ] },
+  ],
+  'BR-VT': [
+    { ten: '', items: [
+      ['vung-tau','Vũng Tàu'], ['ba-ria','Bà Rịa'], ['phu-my','Phú Mỹ'],
+      ['chau-duc','Châu Đức'], ['xuyen-moc','Xuyên Mộc'], ['long-dien','Long Điền'],
+      ['dat-do','Đất Đỏ'], ['con-dao','Côn Đảo'],
+    ] },
+  ],
+};
+var QUAN_FIELD_PLACE = { HCM: 'TP.HCM', BD: 'Bình Dương', 'BR-VT': 'Bà Rịa – Vũng Tàu' };
 var selectedQuan = [];
 var MAX_QUAN = 3;
 
-/* Tra tên đầy đủ từ slug quận — cần tên hiển thị, không phải slug thô.
-   Duyệt thẳng QUAN_GROUPS thay vì tạo thêm 1 object tra cứu — mảng chỉ
-   22 phần tử, không đáng lo hiệu năng. */
+/* Tra tên đầy đủ từ slug quận — duyệt hết QUAN_BY_KV (mọi khu vực), mảng
+   nhỏ nên không đáng lo hiệu năng. */
 function quanLabelOf(slug) {
-  for (var g = 0; g < QUAN_GROUPS.length; g++) {
-    var items = QUAN_GROUPS[g].items;
-    for (var i = 0; i < items.length; i++) {
-      if (items[i][0] === slug) return items[i][1];
+  for (var kv in QUAN_BY_KV) {
+    var groups = QUAN_BY_KV[kv];
+    for (var g = 0; g < groups.length; g++) {
+      var items = groups[g].items;
+      for (var i = 0; i < items.length; i++) {
+        if (items[i][0] === slug) return items[i][1];
+      }
     }
   }
   return null;
 }
 window.quanLabelOf = quanLabelOf;
 
-(function renderQuanGrid(){
+function renderQuanGrid(groups) {
   var html = '';
-  for (var g = 0; g < QUAN_GROUPS.length; g++) {
-    var grp = QUAN_GROUPS[g];
-    html += '<div class="quan-group"><div class="quan-group-label">' + grp.ten + '</div><div class="pick-grid">';
+  for (var g = 0; g < groups.length; g++) {
+    var grp = groups[g];
+    html += '<div class="quan-group">';
+    if (grp.ten) html += '<div class="quan-group-label">' + grp.ten + '</div>';
+    html += '<div class="pick-grid">';
     for (var i = 0; i < grp.items.length; i++) {
       html += '<button type="button" class="pick-btn" data-val="' + grp.items[i][0] + '" onclick="pickQuan(\'' + grp.items[i][0] + '\')">' + grp.items[i][1] + '</button>';
     }
     html += '</div></div>';
   }
   document.getElementById('quanGrid').innerHTML = html;
-})();
+}
 
 function pickQuan(val) {
   var idx = selectedQuan.indexOf(val);
@@ -349,8 +400,20 @@ function pickQuan(val) {
 window.pickQuan = pickQuan;
 
 (function renderPickers(){
+  var kvClusterHtml = '';
+  for (var c = 0; c < KV_CLUSTER_CODES.length; c++) {
+    var code = KV_CLUSTER_CODES[c];
+    for (var k = 0; k < KHU_VUC.length; k++) {
+      if (KHU_VUC[k][0] !== code) continue;
+      kvClusterHtml += '<button type="button" class="pick-btn kv-gold" data-val="' + KHU_VUC[k][0] + '" onclick="pickKhuVuc(\'' + KHU_VUC[k][0] + '\')">' + KHU_VUC[k][1] + '</button>';
+      break;
+    }
+  }
+  document.getElementById('khuVucClusterGrid').innerHTML = kvClusterHtml;
+
   var kvHtml = '';
   for (var i = 0; i < KHU_VUC.length; i++) {
+    if (KV_CLUSTER_CODES.indexOf(KHU_VUC[i][0]) >= 0) continue;
     kvHtml += '<button type="button" class="pick-btn" data-val="' + KHU_VUC[i][0] + '" onclick="pickKhuVuc(\'' + KHU_VUC[i][0] + '\')">' + KHU_VUC[i][1] + '</button>';
   }
   document.getElementById('khuVucGrid').innerHTML = kvHtml;
@@ -390,16 +453,18 @@ var initialUtmSource = '';
 
 function pickKhuVuc(val) {
   selectedKhuVuc = val;
-  document.querySelectorAll('#khuVucGrid .pick-btn').forEach(function(b){
+  document.querySelectorAll('#khuVucClusterGrid .pick-btn, #khuVucGrid .pick-btn').forEach(function(b){
     b.classList.toggle('active', b.getAttribute('data-val') === val);
   });
   var fieldQuan = document.getElementById('fieldQuan');
-  if (val === 'HCM') {
+  var groups = QUAN_BY_KV[val];
+  selectedQuan = [];
+  if (groups) {
+    document.getElementById('quanFieldPlace').textContent = QUAN_FIELD_PLACE[val] || '';
+    renderQuanGrid(groups);
     fieldQuan.style.display = '';
   } else {
     fieldQuan.style.display = 'none';
-    selectedQuan = [];
-    document.querySelectorAll('#quanGrid .pick-btn').forEach(function(b){ b.classList.remove('active'); });
   }
 }
 window.pickKhuVuc = pickKhuVuc;
@@ -409,6 +474,13 @@ function pickNghe(val) {
   document.querySelectorAll('#ngheGrid .nghe-btn').forEach(function(b){
     b.classList.toggle('active', b.getAttribute('data-val') === val);
   });
+  var fieldGhiChu = document.getElementById('fieldGhiChu');
+  if (val === 'doi_thi_cong') {
+    fieldGhiChu.style.display = '';
+  } else {
+    fieldGhiChu.style.display = 'none';
+    document.getElementById('f_ghi_chu').value = '';
+  }
 }
 window.pickNghe = pickNghe;
 
@@ -468,7 +540,9 @@ function submitForm() {
   if (!selectedNghe) { showToast('Vui lòng chọn nghề', true); return; }
   if (!dongY) { showToast('Vui lòng đồng ý để ALN liên hệ qua Zalo', true); return; }
 
-  window._doSubmit({ ten: ten, phone: phone, khu_vuc: selectedKhuVuc, nghe: selectedNghe, dong_y: dongY, quan: selectedQuan.slice(), campaign_tag: initialUtmSource || null });
+  var ghiChu = selectedNghe === 'doi_thi_cong' ? document.getElementById('f_ghi_chu').value.trim().slice(0, 300) : '';
+
+  window._doSubmit({ ten: ten, phone: phone, khu_vuc: selectedKhuVuc, nghe: selectedNghe, dong_y: dongY, quan: selectedQuan.slice(), campaign_tag: initialUtmSource || null, ghi_chu: ghiChu || null });
 }
 window.submitForm = submitForm;
 </script>
@@ -595,6 +669,7 @@ window._doSubmit = async function(data) {
       anh_cong_trinh: anhCongTrinh,
       quan: data.quan || [],
       campaign_tag: data.campaign_tag || null,
+      ghi_chu: data.ghi_chu || null,
     });
 
     document.getElementById('formCard').style.display = 'none';
