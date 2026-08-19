@@ -2023,8 +2023,9 @@ document.addEventListener('DOMContentLoaded', function() {
   </div>
 </div>
 
-<!-- ══ PANEL: THỢ THEO QUẬN (ma trận 22 quận × 14 nghề = 308 ô, thêm
-     03/08/2026 (4), chốt đủ 12 nghề 03/08/2026 (5), mở rộng 14 nghề 18/08/2026) ══
+<!-- ══ PANEL: THỢ THEO QUẬN (ma trận 22 quận × 15 nghề = 330 ô, thêm
+     03/08/2026 (4), chốt đủ 12 nghề 03/08/2026 (5), mở rộng 14 nghề 18/08/2026,
+     mở rộng 15 nghề 19/08/2026) ══
      Đếm contacts loai_lien_he="tho_ung_tuyen" theo từng cặp (quan trong
      quan[], nghe) — 1 thợ chọn 3 quận sẽ đếm ở cả 3 hàng tương ứng, cùng 1
      cột nghề (mỗi thợ chỉ có 1 nghề). Dữ liệu tải qua segmentContacts (cùng
@@ -7670,7 +7671,12 @@ window.saveCompanySettings = async function() {
   // dưới — sửa 1 nơi mà quên nơi kia sẽ làm modal/bảng lệch nhau.
   // 18/08/2026: mở rộng 12 → 14, thêm dao_mong_be_tong/cau_thang_be_tong
   // ngay sau xay_to (khớp NGHE_ENUM/NGHE_OPTIONS đã cập nhật cùng ngày).
+  // 19/08/2026 (VIỆC A, tiếp PR #125/#126): mở rộng 14 → 15, thêm
+  // doi_thi_cong — LOẠI ĐƠN VỊ (đội nhận trọn gói nhiều hạng mục), không
+  // phải nghề lẻ nên đặt ở khoá đầu object (không ảnh hưởng tra cứu label,
+  // chỉ để dễ đọc — thứ tự CỘT thật lấy từ TQ_NGHE_ORDER bên dưới).
   var CT_NGHE_LABEL = {
+    doi_thi_cong: 'Đội thi công (nhận trọn gói phần thô / cả nhà)',
     dien_nuoc: 'Điện nước', chong_tham: 'Chống thấm', thong_tac: 'Thông tắc', may_lanh: 'Máy lạnh',
     son: 'Sơn', xay_to: 'Xây tô',
     dao_mong_be_tong: 'Đào móng, đúc bê tông', cau_thang_be_tong: 'Cầu thang bê tông — cốp pha, cốt thép, đổ BT',
@@ -8050,8 +8056,11 @@ window.saveCompanySettings = async function() {
      bên dưới đều đọc độ dài mảng này (TQ_NGHE_ORDER.length), không hardcode
      số cột ở đâu khác.
      18/08/2026: mở rộng 12 → 14 (bảng tự thành 22×14 = 308 ô, vẫn không
-     hardcode số cột ở đâu — colspan/tổng cột đều đọc TQ_NGHE_ORDER.length). */
-  var TQ_NGHE_ORDER = ['dien_nuoc','chong_tham','thong_tac','may_lanh','son','xay_to','dao_mong_be_tong','cau_thang_be_tong','op_lat','khoan_cat','sat_mai_ton','moc','nhom_kinh','khac'];
+     hardcode số cột ở đâu — colspan/tổng cột đều đọc TQ_NGHE_ORDER.length).
+     19/08/2026 (VIỆC A): mở rộng 14 → 15, thêm doi_thi_cong ở ĐẦU mảng (bảng
+     tự thành 22×15 = 330 ô) — xác nhận mọi vòng lặp/colspan vẫn đọc động
+     TQ_NGHE_ORDER.length nên không cần sửa gì khác ngoài mảng này. */
+  var TQ_NGHE_ORDER = ['doi_thi_cong','dien_nuoc','chong_tham','thong_tac','may_lanh','son','xay_to','dao_mong_be_tong','cau_thang_be_tong','op_lat','khoan_cat','sat_mai_ton','moc','nhom_kinh','khac'];
   var TQ_QUAN_GROUPS = [
     { ten: 'Trung tâm', items: ['quan-1','quan-3','quan-4','quan-5','quan-6','quan-8','quan-10','quan-11','phu-nhuan','binh-thanh'] },
     { ten: 'Đông', items: ['thu-duc','quan-7','nha-be','can-gio'] },
