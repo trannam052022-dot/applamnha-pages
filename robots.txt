@@ -22,3 +22,30 @@ Disallow: /scripts/
 Sitemap: https://applamnha.vn/sitemap.xml
 Sitemap: https://applamnha.vn/thicong/sitemap.xml
 Sitemap: https://applamnha.vn/sua-vat/sitemap.xml
+# --- AI crawlers (thêm 21/08/2026) ---
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Bingbot
+Allow: /
