@@ -4,7 +4,7 @@ importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-com
 
 firebase.initializeApp({
   apiKey: "AIzaSyCPv-KbyK8ajRba1b2wy5qSwc--m_vbRUc",
-  authDomain: "aln-platform.firebaseapp.com",
+  authDomain: "auth.applamnha.vn",
   projectId: "aln-platform",
   storageBucket: "aln-platform.firebasestorage.app",
   messagingSenderId: "1073827504988",
