@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM -->
+<script src="scripts/aln-optout.js"></script>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MB7VRGR5');</script>
+<!-- End Google Tag Manager -->
+
+<script src="error-monitor.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>ALN — Đăng nhập Không Gian Nhà</title>
+
+<!-- SPEC_KHONG_GIAN_NHA_V1.md mục 6 — hệ thiết kế RIÊNG cho portal Không Gian
+     Nhà (navy/gold/Oswald/Be Vietnam Pro/IBM Plex Mono), khác 2 theme song song
+     (dark luxury / light professional) đã có ở CLAUDE.md — cố ý, đây là trang
+     đầu tiên của một sản phẩm mới, không phải dashboard hiện có. -->
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="aln-tokens.css">
+
+<!-- Google Analytics 4 (ALN — G-5CSL1TF0RC) — CHỈ pageview qua GTM/gtag, đây là
+     trang đăng nhập không phải funnel: KHÔNG nhúng Meta Pixel, KHÔNG bắn
+     aln_lead_submit, không đụng kiến trúc CAPI đã khoá. -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-5CSL1TF0RC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-5CSL1TF0RC');
+</script>
+<!-- End GA4 -->
+
+<style>
+:root{
+  --navy-1:#0a1224;--navy-2:#111c33;--navy-3:#182444;
+  --gold:#d4a017;--gold-dim:rgba(212,160,23,.35);--gold-bg:rgba(212,160,23,.09);
+  --border:rgba(212,160,23,.2);--border-soft:rgba(255,255,255,.08);
+  /* Cùng độ tương phản đã kiểm chứng của theme dark luxury hiện có (CLAUDE.md
+     mục Design System) — nền #0a1224 gần tương đương #080c14 nên giữ nguyên
+     tỉ lệ tương phản an toàn thay vì tự tính lại từ đầu. */
+  --text-1:#dce6f4;--text-2:#bcc8dc;--text-3:#9aaac4;--dim:#8090ae;
+  --red:#f06060;--red-bg:rgba(240,96,96,.1);--green:#3dd68c;
+  --r:14px;--r-sm:10px;
+  --f-head:'Oswald',sans-serif;--f-body:'Be Vietnam Pro',sans-serif;--f-mono:'IBM Plex Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:13px;height:100%}
+@media(min-width:1440px){html{font-size:14px}}
+@media(min-width:1920px){html{font-size:16px}}
+body{
+  font-family:var(--f-body);font-size:1rem;line-height:1.65;
+  background:var(--navy-1);color:var(--text-1);min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px 20px 48px;-webkit-font-smoothing:antialiased;overflow-x:hidden;
+  background-image:
+    linear-gradient(rgba(212,160,23,.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(212,160,23,.03) 1px,transparent 1px);
+  background-size:48px 48px;
+}
+body::before{
+  content:'';position:fixed;top:-18%;left:50%;transform:translateX(-50%);
+  width:640px;height:460px;
+  background:radial-gradient(ellipse,rgba(212,160,23,.1) 0%,transparent 70%);
+  pointer-events:none;z-index:0;
+}
+a{color:inherit}
+input::placeholder{color:var(--dim)}
+
+.icon{width:1.1em;height:1.1em;flex-shrink:0;display:inline-block;vertical-align:-0.15em}
+.icon-lg{width:22px;height:22px}
+
+/* ── BRAND ── */
+.brand{position:relative;z-index:1;text-align:center;margin-bottom:1.75rem;max-width:26rem;width:100%}
+.brand-eyebrow{display:flex;align-items:center;justify-content:center;gap:.75rem;margin-bottom:.85rem}
+.ey-line{width:2.25rem;height:1px}
+.ey-line-l{background:linear-gradient(90deg,transparent,var(--gold-dim))}
+.ey-line-r{background:linear-gradient(270deg,transparent,var(--gold-dim))}
+.ey-text{font-family:var(--f-mono);font-size:var(--text-2xs);font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
+.brand-title{font-family:var(--f-head);font-weight:600;font-size:var(--text-xl);letter-spacing:0;color:var(--text-1);line-height:1.3}
+.brand-sub{font-size:var(--text-sm);color:var(--text-3);margin-top:.4rem;line-height:1.65}
+
+/* ── CARD ── */
+.card{
+  position:relative;z-index:1;width:100%;max-width:26rem;
+  background:rgba(17,28,51,.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border:1px solid var(--border);border-radius:var(--r);
+  box-shadow:0 24px 64px rgba(0,0,0,.55);
+  padding:1.75rem 1.5rem;
+}
+.step-head{display:flex;align-items:center;gap:.65rem;margin-bottom:1.25rem}
+.step-icon{
+  width:2.25rem;height:2.25rem;border-radius:9px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--gold-bg);border:1px solid var(--border);color:var(--gold);
+}
+.step-title{font-family:var(--f-head);font-weight:600;font-size:var(--text-md);color:var(--text-1);line-height:1.35}
+.step-desc{font-size:var(--text-xs);color:var(--text-3);margin-top:.1rem;line-height:1.6}
+
+.field{margin-bottom:1rem}
+.field label{display:block;font-family:var(--f-mono);font-size:var(--text-2xs);font-weight:500;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem}
+.field-wrap{position:relative}
+.field-wrap .fi{position:absolute;left:.85rem;top:50%;transform:translateY(-50%);color:var(--dim);pointer-events:none}
+.field input{
+  width:100%;background:rgba(255,255,255,.045);border:1.5px solid var(--border-soft);
+  border-radius:var(--r-sm);padding:.8rem .9rem .8rem 2.5rem;
+  font-size:var(--text-md);font-family:var(--f-mono);color:var(--text-1);
+  outline:none;transition:border-color .18s,background .18s;-webkit-appearance:none;
+}
+.field input:focus{border-color:var(--gold-dim);background:rgba(255,255,255,.065)}
+.field-otp input{letter-spacing:.5em;text-align:center;padding-left:.9rem;font-size:var(--text-lg)}
+.field-hint{font-size:var(--text-2xs);color:var(--dim);margin-top:.45rem;line-height:1.6}
+
+.btn{
+  width:100%;display:flex;align-items:center;justify-content:center;gap:.5rem;
+  font-family:var(--f-body);font-weight:600;font-size:var(--text-base);
+  padding:.85rem 1rem;border-radius:var(--r-sm);border:none;cursor:pointer;
+  transition:opacity .15s,transform .1s;
+}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-gold{background:var(--gold);color:var(--navy-1)}
+.btn-gold:hover:not(:disabled){opacity:.92}
+.btn-ghost{
+  background:transparent;color:var(--text-2);border:1.5px solid var(--border-soft);
+  margin-top:.65rem;font-size:var(--text-sm);padding:.7rem 1rem;
+}
+.btn-ghost:hover:not(:disabled){border-color:var(--gold-dim);color:var(--text-1)}
+
+.phone-display{
+  font-family:var(--f-mono);font-size:var(--text-md);color:var(--gold);
+  background:var(--gold-bg);border:1px solid var(--border);border-radius:var(--r-sm);
+  padding:.65rem .9rem;margin-bottom:1rem;text-align:center;letter-spacing:.06em;
+}
+
+.link-row{text-align:center;margin-top:1rem}
+.link-row a{font-size:var(--text-sm);color:var(--text-3);text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.link-row a:hover{color:var(--gold)}
+
+.err-box{
+  display:flex;gap:.6rem;align-items:flex-start;
+  background:var(--red-bg);border:1px solid rgba(240,96,96,.3);border-radius:var(--r-sm);
+  padding:.75rem .85rem;margin-bottom:1rem;font-size:var(--text-sm);color:#ffd4d4;line-height:1.6;
+}
+.err-box[hidden]{display:none}
+.err-box .icon{color:var(--red);margin-top:.15rem}
+
+/* ── SUCCESS ── */
+.done-icon{
+  width:3.25rem;height:3.25rem;border-radius:50%;margin:0 auto 1rem;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(61,214,140,.12);border:1px solid rgba(61,214,140,.35);color:var(--green);
+}
+.done-title{font-family:var(--f-head);font-weight:600;font-size:var(--text-lg);text-align:center;color:var(--text-1);margin-bottom:.4rem}
+.done-desc{font-size:var(--text-sm);color:var(--text-3);text-align:center;line-height:1.65;margin-bottom:1.1rem}
+.uid-box{
+  font-family:var(--f-mono);font-size:var(--text-xs);color:var(--text-2);
+  background:rgba(255,255,255,.04);border:1px solid var(--border-soft);border-radius:var(--r-sm);
+  padding:.7rem .8rem;word-break:break-all;text-align:center;margin-bottom:1rem;
+}
+
+.foot-note{position:relative;z-index:1;max-width:26rem;width:100%;text-align:center;margin-top:1.25rem;font-size:var(--text-2xs);color:var(--dim);line-height:1.65}
+
+#recaptcha-container{position:fixed;bottom:0;left:0}
+</style>
+</head>
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MB7VRGR5"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+<div class="brand">
+  <div class="brand-eyebrow">
+    <span class="ey-line ey-line-l"></span>
+    <span class="ey-text">ALN — Không Gian Nhà</span>
+    <span class="ey-line ey-line-r"></span>
+  </div>
+  <h1 class="brand-title">Đăng nhập bằng số điện thoại</h1>
+  <p class="brand-sub">Dành cho chủ nhà đang theo dõi tiến độ dự án cùng ALN</p>
+</div>
+
+<div class="card">
+
+  <div id="errBox" class="err-box" role="alert" hidden>
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="16.5" x2="12" y2="16.5"/></svg>
+    <span id="errText"></span>
+  </div>
+
+  <!-- BƯỚC 1 — nhập số điện thoại -->
+  <section id="step-phone">
+    <div class="step-head">
+      <span class="step-icon">
+        <svg class="icon icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15.05 5a5 5 0 0 1 5 5M15.05 1a9 9 0 0 1 9 9M4.9 2.9 8 6c.5.5.6 1.3.2 1.9L6.6 10.3a13.3 13.3 0 0 0 7.1 7.1l2.4-1.6c.6-.4 1.4-.3 1.9.2l3.1 3.1c.6.6.6 1.6-.1 2.1l-1.6 1.3a3 3 0 0 1-2.4.6C11 21.8 2.2 13 1.1 7.1a3 3 0 0 1 .6-2.4l1.3-1.6c.5-.7 1.5-.7 2.1-.1Z"/></svg>
+      </span>
+      <div>
+        <div class="step-title">Nhập số điện thoại</div>
+        <div class="step-desc">Đúng số đã đăng ký với ALN khi ký hợp đồng</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="phoneInput">Số điện thoại</label>
+      <div class="field-wrap">
+        <svg class="icon fi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15.05 5a5 5 0 0 1 5 5M15.05 1a9 9 0 0 1 9 9M4.9 2.9 8 6c.5.5.6 1.3.2 1.9L6.6 10.3a13.3 13.3 0 0 0 7.1 7.1l2.4-1.6c.6-.4 1.4-.3 1.9.2l3.1 3.1c.6.6.6 1.6-.1 2.1l-1.6 1.3a3 3 0 0 1-2.4.6C11 21.8 2.2 13 1.1 7.1a3 3 0 0 1 .6-2.4l1.3-1.6c.5-.7 1.5-.7 2.1-.1Z"/></svg>
+        <input id="phoneInput" type="tel" inputmode="numeric" autocomplete="tel" placeholder="0901 234 567" maxlength="16">
+      </div>
+      <div class="field-hint">Hệ thống sẽ gửi mã xác nhận 6 số qua SMS</div>
+    </div>
+
+    <button id="sendBtn" class="btn btn-gold" type="button">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      Gửi mã xác nhận
+    </button>
+  </section>
+
+  <!-- BƯỚC 2 — nhập mã OTP -->
+  <section id="step-otp" hidden>
+    <div class="step-head">
+      <span class="step-icon">
+        <svg class="icon icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+      </span>
+      <div>
+        <div class="step-title">Nhập mã xác nhận</div>
+        <div class="step-desc">Mã 6 số gửi qua SMS, có hiệu lực trong thời gian ngắn</div>
+      </div>
+    </div>
+
+    <div class="phone-display" id="phoneDisplay"></div>
+
+    <div class="field field-otp">
+      <label for="otpInput">Mã xác nhận (6 số)</label>
+      <div class="field-wrap">
+        <input id="otpInput" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="\d*" maxlength="6" placeholder="••••••">
+      </div>
+    </div>
+
+    <button id="verifyBtn" class="btn btn-gold" type="button">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      Xác nhận
+    </button>
+
+    <button id="resendBtn" class="btn btn-ghost" type="button" disabled>Gửi lại mã (60s)</button>
+
+    <div class="link-row">
+      <a id="changePhoneLink">Đổi số điện thoại khác</a>
+    </div>
+  </section>
+
+  <!-- BƯỚC 3 — thành công (TẠM THỜI, pass 4 mới nối vào houses) -->
+  <section id="step-done" hidden>
+    <div class="done-icon">
+      <svg class="icon icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div class="done-title">Đăng nhập thành công</div>
+    <p class="done-desc">Đây là màn hình tạm cho pass 3 — hồ sơ nhà (Không Gian Nhà) sẽ được nối vào ở bước tiếp theo.</p>
+    <div class="uid-box" id="uidDisplay"></div>
+    <button id="logoutBtn" class="btn btn-ghost" type="button">Đăng xuất, thử lại số khác</button>
+  </section>
+
+  <div id="recaptcha-container"></div>
+</div>
+
+<p class="foot-note">Cần hỗ trợ? Liên hệ ALN qua Zalo hoặc hotline đã cung cấp trong hợp đồng.</p>
+
+<script type="module">
+import {
+  auth, RecaptchaVerifier, signInWithPhoneNumber, onAuthStateChanged, signOut
+} from './firebase-config.js';
+
+/* ── Chuẩn hoá số điện thoại — SAO CHÉP NGUYÊN VĂN từ functions/contacts.js
+   normalizePhone(). KHÔNG được viết lại/đổi quy tắc ở đây: pass 4 sẽ nối
+   houses qua contacts theo đúng SĐT đã chuẩn hoá kiểu này — lệch một ký tự
+   trong quy tắc là hỏng dedup. Nếu sửa functions/contacts.js, PHẢI sửa lại
+   y hệt ở đây (và ngược lại). */
+function normalizePhone(raw) {
+  let p = String(raw || "").replace(/[\s.\-()]/g, "").replace(/^\+/, "");
+  if (p.startsWith("84") && p.length > 9) p = "0" + p.slice(2);
+  if (!/^0\d{8,10}$/.test(p)) return null;
+  return p;
+}
+/* E.164 cho Firebase Phone Auth — suy trực tiếp, tất định, từ dạng chuẩn nội
+   bộ "0xxxxxxxxx" ở trên (thay "0" đầu bằng "+84"). KHÔNG phải một quy tắc
+   chuẩn hoá khác — chỉ là định dạng lại để gọi API, giá trị chuẩn hoá dùng
+   để dedup contacts vẫn là normalizePhone() ở trên. */
+function toE164VN(localPhone) { return "+84" + localPhone.slice(1); }
+function formatVNDisplay(localPhone) {
+  return localPhone.replace(/^(\d{3})(\d{3})(\d+)$/, "$1 $2 $3");
+}
+
+const els = {
+  step1: document.getElementById("step-phone"),
+  step2: document.getElementById("step-otp"),
+  step3: document.getElementById("step-done"),
+  phoneInput: document.getElementById("phoneInput"),
+  otpInput: document.getElementById("otpInput"),
+  sendBtn: document.getElementById("sendBtn"),
+  verifyBtn: document.getElementById("verifyBtn"),
+  resendBtn: document.getElementById("resendBtn"),
+  changePhoneLink: document.getElementById("changePhoneLink"),
+  errBox: document.getElementById("errBox"),
+  errText: document.getElementById("errText"),
+  phoneDisplay: document.getElementById("phoneDisplay"),
+  uidDisplay: document.getElementById("uidDisplay"),
+  logoutBtn: document.getElementById("logoutBtn"),
+};
+
+let confirmationResult = null;
+let recaptchaVerifier = null;
+let resendTimer = null;
+
+/* ── Chặn lạm dụng SMS (lớp phòng thủ phía client, BỔ SUNG cho hạn mức
+   1000/ngày CỦA DỰ ÁN ở tầng Firebase/App Check — không thay thế) ──
+   Tối đa 3 lần gửi / 10 phút cho CÙNG MỘT SỐ, lưu sessionStorage (mất khi
+   đóng tab — cố ý, đây chỉ là lớp chặn spam nhẹ phía UI, không phải nguồn
+   sự thật an ninh). */
+const RATE_KEY = "aln_kh_otp_rate";
+const RATE_WINDOW_MS = 10 * 60 * 1000;
+const RATE_MAX = 3;
+
+function readRateMap() {
+  try { return JSON.parse(sessionStorage.getItem(RATE_KEY) || "{}"); } catch (e) { return {}; }
+}
+function writeRateMap(map) {
+  try { sessionStorage.setItem(RATE_KEY, JSON.stringify(map)); } catch (e) {}
+}
+function pruneOld(list, now) { return list.filter((ts) => now - ts < RATE_WINDOW_MS); }
+function checkRate(phone) {
+  const now = Date.now();
+  const map = readRateMap();
+  const list = pruneOld(map[phone] || [], now);
+  map[phone] = list;
+  writeRateMap(map);
+  if (list.length >= RATE_MAX) {
+    return { allowed: false, waitMs: Math.max(RATE_WINDOW_MS - (now - list[0]), 0) };
+  }
+  return { allowed: true, waitMs: 0 };
+}
+function recordAttempt(phone) {
+  const now = Date.now();
+  const map = readRateMap();
+  const list = pruneOld(map[phone] || [], now);
+  list.push(now);
+  map[phone] = list;
+  writeRateMap(map);
+}
+function fmtMinSec(ms) {
+  const totalSec = Math.ceil(ms / 1000);
+  const m = Math.floor(totalSec / 60);
+  const s = totalSec % 60;
+  return m > 0 ? `${m} phút ${s} giây` : `${s} giây`;
+}
+
+/* ── Thông báo lỗi tiếng Việt — phân biệt rõ từng mã, KHÔNG bao giờ gộp
+   chung thành "có lỗi xảy ra". Mã không nằm trong bảng vẫn hiện NGUYÊN VĂN
+   mã đó (không giấu) để còn tra được. */
+const ERROR_MESSAGES = {
+  "auth/invalid-phone-number": "Số điện thoại không hợp lệ. Vui lòng nhập đúng số điện thoại Việt Nam, ví dụ 0901234567.",
+  "auth/missing-phone-number": "Vui lòng nhập số điện thoại.",
+  "auth/too-many-requests": "Bạn đã thử quá nhiều lần trong thời gian ngắn. Vui lòng đợi vài phút rồi thử lại.",
+  "auth/code-expired": "Mã xác nhận đã hết hạn. Vui lòng bấm “Gửi lại mã” để nhận mã mới.",
+  "auth/invalid-verification-code": "Mã xác nhận không đúng. Vui lòng kiểm tra lại 6 số vừa nhận qua SMS.",
+  "auth/quota-exceeded": "Hệ thống đã đạt giới hạn gửi SMS hôm nay. Vui lòng thử lại vào ngày mai hoặc liên hệ ALN qua Zalo để được hỗ trợ.",
+  "auth/captcha-check-failed": "Xác thực bảo mật trình duyệt (reCAPTCHA) thất bại. Vui lòng tải lại trang và thử lại.",
+  "auth/network-request-failed": "Lỗi kết nối mạng. Vui lòng kiểm tra Internet và thử lại.",
+  "auth/app-not-authorized": "Ứng dụng chưa được xác thực với Firebase (App Check). Vui lòng liên hệ ALN.",
+  "auth/argument-error": "Không khởi tạo được xác thực bảo mật (reCAPTCHA). Vui lòng tải lại trang và thử lại.",
+};
+
+function showError(code, rawMessage) {
+  let msg = ERROR_MESSAGES[code];
+  if (!msg && /appcheck/i.test(String(code || "") + String(rawMessage || ""))) {
+    msg = "Không xác thực được bảo mật trình duyệt (App Check). Vui lòng tải lại trang hoặc thử trình duyệt khác.";
+  }
+  if (!msg) {
+    msg = `Lỗi: ${code || rawMessage || "không rõ"}. Vui lòng thử lại hoặc liên hệ ALN qua Zalo.`;
+  }
+  els.errText.textContent = msg;
+  els.errBox.hidden = false;
+}
+function showPlainError(text) {
+  els.errText.textContent = text;
+  els.errBox.hidden = false;
+}
+function clearError() { els.errBox.hidden = true; els.errText.textContent = ""; }
+
+/* ── reCAPTCHA v2 invisible — RIÊNG cho Phone Auth, tách biệt với reCAPTCHA
+   v3 của App Check (khởi tạo trong firebase-config.js). Khởi tạo lười, tái
+   sử dụng 1 instance; reset khi gặp lỗi liên quan captcha/hết lượt xác minh. */
+function ensureRecaptcha() {
+  if (recaptchaVerifier) return recaptchaVerifier;
+  recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", { size: "invisible" });
+  return recaptchaVerifier;
+}
+function resetRecaptcha() {
+  try { recaptchaVerifier && recaptchaVerifier.clear(); } catch (e) {}
+  recaptchaVerifier = null;
+  const c = document.getElementById("recaptcha-container");
+  if (c) c.innerHTML = "";
+}
+
+function startResendCountdown(seconds) {
+  clearInterval(resendTimer);
+  let remain = seconds;
+  els.resendBtn.disabled = true;
+  const tick = () => {
+    if (remain <= 0) {
+      clearInterval(resendTimer);
+      els.resendBtn.disabled = false;
+      els.resendBtn.textContent = "Gửi lại mã";
+      return;
+    }
+    els.resendBtn.textContent = `Gửi lại mã (${remain}s)`;
+    remain--;
+  };
+  tick();
+  resendTimer = setInterval(tick, 1000);
+}
+
+function goToStep(n) {
+  els.step1.hidden = n !== 1;
+  els.step2.hidden = n !== 2;
+  els.step3.hidden = n !== 3;
+}
+
+async function handleSend() {
+  clearError();
+  const norm = normalizePhone(els.phoneInput.value);
+  if (!norm) { showError("auth/invalid-phone-number"); return; }
+
+  const rate = checkRate(norm);
+  if (!rate.allowed) {
+    showPlainError(`Số này đã gửi mã 3 lần trong 10 phút. Vui lòng thử lại sau ${fmtMinSec(rate.waitMs)}.`);
+    return;
+  }
+
+  els.sendBtn.disabled = true;
+  const prevLabel = els.sendBtn.textContent;
+  els.sendBtn.textContent = "Đang gửi...";
+  try {
+    const verifier = ensureRecaptcha();
+    const e164 = toE164VN(norm);
+    // Tính là 1 lần gửi ngay khi thật sự gọi Firebase — kể cả nếu Firebase
+    // sau đó trả lỗi khác (quota/network), đây vẫn là 1 lượt SMS đã cố gửi.
+    recordAttempt(norm);
+    confirmationResult = await signInWithPhoneNumber(auth, e164, verifier);
+    els.phoneDisplay.textContent = formatVNDisplay(norm);
+    goToStep(2);
+    startResendCountdown(60);
+    els.otpInput.value = "";
+    els.otpInput.focus();
+  } catch (err) {
+    console.error("[dang-nhap-chu-nha] signInWithPhoneNumber lỗi:", err);
+    showError(err && err.code, err && err.message);
+    // reCAPTCHA invisible chỉ dùng được 1 lần xác minh — reset để lần bấm
+    // gửi kế tiếp (thử lại số khác, hoặc thử lại sau lỗi) tạo widget mới.
+    resetRecaptcha();
+  } finally {
+    els.sendBtn.disabled = false;
+    els.sendBtn.textContent = prevLabel;
+  }
+}
+
+async function handleVerify() {
+  clearError();
+  const code = (els.otpInput.value || "").trim();
+  if (!/^\d{6}$/.test(code)) {
+    showPlainError("Vui lòng nhập đủ 6 số trong mã xác nhận.");
+    return;
+  }
+  if (!confirmationResult) {
+    showError("auth/code-expired");
+    return;
+  }
+  els.verifyBtn.disabled = true;
+  const prevLabel = els.verifyBtn.textContent;
+  els.verifyBtn.textContent = "Đang xác nhận...";
+  try {
+    const cred = await confirmationResult.confirm(code);
+    els.uidDisplay.textContent = cred.user.uid;
+    goToStep(3);
+  } catch (err) {
+    console.error("[dang-nhap-chu-nha] confirm OTP lỗi:", err);
+    showError(err && err.code, err && err.message);
+  } finally {
+    els.verifyBtn.disabled = false;
+    els.verifyBtn.textContent = prevLabel;
+  }
+}
+
+els.sendBtn.addEventListener("click", handleSend);
+els.resendBtn.addEventListener("click", handleSend);
+els.verifyBtn.addEventListener("click", handleVerify);
+els.changePhoneLink.addEventListener("click", (e) => {
+  e.preventDefault();
+  clearError();
+  confirmationResult = null;
+  clearInterval(resendTimer);
+  resetRecaptcha();
+  goToStep(1);
+});
+els.phoneInput.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); handleSend(); } });
+els.otpInput.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); handleVerify(); } });
+els.otpInput.addEventListener("input", () => {
+  els.otpInput.value = els.otpInput.value.replace(/\D/g, "").slice(0, 6);
+});
+els.logoutBtn.addEventListener("click", async () => {
+  try { await signOut(auth); } catch (e) { console.error("[dang-nhap-chu-nha] signOut lỗi:", e); }
+  confirmationResult = null;
+  clearError();
+  els.phoneInput.value = "";
+  els.otpInput.value = "";
+  goToStep(1);
+});
+
+// Đã đăng nhập sẵn từ trước (phiên còn hiệu lực) — bỏ qua bước OTP, vào
+// thẳng màn hình tạm. CHƯA đọc houses ở đây — pass 4.
+onAuthStateChanged(auth, (user) => {
+  if (user && els.step3.hidden && els.step1.hidden === false && !confirmationResult) {
+    els.uidDisplay.textContent = user.uid;
+    goToStep(3);
+  }
+});
+
+goToStep(1);
+</script>
+</body>
+</html>
