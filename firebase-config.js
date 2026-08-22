@@ -8,7 +8,17 @@ import {
   indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence, inMemoryPersistence,
   signInWithEmailAndPassword, createUserWithEmailAndPassword,
   onAuthStateChanged, signOut,
-  updatePassword, reauthenticateWithCredential, EmailAuthProvider
+  updatePassword, reauthenticateWithCredential, EmailAuthProvider,
+  // Đăng nhập OTP số điện thoại (dang-nhap-chu-nha.html, SPEC_KHONG_GIAN_NHA_V1.md
+  // pass 3) — RecaptchaVerifier là reCAPTCHA v2 invisible RIÊNG của Phone Auth,
+  // KHÁC với reCAPTCHA v3 mà initializeAppCheck() dùng bên dưới (site key
+  // 6LeuZi8t...). Hai hệ khác nhau, dùng ReCaptchaV3Provider (KHÔNG PHẢI
+  // ReCaptchaEnterpriseProvider) cho App Check nên không đụng độ — Enterprise
+  // mới là bản ghi đè window.grecaptcha.render gây lỗi RecaptchaVerifier theo
+  // các issue đã biết của firebase-js-sdk; V3 cổ điển tải chung recaptcha/api.js
+  // với v2 invisible, không có xung đột. Xem PR pass 3 để biết chi tiết đã kiểm
+  // chứng qua Playwright trước khi thêm 2 export này.
+  RecaptchaVerifier, signInWithPhoneNumber
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
   getMessaging, getToken, onMessage as onFcmMessage, isSupported as fcmSupported
@@ -83,6 +93,7 @@ export {
   signInWithEmailAndPassword, createUserWithEmailAndPassword,
   onAuthStateChanged, signOut,
   updatePassword, reauthenticateWithCredential, EmailAuthProvider,
+  RecaptchaVerifier, signInWithPhoneNumber,
   doc, getDoc, setDoc, updateDoc, deleteDoc,
   collection, addDoc, getDocs, query, where, orderBy, limit, limitToLast,
   onSnapshot, serverTimestamp,
