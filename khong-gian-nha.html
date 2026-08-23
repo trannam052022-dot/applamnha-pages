@@ -195,16 +195,52 @@ a{color:inherit}
 }
 
 /* ── SỔ CHI (khối e) ── */
-.sochi-list{display:flex;flex-direction:column;gap:.5rem;margin-bottom:.9rem}
-.sochi-item{display:flex;justify-content:space-between;gap:.6rem;padding:.6rem .7rem;background:rgba(255,255,255,.03);border:1px solid var(--border-soft);border-radius:var(--r-sm)}
-.sochi-main .h{font-size:var(--text-sm);color:var(--text-1)}
-.sochi-main .n{font-size:var(--text-2xs);color:var(--dim)}
-.sochi-amount{font-family:var(--f-mono);font-size:var(--text-sm);color:var(--text-2);white-space:nowrap}
 .disclaimer{
   font-size:var(--text-xs);color:var(--text-3);line-height:1.65;
   background:rgba(255,255,255,.03);border:1px dashed var(--border-soft);border-radius:var(--r-sm);
-  padding:.75rem .85rem;
+  padding:.75rem .85rem;margin-bottom:.9rem;
 }
+.sochi-total{
+  background:var(--gold-bg);border:1px solid var(--border);border-radius:var(--r-sm);
+  padding:.85rem .9rem;text-align:center;margin-bottom:.4rem;
+}
+.sochi-total .lbl{font-size:var(--text-2xs);color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.25rem}
+.sochi-total .amt{font-family:var(--f-mono);font-size:var(--text-xl);font-weight:600;color:var(--gold)}
+.sochi-duToan-note{font-size:var(--text-2xs);color:var(--dim);line-height:1.6;margin-bottom:1.1rem}
+
+.sochi-form{display:flex;flex-direction:column;gap:.8rem;margin-bottom:1.2rem;padding-bottom:1.1rem;border-bottom:1px solid var(--border-soft)}
+.sochi-field label{display:block;font-family:var(--f-mono);font-size:var(--text-2xs);font-weight:500;color:var(--dim);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.4rem}
+.sochi-field input,.sochi-field textarea{
+  width:100%;background:rgba(255,255,255,.045);border:1.5px solid var(--border-soft);
+  border-radius:var(--r-sm);padding:.75rem .85rem;
+  font-size:var(--text-base);font-family:var(--f-body);color:var(--text-1);
+  outline:none;transition:border-color .18s,background .18s;-webkit-appearance:none;
+}
+.sochi-field input:focus,.sochi-field textarea:focus{border-color:var(--gold-dim);background:rgba(255,255,255,.065)}
+.sochi-field input#sfSoTien{font-family:var(--f-mono)}
+.sochi-field textarea{resize:vertical;min-height:4rem;font-family:var(--f-body)}
+.sochi-form-err{font-size:var(--text-xs);color:var(--red);display:none;line-height:1.5}
+.sochi-form-err.show{display:block}
+.sochi-form-actions{display:flex;gap:.6rem}
+.sochi-form-actions .btn{flex:1}
+.sochi-form-actions .btn-ghost{flex:0 0 auto;padding-left:1.1rem;padding-right:1.1rem}
+
+.sochi-list{display:flex;flex-direction:column;gap:.5rem}
+.sochi-item{display:flex;justify-content:space-between;align-items:flex-start;gap:.6rem;padding:.6rem .7rem;background:rgba(255,255,255,.03);border:1px solid var(--border-soft);border-radius:var(--r-sm)}
+.sochi-main{min-width:0}
+.sochi-main .h{font-size:var(--text-sm);color:var(--text-1)}
+.sochi-main .n{font-size:var(--text-2xs);color:var(--dim);margin-top:.15rem}
+.sochi-right{display:flex;flex-direction:column;align-items:flex-end;gap:.35rem;flex-shrink:0}
+.sochi-amount{font-family:var(--f-mono);font-size:var(--text-sm);color:var(--text-2);white-space:nowrap}
+.sochi-item-actions{display:flex;gap:.35rem}
+.sochi-item-btn{
+  background:transparent;border:1px solid var(--border-soft);border-radius:6px;
+  width:1.7rem;height:1.7rem;display:flex;align-items:center;justify-content:center;
+  color:var(--text-3);cursor:pointer;padding:0;
+}
+.sochi-item-btn:hover{border-color:var(--gold-dim);color:var(--gold)}
+.sochi-item-btn.danger:hover{border-color:rgba(240,96,96,.4);color:var(--red)}
+.sochi-item-btn svg{width:14px;height:14px}
 
 /* ── SẮP CÓ (khối f) ── */
 .soon-grid{display:flex;flex-direction:column;gap:.7rem}
@@ -326,8 +362,43 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span class="block-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h4"/></svg></span>
         <span class="block-title">Sổ chi của bạn</span>
       </div>
-      <div id="sochiBody"></div>
       <p class="disclaimer">Sổ chi này do bạn tự ghi để theo dõi. ALN không giữ tiền, không xác nhận và không đối soát các khoản chi cho nhà thầu.</p>
+
+      <div class="sochi-total" id="sochiTotal">
+        <div class="lbl">Tổng đã chi</div>
+        <div class="amt" id="sochiTotalAmt">0 đ</div>
+      </div>
+      <p class="sochi-duToan-note">Đối chiếu với dự toán sẽ có khi bản dự toán của hồ sơ này sẵn sàng.</p>
+
+      <form id="sochiForm" class="sochi-form" novalidate>
+        <div class="sochi-field">
+          <label for="sfHangMuc">Hạng mục</label>
+          <input id="sfHangMuc" type="text" placeholder="Đợt 2 - phần thô" maxlength="200" required>
+        </div>
+        <div class="sochi-field">
+          <label for="sfNguoiNhan">Người nhận</label>
+          <input id="sfNguoiNhan" type="text" placeholder="Nhà thầu / cửa hàng vật liệu..." maxlength="200">
+        </div>
+        <div class="sochi-field">
+          <label for="sfSoTien">Số tiền (đ)</label>
+          <input id="sfSoTien" type="text" inputmode="numeric" autocomplete="off" placeholder="0" required>
+        </div>
+        <div class="sochi-field">
+          <label for="sfNgayChi">Ngày chi</label>
+          <input id="sfNgayChi" type="date" required>
+        </div>
+        <div class="sochi-field">
+          <label for="sfGhiChu">Ghi chú</label>
+          <textarea id="sfGhiChu" maxlength="500"></textarea>
+        </div>
+        <p class="sochi-form-err" id="sochiFormErr"></p>
+        <div class="sochi-form-actions">
+          <button type="submit" class="btn btn-gold" id="sochiSubmitBtn">Thêm khoản chi</button>
+          <button type="button" class="btn btn-ghost" id="sochiCancelBtn" hidden>Hủy</button>
+        </div>
+      </form>
+
+      <div id="sochiBody"></div>
     </section>
 
     <!-- f. Sắp có -->
@@ -355,6 +426,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 import {
   app, auth, db, onAuthStateChanged, signOut,
   doc, getDoc, onSnapshot, collection, query, where, orderBy,
+  addDoc, updateDoc, deleteDoc, serverTimestamp,
 } from './firebase-config.js';
 import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js';
 
@@ -383,6 +455,16 @@ const els = {
   docBody: document.getElementById('docBody'),
   logBody: document.getElementById('logBody'),
   sochiBody: document.getElementById('sochiBody'),
+  sochiTotalAmt: document.getElementById('sochiTotalAmt'),
+  sochiForm: document.getElementById('sochiForm'),
+  sfHangMuc: document.getElementById('sfHangMuc'),
+  sfNguoiNhan: document.getElementById('sfNguoiNhan'),
+  sfSoTien: document.getElementById('sfSoTien'),
+  sfNgayChi: document.getElementById('sfNgayChi'),
+  sfGhiChu: document.getElementById('sfGhiChu'),
+  sochiFormErr: document.getElementById('sochiFormErr'),
+  sochiSubmitBtn: document.getElementById('sochiSubmitBtn'),
+  sochiCancelBtn: document.getElementById('sochiCancelBtn'),
 };
 
 const MOC_ORDER = ['C1', 'C2', 'C3', 'C4'];
@@ -416,6 +498,9 @@ function fmtMoney(n) {
 }
 
 let unsubscribers = [];
+let currentHouseId = null;
+let sochiItems = [];
+let sochiEditingId = null;
 function clearListeners() {
   unsubscribers.forEach((fn) => { try { fn(); } catch (e) {} });
   unsubscribers = [];
@@ -509,26 +594,97 @@ function renderLog(items) {
     </div>`).join('')}</div>`;
 }
 
-/* ── Khối e — sổ chi (V1 chỉ đọc) ── */
+/* ── Khối e — sổ chi (chủ nhà tự ghi trực tiếp vào houses/{id}/so_chi) ── */
+function todayIso() {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+function fmtSoChiDate(iso) {
+  const parts = String(iso || '').split('-');
+  if (parts.length !== 3) return '';
+  const [y, m, d] = parts;
+  return `${d}/${m}/${y}`;
+}
+function parseSoTien(v) {
+  const raw = String(v == null ? '' : v).trim();
+  if (/^-/.test(raw)) return NaN; // không âm thầm bỏ dấu trừ — coi là số không hợp lệ, chặn hẳn
+  const digits = raw.replace(/[^\d]/g, '');
+  return digits ? Number(digits) : NaN;
+}
+
+function renderSoChiTotal(items) {
+  const total = items.reduce((sum, c) => sum + (Number(c.so_tien) || 0), 0);
+  els.sochiTotalAmt.textContent = fmtMoney(total) || '0 đ';
+}
+
 function renderSoChi(items) {
   if (!items.length) {
-    els.sochiBody.innerHTML = `<div class="empty-note">Chưa có khoản chi nào được ghi.</div>`;
+    els.sochiBody.innerHTML = `<div class="empty-note">Bạn chưa ghi khoản chi nào — nhập khoản đầu tiên ở form phía trên để bắt đầu theo dõi.</div>`;
     return;
   }
   els.sochiBody.innerHTML = `<div class="sochi-list">${items.map((c) => `
     <div class="sochi-item">
       <div class="sochi-main">
         <div class="h">${esc(c.hang_muc || '')}</div>
-        <div class="n">${esc(c.nguoi_nhan || '')}${c.ngay_chi ? ' · ' + esc(c.ngay_chi) : ''}</div>
+        <div class="n">${[esc(c.nguoi_nhan || ''), esc(fmtSoChiDate(c.ngay_chi))].filter(Boolean).join(' · ')}</div>
       </div>
-      <div class="sochi-amount">${esc(fmtMoney(c.so_tien))}</div>
+      <div class="sochi-right">
+        <div class="sochi-amount">${esc(fmtMoney(c.so_tien))}</div>
+        <div class="sochi-item-actions">
+          <button type="button" class="sochi-item-btn" data-act="edit" data-id="${esc(c.id)}" title="Sửa khoản chi">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          </button>
+          <button type="button" class="sochi-item-btn danger" data-act="del" data-id="${esc(c.id)}" title="Xóa khoản chi">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m3 0-1 14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1L5 6"/></svg>
+          </button>
+        </div>
+      </div>
     </div>`).join('')}</div>`;
+}
+
+function resetSoChiForm() {
+  sochiEditingId = null;
+  els.sochiForm.reset();
+  els.sfNgayChi.value = todayIso();
+  els.sochiSubmitBtn.textContent = 'Thêm khoản chi';
+  els.sochiCancelBtn.hidden = true;
+  els.sochiFormErr.textContent = '';
+  els.sochiFormErr.classList.remove('show');
+}
+
+function startEditSoChi(item) {
+  sochiEditingId = item.id;
+  els.sfHangMuc.value = item.hang_muc || '';
+  els.sfNguoiNhan.value = item.nguoi_nhan || '';
+  els.sfSoTien.value = item.so_tien != null ? Number(item.so_tien).toLocaleString('vi-VN') : '';
+  els.sfNgayChi.value = item.ngay_chi || todayIso();
+  els.sfGhiChu.value = item.ghi_chu || '';
+  els.sochiSubmitBtn.textContent = 'Lưu thay đổi';
+  els.sochiCancelBtn.hidden = false;
+  els.sochiFormErr.textContent = '';
+  els.sochiFormErr.classList.remove('show');
+  els.sochiForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+async function deleteSoChi(id) {
+  if (!currentHouseId) return;
+  if (!confirm('Xóa khoản chi này? Không thể hoàn tác.')) return;
+  try {
+    await deleteDoc(doc(db, 'houses', currentHouseId, 'so_chi', id));
+    if (sochiEditingId === id) resetSoChiForm();
+  } catch (err) {
+    console.error('[khong-gian-nha] xóa so_chi lỗi:', err);
+    alert('Không xóa được khoản chi. Vui lòng thử lại.');
+  }
 }
 
 /* ── Nối 5 onSnapshot cho 1 house đã chọn (house + moc + tai_lieu + nhat_ky + so_chi) ── */
 function loadHouse(houseId) {
   clearListeners();
   showState('house');
+  currentHouseId = houseId;
+  resetSoChiForm();
 
   unsubscribers.push(onSnapshot(doc(db, 'houses', houseId), (snap) => {
     if (!snap.exists()) return;
@@ -557,10 +713,12 @@ function loadHouse(houseId) {
     (err) => console.error('[khong-gian-nha] onSnapshot nhat_ky lỗi:', err)
   ));
 
-  unsubscribers.push(onSnapshot(collection(db, 'houses', houseId, 'so_chi'),
-    (snap) => renderSoChi(snap.docs.map((d) => d.data())),
-    (err) => console.error('[khong-gian-nha] onSnapshot so_chi lỗi:', err)
-  ));
+  unsubscribers.push(onSnapshot(collection(db, 'houses', houseId, 'so_chi'), (snap) => {
+    sochiItems = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    sochiItems.sort((a, b) => String(b.ngay_chi || '').localeCompare(String(a.ngay_chi || '')));
+    renderSoChiTotal(sochiItems);
+    renderSoChi(sochiItems);
+  }, (err) => console.error('[khong-gian-nha] onSnapshot so_chi lỗi:', err)));
 }
 
 function renderChoose(houses) {
@@ -614,6 +772,82 @@ els.logoutLink.addEventListener('click', async () => {
   clearListeners();
   try { await signOut(auth); } catch (e) { console.error('[khong-gian-nha] signOut lỗi:', e); }
   window.location.href = 'dang-nhap-chu-nha.html';
+});
+
+/* ── Form sổ chi — thêm/sửa, ghi thẳng addDoc/updateDoc vào houses/{id}/so_chi ── */
+els.sfSoTien.addEventListener('input', () => {
+  const digits = els.sfSoTien.value.replace(/[^\d]/g, '');
+  els.sfSoTien.value = digits ? Number(digits).toLocaleString('vi-VN') : '';
+});
+
+els.sochiBody.addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-act]');
+  if (!btn) return;
+  const item = sochiItems.find((c) => c.id === btn.dataset.id);
+  if (!item) return;
+  if (btn.dataset.act === 'edit') startEditSoChi(item);
+  else if (btn.dataset.act === 'del') deleteSoChi(item.id);
+});
+
+els.sochiCancelBtn.addEventListener('click', () => resetSoChiForm());
+
+els.sochiForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!currentHouseId) return;
+
+  const hangMuc = els.sfHangMuc.value.trim();
+  const nguoiNhan = els.sfNguoiNhan.value.trim();
+  const soTien = parseSoTien(els.sfSoTien.value);
+  const ngayChi = els.sfNgayChi.value || todayIso();
+  const ghiChu = els.sfGhiChu.value.trim();
+
+  const showErr = (msg) => {
+    els.sochiFormErr.textContent = msg;
+    els.sochiFormErr.classList.add('show');
+  };
+
+  if (!hangMuc) {
+    showErr('Vui lòng nhập hạng mục.');
+    els.sfHangMuc.focus();
+    return;
+  }
+  if (!Number.isFinite(soTien) || soTien <= 0) {
+    showErr('Số tiền phải lớn hơn 0.');
+    els.sfSoTien.focus();
+    return;
+  }
+  els.sochiFormErr.textContent = '';
+  els.sochiFormErr.classList.remove('show');
+
+  const payload = {
+    hang_muc: hangMuc,
+    nguoi_nhan: nguoiNhan || '',
+    so_tien: soTien,
+    ngay_chi: ngayChi,
+    ghi_chu: ghiChu || '',
+    nguon_ghi: 'chu_nha',
+  };
+
+  els.sochiSubmitBtn.disabled = true;
+  try {
+    if (sochiEditingId) {
+      await updateDoc(doc(db, 'houses', currentHouseId, 'so_chi', sochiEditingId), {
+        ...payload,
+        updated_at: serverTimestamp(),
+      });
+    } else {
+      await addDoc(collection(db, 'houses', currentHouseId, 'so_chi'), {
+        ...payload,
+        created_at: serverTimestamp(),
+      });
+    }
+    resetSoChiForm();
+  } catch (err) {
+    console.error('[khong-gian-nha] ghi so_chi lỗi:', err);
+    showErr('Không ghi được khoản chi. Vui lòng thử lại.');
+  } finally {
+    els.sochiSubmitBtn.disabled = false;
+  }
 });
 
 onAuthStateChanged(auth, (user) => {
