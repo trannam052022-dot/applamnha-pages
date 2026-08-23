@@ -2003,7 +2003,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <button onclick="ctExportCsv()" style="padding:7px 14px;background:var(--raised);border:1px solid var(--border);border-radius:7px;font-size:12px;font-weight:600;color:var(--sub);cursor:pointer;font-family:var(--sans)"><i class="ph-duotone ph-download-simple"></i> Xuất CSV</button>
       <button onclick="ctOpenTagModal()" style="padding:7px 14px;background:var(--raised);border:1px solid var(--border);border-radius:7px;font-size:12px;font-weight:600;color:var(--sub);cursor:pointer;font-family:var(--sans)"><i class="ph-duotone ph-tag"></i> Gắn nhãn chiến dịch</button>
       <button onclick="ctMigrateTho(true)" title="Xem trước — chưa ghi gì vào contacts" style="padding:7px 14px;background:var(--raised);border:1px solid var(--border);border-radius:7px;font-size:12px;font-weight:600;color:var(--sub);cursor:pointer;font-family:var(--sans)"><i class="ph-duotone ph-magnifying-glass"></i> Xem trước migrate Thợ cũ</button>
-      <button onclick="ctMigrateTho(false)" title="Ghi thật vào contacts — không xoá nccApplications cũ" style="padding:7px 14px;background:var(--gold-bg);border:1px solid var(--gold-bd);border-radius:7px;font-size:12px;font-weight:700;color:var(--gold);cursor:pointer;font-family:var(--sans)"><i class="ph-duotone ph-arrows-left-right"></i> Chạy migrate Thợ cũ (dv_thicong)</button>
+      <button onclick="ctMigrateTho(false)" title="ĐÃ CHẠY XONG 31/07/2026 — chạy lại có thể ghi trùng/hỏng dữ liệu contacts" style="padding:7px 14px;background:var(--gold-bg);border:1px solid var(--gold-bd);border-radius:7px;font-size:12px;font-weight:700;color:var(--gold);cursor:pointer;font-family:var(--sans);opacity:.35"><i class="ph-duotone ph-arrows-left-right"></i> Chạy migrate Thợ cũ [ĐÃ XONG 31/07 — KHÔNG BẤM]</button>
     </div>
   </div>
 
@@ -7955,7 +7955,7 @@ window.saveCompanySettings = async function() {
 
   window.ctMigrateTho = async function(dryRun){
     var label = dryRun ? 'xem trước' : 'CHẠY THẬT (ghi vào contacts)';
-    if(!dryRun && !confirm('Xác nhận chạy migrate thật? Sẽ ghi bản ghi mới vào contacts cho từng Thợ/Đội thi công cũ (category dv_thicong) — KHÔNG xoá dữ liệu gốc trong nccApplications.')) return;
+    if(!dryRun && !confirm('CẢNH BÁO: migrate Thợ cũ (dv_thicong) đã CHẠY XONG ngày 31/07/2026. Chạy lại có thể ghi trùng/gây lỗi dữ liệu contacts. Chỉ bấm OK nếu bạn thực sự chắc chắn cần chạy lại.')) return;
     try {
       var res = await ctCallFn('founderMigrateDvThicongToContacts', { dryRun: dryRun !== false });
       if(res.dryRun){

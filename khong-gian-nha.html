@@ -143,6 +143,8 @@ a{color:inherit}
 .house-stat{background:rgba(255,255,255,.04);border:1px solid var(--border-soft);border-radius:var(--r-sm);padding:.6rem .5rem;text-align:center}
 .house-stat .v{font-family:var(--f-mono);font-size:var(--text-md);color:var(--text-1);font-weight:500}
 .house-stat .l{font-size:var(--text-2xs);color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-top:.2rem}
+#hKhuVuc{display:flex;flex-direction:column;align-items:center;gap:.15rem}
+#hKhuVuc .kv-tinh,#hKhuVuc .kv-quan-item{white-space:nowrap}
 .kts-row{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;padding-top:.85rem;border-top:1px solid var(--border-soft)}
 .kts-name{font-size:var(--text-sm);color:var(--text-2)}
 .badge-verified{
@@ -419,14 +421,31 @@ function clearListeners() {
   unsubscribers = [];
 }
 
+/* Mã khu vực nội bộ → tên đầy đủ tiếng Việt (chỉ đổi cách hiển thị, không đổi dữ liệu Firestore) */
+const KHU_VUC_LABELS = {
+  'BR-VT': 'Bà Rịa – Vũng Tàu',
+  'HCM': 'TP.HCM',
+  'BD': 'Bình Dương',
+  'DN': 'Đồng Nai',
+  'LA': 'Long An',
+};
+function khuVucLabel(ma) {
+  if (!ma) return '';
+  return KHU_VUC_LABELS[ma] || ma;
+}
+
 /* ── Khối a — đầu trang ── */
 function renderHouseHeader(h) {
   els.hName.textContent = h.ten_hien_thi || '';
   els.hMa.textContent = h.ma_ho_so || '';
   els.hDienTich.textContent = h.dien_tich_san_m2 ? `${h.dien_tich_san_m2} m²` : '—';
   els.hSoTang.textContent = h.so_tang ? `${h.so_tang} tầng` : '—';
-  const khuVucParts = [h.khu_vuc, ...(Array.isArray(h.quan) ? h.quan : [])].filter(Boolean);
-  els.hKhuVuc.textContent = khuVucParts.length ? khuVucParts.join(' · ') : '—';
+  const tinhLabel = khuVucLabel(h.khu_vuc);
+  const quanArr = Array.isArray(h.quan) ? h.quan.filter(Boolean) : [];
+  const kvHtml = [];
+  if (tinhLabel) kvHtml.push(`<span class="kv-tinh">${esc(tinhLabel)}</span>`);
+  if (quanArr.length) kvHtml.push(`<span class="kv-quan">${quanArr.map((q) => `<span class="kv-quan-item">${esc(q)}</span>`).join(' · ')}</span>`);
+  els.hKhuVuc.innerHTML = kvHtml.length ? kvHtml.join('') : '—';
 
   if (h.kts_phu_trach_uid) {
     els.ktsRow.hidden = false;
