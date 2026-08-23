@@ -252,15 +252,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
   </section>
 
-  <!-- BƯỚC 3 — thành công (TẠM THỜI, pass 4 mới nối vào houses) -->
+  <!-- BƯỚC 3 — đăng nhập thành công, đang chuyển sang Không Gian Nhà -->
   <section id="step-done" hidden>
     <div class="done-icon">
       <svg class="icon icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
     </div>
     <div class="done-title">Đăng nhập thành công</div>
-    <p class="done-desc">Đây là màn hình tạm cho pass 3 — hồ sơ nhà (Không Gian Nhà) sẽ được nối vào ở bước tiếp theo.</p>
-    <div class="uid-box" id="uidDisplay"></div>
-    <button id="logoutBtn" class="btn btn-ghost" type="button">Đăng xuất, thử lại số khác</button>
+    <p class="done-desc">Đang chuyển tới Không Gian Nhà của bạn...</p>
   </section>
 
   <div id="recaptcha-container"></div>
@@ -270,8 +268,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <script type="module">
 import {
-  auth, RecaptchaVerifier, signInWithPhoneNumber, onAuthStateChanged, signOut
+  auth, RecaptchaVerifier, signInWithPhoneNumber, onAuthStateChanged
 } from './firebase-config.js';
+
+// Trang Không Gian Nhà thật — đăng nhập xong luôn chuyển tới đây (đọc
+// houses/moc/nhat_ky/tai_lieu/so_chi qua onSnapshot, xem khong-gian-nha.html).
+const KHONG_GIAN_NHA_URL = 'khong-gian-nha.html';
 
 /* ── Chuẩn hoá số điện thoại — SAO CHÉP NGUYÊN VĂN từ functions/contacts.js
    normalizePhone(). KHÔNG được viết lại/đổi quy tắc ở đây: pass 4 sẽ nối
@@ -306,8 +308,6 @@ const els = {
   errBox: document.getElementById("errBox"),
   errText: document.getElementById("errText"),
   phoneDisplay: document.getElementById("phoneDisplay"),
-  uidDisplay: document.getElementById("uidDisplay"),
-  logoutBtn: document.getElementById("logoutBtn"),
 };
 
 let confirmationResult = null;
@@ -481,9 +481,9 @@ async function handleVerify() {
   const prevLabel = els.verifyBtn.textContent;
   els.verifyBtn.textContent = "Đang xác nhận...";
   try {
-    const cred = await confirmationResult.confirm(code);
-    els.uidDisplay.textContent = cred.user.uid;
+    await confirmationResult.confirm(code);
     goToStep(3);
+    window.location.href = KHONG_GIAN_NHA_URL;
   } catch (err) {
     console.error("[dang-nhap-chu-nha] confirm OTP lỗi:", err);
     showError(err && err.code, err && err.message);
@@ -509,21 +509,12 @@ els.otpInput.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.pre
 els.otpInput.addEventListener("input", () => {
   els.otpInput.value = els.otpInput.value.replace(/\D/g, "").slice(0, 6);
 });
-els.logoutBtn.addEventListener("click", async () => {
-  try { await signOut(auth); } catch (e) { console.error("[dang-nhap-chu-nha] signOut lỗi:", e); }
-  confirmationResult = null;
-  clearError();
-  els.phoneInput.value = "";
-  els.otpInput.value = "";
-  goToStep(1);
-});
 
-// Đã đăng nhập sẵn từ trước (phiên còn hiệu lực) — bỏ qua bước OTP, vào
-// thẳng màn hình tạm. CHƯA đọc houses ở đây — pass 4.
+// Đã đăng nhập sẵn từ trước (phiên còn hiệu lực) — bỏ qua bước OTP, chuyển
+// thẳng sang Không Gian Nhà.
 onAuthStateChanged(auth, (user) => {
-  if (user && els.step3.hidden && els.step1.hidden === false && !confirmationResult) {
-    els.uidDisplay.textContent = user.uid;
-    goToStep(3);
+  if (user && els.step1.hidden === false && !confirmationResult) {
+    window.location.href = KHONG_GIAN_NHA_URL;
   }
 });
 
