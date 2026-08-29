@@ -6725,10 +6725,14 @@ onAuthStateChanged(auth, async (user) => {
         // trong "notification" (webpush), KHÔNG có trong "data" — đọc nhầm p.data.title
         // trước đây khiến mọi thông báo lúc tab đang mở hiện ra rỗng ("ALN", không có nội dung).
         onFcmMessage(messaging, (p) => {
+          console.log('[ALN Push] onMessage nhận được (tab đang mở):', p); // TẠM — xoá cùng lúc với seoTestPush
           const n = (p && p.notification) || {};
           const dd = (p && p.data) || {};
           try { alnNotify(n.title || dd.title || 'ALN', n.body || dd.body || ''); } catch(e){}
         });
+        navigator.serviceWorker.getRegistrations().then(regs => {
+          console.log('[ALN Push] Service Worker đang đăng ký (' + regs.length + '):', regs.map(r => r.scope + ' | active=' + !!r.active));
+        }); // TẠM — xoá cùng lúc với seoTestPush
       } catch(e){ console.warn('[ALN Push]', e); }
     };
     window.alnInitPush();
