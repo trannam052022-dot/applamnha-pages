@@ -2631,6 +2631,7 @@ document.addEventListener('DOMContentLoaded', function() {
       </div>
       <button class="fsub" onclick="seoSaveConfig()" style="padding:9px 16px"><i class="ph-duotone ph-floppy-disk"></i> Lưu cấu hình</button>
       <button class="fsub" id="seoRefreshBtn" onclick="seoRefresh()" style="padding:9px 16px;background:var(--gold);color:#fff;border-color:transparent"><i class="ph-duotone ph-arrows-clockwise"></i> Cập nhật số liệu</button>
+      <button class="fsub" id="seoTestPushBtn" onclick="seoTestPush()" title="Tạm thời — kiểm tra push có gửi được không, không cần đợi cron 08:30. Xoá khi đã xác nhận ổn định." style="padding:9px 16px;background:transparent;color:var(--sub);border:1px dashed var(--border)"><i class="ph-duotone ph-bell-ringing"></i> Test push (tạm)</button>
     </div>
     <div id="seoCfgStatus" style="font-size:12px;color:var(--sub);margin-top:8px"></div>
   </div>
@@ -9433,6 +9434,35 @@ window.exportProjectsCSV = async function() {
       }
     } catch(e){
       if(st) st.textContent = 'Lỗi: ' + (e.message || e);
+    }
+    if(btn){ btn.disabled = false; btn.style.opacity = '1'; }
+  };
+
+  // Nút tạm thời — gọi thẳng notifyFounder() qua callable seoTestPush (functions/index.js)
+  // để biết ngay đường push có hoạt động không, không cần đợi cron 08:00/08:30.
+  var _seoTestPushFn = null;
+  window.seoTestPush = async function(){
+    var btn = document.getElementById('seoTestPushBtn');
+    var st = document.getElementById('seoCfgStatus');
+    if(btn){ btn.disabled = true; btn.style.opacity = '.6'; }
+    if(st) st.textContent = 'Đang gửi thử push…';
+    try {
+      if(!_seoTestPushFn){
+        var mod = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js');
+        var fns = mod.getFunctions(app, 'asia-southeast1');
+        _seoTestPushFn = mod.httpsCallable(fns, 'seoTestPush');
+      }
+      var res = await _seoTestPushFn();
+      var d = res.data || {};
+      var msg;
+      if(d.reason === 'no_tokens') msg = '❌ Không tìm thấy token push nào cho tài khoản Founder trong fcmTokens — mở lại trang này (đảm bảo đã cho phép thông báo trình duyệt) để đăng ký lại token.';
+      else if(d.reason === 'empty_token_field') msg = '❌ Có doc fcmTokens nhưng field token rỗng/sai — xoá doc đó trong Firestore rồi tải lại trang.';
+      else if(d.reason === 'exception') msg = '❌ Lỗi khi gửi: ' + (d.error || '(không rõ)');
+      else if(d.ok) msg = '✅ Đã gửi: ' + d.successCount + '/' + d.tokenCount + ' token nhận thành công' + (d.cleaned ? ' (đã dọn ' + d.cleaned + ' token hết hạn)' : '') + '. Nếu không thấy thông báo hiện ra, lỗi nằm ở trình duyệt/OS chặn thông báo, không phải ở server.';
+      else msg = '⚠️ Gửi xong nhưng 0/' + d.tokenCount + ' token nhận được — token có thể đã hết hạn phía Google dù chưa bị dọn.';
+      if(st) st.textContent = msg;
+    } catch(e){
+      if(st) st.textContent = 'Lỗi gọi seoTestPush: ' + (e.message || e);
     }
     if(btn){ btn.disabled = false; btn.style.opacity = '1'; }
   };
