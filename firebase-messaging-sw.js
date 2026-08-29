@@ -13,11 +13,18 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-/* Tin data-only từ Cloud Function -> tự dựng thông báo */
+/* Trình duyệt/browser thường tự hiện thông báo nền từ payload "notification"
+   trước khi handler này chạy tới — chỉ khi KHÔNG có "notification" (hoặc trình
+   duyệt không tự xử lý) thì hàm này mới thật sự dựng thông báo. notifyUser()
+   (functions/index.js) đặt title/body trong "notification"/"webpush.notification",
+   KHÔNG có trong "data" — đọc nhầm payload.data.title trước đây khiến các
+   trường hợp rơi vào nhánh này hiện thông báo rỗng ("ALN — Tin nhắn mới",
+   không có nội dung thật). */
 messaging.onBackgroundMessage(function(payload) {
+  const n = (payload && payload.notification) || {};
   const d = (payload && payload.data) || {};
-  return self.registration.showNotification(d.title || 'ALN — Tin nhắn mới', {
-    body: d.body || '',
+  return self.registration.showNotification(n.title || d.title || 'ALN — Tin nhắn mới', {
+    body: n.body || d.body || '',
     icon: 'icon-192.png',
     badge: 'icon-192.png',
     tag: 'aln-push',
