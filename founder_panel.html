@@ -5552,14 +5552,18 @@ function _alnFlashTitle(msg){
 }
 
 function alnNotify(title, body){
+  console.log('[ALN Push] alnNotify() gọi với:', title, body, '| Notification in window:', ('Notification' in window), '| permission:', (window.Notification && Notification.permission)); // TẠM — xoá cùng lúc với seoTestPush
   _alnBeep();
   try { if(navigator.vibrate) navigator.vibrate([180,90,180]); } catch(e){}
   try {
     if('Notification' in window && Notification.permission === 'granted'){
       var n = new Notification(title, { body: body||'', tag: 'aln-msg' });
+      console.log('[ALN Push] new Notification() đã tạo xong, object:', n); // TẠM — xoá cùng lúc với seoTestPush
       n.onclick = function(){ try{ window.focus(); }catch(e){} try{ n.close(); }catch(e){} };
+    } else {
+      console.warn('[ALN Push] KHÔNG tạo Notification — điều kiện không đủ (permission=' + (window.Notification && Notification.permission) + ')'); // TẠM
     }
-  } catch(e){}
+  } catch(e){ console.error('[ALN Push] new Notification() ném lỗi:', e); } // TẠM (trước đây nuốt lỗi im lặng)
   if(document.hidden) _alnFlashTitle(title);
 }
 
