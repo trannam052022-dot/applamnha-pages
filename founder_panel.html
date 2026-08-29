@@ -6721,10 +6721,13 @@ onAuthStateChanged(auth, async (user) => {
           });
           console.log('[ALN Push] Token đã đăng ký');
         }
-        // Tin đến khi trang đang mở -> chuông tại chỗ
+        // Tin đến khi trang đang mở -> chuông tại chỗ. Server chỉ đặt title/body
+        // trong "notification" (webpush), KHÔNG có trong "data" — đọc nhầm p.data.title
+        // trước đây khiến mọi thông báo lúc tab đang mở hiện ra rỗng ("ALN", không có nội dung).
         onFcmMessage(messaging, (p) => {
+          const n = (p && p.notification) || {};
           const dd = (p && p.data) || {};
-          try { alnNotify(dd.title || 'ALN', dd.body || ''); } catch(e){}
+          try { alnNotify(n.title || dd.title || 'ALN', n.body || dd.body || ''); } catch(e){}
         });
       } catch(e){ console.warn('[ALN Push]', e); }
     };
