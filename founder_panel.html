@@ -952,6 +952,7 @@ body {
       <button class="fsub" id="tabThoQuan" onclick="switchTab('thoQuan')"><i class="ph-duotone ph-grid-nine"></i>Thợ theo quận</button>
     </span>
     <button class="fsub" id="tabContacts" onclick="switchTab('contacts')"><i class="ph-duotone ph-address-book"></i>Liên hệ</button>
+    <button class="fsub" id="tabPipeline" onclick="switchTab('pipeline')"><i class="ph-duotone ph-flow-arrow"></i>Pipeline</button>
     <button class="fsub" id="tabRecruit"  onclick="switchTab('recruit')" ><i class="ph-duotone ph-megaphone"></i>Tuyển dụng</button>
     <button class="fsub" id="tabCompany"  onclick="switchTab('company')" ><i class="ph-duotone ph-buildings"></i>Cài đặt CTY</button>
     <button class="fsub" id="tabPricing"  onclick="switchTab('pricing')" ><i class="ph-duotone ph-tag"></i>Khung giá</button>
@@ -2019,6 +2020,44 @@ document.addEventListener('DOMContentLoaded', function() {
         <th style="background:var(--raised);border-bottom:1px solid var(--border);padding:12px 11px"></th>
       </tr></thead>
       <tbody id="contactsBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══ PANEL: PIPELINE (CEO Agent v1.1, ALN_CEO_AGENT_v1.1_SPEC.md B.3 Layer 3)
+     Tách biệt với "Liên hệ" ở trên: Liên hệ gộp MỌI loai_lien_he để lọc
+     trùng/xem lịch sử chạm nguồn; Pipeline chỉ theo dõi 2 phễu Lead
+     (khach_hang) và KTS (kts_ung_tuyen) theo field giai_doan riêng — dùng
+     cho CEO TODAY/CEO WEEK (docs/ceo/CEO_SYSTEM_PROMPT.md) và Mục tiêu 90
+     ngày (docs/ceo/README.md). Đọc/ghi qua segmentContacts (đã có) +
+     updateGiaiDoan (functions/contacts.js, Founder-only, validate enum) —
+     không đọc thẳng Firestore, không cần sửa firestore.rules (contacts
+     không có block rule nào, mặc định deny với client). ══ -->
+<div id="panelPipeline" style="display:none;flex-direction:column;flex:1;overflow-y:auto;padding:24px 28px">
+  <div style="font-size:11px;font-weight:700;color:var(--dim);letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px">MARKETING · CEO AGENT</div>
+  <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--text1);margin-bottom:6px">Pipeline</div>
+  <div style="font-size:13px;color:var(--sub);margin-bottom:18px;max-width:80ch">Vị trí thật trong phễu Lead/KTS — dữ liệu này nuôi <span style="font-family:var(--mono);color:var(--dim)">CEO TODAY</span>/<span style="font-family:var(--mono);color:var(--dim)">CEO WEEK</span>. Đổi giai đoạn khi đã có căn cứ thật đã xảy ra (xem <span style="font-family:var(--mono);color:var(--dim)">docs/ceo/sop/SOP-02</span>), không phải dự định.</div>
+
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap">
+    <div style="display:flex;gap:8px">
+      <button id="pplViewKhach" onclick="pplSwitchView('khach_hang')" style="padding:7px 14px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans)"><i class="ph-duotone ph-target"></i> Khách hàng</button>
+      <button id="pplViewKts" onclick="pplSwitchView('kts_ung_tuyen')" style="padding:7px 14px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans)"><i class="ph-duotone ph-pencil-ruler"></i> KTS</button>
+    </div>
+    <button onclick="initPipelinePanel()" style="padding:7px 14px;background:var(--raised);border:1px solid var(--border);border-radius:7px;font-size:12px;font-weight:600;color:var(--sub);cursor:pointer;font-family:var(--sans)"><i class="ph-duotone ph-arrow-clockwise"></i> Tải lại</button>
+  </div>
+
+  <div id="pplStageRow" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px"></div>
+
+  <div style="overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:var(--card)">
+    <table style="width:100%;border-collapse:collapse;min-width:760px">
+      <thead><tr>
+        <th style="font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);text-align:left;padding:12px 11px;background:var(--raised);border-bottom:1px solid var(--border);white-space:nowrap">Tên</th>
+        <th style="font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);text-align:left;padding:12px 11px;background:var(--raised);border-bottom:1px solid var(--border);white-space:nowrap">SĐT</th>
+        <th style="font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);text-align:left;padding:12px 11px;background:var(--raised);border-bottom:1px solid var(--border);white-space:nowrap">Nguồn</th>
+        <th style="font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);text-align:left;padding:12px 11px;background:var(--raised);border-bottom:1px solid var(--border);white-space:nowrap">Giai đoạn</th>
+        <th style="font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);text-align:left;padding:12px 11px;background:var(--raised);border-bottom:1px solid var(--border);white-space:nowrap">Cập nhật gần nhất</th>
+      </tr></thead>
+      <tbody id="pplBody"></tbody>
     </table>
   </div>
 </div>
@@ -3653,7 +3692,7 @@ window.ALNRealtime = (() => {
 ══════════════════════════════════════════ */
 
 function switchTab(t){
-  var ALL = ['projects','stats','mgKts','mgDn','mgCn','mgKs','mgKtv','mgNcc','bricks','pending','payments','report','leads','suaVatAi','contacts','thoQuan','recruit','company','pricing','khomau','mkt','seo','hoikien','waitRoom','matching','c2monitor','liveKts','liveDn','liveCn','liveDes','liveKs','liveKtv','liveKeToan'];
+  var ALL = ['projects','stats','mgKts','mgDn','mgCn','mgKs','mgKtv','mgNcc','bricks','pending','payments','report','leads','suaVatAi','contacts','pipeline','thoQuan','recruit','company','pricing','khomau','mkt','seo','hoikien','waitRoom','matching','c2monitor','liveKts','liveDn','liveCn','liveDes','liveKs','liveKtv','liveKeToan'];
   var activeStyle  = 'padding:5px 13px;border:1px solid rgba(59,130,246,.25);border-radius:6px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;background:rgba(59,130,246,.15);color:var(--blue);white-space:nowrap';
   var inactiveStyle= 'padding:5px 13px;border:1px solid var(--border);border-radius:6px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;background:var(--raised);color:var(--sub);white-space:nowrap';
   var liveStyles = {
@@ -3704,6 +3743,7 @@ function switchTab(t){
   if(t==='leads')    initLeadsPanel();
   if(t==='suaVatAi') initSuaVatAiPanel();
   if(t==='contacts') initContactsPanel();
+  if(t==='pipeline') initPipelinePanel();
   if(t==='thoQuan')  initThoQuanPanel();
   if(t==='recruit')  { if(typeof window._recruitRender==='function') window._recruitRender(); }
   if(t==='company')  loadCompanySettings();
@@ -8182,6 +8222,144 @@ window.saveCompanySettings = async function() {
         }).join('')
       : '<span style="font-size:12px;color:var(--dim)">Không có thợ nào trong ô này.</span>';
     document.getElementById('thoQuanCellModal').style.display = 'flex';
+  };
+})();
+
+/* ══════════════════════════════════════════
+   PIPELINE — CEO Agent v1.1 (ALN_CEO_AGENT_v1.1_SPEC.md B.3 Layer 3, Phase 2).
+   Đọc/ghi qua segmentContacts (đã có, functions/contacts.js) + updateGiaiDoan
+   (Founder-only, validate enum theo loai_lien_he) — không đọc thẳng
+   Firestore, không cần sửa firestore.rules (contacts không có block rule
+   nào, mặc định deny với client SDK; mọi thao tác đi qua callable Admin
+   SDK, giống hệt tab "Liên hệ" ở trên).
+══════════════════════════════════════════ */
+(function(){
+  var PPL_VIEW = 'khach_hang';
+  var PPL_ITEMS = [];
+  // Khớp ĐÚNG enum trong functions/contacts.js (GIAI_DOAN_ENUM) — sửa 1 nơi
+  // mà quên nơi kia sẽ khiến dropdown hiện giá trị bị Cloud Function từ chối.
+  var PPL_STAGES = {
+    khach_hang: [
+      {v:'lead', l:'Lead'}, {v:'discovery', l:'Discovery'}, {v:'proposal', l:'Proposal'},
+      {v:'negotiation', l:'Negotiation'}, {v:'won', l:'Won'}, {v:'lost', l:'Lost'},
+    ],
+    kts_ung_tuyen: [
+      {v:'new', l:'New'}, {v:'contacted', l:'Contacted'}, {v:'interested', l:'Interested'},
+      {v:'qualified', l:'Qualified'}, {v:'active', l:'Active'}, {v:'archived', l:'Archived'},
+    ],
+  };
+
+  async function pplCallFn(name, data){
+    var mod = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js');
+    var fns = mod.getFunctions(app, 'asia-southeast1');
+    var fn = mod.httpsCallable(fns, name);
+    var res = await fn(data || {});
+    return res.data;
+  }
+
+  function pplFmtDate(ms){
+    if(!ms) return '—';
+    var d = new Date(ms);
+    return d.toLocaleDateString('vi-VN') + ' ' + d.toLocaleTimeString('vi-VN', {hour:'2-digit',minute:'2-digit'});
+  }
+  // Cùng quy ước che SĐT dùng xuyên hệ thống (functions/lib/tpContentGuard.js
+  // maskPhones): ẩn phần đầu, chỉ để lộ 4 số cuối — không phải ẩn 4 số cuối.
+  function pplMaskPhone(p){
+    p = String(p || '');
+    return p.length >= 4 ? '…' + p.slice(-4) : (p || '—');
+  }
+  function pplSetViewButtons(){
+    var activeStyle = 'padding:7px 14px;border:1px solid rgba(59,130,246,.4);border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);background:rgba(59,130,246,.15);color:var(--blue)';
+    var inactiveStyle = 'padding:7px 14px;border:1px solid var(--border);border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);background:var(--raised);color:var(--sub)';
+    var bKhach = document.getElementById('pplViewKhach');
+    var bKts = document.getElementById('pplViewKts');
+    if(bKhach) bKhach.style.cssText = (PPL_VIEW === 'khach_hang') ? activeStyle : inactiveStyle;
+    if(bKts) bKts.style.cssText = (PPL_VIEW === 'kts_ung_tuyen') ? activeStyle : inactiveStyle;
+  }
+
+  window.initPipelinePanel = async function(){
+    pplSetViewButtons();
+    await pplFetchAndRender();
+  };
+
+  window.pplSwitchView = async function(loai){
+    PPL_VIEW = loai;
+    pplSetViewButtons();
+    await pplFetchAndRender();
+  };
+
+  async function pplFetchAndRender(){
+    var body = document.getElementById('pplBody');
+    if(body) body.innerHTML = '<tr><td colspan="5" style="padding:20px;text-align:center;color:var(--dim);font-family:var(--mono);font-size:12px">Đang tải...</td></tr>';
+    try {
+      var res = await pplCallFn('segmentContacts', { loai_lien_he: PPL_VIEW });
+      PPL_ITEMS = res.items || [];
+      pplRenderStageCounts();
+      pplRenderTable();
+    } catch(e) {
+      if(body) body.innerHTML = '<tr><td colspan="5" style="padding:20px;text-align:center;color:var(--red)">Lỗi tải dữ liệu: '+(e.message||e)+'</td></tr>';
+    }
+  }
+
+  function pplRenderStageCounts(){
+    var row = document.getElementById('pplStageRow');
+    if(!row) return;
+    var stages = PPL_STAGES[PPL_VIEW] || [];
+    var counts = {};
+    var chuaGan = 0;
+    PPL_ITEMS.forEach(function(it){
+      if(it.giai_doan) counts[it.giai_doan] = (counts[it.giai_doan]||0) + 1;
+      else chuaGan++;
+    });
+    var html = stages.map(function(s){
+      return '<div style="padding:8px 14px;border:1px solid var(--border);border-radius:8px;background:var(--card);font-size:12px">'
+        + '<span style="color:var(--dim);font-family:var(--mono);text-transform:uppercase;font-size:9.5px;letter-spacing:.08em">'+s.l+'</span>'
+        + '<div style="font-size:17px;font-weight:700;color:var(--text1);font-family:var(--mono)">'+(counts[s.v]||0)+'</div>'
+      + '</div>';
+    }).join('');
+    html += '<div style="padding:8px 14px;border:1px dashed var(--border);border-radius:8px;background:var(--card);font-size:12px">'
+      + '<span style="color:var(--dim);font-family:var(--mono);text-transform:uppercase;font-size:9.5px;letter-spacing:.08em">Chưa gán</span>'
+      + '<div style="font-size:17px;font-weight:700;color:var(--dim);font-family:var(--mono)">'+chuaGan+'</div>'
+    + '</div>';
+    row.innerHTML = html;
+  }
+
+  function pplRenderTable(){
+    var body = document.getElementById('pplBody');
+    if(!body) return;
+    if(!PPL_ITEMS.length){
+      body.innerHTML = '<tr><td colspan="5" style="padding:20px;text-align:center;color:var(--dim)">Chưa có liên hệ nào ở phễu này.</td></tr>';
+      return;
+    }
+    var stages = PPL_STAGES[PPL_VIEW] || [];
+    var items = PPL_ITEMS.slice().sort(function(a,b){ return (b.updated_at||0)-(a.updated_at||0); });
+    body.innerHTML = items.map(function(it){
+      var options = '<option value="">— chưa gán —</option>' + stages.map(function(s){
+        return '<option value="'+s.v+'"'+(it.giai_doan===s.v?' selected':'')+'>'+s.l+'</option>';
+      }).join('');
+      return '<tr>'
+        + '<td style="padding:10px 11px;font-size:13px;color:var(--text1);font-weight:600">'+(it.name||'(chưa có tên)')+'</td>'
+        + '<td style="padding:10px 11px;font-family:var(--mono);font-size:12.5px;color:var(--dim)">'+pplMaskPhone(it.phone_normalized)+'</td>'
+        + '<td style="padding:10px 11px;font-size:12px;color:var(--sub)">'+(it.nguon||'—')+'</td>'
+        + '<td style="padding:10px 11px">'
+          + '<select onchange="pplChangeStage(\''+it.id+'\', this.value)" style="padding:6px 9px;border-radius:6px;border:1px solid var(--border);background:var(--raised);color:var(--text2);font-size:12px;font-family:var(--sans)">'+options+'</select>'
+        + '</td>'
+        + '<td style="padding:10px 11px;font-family:var(--mono);font-size:11.5px;color:var(--dim);white-space:nowrap">'+pplFmtDate(it.updated_at)+'</td>'
+      + '</tr>';
+    }).join('');
+  }
+
+  // "— chưa gán —" chỉ để hiển thị trạng thái ban đầu — Phase 2 không có API
+  // xoá giai_doan về null, chọn lại mục này là no-op (không gọi Cloud Function).
+  window.pplChangeStage = async function(id, giaiDoan){
+    if(!giaiDoan) return;
+    try {
+      await pplCallFn('updateGiaiDoan', { id: id, giai_doan: giaiDoan });
+      await pplFetchAndRender();
+    } catch(e) {
+      alert('Lỗi cập nhật giai đoạn: ' + (e.message||e));
+      await pplFetchAndRender();
+    }
   };
 })();
 
