@@ -79,16 +79,25 @@ a{color:var(--gold);text-decoration:none}
 .ladder-body h4{font-size:var(--text-sm);font-weight:800;color:var(--text)}
 .ladder-body p{font-size:var(--text-xs);color:var(--sub);margin-top:2px;line-height:1.6}
 
-/* VÍ DỤ MINH HOẠ */
-.example-note{display:flex;align-items:flex-start;gap:8px;font-size:var(--text-xs);color:var(--sub);line-height:1.6;background:var(--gold-bg);border:1px dashed rgba(152,105,10,.35);border-radius:var(--r-sm);padding:14px 16px;margin-bottom:14px}
-.example-note i{color:var(--gold);flex-shrink:0;margin-top:2px}
-.example-table-wrap{overflow-x:auto;background:var(--white);border:1px solid var(--border2);border-radius:var(--r);margin-bottom:8px}
-table.example-table{width:100%;border-collapse:collapse;font-size:var(--text-xs);min-width:520px}
-table.example-table th{text-align:left;font-family:var(--syne);font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:.03em;font-size:var(--text-2xs);padding:12px 14px;border-bottom:1px solid var(--border2);background:var(--cream2)}
-table.example-table td{padding:12px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
-table.example-table tr:last-child td{border-bottom:none}
-table.example-table td.num{text-align:right;font-variant-numeric:tabular-nums}
-table.example-table td.src{color:var(--muted);font-size:var(--text-2xs)}
+/* BẢNG TÍNH ƯỚC TÍNH SƠ BỘ */
+.calc-box{background:var(--white);border:1px solid var(--border2);border-radius:var(--r);padding:24px 22px;scroll-margin-top:70px}
+.calc-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:480px;margin:0 auto}
+.calc-form label{font-size:var(--text-2xs);font-weight:700;color:var(--sub);display:block;margin-bottom:4px}
+.calc-form input,.calc-form select{width:100%;background:var(--cream);border:1px solid var(--border2);border-radius:10px;padding:11px 12px;font-family:var(--sans);font-size:var(--text-sm);color:var(--text);outline:none;transition:border-color .2s}
+.calc-form input:focus,.calc-form select:focus{border-color:var(--gold)}
+.calc-actions{grid-column:1/-1;text-align:center;margin-top:6px}
+.calc-warn{grid-column:1/-1;display:none;align-items:flex-start;gap:6px;font-size:var(--text-2xs);color:#8a5e08;background:var(--gold-bg);border:1px dashed rgba(152,105,10,.35);border-radius:var(--r-sm);padding:9px 12px;line-height:1.6}
+.calc-warn.show{display:flex}
+.calc-result{display:none;margin-top:22px;padding-top:20px;border-top:1px dashed var(--border2)}
+.calc-result.show{display:block}
+.calc-range{text-align:center;font-family:var(--syne);font-weight:800;font-size:var(--text-xl);color:var(--gold);letter-spacing:-.01em}
+.calc-range-label{text-align:center;font-size:var(--text-2xs);color:var(--muted);margin:4px 0 16px}
+.calc-bd{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden;margin-bottom:14px}
+.calc-bd-item{background:var(--white);padding:12px 10px;text-align:center}
+.calc-bd-item .k{font-size:var(--text-2xs);color:var(--muted);text-transform:uppercase;font-weight:700;display:block;margin-bottom:4px}
+.calc-bd-item .v{font-family:var(--syne);font-size:var(--text-sm);color:var(--text);font-weight:800}
+.calc-note{font-size:var(--text-2xs);color:var(--sub);line-height:1.75;background:var(--cream2);border-radius:var(--r-sm);padding:14px 16px}
+.calc-note b{color:var(--text2)}
 
 /* FAQ */
 .faq-item{background:var(--white);border:1px solid var(--border2);border-radius:var(--r-sm);padding:16px 18px;margin-bottom:10px}
@@ -138,10 +147,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <h1>Không áng chừng theo m² — bóc tách từng hạng mục, đơn giá có nguồn rõ ràng</h1>
   <p>ALN bóc khối lượng từ bản vẽ theo định mức xây dựng do Nhà nước ban hành (Thông tư 38), và mọi đơn giá đều ghi rõ lấy từ đâu, cập nhật khi nào — không phải một con số áng chừng cho cả căn nhà.</p>
   <div class="hero-links">
-    <a class="btn" href="#form"><i class="ph-duotone ph-clipboard-text"></i>Để lại thông tin, nhận tư vấn</a>
-    <a class="btn btn-ghost" href="du-toan/"><i class="ph-duotone ph-calculator"></i>Chưa có bản vẽ? Ước tính nhanh 60 giây</a>
+    <a class="btn" href="#calc"><i class="ph-duotone ph-calculator"></i>Thử ước tính phần thô ngay</a>
+    <a class="btn btn-ghost" href="#form"><i class="ph-duotone ph-clipboard-text"></i>Nhận dự toán đầy đủ</a>
   </div>
-  <div class="hero-note">Dịch vụ đang trong giai đoạn hoàn thiện dữ liệu giá theo khu vực — để lại thông tin, KTS ALN liên hệ trực tiếp tư vấn phạm vi công việc.</div>
+  <div class="hero-note">Chưa muốn nhập số liệu? <a href="du-toan/" style="color:#e8c877">Dùng ước tính nhanh 60 giây theo m²</a></div>
 </div>
 
 <div class="wrap">
@@ -184,30 +193,44 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
   </div>
 
-  <div class="sec-title">Ví dụ minh hoạ cách trình bày</div>
-  <p class="sec-sub">Đây là ví dụ hình thức, KHÔNG phải báo giá thật cho bất kỳ công trình nào. Bảng dự toán thật của bạn sẽ khác tuỳ diện tích, kết cấu và khu vực.</p>
-  <div class="example-note"><i class="ph-duotone ph-info"></i> Số liệu bên dưới là ví dụ minh hoạ, đang tiếp tục cập nhật theo giá thị trường thật từng khu vực — chưa dùng để tính tổng chi phí.</div>
-  <div class="example-table-wrap">
-    <table class="example-table">
-      <thead><tr><th>Hạng mục</th><th>Đơn vị</th><th style="text-align:right">Khối lượng</th><th style="text-align:right">Đơn giá (ví dụ)</th><th>Nguồn giá</th></tr></thead>
-      <tbody>
-        <tr><td>Bê tông móng, cột, dầm, sàn</td><td>m³</td><td class="num">45</td><td class="num">~1.550.000đ</td><td class="src">Khảo sát thị trường khu vực</td></tr>
-        <tr><td>Cốt thép xây dựng</td><td>kg</td><td class="num">5.400</td><td class="num">~18.500đ</td><td class="src">NCC trong Mạng lưới ALN</td></tr>
-        <tr><td>Xây tường gạch ống</td><td>m²</td><td class="num">320</td><td class="num">~285.000đ</td><td class="src">Khảo sát thị trường khu vực</td></tr>
-        <tr><td>Tô trát tường</td><td>m²</td><td class="num">640</td><td class="num">~95.000đ</td><td class="src">Khảo sát thị trường khu vực</td></tr>
-        <tr><td>Sơn nước hoàn thiện</td><td>m²</td><td class="num">640</td><td class="num">~65.000đ</td><td class="src">NCC trong Mạng lưới ALN</td></tr>
-      </tbody>
-    </table>
+  <div class="sec-title">Thử ước tính sơ bộ phần thô</div>
+  <p class="sec-sub">Nhập vài số đo cơ bản — công cụ tính theo hệ số kết cấu suy từ một hồ sơ thực tế đã kiểm chứng, áp định mức Thông tư 38 và giá vật tư 2026 cho từng hạng mục (không phải một đơn giá/m² áng chừng). Đây vẫn là ước tính sơ bộ, KHÔNG thay thế dự toán đầy đủ theo đúng bản vẽ của bạn.</p>
+  <div class="calc-box" id="calc">
+    <form class="calc-form" id="calcForm">
+      <div><label for="calcNgang">Chiều ngang (m)</label><input type="number" id="calcNgang" value="4.6" min="3" max="12" step="0.1"></div>
+      <div><label for="calcDai">Chiều dài (m)</label><input type="number" id="calcDai" value="18" min="6" max="45" step="0.1"></div>
+      <div><label for="calcTang">Số tầng</label><select id="calcTang"><option value="1">1 tầng</option><option value="2" selected>2 tầng</option><option value="3">3 tầng</option><option value="4">4 tầng</option><option value="5">5 tầng</option></select></div>
+      <div><label for="calcMai">Loại mái</label><select id="calcMai"><option value="ton">Mái tôn</option><option value="ngoi">Mái ngói</option><option value="btct">Mái bằng (BTCT)</option></select></div>
+      <div style="grid-column:1/-1"><label for="calcMong">Loại móng</label><select id="calcMong"><option value="coc">Móng cọc ép</option><option value="bang">Móng băng</option><option value="don">Móng đơn</option></select></div>
+      <div class="calc-warn" id="calcWarn"><i class="ph-duotone ph-warning"></i><span>Kích thước/số tầng đang ngoài vùng đã kiểm chứng (ngang 4–6m, 2–4 tầng) — sai số có thể lớn hơn mức thường thấy.</span></div>
+      <div class="calc-actions"><button type="button" class="btn" id="calcBtn"><i class="ph-duotone ph-calculator"></i>Tính ước tính</button></div>
+    </form>
+
+    <div class="calc-result" id="calcResult">
+      <div class="calc-range" id="calcRange">—</div>
+      <div class="calc-range-label">Dải ước tính phần thô — nên tham khảo mức cao hơn trong dải để tránh hụt phát sinh</div>
+      <div class="calc-bd">
+        <div class="calc-bd-item"><span class="k">Vật liệu</span><span class="v" id="calcVl">—</span></div>
+        <div class="calc-bd-item"><span class="k">Nhân công</span><span class="v" id="calcNc">—</span></div>
+        <div class="calc-bd-item"><span class="k">Máy thi công</span><span class="v" id="calcMay">—</span></div>
+      </div>
+      <div class="calc-note">
+        Diện tích sàn tính được: <b id="calcDt">—</b> m² · Chi phí trực tiếp: <b id="calcCptt">—</b><br>
+        + Chi phí chung, thu nhập chịu thuế, VAT: <b id="calcOther">—</b> · Đơn giá phần thô (mức cao): <b id="calcM2">—</b>/m²<br><br>
+        <i class="ph-duotone ph-info"></i> Con số trên CHỈ tính <b>phần thô</b> (móng, cọc, cột, sàn dầm, xây tường, cầu thang, đường ống cấp thoát nước cơ bản) — theo định mức Thông tư 38 và giá vật tư 2026, hệ số kết cấu suy từ MỘT hồ sơ thực tế đã kiểm chứng (không phải trung bình nhiều công trình), một phần giá máy thi công vẫn đang tạm tính. <b>CHƯA gồm</b> hoàn thiện (tô, sơn, ốp lát, cửa, thiết bị vệ sinh), điện nước hoàn chỉnh, tầng hầm, thang máy, nội thất, chi phí thiết kế và giấy phép xây dựng. Muốn có dự toán đầy đủ đúng theo bản vẽ của bạn, để lại thông tin bên dưới.
+      </div>
+      <div class="calc-actions" style="margin-top:14px"><a class="btn" href="#form"><i class="ph-duotone ph-clipboard-text"></i>Nhận dự toán đầy đủ (gồm hoàn thiện)</a></div>
+    </div>
   </div>
 
   <div class="sec-title">Câu hỏi thường gặp</div>
   <div class="faq-item">
-    <h4>Khác gì công cụ ước tính 60 giây?</h4>
-    <p>Công cụ 60 giây cho ngay một khoảng giá tham khảo theo m² để bạn hình dung nhanh. Dự toán chi tiết bóc tách từng hạng mục theo đúng bản vẽ và định mức Nhà nước — cần bạn cung cấp bản vẽ hoặc mô tả công trình cụ thể hơn.</p>
+    <h4>Trang này có mấy mức ước tính, khác nhau thế nào?</h4>
+    <p>Ba mức, càng về sau càng sát thực tế: (1) <a href="du-toan/">Ước tính 60 giây</a> — một khoảng giá tham khảo theo m², nhanh nhất nhưng thô nhất. (2) Bảng tính phía trên — ước tính phần thô theo từng hạng mục (móng, khung, sàn, tường) từ vài số đo cơ bản, chưa cần bản vẽ. (3) Dự toán đầy đủ — bóc tách đúng theo bản vẽ, gồm cả hoàn thiện, do KTS ALN thực hiện sau khi bạn để lại thông tin.</p>
   </div>
   <div class="faq-item">
     <h4>Chưa có bản vẽ thì sao?</h4>
-    <p>Vẫn để lại thông tin được — KTS ALN tư vấn trước, có thể bắt đầu từ công cụ ước tính 60 giây hoặc từ mô tả công trình bằng lời của bạn.</p>
+    <p>Vẫn để lại thông tin được — KTS ALN tư vấn trước, có thể bắt đầu từ bảng tính phần thô phía trên, công cụ ước tính 60 giây, hoặc từ mô tả công trình bằng lời của bạn.</p>
   </div>
   <div class="faq-item">
     <h4>ALN có bảo đảm đơn giá không đổi không?</h4>
@@ -248,6 +271,131 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </div>
 </div>
 
+<script>
+/* Bộ tính "ước tính sơ bộ phần thô" — port từ scripts/uoc_tinh_so_bo.py (Python,
+   dùng nội bộ) sang JS thuần để chạy client-side, KHÔNG phát minh công thức mới.
+   Nguyên lý: chi phí mỗi nhóm công tác tuyến tính theo khối lượng ở đơn giá cố
+   định, nên CALC_MOC_COST dưới đây là tổng VL/NC/Máy (giá 2026, theo định mức
+   TT38) của TỪNG NHÓM công tác tại đúng thông số nhà mốc (hệ số = 1.0) — nhân
+   với hệ số hình học calcHeSoScale() cho kích thước bất kỳ ra đúng kết quả như
+   chạy lại toàn bộ scripts/xuat_dutoan_v4.py (đã đối chiếu 6 ca thử, lệch
+   <0,001%, chỉ do làm tròn — xem ALN-CHANGELOG nội bộ 30/08/2026).
+   Nhà mốc: 4,6 × 20,9 m, 3 tầng, mái BTCT, móng cọc — xem docstring gốc trong
+   scripts/uoc_tinh_so_bo.py để hiểu cách suy hệ số + giới hạn vùng tin cậy. */
+var CALC_MOC = { ngang: 4.6, dai: 20.9, soTang: 3, caoT1: 3.8, caoTren: 3.2, soLuotSan: 3.85, daySan: 0.10, caoDam: 0.35, daiCoc: 12.0 };
+CALC_MOC.footprint = CALC_MOC.ngang * CALC_MOC.dai;
+CALC_MOC.chuVi = 2 * (CALC_MOC.ngang + CALC_MOC.dai);
+
+var CALC_MOC_COST = {
+  coc:      { vl: 68550720,  nc: 13119645,  may: 24334427 },
+  coc_dau:  { vl: 2800000,   nc: 0,         may: 0 },
+  mong:     { vl: 65092187,  nc: 32042670,  may: 1837388 },
+  cot:      { vl: 62942405,  nc: 67581078,  may: 1510490 },
+  san_dam:  { vl: 164884859, nc: 126363304, may: 4227354 },
+  thang:    { vl: 9240725,   nc: 6548373,   may: 131041 },
+  tuong:    { vl: 101898593, nc: 131277718, may: 1892434 },
+  be:       { vl: 20000000,  nc: 0,         may: 0 },
+  ong:      { vl: 12735009,  nc: 62729386,  may: 691379 }
+};
+var CALC_CHI_PHI_CHUNG_PCT = 7.0;
+var CALC_TNCT_PCT = 5.5;
+var CALC_VAT_PCT = 10.0;
+var CALC_BIEN_THAP = -0.08;
+var CALC_BIEN_CAO = 0.18;
+
+function calcHeSoScale(ngang, dai, soTang, mai, mong, caoT1, caoTren, daiCoc) {
+  var footprint = ngang * dai;
+  var chuVi = 2 * (ngang + dai);
+  var luotSan = (mai === 'ton' || mai === 'ngoi') ? soTang : soTang + 0.85;
+  var tySan = (footprint * luotSan) / (CALC_MOC.footprint * CALC_MOC.soLuotSan);
+  var nhip = Math.min(ngang, 6.0);
+  var daySan = Math.max(0.10, Math.round(nhip / 45 / 0.01) * 0.01);
+  var caoDam = Math.max(0.30, Math.round(nhip / 13 / 0.05) * 0.05);
+  var hcDay = (daySan / CALC_MOC.daySan + caoDam / CALC_MOC.caoDam) / 2;
+  var caoTb = (caoT1 + caoTren * (soTang - 1)) / soTang;
+  var caoTbMoc = (CALC_MOC.caoT1 + CALC_MOC.caoTren * (CALC_MOC.soTang - 1)) / CALC_MOC.soTang;
+  var tyTang = soTang / CALC_MOC.soTang;
+  var tyFt = footprint / CALC_MOC.footprint;
+  var hcChuVi = (chuVi / footprint) / (CALC_MOC.chuVi / CALC_MOC.footprint);
+  var hsMongMap = { coc: 1.00, bang: 1.15, don: 0.85 };
+  var hsCocMap = { coc: 1.00, bang: 0.0, don: 0.0 };
+  var hsMong = hsMongMap[mong];
+  var hsCoc = hsCocMap[mong];
+  return {
+    coc: tyFt * tyTang * hsCoc * (daiCoc / CALC_MOC.daiCoc),
+    coc_dau: tyFt * tyTang * hsCoc,
+    mong: tyFt * tyTang * hsMong,
+    cot: tyFt * tyTang * (caoTb / caoTbMoc),
+    san_dam: tySan * hcDay,
+    tuong: tySan * hcChuVi,
+    thang: Math.max(0, soTang - 1) / Math.max(1, CALC_MOC.soTang - 1),
+    ong: tyTang,
+    be: 1.0,
+    dienTichSan: footprint * soTang
+  };
+}
+
+function calcUocTinh(ngang, dai, soTang, mai, mong) {
+  var hs = calcHeSoScale(ngang, dai, soTang, mai, mong, CALC_MOC.caoT1, CALC_MOC.caoTren, CALC_MOC.daiCoc);
+  var vl = 0, nc = 0, may = 0;
+  for (var nh in CALC_MOC_COST) {
+    var k = hs[nh] || 0;
+    vl += CALC_MOC_COST[nh].vl * k;
+    nc += CALC_MOC_COST[nh].nc * k;
+    may += CALC_MOC_COST[nh].may * k;
+  }
+  var cptt = vl + nc + may;
+  var cpc = cptt * CALC_CHI_PHI_CHUNG_PCT / 100;
+  var tnct = (cptt + cpc) * CALC_TNCT_PCT / 100;
+  var vat = (cptt + cpc + tnct) * CALC_VAT_PCT / 100;
+  var tong = cptt + cpc + tnct + vat;
+  return {
+    dienTichSan: hs.dienTichSan,
+    vl: vl, nc: nc, may: may,
+    cptt: cptt, cpcTnctVat: cpc + tnct + vat,
+    thap: tong * (1 + CALC_BIEN_THAP),
+    giua: tong,
+    cao: tong * (1 + CALC_BIEN_CAO)
+  };
+}
+
+function calcFmtMoney(n) { return Math.round(n).toLocaleString('vi-VN') + 'đ'; }
+function calcFmtTy(n) { return (n / 1e9).toFixed(2).replace('.', ',') + ' tỷ'; }
+
+document.getElementById('calcBtn').addEventListener('click', function () {
+  var ngang = Number(document.getElementById('calcNgang').value);
+  var dai = Number(document.getElementById('calcDai').value);
+  var soTang = Number(document.getElementById('calcTang').value);
+  var mai = document.getElementById('calcMai').value;
+  var mong = document.getElementById('calcMong').value;
+  if (!ngang || !dai || !soTang || ngang <= 0 || dai <= 0) {
+    alert('Vui lòng nhập chiều ngang và chiều dài hợp lệ.');
+    return;
+  }
+
+  var warn = document.getElementById('calcWarn');
+  var ngoaiVung = ngang < 4 || ngang > 6 || soTang < 2 || soTang > 4;
+  warn.className = ngoaiVung ? 'calc-warn show' : 'calc-warn';
+
+  var kq = calcUocTinh(ngang, dai, soTang, mai, mong);
+  document.getElementById('calcRange').textContent = calcFmtTy(kq.thap) + ' – ' + calcFmtTy(kq.cao);
+  document.getElementById('calcVl').textContent = calcFmtMoney(kq.vl);
+  document.getElementById('calcNc').textContent = calcFmtMoney(kq.nc);
+  document.getElementById('calcMay').textContent = calcFmtMoney(kq.may);
+  document.getElementById('calcDt').textContent = kq.dienTichSan.toFixed(1);
+  document.getElementById('calcCptt').textContent = calcFmtMoney(kq.cptt);
+  document.getElementById('calcOther').textContent = calcFmtMoney(kq.cpcTnctVat);
+  document.getElementById('calcM2').textContent = calcFmtMoney(kq.cao / kq.dienTichSan);
+
+  var result = document.getElementById('calcResult');
+  result.classList.add('show');
+  result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  try {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: 'aln_calc_uoctinh', form_name: 'du-toan-chi-tiet-calc' });
+  } catch (e) {}
+});
+</script>
 <script type="module">
 import { app } from './firebase-config.js';
 import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js';
