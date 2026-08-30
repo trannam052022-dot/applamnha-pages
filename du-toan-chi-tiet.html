@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM (xem scripts/aln-optout.js) -->
+<script src="scripts/aln-optout.js"></script>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MB7VRGR5');</script>
+<!-- End Google Tag Manager -->
+
+<script src="error-monitor.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dự toán xây nhà chi tiết — khối lượng đúng, đơn giá có nguồn | ALN</title>
+<meta name="description" content="Dự toán chi tiết theo bản vẽ: khối lượng bóc tách từng hạng mục theo định mức Thông tư 38, đơn giá ghi rõ nguồn và ngày cập nhật. Để lại thông tin, KTS ALN liên hệ tư vấn.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://applamnha.vn/du-toan-chi-tiet.html">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://applamnha.vn/du-toan-chi-tiet.html">
+<meta property="og:title" content="Dự toán xây nhà chi tiết — khối lượng đúng, đơn giá có nguồn | ALN">
+<meta property="og:description" content="Khối lượng bóc tách từ bản vẽ theo định mức Nhà nước, đơn giá ghi rõ nguồn và ngày cập nhật. Để lại thông tin, KTS ALN liên hệ tư vấn miễn phí.">
+<meta property="og:image" content="https://applamnha.vn/icon-512.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+<link rel="stylesheet" href="aln-tokens.css">
+<link rel="icon" href="icon-192.png" type="image/png">
+<style>
+:root{
+  --cream:#f7f9fb;--white:#ffffff;--cream2:#eef2f6;
+  --border:#e1e7ee;--border2:#c9d3de;
+  --text:#1a2634;--text2:#3d4b5c;--sub:#5b6b7f;--muted:#93a1b3;
+  --gold:#98690a;--gold2:#b8860b;--gold-bg:rgba(152,105,10,.09);
+  --green:#16a34a;--blue:#1d4ed8;
+  --r:14px;--r-sm:8px;
+  --sys-font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  --sans:var(--sys-font);--syne:var(--sys-font);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:13px}
+@media(min-width:1440px){html{font-size:14px}}
+@media(min-width:1920px){html{font-size:16px}}
+body{font-family:var(--sans);background:var(--cream);color:var(--text);min-height:100vh;font-size:1rem;line-height:1.6}
+a{color:var(--gold);text-decoration:none}
+.topbar{background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:50}
+.tb-logo-box{background:linear-gradient(135deg,rgba(152,105,10,.14),rgba(184,134,11,.08));color:var(--gold);padding:4px 12px;border-radius:var(--r-sm);border:1.5px solid rgba(152,105,10,.3);font-family:var(--syne);font-size:11px;font-weight:800;letter-spacing:.07em}
+.tb-page{font-family:var(--syne);font-weight:700;font-size:13px;color:var(--text)}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px 70px}
+
+/* HERO */
+.hero{background:linear-gradient(155deg,#0a1224,#111c33 55%,#0d1730);border-radius:0 0 22px 22px;padding:40px 20px 34px;text-align:center;margin-bottom:26px}
+.hero-eyebrow{font-family:var(--syne);font-size:var(--text-xs);font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#e8c877}
+.hero h1{font-family:var(--syne);font-size:var(--text-2xl);font-weight:800;color:#fff;margin:10px 0 12px;line-height:1.25}
+.hero p{font-size:var(--text-sm);color:#b8c4dc;max-width:520px;margin:0 auto 22px;line-height:1.7}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:13px 26px;border-radius:10px;font-family:var(--syne);font-size:var(--text-sm);font-weight:700;cursor:pointer;border:none;text-decoration:none;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff;transition:all .2s}
+.btn:hover{opacity:.92}
+.btn-ghost{background:none;border:1px solid rgba(255,255,255,.3);color:#dce6f4}
+.hero-links{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.hero-note{font-size:var(--text-2xs);color:#8090ae;margin-top:14px}
+
+.sec-title{font-family:var(--syne);font-size:var(--text-md);font-weight:800;color:var(--text);margin:30px 0 6px;text-align:center}
+.sec-sub{font-size:var(--text-xs);color:var(--sub);text-align:center;max-width:560px;margin:0 auto 18px;line-height:1.6}
+
+/* VALUE CARDS (3 nguyên tắc) */
+.value-grid{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:640px){.value-grid{grid-template-columns:repeat(3,1fr)}}
+.value-card{background:var(--white);border:1px solid var(--border2);border-radius:var(--r);padding:20px}
+.value-icon{width:40px;height:40px;border-radius:11px;background:var(--gold-bg);color:var(--gold);display:flex;align-items:center;justify-content:center;font-size:19px;margin-bottom:12px}
+.value-card h3{font-family:var(--syne);font-size:var(--text-sm);font-weight:800;color:var(--text);margin-bottom:6px}
+.value-card p{font-size:var(--text-xs);color:var(--sub);line-height:1.6}
+
+/* CÁCH HOẠT ĐỘNG */
+.ladder{display:flex;flex-direction:column;gap:0;background:var(--white);border:1px solid var(--border2);border-radius:var(--r);padding:6px;margin-bottom:8px}
+.ladder-step{display:flex;align-items:flex-start;gap:14px;padding:14px 12px;position:relative}
+.ladder-step:not(:last-child)::after{content:'';position:absolute;left:29px;bottom:-2px;width:2px;height:14px;background:var(--border2)}
+.ladder-num{width:36px;height:36px;border-radius:50%;background:var(--cream2);color:var(--sub);display:flex;align-items:center;justify-content:center;font-family:var(--syne);font-weight:800;font-size:var(--text-sm);flex-shrink:0}
+.ladder-step.gold .ladder-num{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff}
+.ladder-body h4{font-size:var(--text-sm);font-weight:800;color:var(--text)}
+.ladder-body p{font-size:var(--text-xs);color:var(--sub);margin-top:2px;line-height:1.6}
+
+/* VÍ DỤ MINH HOẠ */
+.example-note{display:flex;align-items:flex-start;gap:8px;font-size:var(--text-xs);color:var(--sub);line-height:1.6;background:var(--gold-bg);border:1px dashed rgba(152,105,10,.35);border-radius:var(--r-sm);padding:14px 16px;margin-bottom:14px}
+.example-note i{color:var(--gold);flex-shrink:0;margin-top:2px}
+.example-table-wrap{overflow-x:auto;background:var(--white);border:1px solid var(--border2);border-radius:var(--r);margin-bottom:8px}
+table.example-table{width:100%;border-collapse:collapse;font-size:var(--text-xs);min-width:520px}
+table.example-table th{text-align:left;font-family:var(--syne);font-weight:800;color:var(--sub);text-transform:uppercase;letter-spacing:.03em;font-size:var(--text-2xs);padding:12px 14px;border-bottom:1px solid var(--border2);background:var(--cream2)}
+table.example-table td{padding:12px 14px;border-bottom:1px solid var(--border);color:var(--text2)}
+table.example-table tr:last-child td{border-bottom:none}
+table.example-table td.num{text-align:right;font-variant-numeric:tabular-nums}
+table.example-table td.src{color:var(--muted);font-size:var(--text-2xs)}
+
+/* FAQ */
+.faq-item{background:var(--white);border:1px solid var(--border2);border-radius:var(--r-sm);padding:16px 18px;margin-bottom:10px}
+.faq-item h4{font-size:var(--text-sm);font-weight:800;color:var(--text);margin-bottom:6px}
+.faq-item p{font-size:var(--text-xs);color:var(--sub);line-height:1.65}
+
+/* FORM */
+.lead-box{background:var(--white);border:1px solid var(--border2);border-radius:var(--r);padding:24px 22px;scroll-margin-top:70px}
+.lead-box h3{font-family:var(--syne);font-weight:800;font-size:var(--text-md);color:var(--text);margin-bottom:6px;text-align:center}
+.lead-box .sub{font-size:var(--text-xs);color:var(--sub);text-align:center;margin-bottom:18px;line-height:1.6}
+.lead-form{display:flex;flex-direction:column;gap:12px;max-width:420px;margin:0 auto}
+.lead-row{display:flex;gap:12px;flex-wrap:wrap}
+.lead-row>*{flex:1;min-width:160px}
+.lead-form input,.lead-form select{background:var(--cream);border:1px solid var(--border2);border-radius:10px;padding:12px 14px;font-family:var(--sans);font-size:var(--text-sm);color:var(--text);outline:none;transition:border-color .2s;width:100%}
+.lead-form input:focus,.lead-form select:focus{border-color:var(--gold)}
+.lead-submit{margin-top:2px}
+.lead-msg{font-size:var(--text-xs);min-height:1.4em;text-align:center}
+.lead-msg.ok{color:var(--green)}
+.lead-msg.err{color:#b91c1c}
+
+.disclaimer{font-size:var(--text-2xs);color:var(--muted);text-align:center;margin-top:26px;line-height:1.7}
+</style>
+<!-- Google Analytics 4 (ALN — G-5CSL1TF0RC, tách riêng khỏi property TK.HOUSE) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-5CSL1TF0RC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-5CSL1TF0RC');
+</script>
+<!-- End GA4 -->
+<script src="aln-tracking.js"></script>
+</head>
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MB7VRGR5"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+<nav class="topbar">
+  <a class="tb-logo-box" href="/" style="text-decoration:none">ALN</a>
+  <div class="tb-page">Dự toán chi tiết</div>
+</nav>
+
+<div class="hero">
+  <p class="hero-eyebrow">Dự toán xây nhà chi tiết</p>
+  <h1>Không áng chừng theo m² — bóc tách từng hạng mục, đơn giá có nguồn rõ ràng</h1>
+  <p>ALN bóc khối lượng từ bản vẽ theo định mức xây dựng do Nhà nước ban hành (Thông tư 38), và mọi đơn giá đều ghi rõ lấy từ đâu, cập nhật khi nào — không phải một con số áng chừng cho cả căn nhà.</p>
+  <div class="hero-links">
+    <a class="btn" href="#form"><i class="ph-duotone ph-clipboard-text"></i>Để lại thông tin, nhận tư vấn</a>
+    <a class="btn btn-ghost" href="du-toan/"><i class="ph-duotone ph-calculator"></i>Chưa có bản vẽ? Ước tính nhanh 60 giây</a>
+  </div>
+  <div class="hero-note">Dịch vụ đang trong giai đoạn hoàn thiện dữ liệu giá theo khu vực — để lại thông tin, KTS ALN liên hệ trực tiếp tư vấn phạm vi công việc.</div>
+</div>
+
+<div class="wrap">
+  <div class="sec-title">3 nguyên tắc của bảng dự toán ALN</div>
+  <div class="value-grid">
+    <div class="value-card">
+      <div class="value-icon"><i class="ph-duotone ph-ruler"></i></div>
+      <h3>Khối lượng — ALN chịu trách nhiệm</h3>
+      <p>Bóc tách từ bản vẽ thật, đối chiếu định mức Thông tư 38 của Bộ Xây dựng — không phải áng chừng theo diện tích sàn. Sai khối lượng là lỗi của ALN.</p>
+    </div>
+    <div class="value-card">
+      <div class="value-icon"><i class="ph-duotone ph-tag"></i></div>
+      <h3>Đơn giá — luôn ghi rõ nguồn</h3>
+      <p>Mỗi dòng giá kèm nơi lấy giá và ngày cập nhật. Đơn giá vật tư biến động theo thời điểm và khu vực nên ALN không cam kết giá cố định, nhưng không giấu nguồn.</p>
+    </div>
+    <div class="value-card">
+      <div class="value-icon"><i class="ph-duotone ph-seal-check"></i></div>
+      <h3>Bản dự toán đã duyệt — là bằng chứng</h3>
+      <p>Sau khi bạn xác nhận, bảng dự toán được lưu nguyên trạng, không sửa đè. Giá vật tư đổi thì có bản cập nhật mới, tách riêng khỏi bản đã duyệt.</p>
+    </div>
+  </div>
+
+  <div class="sec-title">Cách hoạt động</div>
+  <div class="ladder">
+    <div class="ladder-step">
+      <div class="ladder-num">1</div>
+      <div class="ladder-body"><h4>Gửi bản vẽ hoặc mô tả công trình</h4><p>KTS ALN tiếp nhận, thống nhất với bạn phạm vi tính — hạng mục nào tính, hạng mục nào không (VD: nội thất rời, sân vườn thường tính riêng).</p></div>
+    </div>
+    <div class="ladder-step">
+      <div class="ladder-num">2</div>
+      <div class="ladder-body"><h4>Bóc khối lượng từng hạng mục</h4><p>Từ bê tông, cốt thép, xây tường đến hoàn thiện — theo đúng bản vẽ, đối chiếu định mức Thông tư 38.</p></div>
+    </div>
+    <div class="ladder-step">
+      <div class="ladder-num">3</div>
+      <div class="ladder-body"><h4>Áp đơn giá có nguồn theo khu vực</h4><p>Giá vật tư/nhân công lấy từ khảo sát thị trường hoặc nhà cung cấp trong Mạng lưới ALN — mỗi dòng đều ghi ngày cập nhật.</p></div>
+    </div>
+    <div class="ladder-step gold">
+      <div class="ladder-num"><i class="ph-duotone ph-file-lock"></i></div>
+      <div class="ladder-body"><h4>Dự toán được duyệt = giữ nguyên bản</h4><p>Bạn xác nhận xong là bảng dự toán được lưu lại đúng như đã duyệt, không sửa đổi sau đó — bằng chứng cho cả hai bên khi cần đối chiếu.</p></div>
+    </div>
+  </div>
+
+  <div class="sec-title">Ví dụ minh hoạ cách trình bày</div>
+  <p class="sec-sub">Đây là ví dụ hình thức, KHÔNG phải báo giá thật cho bất kỳ công trình nào. Bảng dự toán thật của bạn sẽ khác tuỳ diện tích, kết cấu và khu vực.</p>
+  <div class="example-note"><i class="ph-duotone ph-info"></i> Số liệu bên dưới là ví dụ minh hoạ, đang tiếp tục cập nhật theo giá thị trường thật từng khu vực — chưa dùng để tính tổng chi phí.</div>
+  <div class="example-table-wrap">
+    <table class="example-table">
+      <thead><tr><th>Hạng mục</th><th>Đơn vị</th><th style="text-align:right">Khối lượng</th><th style="text-align:right">Đơn giá (ví dụ)</th><th>Nguồn giá</th></tr></thead>
+      <tbody>
+        <tr><td>Bê tông móng, cột, dầm, sàn</td><td>m³</td><td class="num">45</td><td class="num">~1.550.000đ</td><td class="src">Khảo sát thị trường khu vực</td></tr>
+        <tr><td>Cốt thép xây dựng</td><td>kg</td><td class="num">5.400</td><td class="num">~18.500đ</td><td class="src">NCC trong Mạng lưới ALN</td></tr>
+        <tr><td>Xây tường gạch ống</td><td>m²</td><td class="num">320</td><td class="num">~285.000đ</td><td class="src">Khảo sát thị trường khu vực</td></tr>
+        <tr><td>Tô trát tường</td><td>m²</td><td class="num">640</td><td class="num">~95.000đ</td><td class="src">Khảo sát thị trường khu vực</td></tr>
+        <tr><td>Sơn nước hoàn thiện</td><td>m²</td><td class="num">640</td><td class="num">~65.000đ</td><td class="src">NCC trong Mạng lưới ALN</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sec-title">Câu hỏi thường gặp</div>
+  <div class="faq-item">
+    <h4>Khác gì công cụ ước tính 60 giây?</h4>
+    <p>Công cụ 60 giây cho ngay một khoảng giá tham khảo theo m² để bạn hình dung nhanh. Dự toán chi tiết bóc tách từng hạng mục theo đúng bản vẽ và định mức Nhà nước — cần bạn cung cấp bản vẽ hoặc mô tả công trình cụ thể hơn.</p>
+  </div>
+  <div class="faq-item">
+    <h4>Chưa có bản vẽ thì sao?</h4>
+    <p>Vẫn để lại thông tin được — KTS ALN tư vấn trước, có thể bắt đầu từ công cụ ước tính 60 giây hoặc từ mô tả công trình bằng lời của bạn.</p>
+  </div>
+  <div class="faq-item">
+    <h4>ALN có bảo đảm đơn giá không đổi không?</h4>
+    <p>Không. ALN chịu trách nhiệm về khối lượng bóc tách đúng bản vẽ; đơn giá vật tư biến động theo thị trường và khu vực nên không cam kết cố định — nhưng mọi đơn giá đều ghi rõ nguồn và ngày cập nhật để bạn đối chiếu.</p>
+  </div>
+  <div class="faq-item">
+    <h4>Có tốn phí không?</h4>
+    <p>Để lại thông tin và nhận tư vấn ban đầu từ KTS ALN không mất phí. Phạm vi và chi phí lập dự toán chi tiết (nếu có) sẽ được báo cụ thể khi KTS liên hệ, tuỳ quy mô công trình.</p>
+  </div>
+
+  <div class="lead-box" id="form">
+    <h3>Để lại thông tin, nhận tư vấn dự toán chi tiết</h3>
+    <p class="sub">KTS phụ trách khu vực của bạn sẽ liên hệ trong ít phút để thống nhất phạm vi công việc.</p>
+    <form class="lead-form" id="dtcLeadForm">
+      <div class="lead-row">
+        <input type="text" id="dtcName" placeholder="Họ và tên" required maxlength="100">
+        <input type="tel" id="dtcPhone" placeholder="Số điện thoại (VD: 0909xxxxxx)" required maxlength="15">
+      </div>
+      <select id="dtcTinh">
+        <option value="">— Khu vực dự định xây (tuỳ chọn) —</option>
+        <option value="vung-tau">Vũng Tàu</option>
+        <option value="ba-ria">Bà Rịa</option>
+        <option value="tp-hcm">TP.HCM</option>
+        <option value="bien-hoa">Biên Hòa</option>
+        <option value="dong-nai">Đồng Nai</option>
+        <option value="binh-duong">Bình Dương</option>
+        <option value="can-tho">Cần Thơ</option>
+        <option value="khac">Khu vực khác</option>
+      </select>
+      <button type="submit" class="btn lead-submit"><i class="ph-duotone ph-paper-plane-tilt"></i>Gửi yêu cầu tư vấn</button>
+      <p id="dtcLeadMsg" class="lead-msg" aria-live="polite"></p>
+    </form>
+  </div>
+
+  <div class="disclaimer">
+    ALN là nhà thầu tư vấn thiết kế — thanh toán theo Quy trình 4 bước đảm bảo (C1–C4), không thu tiền thi công.<br>
+    Dữ liệu cá nhân được xử lý theo Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 và Nghị định 356/2025/NĐ-CP, chỉ dùng để liên hệ tư vấn.
+  </div>
+</div>
+
+<script type="module">
+import { app } from './firebase-config.js';
+import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js';
+
+const functions = getFunctions(app, 'asia-southeast1');
+const callSubmitDuToanLead = httpsCallable(functions, 'submitDuToanLead', { timeout: 20000 });
+
+function getUtmFromUrl() {
+  const p = new URLSearchParams(location.search);
+  const utm = {};
+  ['source', 'medium', 'campaign', 'content', 'term'].forEach((k) => {
+    const v = p.get('utm_' + k);
+    if (v) utm[k] = v;
+  });
+  return utm;
+}
+function getCookie(name) {
+  const m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+  return m ? decodeURIComponent(m[1]) : '';
+}
+function getFbc() {
+  const c = getCookie('_fbc');
+  if (c) return c;
+  const fbclid = new URLSearchParams(location.search).get('fbclid');
+  return fbclid ? 'fb.1.' + Date.now() + '.' + fbclid : '';
+}
+
+const form = document.getElementById('dtcLeadForm');
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const msg = document.getElementById('dtcLeadMsg');
+  const btn = form.querySelector('.lead-submit');
+  const name = document.getElementById('dtcName').value.trim();
+  const phone = document.getElementById('dtcPhone').value.trim();
+  const tinh = document.getElementById('dtcTinh').value;
+  if (!name || !/^0\d{8,10}$/.test(phone.replace(/[\s.\-()]/g, ''))) {
+    msg.textContent = 'Vui lòng nhập đúng họ tên và số điện thoại (VD: 0909xxxxxx).';
+    msg.className = 'lead-msg err';
+    return;
+  }
+  btn.disabled = true;
+  msg.textContent = 'Đang gửi...';
+  msg.className = 'lead-msg';
+  try {
+    const res = await callSubmitDuToanLead({
+      name, phone,
+      tinh,
+      region: tinh || '',
+      projectType: 'xay_moi',
+      kenh: 'chitiet',
+      utm: getUtmFromUrl(),
+      sourceUrl: location.href,
+      fbp: getCookie('_fbp'),
+      fbc: getFbc(),
+    });
+    const leadId = (res && res.data && res.data.id) || '';
+    try {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ event: 'aln_lead_submit', form_name: 'du-toan-chi-tiet' });
+    } catch (e) {}
+    msg.textContent = 'Đã nhận thông tin — ALN sẽ liên hệ trong ít phút. Cảm ơn bạn!';
+    msg.className = 'lead-msg ok';
+    form.reset();
+  } catch (err) {
+    console.error('[submitDuToanLead]', err);
+    msg.textContent = 'Có lỗi khi gửi, vui lòng thử lại hoặc gọi 0909 82 9696.';
+    msg.className = 'lead-msg err';
+  } finally {
+    btn.disabled = false;
+  }
+});
+</script>
+<script src="aln-zalo-widget.js" defer></script>
+</body>
+</html>
