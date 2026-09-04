@@ -22,3 +22,5 @@ Disallow: /scripts/
 Sitemap: https://applamnha.vn/sitemap.xml
 Sitemap: https://applamnha.vn/thicong/sitemap.xml
 Sitemap: https://applamnha.vn/sua-vat/sitemap.xml
+
+# Thông tin cho AI: https://applamnha.vn/llms.txt
