@@ -1,4 +1,4 @@
-/* Floating badge "Mạng lưới Thiết bị - Vật tư ALN" — dùng chung trên nhiều trang (không có
+/* Floating badge "Danh sách Thiết bị - Vật tư ALN" — dùng chung trên nhiều trang (không có
    header/footer include trong site này). Style tự chứa (không phụ thuộc biến CSS
    của trang chủ) để tránh xung đột giữa các theme khác nhau của từng trang. */
 (function(){
@@ -25,9 +25,9 @@
   a.id = 'alnNccNetworkBadge';
   a.className = 'aln-ncc-badge';
   a.href = '/ncc-showcase.html';
-  a.setAttribute('aria-label', 'Xem Mạng lưới Thiết bị - Vật tư ALN');
+  a.setAttribute('aria-label', 'Xem Danh sách Thiết bị - Vật tư ALN');
   a.innerHTML =
     '<span class="dot-wrap"><span class="dot-ring"></span><span class="dot-core"></span></span>' +
-    '<span class="txt"><strong>Mạng lưới Thiết bị - Vật tư ALN</strong><span>Giá tận gốc, giao tận công trình</span></span>';
+    '<span class="txt"><strong>Danh sách Thiết bị - Vật tư ALN</strong><span>Giá tận gốc, giao tận công trình</span></span>';
   document.body.appendChild(a);
 })();

@@ -727,7 +727,7 @@ body{font-family:var(--sans);background:var(--ink);color:var(--text);min-height:
       <i class="ph-duotone ph-list"></i>
     </button>
     <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:0">
-      <div id="ktsTopbarLogo" style="background:linear-gradient(135deg,rgba(184,134,11,.2),rgba(184,134,11,.12));color:#b8860b;padding:4px 10px;border-radius:var(--r-sm);border:1.5px solid rgba(184,134,11,.45);font-family:var(--syne);font-size:11px;font-weight:800;letter-spacing:.06em;white-space:nowrap;flex-shrink:0">App Làm Nhà Corp.</div>
+      <div id="ktsTopbarLogo" style="background:linear-gradient(135deg,rgba(184,134,11,.2),rgba(184,134,11,.12));color:#b8860b;padding:4px 10px;border-radius:var(--r-sm);border:1.5px solid rgba(184,134,11,.45);font-family:var(--syne);font-size:11px;font-weight:800;letter-spacing:.06em;white-space:nowrap;flex-shrink:0">App Làm Nhà</div>
       <div class="page-title">Văn phòng KTS</div>
     </div>
     <div class="topbar-right">
@@ -1951,7 +1951,7 @@ function openLibItem(id){var d=LIB_DATA.find(function(x){return x.id===id;});if(
     var params = new URLSearchParams(window.location.search);
     var u = params.get("u"), r = params.get("r");
     if(u && r) {
-      var names = {"kts.minhtran":"KTS. Trần Long","kts.lanthi":"KTS. Nguyễn Thị Lan","kts.khoavu":"KTS. Vũ Minh Khoa","dn.applamnha":"App Làm Nhà Corp.","dn.alnconstruct":"ALN Construct","cn.thuannv":"Nguyễn Văn Thuận","cn.binhtt":"Trần Thị Bình","cn.cuonglq":"Lê Quang Cường"};
+      var names = {"kts.minhtran":"KTS. Trần Long","kts.lanthi":"KTS. Nguyễn Thị Lan","kts.khoavu":"KTS. Vũ Minh Khoa","dn.applamnha":"App Làm Nhà","dn.alnconstruct":"ALN Construct","cn.thuannv":"Nguyễn Văn Thuận","cn.binhtt":"Trần Thị Bình","cn.cuonglq":"Lê Quang Cường"};
       var ud = JSON.stringify({name:names[u]||u, userId:u, role:r});
       try{localStorage.setItem("aln_user",ud);}catch(e){}
       try{sessionStorage.setItem("aln_user",ud);}catch(e){}
@@ -2740,7 +2740,7 @@ document.querySelectorAll('.sidebar .nav-item').forEach(el => {
 (function(){
   try {
     var u = JSON.parse(sessionStorage.getItem('aln_user') || '{}');
-    var org = 'App Làm Nhà Corp.';
+    var org = 'App Làm Nhà';
     var el = document.getElementById('ktsTopbarLogo');
     if(el) el.textContent = org;
   } catch(e){}
@@ -3333,7 +3333,7 @@ function renderProjCards(projs) {
   if (mEl) mEl.textContent = new Date().getMonth() + 1;
 }
 
-/* ── Gợi ý NCC (Mạng lưới Thiết bị - Vật tư ALN) cho panel chi tiết dự án
+/* ── Gợi ý NCC (Danh sách Thiết bị - Vật tư ALN) cho panel chi tiết dự án
    từ chặng C2 trở đi — ưu tiên tier cao + cùng tỉnh dự án (meetingProvince),
    dự phòng NCC toàn quốc nếu tỉnh đó chưa đủ. Tên NCC do người dùng tự
    nhập (auto-publish, không qua Founder duyệt trước) nên PHẢI escape. */
