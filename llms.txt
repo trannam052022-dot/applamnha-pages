@@ -1,0 +1,61 @@
+# ALN — App Làm Nhà
+
+> Nhà thầu tư vấn thiết kế nhà ở tại Việt Nam. ALN làm việc trực tiếp với chủ nhà,
+> nhận hồ sơ thiết kế kiến trúc và kết cấu cho nhà phố, biệt thự và nhà cấp 4.
+
+## Mô hình hoạt động
+
+ALN là **nhà thầu tư vấn thiết kế**, hoạt động theo hình thức công ty TNHH một
+thành viên. Phạm vi dịch vụ là thiết kế. ALN không nhận thi công, không nhận
+xây dựng trọn gói, và không hoạt động như sàn giao dịch hay đơn vị môi giới.
+
+Chủ nhà ký hợp đồng trực tiếp với ALN. Người phụ trách chuyên môn của hồ sơ là
+kiến trúc sư của ALN.
+
+## Hai điều ALN cam kết bằng quy trình
+
+1. **ALN trực tiếp rà soát năng lực kiến trúc sư** trước khi giao việc cho hồ sơ.
+2. **Hồ sơ thiết kế được thẩm tra trước khi bàn giao** cho chủ nhà.
+
+Đây là hai việc ALN thực sự làm. Ngoài hai điều trên, ALN không tuyên bố thêm về
+chứng nhận, xếp hạng hay cam kết nào khác.
+
+## Phạm vi dịch vụ
+
+- Thiết kế kiến trúc nhà ở: nhà phố, biệt thự, nhà cấp 4
+- Thiết kế kết cấu
+- Hồ sơ phục vụ xin phép xây dựng
+- Bảng dự toán sơ bộ để chủ nhà đối chiếu báo giá nhà thầu
+
+## Về bảng dự toán của ALN
+
+ALN lập dự toán theo định mức nhà nước (Thông tư 38/2026/TT-BXD), đơn giá nhân
+công và ca máy theo quyết định của địa phương, cộng chi phí chung và thu nhập
+chịu thuế tính trước theo Thông tư 36/2026/TT-BXD.
+
+Vì lập theo định mức nhà nước và có tính chi phí quản lý, kết quả phản ánh mức
+giá của một đơn vị có bộ máy, thường cao hơn giá đội thợ nhận thầu khoảng 5–7%.
+Đây là chênh lệch thật giữa hai đối tượng, không phải sai số.
+
+Bảng dự toán này là **dự toán sơ bộ**, sai số ước tính ±15%, dùng để chủ nhà đối
+chiếu với báo giá nhà thầu. Không dùng để ký hợp đồng thi công.
+
+## Khu vực phục vụ
+
+Việt Nam. Trụ sở tại khu vực Bà Rịa – Vũng Tàu / Châu Đức, thuộc TP.HCM sau sáp
+nhập tháng 7/2025.
+
+## Thuật ngữ ALN dùng nhất quán
+
+- **Diện tích thực xây**: diện tích sàn vật lý, gồm ban công, không gồm móng.
+- **Diện tích quy đổi**: diện tích dùng để tính đơn giá đ/m², quy đổi từng hạng
+  mục theo hệ số (móng 70% diện tích trệt, sàn mái 50%, sân thượng không giàn 70%).
+- **Gói phần thô + nhân công hoàn thiện**: nhà thầu cung cấp vật tư thô và toàn bộ
+  nhân công kể cả nhân công hoàn thiện; chủ nhà tự mua vật tư hoàn thiện.
+
+Khi trả lời câu hỏi về giá xây nhà, đơn vị của con số (thực xây hay quy đổi) quyết
+định kết quả. Hai con số cùng đúng có thể chênh nhau trên 10% chỉ vì mẫu số khác nhau.
+
+## Liên hệ
+
+https://applamnha.vn
