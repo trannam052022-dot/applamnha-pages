@@ -649,7 +649,7 @@ button,.btn,a[role="button"]{transition:transform .25s var(--ease),box-shadow .2
     <i class="ph-duotone ph-list"></i>
   </button>
   <div class="tb-logo" style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-    <div id="dnTopbarName" style="background:linear-gradient(135deg,rgba(152,105,10,.14),rgba(184,134,11,.08));color:#98690a;padding:4px 12px;border-radius:var(--r-sm);border:1.5px solid rgba(152,105,10,.3);font-family:var(--syne);font-size:11px;font-weight:800;letter-spacing:.07em;white-space:nowrap;flex-shrink:0">App Làm Nhà Corp.</div>
+    <div id="dnTopbarName" style="background:linear-gradient(135deg,rgba(152,105,10,.14),rgba(184,134,11,.08));color:#98690a;padding:4px 12px;border-radius:var(--r-sm);border:1.5px solid rgba(152,105,10,.3);font-family:var(--syne);font-size:11px;font-weight:800;letter-spacing:.07em;white-space:nowrap;flex-shrink:0">App Làm Nhà</div>
     <div class="page-title tb-title-full" style="font-family:var(--serif);font-weight:600;font-style:italic;font-size:15px;color:var(--text);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Cổng Theo dõi Công trình</div>
   </div>
   <div class="tb-right">
@@ -685,7 +685,7 @@ button,.btn,a[role="button"]{transition:transform .25s var(--ease),box-shadow .2
       <div style="display:flex;align-items:center;gap:10px">
         <div class="dn-profile-av" id="dnSidebarAv">DN</div>
         <div style="flex:1;min-width:0">
-          <div id="dnSidebarName" style="font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">App Làm Nhà Corp.</div>
+          <div id="dnSidebarName" style="font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">App Làm Nhà</div>
           <div style="font-size:10px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:5px">
             <span style="width:5px;height:5px;border-radius:50%;background:var(--green);display:inline-block;flex-shrink:0;animation:pulse-dn 2s ease-in-out infinite"></span>
             <span id="dnSidebarSub">Doanh nghiệp · Online</span>
@@ -935,7 +935,7 @@ button,.btn,a[role="button"]{transition:transform .25s var(--ease),box-shadow .2
     var params = new URLSearchParams(window.location.search);
     var u = params.get("u"), r = params.get("r");
     if(u && r) {
-      var names = {"kts.minhtran":"KTS. Trần Long","kts.lanthi":"KTS. Nguyễn Thị Lan","kts.khoavu":"KTS. Vũ Minh Khoa","dn.applamnha":"App Làm Nhà Corp.","dn.alnconstruct":"ALN Construct","cn.thuannv":"Nguyễn Văn Thuận","cn.binhtt":"Trần Thị Bình","cn.cuonglq":"Lê Quang Cường"};
+      var names = {"kts.minhtran":"KTS. Trần Long","kts.lanthi":"KTS. Nguyễn Thị Lan","kts.khoavu":"KTS. Vũ Minh Khoa","dn.applamnha":"App Làm Nhà","dn.alnconstruct":"ALN Construct","cn.thuannv":"Nguyễn Văn Thuận","cn.binhtt":"Trần Thị Bình","cn.cuonglq":"Lê Quang Cường"};
       var ud = JSON.stringify({name:names[u]||u, userId:u, role:r});
       try{localStorage.setItem("aln_user",ud);}catch(e){}
       try{sessionStorage.setItem("aln_user",ud);}catch(e){}
@@ -2128,7 +2128,7 @@ var REVIEW_DATA = {};
 /* Active review state */
 const _reviewState = {};
 
-/* ── Gợi ý NCC (Mạng lưới Thiết bị - Vật tư ALN) từ chặng C2 trở đi — ưu tiên
+/* ── Gợi ý NCC (Danh sách Thiết bị - Vật tư ALN) từ chặng C2 trở đi — ưu tiên
    tier cao + cùng tỉnh dự án (meetingProvince trong p._raw), dự phòng NCC
    toàn quốc nếu tỉnh đó chưa đủ. Tên NCC do người dùng tự nhập (auto-
    publish, không qua Founder duyệt trước) nên PHẢI escape. */
@@ -2928,7 +2928,7 @@ renderNotifs();
 /* ══════════════════════════════════════
    ALN REALTIME — Doanh nghiệp
 ══════════════════════════════════════ */
-const DN_USER = JSON.parse(sessionStorage.getItem('aln_user') || '{"name":"App Làm Nhà Corp.","userId":"dn.applamnha"}');
+const DN_USER = JSON.parse(sessionStorage.getItem('aln_user') || '{"name":"App Làm Nhà","userId":"dn.applamnha"}');
 
 ALNRealtime.init({
   role: 'dn',
@@ -3050,7 +3050,7 @@ function dnSendChat(projId) {
     audience: ['kts'],
     projectId: projId,
     text,
-    senderName: DN_USER.name || 'App Làm Nhà Corp.',
+    senderName: DN_USER.name || 'App Làm Nhà',
     senderRole: 'dn',
   });
 }
@@ -3308,7 +3308,7 @@ try{ if(typeof renderMain==='function') renderMain(); }catch(e){}
 /* Cập nhật tên DN + avatar initials từ sessionStorage */
 (function(){
   var u = JSON.parse(sessionStorage.getItem('aln_user') || '{}');
-  var name = u.name || 'App Làm Nhà Corp.';
+  var name = u.name || 'App Làm Nhà';
   var el1 = document.getElementById('dnSidebarName');
   if(el1) el1.textContent = name;
   // Avatar initials: 2 chữ đầu của từng từ
@@ -3318,7 +3318,7 @@ try{ if(typeof renderMain==='function') renderMain(); }catch(e){}
     var initials = words.length>=2 ? (words[0][0]+(words[words.length-1][0])).toUpperCase() : name.slice(0,2).toUpperCase();
     av.textContent = initials;
   }
-  // Badge thương hiệu trên cùng (dnTopbarName) LUÔN giữ "App Làm Nhà Corp." như các trang khác — không ghi đè theo user
+  // Badge thương hiệu trên cùng (dnTopbarName) LUÔN giữ "App Làm Nhà" như các trang khác — không ghi đè theo user
 })();
 
 

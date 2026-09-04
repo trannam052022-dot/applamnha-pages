@@ -330,7 +330,7 @@ document.getElementById('btnSubmit').addEventListener('click', async () => {
       utm: utmFromUrl(),
       sourceUrl: location.href.slice(0, 300),
     });
-    svShowMsg('ok', '<b>Đã nhận yêu cầu!</b> Đội thợ phù hợp sẽ gọi lại cho bạn sớm nhất (thường trong ngày). Trong lúc chờ, bạn có thể xem trước các đội trên <a href="ncc-showcase.html">Mạng lưới Thiết bị - Vật tư ALN</a>.');
+    svShowMsg('ok', '<b>Đã nhận yêu cầu!</b> Đội thợ phù hợp sẽ gọi lại cho bạn sớm nhất (thường trong ngày). Trong lúc chờ, bạn có thể xem trước các đội trên <a href="ncc-showcase.html">Danh sách Thiết bị - Vật tư ALN</a>.');
     btn.innerHTML = '<i class="ph-duotone ph-check-circle"></i>Đã gửi thành công';
   } catch (e) {
     console.error('[sua-vat submit]', e);
