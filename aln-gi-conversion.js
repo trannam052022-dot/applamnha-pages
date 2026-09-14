@@ -102,7 +102,7 @@
     var params = {}, k;
     if (typeof root.gtag !== 'function') return;
     for (k in payload) {
-      if (Object.prototype.hasOwnProperty.call(payload, k)) params[k] = payload[k];
+      if (Object.prototype.hasOwnProperty.call(payload, k)) params['aln_gi_' + k] = payload[k];
     }
     try {
       root.gtag('event', TRANSPORT_EVENT, params);
@@ -140,7 +140,7 @@
   }
 
   root.ALNGIConversion = {
-    version: '1.0.1',
+    version: '1.0.2',
     channel: CHANNEL,
     enabled: enabled,
     emit: emit,
