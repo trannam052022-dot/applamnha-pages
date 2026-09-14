@@ -98,6 +98,17 @@
     return { ok: true };
   }
 
+  function mirrorToGa4(payload) {
+    var params = {}, k;
+    if (typeof root.gtag !== 'function') return;
+    for (k in payload) {
+      if (Object.prototype.hasOwnProperty.call(payload, k)) params[k] = payload[k];
+    }
+    try {
+      root.gtag('event', TRANSPORT_EVENT, params);
+    } catch (e) {}
+  }
+
   function emit(name, attrs) {
     var keyCheck, payload, k, valid;
     if (!enabled()) return fail(root.ALN_INTERNAL === true ? 'INTERNAL_TRAFFIC_BLOCKED' : 'ADAPTER_DISABLED');
@@ -124,11 +135,12 @@
 
     root.dataLayer = root.dataLayer || [];
     root.dataLayer.push({ event: TRANSPORT_EVENT, aln_gi_event: payload });
+    mirrorToGa4(payload);
     return { ok: true, event: payload };
   }
 
   root.ALNGIConversion = {
-    version: '1.0.0',
+    version: '1.0.1',
     channel: CHANNEL,
     enabled: enabled,
     emit: emit,
