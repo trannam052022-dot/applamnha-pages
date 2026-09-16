@@ -2056,9 +2056,22 @@ document.addEventListener('DOMContentLoaded', function() {
         <th style="font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);text-align:left;padding:12px 11px;background:var(--raised);border-bottom:1px solid var(--border);white-space:nowrap">Nguồn</th>
         <th style="font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);text-align:left;padding:12px 11px;background:var(--raised);border-bottom:1px solid var(--border);white-space:nowrap">Giai đoạn</th>
         <th style="font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);text-align:left;padding:12px 11px;background:var(--raised);border-bottom:1px solid var(--border);white-space:nowrap">Cập nhật gần nhất</th>
+        <th style="background:var(--raised);border-bottom:1px solid var(--border);padding:12px 11px"></th>
       </tr></thead>
       <tbody id="pplBody"></tbody>
     </table>
+  </div>
+
+  <!-- Dọn dữ liệu test (P0-C, docs/ceo/runbooks/gpkd-day-0.md) — xoá 1 lead
+       theo id cụ thể trong collection `leads` (dự toán/kho mẫu/sửa vặt/diễn
+       đàn). KHÔNG dùng cho `contacts` (đã có nút Xóa từng dòng ở bảng trên)
+       lẫn `landingLeads` (xem tab Lead riêng) — 3 collection khác nhau. -->
+  <div style="margin-top:18px;padding:14px 16px;border:1px dashed var(--border);border-radius:10px;background:var(--card)">
+    <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Dọn dữ liệu test — xoá lead theo ID (collection <span style="color:var(--text2)">leads</span>)</div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <input id="pplLeadIdInput" type="text" placeholder="ID lead (vd PuC2o1hpc4be9ttH1X7M)" style="flex:1;min-width:220px;padding:8px 11px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--text1);font-family:var(--mono);font-size:12px">
+      <button onclick="pplDeleteLeadById()" style="padding:8px 14px;border-radius:7px;border:1px solid rgba(239,68,68,.4);background:rgba(239,68,68,.12);color:#ef4444;font-weight:700;font-size:12px;cursor:pointer;font-family:var(--sans);white-space:nowrap"><i class="ph-duotone ph-trash"></i> Xóa lead theo ID</button>
+    </div>
   </div>
 </div>
 
@@ -7534,8 +7547,9 @@ window.saveCompanySettings = async function() {
         '<td style="padding:10px 11px">' +
           '<select onchange="leadsUpdateStatus(\''+it._id+'\',this.value)" style="padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--raised);color:'+LD_COLOR[status]+';font-weight:700;font-size:11.5px;font-family:var(--sans);cursor:pointer">'+optHtml+'</select>' +
         '</td>' +
-        '<td style="padding:10px 11px">' +
-          '<button onclick="leadsAiSuggest(\''+it._id+'\')" style="padding:6px 10px;border-radius:6px;border:1px solid var(--gold-bd);background:var(--gold-bg);color:var(--gold);font-weight:700;font-size:11px;cursor:pointer;font-family:var(--sans);white-space:nowrap"><i class="ph-duotone ph-magic-wand"></i> Gợi ý AI</button>' +
+        '<td style="padding:10px 11px;white-space:nowrap">' +
+          '<button onclick="leadsAiSuggest(\''+it._id+'\')" style="padding:6px 10px;border-radius:6px;border:1px solid var(--gold-bd);background:var(--gold-bg);color:var(--gold);font-weight:700;font-size:11px;cursor:pointer;font-family:var(--sans);white-space:nowrap"><i class="ph-duotone ph-magic-wand"></i> Gợi ý AI</button> ' +
+          '<button onclick="leadsDelete(\''+it._id+'\')" title="Xóa" style="border:0;background:none;color:#f97316;cursor:pointer;font-size:15px;padding:5px 6px;border-radius:6px"><i class="ph ph-x"></i></button>' +
         '</td>' +
       '</tr>';
     });
@@ -7558,6 +7572,26 @@ window.saveCompanySettings = async function() {
       if(badge){ badge.textContent = staleCount; badge.style.display = staleCount > 0 ? 'inline' : 'none'; }
     } catch(e) {
       alert('Lỗi cập nhật trạng thái: ' + (e.message||e));
+    }
+  };
+
+  // Xoá 1 lead (P0-C, docs/ceo/runbooks/gpkd-day-0.md "Dọn pipeline test") —
+  // landingLeads đã có "allow delete: if isFounder()" trong firestore.rules
+  // từ trước, xoá thẳng bằng deleteDoc phía client (đã đăng nhập Founder) là
+  // đủ, không cần Cloud Function riêng như collection `leads`/`contacts`.
+  window.leadsDelete = async function(id){
+    var it = LD_ITEMS.filter(function(x){ return x._id === id; })[0];
+    var label = (it && (it.name || it.phone)) || id;
+    if(!confirm('Xóa lead "'+label+'"? Không thể hoàn tác.')) return;
+    try {
+      await deleteDoc(doc(db, 'landingLeads', id));
+      LD_ITEMS = LD_ITEMS.filter(function(x){ return x._id !== id; });
+      ldRender();
+      var staleCount = LD_ITEMS.filter(ldIsStale).length;
+      var badge = document.getElementById('leadsBadge');
+      if(badge){ badge.textContent = staleCount; badge.style.display = staleCount > 0 ? 'inline' : 'none'; }
+    } catch(e) {
+      alert('Lỗi xóa: ' + (e.message||e));
     }
   };
 })();
@@ -8290,14 +8324,14 @@ window.saveCompanySettings = async function() {
 
   async function pplFetchAndRender(){
     var body = document.getElementById('pplBody');
-    if(body) body.innerHTML = '<tr><td colspan="5" style="padding:20px;text-align:center;color:var(--dim);font-family:var(--mono);font-size:12px">Đang tải...</td></tr>';
+    if(body) body.innerHTML = '<tr><td colspan="6" style="padding:20px;text-align:center;color:var(--dim);font-family:var(--mono);font-size:12px">Đang tải...</td></tr>';
     try {
       var res = await pplCallFn('segmentContacts', { loai_lien_he: PPL_VIEW });
       PPL_ITEMS = res.items || [];
       pplRenderStageCounts();
       pplRenderTable();
     } catch(e) {
-      if(body) body.innerHTML = '<tr><td colspan="5" style="padding:20px;text-align:center;color:var(--red)">Lỗi tải dữ liệu: '+(e.message||e)+'</td></tr>';
+      if(body) body.innerHTML = '<tr><td colspan="6" style="padding:20px;text-align:center;color:var(--red)">Lỗi tải dữ liệu: '+(e.message||e)+'</td></tr>';
     }
   }
 
@@ -8328,7 +8362,7 @@ window.saveCompanySettings = async function() {
     var body = document.getElementById('pplBody');
     if(!body) return;
     if(!PPL_ITEMS.length){
-      body.innerHTML = '<tr><td colspan="5" style="padding:20px;text-align:center;color:var(--dim)">Chưa có liên hệ nào ở phễu này.</td></tr>';
+      body.innerHTML = '<tr><td colspan="6" style="padding:20px;text-align:center;color:var(--dim)">Chưa có liên hệ nào ở phễu này.</td></tr>';
       return;
     }
     var stages = PPL_STAGES[PPL_VIEW] || [];
@@ -8345,6 +8379,9 @@ window.saveCompanySettings = async function() {
           + '<select onchange="pplChangeStage(\''+it.id+'\', this.value)" style="padding:6px 9px;border-radius:6px;border:1px solid var(--border);background:var(--raised);color:var(--text2);font-size:12px;font-family:var(--sans)">'+options+'</select>'
         + '</td>'
         + '<td style="padding:10px 11px;font-family:var(--mono);font-size:11.5px;color:var(--dim);white-space:nowrap">'+pplFmtDate(it.updated_at)+'</td>'
+        + '<td style="padding:10px 11px;text-align:center">'
+          + '<button onclick="pplDeleteContact(\''+it.id+'\')" title="Xóa liên hệ" style="border:0;background:none;color:#f97316;cursor:pointer;font-size:15px;padding:5px 8px;border-radius:6px"><i class="ph ph-x"></i></button>'
+        + '</td>'
       + '</tr>';
     }).join('');
   }
@@ -8359,6 +8396,40 @@ window.saveCompanySettings = async function() {
     } catch(e) {
       alert('Lỗi cập nhật giai đoạn: ' + (e.message||e));
       await pplFetchAndRender();
+    }
+  };
+
+  // Xoá 1 liên hệ (P0-C, docs/ceo/runbooks/gpkd-day-0.md "Dọn pipeline
+  // test") — gọi founderDeleteContact (Admin SDK, contacts không có rule
+  // client nào), KHÔNG updateDoc/deleteDoc thẳng.
+  window.pplDeleteContact = async function(id){
+    var it = PPL_ITEMS.filter(function(x){ return x.id === id; })[0];
+    var label = it ? (it.name || pplMaskPhone(it.phone_normalized)) : id;
+    if(!confirm('Xóa liên hệ "'+label+'"? Không thể hoàn tác.')) return;
+    try {
+      await pplCallFn('founderDeleteContact', { id: id });
+      await pplFetchAndRender();
+    } catch(e) {
+      alert('Lỗi xóa: ' + (e.message||e));
+    }
+  };
+
+  // Xoá 1 lead theo id trong collection `leads` (dự toán/kho mẫu/sửa vặt/
+  // diễn đàn) — collection này có firestore.rules "allow write: if false"
+  // (kể cả Founder), nên PHẢI qua founderDeleteLeadById (Admin SDK), không
+  // thể deleteDoc thẳng phía client như landingLeads.
+  window.pplDeleteLeadById = async function(){
+    var input = document.getElementById('pplLeadIdInput');
+    var id = input ? input.value.trim() : '';
+    if(!id){ alert('Nhập ID lead cần xóa.'); return; }
+    if(!confirm('Xóa lead id "'+id+'" khỏi collection leads? Không thể hoàn tác.')) return;
+    try {
+      var res = await pplCallFn('founderDeleteLeadById', { id: id });
+      if(res && res.deleted === false) alert('Không tìm thấy lead id "'+id+'" (có thể đã xóa trước đó).');
+      else alert('Đã xóa lead id "'+id+'".');
+      if(input) input.value = '';
+    } catch(e) {
+      alert('Lỗi xóa: ' + (e.message||e));
     }
   };
 })();
