@@ -471,7 +471,7 @@ form.addEventListener('submit', async (e) => {
     const leadId = (res && res.data && res.data.id) || '';
     try {
       if (window.fbq && leadId) window.fbq('track', 'Lead',
-        { content_name: 'du-toan-chi-tiet', content_category: 'du-toan-60s' },
+        { content_name: 'du-toan-chi-tiet', content_category: 'du-toan-chi-tiet' },
         { eventID: 'lead-' + leadId });
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({ event: 'aln_lead_submit', form_name: 'du-toan-chi-tiet' });
