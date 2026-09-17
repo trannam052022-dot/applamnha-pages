@@ -17,7 +17,7 @@ const firebaseConfig = {
   apiKey:            "AIzaSyCPv-KbyK8ajRba1b2wy5qSwc--m_vbRUc",
   authDomain:        "auth.applamnha.vn",
   projectId:         "aln-platform",
-  storageBucket:     "aln-platform.firebasestorage.app",
+  storageBucket:     "aln-platform-asia",
   messagingSenderId: "1073827504988",
   appId:             "1:1073827504988:web:8895fd6b68dff00a67d799"
 };
