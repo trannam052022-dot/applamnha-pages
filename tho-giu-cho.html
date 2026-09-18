@@ -530,6 +530,17 @@ function validatePhone(v) {
 }
 
 function submitForm() {
+  // VIỆC 3 — kiểm NGAY ĐẦU hàm, không chỉ dựa vào nút bị disabled trên màn
+  // hình: phòng trường hợp submitForm() bị gọi theo đường khác (VD gửi bằng
+  // phím Enter nếu sau này có wire thêm) trong lúc ảnh còn đang nén/tải lên.
+  // window._hasPendingImageUploads định nghĩa trong khối script module bên
+  // dưới (nơi giữ selectedFiles) — kiểm tồn tại phòng script module lỗi
+  // chưa kịp gán (race lúc trang mới load), không chặn nhầm nếu vậy.
+  if (window._hasPendingImageUploads && window._hasPendingImageUploads()) {
+    showToast('Ảnh đang xử lý, vui lòng đợi rồi gửi lại', true);
+    return;
+  }
+
   var ten = document.getElementById('f_ten').value.trim();
   var phone = document.getElementById('f_phone').value.trim();
   var dongY = document.getElementById('f_dong_y').checked;
@@ -539,6 +550,15 @@ function submitForm() {
   if (!selectedKhuVuc) { showToast('Vui lòng chọn khu vực hoạt động', true); return; }
   if (!selectedNghe) { showToast('Vui lòng chọn nghề', true); return; }
   if (!dongY) { showToast('Vui lòng đồng ý để ALN liên hệ qua Zalo', true); return; }
+
+  // VIỆC 4 — ảnh lỗi tải lên thì phải HỎI, không âm thầm bỏ. Đặt sau các
+  // validate bắt buộc ở trên (không làm phiền bằng confirm() khi người dùng
+  // còn chưa điền xong các trường chính), nhưng trước khi thật sự gửi.
+  var erroredCount = window._countErroredUploads ? window._countErroredUploads() : 0;
+  if (erroredCount > 0) {
+    var confirmMsg = 'Có ' + erroredCount + ' ảnh tải lên không thành công. Gửi form mà không có ảnh đó?';
+    if (!confirm(confirmMsg)) return;
+  }
 
   var ghiChu = selectedNghe === 'doi_thi_cong' ? document.getElementById('f_ghi_chu').value.trim().slice(0, 300) : '';
 
@@ -567,6 +587,42 @@ const COMPRESS_MAX_DIM = 1600;
 const COMPRESS_JPEG_QUALITY = 0.82;
 
 let selectedFiles = []; // { file, kind:'image'|'video', url:objectURL, uploadedUrl:null, uploadFile:File|null (ảnh đã nén, null = dùng file gốc), status:'pending'|'compressing'|'uploading'|'done'|'error' }
+
+// VIỆC 3 (18/09/2026) — khoá nút Gửi trong lúc còn ảnh/clip đang nén hoặc
+// tải lên. submitInFlight tách biệt với "còn ảnh đang xử lý": true trong
+// lúc window._doSubmit() đang gọi callable — khi đó syncSubmitButtonForUploads()
+// KHÔNG được đụng vào nút (xem hàm đó), tránh 2 nơi cùng sửa disabled/label
+// đá nhau (VD 1 ảnh mới vừa "done" đúng lúc đang gửi).
+let submitInFlight = false;
+const SUBMIT_BTN_DEFAULT_HTML = '<i class="ph-duotone ph-paper-plane-tilt"></i> Gửi thông tin, ALN gọi lại';
+const SUBMIT_BTN_PENDING_IMG_HTML = '<i class="ph-duotone ph-spinner ph-spin"></i> Đang xử lý ảnh, vui lòng đợi…';
+
+function hasPendingImageUploads() {
+  return selectedFiles.some((f) => f.status === 'compressing' || f.status === 'uploading');
+}
+window._hasPendingImageUploads = hasPendingImageUploads;
+
+function countErroredUploads() {
+  return selectedFiles.filter((f) => f.status === 'error').length;
+}
+window._countErroredUploads = countErroredUploads;
+
+/* Đồng bộ khoá/mở nút Gửi theo ảnh còn đang xử lý — gọi từ renderPreview()
+   mỗi khi trạng thái 1 ảnh/clip đổi. Ảnh là TUỲ CHỌN: selectedFiles rỗng →
+   hasPendingImageUploads() = false → nút luôn mở bình thường, không cần
+   guard riêng cho "chưa chọn ảnh nào". */
+function syncSubmitButtonForUploads() {
+  if (submitInFlight) return; // window._doSubmit đang tự quản lý nút — không giành quyền
+  const btn = document.getElementById('submitBtn');
+  if (!btn) return;
+  if (hasPendingImageUploads()) {
+    btn.disabled = true;
+    btn.innerHTML = SUBMIT_BTN_PENDING_IMG_HTML;
+  } else {
+    btn.disabled = false;
+    btn.innerHTML = SUBMIT_BTN_DEFAULT_HTML;
+  }
+}
 
 /* Cùng nguyên tắc phòng thủ đã dùng ở mymy-widget.js: anon-auth có thể treo
    vô thời hạn trên Safari ITP/Chrome Incognito (xem CLAUDE.md mục "Widget
@@ -633,6 +689,8 @@ function renderPreview() {
       statusEl.textContent = '';
     }
   }
+
+  syncSubmitButtonForUploads();
 }
 
 window._removeFile = function(i) {
@@ -795,10 +853,22 @@ document.getElementById('fileInput').addEventListener('change', function(ev) {
 
 window._doSubmit = async function(data) {
   const btn = document.getElementById('submitBtn');
+  submitInFlight = true;
   btn.disabled = true;
   btn.innerHTML = '<i class="ph-duotone ph-spinner ph-spin"></i> Đang gửi…';
   try {
+    // VIỆC 1/2 (18/09/2026) — sự cố production: ảnh upload xong (badge "Đã
+    // tải lên") nhưng anh_cong_trinh gửi lên rỗng. KHÔNG phải lỗi ở dòng lọc
+    // này (đối chiếu git diff PR #190: dòng filter status==='done' không hề
+    // đổi) — nguyên nhân thật là race condition: submitForm() trước đây
+    // không kiểm ảnh còn đang nén/tải lên, nên có thể gọi _doSubmit() TRƯỚC
+    // khi uploadOne() kịp set status='done', filter dưới đây khi đó ĐÚNG là
+    // rỗng vì ảnh thật sự CHƯA xong tại thời điểm đọc — badge "Đã tải lên"
+    // xuất hiện sau đó, khi form đã gửi rồi. Đã chặn tận gốc ở submitForm()
+    // (VIỆC 3 — khoá nút khi hasPendingImageUploads()); dòng log dưới đây để
+    // lần sau soi được từ DevTools mà không phải đoán lại từ đầu.
     const anhCongTrinh = selectedFiles.filter((f) => f.status === 'done' && f.uploadedUrl).map((f) => f.uploadedUrl);
+    console.log('[tho-giu-cho] Số ảnh/clip đính kèm gửi lên submitThoGiuCho:', anhCongTrinh.length, anhCongTrinh);
     await callSubmitThoGiuCho({
       ten: data.ten,
       phone: data.phone,
@@ -817,8 +887,13 @@ window._doSubmit = async function(data) {
   } catch (err) {
     console.error(err);
     window.showToast(err.message || 'Có lỗi xảy ra, vui lòng thử lại', true);
-    btn.disabled = false;
-    btn.innerHTML = '<i class="ph-duotone ph-paper-plane-tilt"></i> Gửi thông tin, ALN gọi lại';
+  } finally {
+    // Thay vì tự đặt cứng lại nút "Gửi thông tin..." (bản cũ) — gọi
+    // syncSubmitButtonForUploads() để tự xét: nếu lúc lỗi vẫn còn ảnh khác
+    // đang nén/tải (hiếm nhưng có thể xảy ra), nút phải quay về trạng thái
+    // "Đang xử lý ảnh…" chứ không phải mở khoá nhầm.
+    submitInFlight = false;
+    syncSubmitButtonForUploads();
   }
 };
 </script>
