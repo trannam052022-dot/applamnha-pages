@@ -556,10 +556,17 @@ const fns = getFunctions(app, 'asia-southeast1');
 const callSubmitThoGiuCho = httpsCallable(fns, 'submitThoGiuCho');
 
 const MAX_IMAGES = 3;
-const MAX_IMG_MB = 8;
-const MAX_VIDEO_MB = 60;
+const MAX_IMG_MB = 8; // áp dụng lên kích thước SAU KHI NÉN (xem compressImage) — không còn kiểm file gốc
+const MAX_VIDEO_MB = 60; // video KHÔNG nén, giữ nguyên kiểm file gốc
 
-let selectedFiles = []; // { file, kind:'image'|'video', url:objectURL, uploadedUrl:null, status:'pending'|'uploading'|'done'|'error' }
+// Nén ảnh phía trình duyệt trước khi upload — thợ chụp thẳng từ điện thoại ra
+// ảnh 6-7MB, 4G tải rất chậm/hay bỏ ngang. Thu cạnh dài về tối đa
+// COMPRESS_MAX_DIM, giữ tỉ lệ, xuất JPEG COMPRESS_JPEG_QUALITY (trừ PNG có
+// kênh alpha thật thì giữ PNG — xem canvasHasAlpha).
+const COMPRESS_MAX_DIM = 1600;
+const COMPRESS_JPEG_QUALITY = 0.82;
+
+let selectedFiles = []; // { file, kind:'image'|'video', url:objectURL, uploadedUrl:null, uploadFile:File|null (ảnh đã nén, null = dùng file gốc), status:'pending'|'compressing'|'uploading'|'done'|'error' }
 
 /* Cùng nguyên tắc phòng thủ đã dùng ở mymy-widget.js: anon-auth có thể treo
    vô thời hạn trên Safari ITP/Chrome Incognito (xem CLAUDE.md mục "Widget
@@ -594,13 +601,38 @@ function renderPreview() {
       ? '<video src="' + f.url + '" muted></video>'
       : '<img src="' + f.url + '" alt="">';
     const badgeCls = f.status === 'done' ? 'done' : f.status === 'error' ? 'err' : '';
-    const badgeText = f.status === 'done' ? 'Đã tải lên' : f.status === 'error' ? 'Lỗi tải lên' : f.status === 'uploading' ? 'Đang tải…' : 'Chờ tải';
+    const badgeText = f.status === 'done' ? 'Đã tải lên'
+      : f.status === 'error' ? 'Lỗi tải lên'
+      : f.status === 'uploading' ? 'Đang tải…'
+      : f.status === 'compressing' ? 'Đang nén…'
+      : 'Chờ tải';
     return '<div class="upload-thumb">' + media
       + '<button type="button" class="rm-btn" onclick="window._removeFile(' + i + ')">✕</button>'
       + '<div class="up-badge ' + badgeCls + '">' + badgeText + '</div>'
     + '</div>';
   }).join('');
   document.getElementById('uploadZone').style.display = selectedFiles.length >= MAX_IMAGES ? 'none' : 'block';
+
+  // Dòng tóm tắt trạng thái chung — trang này từng có người gửi form 17 lần
+  // vì không chắc ảnh đã tải xong hay chưa, nên cần 1 câu tổng quan rõ ràng
+  // ngoài badge từng ảnh (#uploadStatus có sẵn trong markup, trước đây bỏ trống).
+  const statusEl = document.getElementById('uploadStatus');
+  if (statusEl) {
+    const total = selectedFiles.length;
+    if (!total) {
+      statusEl.textContent = '';
+    } else if (selectedFiles.some((f) => f.status === 'compressing')) {
+      statusEl.textContent = 'Đang nén ảnh…';
+    } else if (selectedFiles.some((f) => f.status === 'uploading')) {
+      statusEl.textContent = 'Đang tải lên…';
+    } else if (selectedFiles.every((f) => f.status === 'done')) {
+      statusEl.textContent = 'Đã tải lên xong.';
+    } else if (selectedFiles.some((f) => f.status === 'error')) {
+      statusEl.textContent = 'Có ảnh/clip lỗi — anh có thể bỏ (✕) hoặc chọn lại, không ảnh hưởng phần còn lại của form.';
+    } else {
+      statusEl.textContent = '';
+    }
+  }
 }
 
 window._removeFile = function(i) {
@@ -608,14 +640,120 @@ window._removeFile = function(i) {
   renderPreview();
 };
 
+/* Giải mã ảnh CÓ xoay theo EXIF trước khi vẽ lên canvas — ảnh chụp dọc từ
+   iPhone lưu pixel raw theo hướng ngang + cờ EXIF Orientation, nếu vẽ thẳng
+   lên canvas mà bỏ qua cờ này thì ảnh xuất ra bị xoay ngang. createImageBitmap
+   với imageOrientation:'from-image' là cơ chế chuẩn của trình duyệt để tự bake
+   đúng hướng (Chrome 81+/2020, Firefox 77+/2020, Safari 15.4+/2022 — hỗ trợ
+   rộng đủ cho 2026). Nếu trình duyệt không nhận option này (throw), fallback
+   sang thẻ <img> thường — trình duyệt hiện đại tự xoay ảnh theo EXIF lúc
+   decode để hiển thị, drawImage() từ 1 <img> đã decode kế thừa đúng hướng đó.
+   KHÔNG áp dụng cả 2 cơ chế cùng lúc (tránh xoay đúp thành sai hướng). */
+async function loadOrientedImageSource(file) {
+  if (typeof createImageBitmap === 'function') {
+    try {
+      return await createImageBitmap(file, { imageOrientation: 'from-image' });
+    } catch (e) {
+      // Trình duyệt không hỗ trợ option imageOrientation — rơi xuống fallback bên dưới.
+    }
+  }
+  return await new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Không đọc được ảnh')); };
+    img.src = url;
+  });
+}
+
+/* PNG có kênh alpha THẬT (không chỉ vì file .png) mới cần giữ PNG — quét toàn
+   bộ alpha byte của canvas đã resize (tối đa COMPRESS_MAX_DIM² pixel nên đủ
+   nhanh cho 1 lần nén lúc chọn ảnh). Lỗi đọc pixel (hiếm) → coi như CÓ alpha
+   cho an toàn, thà giữ PNG dư còn hơn làm mất nền trong suốt. */
+function canvasHasAlpha(ctx, w, h) {
+  try {
+    const data = ctx.getImageData(0, 0, w, h).data;
+    for (let i = 3; i < data.length; i += 4) {
+      if (data[i] < 255) return true;
+    }
+    return false;
+  } catch (e) {
+    return true;
+  }
+}
+
+/* Nén 1 ảnh: xoay theo EXIF → thu cạnh dài về tối đa COMPRESS_MAX_DIM (giữ
+   tỉ lệ, KHÔNG phóng to ảnh đã nhỏ hơn) → xuất JPEG (PNG có alpha thật thì
+   giữ PNG). Trả về File mới; contentType của File này LUÔN khớp phần mở rộng
+   (.jpg/.png) và khớp đúng "type" gửi kèm uploadBytes — storage.rules kiểm
+   request.resource.contentType nên 2 nơi bắt buộc phải khớp nhau (xem
+   uploadOne). Ném lỗi nếu bất kỳ bước nào thất bại — nơi gọi (uploadOne)
+   PHẢI try/catch và fallback dùng file gốc, không được chặn form vì lỗi nén. */
+async function compressImage(file) {
+  const source = await loadOrientedImageSource(file);
+  try {
+    const srcW = source.width, srcH = source.height;
+    const longSide = Math.max(srcW, srcH);
+    const scale = longSide > COMPRESS_MAX_DIM ? COMPRESS_MAX_DIM / longSide : 1;
+    const targetW = Math.max(1, Math.round(srcW * scale));
+    const targetH = Math.max(1, Math.round(srcH * scale));
+
+    const canvas = document.createElement('canvas');
+    canvas.width = targetW;
+    canvas.height = targetH;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(source, 0, 0, targetW, targetH);
+
+    const keepPng = file.type === 'image/png' && canvasHasAlpha(ctx, targetW, targetH);
+    const outType = keepPng ? 'image/png' : 'image/jpeg';
+    const blob = await new Promise((resolve, reject) => {
+      canvas.toBlob(
+        (b) => b ? resolve(b) : reject(new Error('canvas.toBlob trả về null')),
+        outType,
+        keepPng ? undefined : COMPRESS_JPEG_QUALITY
+      );
+    });
+
+    const baseName = (file.name || 'anh').replace(/\.[^./\\]+$/, '');
+    return new File([blob], baseName + (keepPng ? '.png' : '.jpg'), { type: outType });
+  } finally {
+    if (typeof ImageBitmap !== 'undefined' && source instanceof ImageBitmap) source.close();
+  }
+}
+
+/* Nén rồi kiểm MAX_IMG_MB trên kích thước SAU KHI NÉN. Nén lỗi vì bất kỳ lý
+   do gì (định dạng canvas không đọc được, trình duyệt cũ, v.v.) → dùng file
+   gốc, không chặn người dùng gửi form — ảnh vẫn thường dưới MAX_IMG_MB vì
+   giới hạn 8MB vốn đã rộng hơn cỡ ảnh chụp điện thoại thật (6-7MB). */
+async function processImageEntry(entry) {
+  let uploadFile = entry.file;
+  try {
+    uploadFile = await compressImage(entry.file);
+  } catch (e) {
+    console.error('tho-giu-cho nén ảnh lỗi, dùng file gốc:', e);
+  }
+  if (uploadFile.size > MAX_IMG_MB * 1024 * 1024) {
+    entry.status = 'error';
+    renderPreview();
+    window.showToast('Ảnh "' + entry.file.name + '" vẫn vượt ' + MAX_IMG_MB + 'MB sau khi nén, bỏ qua ảnh này', true);
+    return;
+  }
+  entry.uploadFile = uploadFile;
+  uploadOne(entry);
+}
+
 async function uploadOne(entry) {
   entry.status = 'uploading';
   renderPreview();
   try {
     await ensureAnonAuth();
-    const path = 'tho-giu-cho/' + Date.now() + '-' + Math.random().toString(36).slice(2) + '-' + entry.file.name;
+    // Ảnh: dùng file ĐÃ NÉN (entry.uploadFile) nếu có — contentType lấy từ
+    // chính file này nên luôn khớp dữ liệu thật gửi lên (PNG gốc có thể đã
+    // đổi thành JPEG). Video: không nén, luôn dùng entry.file.
+    const target = entry.uploadFile || entry.file;
+    const path = 'tho-giu-cho/' + Date.now() + '-' + Math.random().toString(36).slice(2) + '-' + target.name;
     const ref = storageRef(storage, path);
-    await withTimeout(uploadBytes(ref, entry.file, { contentType: entry.file.type }), 30000);
+    await withTimeout(uploadBytes(ref, target, { contentType: target.type }), 30000);
     entry.uploadedUrl = await getDownloadURL(ref);
     entry.status = 'done';
   } catch (e) {
@@ -646,10 +784,11 @@ document.getElementById('fileInput').addEventListener('change', function(ev) {
   for (const f of files) {
     if (selectedFiles.length >= MAX_IMAGES) { window.showToast('Tối đa ' + MAX_IMAGES + ' ảnh', true); break; }
     if (!f.type.startsWith('image/')) { continue; }
-    if (f.size > MAX_IMG_MB * 1024 * 1024) { window.showToast('Ảnh "' + f.name + '" vượt ' + MAX_IMG_MB + 'MB', true); continue; }
-    const entry = { file: f, kind: 'image', url: URL.createObjectURL(f), uploadedUrl: null, status: 'pending' };
+    // Không còn kiểm MAX_IMG_MB trên file gốc ở đây — nén trước (processImageEntry),
+    // rồi mới kiểm trên kích thước SAU KHI NÉN (bên trong processImageEntry).
+    const entry = { file: f, kind: 'image', url: URL.createObjectURL(f), uploadedUrl: null, uploadFile: null, status: 'compressing' };
     selectedFiles.push(entry);
-    uploadOne(entry);
+    processImageEntry(entry);
   }
   renderPreview();
 });
