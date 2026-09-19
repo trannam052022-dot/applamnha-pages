@@ -548,6 +548,9 @@ function renderMoc(mocByCode, mocHienTai) {
     const m = mocByCode[code];
     if (!m) return '';
     const active = code === mocHienTai;
+    // trim phòng dữ liệu cũ/nhập tay lọt khoảng trắng thừa — tra bảng nhãn
+    // theo key sẽ luôn miss (rơi về hiện chuỗi thô) nếu không trim ở đây.
+    const trangThaiMoc = typeof m.trang_thai === 'string' ? m.trang_thai.trim() : m.trang_thai;
     const sanPham = Array.isArray(m.san_pham_ban_giao) ? m.san_pham_ban_giao : [];
     const sanPhamHtml = sanPham.length
       ? `<ul>${sanPham.map((sp) => `<li>${esc(sp)}</li>`).join('')}</ul>`
@@ -560,7 +563,7 @@ function renderMoc(mocByCode, mocHienTai) {
             <span class="moc-ten">${esc(m.ten || code)}</span>
             ${m.ty_le_phi != null ? `<span class="moc-pct">${esc(m.ty_le_phi)}%</span>` : ''}
           </div>
-          <div class="moc-status">${esc(MOC_STATUS_LABEL[m.trang_thai] || m.trang_thai || '')}</div>
+          <div class="moc-status">${esc(MOC_STATUS_LABEL[trangThaiMoc] || trangThaiMoc || '')}</div>
           <div class="moc-sanpham">${sanPhamHtml}</div>
         </div>
       </div>`;
@@ -690,7 +693,9 @@ function loadHouse(houseId) {
     if (!snap.exists()) return;
     const h = snap.data();
     renderHouseHeader(h);
-    window.__khMocHienTai = h.moc_hien_tai;
+    // trim phòng dữ liệu cũ/nhập tay lọt khoảng trắng thừa (vd "C1 ") — so
+    // sánh === với code sạch trong renderMoc sẽ luôn sai nếu không trim ở đây.
+    window.__khMocHienTai = typeof h.moc_hien_tai === 'string' ? h.moc_hien_tai.trim() : h.moc_hien_tai;
     if (window.__khMocByCode) renderMoc(window.__khMocByCode, window.__khMocHienTai);
   }, (err) => console.error('[khong-gian-nha] onSnapshot houses lỗi:', err)));
 
