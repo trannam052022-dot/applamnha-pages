@@ -1459,7 +1459,7 @@ body{font-family:var(--sans);background:var(--ink);color:var(--text);min-height:
     <div style="background:var(--ink2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:12px">
       <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.06em;margin-bottom:10px">CHỮ KÝ ĐIỆN TỬ</div>
       <div id="sigPreviewWrap" style="background:#fff;border-radius:6px;height:72px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;overflow:hidden;border:1px dashed #ccc">
-        <span id="sigPreviewEmpty" style="font-size:11px;color:#aaa">Chưa có chữ ký</span>
+        <span id="sigPreviewEmpty" style="font-size:11px;color:#aaa;text-align:center;padding:0 12px">Chưa có chữ ký — tải lên để dùng khi ký khung bản vẽ</span>
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <label class="profile-upload-btn" for="sigInput" style="margin:0">
@@ -3987,15 +3987,15 @@ onAuthStateChanged(auth, async (user) => {
       return;
     }
 
-    // Chữ ký + QR nhận tiền ưu tiên đọc từ subcollection riêng tư.
-    // TODO(PR gỡ fallback): bỏ fallback profile.signatureUrl/qrCodeUrl sau khi
-    // migration + rotate token đã hoàn tất. Hiện fallback giúp Pages an toàn
-    // nếu frontend lên trước Firestore rule hoặc trước lúc migration chạy.
+    // Chữ ký + QR nhận tiền chỉ đọc từ subcollection riêng tư.
+    // Không dùng lại URL legacy trên users/{uid}: migration + rotate đã hoàn tất.
+    profile.signatureUrl = '';
+    profile.qrCodeUrl = '';
     try {
       const privateSnap = await getDoc(doc(db, 'users', user.uid, 'private', 'assets'));
       if (privateSnap.exists()) Object.assign(profile, privateSnap.data());
     } catch(e) {
-      console.warn('[KTS private assets] dùng field cũ tạm thời:', e.code || e.message);
+      console.warn('[KTS private assets] không đọc được private/assets:', e.code || e.message);
     }
 
     // Làm mới thông tin hiển thị từ Firestore
