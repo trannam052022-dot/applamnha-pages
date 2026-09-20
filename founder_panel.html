@@ -3871,8 +3871,10 @@ function openProfile(type, idx){
     if(!k) return;
     icon = '🎨'; title = k.name; sub = k.cchn;
     var tierC = {'VIP Vàng':'var(--gold)','VIP Bạc':'#94a3b8','Chuẩn':'var(--dim)'};
-    var stC = {active:'var(--green)',inactive:'var(--dim)',suspended:'var(--red)'};
-    var stL = {active:'Đang hoạt động',inactive:'Tạm dừng',suspended:'Đình chỉ'};
+    var stC = {active:'var(--green)',inactive:'var(--dim)',suspended:'var(--red)',pending:'var(--amber)',rejected:'var(--red)',approved:'var(--green)'};
+    var stL = {active:'Đang hoạt động',inactive:'Tạm dừng',suspended:'Đình chỉ',pending:'Chờ duyệt',rejected:'Từ chối',approved:'Đã duyệt'};
+    var statusColor = stC[k.status] || 'var(--dim)';
+    var statusLabel = stL[k.status] || k.status || 'Không xác định';
     var projs = _mgCnData.filter(function(p){return p.kts===k.name;});
     html = '<div class="profile-hero">'
       +'<div class="profile-av" style="background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.3)"><i class="ph-duotone ph-palette"></i></div>'
@@ -3881,7 +3883,7 @@ function openProfile(type, idx){
         +'<div class="profile-meta">'+k.cchn+' · Kiến trúc sư</div>'
         +'<div class="profile-badges">'
           +'<span class="pbadge" style="color:var(--gold);background:rgba(245,158,11,.08)">'+k.tier+'</span>'
-          +'<span class="pbadge" style="color:'+stC[k.status]+';background:rgba(255,255,255,.04)">'+stL[k.status]+'</span>'
+          +'<span class="pbadge" style="color:'+statusColor+';background:rgba(255,255,255,.04)">'+statusLabel+'</span>'
           +(k.activeProjects>0?'<span class="pbadge" style="color:var(--green);background:rgba(16,185,129,.08)">'+k.activeProjects+' DA đang chạy</span>':'')
         +'</div>'
       +'</div>'
@@ -3894,10 +3896,9 @@ function openProfile(type, idx){
     +'<div class="profile-section">'
       +'<div class="ps-title"><i class="ph-duotone ph-identification-card" style="color:var(--amber)"></i>Thông tin tài khoản</div>'
       +'<div class="ps-row"><span class="k">Tên đăng nhập</span><span class="v">kts.'+k.name.toLowerCase().replace(/kts\. /,'').replace(/ /g,'')+'</span></div>'
-      +'<div class="ps-row"><span class="k">Mật khẩu</span><span class="v">••••••••</span></div>'
       +'<div class="ps-row"><span class="k">Tier</span><span class="v" style="color:'+(tierC[k.tier]||'var(--dim)')+'">'+k.tier+'</span></div>'
       +'<div class="ps-row"><span class="k">DA đang chạy</span><span class="v">'+k.activeProjects+'</span></div>'
-      +'<div class="ps-row"><span class="k">Trạng thái</span><span class="v" style="color:'+stC[k.status]+'">'+stL[k.status]+'</span></div>'
+      +'<div class="ps-row"><span class="k">Trạng thái</span><span class="v" style="color:'+statusColor+'">'+statusLabel+'</span></div>'
     +'</div>'
     +(projs.length>0?
       '<div class="profile-section">'
@@ -3951,7 +3952,6 @@ function openProfile(type, idx){
     +'<div class="profile-section">'
       +'<div class="ps-title"><i class="ph-duotone ph-identification-card" style="color:var(--blue)"></i>Thông tin tài khoản</div>'
       +'<div class="ps-row"><span class="k">Tên đăng nhập</span><span class="v">dn.'+d.name.toLowerCase().replace(/ /g,'').replace(/\./g,'').slice(0,12)+'</span></div>'
-      +'<div class="ps-row"><span class="k">Mật khẩu</span><span class="v">••••••••</span></div>'
       +'<div class="ps-row"><span class="k">Loại hình</span><span class="v">'+d.type+'</span></div>'
       +'<div class="ps-row"><span class="k">KTS liên kết</span><span class="v" style="color:var(--cyan)">'+d.ktsLinked+' KTS</span></div>'
       +'<div class="ps-row"><span class="k">Trạng thái</span><span class="v" style="color:'+(dStC[d.status]||'var(--dim)')+'">'+( dStL[d.status]||d.status)+'</span></div>'
@@ -4035,7 +4035,6 @@ function openProfile(type, idx){
     +'<div class="profile-section">'
       +'<div class="ps-title"><i class="ph-duotone ph-identification-card" style="color:var(--green)"></i>Tài khoản đăng nhập</div>'
       +'<div class="ps-row"><span class="k">Tên đăng nhập</span><span class="v">cn.'+c.cn.toLowerCase().replace(/ /g,'').slice(0,10)+'</span></div>'
-      +'<div class="ps-row"><span class="k">Mật khẩu</span><span class="v">••••••••</span></div>'
     +'</div>'
     +(function(){
       var docs = DN_DOCS_POOL[c.id] || [];
