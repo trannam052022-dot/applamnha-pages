@@ -9,14 +9,24 @@
  * kiểm mục 3 của spec (2–8 sàn) + phí bóc 2 mốc (300m²/200m²) — xem
  * scripts/_test_aln_pricing.js.
  *
- * CƠ CẤU GÓI (Founder chốt 22/09/2026, sửa từ bản đầu 20/09/2026 — bản đầu
- * gán NHẦM phí bóc khối lượng cho Gói Kiểm nhanh, đúng ra phí bóc thuộc
- * Gói Đồng hành xây):
+ * CƠ CẤU GÓI (Founder chốt 22/09/2026 (3), sửa từ bản 22/09/2026 — bản đó
+ * gộp phí bóc khối lượng VÀO Gói Đồng hành xây thành 1 tổng; nay TÁCH lại
+ * thành 2 gói ĐỘC LẬP, mua lẻ hoặc mua cả hai — lý do: chủ nhà đã có bản vẽ
+ * VÀ dự toán riêng (của đơn vị thiết kế/nhà thầu) chỉ cần Đồng hành xây để
+ * quản lý thi công, không cần trả phí bóc):
  *   - Gói Kiểm nhanh = MIỄN PHÍ (có hạn mức lượt dùng/tuần, số cụ thể CHƯA
  *     chốt) — đọc bản vẽ ra 3 con số diện tích, đối chiếu báo giá, KHÔNG
  *     thu tiền, KHÔNG dùng `tinhPhiBoc`.
- *   - Gói Đồng hành xây = phí bóc khối lượng (`tinhPhiBoc`) + phí theo mốc
- *     (`tinhDongHanh`), CỘNG LẠI thành 1 tổng — dùng `tinhGoiDongHanh()`.
+ *   - Gói Bóc khối lượng = ĐỘC LẬP, dùng thẳng `tinhPhiBoc()` — bóc khối
+ *     lượng theo từng tầng từ bản vẽ, thu trước khi bóc.
+ *   - Gói Đồng hành xây = ĐỘC LẬP, dùng thẳng `tinhDongHanh()` — KHÔNG còn
+ *     gộp phí bóc. Cần 1 "dự toán nền" để nghiệm thu khối lượng theo mốc:
+ *     lấy từ Gói Bóc khối lượng (nếu mua) HOẶC dự toán chủ nhà tự cung cấp
+ *     (khi đó ALN không xác nhận khối lượng trong dự toán đó — hiển thị rõ
+ *     trên UI, xem renderPackages() trong khong-gian-nha.html).
+ *   - `tinhGoiDongHanh()` GIỜ CHỈ dùng để hiển thị tổng THAM KHẢO khi chủ
+ *     nhà mua CẢ HAI gói cùng lúc (combo cross-sell) — KHÔNG còn là giá mặc
+ *     định của Đồng hành xây.
  *
  * `thue_suat_vat: 8` là TẠM TÍNH áp tới 31/12/2026 theo spec — kế toán xác
  * nhận diện áp dụng, CHƯA phải quyết định cuối cùng (xem mục 8 "Việc còn
@@ -93,13 +103,19 @@
   }
 
   /**
-   * tinhGoiDongHanh(dienTichQuyDoi, soSan) — TỔNG giá Gói Đồng hành xây =
-   * phí bóc khối lượng (tinhPhiBoc, thu 1 lần trước khi bóc) + phí theo mốc
-   * (tinhDongHanh, chia 3 đợt hoặc trả 1 lần). Tổng = CỘNG 2 số ĐÃ tính VAT
-   * riêng (boc.sauVat + moc.sauVat3Dot), KHÔNG cộng 2 số chưa VAT rồi áp VAT
-   * 1 lần trên tổng — để dòng "gồm bóc khối lượng X + theo mốc Y" hiển thị
-   * trên UI LUÔN cộng khớp đúng bằng tổng hiển thị (không lệch do làm tròn
-   * 2 lần khác nhau). Đã đối chiếu khớp ví dụ Founder xác nhận 22/09/2026
+   * tinhGoiDongHanh(dienTichQuyDoi, soSan) — KHÔNG còn là giá của 1 gói —
+   * đây là TỔNG THAM KHẢO khi chủ nhà mua CẢ HAI gói Bóc khối lượng
+   * (tinhPhiBoc, thu 1 lần trước khi bóc) + Đồng hành xây (tinhDongHanh,
+   * chia 3 đợt hoặc trả 1 lần) CÙNG LÚC — dùng cho dòng "mua cả hai, tiết
+   * kiệm thao tác" (combo cross-sell) trên UI, KHÔNG phải giá mặc định của
+   * Gói Đồng hành xây (gói đó giờ ĐỘC LẬP, dùng thẳng tinhDongHanh()).
+   * Tổng = CỘNG 2 số ĐÃ tính VAT riêng (boc.sauVat + moc.sauVat3Dot), KHÔNG
+   * cộng 2 số chưa VAT rồi áp VAT 1 lần trên tổng — để dòng "gồm bóc khối
+   * lượng X + theo mốc Y" hiển thị trên UI LUÔN cộng khớp đúng bằng tổng
+   * hiển thị (không lệch do làm tròn 2 lần khác nhau). % giảm trả 1 lần
+   * (tra_1_lan.giam) CHỈ áp cho phần moc (tinhDongHanh tự làm), KHÔNG áp
+   * cho phần boc — đúng chính sách "giảm ~10% CHỈ áp phần theo mốc" Founder
+   * chốt 20/09/2026. Đã đối chiếu khớp ví dụ Founder xác nhận 20/09/2026
    * (2 sàn / 432 m² quy đổi): 3 đợt chưa VAT 5.056.000/sau VAT 5.460.480,
    * trả 1 lần chưa VAT 4.906.000/sau VAT 5.298.480 — xem scripts/_test_aln_pricing.js.
    */
