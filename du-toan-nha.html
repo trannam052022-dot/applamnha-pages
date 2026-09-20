@@ -495,16 +495,33 @@ function goLogin() {
   window.location.href = "dang-nhap-chu-nha.html?next=" + encodeURIComponent("du-toan-nha.html?autosave=1");
 }
 
+// Sự cố production 22/09/2026 (3): trước đây chỉ kiểm `auth.currentUser`
+// (truthy) rồi gọi thẳng saveEstimateToHouse — nhưng trình duyệt có thể đã
+// có phiên ẩn danh (signInAnonymously, vd MyMy ở trang khác cùng origin,
+// Firebase Auth persist qua localStorage nên phiên đó "còn sống" khi mở
+// trang này dù trang này không tự tạo ẩn danh). `saveEstimateToHouse.js`
+// (server) đòi `request.auth.token.phone_number` — phiên ẩn danh không có,
+// nên request bị từ chối "Tài khoản chưa xác thực qua số điện thoại", và
+// khách KHÔNG được chuyển sang OTP vì client tưởng đã đăng nhập. Sửa: chỉ
+// coi là đã đăng nhập khi user KHÔNG ẩn danh VÀ có phoneNumber — khớp đúng
+// điều kiện server đang kiểm.
+function isPhoneAuthed(user) {
+  return !!(user && !user.isAnonymous && user.phoneNumber);
+}
+
 btn.addEventListener("click", () => {
-  if (auth.currentUser) doSave(); else goLogin();
+  if (isPhoneAuthed(auth.currentUser)) doSave(); else goLogin();
 });
 
 // Quay lại từ bước OTP (?autosave=1 do goLogin() gắn vào next=) — tự lưu
 // ngay khi xác nhận phiên đăng nhập đã sẵn sàng, không bắt bấm nút lần nữa.
+// CHỜ đúng phiên Phone Auth thật (isPhoneAuthed) — KHÔNG unsub/lưu sớm nếu
+// onAuthStateChanged tạm thời báo về phiên ẩn danh cũ trước khi phiên Phone
+// Auth mới kịp thay thế.
 const params = new URLSearchParams(window.location.search);
 if (params.get("autosave") === "1") {
   const unsub = onAuthStateChanged(auth, (user) => {
-    if (!user) return;
+    if (!isPhoneAuthed(user)) return;
     unsub();
     params.delete("autosave");
     const qs = params.toString();

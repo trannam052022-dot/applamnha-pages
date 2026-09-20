@@ -1477,8 +1477,18 @@ els.fileInput.addEventListener('change', async () => {
   }
 });
 
+// Sự cố production 22/09/2026 (3): trước đây kiểm `!user` là đủ — nhưng
+// trình duyệt có thể đã có phiên ẩn danh (signInAnonymously ở trang khác
+// cùng origin, vd MyMy). Phiên ẩn danh lọt qua chặn này thì init() gọi
+// khLienKetTaiKhoan (server đòi request.auth.token.phone_number) → lỗi,
+// rơi vào showState('error') chung chung thay vì được đưa sang OTP đúng
+// chỗ. Chỉ coi là đã đăng nhập khi user KHÔNG ẩn danh VÀ có phoneNumber —
+// khớp đúng điều kiện mọi Cloud Function của Không Gian Nhà đang kiểm.
+function isPhoneAuthed(user) {
+  return !!(user && !user.isAnonymous && user.phoneNumber);
+}
 onAuthStateChanged(auth, (user) => {
-  if (!user) {
+  if (!isPhoneAuthed(user)) {
     window.location.href = 'dang-nhap-chu-nha.html';
     return;
   }

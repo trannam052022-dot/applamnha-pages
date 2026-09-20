@@ -639,7 +639,13 @@ function withTimeout(promise, ms) {
 let authReadyPromise = null;
 function ensureAnonAuth() {
   if (!authReadyPromise) {
-    signInAnonymously(auth).catch((e) => console.error('tho-giu-cho anon-auth lỗi:', e));
+    // Sự cố production 22/09/2026 (4): CHỈ tạo phiên ẩn danh khi CHƯA có
+    // phiên nào — gọi vô điều kiện sẽ ghi đè mất phiên Phone Auth thật nếu
+    // chủ nhà đã đăng nhập OTP ở trang khác cùng origin trước đó (xem
+    // mymy-widget.js).
+    if (!auth.currentUser) {
+      signInAnonymously(auth).catch((e) => console.error('tho-giu-cho anon-auth lỗi:', e));
+    }
     authReadyPromise = withTimeout(
       new Promise((resolve) => {
         const unsub = onAuthStateChanged(auth, (u) => { if (u) { unsub(); resolve(u); } });
