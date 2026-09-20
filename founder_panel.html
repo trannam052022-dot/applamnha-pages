@@ -916,6 +916,7 @@ body {
   <!-- DỰ ÁN -->
   <span id="fsubProjects" style="display:none;align-items:center;gap:4px">
     <button class="fsub" id="tabProjects"  onclick="switchTab('projects')" ><i class="ph-duotone ph-rows"></i>Danh sách</button>
+    <button class="fsub" id="tabEstimateProfiles" onclick="switchTab('estimateProfiles')"><i class="ph-duotone ph-calculator"></i>Hồ sơ dự toán<span id="estimateProfilesBadge" style="display:none;background:var(--gold);color:#08090f;border-radius:99px;font-size:9px;padding:1px 5px;margin-left:2px;font-weight:800">0</span></button>
     <button class="fsub" id="tabC2monitor" onclick="switchTab('c2monitor')"><i class="ph-duotone ph-eye"></i>C2 Monitor<span id="c2AlertBadge" style="display:none;background:#ef4444;color:#fff;border-radius:99px;font-size:9px;padding:1px 5px;margin-left:2px;font-weight:800">0</span></button>
     <button class="fsub" id="tabWaitRoom"  onclick="switchTab('waitRoom')" ><i class="ph-duotone ph-clock-countdown"></i>Phòng chờ<span id="waitRoomBadge" style="display:none;background:#7c3aed;color:#fff;border-radius:99px;font-size:9px;padding:1px 5px;margin-left:2px;font-weight:800">0</span></button>
     <button class="fsub" id="tabMatching"  onclick="switchTab('matching')" ><i class="ph-duotone ph-link"></i>Ghép cặp<span id="matchingBadge" style="display:none;background:var(--gold);color:#08090f;border-radius:99px;font-size:9px;padding:1px 5px;margin-left:2px;font-weight:800">0</span></button>
@@ -1316,6 +1317,26 @@ document.addEventListener('DOMContentLoaded', function() {
   <div class="pagination-info" id="pageInfo">Đang tải...</div>
   <div class="page-btns" id="pageBtns"></div>
 </div>
+</div>
+
+<!-- ══ PANEL: HỒ SƠ DỰ TOÁN TỰ PHỤC VỤ (FOUNDER-ONLY, READ-ONLY) ══ -->
+<div id="panelEstimateProfiles" style="display:none;flex-direction:column;flex:1;min-height:calc(100vh - 84px);overflow:hidden">
+  <div style="display:flex;align-items:center;gap:12px;padding:14px 20px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap">
+    <div style="flex:1;min-width:240px">
+      <div style="font-size:15px;font-weight:800;color:var(--text1)">Hồ sơ dự toán trước C1</div>
+      <div style="font-size:11px;color:var(--sub);margin-top:3px">Hồ sơ chủ nhà tự lưu từ công cụ dự toán · Chỉ đọc</div>
+    </div>
+    <div id="estimateProfilesSummary" style="font-family:var(--mono);font-size:11px;color:var(--dim)">Chưa tải dữ liệu</div>
+    <button onclick="refreshEstimateProfiles()" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;gap:5px"><i class="ph-duotone ph-arrow-clockwise"></i> Tải lại</button>
+  </div>
+  <div class="table-wrap" style="flex:1;overflow:auto">
+    <table class="data-table" style="min-width:1180px">
+      <thead><tr>
+        <th>NGÀY TẠO</th><th>LIÊN HỆ</th><th>SỐ SÀN</th><th>DIỆN TÍCH QUY ĐỔI</th><th>TỔNG DỰ TOÁN</th><th>ĐƠN GIÁ/M²</th><th>PHIÊN BẢN</th><th>UPLOADS</th>
+      </tr></thead>
+      <tbody id="estimateProfilesBody"><tr><td colspan="8" style="text-align:center;padding:40px;color:var(--dim)">Chọn tab để tải dữ liệu.</td></tr></tbody>
+    </table>
+  </div>
 </div>
 
 <!-- ══ PANEL: QUẢN LÝ KTS ══ -->
@@ -3705,7 +3726,7 @@ window.ALNRealtime = (() => {
 ══════════════════════════════════════════ */
 
 function switchTab(t){
-  var ALL = ['projects','stats','mgKts','mgDn','mgCn','mgKs','mgKtv','mgNcc','bricks','pending','payments','report','leads','suaVatAi','contacts','pipeline','thoQuan','recruit','company','pricing','khomau','mkt','seo','hoikien','waitRoom','matching','c2monitor','liveKts','liveDn','liveCn','liveDes','liveKs','liveKtv','liveKeToan'];
+  var ALL = ['projects','estimateProfiles','stats','mgKts','mgDn','mgCn','mgKs','mgKtv','mgNcc','bricks','pending','payments','report','leads','suaVatAi','contacts','pipeline','thoQuan','recruit','company','pricing','khomau','mkt','seo','hoikien','waitRoom','matching','c2monitor','liveKts','liveDn','liveCn','liveDes','liveKs','liveKtv','liveKeToan'];
   var activeStyle  = 'padding:5px 13px;border:1px solid rgba(59,130,246,.25);border-radius:6px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;background:rgba(59,130,246,.15);color:var(--blue);white-space:nowrap';
   var inactiveStyle= 'padding:5px 13px;border:1px solid var(--border);border-radius:6px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;background:var(--raised);color:var(--sub);white-space:nowrap';
   var liveStyles = {
@@ -3742,6 +3763,7 @@ function switchTab(t){
   });
 
   if(t==='projects') renderTable();
+  if(t==='estimateProfiles' && typeof window.loadEstimateProfiles==='function') window.loadEstimateProfiles();
   if(t==='stats')   renderStats();
   if(t==='mgKts')   renderMgKts();
   if(t==='mgDn')    renderMgDn();
@@ -5638,6 +5660,128 @@ import { app, auth, db, storage, storageRef, uploadBytes, getDownloadURL, onAuth
 
 const REQUIRED_ROLE = "founder";
 window.app = app; // để các hàm ở script thường (saveAddModal…) gọi getFunctions(app,…) được
+
+/* ── HỒ SƠ DỰ TOÁN: Founder-only, read-only ── */
+let _estimateProfilesLoaded = false;
+let _estimateProfilesLoading = false;
+
+function epEsc(value) {
+  return String(value == null ? '' : value).replace(/[&<>"']/g, function(ch) {
+    return ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[ch];
+  });
+}
+function epMillis(value) {
+  if (!value) return 0;
+  if (typeof value.toMillis === 'function') return value.toMillis();
+  if (typeof value.seconds === 'number') return value.seconds * 1000;
+  return Number(value) || 0;
+}
+function epDate(value) {
+  const ms = epMillis(value);
+  return ms ? new Date(ms).toLocaleString('vi-VN', { hour:'2-digit', minute:'2-digit', day:'2-digit', month:'2-digit', year:'numeric' }) : '—';
+}
+function epNumber(value, digits) {
+  return Number.isFinite(Number(value)) ? Number(value).toLocaleString('vi-VN', { maximumFractionDigits: digits == null ? 1 : digits }) : '—';
+}
+function epMoney(value) {
+  return Number.isFinite(Number(value)) ? Math.round(Number(value)).toLocaleString('vi-VN') + ' đ' : '—';
+}
+function epUploadLabel(loai) {
+  return ({ ban_ve:'Bản vẽ', bao_gia:'Báo giá', khac:'Khác' })[loai] || loai || 'Tệp';
+}
+function epStatusLabel(status) {
+  return ({ moi:'Mới', dang_xu_ly:'Đang xử lý', xong:'Xong' })[status] || status || '—';
+}
+
+async function epLoadContacts() {
+  const mod = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js');
+  const fn = mod.httpsCallable(mod.getFunctions(app, 'asia-southeast1'), 'segmentContacts');
+  const result = await fn({});
+  const map = new Map();
+  ((result.data && result.data.items) || []).forEach(function(contact) { map.set(contact.id, contact); });
+  return map;
+}
+
+async function epLoadHouseDetails(houseDoc, contacts) {
+  const house = houseDoc.data() || {};
+  const [versionSnap, uploadSnap] = await Promise.all([
+    getDocs(query(collection(db, 'houses', houseDoc.id, 'du_toan_versions'), orderBy('phien_ban', 'desc'))),
+    getDocs(query(collection(db, 'houses', houseDoc.id, 'uploads'), orderBy('created_at', 'desc'))),
+  ]);
+  const versions = versionSnap.docs.map(function(d) { return Object.assign({ id:d.id }, d.data()); });
+  const latest = versions[0] || null;
+  const uploads = await Promise.all(uploadSnap.docs.map(async function(d) {
+    const item = Object.assign({ id:d.id }, d.data());
+    if (item.storage_path) {
+      try { item.download_url = await getDownloadURL(storageRef(storage, item.storage_path)); }
+      catch (e) { item.download_error = e && (e.code || e.message) || 'unknown'; }
+    }
+    return item;
+  }));
+  return { id:houseDoc.id, house:house, contact:contacts.get(house.contact_id) || null, versions:versions, latest:latest, uploads:uploads };
+}
+
+function epRender(rows) {
+  const body = document.getElementById('estimateProfilesBody');
+  const summary = document.getElementById('estimateProfilesSummary');
+  const badge = document.getElementById('estimateProfilesBadge');
+  if (summary) summary.textContent = rows.length + ' hồ sơ · mới nhất trước';
+  if (badge) { badge.textContent = rows.length; badge.style.display = rows.length ? 'inline-block' : 'none'; }
+  if (!body) return;
+  if (!rows.length) {
+    body.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--dim)">Chưa có hồ sơ nào ở trạng thái <span style="font-family:var(--mono)">truoc_c1</span>.</td></tr>';
+    return;
+  }
+  body.innerHTML = rows.map(function(row) {
+    const h = row.house;
+    const c = row.contact || {};
+    const kq = row.latest && row.latest.ket_qua || {};
+    const contactName = c.name || h.ten_hien_thi || 'Chưa có tên';
+    const phone = c.phone_normalized || 'Chưa có SĐT';
+    const uploadsHtml = row.uploads.length ? row.uploads.map(function(u) {
+      const link = u.download_url
+        ? '<a href="'+epEsc(u.download_url)+'" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;font-weight:700">Tải</a>'
+        : '<span title="'+epEsc(u.download_error || 'Không có storage_path')+'" style="color:var(--red)">Không tải được</span>';
+      return '<div style="display:flex;align-items:center;gap:6px;white-space:nowrap;margin:2px 0"><span style="color:var(--text2)">'+epEsc(epUploadLabel(u.loai))+'</span><span style="font-size:9px;color:var(--dim);border:1px solid var(--border);border-radius:99px;padding:1px 5px">'+epEsc(epStatusLabel(u.trang_thai))+'</span>'+link+'</div>';
+    }).join('') : '<span style="color:var(--dim)">Chưa có</span>';
+    return '<tr>'
+      +'<td style="white-space:nowrap">'+epEsc(epDate(h.created_at))+'<div style="font-family:var(--mono);font-size:9px;color:var(--dim);margin-top:3px">'+epEsc(row.id)+'</div></td>'
+      +'<td><div style="font-weight:700;color:var(--text1)">'+epEsc(contactName)+'</div><div style="font-family:var(--mono);font-size:11px;color:var(--sub);margin-top:3px">'+epEsc(phone)+'</div></td>'
+      +'<td style="text-align:center;font-family:var(--mono);font-weight:700">'+epEsc(h.so_tang == null ? '—' : h.so_tang)+'</td>'
+      +'<td style="white-space:nowrap;font-family:var(--mono)">'+epEsc(epNumber(kq.qd, 1))+(kq.qd == null ? '' : ' m²')+'</td>'
+      +'<td style="white-space:nowrap;font-family:var(--mono);font-weight:700;color:var(--text1)">'+epEsc(epMoney(kq.tong_sau_vat != null ? kq.tong_sau_vat : kq.tong_chua_vat))+'</td>'
+      +'<td style="white-space:nowrap;font-family:var(--mono)">'+epEsc(epMoney(kq.don_gia_m2))+'</td>'
+      +'<td style="text-align:center"><div style="font-family:var(--mono);font-weight:800;color:var(--gold)">'+row.versions.length+'</div><div style="font-size:9px;color:var(--dim);margin-top:2px">Mới nhất: v'+epEsc(row.latest && row.latest.phien_ban || '—')+'</div></td>'
+      +'<td>'+uploadsHtml+'</td>'
+      +'</tr>';
+  }).join('');
+}
+
+window.loadEstimateProfiles = async function(force) {
+  if (_estimateProfilesLoading || (_estimateProfilesLoaded && !force)) return;
+  _estimateProfilesLoading = true;
+  const body = document.getElementById('estimateProfilesBody');
+  const summary = document.getElementById('estimateProfilesSummary');
+  if (body) body.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--dim)"><i class="ph-duotone ph-spinner-gap ph-spin"></i> Đang tải hồ sơ, phiên bản và uploads...</td></tr>';
+  if (summary) summary.textContent = 'Đang tải...';
+  try {
+    const [houseSnap, contacts] = await Promise.all([
+      getDocs(query(collection(db, 'houses'), where('trang_thai', '==', 'truoc_c1'))),
+      epLoadContacts(),
+    ]);
+    const rows = await Promise.all(houseSnap.docs.map(function(d) { return epLoadHouseDetails(d, contacts); }));
+    rows.sort(function(a, b) { return epMillis(b.house.created_at) - epMillis(a.house.created_at); });
+    epRender(rows);
+    _estimateProfilesLoaded = true;
+  } catch (e) {
+    console.error('[Founder estimateProfiles]', e);
+    if (summary) summary.textContent = 'Lỗi tải dữ liệu';
+    if (body) body.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--red)">Không tải được hồ sơ dự toán: '+epEsc(e && (e.message || e.code) || e)+'</td></tr>';
+  } finally {
+    _estimateProfilesLoading = false;
+  }
+};
+window.refreshEstimateProfiles = function() { return window.loadEstimateProfiles(true); };
 
 /* ── KHUNG GIÁ: lưu thẳng lên Firestore ── */
 window.pricingSaveToFirestore = async function(data) {
