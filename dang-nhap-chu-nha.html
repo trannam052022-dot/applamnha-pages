@@ -271,9 +271,28 @@ import {
   auth, RecaptchaVerifier, signInWithPhoneNumber, onAuthStateChanged
 } from './firebase-config.js';
 
-// Trang Không Gian Nhà thật — đăng nhập xong luôn chuyển tới đây (đọc
+// Trang Không Gian Nhà thật — đăng nhập xong mặc định chuyển tới đây (đọc
 // houses/moc/nhat_ky/tai_lieu/so_chi qua onSnapshot, xem khong-gian-nha.html).
 const KHONG_GIAN_NHA_URL = 'khong-gian-nha.html';
+
+// P1.2 — du-toan-nha.html gọi trang này với ?next=... (khi khách bấm "Lưu
+// vào Không gian Nhà" nhưng chưa đăng nhập) để quay lại đúng công cụ sau
+// OTP thay vì luôn về khong-gian-nha.html. CHỈ nhận đường dẫn NỘI BỘ, CÙNG
+// ORIGIN, đúng 1 trong các trang whitelist dưới đây — chặn open redirect
+// (không nhận scheme/host lạ kiểu "https://...", "//evil.com", "javascript:").
+const NEXT_ALLOWED_PAGES = ['khong-gian-nha.html', 'du-toan-nha.html'];
+function resolveNextUrl() {
+  const raw = new URLSearchParams(window.location.search).get('next');
+  if (!raw) return KHONG_GIAN_NHA_URL;
+  let decoded;
+  try { decoded = decodeURIComponent(raw); } catch (e) { return KHONG_GIAN_NHA_URL; }
+  if (/^[a-z][a-z0-9+.-]*:/i.test(decoded) || decoded.startsWith('//') || decoded.startsWith('\\')) {
+    return KHONG_GIAN_NHA_URL; // có scheme (http:, javascript:...) hoặc protocol-relative — từ chối
+  }
+  const page = decoded.split('?')[0].split('#')[0];
+  if (!NEXT_ALLOWED_PAGES.includes(page)) return KHONG_GIAN_NHA_URL;
+  return decoded;
+}
 
 /* ── Chuẩn hoá số điện thoại — SAO CHÉP NGUYÊN VĂN từ functions/contacts.js
    normalizePhone(). KHÔNG được viết lại/đổi quy tắc ở đây: pass 4 sẽ nối
@@ -483,7 +502,7 @@ async function handleVerify() {
   try {
     await confirmationResult.confirm(code);
     goToStep(3);
-    window.location.href = KHONG_GIAN_NHA_URL;
+    window.location.href = resolveNextUrl();
   } catch (err) {
     console.error("[dang-nhap-chu-nha] confirm OTP lỗi:", err);
     showError(err && err.code, err && err.message);
@@ -514,7 +533,7 @@ els.otpInput.addEventListener("input", () => {
 // thẳng sang Không Gian Nhà.
 onAuthStateChanged(auth, (user) => {
   if (user && els.step1.hidden === false && !confirmationResult) {
-    window.location.href = KHONG_GIAN_NHA_URL;
+    window.location.href = resolveNextUrl();
   }
 });
 
