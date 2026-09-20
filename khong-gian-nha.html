@@ -924,10 +924,11 @@ function renderDuToanOldList(oldVersions) {
 }
 
 /* ── Khối e2 — Gói dịch vụ ALN (giá từ aln-pricing.js, đã gồm VAT) ──
-   Cơ cấu chốt 22/09/2026: Kiểm nhanh MIỄN PHÍ (đọc bản vẽ ra 3 con số diện
-   tích + đối chiếu báo giá, có hạn mức/tuần) — phí bóc khối lượng KHÔNG
-   thuộc gói này. Đồng hành xây = phí bóc khối lượng + phí theo mốc CỘNG LẠI
-   thành 1 tổng (tinhGoiDongHanh) — xem aln-pricing.js. */
+   Cơ cấu chốt 20/09/2026: 4 gói ĐỘC LẬP, mua lẻ hoặc mua cả hai —
+   Tự tính (miễn phí) / Kiểm nhanh (miễn phí, có hạn mức/tuần) / Bóc khối
+   lượng (tinhPhiBoc, thu trước khi bóc) / Đồng hành xây (tinhDongHanh,
+   KHÔNG còn gộp phí bóc). tinhGoiDongHanh chỉ còn dùng cho dòng "mua cả
+   hai" (combo cross-sell tham khảo) ở cuối khối — xem aln-pricing.js. */
 function renderPackages() {
   const P = window.ALN_PRICING;
   if (!P) { els.pkgGrid.innerHTML = ''; return; }
@@ -936,26 +937,39 @@ function renderPackages() {
   const dienTich = latest && latest.ket_qua && latest.ket_qua.qd;
 
   // Giá CHÍNH luôn là giá đã gồm VAT — dòng .pkg-sub nhỏ bên dưới mới là số
-  // chưa VAT + dòng tách "gồm bóc khối lượng + theo mốc", KHÔNG đảo ngược.
-  let dongHanhPrice = 'Theo diện tích và số sàn nhà bạn';
-  let dongHanhSubChuaVat = '';
-  let dongHanhSubGom = '';
+  // chưa VAT, KHÔNG đảo ngược.
+  let bocPrice = 'Theo diện tích quy đổi nhà bạn';
+  let bocSub = '';
+  if (dienTich) {
+    const b = P.tinhPhiBoc(dienTich);
+    bocPrice = esc(fmtMoney(b.sauVat));
+    bocSub = `<div class="pkg-sub">Chưa VAT: ${esc(fmtMoney(b.chuaVat))} (8.000 đ/m² quy đổi, tối thiểu 2.000.000 đ/bộ hồ sơ)</div>`;
+  }
+
+  let dongHanhPrice = 'Theo số sàn nhà bạn';
+  let dongHanhSub = '';
   let dongHanhGhiChu = '';
+  if (soSan) {
+    const d = P.tinhDongHanh(soSan);
+    dongHanhPrice = esc(fmtMoney(d.sauVat3Dot));
+    dongHanhSub = `<div class="pkg-sub">Chưa VAT: ${esc(fmtMoney(d.chuaVat3Dot))} (đơn giá tạm tính 400.000 đ/mốc × ${d.mocTinhTien} mốc tính tiền, mốc móng miễn phí)</div>`;
+    // Giảm ~10% chỉ áp cho gói này (phần theo mốc) — không liên quan phí bóc
+    // khối lượng của gói khác (Founder chốt 20/09/2026, tách 2 gói độc lập).
+    dongHanhGhiChu = ` Trả 1 lần (chọn sau khi nghiệm thu móng): ${esc(fmtMoney(d.tra1LanSauVat))} — chưa VAT ${esc(fmtMoney(d.tra1LanChuaVat))}, giảm khoảng 10% so với chia 3 đợt, không hoàn lại.`;
+  }
+
+  let comboNote = '';
   if (dienTich && soSan) {
     const g = P.tinhGoiDongHanh(dienTich, soSan);
-    dongHanhPrice = esc(fmtMoney(g.sauVat3Dot));
-    dongHanhSubChuaVat = `<div class="pkg-sub">Chưa VAT: ${esc(fmtMoney(g.chuaVat3Dot))}</div>`;
-    dongHanhSubGom = `<div class="pkg-sub">Gồm: bóc khối lượng ${esc(fmtMoney(g.boc.sauVat))} + theo mốc ${esc(fmtMoney(g.moc.sauVat3Dot))} (đơn giá tạm tính 400.000 đ/mốc)</div>`;
-    // Giảm ~10% CHỈ áp cho phần theo mốc — phí bóc khối lượng giữ nguyên dù
-    // chọn trả phần mốc theo 3 đợt hay 1 lần (Founder chốt 22/09/2026 (2)).
-    dongHanhGhiChu = ` Trả phần theo mốc 1 lần (chọn sau khi nghiệm thu móng): ${esc(fmtMoney(g.sauVatTra1Lan))} — chưa VAT ${esc(fmtMoney(g.chuaVatTra1Lan))}. Phần theo mốc giảm khoảng 10% (${esc(fmtMoney(g.moc.sauVat3Dot))} → ${esc(fmtMoney(g.moc.tra1LanSauVat))}), phí bóc khối lượng giữ nguyên. Trả 1 lần không hoàn lại.`;
+    comboNote = `
+    <p class="pkg-fine">Mua cả hai gói Bóc khối lượng + Đồng hành xây: ${esc(fmtMoney(g.sauVat3Dot))} (chia 3 đợt) hoặc ${esc(fmtMoney(g.sauVatTra1Lan))} (trả phần theo mốc 1 lần) — dự toán bóc ra dùng thẳng làm dự toán nền để nghiệm thu, không cần nhập lại.</p>`;
   }
 
   els.pkgGrid.innerHTML = `
     <div class="pkg-card">
       <div class="pkg-top"><span class="pkg-name">Gói Tự tính</span><span class="pkg-price">Miễn phí</span></div>
       <p class="pkg-note">Bạn tự dùng công cụ dự toán, tự lưu, tự theo dõi sổ chi — ALN không tham gia bước nào.</p>
-      <ul class="pkg-list"><li>Dự toán theo nhà mẫu, lưu không giới hạn lần</li><li>Sổ chi tự ghi</li></ul>
+      <ul class="pkg-list"><li>Dự toán theo nhà mẫu, lưu nhiều phiên bản để so sánh</li><li>Sổ chi tự ghi</li></ul>
     </div>
     <div class="pkg-card">
       <div class="pkg-top"><span class="pkg-name">Gói Kiểm nhanh</span><span class="pkg-price">Miễn phí</span></div>
@@ -967,19 +981,29 @@ function renderPackages() {
         <li>Câu hỏi nên hỏi nhà thầu trước khi ký + hồ sơ còn thiếu</li>
       </ul>
     </div>
-    <div class="pkg-card feat">
-      <div class="pkg-top"><span class="pkg-name">Gói Đồng hành xây</span><span class="pkg-price">${dongHanhPrice}</span></div>
-      ${dongHanhSubChuaVat}
-      ${dongHanhSubGom}
-      <p class="pkg-note">ALN đồng hành theo từng mốc thi công — bóc khối lượng thật từ bản vẽ, nghiệm thu khối lượng theo từng mốc thi công.${dongHanhGhiChu}</p>
+    <div class="pkg-card">
+      <div class="pkg-top"><span class="pkg-name">Gói Bóc khối lượng</span><span class="pkg-price">${bocPrice}</span></div>
+      ${bocSub}
+      <p class="pkg-note">ALN bóc khối lượng thật từ bản vẽ, thu trước khi bóc. Dùng khi bạn cần dự toán nền đáng tin để nghiệm thu — kể cả khi chưa mua Đồng hành xây.</p>
       <ul class="pkg-list">
         <li>Bóc khối lượng chi tiết theo từng tầng từ bản vẽ thật</li>
+        <li>Khoá kết quả từng tầng sau khi bóc xong</li>
+      </ul>
+    </div>
+    <div class="pkg-card feat">
+      <div class="pkg-top"><span class="pkg-name">Gói Đồng hành xây</span><span class="pkg-price">${dongHanhPrice}</span></div>
+      ${dongHanhSub}
+      <p class="pkg-note">ALN đồng hành theo từng mốc thi công — nghiệm thu khối lượng, đối chiếu tạm ứng, so sánh chi phí thực tế với dự toán.${dongHanhGhiChu}</p>
+      <ul class="pkg-list">
         <li>Nghiệm thu khối lượng theo từng mốc</li>
-        <li>Mốc móng đầu tiên miễn phí</li>
+        <li>Mốc móng đầu tiên miễn phí, 3 đợt sau nghiệm thu móng / xong phần thô / hoàn công (40% / 40% / 20%)</li>
         <li>Sổ tạm ứng nhà thầu — đối chiếu mỗi lần tạm ứng với phần việc đã nghiệm thu</li>
+        <li>Sổ chi so với dự toán</li>
         <li>Công trình tạm dừng được bảo lưu tối đa 24 tháng</li>
       </ul>
-    </div>`;
+      <p class="pkg-fine">Cần 1 dự toán nền để nghiệm thu theo mốc: dùng dự toán từ gói Bóc khối lượng (nếu đã mua), hoặc dự toán bạn tự cung cấp. Nếu dùng dự toán bạn cung cấp: <strong>nghiệm thu theo dự toán bạn cung cấp — ALN không xác nhận khối lượng trong dự toán đó</strong>; mua thêm gói Bóc khối lượng để có dự toán nền do ALN chịu trách nhiệm về khối lượng.</p>
+      <p class="pkg-fine">Nộp dự toán có sẵn: file Excel có khối lượng chi tiết dùng được ngay, miễn phí trong gói Đồng hành xây. Chỉ có PDF/ảnh: ALN nhập giá trị hợp đồng + lịch thanh toán để sổ tạm ứng chạy được — nghiệm thu khối lượng cần thêm gói Bóc khối lượng.</p>
+    </div>${comboNote}`;
 }
 
 /* ── Khối b3 — Tải bản vẽ / báo giá (P1.4) ── */
