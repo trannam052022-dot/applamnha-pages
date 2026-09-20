@@ -1436,6 +1436,15 @@ els.fileInput.addEventListener('change', async () => {
     await callKhGhiUpload({ houseId: currentHouseId, storagePath: path, loai: pendingUploadLoai });
     els.uploadProgress.textContent = 'Đã gửi — cảm ơn bạn, ALN sẽ xem và liên hệ lại.';
     setTimeout(() => { els.uploadProgress.classList.remove('show'); }, 5000);
+    // P1.5 (spec mục 5) — dataLayer thuần, KHÔNG kèm CAPI: nhà đã có contact
+    // gắn sẵn từ lúc lưu dự toán (aln_du_toan_luu), gửi thêm file chỉ là tín
+    // hiệu tương tác sâu hơn, không phải 1 lead mới.
+    const uploadEventName = pendingUploadLoai === 'ban_ve' ? 'aln_gui_ban_ve'
+      : (pendingUploadLoai === 'bao_gia' ? 'aln_gui_bao_gia' : null);
+    if (uploadEventName) {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ event: uploadEventName, aln_house_id: currentHouseId, aln_loai_file: pendingUploadLoai });
+    }
   } catch (err) {
     console.error('[khong-gian-nha] upload lỗi:', err);
     els.uploadProgress.classList.remove('show');
