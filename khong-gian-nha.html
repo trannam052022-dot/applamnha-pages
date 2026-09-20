@@ -774,7 +774,7 @@ function renderSteps() {
       <div class="step-body">
         <div class="step-ten">Gửi bản vẽ để ALN kiểm nhanh miễn phí</div>
         <p class="step-note">ALN đọc bản vẽ, trả về diện tích chuẩn và hồ sơ còn thiếu — miễn phí. Bóc khối lượng chi tiết theo từng tầng thuộc gói Đồng hành xây.</p>
-        <div class="step-actions"><button type="button" class="btn btn-gold" data-scroll-upload="ban_ve">Gửi bản vẽ</button></div>
+        <div class="step-actions"><button type="button" class="btn btn-gold" data-open-upload="ban_ve">Gửi bản vẽ</button></div>
       </div>
     </div>
     <div class="step-item">
@@ -782,7 +782,7 @@ function renderSteps() {
       <div class="step-body">
         <div class="step-ten">Đã có báo giá nhà thầu? Gửi để ALN đối chiếu</div>
         <p class="step-note">ALN đưa báo giá về cùng cách tính diện tích và phạm vi, rồi chỉ ra những câu nên hỏi nhà thầu trước khi ký.</p>
-        <div class="step-actions"><button type="button" class="btn btn-ghost" data-scroll-upload="bao_gia">Gửi báo giá</button></div>
+        <div class="step-actions"><button type="button" class="btn btn-ghost" data-open-upload="bao_gia">Gửi báo giá</button></div>
       </div>
     </div>
     <div class="step-item">
@@ -793,10 +793,9 @@ function renderSteps() {
         <div class="step-actions"><a class="btn btn-gold" href="https://zalo.me/alnsanthietke" target="_blank" rel="noopener">Nhắn Zalo ALN</a></div>
       </div>
     </div>`;
-  els.stepList.querySelectorAll('[data-scroll-upload]').forEach((btn) => {
+  els.stepList.querySelectorAll('[data-open-upload]').forEach((btn) => {
     btn.addEventListener('click', () => {
-      pendingUploadLoai = btn.dataset.scrollUpload;
-      els.uploadBlock.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      openFilePicker(btn.dataset.openUpload);
     });
   });
 }
@@ -922,6 +921,25 @@ function renderPackages() {
 const UPLOAD_EXT_RE = /\.(pdf|jpe?g|png|heic|xlsx?|dwg)$/i;
 const UPLOAD_MAX_BYTES = 50 * 1024 * 1024;
 const UPLOAD_LOAI_TAG = { ban_ve: 'Bản vẽ', bao_gia: 'Báo giá', khac: 'Khác' };
+
+/**
+ * Mở hộp chọn file NGAY (đặt sẵn loai) — dùng chung cho nút ở khối "Bước
+ * tiếp theo" lẫn khối "Tải bản vẽ / báo giá". Sự cố production (22/09/2026):
+ * nút ở "Bước tiếp theo" trước đây CHỈ scrollIntoView() rồi chờ người dùng
+ * tự bấm nút khác bên dưới — trên điện thoại thật, cuộn không dừng đúng
+ * uploadBlock mà lệch xuống tận "Sổ chi của bạn" (khả năng cao do các khối
+ * phía trên như dtBlock/pkgBlock còn đổi chiều cao trong lúc cuộn đang chạy
+ * animation, dời điểm dừng). Gọi fileInput.click() NGAY, đồng bộ trong
+ * chính sự kiện click gốc (bắt buộc để Safari iOS không chặn hộp thoại
+ * chọn file coi là không do người dùng khởi tạo trực tiếp) — không còn phụ
+ * thuộc animation cuộn mới mở được hộp chọn file; cuộn chỉ còn là phụ, để
+ * người dùng thấy đúng khối khi đóng hộp thoại.
+ */
+function openFilePicker(loai) {
+  pendingUploadLoai = loai;
+  els.fileInput.click();
+  els.uploadBlock.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
 
 /** Làm sạch tên file trước khi ghép vào storagePath — khớp quy ước
  * {timestamp}_{tên-gốc-đã-làm-sạch} nêu trong storage.rules. */
@@ -1323,14 +1341,8 @@ els.sochiForm.addEventListener('submit', async (e) => {
    Storage (storage.rules đã cho phép chủ nhà tự ghi houses/{id}/uploads/**),
    RỒI mới gọi khGhiUpload để server đọc lại metadata thật và ghi doc mô tả
    file — xem functions/khGhiUpload.js. */
-els.btnPickBanVe.addEventListener('click', () => {
-  pendingUploadLoai = 'ban_ve';
-  els.fileInput.click();
-});
-els.btnPickBaoGia.addEventListener('click', () => {
-  pendingUploadLoai = 'bao_gia';
-  els.fileInput.click();
-});
+els.btnPickBanVe.addEventListener('click', () => openFilePicker('ban_ve'));
+els.btnPickBaoGia.addEventListener('click', () => openFilePicker('bao_gia'));
 
 els.fileInput.addEventListener('change', async () => {
   const file = els.fileInput.files && els.fileInput.files[0];
