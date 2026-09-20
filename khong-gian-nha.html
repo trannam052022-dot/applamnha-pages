@@ -121,6 +121,8 @@ a{color:inherit}
 .pick-item:hover{border-color:var(--gold-dim)}
 .pick-item .ma{font-family:var(--f-mono);font-size:var(--text-xs);color:var(--gold)}
 .pick-item .ten{font-size:var(--text-base);color:var(--text-1);font-weight:500}
+.pick-item .sub{font-family:var(--f-mono);font-size:var(--text-2xs);color:var(--dim)}
+.pick-item .sub:empty{display:none}
 
 /* ── BLOCK CHUNG ── */
 .block{
@@ -252,6 +254,81 @@ a{color:inherit}
   border:1px solid var(--border-soft);border-radius:99px;padding:.15rem .55rem;flex-shrink:0;
 }
 .soon-note{font-size:var(--text-xs);color:var(--text-3);line-height:1.6}
+
+/* ── P1.3 — trang_thai='truoc_c1' ── */
+
+/* Bước tiếp theo (thay "Bạn đang ở đâu" khi chưa có 4 mốc thật) */
+.step-list{display:flex;flex-direction:column;gap:.7rem}
+.step-item{display:flex;gap:.75rem;padding:.9rem;border-radius:var(--r-sm);background:rgba(255,255,255,.03);border:1.5px solid var(--border-soft)}
+.step-badge{flex-shrink:0;width:2.1rem;height:2.1rem;border-radius:8px;display:flex;align-items:center;justify-content:center;background:var(--gold-bg);border:1px solid var(--border);color:var(--gold)}
+.step-body{flex:1;min-width:0}
+.step-ten{font-size:var(--text-base);font-weight:500;color:var(--text-1);margin-bottom:.2rem}
+.step-note{font-size:var(--text-xs);color:var(--text-3);line-height:1.6}
+.step-actions{margin-top:.6rem;display:flex;gap:.5rem;flex-wrap:wrap}
+.step-actions .btn{font-size:var(--text-sm);padding:.55rem 1rem}
+
+/* Dự toán của bạn — cùng bố cục nhóm/mở chi tiết như du-toan-nha.html, đổi màu theo theme navy/gold ở đây */
+.dt-summary{background:linear-gradient(160deg,rgba(212,160,23,.1),rgba(17,28,51,.9));border:1px solid var(--border);border-radius:var(--r-sm);padding:1rem;margin-bottom:.9rem}
+.dt-eyebrow{font-size:var(--text-xs);color:var(--text-3)}
+.dt-total{font-family:var(--f-head);font-weight:600;font-size:var(--text-xl);color:var(--text-1);margin:.25rem 0}
+.dt-per{font-family:var(--f-mono);font-size:var(--text-sm);color:var(--text-2)}
+.dt-per b{color:var(--gold);font-weight:500}
+.dt-vat{font-size:var(--text-xs);color:var(--text-3);margin-top:.3rem}
+.dt-model{font-size:var(--text-xs);color:var(--dim);margin-top:.5rem}
+.dt-rows{margin-top:.3rem}
+.dt-row{border-bottom:1px solid var(--border-soft)}
+.dt-row>button,.dt-row>div.h{all:unset;box-sizing:border-box;display:grid;grid-template-columns:1fr auto;gap:.2rem .6rem;width:100%;padding:.7rem 0;cursor:pointer}
+.dt-row>div.h{cursor:default}
+.dt-row .nm{font-size:var(--text-sm);color:var(--text-2);display:flex;align-items:center;gap:.4rem}
+.dt-row .am{font-family:var(--f-mono);font-size:var(--text-sm);color:var(--text-1);text-align:right}
+.dt-row .bar{grid-column:1/-1;height:3px;background:var(--border-soft);border-radius:3px;overflow:hidden}
+.dt-row .bar i{display:block;height:100%;background:var(--gold)}
+.dt-row .tag{font-size:var(--text-2xs);color:var(--dim);grid-column:1/-1}
+.dt-row .ic{width:12px;height:12px;stroke:var(--dim);transition:transform .15s;flex:none}
+.dt-row.open .ic{transform:rotate(90deg)}
+.dt-det{display:none;padding:0 0 .6rem}
+.dt-row.open .dt-det{display:block}
+.dt-det table{width:100%;border-collapse:collapse}
+.dt-det td{font-size:var(--text-xs);padding:.3rem 0;border-top:1px dashed var(--border-soft);color:var(--text-3);vertical-align:top}
+.dt-det td.q{font-family:var(--f-mono);color:var(--dim);white-space:nowrap;padding-right:.5rem;text-align:right}
+.dt-det td.v{font-family:var(--f-mono);text-align:right;white-space:nowrap;color:var(--text-2)}
+.dt-foot{display:flex;justify-content:space-between;padding:.7rem 0 .2rem;font-weight:600;font-size:var(--text-sm);color:var(--text-1)}
+.dt-foot span:last-child{font-family:var(--f-mono)}
+.dt-sub{font-family:var(--f-head);font-weight:500;font-size:var(--text-sm);color:var(--text-3);margin:1rem 0 .2rem}
+.dt-fine{font-size:var(--text-2xs);color:var(--dim);line-height:1.6;margin-top:.8rem}
+.dt-oldlist{display:flex;flex-direction:column;gap:.4rem;margin-top:.5rem}
+.dt-old-item{display:flex;justify-content:space-between;align-items:baseline;gap:.5rem;padding:.6rem .7rem;background:rgba(255,255,255,.03);border:1px solid var(--border-soft);border-radius:var(--r-sm);font-size:var(--text-sm)}
+.dt-old-ver{color:var(--text-2)}
+.dt-old-date{font-size:var(--text-2xs);color:var(--dim);margin-top:.15rem}
+.dt-old-amt{font-family:var(--f-mono);color:var(--text-3);text-align:right;white-space:nowrap}
+
+/* Tải bản vẽ / báo giá (P1.4) */
+.upload-zone{border:1.5px dashed var(--border-soft);border-radius:var(--r-sm);padding:1.1rem;text-align:center;margin-bottom:.8rem}
+.upload-zone input[type=file]{display:none}
+.upload-hint{font-size:var(--text-2xs);color:var(--dim);margin-top:.5rem;line-height:1.6}
+.upload-progress{font-size:var(--text-xs);color:var(--gold);margin-top:.5rem;display:none}
+.upload-progress.show{display:block}
+.upload-err{font-size:var(--text-xs);color:var(--red);margin-top:.5rem;display:none}
+.upload-err.show{display:block}
+.upload-list{display:flex;flex-direction:column;gap:.5rem}
+.upload-item{display:flex;align-items:center;gap:.6rem;padding:.65rem .75rem;background:rgba(255,255,255,.03);border:1px solid var(--border-soft);border-radius:var(--r-sm)}
+.upload-item .icon{color:var(--gold);flex-shrink:0}
+.upload-item-name{font-size:var(--text-sm);color:var(--text-2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.upload-item-tag{font-family:var(--f-mono);font-size:var(--text-2xs);color:var(--dim);margin-left:auto;flex-shrink:0}
+
+/* Gói dịch vụ ALN */
+.pkg-grid{display:flex;flex-direction:column;gap:.7rem}
+.pkg-card{background:rgba(255,255,255,.03);border:1.5px solid var(--border-soft);border-radius:var(--r-sm);padding:1rem}
+.pkg-card.feat{border-color:var(--gold-dim);background:var(--gold-bg)}
+.pkg-top{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.3rem}
+.pkg-name{font-family:var(--f-head);font-weight:600;font-size:var(--text-base);color:var(--text-1)}
+.pkg-price{font-family:var(--f-mono);font-size:var(--text-sm);color:var(--gold);white-space:nowrap}
+.pkg-sub{font-family:var(--f-mono);font-size:var(--text-2xs);color:var(--dim);margin-bottom:.4rem}
+.pkg-note{font-size:var(--text-xs);color:var(--text-3);line-height:1.6;margin-bottom:.5rem}
+.pkg-list{list-style:none;display:flex;flex-direction:column;gap:.3rem}
+.pkg-list li{font-size:var(--text-xs);color:var(--text-2);padding-left:1.1rem;position:relative;line-height:1.6}
+.pkg-list li::before{content:"✓";position:absolute;left:0;color:var(--gold)}
+.pkg-fine{font-size:var(--text-2xs);color:var(--dim);line-height:1.65;margin-top:.8rem}
 </style>
 </head>
 <body>
@@ -329,13 +406,54 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
     </section>
 
-    <!-- b. Bạn đang ở đâu -->
+    <!-- b. Bạn đang ở đâu (house thật, C1-C4) / Bước tiếp theo (house trang_thai='truoc_c1' — chưa có KTS/hợp đồng) -->
     <section class="block">
       <div class="block-head">
         <span class="block-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v4M16 3v4M4 9h16M6 5h12a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"/></svg></span>
-        <span class="block-title">Bạn đang ở đâu</span>
+        <span class="block-title" id="stepBlockTitle">Bạn đang ở đâu</span>
       </div>
       <div class="moc-list" id="mocList"></div>
+      <div class="step-list" id="stepList" hidden></div>
+    </section>
+
+    <!-- b2. Dự toán của bạn (P1.3 — chỉ hiện với house trang_thai='truoc_c1' đã có ≥1 du_toan_versions) -->
+    <section class="block" id="dtBlock" hidden>
+      <div class="block-head">
+        <span class="block-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7h6M9 11h6M9 15h4M5 3h14a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/></svg></span>
+        <span class="block-title">Dự toán của bạn</span>
+      </div>
+      <div class="dt-summary">
+        <div class="dt-eyebrow">Giá nhà thầu nhận, chưa VAT</div>
+        <div class="dt-total" id="dtTotal">—</div>
+        <div class="dt-per"><b id="dtPerM2">—</b> đ/m² quy đổi</div>
+        <div class="dt-vat" id="dtVatLine"></div>
+        <div class="dt-model" id="dtModel"></div>
+      </div>
+      <div class="dt-rows" id="dtRows"></div>
+      <div class="dt-foot"><span>Cộng, chưa VAT</span><span id="dtTot2"></span></div>
+      <div class="dt-sub">Phần bạn tự mua</div>
+      <div class="dt-rows" id="dtRowsH"></div>
+      <div class="dt-foot"><span>Cộng vật tư hoàn thiện</span><span id="dtTotH"></span></div>
+      <p class="dt-fine">Đây là ước tính theo nhà mẫu cùng loại, chưa phải dự toán chính thức cho công trình của bạn. Dự toán đúng cho nhà bạn phải bóc từ chính bản vẽ của bạn — gửi bản vẽ ở khối bên dưới để ALN bóc khối lượng thật.</p>
+      <div class="dt-sub" id="dtOldTitle" hidden>Phiên bản trước</div>
+      <div class="dt-oldlist" id="dtOldList"></div>
+    </section>
+
+    <!-- b3. Tải bản vẽ / báo giá (P1.4 — chỉ hiện với house trang_thai='truoc_c1') -->
+    <section class="block" id="uploadBlock" hidden>
+      <div class="block-head">
+        <span class="block-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg></span>
+        <span class="block-title">Tải bản vẽ / báo giá</span>
+      </div>
+      <div class="upload-zone">
+        <button type="button" class="btn btn-gold" id="btnPickBanVe">Tải bản vẽ</button>
+        <button type="button" class="btn btn-ghost" id="btnPickBaoGia" style="margin-left:.5rem">Tải báo giá nhà thầu</button>
+        <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png,.heic,.xlsx,.xls,.dwg">
+        <div class="upload-progress" id="uploadProgress"></div>
+        <div class="upload-err" id="uploadErr"></div>
+        <p class="upload-hint">Nhận file pdf, jpg, png, heic, xlsx, dwg — tối đa 50MB/file. ALN sẽ xem và liên hệ lại sau khi nhận được.</p>
+      </div>
+      <div id="uploadListBody"></div>
     </section>
 
     <!-- c. Tài liệu của bạn -->
@@ -401,6 +519,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div id="sochiBody"></div>
     </section>
 
+    <!-- e2. Gói dịch vụ ALN (P1.3 — chỉ hiện với house trang_thai='truoc_c1') -->
+    <section class="block" id="pkgBlock" hidden>
+      <div class="block-head">
+        <span class="block-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 7.3 12 12l-8.5-4.7M12 12v9M3.5 7.3v9L12 21l8.5-4.7v-9L12 3Z"/></svg></span>
+        <span class="block-title">Gói dịch vụ ALN</span>
+      </div>
+      <div class="pkg-grid" id="pkgGrid"></div>
+      <p class="pkg-fine">Giá hiển thị đã gồm VAT 8% (mức thuế có thể thay đổi theo quy định). Gói Đồng hành xây gồm phí bóc khối lượng (thu trước khi bóc) và phí theo mốc: mốc móng đầu tiên miễn phí; phần còn lại chọn trả theo 3 đợt (40% sau khi nghiệm thu móng, 40% khi xong phần thô — đổ xong sàn mái, 20% khi hoàn công) hoặc trả phần theo mốc 1 lần (chọn sau khi nghiệm thu móng) được giảm khoảng 10% phần theo mốc — trả 1 lần không hoàn lại. Công trình tạm dừng thi công được bảo lưu tối đa 24 tháng.</p>
+    </section>
+
     <!-- f. Sắp có -->
     <section class="block">
       <div class="block-head">
@@ -408,10 +536,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span class="block-title">Sắp có</span>
       </div>
       <div class="soon-grid">
-        <div class="soon-card">
-          <div class="soon-top"><span class="soon-name">Dự toán theo phiên bản</span><span class="soon-badge">Sắp ra mắt</span></div>
-          <p class="soon-note">Bóc khối lượng và cập nhật đơn giá theo từng phiên bản thiết kế.</p>
-        </div>
         <div class="soon-card">
           <div class="soon-top"><span class="soon-name">Sổ tay công trình</span><span class="soon-badge">Sắp ra mắt</span></div>
           <p class="soon-note">Ghi chép hình ảnh, mốc thời gian công trình — không thay thế công tác giám sát thi công.</p>
@@ -422,16 +546,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </main>
 </div>
 
+<!-- Bảng giá Gói Kiểm nhanh/Đồng hành xây — nguồn cấu hình duy nhất, dùng
+     ở khối "Gói dịch vụ ALN" bên dưới (P1.3). -->
+<script src="aln-pricing.js"></script>
 <script type="module">
 import {
   app, auth, db, onAuthStateChanged, signOut,
-  doc, getDoc, onSnapshot, collection, query, where, orderBy,
+  doc, getDoc, getDocs, onSnapshot, collection, query, where, orderBy, limit,
   addDoc, updateDoc, deleteDoc, serverTimestamp,
+  storage, storageRef, uploadBytes,
 } from './firebase-config.js';
 import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js';
 
 const functionsInst = getFunctions(app, 'asia-southeast1');
 const callKhLienKetTaiKhoan = httpsCallable(functionsInst, 'khLienKetTaiKhoan');
+const callKhGhiUpload = httpsCallable(functionsInst, 'khGhiUpload');
 
 const els = {
   loading: document.getElementById('state-loading'),
@@ -451,7 +580,33 @@ const els = {
   hKhuVuc: document.getElementById('hKhuVuc'),
   ktsRow: document.getElementById('ktsRow'),
   ktsName: document.getElementById('ktsName'),
+  stepBlockTitle: document.getElementById('stepBlockTitle'),
   mocList: document.getElementById('mocList'),
+  stepList: document.getElementById('stepList'),
+
+  dtBlock: document.getElementById('dtBlock'),
+  dtTotal: document.getElementById('dtTotal'),
+  dtPerM2: document.getElementById('dtPerM2'),
+  dtVatLine: document.getElementById('dtVatLine'),
+  dtModel: document.getElementById('dtModel'),
+  dtRows: document.getElementById('dtRows'),
+  dtTot2: document.getElementById('dtTot2'),
+  dtRowsH: document.getElementById('dtRowsH'),
+  dtTotH: document.getElementById('dtTotH'),
+  dtOldTitle: document.getElementById('dtOldTitle'),
+  dtOldList: document.getElementById('dtOldList'),
+
+  uploadBlock: document.getElementById('uploadBlock'),
+  btnPickBanVe: document.getElementById('btnPickBanVe'),
+  btnPickBaoGia: document.getElementById('btnPickBaoGia'),
+  fileInput: document.getElementById('fileInput'),
+  uploadProgress: document.getElementById('uploadProgress'),
+  uploadErr: document.getElementById('uploadErr'),
+  uploadListBody: document.getElementById('uploadListBody'),
+
+  pkgBlock: document.getElementById('pkgBlock'),
+  pkgGrid: document.getElementById('pkgGrid'),
+
   docBody: document.getElementById('docBody'),
   logBody: document.getElementById('logBody'),
   sochiBody: document.getElementById('sochiBody'),
@@ -496,11 +651,21 @@ function fmtMoney(n) {
   if (!Number.isFinite(v)) return '';
   return v.toLocaleString('vi-VN') + ' đ';
 }
+function fmtDateOnly(ts) {
+  try {
+    const d = ts && typeof ts.toDate === 'function' ? ts.toDate() : (ts instanceof Date ? ts : null);
+    if (!d) return '';
+    return d.toLocaleDateString('vi-VN');
+  } catch (e) { return ''; }
+}
 
 let unsubscribers = [];
 let currentHouseId = null;
+let currentHouseData = null;
+let duToanVersions = [];
 let sochiItems = [];
 let sochiEditingId = null;
+let pendingUploadLoai = 'ban_ve';
 function clearListeners() {
   unsubscribers.forEach((fn) => { try { fn(); } catch (e) {} });
   unsubscribers = [];
@@ -519,10 +684,41 @@ function khuVucLabel(ma) {
   return KHU_VUC_LABELS[ma] || ma;
 }
 
+/* Mã nhà mẫu nội bộ (du-toan-nha-calc.js pickModel) → nhãn tiếng Việt — chỉ
+   dùng để hiển thị khối "Không gian Nhà" cho house trang_thai='truoc_c1'
+   (house chưa có khu_vuc/quan thật, mượn ô "Khu vực" để hiện nhà mẫu thay). */
+const NHA_MAU_LABEL = {
+  thi: 'Nhà mẫu ≤5 tầng, không thang máy',
+  hoang: 'Nhà mẫu ≥6 tầng hoặc có thang máy',
+};
+
 /* ── Khối a — đầu trang ── */
 function renderHouseHeader(h) {
+  currentHouseData = h;
   els.hName.textContent = h.ten_hien_thi || '';
   els.hMa.textContent = h.ma_ho_so || '';
+
+  if (h.trang_thai === 'truoc_c1') {
+    // House tạo từ công cụ dự toán (saveEstimateToHouse.js): dien_tich_san_m2/
+    // khu_vuc/quan luôn null/rỗng — lấy số liệu từ phiên bản dự toán mới nhất
+    // thay vì hiện "—" cứng (P1.3, xem SPEC_KHONG_GIAN_NHA_DU_TOAN_v1.md mục 5).
+    const latest = duToanVersions[0];
+    if (latest) {
+      const qd = latest.ket_qua && latest.ket_qua.qd;
+      els.hDienTich.textContent = qd ? `${Math.round(qd).toLocaleString('vi-VN')} m² quy đổi` : '—';
+      const soSan = latest.inputs && latest.inputs.n;
+      els.hSoTang.textContent = soSan ? `${soSan} tầng` : (h.so_tang ? `${h.so_tang} tầng` : '—');
+      const nhaMau = latest.nha_mau;
+      els.hKhuVuc.innerHTML = nhaMau ? `<span class="kv-tinh">${esc(NHA_MAU_LABEL[nhaMau] || nhaMau)}</span>` : '—';
+    } else {
+      els.hDienTich.textContent = '—';
+      els.hSoTang.textContent = h.so_tang ? `${h.so_tang} tầng` : '—';
+      els.hKhuVuc.innerHTML = '—';
+    }
+    els.ktsRow.hidden = true;
+    return;
+  }
+
   els.hDienTich.textContent = h.dien_tich_san_m2 ? `${h.dien_tich_san_m2} m²` : '—';
   els.hSoTang.textContent = h.so_tang ? `${h.so_tang} tầng` : '—';
   const tinhLabel = khuVucLabel(h.khu_vuc);
@@ -540,6 +736,221 @@ function renderHouseHeader(h) {
   } else {
     els.ktsRow.hidden = true;
   }
+}
+
+/**
+ * Bật/tắt các khối chỉ dành cho house trang_thai='truoc_c1' (Bước tiếp theo,
+ * Dự toán của bạn, Tải bản vẽ/báo giá, Gói dịch vụ ALN) — KHÔNG áp dụng cho
+ * house thật C1-C4 dù house đó tình cờ có du_toan_versions, để không đụng
+ * vào trải nghiệm C1-C4 khách thật đang dùng. Gọi lại sau CẢ 2 listener (house
+ * doc lẫn du_toan_versions) vì không cái nào chắc chắn tới trước.
+ */
+function updateTruocC1Visibility() {
+  const isTruocC1 = !!(currentHouseData && currentHouseData.trang_thai === 'truoc_c1');
+  const hasVersions = duToanVersions.length > 0;
+
+  els.stepBlockTitle.textContent = isTruocC1 ? 'Bước tiếp theo' : 'Bạn đang ở đâu';
+  els.mocList.hidden = isTruocC1;
+  els.stepList.hidden = !isTruocC1;
+  if (isTruocC1) renderSteps();
+
+  els.uploadBlock.hidden = !isTruocC1;
+  els.pkgBlock.hidden = !isTruocC1;
+  if (isTruocC1) renderPackages();
+
+  const showDt = isTruocC1 && hasVersions;
+  els.dtBlock.hidden = !showDt;
+  if (showDt) {
+    renderDuToanLatest(duToanVersions[0]);
+    renderDuToanOldList(duToanVersions.slice(1));
+  }
+}
+
+/* ── Khối b — Bước tiếp theo (chỉ house trang_thai='truoc_c1') ── */
+function renderSteps() {
+  els.stepList.innerHTML = `
+    <div class="step-item">
+      <div class="step-badge"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg></div>
+      <div class="step-body">
+        <div class="step-ten">Gửi bản vẽ để ALN kiểm nhanh miễn phí</div>
+        <p class="step-note">ALN đọc bản vẽ, trả về diện tích chuẩn và hồ sơ còn thiếu — miễn phí. Bóc khối lượng chi tiết theo từng tầng thuộc gói Đồng hành xây.</p>
+        <div class="step-actions"><button type="button" class="btn btn-gold" data-scroll-upload="ban_ve">Gửi bản vẽ</button></div>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-badge"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7h6M9 11h6M9 15h4M5 3h14a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/></svg></div>
+      <div class="step-body">
+        <div class="step-ten">Đã có báo giá nhà thầu? Gửi để ALN đối chiếu</div>
+        <p class="step-note">ALN đưa báo giá về cùng cách tính diện tích và phạm vi, rồi chỉ ra những câu nên hỏi nhà thầu trước khi ký.</p>
+        <div class="step-actions"><button type="button" class="btn btn-ghost" data-scroll-upload="bao_gia">Gửi báo giá</button></div>
+      </div>
+    </div>
+    <div class="step-item">
+      <div class="step-badge"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v.01M12 8a2.3 2.3 0 0 1 2.3 2.3c0 1.5-2.3 1.7-2.3 3.4"/></svg></div>
+      <div class="step-body">
+        <div class="step-ten">Thiết kế cùng ALN — không cần tự làm những bước này nữa</div>
+        <p class="step-note">Khi thiết kế với ALN, dự toán được tính lại theo đúng bản vẽ của nhà bạn (không còn theo nhà mẫu) — và Không gian Nhà bạn đang dùng đã có sẵn trong gói, không phát sinh thêm.</p>
+        <div class="step-actions"><a class="btn btn-gold" href="https://zalo.me/alnsanthietke" target="_blank" rel="noopener">Nhắn Zalo ALN</a></div>
+      </div>
+    </div>`;
+  els.stepList.querySelectorAll('[data-scroll-upload]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      pendingUploadLoai = btn.dataset.scrollUpload;
+      els.uploadBlock.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+}
+
+/* ── Khối b2 — Dự toán của bạn (cùng bố cục nhóm mở-chi-tiết như du-toan-nha.html,
+   items lưu dạng object {ten,khoi_luong,don_vi,thanh_tien} — xem
+   serializeLinesChoFirestore() trong functions/saveEstimateToHouse.js) ── */
+const DT_CHEVRON = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+const dtOpenRows = new Set();
+function drawDuToanRows(el, lines, total) {
+  el.innerHTML = (Array.isArray(lines) ? lines : []).map((x) => {
+    const id = el.id + ':' + x.n;
+    const open = dtOpenRows.has(id);
+    const items = Array.isArray(x.items) ? x.items : [];
+    const v = Number(x.v) || 0;
+    const pct = total ? Math.max(1, (v / total) * 100) : 0;
+    const head = `<span class="nm">${items.length ? DT_CHEVRON : ''}${esc(x.n)}</span><span class="am">${esc(fmtMoney(v))}</span>${x.tag ? `<span class="tag" style="grid-column:1/-1">${esc(x.tag)}</span>` : ''}<span class="bar"><i style="width:${pct}%"></i></span>`;
+    if (!items.length) return `<div class="dt-row"><div class="h">${head}</div></div>`;
+    const det = `<div class="dt-det"><table>${items.slice().sort((a, b) => (Number(b.thanh_tien) || 0) - (Number(a.thanh_tien) || 0)).map((r) => `<tr><td>${esc(r.ten)}</td><td class="q">${Number(r.khoi_luong || 0).toLocaleString('vi-VN', { maximumFractionDigits: 2 })} ${esc(r.don_vi || '')}</td><td class="v">${esc(fmtMoney(r.thanh_tien))}</td></tr>`).join('')}</table></div>`;
+    return `<div class="dt-row${open ? ' open' : ''}"><button type="button" aria-expanded="${open}" data-id="${esc(id)}">${head}</button>${det}</div>`;
+  }).join('');
+  el.querySelectorAll('button[data-id]').forEach((b) => {
+    b.onclick = () => {
+      const row = b.parentElement;
+      const isOpen = !row.classList.contains('open');
+      row.classList.toggle('open', isOpen);
+      b.setAttribute('aria-expanded', String(isOpen));
+      if (isOpen) dtOpenRows.add(b.dataset.id); else dtOpenRows.delete(b.dataset.id);
+    };
+  });
+}
+
+function renderDuToanLatest(v) {
+  const kq = v.ket_qua || {};
+  els.dtTotal.textContent = fmtMoney(kq.tong_chua_vat) || '—';
+  els.dtPerM2.textContent = kq.don_gia_m2 != null ? Number(kq.don_gia_m2).toLocaleString('vi-VN') : '—';
+  els.dtVatLine.textContent = kq.tong_sau_vat != null
+    ? `Sau VAT ${esc(kq.vat != null ? kq.vat : '')}%: ${fmtMoney(kq.tong_sau_vat)}`
+    : '';
+  els.dtModel.textContent = kq.qd != null
+    ? `Ước tính từ ${Math.round(kq.qd).toLocaleString('vi-VN')} m² quy đổi, theo nhà mẫu ${esc(NHA_MAU_LABEL[kq.nha_mau] || kq.nha_mau || '')}`
+    : '';
+  drawDuToanRows(els.dtRows, kq.theo_nhom, kq.tong_chua_vat);
+  els.dtTot2.textContent = fmtMoney(kq.tong_chua_vat) || '';
+  const vatTuChuNha = kq.vat_tu_chu_nha_mua || {};
+  drawDuToanRows(els.dtRowsH, vatTuChuNha.theo_nhom, vatTuChuNha.tong);
+  els.dtTotH.textContent = fmtMoney(vatTuChuNha.tong) || '';
+}
+
+function renderDuToanOldList(oldVersions) {
+  const has = Array.isArray(oldVersions) && oldVersions.length > 0;
+  els.dtOldTitle.hidden = !has;
+  els.dtOldList.innerHTML = has ? oldVersions.map((v) => `
+    <div class="dt-old-item">
+      <div>
+        <div class="dt-old-ver">Phiên bản ${esc(v.phien_ban)}</div>
+        <div class="dt-old-date">${esc(fmtDate(v.created_at))}</div>
+      </div>
+      <div class="dt-old-amt">${esc(fmtMoney(v.ket_qua && v.ket_qua.tong_chua_vat))}</div>
+    </div>`).join('') : '';
+}
+
+/* ── Khối e2 — Gói dịch vụ ALN (giá từ aln-pricing.js, đã gồm VAT) ──
+   Cơ cấu chốt 22/09/2026: Kiểm nhanh MIỄN PHÍ (đọc bản vẽ ra 3 con số diện
+   tích + đối chiếu báo giá, có hạn mức/tuần) — phí bóc khối lượng KHÔNG
+   thuộc gói này. Đồng hành xây = phí bóc khối lượng + phí theo mốc CỘNG LẠI
+   thành 1 tổng (tinhGoiDongHanh) — xem aln-pricing.js. */
+function renderPackages() {
+  const P = window.ALN_PRICING;
+  if (!P) { els.pkgGrid.innerHTML = ''; return; }
+  const latest = duToanVersions[0];
+  const soSan = latest && latest.inputs && latest.inputs.n;
+  const dienTich = latest && latest.ket_qua && latest.ket_qua.qd;
+
+  // Giá CHÍNH luôn là giá đã gồm VAT — dòng .pkg-sub nhỏ bên dưới mới là số
+  // chưa VAT + dòng tách "gồm bóc khối lượng + theo mốc", KHÔNG đảo ngược.
+  let dongHanhPrice = 'Theo diện tích và số sàn nhà bạn';
+  let dongHanhSubChuaVat = '';
+  let dongHanhSubGom = '';
+  let dongHanhGhiChu = '';
+  if (dienTich && soSan) {
+    const g = P.tinhGoiDongHanh(dienTich, soSan);
+    dongHanhPrice = esc(fmtMoney(g.sauVat3Dot));
+    dongHanhSubChuaVat = `<div class="pkg-sub">Chưa VAT: ${esc(fmtMoney(g.chuaVat3Dot))}</div>`;
+    dongHanhSubGom = `<div class="pkg-sub">Gồm: bóc khối lượng ${esc(fmtMoney(g.boc.sauVat))} + theo mốc ${esc(fmtMoney(g.moc.sauVat3Dot))} (đơn giá tạm tính 400.000 đ/mốc)</div>`;
+    // Giảm ~10% CHỈ áp cho phần theo mốc — phí bóc khối lượng giữ nguyên dù
+    // chọn trả phần mốc theo 3 đợt hay 1 lần (Founder chốt 22/09/2026 (2)).
+    dongHanhGhiChu = ` Trả phần theo mốc 1 lần (chọn sau khi nghiệm thu móng): ${esc(fmtMoney(g.sauVatTra1Lan))} — chưa VAT ${esc(fmtMoney(g.chuaVatTra1Lan))}. Phần theo mốc giảm khoảng 10% (${esc(fmtMoney(g.moc.sauVat3Dot))} → ${esc(fmtMoney(g.moc.tra1LanSauVat))}), phí bóc khối lượng giữ nguyên. Trả 1 lần không hoàn lại.`;
+  }
+
+  els.pkgGrid.innerHTML = `
+    <div class="pkg-card">
+      <div class="pkg-top"><span class="pkg-name">Gói Tự tính</span><span class="pkg-price">Miễn phí</span></div>
+      <p class="pkg-note">Bạn tự dùng công cụ dự toán, tự lưu, tự theo dõi sổ chi — ALN không tham gia bước nào.</p>
+      <ul class="pkg-list"><li>Dự toán theo nhà mẫu, lưu không giới hạn lần</li><li>Sổ chi tự ghi</li></ul>
+    </div>
+    <div class="pkg-card">
+      <div class="pkg-top"><span class="pkg-name">Gói Kiểm nhanh</span><span class="pkg-price">Miễn phí</span></div>
+      <div class="pkg-sub">Có hạn mức lượt dùng mỗi tuần</div>
+      <p class="pkg-note">ALN đọc bản vẽ bạn gửi ra 3 con số diện tích, đưa báo giá nhà thầu về cùng cách tính diện tích, phạm vi và mức quản lý để so sánh — kèm câu hỏi nên hỏi nhà thầu và chỉ ra hồ sơ còn thiếu.</p>
+      <ul class="pkg-list">
+        <li>3 con số diện tích từ bản vẽ (quy đổi / thực xây / được phép xây dựng)</li>
+        <li>Đối chiếu báo giá nhà thầu cùng cách tính diện tích, phạm vi, mức quản lý</li>
+        <li>Câu hỏi nên hỏi nhà thầu trước khi ký + hồ sơ còn thiếu</li>
+      </ul>
+    </div>
+    <div class="pkg-card feat">
+      <div class="pkg-top"><span class="pkg-name">Gói Đồng hành xây</span><span class="pkg-price">${dongHanhPrice}</span></div>
+      ${dongHanhSubChuaVat}
+      ${dongHanhSubGom}
+      <p class="pkg-note">ALN đồng hành theo từng mốc thi công — bóc khối lượng thật từ bản vẽ, nghiệm thu khối lượng theo từng mốc thi công.${dongHanhGhiChu}</p>
+      <ul class="pkg-list">
+        <li>Bóc khối lượng chi tiết theo từng tầng từ bản vẽ thật</li>
+        <li>Nghiệm thu khối lượng theo từng mốc</li>
+        <li>Mốc móng đầu tiên miễn phí</li>
+        <li>Sổ tạm ứng nhà thầu — đối chiếu mỗi lần tạm ứng với phần việc đã nghiệm thu</li>
+        <li>Công trình tạm dừng được bảo lưu tối đa 24 tháng</li>
+      </ul>
+    </div>`;
+}
+
+/* ── Khối b3 — Tải bản vẽ / báo giá (P1.4) ── */
+const UPLOAD_EXT_RE = /\.(pdf|jpe?g|png|heic|xlsx?|dwg)$/i;
+const UPLOAD_MAX_BYTES = 50 * 1024 * 1024;
+const UPLOAD_LOAI_TAG = { ban_ve: 'Bản vẽ', bao_gia: 'Báo giá', khac: 'Khác' };
+
+/** Làm sạch tên file trước khi ghép vào storagePath — khớp quy ước
+ * {timestamp}_{tên-gốc-đã-làm-sạch} nêu trong storage.rules. */
+function sanitizeFileName(name) {
+  const raw = String(name || 'file');
+  const dot = raw.lastIndexOf('.');
+  const base = dot > 0 ? raw.slice(0, dot) : raw;
+  const ext = dot > 0 ? raw.slice(dot).toLowerCase() : '';
+  const cleanBase = base
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/đ/gi, 'd')
+    .replace(/[^a-zA-Z0-9-_]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 80) || 'file';
+  return cleanBase + ext;
+}
+
+function renderUploadList(items) {
+  if (!items.length) {
+    els.uploadListBody.innerHTML = `<div class="empty-note">Chưa có file nào.</div>`;
+    return;
+  }
+  els.uploadListBody.innerHTML = `<div class="upload-list">${items.map((u) => `
+    <div class="upload-item">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M14 3v5h5"/></svg>
+      <span class="upload-item-name">${esc(u.ten_file || '')}</span>
+      <span class="upload-item-tag">${esc(UPLOAD_LOAI_TAG[u.loai] || '')}</span>
+    </div>`).join('')}</div>`;
 }
 
 /* ── Khối b — 4 mốc ── */
@@ -687,12 +1098,17 @@ function loadHouse(houseId) {
   clearListeners();
   showState('house');
   currentHouseId = houseId;
+  currentHouseData = null;
+  duToanVersions = [];
+  dtOpenRows.clear();
+  pendingUploadLoai = 'ban_ve';
   resetSoChiForm();
 
   unsubscribers.push(onSnapshot(doc(db, 'houses', houseId), (snap) => {
     if (!snap.exists()) return;
     const h = snap.data();
     renderHouseHeader(h);
+    updateTruocC1Visibility();
     // trim phòng dữ liệu cũ/nhập tay lọt khoảng trắng thừa (vd "C1 ") — so
     // sánh === với code sạch trong renderMoc sẽ luôn sai nếu không trim ở đây.
     window.__khMocHienTai = typeof h.moc_hien_tai === 'string' ? h.moc_hien_tai.trim() : h.moc_hien_tai;
@@ -724,20 +1140,68 @@ function loadHouse(houseId) {
     renderSoChiTotal(sochiItems);
     renderSoChi(sochiItems);
   }, (err) => console.error('[khong-gian-nha] onSnapshot so_chi lỗi:', err)));
+
+  // P1.3 — dự toán mới nhất + danh sách phiên bản cũ (chỉ house trang_thai=
+  // 'truoc_c1' hiện khối này, xem updateTruocC1Visibility()). Không where()
+  // theo trang_thai ở đây: house C1-C4 hiếm khi có sub-collection này (spec
+  // chỉ ghi vào house 'truoc_c1'), listener rẻ, đơn giản hơn phải đợi biết
+  // trang_thai rồi mới quyết định có nối listener hay không.
+  unsubscribers.push(onSnapshot(
+    query(collection(db, 'houses', houseId, 'du_toan_versions'), orderBy('phien_ban', 'desc')),
+    (snap) => {
+      duToanVersions = snap.docs.map((d) => d.data());
+      if (currentHouseData) renderHouseHeader(currentHouseData);
+      updateTruocC1Visibility();
+    },
+    (err) => console.error('[khong-gian-nha] onSnapshot du_toan_versions lỗi:', err)
+  ));
+
+  // P1.4 — danh sách file đã tải lên (bản vẽ/báo giá).
+  unsubscribers.push(onSnapshot(
+    query(collection(db, 'houses', houseId, 'uploads'), orderBy('created_at', 'desc')),
+    (snap) => renderUploadList(snap.docs.map((d) => d.data())),
+    (err) => console.error('[khong-gian-nha] onSnapshot uploads lỗi:', err)
+  ));
 }
 
 function renderChoose(houses) {
   showState('choose');
   els.pickList.innerHTML = houses.map((h, i) => `
     <button class="pick-item" type="button" data-idx="${i}">
-      <span class="ma">${esc(h.ma_ho_so)}</span>
+      <span class="ma">${esc(h.ma_ho_so || 'Chưa có mã')}</span>
       <span class="ten">${esc(h.ten_hien_thi)}</span>
+      <span class="sub" data-sub-idx="${i}"></span>
     </button>`).join('');
   Array.from(els.pickList.querySelectorAll('.pick-item')).forEach((btn) => {
     btn.addEventListener('click', () => {
       const h = houses[Number(btn.dataset.idx)];
       loadHouse(h.id);
     });
+  });
+
+  // House chưa có ma_ho_so (tạo từ công cụ dự toán, xem saveEstimateToHouse.js)
+  // — thêm dòng phụ "N sàn · X m² quy đổi · lưu ngày..." để phân biệt các
+  // house dự toán trùng tên mặc định "Hồ sơ nhà (dự toán)" với nhau (P1.3).
+  houses.forEach(async (h, i) => {
+    if (h.ma_ho_so) return;
+    try {
+      const versionsSnap = await getDocs(query(
+        collection(db, 'houses', h.id, 'du_toan_versions'), orderBy('phien_ban', 'desc'), limit(1)
+      ));
+      if (versionsSnap.empty) return;
+      const v = versionsSnap.docs[0].data();
+      const soSan = v.inputs && v.inputs.n;
+      const qd = v.ket_qua && v.ket_qua.qd;
+      const ngay = fmtDateOnly(v.created_at);
+      const parts = [];
+      if (soSan) parts.push(`${soSan} sàn`);
+      if (qd) parts.push(`${Math.round(qd).toLocaleString('vi-VN')} m² quy đổi`);
+      if (ngay) parts.push(`lưu ${ngay}`);
+      const subEl = els.pickList.querySelector(`[data-sub-idx="${i}"]`);
+      if (subEl) subEl.textContent = parts.join(' · ');
+    } catch (e) {
+      console.error('[khong-gian-nha] tải subtitle house lỗi:', e);
+    }
   });
 }
 
@@ -852,6 +1316,54 @@ els.sochiForm.addEventListener('submit', async (e) => {
     showErr('Không ghi được khoản chi. Vui lòng thử lại.');
   } finally {
     els.sochiSubmitBtn.disabled = false;
+  }
+});
+
+/* ── Ô tải bản vẽ / báo giá (P1.4) — client uploadBytes() TRỰC TIẾP lên
+   Storage (storage.rules đã cho phép chủ nhà tự ghi houses/{id}/uploads/**),
+   RỒI mới gọi khGhiUpload để server đọc lại metadata thật và ghi doc mô tả
+   file — xem functions/khGhiUpload.js. */
+els.btnPickBanVe.addEventListener('click', () => {
+  pendingUploadLoai = 'ban_ve';
+  els.fileInput.click();
+});
+els.btnPickBaoGia.addEventListener('click', () => {
+  pendingUploadLoai = 'bao_gia';
+  els.fileInput.click();
+});
+
+els.fileInput.addEventListener('change', async () => {
+  const file = els.fileInput.files && els.fileInput.files[0];
+  els.fileInput.value = '';
+  if (!file || !currentHouseId) return;
+
+  els.uploadErr.textContent = '';
+  els.uploadErr.classList.remove('show');
+
+  if (!UPLOAD_EXT_RE.test(file.name)) {
+    els.uploadErr.textContent = 'Định dạng file không được hỗ trợ (chỉ nhận pdf, jpg, png, heic, xlsx, dwg).';
+    els.uploadErr.classList.add('show');
+    return;
+  }
+  if (file.size > UPLOAD_MAX_BYTES) {
+    els.uploadErr.textContent = 'File vượt quá 50MB.';
+    els.uploadErr.classList.add('show');
+    return;
+  }
+
+  els.uploadProgress.textContent = 'Đang tải lên...';
+  els.uploadProgress.classList.add('show');
+  try {
+    const path = `houses/${currentHouseId}/uploads/${Date.now()}_${sanitizeFileName(file.name)}`;
+    await uploadBytes(storageRef(storage, path), file);
+    await callKhGhiUpload({ houseId: currentHouseId, storagePath: path, loai: pendingUploadLoai });
+    els.uploadProgress.textContent = 'Đã gửi — cảm ơn bạn, ALN sẽ xem và liên hệ lại.';
+    setTimeout(() => { els.uploadProgress.classList.remove('show'); }, 5000);
+  } catch (err) {
+    console.error('[khong-gian-nha] upload lỗi:', err);
+    els.uploadProgress.classList.remove('show');
+    els.uploadErr.textContent = (err && err.message) || 'Tải file lên thất bại. Vui lòng thử lại.';
+    els.uploadErr.classList.add('show');
   }
 });
 
