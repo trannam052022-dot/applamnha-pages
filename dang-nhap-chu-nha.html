@@ -538,10 +538,23 @@ els.otpInput.addEventListener("input", () => {
   els.otpInput.value = els.otpInput.value.replace(/\D/g, "").slice(0, 6);
 });
 
-// Đã đăng nhập sẵn từ trước (phiên còn hiệu lực) — bỏ qua bước OTP, chuyển
-// thẳng sang Không Gian Nhà.
+// Sự cố production 22/09/2026 (3): trước đây kiểm `user` (truthy) là đủ —
+// nhưng trình duyệt có thể đã có phiên ẩn danh (signInAnonymously ở trang
+// khác cùng origin, vd MyMy, Firebase Auth persist qua localStorage nên
+// phiên đó "còn sống" khi mở trang đăng nhập này). Coi phiên ẩn danh đó là
+// "đã đăng nhập" khiến trang BỎ QUA HẲN bước OTP, chuyển thẳng
+// resolveNextUrl() — nếu next=du-toan-nha.html?autosave=1 thì quay lại đó
+// với vẫn CHỈ phiên ẩn danh, saveEstimateToHouse lại từ chối y hệt, tạo
+// vòng lặp không đăng nhập được. Chỉ coi là "đã đăng nhập sẵn" khi user
+// KHÔNG ẩn danh VÀ có phoneNumber — người có phiên ẩn danh vẫn phải qua
+// đúng bước OTP bên dưới (signInWithPhoneNumber không dùng linkWithCredential
+// nên không có lỗi credential-already-in-use — xác nhận OTP xong sẽ tự thay
+// hẳn phiên hiện tại bằng phiên Phone Auth mới, không cần signOut tay).
+function isPhoneAuthed(user) {
+  return !!(user && !user.isAnonymous && user.phoneNumber);
+}
 onAuthStateChanged(auth, (user) => {
-  if (user && els.step1.hidden === false && !confirmationResult) {
+  if (isPhoneAuthed(user) && els.step1.hidden === false && !confirmationResult) {
     window.location.href = resolveNextUrl();
   }
 });

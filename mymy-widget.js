@@ -379,7 +379,19 @@ if (!document.getElementById('mymy-btn')) {
       const fnUpsertContact = fnMod.httpsCallable(functions, 'upsertContact');
 
       let authReady = false;
-      authMod.signInAnonymously(auth).catch((e) => console.error('MyMy anon-auth lỗi:', e));
+      // Sự cố production 22/09/2026 (4): TRƯỚC ĐÂY gọi signInAnonymously()
+      // vô điều kiện — nếu trình duyệt đang có phiên Phone Auth thật (chủ
+      // nhà vừa đăng nhập OTP ở dang-nhap-chu-nha.html/du-toan-nha.html/
+      // khong-gian-nha.html, cùng origin nên Firebase Auth persist qua),
+      // gọi lại signInAnonymously() ở ĐÂY sẽ TẠO PHIÊN ẨN DANH MỚI VÀ THAY
+      // HẲN phiên hiện tại (Firebase Auth không "cộng thêm", currentUser bị
+      // ghi đè) — chủ nhà mở bất kỳ trang nào có widget MyMy sau khi đăng
+      // nhập là bị đá ra khỏi phiên Phone Auth ngay lập tức. Chỉ tạo phiên
+      // ẩn danh khi CHƯA có phiên nào (kể cả phiên ẩn danh cũ cũng giữ
+      // nguyên, không tạo mới lãng phí).
+      if (!auth.currentUser) {
+        authMod.signInAnonymously(auth).catch((e) => console.error('MyMy anon-auth lỗi:', e));
+      }
       authMod.onAuthStateChanged(auth, (u) => { authReady = !!u; });
 
       const pageContext = (document.title || '').split('|')[0].trim().slice(0, 100);
