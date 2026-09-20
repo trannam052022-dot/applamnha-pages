@@ -3607,7 +3607,7 @@ window.uploadPaymentQr = async function uploadPaymentQr(input) {
     const ref = storageRef(storage, `payment-qr/${uid}/qr.${ext}`);
     await uploadBytes(ref, file);
     const url = await getDownloadURL(ref);
-    await setDoc(doc(db,'users',uid), {qrCodeUrl: url}, {merge:true});
+    await setDoc(doc(db,'users',uid,'private','assets'), {qrCodeUrl: url}, {merge:true});
     _showQr(url);
     status.textContent = '✓ Đã cập nhật mã QR';
     showToast('Đã cập nhật mã QR nhận thanh toán','t-green');
@@ -3633,7 +3633,7 @@ window.uploadSignature = async function(input) {
     const ref = storageRef(storage, `kts-profiles/${uid}/signature.png`);
     await uploadBytes(ref, file);
     const url = await getDownloadURL(ref);
-    await setDoc(doc(db,'users',uid), {signatureUrl: url}, {merge:true});
+    await setDoc(doc(db,'users',uid,'private','assets'), {signatureUrl: url}, {merge:true});
     _showSignature(url);
     status.textContent = '✓ Đã lưu chữ ký';
     showToast('Đã cập nhật chữ ký điện tử','t-green');
@@ -3985,6 +3985,17 @@ onAuthStateChanged(auth, async (user) => {
       const PAGE_BY_ROLE = { founder:"founder_panel.html", kts:"kts_dashboard.html", dn:"client_DN.html", cn:"client_CN.html" };
       window.location.replace(PAGE_BY_ROLE[profile.role] || "login.html");
       return;
+    }
+
+    // Chữ ký + QR nhận tiền ưu tiên đọc từ subcollection riêng tư.
+    // TODO(PR gỡ fallback): bỏ fallback profile.signatureUrl/qrCodeUrl sau khi
+    // migration + rotate token đã hoàn tất. Hiện fallback giúp Pages an toàn
+    // nếu frontend lên trước Firestore rule hoặc trước lúc migration chạy.
+    try {
+      const privateSnap = await getDoc(doc(db, 'users', user.uid, 'private', 'assets'));
+      if (privateSnap.exists()) Object.assign(profile, privateSnap.data());
+    } catch(e) {
+      console.warn('[KTS private assets] dùng field cũ tạm thời:', e.code || e.message);
     }
 
     // Làm mới thông tin hiển thị từ Firestore
