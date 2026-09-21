@@ -99,12 +99,6 @@ src="https://www.facebook.com/tr?id=1656666692225878&ev=PageView&noscript=1"/></
       try { localStorage.setItem('aln_fbc', JSON.stringify({ v: c, ts: Date.now() })); } catch(e){}
       return c;
     }
-    var u = window.alnGetUtm();
-    if (u.fbclid) {
-      var built = 'fb.1.' + Date.now() + '.' + u.fbclid;
-      try { localStorage.setItem('aln_fbc', JSON.stringify({ v: built, ts: Date.now() })); } catch(e){}
-      return built;
-    }
     try {
       var s = localStorage.getItem('aln_fbc');
       if (s) {
@@ -114,10 +108,15 @@ src="https://www.facebook.com/tr?id=1656666692225878&ev=PageView&noscript=1"/></
           var origTs = seg.length > 2 ? parseInt(seg[2], 10) : NaN;
           if (!isNaN(origTs) && Date.now() - origTs <= 90 * 864e5) return o.v;
           localStorage.removeItem('aln_fbc');
-          return null;
         }
       }
     } catch(e){}
+    var u = window.alnGetUtm();
+    if (u.fbclid) {
+      var built = 'fb.1.' + Date.now() + '.' + u.fbclid;
+      try { localStorage.setItem('aln_fbc', JSON.stringify({ v: built, ts: Date.now() })); } catch(e){}
+      return built;
+    }
     return '';
   };
 })();
@@ -665,6 +664,7 @@ function buildPayload() {
     fbp: window.alnGetFbp ? window.alnGetFbp() : "",
     fbc: window.alnGetFbc ? window.alnGetFbc() : "",
     utm: window.alnGetUtm ? window.alnGetUtm() : {},
+    testEventCode: new URLSearchParams(location.search).get('test_event_code') || '',
     sourceUrl: location.href,
     // scripts/aln-optout.js đặt window.ALN_INTERNAL=true khi Founder/team tự
     // test trang qua ?internal=1 — báo cho server để KHÔNG bắn CAPI Lead thật
@@ -733,7 +733,15 @@ async function doSave() {
 }
 
 function goLogin() {
-  window.location.href = "dang-nhap-chu-nha.html?next=" + encodeURIComponent("du-toan-nha.html?autosave=1");
+  const next = new URL('du-toan-nha.html', location.href);
+  const current = new URLSearchParams(location.search);
+  for (const [key, value] of current) {
+    if (/^utm_[a-z0-9_]+$/i.test(key) || key === 'fbclid' || key === 'test_event_code') {
+      next.searchParams.set(key, value);
+    }
+  }
+  next.searchParams.set('autosave', '1');
+  window.location.href = 'dang-nhap-chu-nha.html?next=' + encodeURIComponent(next.pathname.split('/').pop() + next.search);
 }
 
 // Sự cố production 22/09/2026 (3): trước đây chỉ kiểm `auth.currentUser`

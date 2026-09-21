@@ -293,8 +293,9 @@ const NEXT_ALLOWED_PAGES = ['khong-gian-nha.html', 'du-toan-nha.html'];
 function resolveNextUrl() {
   const raw = new URLSearchParams(window.location.search).get('next');
   if (!raw) return KHONG_GIAN_NHA_URL;
-  let decoded;
-  try { decoded = decodeURIComponent(raw); } catch (e) { return KHONG_GIAN_NHA_URL; }
+  // URLSearchParams.get() đã giải mã lớp next=; giải mã lần hai sẽ biến
+  // %26 trong giá trị UTM thành dấu & và làm sai query khi chuyển về.
+  const decoded = raw;
   if (/^[a-z][a-z0-9+.-]*:/i.test(decoded) || decoded.startsWith('//') || decoded.startsWith('\\')) {
     return KHONG_GIAN_NHA_URL; // có scheme (http:, javascript:...) hoặc protocol-relative — từ chối
   }
