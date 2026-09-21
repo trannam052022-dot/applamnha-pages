@@ -24,9 +24,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="aln-tokens.css">
 
-<!-- Google Analytics 4 (ALN — G-5CSL1TF0RC) — CHỈ pageview qua GTM/gtag. Trang
-     này nằm SAU đăng nhập: KHÔNG nhúng Meta Pixel, KHÔNG bắn aln_lead_submit,
-     không đụng kiến trúc CAPI đã khoá. -->
+<!-- Google Analytics 4 (ALN — G-5CSL1TF0RC) — pageview qua GTM/gtag.
+     Trang sau đăng nhập có thêm Meta Pixel PageView, không bắn Lead mới. -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-5CSL1TF0RC"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -35,6 +34,20 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   gtag('config', 'G-5CSL1TF0RC');
 </script>
 <!-- End GA4 -->
+<!-- Meta Pixel PageView cho trang sau OTP; opt-out guard ở đầu head vẫn chặn nội bộ. -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window,document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('set','autoConfig',false,'1656666692225878');
+fbq('init','1656666692225878');
+fbq('track','PageView');
+</script>
 
 <style>
 :root{
