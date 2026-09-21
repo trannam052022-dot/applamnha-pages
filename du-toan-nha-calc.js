@@ -27,9 +27,87 @@
 })(typeof self !== "undefined" ? self : this, function () {
   "use strict";
 
+  /**
+   * num(v) — parse LINH HOẠT số kiểu Việt Nam (dấu phẩy thập phân, dấu chấm
+   * ngăn cách hàng nghìn) LẪN kiểu Mỹ (dấu chấm thập phân, dấu phẩy ngăn
+   * cách hàng nghìn). Quy tắc:
+   *  - Có CẢ 2 loại dấu: dấu xuất hiện SAU CÙNG là thập phân, dấu còn lại bị
+   *    coi là ngăn cách hàng nghìn (bỏ). VD "1.234,56"→1234.56, "1,234.56"→1234.56.
+   *  - CHỈ 1 loại dấu, xuất hiện NHIỀU LẦN và MỌI cụm sau dấu đầu tiên đều
+   *    ĐÚNG 3 CHỮ SỐ → coi là ngăn cách hàng nghìn thuần tuý (không có phần
+   *    thập phân thật). VD "650.000"→650000, "1.500.000"→1500000.
+   *  - CHỈ 1 loại dấu, còn lại (xuất hiện 1 lần, hoặc nhiều lần nhưng không
+   *    khớp mẫu 3-chữ-số) → coi LÀ thập phân. VD "0,8"→0.8, "10.5"→10.5.
+   *
+   * THÊM 21/09/2026 (4) — sự cố production PR #219: input type="number"
+   * chuẩn HTML5 CHỈ chấp nhận dấu CHẤM làm thập phân, dấu PHẨY bị từ chối
+   * hoàn toàn khiến `.value` trả về CHUỖI RỖNG (không phải lỗi/NaN) khi gõ
+   * kiểu Việt Nam (vd "0,8") — `Number("")===0` nên lọt qua validate range
+   * dưới dạng số 0 "hợp lệ" thay vì báo lỗi rõ ràng (server báo nhầm "Độ dốc
+   * mái phải trong khoảng [10, 60]" dù ô hiển thị đúng 35, vì field KHÁC
+   * — "Độ đua mái" — gõ "0,8" bị rỗng làm lệch state). Đã đổi 3 field mái
+   * Thái (dua/doc_mai/dong_gia_mai_thai) sang type="text" (xem
+   * du-toan-nha.html) để `.value` giữ ĐÚNG chuỗi người dùng gõ — BẮT BUỘC
+   * dùng num() NÀY (hàm DUY NHẤT dùng chung client + Cloud Function qua
+   * functions/du-toan-nha-shared/) để parse, KHÔNG dùng Number()/parseFloat()
+   * trực tiếp cho bất kỳ field nào cho phép gõ tay kiểu Việt Nam.
+   *
+   * GIỚI HẠN CÒN LẠI (chấp nhận được — cực hiếm gặp với các field hiện có):
+   * số CHỈ 1 loại dấu, xuất hiện 1 lần, VÀ đúng 3 chữ số sau dấu (vd người
+   * dùng gõ "0,800" định ý nghĩa 0.8) sẽ bị hiểu NHẦM thành số nguyên 800 —
+   * validate range server-side sẽ bắt được ngay (800 ngoài khoảng cho phép
+   * của mọi field hiện có), KHÔNG âm thầm sai.
+   *
+   * SỬA 21/09/2026 (5) — Founder yêu cầu chuỗi RỖNG hoặc KHÔNG parse được
+   * ("", "abc") phải trả về NaN, KHÔNG còn coi là 0: bản trước trả 0 cho cả
+   * 2 ca này để tiện cho việc tính live-preview (field đang gõ dở không làm
+   * vỡ UI) — nhưng CHÍNH việc "0" giả này là gốc rễ sự cố PR #219 (server
+   * `soHopLe()` gọi `Number.isFinite(n)` để phân biệt "không phải số" với
+   * "ngoài khoảng", nếu num() luôn trả 0 thì nhánh "không phải số" không
+   * bao giờ chạy được — lỗi thật (field rỗng) bị báo nhầm thành lỗi khác
+   * ("ngoài khoảng [10,60]"), như đã xảy ra thật trong production). Số ĐÃ
+   * là number JS (kể cả NaN/Infinity) và null/undefined (sentinel nội bộ,
+   * KHÔNG phải input người dùng gõ) vẫn giữ nguyên trả 0 — không đổi, vì đó
+   * là 2 trường hợp khác hẳn "người dùng gõ chuỗi không hợp lệ".
+   */
   function num(v) {
-    var x = parseFloat(v);
-    return isFinite(x) ? x : 0;
+    if (typeof v === "number") return isFinite(v) ? v : 0;
+    if (v === null || typeof v === "undefined") return 0;
+    var s = String(v).trim();
+    if (s === "") return NaN;
+    var am = false;
+    if (s.charAt(0) === "-") { am = true; s = s.slice(1); }
+    s = s.replace(/[^0-9.,]/g, "");
+    if (s === "") return NaN;
+
+    function laNhomHangNghin(chuoi, dauTach) {
+      var nhom = chuoi.split(dauTach);
+      if (nhom.length < 2) return false;
+      for (var i = 1; i < nhom.length; i++) if (nhom[i].length !== 3) return false;
+      return true;
+    }
+
+    var coComma = s.indexOf(",") !== -1;
+    var coDot = s.indexOf(".") !== -1;
+    var ketQua;
+    if (!coComma && !coDot) {
+      ketQua = parseFloat(s);
+    } else if (coComma && coDot) {
+      var iComma = s.lastIndexOf(","), iDot = s.lastIndexOf(".");
+      ketQua = iComma > iDot
+        ? parseFloat(s.slice(0, iComma).replace(/[.,]/g, "") + "." + s.slice(iComma + 1).replace(/[.,]/g, ""))
+        : parseFloat(s.slice(0, iDot).replace(/[.,]/g, "") + "." + s.slice(iDot + 1).replace(/[.,]/g, ""));
+    } else {
+      var dau = coComma ? "," : ".";
+      if (laNhomHangNghin(s, dau)) {
+        ketQua = parseFloat(s.split(dau).join(""));
+      } else {
+        var iDau = s.lastIndexOf(dau);
+        ketQua = parseFloat(s.slice(0, iDau).split(dau).join("") + "." + s.slice(iDau + 1));
+      }
+    }
+    if (!isFinite(ketQua)) return NaN;
+    return am ? -ketQua : ketQua;
   }
 
   function fmt(n) {
