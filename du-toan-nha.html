@@ -153,6 +153,8 @@ input,select{width:100%;font:inherit;font-family:var(--mono);font-size:15px;colo
 select{font-family:var(--body)}
 input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 .hint{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.5}
+.field-err{font-size:12.5px;color:var(--warn);margin-top:3px;line-height:1.5;font-weight:500}
+input[aria-invalid="true"]{border-color:var(--warn)}
 .areas{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-top:14px}
 .areas div{background:var(--card);padding:10px}
 .areas b{display:block;font-family:var(--mono);font-size:16px;font-weight:500}
@@ -224,19 +226,26 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <summary><span class="st"><span class="sn">1</span>Kích thước &amp; quy mô</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary>
   <div class="body">
    <div class="grid">
-    <div><label for="w1">Rộng mặt tiền (m)</label><input id="w1" type="number" step="0.1" min="2" inputmode="decimal"></div>
-    <div><label for="w2">Rộng mặt hậu (m)</label><input id="w2" type="number" step="0.1" min="2" inputmode="decimal"></div>
-    <div><label for="l1">Sâu cạnh trái (m)</label><input id="l1" type="number" step="0.1" min="3" inputmode="decimal"><div class="hint">Đứng ngoài nhìn vào</div></div>
-    <div><label for="l2">Sâu cạnh phải (m)</label><input id="l2" type="number" step="0.1" min="3" inputmode="decimal"></div>
+    <!-- type="text" (KHÔNG phải "number") — cùng lớp lỗi PR #219/#220 (input
+         type="number" chuẩn HTML5 từ chối dấu phẩy thập phân kiểu VN, "4,5"
+         gõ vào sẽ bị trình duyệt âm thầm làm rỗng). Founder chốt 21/09/2026
+         (6) mở rộng sang 6 field kích thước + móng. Parse bằng num() dùng
+         chung (du-toan-nha-calc.js) qua capNhatLoiKichThuoc() bên dưới —
+         rỗng/không hợp lệ hiện lỗi NGAY dưới ô (div.field-err), KHÔNG để
+         NaN lan vào kết quả hiển thị (xem gate đầu run()). -->
+    <div><label for="w1">Rộng mặt tiền (m)</label><input id="w1" type="text" inputmode="decimal" autocomplete="off"><div class="field-err" id="w1Err" hidden></div></div>
+    <div><label for="w2">Rộng mặt hậu (m)</label><input id="w2" type="text" inputmode="decimal" autocomplete="off"><div class="field-err" id="w2Err" hidden></div></div>
+    <div><label for="l1">Sâu cạnh trái (m)</label><input id="l1" type="text" inputmode="decimal" autocomplete="off"><div class="hint">Đứng ngoài nhìn vào</div><div class="field-err" id="l1Err" hidden></div></div>
+    <div><label for="l2">Sâu cạnh phải (m)</label><input id="l2" type="text" inputmode="decimal" autocomplete="off"><div class="field-err" id="l2Err" hidden></div></div>
     <div><label for="n">Số sàn (trệt + lửng + lầu)</label><select id="n"></select></div>
     <div><label for="st">Sân thượng</label><select id="st"><option value="0">Không có</option><option value="0.7">Có, không mái</option><option value="1">Có, mái BTCT</option></select></div>
     <div><label for="tm">Thang máy</label><select id="tm"><option value="0">Không</option><option value="1">Có</option></select></div>
     <div><label for="ham">Tầng hầm</label><select id="ham"><option value="0">Không</option><option value="1">Có</option></select></div>
-    <div><label for="sant">Sân trước có đổ sàn — sâu (m)</label><input id="sant" type="number" step="0.1" min="0" inputmode="decimal"></div>
-    <div><label for="bc">Ban công — tổng (m²)</label><input id="bc" type="number" step="0.5" min="0" inputmode="decimal"></div>
+    <div><label for="sant">Sân trước có đổ sàn — sâu (m)</label><input id="sant" type="text" inputmode="decimal" autocomplete="off"><div class="field-err" id="santErr" hidden></div></div>
+    <div><label for="bc">Ban công — tổng (m²)</label><input id="bc" type="text" inputmode="decimal" autocomplete="off"><div class="field-err" id="bcErr" hidden></div></div>
     <div><label for="mai">Diện tích mái trên cùng (m²)</label><input id="mai" type="number" step="0.5" min="0" inputmode="decimal"><div class="hint">Tự điền khi không có sân thượng</div></div>
     <div><label for="mai_loai">Loại mái</label><select id="mai_loai"></select></div>
-    <div><label for="mong">Móng — tính theo % sàn trệt</label><input id="mong" type="number" step="5" min="0" max="150" inputmode="decimal"><div class="hint" id="mongHint">Móng cọc: 70%</div></div>
+    <div><label for="mong">Móng — tính theo % sàn trệt</label><input id="mong" type="text" inputmode="decimal" autocomplete="off"><div class="hint" id="mongHint">Móng cọc: 70%</div><div class="field-err" id="mongErr" hidden></div></div>
    </div>
    <div class="areas">
     <div><b id="aTx">—</b><span>m² thực xây</span></div>
@@ -440,9 +449,51 @@ function areas(){
  if(raw.mai===''){const stp=num($('st').value);$('mai').placeholder=fmt(stp?0:a.fp)}
  return a;
 }
+// Kích thước & móng — validate + báo lỗi NGAY dưới từng ô (Founder chốt
+// 21/09/2026 (6), tiếp theo PR #219/#220 vốn chỉ áp dụng cho 3 field mái
+// Thái). Khoảng [min,max] PHẢI khớp CHÍNH XÁC range server
+// (functions/saveEstimateToHouse.js, hàm soHopLe() gọi cho từng field này)
+// — sửa 1 bên nhớ sửa bên kia, tránh client/server lệch ngưỡng.
+const KHOANG_KICH_THUOC={
+ w1:[1,100,'Rộng mặt tiền'], w2:[1,100,'Rộng mặt hậu'],
+ l1:[1,200,'Sâu cạnh trái'], l2:[1,200,'Sâu cạnh phải'],
+ sant:[0,200,'Sân trước'], bc:[0,1000,'Ban công'],
+ mong:[0,150,'Móng'],
+};
+function capNhatLoiMotO(id){
+ const [min,max]=KHOANG_KICH_THUOC[id];
+ const v=num($(id).value);
+ const errEl=$(id+'Err');
+ let loi='';
+ if(Number.isNaN(v))loi='Vui lòng nhập số hợp lệ.';
+ else if(v<min||v>max)loi=`Phải từ ${min} đến ${max}.`;
+ if(errEl){errEl.textContent=loi;errEl.hidden=!loi}
+ $(id).setAttribute('aria-invalid',loi?'true':'false');
+ return !loi;
+}
+// Luôn chạy HẾT mọi field (không short-circuit) để mọi ô sai đều hiện lỗi
+// cùng lúc, không chỉ ô đầu tiên gặp phải.
+function capNhatLoiKichThuoc(){
+ let hopLe=true;
+ Object.keys(KHOANG_KICH_THUOC).forEach(id=>{ if(!capNhatLoiMotO(id))hopLe=false; });
+ return hopLe;
+}
 function run(skipPrices){
  const isBTV=laBietThuVuon();
  capNhatGiaoDienBietThuVuon(isBTV);
+ if(!capNhatLoiKichThuoc()){
+  // Chặn hẳn tính toán khi còn ô sai — KHÔNG để NaN/số ngoài khoảng lan vào
+  // kết quả hiển thị (tái dùng đúng cơ chế #blocked/#out đã có cho
+  // kiemTraNgoaiVung(), tránh 2 kiểu thông báo chặn khác nhau trên cùng trang).
+  // save() ở đây vì 2 nhánh runThongThuong/runBietThuVuon (gọi save() riêng)
+  // sẽ KHÔNG chạy tới trong trường hợp này.
+  save();
+  $('blocked').hidden=false;
+  $('blocked').textContent='Vui lòng sửa các ô đang báo lỗi ở trên trước khi xem ước tính.';
+  $('out').hidden=true;
+  $('dockT').textContent='—';
+  return;
+ }
  if(isBTV)return runBietThuVuon(skipPrices);
  return runThongThuong(skipPrices);
 }
@@ -604,6 +655,16 @@ function buildPayload() {
 }
 
 async function doSave() {
+  // Founder chốt 21/09/2026 (6) — run() (script chính) trả về SỚM, KHÔNG cập
+  // nhật window.__lastEstimate, khi còn ô kích thước báo lỗi (#blocked hiện).
+  // Nếu không chặn ở đây, bấm "Lưu" lúc đó sẽ âm thầm lưu ƯỚC TÍNH CŨ (lần
+  // cuối còn hợp lệ) dù form đang hiển thị lỗi — đúng dạng "tính/lưu ra số
+  // sai" mà yêu cầu này muốn tránh, chỉ khác chỗ xảy ra (lưu, không phải tính).
+  const blockedEl = document.getElementById("blocked");
+  if (blockedEl && !blockedEl.hidden) {
+    showMsg("Vui lòng sửa các ô đang báo lỗi ở trên trước khi lưu.", "error");
+    return;
+  }
   const payload = buildPayload();
   if (!payload) { showMsg("Chưa có ước tính để lưu — nhập kích thước trước.", "error"); return; }
   btn.disabled = true;
