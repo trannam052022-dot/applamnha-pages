@@ -47,13 +47,90 @@
   }
 
   /**
+   * MAI_LOAI — tỷ lệ quy đổi diện tích mái theo loại mái (Founder chốt
+   * 21/09/2026, sau khi phát hiện bug computeAreas() cộng nhầm mái vào m²
+   * thực xây — xem bugfix bên dưới). Tỷ lệ này CHỈ ảnh hưởng `qd` (m² quy
+   * đổi) — mái KHÔNG BAO GIỜ cộng vào `tx` (m² thực xây), bất kể loại mái.
+   *
+   * `canhBaoKhacMauMacDinh`: 2 nhà mẫu (Mr Thi, A Hoàng) đều xây mái BTCT
+   * phẳng thật — khối lượng "cốt thép/bê tông sàn mái" trong du-toan-nha-data.js
+   * chỉ đúng cho loại mái này. Chọn loại mái khác vẫn TÍNH ĐƯỢC (đổi đúng
+   * tỷ lệ quy đổi `qd`), nhưng khối lượng vật tư mái vẫn lấy nguyên theo nhà
+   * mẫu mái bằng — không có nhà mẫu riêng cho tôn/ngói nên KHÔNG BỊA khối
+   * lượng khác, chỉ cảnh báo (xem ghiChuMai()).
+   */
+  var MAI_LOAI = {
+    ton: { label: "Mái tôn", tyLe: 0.30, canhBaoKhacMauMacDinh: true },
+    btct_phang: { label: "Mái BTCT phẳng", tyLe: 0.50, canhBaoKhacMauMacDinh: false },
+    ngoi_keo_thep: { label: "Mái ngói kèo thép", tyLe: 0.70, canhBaoKhacMauMacDinh: true },
+    btct_dan_ngoi: { label: "Mái BTCT dán ngói / mái Thái", tyLe: 1.00, canhBaoKhacMauMacDinh: true },
+  };
+  var MAI_LOAI_MAC_DINH = "btct_phang";
+
+  /** Tỷ lệ quy đổi mái theo `loai` — không khớp key nào trong MAI_LOAI thì
+   * dùng mặc định MAI_LOAI_MAC_DINH (khớp hành vi cũ trước khi có chọn loại
+   * mái: hằng số cứng 0.5). */
+  function tyLeMai(loai) {
+    var m = MAI_LOAI[loai];
+    return m ? m.tyLe : MAI_LOAI[MAI_LOAI_MAC_DINH].tyLe;
+  }
+
+  /** Ghi chú cảnh báo khi loại mái KHÁC nhà mẫu (BTCT phẳng) — null nếu
+   * đúng nhà mẫu hoặc loại không hợp lệ (không cảnh báo mù, giữ nguyên hành
+   * vi mặc định). */
+  function ghiChuMai(loai) {
+    var m = MAI_LOAI[loai];
+    if (!m || !m.canhBaoKhacMauMacDinh) return null;
+    return "Khối lượng mái đang tính theo nhà mẫu mái bằng (BTCT phẳng) — chênh lệch mái thật sẽ được bóc khi có bản vẽ.";
+  }
+
+  /**
+   * kiemTraNgoaiVung(inputs) — chặn ước tính cho các trường hợp NGOÀI vùng
+   * dữ liệu nhà mẫu hiện có (Mr Thi 4-5 tầng, A Hoàng 6-8 tầng), TRẢ VỀ
+   * chuỗi thông báo (hiện cho chủ nhà) hoặc null nếu trong vùng tính được.
+   * DÙNG CHUNG client (du-toan-nha.html run()) VÀ server
+   * (functions/saveEstimateToHouse.js xuLyLuu()) — tách ra đây từ 19-20/09/2026
+   * (2 chỗ đã lặp gần giống nhau, dễ lệch khi thêm luật mới) SAU KHI phát
+   * hiện thêm luật "nhà 1 tầng/cấp 4" 21/09/2026, để không phải nhớ sửa cả
+   * 2 nơi mỗi lần thêm 1 điều kiện out-of-scope.
+   */
+  function kiemTraNgoaiVung(inputs) {
+    var d = inputs || {};
+    var n = num(d.n);
+    var hamRaw = d.ham;
+    var ham = typeof hamRaw === "string" ? num(hamRaw) : hamRaw;
+    if (ham) {
+      return "ALN chưa có nhà mẫu có tầng hầm, chưa ước tính được. Gửi thông tin để KTS ALN ước tính riêng cho nhà bạn.";
+    }
+    if (n === 1) {
+      return "ALN chưa có nhà mẫu cho nhà 1 tầng / nhà cấp 4 — gửi thông tin để KTS ước tính riêng.";
+    }
+    if (n > 8) {
+      return "Nhà trên 8 sàn nằm ngoài vùng ALN đã có dữ liệu. Gửi thông tin để KTS ALN ước tính riêng.";
+    }
+    return null;
+  }
+
+  /**
    * computeAreas(inputs) — nguyên văn areas() gốc, chỉ đổi nguồn đọc từ DOM
-   * sang object `inputs`: {w1,w2,l1,l2,n,st,sant,bc,mai,mong}.
+   * sang object `inputs`: {w1,w2,l1,l2,n,st,sant,bc,mai,mai_loai,mong}.
    * - st: hệ số sân thượng (0 | 0.7 | 1), KHÔNG phải chuỗi id option.
    * - mai: số (m²) HOẶC '' | null | undefined để áp mặc định như UI gốc
    *   (mai = st ? 0 : fp — tự điền theo diện tích tầng trệt khi không có
    *   sân thượng).
+   * - mai_loai: khoá trong MAI_LOAI ('ton'|'btct_phang'|'ngoi_keo_thep'|
+   *   'btct_dan_ngoi') — quyết định tỷ lệ quy đổi mái vào `qd`. Thiếu/lạ ->
+   *   dùng MAI_LOAI_MAC_DINH (btct_phang, 50% — khớp hằng số cứng cũ).
    * Trả về {fp, tx, qd, km} — km = qd trừ diện tích móng quy đổi.
+   *
+   * BUGFIX 21/09/2026 (Founder phát hiện: nhà 10x20, 1 sàn, không sân thượng
+   * ra 400 m² thực xây thay vì đúng 200 m²) — mái (`mai`) TRƯỚC ĐÂY cộng
+   * thẳng vào `tx` (thực xây) NGOÀI việc đã tính vào `qd` (quy đổi, x0.5),
+   * khiến nhà không sân thượng (mái tự điền = full diện tích tầng trệt) bị
+   * đếm mái 2 LẦN — 1 lần nguyên vẹn trong tx, 1 lần theo tỷ lệ trong qd.
+   * Đúng ra mái KHÔNG PHẢI diện tích sàn sử dụng được nên KHÔNG được tính
+   * vào thực xây — thực xây = sàn các tầng + sân thượng (nếu có mái riêng)
+   * + ban công + sân trước; mái chỉ vào quy đổi theo đúng tỷ lệ loại mái.
    */
   function computeAreas(inputs) {
     var d = inputs || {};
@@ -70,10 +147,11 @@
       mai = stp ? 0 : fp;
     }
     mai = num(mai);
+    var maiTyLe = tyLeMai(d.mai_loai);
     var stA = stp ? fp : 0;
-    var tx = fp * n + stA + sant + bc + mai;
+    var tx = fp * n + stA + sant + bc;
     var mongDienTich = mg * (fp + sant);
-    var qd = fp * n + stA * stp + sant * 0.7 + bc + mai * 0.5 + mongDienTich;
+    var qd = fp * n + stA * stp + sant * 0.7 + bc + mai * maiTyLe + mongDienTich;
     return { fp: fp, tx: tx, qd: qd, km: qd - mongDienTich };
   }
 
@@ -202,5 +280,10 @@
     pickModel: pickModel,
     computeAreas: computeAreas,
     computeEstimate: computeEstimate,
+    kiemTraNgoaiVung: kiemTraNgoaiVung,
+    MAI_LOAI: MAI_LOAI,
+    MAI_LOAI_MAC_DINH: MAI_LOAI_MAC_DINH,
+    tyLeMai: tyLeMai,
+    ghiChuMai: ghiChuMai,
   };
 });
