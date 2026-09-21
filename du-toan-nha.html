@@ -260,9 +260,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="body">
    <div class="hint">Mái Thái kèo thép gác trên giằng tường + cột, không có sàn mái BTCT — tính trọn gói theo giá thị trường, tách riêng khỏi bảng vật tư nhà mẫu ở trên.</div>
    <div class="grid">
-    <div><label for="dua">Độ đua mái (m)</label><input id="dua" type="number" step="0.1" min="0" inputmode="decimal"></div>
-    <div><label for="doc_mai">Độ dốc mái (độ)</label><input id="doc_mai" type="number" step="1" min="1" max="89" inputmode="decimal"></div>
-    <div><label for="dong_gia_mai_thai">Đơn giá mái Thái (đ/m² mái nghiêng)</label><input id="dong_gia_mai_thai" type="number" step="10000" min="0" inputmode="numeric"><div class="hint">Trọn gói, đã gồm công lợp</div></div>
+    <!-- type="text" (KHÔNG phải "number") — sự cố production PR #219: input
+         type="number" chuẩn HTML5 từ chối dấu PHẨY thập phân kiểu Việt Nam
+         (vd gõ "0,8"), .value âm thầm trả về "" thay vì báo lỗi. Parse bằng
+         num() dùng chung trong du-toan-nha-calc.js (đọc được cả "0,8" lẫn
+         "0.8"/"650.000") thay vì để trình duyệt tự validate. -->
+    <div><label for="dua">Độ đua mái (m)</label><input id="dua" type="text" inputmode="decimal" autocomplete="off"></div>
+    <div><label for="doc_mai">Độ dốc mái (độ)</label><input id="doc_mai" type="text" inputmode="decimal" autocomplete="off"></div>
+    <div><label for="dong_gia_mai_thai">Đơn giá mái Thái (đ/m² mái nghiêng)</label><input id="dong_gia_mai_thai" type="text" inputmode="decimal" autocomplete="off"><div class="hint">Trọn gói, đã gồm công lợp</div></div>
    </div>
    <div class="areas">
     <div><b id="maiDienTichNghieng">—</b><span>m² mái nghiêng</span></div>
@@ -354,39 +359,60 @@ let st=load(); let prices={}; let showAllT=false; const openRows=new Set();
 let duToanTinhTimer=null; // debounce aln_du_toan_tinh (P1.5) — run() gọi lại mỗi lần gõ phím, không đẩy dataLayer mỗi keystroke
 function load(){try{const s=JSON.parse(localStorage.getItem(K)||'null');if(s&&s.inp)return s}catch(e){}return{inp:{...DEF},px:{}}}
 function save(){try{localStorage.setItem(K,JSON.stringify(st))}catch(e){}}
+// Móng nhớ RIÊNG theo loại nhà + cờ "đã tự sửa trong CHÍNH loại đó" (Founder
+// chốt 21/09/2026 (4), thay cho heuristic so sánh giá trị ở bản trước — bản
+// đó bỏ sót ca state localStorage CŨ đã có sẵn n=1 + mong=70 từ trước khi
+// tính năng Biệt thự vườn tồn tại: trang tải thẳng vào chế độ BTV nên không
+// có "lúc chuyển pha" nào để kích hoạt, mong bị kẹt ở 70 vĩnh viễn). Di trú
+// 1 LẦN cho state cũ: nếu chưa có 2 field mới này (localStorage từ trước khi
+// có tính năng này), suy "đã tự sửa nhà phố" từ chính giá trị `mong` cũ đang
+// lưu (== mặc định cũ 70 thì coi là CHƯA sửa, khác thì coi là ĐÃ sửa — giữ
+// đúng tuỳ biến thật của người dùng cũ); Biệt thự vườn luôn coi là CHƯA sửa
+// (tính năng mới, không có gì để giữ).
+if(st.inp.mongThuong===undefined)st.inp.mongThuong=st.inp.mong??MONG_MAC_DINH_NHA_PHO;
+if(st.inp.mongThuongTuySua===undefined)st.inp.mongThuongTuySua=num(st.inp.mongThuong)!==MONG_MAC_DINH_NHA_PHO;
+if(st.inp.mongBTV===undefined)st.inp.mongBTV=MONG_MAC_DINH_BIET_THU_VUON;
+if(st.inp.mongBTVTuySua===undefined)st.inp.mongBTVTuySua=false;
 const $=id=>document.getElementById(id);
 const ty=n=>n>=1e9?(n/1e9).toLocaleString('vi-VN',{maximumFractionDigits:2})+' tỷ':(n/1e6).toLocaleString('vi-VN',{maximumFractionDigits:0})+' triệu';
 const nm=m=>NAMES[m]||m;
 for(let i=1;i<=9;i++)$('n').insertAdjacentHTML('beforeend',`<option value="${i}">${i} sàn</option>`);
 Object.keys(MAI_LOAI).forEach(k=>$('mai_loai').insertAdjacentHTML('beforeend',`<option value="${k}">${MAI_LOAI[k].label} (${Math.round(MAI_LOAI[k].tyLe*100)}% quy đổi)</option>`));
-const ids=['w1','w2','l1','l2','n','st','tm','ham','sant','bc','mai','mai_loai','mong','dua','doc_mai','dong_gia_mai_thai','khoan','cong','mep','ql','vat'];
+// "mong" KHÔNG nằm trong danh sách chung — có handler riêng bên dưới (phải
+// ghi vào đúng ô nhớ mongThuong/mongBTV theo loại nhà HIỆN TẠI lúc gõ).
+const ids=['w1','w2','l1','l2','n','st','tm','ham','sant','bc','mai','mai_loai','dua','doc_mai','dong_gia_mai_thai','khoan','cong','mep','ql','vat'];
 ids.forEach(id=>{$(id).value=st.inp[id]??DEF[id];$(id).addEventListener('input',()=>{st.inp[id]=$(id).value;run()})});
+$('mong').addEventListener('input',()=>{
+ st.inp.mong=$('mong').value;
+ if(laBietThuVuon()){st.inp.mongBTV=st.inp.mong;st.inp.mongBTVTuySua=true}
+ else{st.inp.mongThuong=st.inp.mong;st.inp.mongThuongTuySua=true}
+ run();
+});
 // Biệt thự vườn 1 tầng mái Thái (n===1) — ẩn các field không áp dụng (sân
 // thượng/thang máy/mái phẳng+loại mái, toàn bộ mái là mái Thái tính riêng ở
 // khối "Mái Thái" bên dưới), hiện field riêng của khối đó.
 const CAC_ID_AN_KHI_BIET_THU_VUON=['st','tm','mai','mai_loai'];
 function laBietThuVuon(){return num($('n').value)===1}
-// Móng mặc định đổi theo loại nhà (Founder chốt 21/09/2026 (3)) — móng đơn
-// 50% cho biệt thự vườn 1 tầng, móng cọc 70% cho nhà phố nhiều tầng. CHỈ tự
-// đổi giá trị lúc CHUYỂN PHA (n vừa đổi qua lại mốc ===1) và CHỈ khi ô Móng
-// đang đúng bằng mặc định của pha CŨ (chưa bị người dùng tự gõ lệch khỏi
-// mặc định đó) — tránh đè giá trị người dùng đã tự sửa tay.
-let laBietThuVuonTruocDo=null;
-function capNhatMongMacDinhKhiChuyenPha(isBTV){
- if(laBietThuVuonTruocDo!==null&&isBTV!==laBietThuVuonTruocDo){
-  const mongHienTai=num($('mong').value);
-  const macDinhCu=isBTV?MONG_MAC_DINH_NHA_PHO:MONG_MAC_DINH_BIET_THU_VUON;
-  const macDinhMoi=isBTV?MONG_MAC_DINH_BIET_THU_VUON:MONG_MAC_DINH_NHA_PHO;
-  if(mongHienTai===macDinhCu){$('mong').value=macDinhMoi;st.inp.mong=String(macDinhMoi)}
- }
- laBietThuVuonTruocDo=isBTV;
+// Áp mặc định/giá trị nhớ của Móng theo loại nhà HIỆN TẠI — chạy MỖI LẦN
+// capNhatGiaoDienBietThuVuon() (không chỉ lúc chuyển pha), nên state
+// localStorage cũ tải thẳng vào 1 trong 2 chế độ vẫn luôn ra đúng giá trị.
+// Đọc cờ TuySua trước khi ids.forEach ghi đè state.mong.
+function apDungMongTheoCheDo(isBTV){
+ const gia=isBTV?(st.inp.mongBTVTuySua?st.inp.mongBTV:MONG_MAC_DINH_BIET_THU_VUON):(st.inp.mongThuongTuySua?st.inp.mongThuong:MONG_MAC_DINH_NHA_PHO);
+ $('mong').value=gia;st.inp.mong=String(gia);
  $('mongHint').textContent=isBTV?`Móng đơn: ${MONG_MAC_DINH_BIET_THU_VUON}%`:`Móng cọc: ${MONG_MAC_DINH_NHA_PHO}%`;
 }
 function capNhatGiaoDienBietThuVuon(isBTV){
  CAC_ID_AN_KHI_BIET_THU_VUON.forEach(id=>{const row=$(id).closest('div');if(row)row.hidden=isBTV});
  $('secMaiThai').hidden=!isBTV;
+ // <details> mặc định ĐÓNG khi chỉ bỏ "hidden" — phải tự mở, không thì các
+ // ô đua/dốc/đơn giá bắt buộc của chế độ này bị giấu sau 1 cú click nữa mà
+ // không có gợi ý nào (phát hiện khi rà lại — Playwright .fill() từ chối
+ // gõ vào field ẩn trong <details> đóng, lộ ra đây không phải chỉ là vấn đề
+ // test mà là UX thật: chủ nhà chọn "1 sàn" xong phải TỰ BIẾT bấm mở rộng).
+ if(isBTV)$('secMaiThai').open=true;
  $('btvTong').hidden=!isBTV;
- capNhatMongMacDinhKhiChuyenPha(isBTV);
+ apDungMongTheoCheDo(isBTV);
 }
 document.querySelectorAll('input[name=lm]').forEach(r=>{r.checked=r.value===(st.inp.lm||'khoan');r.addEventListener('change',()=>{st.inp.lm=r.value;run()})});
 $('resetP').onclick=()=>{st.px={};drawPrices(cur());run()};
