@@ -345,6 +345,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
    <div class="fine">Chưa gồm: ép cọc, thiết bị thang máy (hai phần này chủ nhà ký riêng), nội thất rời, chi phí thiết kế và xin phép.<br>Đây là ước tính theo nhà mẫu cùng loại, chưa phải dự toán chính thức cho công trình của bạn. Dự toán đúng cho nhà bạn phải bóc từ chính bản vẽ của bạn.</div>
    <button class="cta" id="btnSaveHouse" type="button" style="border:0;cursor:pointer;width:100%">Lưu vào Không gian Nhà</button>
    <div id="saveHouseMsg" class="hint" style="margin-top:8px" hidden></div>
+   <button class="btn" id="retrySaveHouse" type="button" style="margin-top:8px" hidden>Thử lại</button>
    <a class="cta" href="/du-toan-chi-tiet.html#form" style="margin-top:10px;background:transparent;color:var(--navy2);border:1px solid var(--line)">Gửi bản vẽ để ALN bóc khối lượng thật</a>
   </div>
  </div>
@@ -610,6 +611,24 @@ const callSaveEstimate = httpsCallable(functionsInst, 'saveEstimateToHouse');
 
 const btn = document.getElementById('btnSaveHouse');
 const msg = document.getElementById('saveHouseMsg');
+const retryBtn = document.getElementById('retrySaveHouse');
+let saveSucceeded = false;
+let pendingSaves = 0;
+
+function showRetry() {
+  if (saveSucceeded) return;
+  showMsg('Chưa lưu được — thử lại', 'error');
+  retryBtn.hidden = false;
+  btn.disabled = false;
+  btn.textContent = 'Lưu vào Không gian Nhà';
+}
+
+function clearAutosaveFlag() {
+  const url = new URL(window.location.href);
+  if (url.searchParams.get('autosave') !== '1') return;
+  url.searchParams.delete('autosave');
+  history.replaceState(null, '', url.pathname + url.search + url.hash);
+}
 
 function showMsg(text, kind) {
   msg.hidden = false;
@@ -655,6 +674,7 @@ function buildPayload() {
 }
 
 async function doSave() {
+  if (saveSucceeded) return;
   // Founder chốt 21/09/2026 (6) — run() (script chính) trả về SỚM, KHÔNG cập
   // nhật window.__lastEstimate, khi còn ô kích thước báo lỗi (#blocked hiện).
   // Nếu không chặn ở đây, bấm "Lưu" lúc đó sẽ âm thầm lưu ƯỚC TÍNH CŨ (lần
@@ -667,17 +687,23 @@ async function doSave() {
   }
   const payload = buildPayload();
   if (!payload) { showMsg("Chưa có ước tính để lưu — nhập kích thước trước.", "error"); return; }
+  pendingSaves++;
+  retryBtn.hidden = true;
   btn.disabled = true;
-  const prevLabel = btn.textContent;
   btn.textContent = "Đang lưu...";
   showMsg("Đang lưu vào Không gian Nhà...", "info");
+  // Callable không hỗ trợ hủy request. Cho phép thử lại khi mạng treo; server
+  // chống trùng nội dung và mọi response thành công chỉ xử lý UI/tracking 1 lần.
+  const slowTimer = setTimeout(showRetry, 15000);
   try {
     const res = await callSaveEstimate(payload);
     const d = res.data || {};
-    if (d.ok) {
+    if (d.ok && !saveSucceeded) {
+      saveSucceeded = true;
+      clearAutosaveFlag();
+      retryBtn.hidden = true;
       showMsg(d.deduped ? "Đã lưu (giống lần lưu gần nhất, không tạo bản trùng)." : "Đã lưu vào Không gian Nhà.", "ok");
       btn.textContent = "Đã lưu — Xem Không gian Nhà";
-      btn.onclick = () => { window.location.href = "khong-gian-nha.html"; };
       btn.disabled = false;
       // P1.5 (spec mục 5) — 'aln_du_toan_luu' = sự kiện Lead, CHỈ bắn khi
       // contact VỪA được tạo mới (contactCreated=true — chủ nhà lần đầu lưu
@@ -695,14 +721,15 @@ async function doSave() {
       }
       return;
     }
-    showMsg("Không lưu được, thử lại.", "error");
-    btn.textContent = prevLabel;
+    if (!d.ok) showRetry();
   } catch (err) {
     console.error("[du-toan-nha] saveEstimateToHouse lỗi:", err);
-    showMsg("Lỗi khi lưu: " + (err && err.message ? err.message : "không rõ nguyên nhân") + ". Thử lại hoặc liên hệ Zalo.", "error");
-    btn.textContent = prevLabel;
+    showRetry();
+  } finally {
+    clearTimeout(slowTimer);
+    pendingSaves--;
+    if (!saveSucceeded && pendingSaves === 0) btn.disabled = false;
   }
-  btn.disabled = false;
 }
 
 function goLogin() {
@@ -724,6 +751,10 @@ function isPhoneAuthed(user) {
 }
 
 btn.addEventListener("click", () => {
+  if (saveSucceeded) { window.location.href = "khong-gian-nha.html"; return; }
+  if (isPhoneAuthed(auth.currentUser)) doSave(); else goLogin();
+});
+retryBtn.addEventListener('click', () => {
   if (isPhoneAuthed(auth.currentUser)) doSave(); else goLogin();
 });
 
@@ -737,9 +768,6 @@ if (params.get("autosave") === "1") {
   const unsub = onAuthStateChanged(auth, (user) => {
     if (!isPhoneAuthed(user)) return;
     unsub();
-    params.delete("autosave");
-    const qs = params.toString();
-    history.replaceState(null, "", window.location.pathname + (qs ? "?" + qs : ""));
     doSave();
   });
 }
