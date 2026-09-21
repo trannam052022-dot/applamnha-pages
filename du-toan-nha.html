@@ -236,7 +236,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div><label for="bc">Ban công — tổng (m²)</label><input id="bc" type="number" step="0.5" min="0" inputmode="decimal"></div>
     <div><label for="mai">Diện tích mái trên cùng (m²)</label><input id="mai" type="number" step="0.5" min="0" inputmode="decimal"><div class="hint">Tự điền khi không có sân thượng</div></div>
     <div><label for="mai_loai">Loại mái</label><select id="mai_loai"></select></div>
-    <div><label for="mong">Móng — tính theo % sàn trệt</label><input id="mong" type="number" step="5" min="0" max="150" inputmode="decimal"><div class="hint">Móng cọc: 70%</div></div>
+    <div><label for="mong">Móng — tính theo % sàn trệt</label><input id="mong" type="number" step="5" min="0" max="150" inputmode="decimal"><div class="hint" id="mongHint">Móng cọc: 70%</div></div>
    </div>
    <div class="areas">
     <div><b id="aTx">—</b><span>m² thực xây</span></div>
@@ -246,6 +246,29 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
    <div class="hint" style="margin-top:6px">Giá xây thường tính trên m² quy đổi. Khi so báo giá, hãy hỏi nhà thầu họ đang tính trên diện tích nào.</div>
    <div id="scope" class="note"></div>
    <div id="maiNote" class="note" hidden></div>
+  </div>
+ </details>
+
+ <!-- Mái Thái — chỉ hiện khi chọn "1 sàn" (Biệt thự vườn 1 tầng mái Thái,
+      thêm 21/09/2026 (2), thay cho việc chặn hẳn nhà 1 tầng trước đây). Mái
+      Thái kèo thép gác trên giằng tường + cột, KHÔNG có sàn mái BTCT — tính
+      riêng ngoài bảng vật tư nhà mẫu, xem computeBietThuVuonMaiThai() trong
+      du-toan-nha-calc.js. <details> = đúng ý "mở chi tiết được" Founder yêu
+      cầu (xem breakdown diện tích/hệ số dốc trong khối vừa tính). -->
+ <details class="sec card" id="secMaiThai" hidden>
+  <summary><span class="st"><span class="sn">M</span>Mái Thái (biệt thự vườn 1 tầng)</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary>
+  <div class="body">
+   <div class="hint">Mái Thái kèo thép gác trên giằng tường + cột, không có sàn mái BTCT — tính trọn gói theo giá thị trường, tách riêng khỏi bảng vật tư nhà mẫu ở trên.</div>
+   <div class="grid">
+    <div><label for="dua">Độ đua mái (m)</label><input id="dua" type="number" step="0.1" min="0" inputmode="decimal"></div>
+    <div><label for="doc_mai">Độ dốc mái (độ)</label><input id="doc_mai" type="number" step="1" min="1" max="89" inputmode="decimal"></div>
+    <div><label for="dong_gia_mai_thai">Đơn giá mái Thái (đ/m² mái nghiêng)</label><input id="dong_gia_mai_thai" type="number" step="10000" min="0" inputmode="numeric"><div class="hint">Trọn gói, đã gồm công lợp</div></div>
+   </div>
+   <div class="areas">
+    <div><b id="maiDienTichNghieng">—</b><span>m² mái nghiêng</span></div>
+    <div><b id="maiHeSoDoc">—</b><span>hệ số dốc</span></div>
+    <div><b id="maiQdHienThi">—</b><span>m² quy đổi (70%, mái ngói/kèo thép)</span></div>
+   </div>
   </div>
  </details>
 
@@ -290,6 +313,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
    <div class="per"><b id="perM2">—</b> đ/m² quy đổi</div>
    <div class="vat" id="vatLine"></div>
    <div class="model" id="model"></div>
+   <!-- Biệt thự vườn 1 tầng mái Thái (n===1) — Founder chốt 21/09/2026 (3):
+        mái xem như hạng mục hoàn thiện trọn gói, tách riêng khỏi phần thô
+        để chủ nhà thấy rõ 2 khoản không cộng chung quản lý nhà thầu chính.
+        Ẩn ở chế độ thường (chỉ có 1 khoản "Cộng, chưa VAT" như cũ). -->
+   <div id="btvTong" hidden>
+    <div class="tot"><span>Phần thô (không gồm mái)</span><span id="btvPhanTho"></span></div>
+    <div class="tot"><span>Mái Thái (tính riêng)</span><span id="btvMaiThai"></span></div>
+    <div class="tot" style="border-top:1px solid var(--line);margin-top:4px;padding-top:10px"><span>Tổng cộng, chưa VAT</span><span id="btvTongCong"></span></div>
+    <div class="hint" id="btvGhiChuDonGia" style="margin-top:2px"></div>
+   </div>
    <div class="rows" id="rows"></div>
    <div class="tot"><span>Cộng, chưa VAT</span><span id="tot2"></span></div>
    <div class="h2">Phần bạn tự mua</div>
@@ -311,9 +344,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <script src="du-toan-nha-data.js"></script>
 <script src="du-toan-nha-calc.js"></script>
 <script>
+const {pickModel,computeAreas,computeEstimate,num,fmt,kiemTraNgoaiVung,MAI_LOAI,MAI_LOAI_MAC_DINH,ghiChuMai,computeBietThuVuonMaiThai,MAI_THAI_MAC_DINH,TEN_MUC_SAN_MAI_BTCT_MR_THI,MONG_MAC_DINH_BIET_THU_VUON,MONG_MAC_DINH_NHA_PHO}=window.ALN_DUTOAN_CALC;
 const {DATA,NAMES,GROUPS}=window.ALN_DUTOAN_DATA;
-const {pickModel,computeAreas,computeEstimate,num,fmt,kiemTraNgoaiVung,MAI_LOAI,MAI_LOAI_MAC_DINH,ghiChuMai}=window.ALN_DUTOAN_CALC;
-const DEF={w1:5,w2:5,l1:20,l2:20,n:4,st:'0.7',tm:'0',ham:'0',sant:0,bc:0,mai:'',mai_loai:MAI_LOAI_MAC_DINH,mong:70,khoan:1900000,cong:550000,mep:250000,ql:23.8,vat:8,lm:'khoan'};
+const DEF={w1:5,w2:5,l1:20,l2:20,n:4,st:'0.7',tm:'0',ham:'0',sant:0,bc:0,mai:'',mai_loai:MAI_LOAI_MAC_DINH,mong:70,
+ dua:MAI_THAI_MAC_DINH.dua,doc_mai:MAI_THAI_MAC_DINH.docDo,dong_gia_mai_thai:MAI_THAI_MAC_DINH.donGia,
+ khoan:1900000,cong:550000,mep:250000,ql:23.8,vat:8,lm:'khoan'};
 const K='aln-dutoan-v1';
 let st=load(); let prices={}; let showAllT=false; const openRows=new Set();
 let duToanTinhTimer=null; // debounce aln_du_toan_tinh (P1.5) — run() gọi lại mỗi lần gõ phím, không đẩy dataLayer mỗi keystroke
@@ -324,18 +359,46 @@ const ty=n=>n>=1e9?(n/1e9).toLocaleString('vi-VN',{maximumFractionDigits:2})+' t
 const nm=m=>NAMES[m]||m;
 for(let i=1;i<=9;i++)$('n').insertAdjacentHTML('beforeend',`<option value="${i}">${i} sàn</option>`);
 Object.keys(MAI_LOAI).forEach(k=>$('mai_loai').insertAdjacentHTML('beforeend',`<option value="${k}">${MAI_LOAI[k].label} (${Math.round(MAI_LOAI[k].tyLe*100)}% quy đổi)</option>`));
-const ids=['w1','w2','l1','l2','n','st','tm','ham','sant','bc','mai','mai_loai','mong','khoan','cong','mep','ql','vat'];
-ids.forEach(id=>{$(id).value=st.inp[id]??DEF[id];$(id).addEventListener('input',()=>{st.inp[id]=$(id).value;if(id==='st'||id==='mai'){}run()})});
+const ids=['w1','w2','l1','l2','n','st','tm','ham','sant','bc','mai','mai_loai','mong','dua','doc_mai','dong_gia_mai_thai','khoan','cong','mep','ql','vat'];
+ids.forEach(id=>{$(id).value=st.inp[id]??DEF[id];$(id).addEventListener('input',()=>{st.inp[id]=$(id).value;run()})});
+// Biệt thự vườn 1 tầng mái Thái (n===1) — ẩn các field không áp dụng (sân
+// thượng/thang máy/mái phẳng+loại mái, toàn bộ mái là mái Thái tính riêng ở
+// khối "Mái Thái" bên dưới), hiện field riêng của khối đó.
+const CAC_ID_AN_KHI_BIET_THU_VUON=['st','tm','mai','mai_loai'];
+function laBietThuVuon(){return num($('n').value)===1}
+// Móng mặc định đổi theo loại nhà (Founder chốt 21/09/2026 (3)) — móng đơn
+// 50% cho biệt thự vườn 1 tầng, móng cọc 70% cho nhà phố nhiều tầng. CHỈ tự
+// đổi giá trị lúc CHUYỂN PHA (n vừa đổi qua lại mốc ===1) và CHỈ khi ô Móng
+// đang đúng bằng mặc định của pha CŨ (chưa bị người dùng tự gõ lệch khỏi
+// mặc định đó) — tránh đè giá trị người dùng đã tự sửa tay.
+let laBietThuVuonTruocDo=null;
+function capNhatMongMacDinhKhiChuyenPha(isBTV){
+ if(laBietThuVuonTruocDo!==null&&isBTV!==laBietThuVuonTruocDo){
+  const mongHienTai=num($('mong').value);
+  const macDinhCu=isBTV?MONG_MAC_DINH_NHA_PHO:MONG_MAC_DINH_BIET_THU_VUON;
+  const macDinhMoi=isBTV?MONG_MAC_DINH_BIET_THU_VUON:MONG_MAC_DINH_NHA_PHO;
+  if(mongHienTai===macDinhCu){$('mong').value=macDinhMoi;st.inp.mong=String(macDinhMoi)}
+ }
+ laBietThuVuonTruocDo=isBTV;
+ $('mongHint').textContent=isBTV?`Móng đơn: ${MONG_MAC_DINH_BIET_THU_VUON}%`:`Móng cọc: ${MONG_MAC_DINH_NHA_PHO}%`;
+}
+function capNhatGiaoDienBietThuVuon(isBTV){
+ CAC_ID_AN_KHI_BIET_THU_VUON.forEach(id=>{const row=$(id).closest('div');if(row)row.hidden=isBTV});
+ $('secMaiThai').hidden=!isBTV;
+ $('btvTong').hidden=!isBTV;
+ capNhatMongMacDinhKhiChuyenPha(isBTV);
+}
 document.querySelectorAll('input[name=lm]').forEach(r=>{r.checked=r.value===(st.inp.lm||'khoan');r.addEventListener('change',()=>{st.inp.lm=r.value;run()})});
 $('resetP').onclick=()=>{st.px={};drawPrices(cur());run()};
 $('moreT').onclick=()=>{showAllT=!showAllT;drawPrices(cur())};
-function cur(){return pickModel($('n').value,$('tm').value)}
+function cur(){return laBietThuVuon()?'thi':pickModel($('n').value,$('tm').value)}
 function price(m,S){return st.px[m]!=null&&st.px[m]!==''?num(st.px[m]):S.prices[m]}
 let drawnFor=null;
-function drawPrices(key){
- const S=DATA[key];drawnFor=key;
+function drawPrices(key,boQuaTen){
+ const S=DATA[key];drawnFor=key+(boQuaTen?'|btv':'');
+ const boQuaSet=boQuaTen&&boQuaTen.length?new Set(boQuaTen):null;
  const shareT={},shareH={};
- S.items.forEach(it=>{for(const m in it.t)shareT[m]=(shareT[m]||0)+it.t[m]*S.prices[m];for(const m in it.h)shareH[m]=(shareH[m]||0)+it.h[m]*S.prices[m]});
+ S.items.forEach(it=>{if(boQuaSet&&boQuaSet.has(it.n))return;for(const m in it.t)shareT[m]=(shareT[m]||0)+it.t[m]*S.prices[m];for(const m in it.h)shareH[m]=(shareH[m]||0)+it.h[m]*S.prices[m]});
  const row=(m)=>{const ch=st.px[m]!=null&&st.px[m]!==''&&num(st.px[m])!==S.prices[m];return `<tr class="${ch?'chg':''}"><td>${nm(m)}</td><td>${S.units[m]||''}</td><td><input type="number" min="0" inputmode="numeric" data-m="${m}" value="${price(m,S)}" aria-label="Giá ${nm(m)}"></td></tr>`};
  const T=Object.keys(shareT).filter(m=>shareT[m]>0&&S.cls[m]!=='hoan_thien').sort((a,b)=>shareT[b]-shareT[a]);
  const H=Object.keys(shareH).filter(m=>shareH[m]>0&&S.cls[m]==='hoan_thien').sort((a,b)=>shareH[b]-shareH[a]);
@@ -352,6 +415,12 @@ function areas(){
  return a;
 }
 function run(skipPrices){
+ const isBTV=laBietThuVuon();
+ capNhatGiaoDienBietThuVuon(isBTV);
+ if(isBTV)return runBietThuVuon(skipPrices);
+ return runThongThuong(skipPrices);
+}
+function runThongThuong(skipPrices){
  const key=cur(),S=DATA[key];
  if(!skipPrices||drawnFor!==key)drawPrices(key);
  const a=areas();$('aTx').textContent=fmt(a.tx);$('aQd').textContent=fmt(a.qd);$('aKm').textContent=fmt(a.km);
@@ -382,7 +451,58 @@ function run(skipPrices){
  clearTimeout(duToanTinhTimer);
  duToanTinhTimer=setTimeout(()=>{
   window.dataLayer=window.dataLayer||[];
-  window.dataLayer.push({event:'aln_du_toan_tinh',aln_nha_mau:key,aln_so_san:n,aln_dien_tich_qd:Math.round(a.qd),aln_tong_chua_vat:result.totalChuaVat});
+  window.dataLayer.push({event:'aln_du_toan_tinh',aln_nha_mau:key,aln_so_san:num($('n').value),aln_dien_tich_qd:Math.round(a.qd),aln_tong_chua_vat:result.totalChuaVat});
+ },1200);
+}
+// Biệt thự vườn 1 tầng mái Thái (n===1, thêm 21/09/2026 (2)) — thân nhà quy
+// theo mẫu Mr Thi (LOẠI khối lượng sàn mái BTCT của mẫu qua boQuaTen), mái
+// tính riêng theo giá thị trường. Dùng chung computeBietThuVuonMaiThai() với
+// server (functions/saveEstimateToHouse.js) — xem du-toan-nha-calc.js.
+function runBietThuVuon(skipPrices){
+ const key='thi';
+ if(!skipPrices||drawnFor!=='thi|btv')drawPrices(key,TEN_MUC_SAN_MAI_BTCT_MR_THI);
+ let block=kiemTraNgoaiVung(st.inp); // vẫn chặn nếu lỡ chọn kèm tầng hầm
+ $('blocked').hidden=!block;$('blocked').textContent=block;$('out').hidden=!!block;
+ $('scope').textContent='Ước tính theo nhà mẫu nhà phố + khối mái tính theo giá thị trường; ALN chưa có nhà mẫu biệt thự vườn.';
+ $('maiNote').hidden=true; // ghi chú "loại mái khác nhà mẫu" của luồng thường không áp dụng ở đây
+ const lm=st.inp.lm||'khoan';$('fKhoan').hidden=lm!=='khoan';$('fCong').hidden=lm!=='cong';
+ save();
+ if(block){
+  $('aTx').textContent='—';$('aQd').textContent='—';$('aKm').textContent='—';
+  $('maiDienTichNghieng').textContent='—';$('maiHeSoDoc').textContent='—';$('maiQdHienThi').textContent='—';
+  $('dockT').textContent='—';
+  return;
+ }
+ const result=computeBietThuVuonMaiThai({
+  thanInputs:{w1:$('w1').value,w2:$('w2').value,l1:$('l1').value,l2:$('l2').value,sant:$('sant').value,bc:$('bc').value,mong:$('mong').value},
+  mai:{dua:$('dua').value,docDo:$('doc_mai').value,donGia:$('dong_gia_mai_thai').value},
+  priceOverrides:st.px,
+  nhanCong:{cheDo:lm,khoanDonGia:$('khoan').value,congDonGia:$('cong').value},
+  mepDonGia:$('mep').value,qlPct:$('ql').value,vatPct:$('vat').value,
+ },{DATA,GROUPS});
+ $('aTx').textContent=fmt(result.tx);$('aQd').textContent=fmt(result.qd);$('aKm').textContent=fmt(result.km);
+ $('maiDienTichNghieng').textContent=fmt(result.maiThai.dienTichNghieng);
+ $('maiHeSoDoc').textContent=result.maiThai.heSoDoc.toLocaleString('vi-VN',{maximumFractionDigits:2});
+ $('maiQdHienThi').textContent=fmt(result.maiThai.qdHienThi);
+ $('congHint').textContent=`Khoảng ${fmt(result.congDinhMuc)} công theo định mức nhà nước (phần thân) — thợ làm khoán thường nhanh hơn định mức`;
+ $('total').textContent=ty(result.totalChuaVat);$('perM2').textContent=fmt(result.perM2ChuaVat);$('tot2').textContent=fmt(result.totalChuaVat);
+ $('vatLine').textContent=`Sau VAT ${result.vatPct}%: ${ty(result.totalSauVat)}`;
+ $('model').textContent='';
+ // Founder chốt 21/09/2026 (3) — mái Thái là hạng mục hoàn thiện trọn gói,
+ // KHÔNG cộng quản lý nhà thầu chính, nên hiện riêng 2 dòng tổng + tổng cộng
+ // để chủ nhà thấy rõ, không lẫn vào 1 khoản "Cộng, chưa VAT" như nhà thường.
+ $('btvPhanTho').textContent=fmt(result.phanTho);
+ $('btvMaiThai').textContent=fmt(result.maiThai.thanhTien);
+ $('btvTongCong').textContent=fmt(result.totalChuaVat);
+ $('btvGhiChuDonGia').textContent='Đơn giá/m² tính trên m² quy đổi thị trường (sàn + móng + 70%×diện tích mái nghiêng) — tính cùng cách báo giá thị trường để bạn so sánh.';
+ $('dockT').textContent=ty(result.totalChuaVat);
+ draw($('rows'),result.lines,result.totalChuaVat);
+ draw($('rowsH'),result.lineHoanThien,result.totalHoanThien);$('totH').textContent=fmt(result.totalHoanThien);
+ window.__lastEstimate={modelKey:'thi_biet_thu_vuon_mai_thai',inputs:{...st.inp},priceOverrides:{...st.px},result};
+ clearTimeout(duToanTinhTimer);
+ duToanTinhTimer=setTimeout(()=>{
+  window.dataLayer=window.dataLayer||[];
+  window.dataLayer.push({event:'aln_du_toan_tinh',aln_nha_mau:'thi_biet_thu_vuon_mai_thai',aln_so_san:1,aln_dien_tich_qd:Math.round(result.qd),aln_tong_chua_vat:result.totalChuaVat});
  },1200);
 }
 const IC='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>';
@@ -433,6 +553,10 @@ function buildPayload() {
       w1: inp.w1, w2: inp.w2, l1: inp.l1, l2: inp.l2, n: inp.n, st: inp.st,
       tm: inp.tm, ham: inp.ham, sant: inp.sant, bc: inp.bc, mai: inp.mai,
       mai_loai: inp.mai_loai, mong: inp.mong,
+      // Biệt thự vườn 1 tầng mái Thái (n===1, thêm 21/09/2026 (2)) — server
+      // CHỈ đọc 3 field này khi n===1 (xem functions/saveEstimateToHouse.js),
+      // gửi kèm luôn cho mọi trường hợp cho đơn giản, vô hại khi n!==1.
+      dua: inp.dua, doc_mai: inp.doc_mai, dong_gia_mai_thai: inp.dong_gia_mai_thai,
     },
     priceOverrides: est.priceOverrides || {},
     nhanCong: { cheDo: inp.lm || "khoan", khoanDonGia: inp.khoan, congDonGia: inp.cong },

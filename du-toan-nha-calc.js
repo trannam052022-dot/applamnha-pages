@@ -102,9 +102,9 @@
     if (ham) {
       return "ALN chưa có nhà mẫu có tầng hầm, chưa ước tính được. Gửi thông tin để KTS ALN ước tính riêng cho nhà bạn.";
     }
-    if (n === 1) {
-      return "ALN chưa có nhà mẫu cho nhà 1 tầng / nhà cấp 4 — gửi thông tin để KTS ước tính riêng.";
-    }
+    // n===1 KHÔNG còn bị chặn từ 21/09/2026 (2) — chuyển sang tính riêng qua
+    // computeBietThuVuonMaiThai() (Biệt thự vườn 1 tầng mái Thái), xem bên
+    // dưới. Trước đó bị chặn hẳn ("nhà cấp 4") vì chưa có công thức riêng.
     if (n > 8) {
       return "Nhà trên 8 sàn nằm ngoài vùng ALN đã có dữ liệu. Gửi thông tin để KTS ALN ước tính riêng.";
     }
@@ -167,6 +167,14 @@
    *   nhanCong: {cheDo: 'khoan'|'cong', khoanDonGia, congDonGia}
    *   mepDonGia: đ/m² điện nước khoán (tính trên `km`, KHÔNG phải `qd`)
    *   qlPct, vatPct: số (%)
+   *   boQuaTen: mảng tên hạng mục (khớp CHÍNH XÁC `it.n` trong DATA[modelKey].items)
+   *     cần LOẠI HẲN khỏi tổng — không cộng vật tư/nhân công định mức/máy/cẩu
+   *     của dòng đó. Thêm 21/09/2026 (2) cho Biệt thự vườn mái Thái (loại bỏ
+   *     khối lượng "sàn mái BTCT" của mẫu Mr Thi — nhà này KHÔNG có sàn mái
+   *     BTCT, mái tính riêng qua computeMaiThai()). Rỗng/thiếu -> hành vi cũ
+   *     nguyên vẹn (không loại gì). Có truyền vào mà KHÔNG khớp được tên nào
+   *     trong `items` -> throw Error (báo lỗi RÕ thay vì âm thầm tính sai —
+   *     phòng khi dữ liệu nhà mẫu đổi tên hạng mục sau này).
    *
    * ctx: { DATA, GROUPS } — inject từ ngoài (browser: window.ALN_DUTOAN_DATA;
    *   Cloud Function: require du-toan-nha-data.js) thay vì import cứng bên
@@ -194,11 +202,18 @@
       return (ov !== undefined && ov !== null && ov !== "") ? num(ov) : S.prices[m];
     }
 
+    var boQuaTen = (p.boQuaTen && p.boQuaTen.length) ? p.boQuaTen : null;
+    var boQuaConLai = boQuaTen ? boQuaTen.slice() : null;
+
     var f = S.A ? qd / S.A : 0;
     var g = {}, gh = {}, gi = {}, ghi = {};
     var may = 0, cau = 0, cong = 0;
 
     S.items.forEach(function (it) {
+      if (boQuaConLai) {
+        var idxBoQua = boQuaConLai.indexOf(it.n);
+        if (idxBoQua !== -1) { boQuaConLai.splice(idxBoQua, 1); return; }
+      }
       var vt = it.lt, vh = it.lh;
       for (var mt in it.t) vt += it.t[mt] * price(mt);
       for (var mh in it.h) vh += it.h[mh] * price(mh);
@@ -216,6 +231,12 @@
         (ghi[G] = ghi[G] || []).push([it.n, it.q * f, it.u, vh]);
       }
     });
+    if (boQuaConLai && boQuaConLai.length) {
+      throw new Error(
+        "computeEstimate: boQuaTen có tên KHÔNG khớp hạng mục nào trong DATA['" + p.modelKey +
+        "'].items (dữ liệu nhà mẫu có thể đã đổi tên) — " + boQuaConLai.join(", ")
+      );
+    }
 
     var nhanCong = p.nhanCong || {};
     var cheDo = nhanCong.cheDo === "cong" ? "cong" : "khoan";
@@ -274,6 +295,176 @@
     };
   }
 
+  /**
+   * BIỆT THỰ VƯỜN 1 TẦNG MÁI THÁI — thêm 21/09/2026 (2), thay cho việc chặn
+   * hẳn "nhà 1 tầng/cấp 4" (xem kiemTraNgoaiVung ở trên — n===1 KHÔNG còn bị
+   * chặn). Founder chốt: mái Thái (kèo thép gác trên giằng tường + cột,
+   * KHÔNG có sàn mái BTCT) — thân nhà quy theo mẫu Mr Thi trên m² sàn + móng
+   * (LOẠI BỎ khối lượng sàn mái BTCT của mẫu, xem TEN_MUC_SAN_MAI_BTCT_MR_THI
+   * + tham số boQuaTen của computeEstimate() ở trên), mái tính riêng theo
+   * diện tích mái nghiêng × đơn giá trọn gói thị trường — KHÔNG bịa khối
+   * lượng vật tư mái Thái vì ALN chưa có nhà mẫu thật cho loại mái này.
+   */
+
+  // 2 hạng mục "sàn mái" của mẫu Mr Thi — CHÍNH XÁC theo du-toan-nha-data.js,
+  // đối chiếu lại bằng tay nếu dữ liệu nhà mẫu đổi tên (computeEstimate() sẽ
+  // tự throw nếu tên không còn khớp, không âm thầm tính sai).
+  var TEN_MUC_SAN_MAI_BTCT_MR_THI = [
+    "Cốt thép sàn mái, đk <=10mm",
+    "Bê tông sàn, sàn mái, đá 1x2",
+  ];
+
+  var MAI_THAI_MAC_DINH = { dua: 0.6, docDo: 35, donGia: 650000 };
+
+  /** Móng mặc định cho Biệt thự vườn 1 tầng — Founder chốt 21/09/2026 (3):
+   * móng đơn 50% (KHÁC mặc định 70% "móng cọc" của nhà phố nhiều tầng —
+   * xem MONG_MAC_DINH_NHA_PHO ngay dưới, dùng để client tự đổi giá trị
+   * hiển thị khi chuyển qua lại 2 chế độ mà chưa bị người dùng tự sửa). */
+  var MONG_MAC_DINH_BIET_THU_VUON = 50;
+  var MONG_MAC_DINH_NHA_PHO = 70;
+
+  /** Hệ số quy đổi diện tích nằm ngang -> diện tích mái nghiêng theo độ dốc
+   * (độ, KHÔNG phải radian) — công thức hình học chuẩn 1/cos(góc dốc).
+   * docDo<=0 hoặc >=90 (mái không nghiêng được hoặc thẳng đứng) -> trả 0,
+   * KHÔNG chia cho 0/số âm (Math.cos ở biên có thể ra số âm/rất nhỏ). */
+  function heSoDocMaiThai(docDo) {
+    var d = num(docDo);
+    if (d <= 0 || d >= 90) return 0;
+    var c = Math.cos((d * Math.PI) / 180);
+    return c > 0 ? 1 / c : 0;
+  }
+
+  /**
+   * computeMaiThai(params) — diện tích + thành tiền khối mái Thái, TÁCH RIÊNG
+   * khỏi computeEstimate() (mái Thái không đi qua bảng vật tư/nhân công của
+   * nhà mẫu — trọn gói theo giá thị trường, đã gồm công lợp).
+   *
+   * params: { w, l, dua, docDo, donGia } — w/l là bề rộng/bề sâu MẶT BẰNG nhà
+   * (đã lấy trung bình 2 cạnh, KHÔNG phải w1/w2/l1/l2 thô — dùng lại đúng w/l
+   * mà computeAreasBietThuVuon() bên dưới đã tính, tránh tính trùng 2 nơi).
+   *
+   * dienTichNghieng = (l + 2×dua) × (w + 2×dua) × hệ số dốc.
+   * qdHienThi = 70% × dienTichNghieng — Founder chốt hiển thị "m² quy đổi"
+   * phần mái theo đúng tỷ lệ thị trường cho mái ngói/kèo thép (khớp
+   * MAI_LOAI.ngoi_keo_thep.tyLe ở trên — CÙNG 1 con số, không định nghĩa lại
+   * hằng số riêng để tránh lệch nếu sau này đổi tỷ lệ đó).
+   */
+  function computeMaiThai(params) {
+    var p = params || {};
+    var w = num(p.w), l = num(p.l), dua = num(p.dua);
+    var heSoDoc = heSoDocMaiThai(p.docDo);
+    var dienTichNghieng = (l + 2 * dua) * (w + 2 * dua) * heSoDoc;
+    var donGia = num(p.donGia);
+    var thanhTien = dienTichNghieng * donGia;
+    var qdHienThi = dienTichNghieng * MAI_LOAI.ngoi_keo_thep.tyLe;
+    return { dienTichNghieng: dienTichNghieng, heSoDoc: heSoDoc, donGia: donGia, thanhTien: thanhTien, qdHienThi: qdHienThi };
+  }
+
+  /**
+   * computeAreasBietThuVuon(inputs) — diện tích PHẦN THÂN của biệt thự vườn
+   * 1 tầng mái Thái. KHÁC computeAreas() ở chỗ: n LUÔN = 1 (định nghĩa của
+   * loại nhà này), KHÔNG có sân thượng/mái phẳng (toàn bộ mái là mái Thái,
+   * tính riêng qua computeMaiThai() — KHÔNG gọi hàm này cho phần mái).
+   * inputs: {w1,w2,l1,l2,sant,bc,mong} — KHÔNG đọc n/st/tm/ham/mai/mai_loai
+   * (không áp dụng cho loại nhà này).
+   * Trả về {fp, w, l, txThan, qdThan, kmThan, mongDienTich}.
+   */
+  function computeAreasBietThuVuon(inputs) {
+    var d = inputs || {};
+    var w = (num(d.w1) + num(d.w2)) / 2;
+    var l = (num(d.l1) + num(d.l2)) / 2;
+    var fp = w * l;
+    var sant = w * num(d.sant);
+    var bc = num(d.bc);
+    var mg = num(d.mong) / 100;
+    var mongDienTich = mg * (fp + sant);
+    var txThan = fp + sant + bc;
+    var qdThan = fp + sant * 0.7 + bc + mongDienTich;
+    return { fp: fp, w: w, l: l, txThan: txThan, qdThan: qdThan, kmThan: qdThan - mongDienTich, mongDienTich: mongDienTich };
+  }
+
+  /**
+   * computeBietThuVuonMaiThai(params, ctx) — orchestrator: gọi computeEstimate()
+   * cho PHẦN THÂN VỚI ĐÚNG qlPct thật (quản lý & lợi nhuận nhà thầu chính CHỈ
+   * áp trên thân), cộng computeMaiThai() cho PHẦN MÁI, rồi ghép lại đúng quy
+   * tắc Founder chốt 21/09/2026 (3) — SỬA LẠI từ bản đầu (từng cộng qlPct
+   * trên TỔNG thân+mái, coi mái như 1 khoản chi phí nhà thầu chính quản lý):
+   *   - Mái Thái xem như HẠNG MỤC HOÀN THIỆN trọn gói (đơn giá 650.000đ/m²
+   *     ĐÃ gồm công + lãi của thợ mái) — KHÔNG cộng thêm quản lý & lợi nhuận
+   *     23,8% của nhà thầu chính vào mái (khác thân, nơi 23,8% là chi phí
+   *     quản lý công trường thật của nhà thầu chính cho phần thi công thô).
+   *   - Nhân công khoán CHỈ nhân trên phần thân (qd truyền vào computeEstimate
+   *     là qdThan, KHÔNG phải qdThan+qdMái — computeEstimate tự làm đúng vì
+   *     nc = khoanDonGia*qd dùng thẳng qd truyền vào).
+   *   - "Phần thô" (không gồm mái) = than.totalChuaVat (đã có sẵn quản lý
+   *     đúng trên thân trong computeEstimate) — trả riêng ở field `phanTho`
+   *     để client hiện 2 dòng tổng "Phần thô"/"Mái Thái" + dòng tổng cộng.
+   *   - qd hiển thị cho TOÀN NHÀ = qdThan (sàn+móng theo % người dùng chọn,
+   *     mặc định 50% móng đơn — xem MONG_MAC_DINH_BIET_THU_VUON) + mái.
+   *     qdHienThi (70%×diện tích nghiêng) — "m² quy đổi thị trường" dùng để
+   *     ra đ/m² quy đổi CHUNG, tính cùng cách báo giá thị trường để so sánh.
+   *     Đây LÀ giá trị trả về ở field `qd` (khác `km`/`tx` vẫn giữ riêng
+   *     phần thân — mái không có hệ thống điện nước/không phải diện tích sử
+   *     dụng được).
+   *
+   * params: { thanInputs: {w1,w2,l1,l2,sant,bc,mong}, mai: {dua,docDo,donGia},
+   *   priceOverrides, nhanCong, mepDonGia, qlPct, vatPct }
+   * ctx: { DATA, GROUPS } — y hệt computeEstimate().
+   */
+  function computeBietThuVuonMaiThai(params, ctx) {
+    var p = params || {};
+    var areas = computeAreasBietThuVuon(p.thanInputs);
+    var mai = computeMaiThai({ w: areas.w, l: areas.l, dua: p.mai && p.mai.dua, docDo: p.mai && p.mai.docDo, donGia: p.mai && p.mai.donGia });
+
+    var than = computeEstimate({
+      modelKey: "thi",
+      qd: areas.qdThan,
+      km: areas.kmThan,
+      priceOverrides: p.priceOverrides,
+      nhanCong: p.nhanCong,
+      mepDonGia: p.mepDonGia,
+      qlPct: p.qlPct, // ÁP DỤNG THẬT — quản lý & lợi nhuận nhà thầu chính CHỈ tính trên thân, KHÔNG còn cưỡng bức =0 như bản đầu
+      vatPct: p.vatPct,
+      boQuaTen: TEN_MUC_SAN_MAI_BTCT_MR_THI,
+    }, ctx);
+
+    // than.lines đã có sẵn dòng "Quản lý & lợi nhuận của nhà thầu" tính ĐÚNG
+    // trên riêng thân (qlPct thật ở trên) — GIỮ NGUYÊN, chỉ thêm dòng mái
+    // KHÔNG kèm quản lý (mái là hạng mục hoàn thiện trọn gói, xem docstring).
+    var lines = than.lines.concat([{
+      n: "Mái Thái (trọn gói, gồm công lợp — hạng mục hoàn thiện, KHÔNG cộng quản lý nhà thầu chính)",
+      v: mai.thanhTien,
+      items: [["Diện tích mái nghiêng", mai.dienTichNghieng, "m²", mai.thanhTien]],
+      tag: fmt(mai.donGia) + " đ/m² mái nghiêng — hệ số dốc " + mai.heSoDoc.toFixed(2) + " (đua mái " + num(p.mai && p.mai.dua).toFixed(2) + "m, dốc " + num(p.mai && p.mai.docDo) + "°)",
+    }]);
+
+    var phanTho = than.totalChuaVat; // "Phần thô (không gồm mái)" — đã gồm quản lý & lợi nhuận thật của thân
+    var total = phanTho + mai.thanhTien;
+    var vatPct = num(p.vatPct);
+    var totalSauVat = total * (1 + vatPct / 100);
+    var qdTong = areas.qdThan + mai.qdHienThi;
+    var perM2 = qdTong > 0 ? total / qdTong : 0;
+
+    return {
+      modelKey: "thi_biet_thu_vuon_mai_thai",
+      modelLabel: "Biệt thự vườn 1 tầng mái Thái (thân theo mẫu Mr Thi, mái tính riêng theo giá thị trường)",
+      tx: areas.txThan,
+      qd: qdTong,
+      km: areas.kmThan,
+      congDinhMuc: than.congDinhMuc,
+      lines: lines,
+      phanTho: phanTho,
+      totalChuaVat: total,
+      vatPct: vatPct,
+      totalSauVat: totalSauVat,
+      perM2ChuaVat: perM2,
+      lineHoanThien: than.lineHoanThien,
+      totalHoanThien: than.totalHoanThien,
+      maiThai: mai,
+      areas: areas,
+    };
+  }
+
   return {
     num: num,
     fmt: fmt,
@@ -285,5 +476,13 @@
     MAI_LOAI_MAC_DINH: MAI_LOAI_MAC_DINH,
     tyLeMai: tyLeMai,
     ghiChuMai: ghiChuMai,
+    heSoDocMaiThai: heSoDocMaiThai,
+    computeMaiThai: computeMaiThai,
+    computeAreasBietThuVuon: computeAreasBietThuVuon,
+    computeBietThuVuonMaiThai: computeBietThuVuonMaiThai,
+    MAI_THAI_MAC_DINH: MAI_THAI_MAC_DINH,
+    MONG_MAC_DINH_BIET_THU_VUON: MONG_MAC_DINH_BIET_THU_VUON,
+    MONG_MAC_DINH_NHA_PHO: MONG_MAC_DINH_NHA_PHO,
+    TEN_MUC_SAN_MAI_BTCT_MR_THI: TEN_MUC_SAN_MAI_BTCT_MR_THI,
   };
 });
