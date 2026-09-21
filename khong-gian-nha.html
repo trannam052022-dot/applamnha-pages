@@ -415,12 +415,27 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="state-icon">
       <svg class="icon icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/><line x1="9.5" y1="16" x2="14.5" y2="12"/><line x1="9.5" y1="12" x2="14.5" y2="16"/></svg>
     </div>
-    <div class="state-title">Chưa có hồ sơ nhà nào gắn với số này</div>
-    <p class="state-desc">Số điện thoại bạn vừa đăng nhập chưa được gắn với hồ sơ nhà nào trên hệ thống ALN. Nếu bạn đã ký hợp đồng với ALN, vui lòng liên hệ để được hỗ trợ gắn đúng số điện thoại.</p>
-    <a class="btn btn-gold" href="https://zalo.me/alnsanthietke" target="_blank" rel="noopener">
-      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-      Liên hệ Zalo ALN
+    <div class="state-title">Bắt đầu hồ sơ nhà của bạn</div>
+    <p class="state-desc">Số điện thoại này chưa có hồ sơ nhà nào trên ALN. Bạn có thể tự ước tính chi phí xây nhà ngay, hoặc gửi bản vẽ/báo giá để ALN kiểm nhanh giúp bạn.</p>
+
+    <!-- Lưới cứu (khắc phục sự cố chặn chiến dịch 21/09/2026) — hiện CHỈ khi
+         localStorage còn dữ liệu chưa lưu từ du-toan-nha.html (key DUTOAN_LS_KEY,
+         xem hàm renderNoHouseSaveButton bên dưới). Điều hướng sang đúng luồng
+         autosave đã có sẵn ở du-toan-nha.html (isPhoneAuthed → doSave()) thay vì
+         gọi lại saveEstimateToHouse ở đây — tránh trùng logic buildPayload(). -->
+    <button id="btnSaveLocalEstimate" class="btn btn-gold" type="button" hidden style="margin-bottom:.6rem">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      Lưu dự toán bạn vừa tính vào Không gian Nhà
+    </button>
+
+    <a class="btn btn-gold" id="btnGoDuToan" href="du-toan-nha.html">
+      Tính dự toán nhà bạn
     </a>
+    <a class="btn btn-ghost" style="margin-top:.6rem" href="https://zalo.me/alnsanthietke" target="_blank" rel="noopener">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+      Gửi bản vẽ / báo giá để ALN kiểm nhanh
+    </a>
+    <p class="state-desc" style="margin-top:1rem;font-size:var(--text-sm)">Đã ký hợp đồng với ALN mà chưa thấy hồ sơ? <a href="https://zalo.me/alnsanthietke" target="_blank" rel="noopener" style="text-decoration:underline;text-underline-offset:2px">Nhắn Zalo</a> để được hỗ trợ gắn đúng số điện thoại.</p>
   </section>
 
   <section id="state-choose" class="center-state" hidden>
@@ -623,6 +638,7 @@ const els = {
   retryBtn: document.getElementById('retryBtn'),
   logoutLink: document.getElementById('logoutLink'),
   switchHouseLink: document.getElementById('switchHouseLink'),
+  btnSaveLocalEstimate: document.getElementById('btnSaveLocalEstimate'),
 
   hName: document.getElementById('hName'),
   hMa: document.getElementById('hMa'),
@@ -690,6 +706,25 @@ const LOAI_HINH_LABEL = {
 function showState(name) {
   for (const s of ['loading', 'error', 'noHouse', 'choose', 'house']) els[s].hidden = s !== name;
 }
+
+// Lưới cứu (khắc phục sự cố chặn chiến dịch 21/09/2026) — cùng key localStorage
+// với du-toan-nha.html (biến K ở đó). CHỈ đọc để QUYẾT ĐỊNH có hiện nút hay
+// không — KHÔNG parse/gửi trực tiếp từ đây, tránh trùng logic buildPayload()/
+// validate đã có sẵn ở du-toan-nha.html. Bấm nút chỉ điều hướng sang đúng luồng
+// autosave đã test kỹ ở đó (isPhoneAuthed → doSave()), người dùng khi tới được
+// state này chắc chắn đã Phone Auth (onAuthStateChanged gate ở cuối file).
+const DUTOAN_LS_KEY = 'aln-dutoan-v1';
+function renderNoHouseSaveButton() {
+  let coDuLieu = false;
+  try {
+    const raw = JSON.parse(localStorage.getItem(DUTOAN_LS_KEY) || 'null');
+    coDuLieu = !!(raw && raw.inp);
+  } catch (e) { coDuLieu = false; }
+  els.btnSaveLocalEstimate.hidden = !coDuLieu;
+}
+els.btnSaveLocalEstimate.addEventListener('click', () => {
+  window.location.href = 'du-toan-nha.html?autosave=1';
+});
 function esc(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
@@ -1323,6 +1358,7 @@ async function init() {
     cachedHouses = houses;
 
     if (!houses.length || data.code === 'khong_co_ho_so') {
+      renderNoHouseSaveButton();
       showState('noHouse');
       els.switchHouseLink.hidden = true;
       return;
