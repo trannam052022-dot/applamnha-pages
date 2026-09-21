@@ -234,7 +234,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div><label for="ham">Tầng hầm</label><select id="ham"><option value="0">Không</option><option value="1">Có</option></select></div>
     <div><label for="sant">Sân trước có đổ sàn — sâu (m)</label><input id="sant" type="number" step="0.1" min="0" inputmode="decimal"></div>
     <div><label for="bc">Ban công — tổng (m²)</label><input id="bc" type="number" step="0.5" min="0" inputmode="decimal"></div>
-    <div><label for="mai">Sàn mái BTCT trên cùng (m²)</label><input id="mai" type="number" step="0.5" min="0" inputmode="decimal"><div class="hint">Tự điền khi không có sân thượng</div></div>
+    <div><label for="mai">Diện tích mái trên cùng (m²)</label><input id="mai" type="number" step="0.5" min="0" inputmode="decimal"><div class="hint">Tự điền khi không có sân thượng</div></div>
+    <div><label for="mai_loai">Loại mái</label><select id="mai_loai"></select></div>
     <div><label for="mong">Móng — tính theo % sàn trệt</label><input id="mong" type="number" step="5" min="0" max="150" inputmode="decimal"><div class="hint">Móng cọc: 70%</div></div>
    </div>
    <div class="areas">
@@ -244,6 +245,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
    </div>
    <div class="hint" style="margin-top:6px">Giá xây thường tính trên m² quy đổi. Khi so báo giá, hãy hỏi nhà thầu họ đang tính trên diện tích nào.</div>
    <div id="scope" class="note"></div>
+   <div id="maiNote" class="note" hidden></div>
   </div>
  </details>
 
@@ -310,8 +312,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <script src="du-toan-nha-calc.js"></script>
 <script>
 const {DATA,NAMES,GROUPS}=window.ALN_DUTOAN_DATA;
-const {pickModel,computeAreas,computeEstimate,num,fmt}=window.ALN_DUTOAN_CALC;
-const DEF={w1:5,w2:5,l1:20,l2:20,n:4,st:'0.7',tm:'0',ham:'0',sant:0,bc:0,mai:'',mong:70,khoan:1900000,cong:550000,mep:250000,ql:23.8,vat:8,lm:'khoan'};
+const {pickModel,computeAreas,computeEstimate,num,fmt,kiemTraNgoaiVung,MAI_LOAI,MAI_LOAI_MAC_DINH,ghiChuMai}=window.ALN_DUTOAN_CALC;
+const DEF={w1:5,w2:5,l1:20,l2:20,n:4,st:'0.7',tm:'0',ham:'0',sant:0,bc:0,mai:'',mai_loai:MAI_LOAI_MAC_DINH,mong:70,khoan:1900000,cong:550000,mep:250000,ql:23.8,vat:8,lm:'khoan'};
 const K='aln-dutoan-v1';
 let st=load(); let prices={}; let showAllT=false; const openRows=new Set();
 let duToanTinhTimer=null; // debounce aln_du_toan_tinh (P1.5) — run() gọi lại mỗi lần gõ phím, không đẩy dataLayer mỗi keystroke
@@ -321,7 +323,8 @@ const $=id=>document.getElementById(id);
 const ty=n=>n>=1e9?(n/1e9).toLocaleString('vi-VN',{maximumFractionDigits:2})+' tỷ':(n/1e6).toLocaleString('vi-VN',{maximumFractionDigits:0})+' triệu';
 const nm=m=>NAMES[m]||m;
 for(let i=1;i<=9;i++)$('n').insertAdjacentHTML('beforeend',`<option value="${i}">${i} sàn</option>`);
-const ids=['w1','w2','l1','l2','n','st','tm','ham','sant','bc','mai','mong','khoan','cong','mep','ql','vat'];
+Object.keys(MAI_LOAI).forEach(k=>$('mai_loai').insertAdjacentHTML('beforeend',`<option value="${k}">${MAI_LOAI[k].label} (${Math.round(MAI_LOAI[k].tyLe*100)}% quy đổi)</option>`));
+const ids=['w1','w2','l1','l2','n','st','tm','ham','sant','bc','mai','mai_loai','mong','khoan','cong','mep','ql','vat'];
 ids.forEach(id=>{$(id).value=st.inp[id]??DEF[id];$(id).addEventListener('input',()=>{st.inp[id]=$(id).value;if(id==='st'||id==='mai'){}run()})});
 document.querySelectorAll('input[name=lm]').forEach(r=>{r.checked=r.value===(st.inp.lm||'khoan');r.addEventListener('change',()=>{st.inp.lm=r.value;run()})});
 $('resetP').onclick=()=>{st.px={};drawPrices(cur());run()};
@@ -343,7 +346,7 @@ function drawPrices(key){
 }
 function areas(){
  const raw={w1:$('w1').value,w2:$('w2').value,l1:$('l1').value,l2:$('l2').value,n:$('n').value,
-  st:$('st').value,sant:$('sant').value,bc:$('bc').value,mai:$('mai').value,mong:$('mong').value};
+  st:$('st').value,sant:$('sant').value,bc:$('bc').value,mai:$('mai').value,mai_loai:$('mai_loai').value,mong:$('mong').value};
  const a=computeAreas(raw);
  if(raw.mai===''){const stp=num($('st').value);$('mai').placeholder=fmt(stp?0:a.fp)}
  return a;
@@ -352,13 +355,12 @@ function run(skipPrices){
  const key=cur(),S=DATA[key];
  if(!skipPrices||drawnFor!==key)drawPrices(key);
  const a=areas();$('aTx').textContent=fmt(a.tx);$('aQd').textContent=fmt(a.qd);$('aKm').textContent=fmt(a.km);
- const n=num($('n').value),ham=num($('ham').value);
- let block='';
- if(ham)block='ALN chưa có nhà mẫu có tầng hầm, nên chưa ước tính được. Gửi thông tin để KTS ALN ước tính riêng cho nhà bạn.';
- else if(n>8)block='Nhà trên 8 sàn nằm ngoài vùng ALN đã có dữ liệu. Gửi thông tin để KTS ALN ước tính riêng.';
- else if(a.qd<30)block='Nhập kích thước để xem ước tính.';
+ let block=kiemTraNgoaiVung(st.inp);
+ if(!block&&a.qd<30)block='Nhập kích thước để xem ước tính.';
  $('blocked').hidden=!block;$('blocked').textContent=block;$('out').hidden=!!block;
  $('scope').textContent=`Đang dùng nhà mẫu: ${S.label}. Khối lượng từng hạng mục được bóc từ bản vẽ thật của nhà mẫu rồi quy theo diện tích nhà bạn.`;
+ const ghiChu=block?null:ghiChuMai(st.inp.mai_loai);
+ $('maiNote').hidden=!ghiChu;$('maiNote').textContent=ghiChu||'';
  const lm=st.inp.lm||'khoan';$('fKhoan').hidden=lm!=='khoan';$('fCong').hidden=lm!=='cong';
  save(); if(block){$('dockT').textContent='—';return}
  const result=computeEstimate({
@@ -429,7 +431,8 @@ function buildPayload() {
   return {
     inputs: {
       w1: inp.w1, w2: inp.w2, l1: inp.l1, l2: inp.l2, n: inp.n, st: inp.st,
-      tm: inp.tm, ham: inp.ham, sant: inp.sant, bc: inp.bc, mai: inp.mai, mong: inp.mong,
+      tm: inp.tm, ham: inp.ham, sant: inp.sant, bc: inp.bc, mai: inp.mai,
+      mai_loai: inp.mai_loai, mong: inp.mong,
     },
     priceOverrides: est.priceOverrides || {},
     nhanCong: { cheDo: inp.lm || "khoan", khoanDonGia: inp.khoan, congDonGia: inp.cong },
