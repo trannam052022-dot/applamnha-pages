@@ -110,6 +110,10 @@ fbq('track', 'PageView');
 src="https://www.facebook.com/tr?id=1656666692225878&ev=PageView&noscript=1"/></noscript>
 <!-- End Meta Pixel -->
 <script src="../aln-tracking.js"></script>
+<!-- Proof Loop v1.0: bật GI adapter ở trang đích để bắn inquiry_started/inquiry_submitted
+     (dùng lại 2 custom dimension aln_gi_asset_id / aln_gi_cta_id đã READY) -->
+<script>window.ALN_GI_CONVERSION_ENABLED = true;</script>
+<script src="../aln-gi-conversion.js"></script>
 <script src="../error-monitor.js"></script>
 </head>
 <body>
@@ -524,6 +528,30 @@ function getFbc() {
   return fbclid ? 'fb.1.' + Date.now() + '.' + fbclid : '';
 }
 
+/* Proof Loop v1.0 — GI events ở trang đích. asset_id chỉ gửi khi thuộc batch
+   GI đã đăng ký; asset lạ thì adapter trả UNKNOWN_ASSET_ID → gửi lại không asset
+   để vẫn đếm được tổng inquiry. */
+function dtGiEmit(kind, leadId) {
+  const G = window.ALNGIConversion;
+  if (!G) return;
+  const a = window.alnAttr ? window.alnAttr.forLead().asset_touch : null;
+  const attrs = a ? { asset_id: a.asset_id, cta_id: a.cta_id } : {};
+  const call = (x) => kind === 'inquirySubmitted'
+    ? G.inquirySubmitted('du-toan-60s', leadId, x)
+    : G.inquiryStarted('du-toan-60s', x);
+  const r = call(attrs);
+  if (!r.ok && a && r.reason === 'UNKNOWN_ASSET_ID') call({});
+}
+let dtStarted = false;
+['dtName', 'dtPhone'].forEach((id) => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('focus', () => {
+    if (dtStarted) return;
+    dtStarted = true;
+    dtGiEmit('inquiryStarted');
+  });
+});
+
 const form = document.getElementById('dtLeadForm');
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -537,6 +565,7 @@ form.addEventListener('submit', async (e) => {
     return;
   }
   btn.disabled = true;
+  const attribution = window.alnAttr ? window.alnAttr.forLead() : null;
   msg.textContent = 'Đang gửi...';
   msg.className = 'dt-lead-msg';
   try {
@@ -554,6 +583,7 @@ form.addEventListener('submit', async (e) => {
       projectType: 'xay_moi',
       utm: getUtmFromUrl(),
       sourceUrl: location.href,
+      attribution: attribution,
       fbp: getCookie('_fbp'),
       fbc: getFbc(),
     });
@@ -562,8 +592,17 @@ form.addEventListener('submit', async (e) => {
       if (window.fbq && leadId) window.fbq('track', 'Lead',
         { content_name: 'du-toan', content_category: 'du-toan-60s' },
         { eventID: 'lead-' + leadId });
+      const at = attribution && attribution.asset_touch;
       window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push({ event: 'aln_lead_submit', form_name: 'du-toan' });
+      window.dataLayer.push({
+        event: 'aln_lead_submit', form_name: 'du-toan',
+        aln_asset_id: at ? at.asset_id : '',
+        aln_cta_id: at ? at.cta_id : '',
+        aln_kenh_ft: attribution && attribution.first_touch ? attribution.first_touch.kenh : '',
+        aln_kenh_lt: attribution && attribution.last_touch ? attribution.last_touch.kenh : '',
+        aln_test: attribution && attribution.aln_test ? 1 : 0,
+      });
+      if (window.ALNGIConversion && leadId) dtGiEmit('inquirySubmitted', leadId);
     } catch (e) {}
     msg.textContent = 'Đã nhận thông tin — ALN sẽ liên hệ trong ít phút. Cảm ơn bạn!';
     msg.className = 'dt-lead-msg ok';
