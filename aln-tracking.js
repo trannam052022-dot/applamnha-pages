@@ -75,7 +75,10 @@
             // Thanh Zalo sẵn có của Dự toán: đổi event tại cùng handler để không nhân Contact.
             var estimateBottom = /\/du-toan-nha\.html$/.test(window.location.pathname) && el.getAttribute('data-aln-cta') === 'widget-sticky';
             if (estimateBottom) payload = { event: 'aln_zalo_click', vi_tri: 'thanh_day' };
-            var utm = !estimateBottom && window.alnGetUtm ? window.alnGetUtm() : {};
+            // Nút Zalo trong khối xác nhận sau khi lưu dự toán (scripts/aln-callback.js).
+            var afterSave = el.getAttribute('data-aln-cta') === 'sau_luu';
+            if (afterSave) payload = { event: 'aln_zalo_click', vi_tri: 'sau_luu' };
+            var utm = !estimateBottom && !afterSave && window.alnGetUtm ? window.alnGetUtm() : {};
             for (var k in utm) { if (Object.prototype.hasOwnProperty.call(utm, k) && k !== 'ts') payload['utm_' + k] = utm[k]; }
             window.dataLayer = window.dataLayer || [];
             window.dataLayer.push(payload);

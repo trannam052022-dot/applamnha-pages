@@ -281,6 +281,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
    <button class="cta" id="btnSaveHouse" type="button" style="border:0;cursor:pointer;width:100%">Lưu vào Không gian Nhà</button>
    <div id="saveHouseMsg" class="hint" style="margin-top:8px" hidden></div>
    <button class="btn" id="retrySaveHouse" type="button" style="margin-top:8px" hidden>Thử lại</button>
+   <div id="saveCallback" hidden></div>
    <a class="cta" href="/du-toan-chi-tiet.html#form" style="margin-top:10px;background:transparent;color:var(--navy2);border:1px solid var(--line)">Gửi bản vẽ để ALN bóc khối lượng thật</a>
   </div>
  </div>
@@ -549,12 +550,14 @@ run();
      dang-nhap-chu-nha.html nên localStorage (key 'aln-dutoan-v1', xem K ở
      script trên) TỰ ĐỘNG còn nguyên qua redirect OTP — không cần cơ chế
      truyền dữ liệu cross-origin nào khác. -->
+<script src="scripts/aln-callback.js"></script>
 <script type="module">
 import { app, auth, onAuthStateChanged } from './firebase-config.js';
 import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js';
 
 const functionsInst = getFunctions(app, 'asia-southeast1');
 const callSaveEstimate = httpsCallable(functionsInst, 'saveEstimateToHouse');
+const callKhChonKhungGio = httpsCallable(functionsInst, 'khChonKhungGio');
 
 const btn = document.getElementById('btnSaveHouse');
 const msg = document.getElementById('saveHouseMsg');
@@ -599,6 +602,21 @@ function showRetry() {
   retryBtn.hidden = false;
   btn.disabled = false;
   btn.textContent = 'Lưu vào Không gian Nhà';
+}
+
+// Khối xác nhận "ai gọi, số nào, giờ nào" — hiện sau khi lưu thành công (cả
+// nhánh bấm Lưu trực tiếp lẫn nhánh OTP → ?autosave=1), NẰM DƯỚI nút Lưu,
+// không thay nút. Khung giờ ghi qua khChonKhungGio (houses/{id}), không bắn
+// thêm Lead/CAPI.
+function showCallback(houseId) {
+  const box = document.getElementById('saveCallback');
+  if (!box || !window.alnCallback) return;
+  window.alnCallback.mount(box, {
+    houseId: houseId,
+    viTri: 'sau_luu',
+    save: (id, khungGio) => callKhChonKhungGio({ houseId: id, khung_gio_goi: khungGio }),
+  });
+  box.hidden = false;
 }
 
 function clearAutosaveFlag() {
@@ -687,6 +705,7 @@ async function doSave() {
       showMsg(d.deduped ? "Đã lưu (giống lần lưu gần nhất, không tạo bản trùng)." : "Đã lưu vào Không gian Nhà.", "ok");
       btn.textContent = "Đã lưu — Xem Không gian Nhà";
       btn.disabled = false;
+      showCallback(d.houseId);
       return;
     }
     if (!d.ok) showRetry();
