@@ -72,7 +72,10 @@
               trang: pageLabelAuto(),
               nhom_trang: nhomTrangAuto()
             };
-            var utm = window.alnGetUtm ? window.alnGetUtm() : {};
+            // Thanh Zalo sẵn có của Dự toán: đổi event tại cùng handler để không nhân Contact.
+            var estimateBottom = /\/du-toan-nha\.html$/.test(window.location.pathname) && el.getAttribute('data-aln-cta') === 'widget-sticky';
+            if (estimateBottom) payload = { event: 'aln_zalo_click', vi_tri: 'thanh_day' };
+            var utm = !estimateBottom && window.alnGetUtm ? window.alnGetUtm() : {};
             for (var k in utm) { if (Object.prototype.hasOwnProperty.call(utm, k) && k !== 'ts') payload['utm_' + k] = utm[k]; }
             window.dataLayer = window.dataLayer || [];
             window.dataLayer.push(payload);
