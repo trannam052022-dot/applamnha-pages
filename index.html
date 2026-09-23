@@ -2226,9 +2226,14 @@ let authReady = false;
 // Sự cố production 22/09/2026 (4): CHỈ tạo phiên ẩn danh khi CHƯA có phiên
 // nào — gọi vô điều kiện sẽ ghi đè mất phiên Phone Auth thật nếu chủ nhà đã
 // đăng nhập OTP ở trang khác cùng origin trước đó (xem mymy-widget.js).
-if (!auth.currentUser) {
-  signInAnonymously(auth).catch((e) => console.error('MyMy anon-auth lỗi:', e));
-}
+// Sự cố 23/09/2026: auth.currentUser lúc vừa tải trang vẫn null vì SDK CHƯA
+// khôi phục xong phiên lưu trong IndexedDB — kiểm ngay lúc đó khiến
+// signInAnonymously() GHI ĐÈ phiên OTP của chủ nhà. Đợi authStateReady() trước.
+auth.authStateReady().then(() => {
+  if (!auth.currentUser) {
+    signInAnonymously(auth).catch((e) => console.error('MyMy anon-auth lỗi:', e));
+  }
+});
 onAuthStateChanged(auth, (u) => { authReady = !!u; });
 
 window.mymySend = async function(text, history) {

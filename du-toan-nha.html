@@ -614,9 +614,33 @@ function showCallback(houseId) {
   window.alnCallback.mount(box, {
     houseId: houseId,
     viTri: 'sau_luu',
-    save: (id, khungGio) => callKhChonKhungGio({ houseId: id, khung_gio_goi: khungGio }),
+    loginUrl: window.alnEstimateFunnel.preserve('dang-nhap-chu-nha.html'),
+    save: async (id, khungGio) => {
+      // SDK Functions tự bỏ header Authorization khi không lấy được token
+      // (không báo lỗi) → server 401. Chỉ gọi khi còn phiên Phone Auth; mất
+      // phiên (vd tab khác cùng trình duyệt đăng xuất) thì mời đăng nhập lại.
+      const user = await authDaSan();
+      if (!isPhoneAuthed(user)) throw { code: window.alnCallback.LOI_CAN_DANG_NHAP };
+      return callKhChonKhungGio({ houseId: id, khung_gio_goi: khungGio });
+    },
   });
   box.hidden = false;
+}
+
+// Trạng thái Auth HIỆN TẠI sau khi SDK khôi phục xong phiên lưu trên trình
+// duyệt (lần phát đầu của onAuthStateChanged) — tránh đọc auth.currentUser
+// lúc SDK chưa khởi tạo xong.
+function authDaSan() {
+  return new Promise((resolve) => {
+    let xong = false;
+    let unsub = null;
+    unsub = onAuthStateChanged(auth, (user) => {
+      if (xong) return;
+      xong = true;
+      Promise.resolve().then(() => unsub && unsub());
+      resolve(user);
+    });
+  });
 }
 
 function clearAutosaveFlag() {

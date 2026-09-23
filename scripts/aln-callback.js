@@ -65,9 +65,18 @@
       '.aln-cb .aln-cb-status{min-height:1.4em;margin-top:6px;font-size:13.5px;color:var(--sub,var(--text-2,#4a5268))}' +
       '.aln-cb .aln-cb-status.ok{color:var(--ink,var(--text-1,#141a2b));font-weight:600}' +
       '.aln-cb .aln-cb-status.err{color:var(--warn,var(--red,#8a5e08))}' +
+      '.aln-cb .aln-cb-relogin{color:inherit;font-weight:700;text-decoration:underline}' +
       '.aln-cb .aln-cb-zalo{display:flex;align-items:center;justify-content:center;min-height:44px;margin-top:10px;padding:10px 14px;border-radius:9px;' +
         'background:#0068ff;color:#fff;font-weight:700;font-size:14px;text-decoration:none;text-align:center}';
     document.head.appendChild(st);
+  }
+
+  // Lỗi "cần đăng nhập lại": trang tự báo trước khi gọi (không còn phiên
+  // Phone Auth) hoặc server trả unauthenticated.
+  var LOI_CAN_DANG_NHAP = 'aln/can-dang-nhap';
+  function canDangNhapLai(err) {
+    var code = err && err.code;
+    return code === LOI_CAN_DANG_NHAP || code === 'functions/unauthenticated' || code === 'unauthenticated';
   }
 
   function el(tag, cls, text) {
@@ -80,7 +89,8 @@
   /**
    * mount(container, opts) — vẽ khối xác nhận vào container.
    * opts.houseId, opts.khungGio (giá trị đã lưu, nếu có), opts.viTri
-   * (data-aln-cta cho nút Zalo), opts.save(houseId, khungGio) -> Promise.
+   * (data-aln-cta cho nút Zalo), opts.save(houseId, khungGio) -> Promise,
+   * opts.loginUrl (trang đăng nhập lại khi phiên đã mất).
    * Trả về { setHouse(houseId, khungGio) } để trang cập nhật lại từ dữ liệu mới.
    */
   function mount(container, opts) {
@@ -167,7 +177,16 @@
           setStatus('Đã lưu: ' + nhanKhungGio(v), 'ok');
           window.dataLayer = window.dataLayer || [];
           window.dataLayer.push({ event: 'aln_khung_gio_chon', khung_gio: v });
-        }, function () {
+        }, function (err) {
+          if (canDangNhapLai(err) && opts.loginUrl) {
+            // Phiên Phone Auth đã mất (vd tab khác cùng trình duyệt đăng xuất)
+            // — thử lại cũng không được, mời đăng nhập lại thay cho "Chưa lưu được".
+            setStatus('Phiên đăng nhập trên trình duyệt này đã kết thúc nên chưa lưu được khung giờ. ', 'err');
+            var a = el('a', 'aln-cb-relogin', 'Đăng nhập lại');
+            a.href = opts.loginUrl;
+            status.appendChild(a);
+            return;
+          }
           setStatus('Chưa lưu được — bấm Lưu khung giờ để thử lại.', 'err');
         })
         .then(function () { busy = false; btn.disabled = false; });
@@ -183,6 +202,7 @@
     KHUNG_GIO: KHUNG_GIO,
     soHienThi: soHienThi,
     nhanKhungGio: nhanKhungGio,
+    LOI_CAN_DANG_NHAP: LOI_CAN_DANG_NHAP,
     mount: mount,
   };
 })();

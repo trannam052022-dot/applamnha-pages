@@ -643,9 +643,13 @@ function ensureAnonAuth() {
     // phiên nào — gọi vô điều kiện sẽ ghi đè mất phiên Phone Auth thật nếu
     // chủ nhà đã đăng nhập OTP ở trang khác cùng origin trước đó (xem
     // mymy-widget.js).
-    if (!auth.currentUser) {
-      signInAnonymously(auth).catch((e) => console.error('tho-giu-cho anon-auth lỗi:', e));
-    }
+    // Sự cố 23/09/2026: đợi SDK khôi phục xong phiên lưu trên trình duyệt rồi
+    // mới kiểm currentUser — kiểm sớm thì null, signInAnonymously() ghi đè phiên OTP.
+    auth.authStateReady().then(() => {
+      if (!auth.currentUser) {
+        signInAnonymously(auth).catch((e) => console.error('tho-giu-cho anon-auth lỗi:', e));
+      }
+    });
     authReadyPromise = withTimeout(
       new Promise((resolve) => {
         const unsub = onAuthStateChanged(auth, (u) => { if (u) { unsub(); resolve(u); } });

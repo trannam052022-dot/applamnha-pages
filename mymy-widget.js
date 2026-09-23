@@ -389,9 +389,17 @@ if (!document.getElementById('mymy-btn')) {
       // nhập là bị đá ra khỏi phiên Phone Auth ngay lập tức. Chỉ tạo phiên
       // ẩn danh khi CHƯA có phiên nào (kể cả phiên ẩn danh cũ cũng giữ
       // nguyên, không tạo mới lãng phí).
-      if (!auth.currentUser) {
-        authMod.signInAnonymously(auth).catch((e) => console.error('MyMy anon-auth lỗi:', e));
-      }
+      //
+      // Sự cố 23/09/2026: kiểm auth.currentUser NGAY lúc tải là quá sớm — SDK
+      // chưa khôi phục xong phiên lưu trong IndexedDB nên currentUser vẫn null,
+      // widget tưởng chưa có phiên và signInAnonymously() GHI ĐÈ phiên OTP của
+      // chủ nhà (mở forum.html/trang chủ/Kho mẫu là mất phiên Không gian Nhà).
+      // Đợi authStateReady() rồi mới kiểm.
+      auth.authStateReady().then(() => {
+        if (!auth.currentUser) {
+          authMod.signInAnonymously(auth).catch((e) => console.error('MyMy anon-auth lỗi:', e));
+        }
+      });
       authMod.onAuthStateChanged(auth, (u) => { authReady = !!u; });
 
       const pageContext = (document.title || '').split('|')[0].trim().slice(0, 100);
