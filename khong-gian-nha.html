@@ -3,6 +3,7 @@
 <head>
 <!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM -->
 <script src="scripts/aln-optout.js"></script>
+<script src="scripts/aln-estimate-funnel.js"></script>
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -633,7 +634,7 @@ import {
   app, auth, db, onAuthStateChanged, signOut,
   doc, getDoc, getDocs, onSnapshot, collection, query, where, orderBy, limit,
   addDoc, updateDoc, deleteDoc, serverTimestamp,
-  storage, storageRef, uploadBytes,
+  storage, storageRef, uploadBytes, getDownloadURL,
 } from './firebase-config.js';
 import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js';
 
@@ -736,7 +737,7 @@ function renderNoHouseSaveButton() {
   els.btnSaveLocalEstimate.hidden = !coDuLieu;
 }
 els.btnSaveLocalEstimate.addEventListener('click', () => {
-  window.location.href = 'du-toan-nha.html?autosave=1';
+  window.location.href = window.alnEstimateFunnel.preserve('du-toan-nha.html?autosave=1');
 });
 function esc(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -767,7 +768,19 @@ let currentHouseData = null;
 let duToanVersions = [];
 let sochiItems = [];
 let sochiEditingId = null;
-let pendingUploadLoai = 'ban_ve';
+let pickerContext = null;
+let uploadBusy = false;
+let pendingUpload = null;
+function setUploadBusy(busy) {
+  uploadBusy = busy;
+  els.btnPickBanVe.disabled = busy;
+  els.btnPickBaoGia.disabled = busy;
+  els.switchHouseLink.disabled = busy;
+}
+function uploadKey() { return 'aln_upload_pending_' + auth.currentUser.uid; }
+function persistUpload() {
+  try { sessionStorage.setItem(uploadKey(), JSON.stringify(pendingUpload)); } catch (e) {}
+}
 function clearListeners() {
   unsubscribers.forEach((fn) => { try { fn(); } catch (e) {} });
   unsubscribers = [];
@@ -1073,7 +1086,9 @@ const UPLOAD_LOAI_TAG = { ban_ve: 'Bản vẽ', bao_gia: 'Báo giá', khac: 'Kh�
  * người dùng thấy đúng khối khi đóng hộp thoại.
  */
 function openFilePicker(loai) {
-  pendingUploadLoai = loai;
+  if (uploadBusy || pickerContext || !currentHouseId) return;
+  pickerContext = { houseId: currentHouseId, loai };
+  els.switchHouseLink.disabled = true;
   els.fileInput.click();
   els.uploadBlock.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -1256,7 +1271,6 @@ function loadHouse(houseId) {
   currentHouseData = null;
   duToanVersions = [];
   dtOpenRows.clear();
-  pendingUploadLoai = 'ban_ve';
   resetSoChiForm();
 
   unsubscribers.push(onSnapshot(doc(db, 'houses', houseId), (snap) => {
@@ -1390,13 +1404,14 @@ async function init() {
 
 els.retryBtn.addEventListener('click', init);
 els.switchHouseLink.addEventListener('click', () => {
+  if (uploadBusy || pickerContext) return;
   clearListeners();
   renderChoose(cachedHouses);
 });
 els.logoutLink.addEventListener('click', async () => {
   clearListeners();
   try { await signOut(auth); } catch (e) { console.error('[khong-gian-nha] signOut lỗi:', e); }
-  window.location.href = 'dang-nhap-chu-nha.html';
+  window.location.href = window.alnEstimateFunnel.preserve('dang-nhap-chu-nha.html');
 });
 
 /* ── Form sổ chi — thêm/sửa, ghi thẳng addDoc/updateDoc vào houses/{id}/so_chi ── */
@@ -1482,10 +1497,18 @@ els.sochiForm.addEventListener('submit', async (e) => {
 els.btnPickBanVe.addEventListener('click', () => openFilePicker('ban_ve'));
 els.btnPickBaoGia.addEventListener('click', () => openFilePicker('bao_gia'));
 
+els.fileInput.addEventListener('cancel', () => {
+  pickerContext = null;
+  if (!uploadBusy) els.switchHouseLink.disabled = false;
+});
 els.fileInput.addEventListener('change', async () => {
+  if (uploadBusy) return;
+  const context = pickerContext;
+  pickerContext = null;
+  els.switchHouseLink.disabled = false;
   const file = els.fileInput.files && els.fileInput.files[0];
   els.fileInput.value = '';
-  if (!file || !currentHouseId) return;
+  if (!file || !context) return;
 
   els.uploadErr.textContent = '';
   els.uploadErr.classList.remove('show');
@@ -1501,28 +1524,54 @@ els.fileInput.addEventListener('change', async () => {
     return;
   }
 
+  // Freeze the picker context and File before any asynchronous work.
+  const snapshot = { ...context, file };
+  setUploadBusy(true);
   els.uploadProgress.textContent = 'Đang tải lên...';
   els.uploadProgress.classList.add('show');
   try {
-    const path = `houses/${currentHouseId}/uploads/${Date.now()}_${sanitizeFileName(file.name)}`;
-    await uploadBytes(storageRef(storage, path), file);
-    await callKhGhiUpload({ houseId: currentHouseId, storagePath: path, loai: pendingUploadLoai });
+    const digest = await crypto.subtle.digest('SHA-256', await snapshot.file.arrayBuffer());
+    const contentHash = Array.from(new Uint8Array(digest), b => b.toString(16).padStart(2, '0')).join('');
+    const fileKey = JSON.stringify([snapshot.file.name, snapshot.file.size, contentHash]);
+    try { pendingUpload = pendingUpload || JSON.parse(sessionStorage.getItem(uploadKey()) || 'null'); } catch (e) {}
+    if (!pendingUpload || pendingUpload.fileKey !== fileKey || pendingUpload.houseId !== snapshot.houseId || pendingUpload.loai !== snapshot.loai) {
+      const uploadId = crypto.randomUUID();
+      pendingUpload = { houseId: snapshot.houseId, loai: snapshot.loai, fileKey, uploadId, path: 'houses/' + snapshot.houseId + '/uploads/' + uploadId + '_' + sanitizeFileName(snapshot.file.name), uploaded: false };
+    }
+    const operation = pendingUpload;
+    persistUpload();
+    const ref = storageRef(storage, operation.path);
+    if (!operation.uploaded) {
+      // A previous upload may have committed even if its response was lost.
+      // Storage is create-only: check existence before retrying the same path.
+      try { await getDownloadURL(ref); operation.uploaded = true; }
+      catch (error) { if (error.code !== 'storage/object-not-found') throw error; }
+      if (!operation.uploaded) await uploadBytes(ref, snapshot.file);
+      operation.uploaded = true;
+      persistUpload();
+    }
+    const response = await callKhGhiUpload({ houseId: operation.houseId, storagePath: operation.path, loai: operation.loai, uploadId: operation.uploadId });
+    if (!response.data || !response.data.ok) throw new Error('Chưa ghi nhận được file. Vui lòng thử lại.');
     els.uploadProgress.textContent = 'Đã gửi — cảm ơn bạn, ALN sẽ xem và liên hệ lại.';
     setTimeout(() => { els.uploadProgress.classList.remove('show'); }, 5000);
     // P1.5 (spec mục 5) — dataLayer thuần, KHÔNG kèm CAPI: nhà đã có contact
     // gắn sẵn từ lúc lưu dự toán (aln_du_toan_luu), gửi thêm file chỉ là tín
     // hiệu tương tác sâu hơn, không phải 1 lead mới.
-    const uploadEventName = pendingUploadLoai === 'ban_ve' ? 'aln_gui_ban_ve'
-      : (pendingUploadLoai === 'bao_gia' ? 'aln_gui_bao_gia' : null);
-    if (uploadEventName) {
+    const uploadEventName = operation.loai === 'ban_ve' ? 'aln_gui_ban_ve'
+      : (operation.loai === 'bao_gia' ? 'aln_gui_bao_gia' : null);
+    if (uploadEventName && !operation.tracked) {
       window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push({ event: uploadEventName, aln_house_id: currentHouseId, aln_loai_file: pendingUploadLoai });
+      window.dataLayer.push({ event: uploadEventName, aln_house_id: operation.houseId, aln_loai_file: operation.loai, event_id: operation.uploadId });
+      operation.tracked = true;
+      persistUpload();
     }
   } catch (err) {
-    console.error('[khong-gian-nha] upload lỗi:', err);
+    console.error('[khong-gian-nha] upload failed');
     els.uploadProgress.classList.remove('show');
     els.uploadErr.textContent = (err && err.message) || 'Tải file lên thất bại. Vui lòng thử lại.';
     els.uploadErr.classList.add('show');
+  } finally {
+    setUploadBusy(false);
   }
 });
 
@@ -1538,7 +1587,7 @@ function isPhoneAuthed(user) {
 }
 onAuthStateChanged(auth, (user) => {
   if (!isPhoneAuthed(user)) {
-    window.location.href = 'dang-nhap-chu-nha.html';
+    window.location.href = window.alnEstimateFunnel.preserve('dang-nhap-chu-nha.html');
     return;
   }
   init();
