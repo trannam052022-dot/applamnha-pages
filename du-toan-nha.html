@@ -3,6 +3,7 @@
 <head>
 <!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM (xem scripts/aln-optout.js) -->
 <script src="scripts/aln-optout.js"></script>
+<script src="scripts/aln-estimate-funnel.js"></script>
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -54,73 +55,7 @@ fbq('track', 'PageView');
 src="https://www.facebook.com/tr?id=1656666692225878&ev=PageView&noscript=1"/></noscript>
 <!-- End Meta Pixel -->
 <script src="aln-tracking.js"></script>
-<script>
-/* Bắt UTM/fbclid từ URL quảng cáo → localStorage (last-touch, giữ 7 ngày) +
-   đọc cookie _fbp/_fbc do Pixel ở trên set — CÙNG khối với chu-nha.html/
-   index.html/phong-cho.html (window.alnGetUtm/alnGetFbp/alnGetFbc), thêm
-   20/09/2026 cho P1.5 (sự kiện 'aln_du_toan_luu' — CAPI Lead khi lưu dự toán
-   vào Không gian Nhà cần fbp/fbc/utm để khớp đúng người trên Meta). */
-(function(){
-  try{
-    var parts = location.search.substring(1).split('&');
-    var utm = {}; var found = false;
-    for (var i = 0; i < parts.length; i++) {
-      var kv = parts[i].split('=');
-      if (kv.length < 2 || !kv[1]) continue;
-      var k = decodeURIComponent(kv[0]);
-      var v = decodeURIComponent(kv[1].replace(/\+/g, ' '));
-      if (k.indexOf('utm_') === 0) { utm[k.substring(4)] = v.slice(0, 120); found = true; }
-      if (k === 'fbclid') { utm.fbclid = v.slice(0, 200); found = true; }
-    }
-    if (found) { utm.ts = Date.now(); localStorage.setItem('aln_utm', JSON.stringify(utm)); }
-  }catch(e){}
-  window.alnGetUtm = function(){
-    try{
-      var s = localStorage.getItem('aln_utm');
-      if (!s) return {};
-      var o = JSON.parse(s);
-      if (o.ts && Date.now() - o.ts > 7 * 864e5) return {};
-      return o;
-    }catch(e){ return {}; }
-  };
-  window.alnGetCookie = function(name){
-    var m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
-    return m ? decodeURIComponent(m[1]) : '';
-  };
-  window.alnGetFbp = function(){ return window.alnGetCookie('_fbp'); };
-  /* fbc: ưu tiên cookie _fbc (Pixel tự set); nếu chưa có nhưng URL đang có
-     ?fbclid= thì tự dựng theo đúng định dạng Meta rồi LƯU vào localStorage
-     (key aln_fbc, TTL 90 ngày, khớp cửa sổ click-through CAPI khuyến nghị)
-     để giữ được qua điều hướng nhiều trang trước khi khách lưu dự toán —
-     khác aln_utm (TTL 7 ngày, dùng cho UTM last-touch). */
-  window.alnGetFbc = function(){
-    var c = window.alnGetCookie('_fbc');
-    if (c) {
-      try { localStorage.setItem('aln_fbc', JSON.stringify({ v: c, ts: Date.now() })); } catch(e){}
-      return c;
-    }
-    try {
-      var s = localStorage.getItem('aln_fbc');
-      if (s) {
-        var o = JSON.parse(s);
-        if (o && o.v) {
-          var seg = String(o.v).split('.');
-          var origTs = seg.length > 2 ? parseInt(seg[2], 10) : NaN;
-          if (!isNaN(origTs) && Date.now() - origTs <= 90 * 864e5) return o.v;
-          localStorage.removeItem('aln_fbc');
-        }
-      }
-    } catch(e){}
-    var u = window.alnGetUtm();
-    if (u.fbclid) {
-      var built = 'fb.1.' + Date.now() + '.' + u.fbclid;
-      try { localStorage.setItem('aln_fbc', JSON.stringify({ v: built, ts: Date.now() })); } catch(e){}
-      return built;
-    }
-    return '';
-  };
-})();
-</script>
+
 <style>
 :root{--bg:#f6f4ef;--card:#ffffff;--ink:#141a2b;--sub:#4a5268;--muted:#7a8196;--line:#e3dfd4;--line2:#c9c0aa;--navy:#0a1224;--navy2:#111c33;--gold:#b8860b;--gold-soft:rgba(184,134,11,.10);--warn:#8a5e08;--focus:#b8860b;
 --head:'Oswald','Arial Narrow',Arial,sans-serif;--body:'Be Vietnam Pro',Arial,sans-serif;--mono:'IBM Plex Mono',ui-monospace,Menlo,monospace}
@@ -365,6 +300,7 @@ const DEF={w1:5,w2:5,l1:20,l2:20,n:4,st:'0.7',tm:'0',ham:'0',sant:0,bc:0,mai:'',
  khoan:1900000,cong:550000,mep:250000,ql:23.8,vat:8,lm:'khoan'};
 const K='aln-dutoan-v1';
 let st=load(); let prices={}; let showAllT=false; const openRows=new Set();
+const tinhFingerprints=new Set();
 let duToanTinhTimer=null; // debounce aln_du_toan_tinh (P1.5) — run() gọi lại mỗi lần gõ phím, không đẩy dataLayer mỗi keystroke
 function load(){try{const s=JSON.parse(localStorage.getItem(K)||'null');if(s&&s.inp)return s}catch(e){}return{inp:{...DEF},px:{}}}
 function save(){try{localStorage.setItem(K,JSON.stringify(st))}catch(e){}}
@@ -390,12 +326,12 @@ Object.keys(MAI_LOAI).forEach(k=>$('mai_loai').insertAdjacentHTML('beforeend',`<
 // "mong" KHÔNG nằm trong danh sách chung — có handler riêng bên dưới (phải
 // ghi vào đúng ô nhớ mongThuong/mongBTV theo loại nhà HIỆN TẠI lúc gõ).
 const ids=['w1','w2','l1','l2','n','st','tm','ham','sant','bc','mai','mai_loai','dua','doc_mai','dong_gia_mai_thai','khoan','cong','mep','ql','vat'];
-ids.forEach(id=>{$(id).value=st.inp[id]??DEF[id];$(id).addEventListener('input',()=>{st.inp[id]=$(id).value;run()})});
-$('mong').addEventListener('input',()=>{
+ids.forEach(id=>{$(id).value=st.inp[id]??DEF[id];$(id).addEventListener('input',e=>{st.inp[id]=$(id).value;run(false,e.isTrusted)})});
+$('mong').addEventListener('input',e=>{
  st.inp.mong=$('mong').value;
  if(laBietThuVuon()){st.inp.mongBTV=st.inp.mong;st.inp.mongBTVTuySua=true}
  else{st.inp.mongThuong=st.inp.mong;st.inp.mongThuongTuySua=true}
- run();
+ run(false,e.isTrusted);
 });
 // Biệt thự vườn 1 tầng mái Thái (n===1) — ẩn các field không áp dụng (sân
 // thượng/thang máy/mái phẳng+loại mái, toàn bộ mái là mái Thái tính riêng ở
@@ -423,8 +359,8 @@ function capNhatGiaoDienBietThuVuon(isBTV){
  $('btvTong').hidden=!isBTV;
  apDungMongTheoCheDo(isBTV);
 }
-document.querySelectorAll('input[name=lm]').forEach(r=>{r.checked=r.value===(st.inp.lm||'khoan');r.addEventListener('change',()=>{st.inp.lm=r.value;run()})});
-$('resetP').onclick=()=>{st.px={};drawPrices(cur());run()};
+document.querySelectorAll('input[name=lm]').forEach(r=>{r.checked=r.value===(st.inp.lm||'khoan');r.addEventListener('change',e=>{st.inp.lm=r.value;run(false,e.isTrusted)})});
+$('resetP').onclick=e=>{st.px={};drawPrices(cur());run(false,e.isTrusted)};
 $('moreT').onclick=()=>{showAllT=!showAllT;drawPrices(cur())};
 function cur(){return laBietThuVuon()?'thi':pickModel($('n').value,$('tm').value)}
 function price(m,S){return st.px[m]!=null&&st.px[m]!==''?num(st.px[m]):S.prices[m]}
@@ -440,7 +376,7 @@ function drawPrices(key,boQuaTen){
  const Tv=showAllT?T:T.slice(0,8);
  $('ptT').innerHTML=Tv.map(row).join('');$('ptH').innerHTML=H.map(row).join('');
  $('moreT').textContent=showAllT?'Thu gọn':`Xem thêm ${T.length-8} loại vật tư`;$('moreT').hidden=T.length<=8;
- document.querySelectorAll('.pt input').forEach(inp=>inp.addEventListener('input',()=>{st.px[inp.dataset.m]=inp.value;inp.closest('tr').classList.toggle('chg',num(inp.value)!==S.prices[inp.dataset.m]);run(true)}));
+ document.querySelectorAll('.pt input').forEach(inp=>inp.addEventListener('input',e=>{st.px[inp.dataset.m]=inp.value;inp.closest('tr').classList.toggle('chg',num(inp.value)!==S.prices[inp.dataset.m]);run(true,e.isTrusted)}));
 }
 function areas(){
  const raw={w1:$('w1').value,w2:$('w2').value,l1:$('l1').value,l2:$('l2').value,n:$('n').value,
@@ -478,7 +414,26 @@ function capNhatLoiKichThuoc(){
  Object.keys(KHOANG_KICH_THUOC).forEach(id=>{ if(!capNhatLoiMotO(id))hopLe=false; });
  return hopLe;
 }
-function run(skipPrices){
+function scheduleTinh(userInitiated,eventData){
+ if(!userInitiated)return;
+ // Tracking must not count values that the save endpoint would reject,
+ // including optional price/roof inputs outside the dimension UI guard.
+ const ranges={khoan:[0,1e8],cong:[0,1e7],mep:[0,1e7],ql:[0,100],vat:[0,100]};
+ if(laBietThuVuon())Object.assign(ranges,{dua:[0,3],doc_mai:[10,60],dong_gia_mai_thai:[0,5e6]});
+ if($('mai').value!=='')ranges.mai=[0,2000];
+ if(Object.keys(ranges).some(id=>{const v=num($(id).value);return !Number.isFinite(v)||v<ranges[id][0]||v>ranges[id][1]}))return;
+ if(Object.values(st.px).some(v=>v!==''&&(!Number.isFinite(Number(v))||Number(v)<0||Number(v)>1e9)))return;
+ if(!Number.isFinite(eventData.aln_tong_chua_vat))return;
+ const fingerprint=JSON.stringify([window.__lastEstimate.modelKey,eventData,window.__lastEstimate.result]);
+ if(tinhFingerprints.has(fingerprint))return;
+ duToanTinhTimer=setTimeout(()=>{
+  tinhFingerprints.add(fingerprint);
+  window.dataLayer=window.dataLayer||[];
+  window.dataLayer.push(eventData);
+ },1200);
+}
+function run(skipPrices,userInitiated){
+ clearTimeout(duToanTinhTimer);
  const isBTV=laBietThuVuon();
  capNhatGiaoDienBietThuVuon(isBTV);
  if(!capNhatLoiKichThuoc()){
@@ -494,10 +449,10 @@ function run(skipPrices){
   $('dockT').textContent='—';
   return;
  }
- if(isBTV)return runBietThuVuon(skipPrices);
- return runThongThuong(skipPrices);
+ if(isBTV)return runBietThuVuon(skipPrices,userInitiated);
+ return runThongThuong(skipPrices,userInitiated);
 }
-function runThongThuong(skipPrices){
+function runThongThuong(skipPrices,userInitiated){
  const key=cur(),S=DATA[key];
  if(!skipPrices||drawnFor!==key)drawPrices(key);
  const a=areas();$('aTx').textContent=fmt(a.tx);$('aQd').textContent=fmt(a.qd);$('aKm').textContent=fmt(a.km);
@@ -525,17 +480,13 @@ function runThongThuong(skipPrices){
  // P1.5 (spec mục 5) — dataLayer thuần, KHÔNG kèm Pixel/CAPI (chưa có contact/
  // lead ở bước này). run() chạy lại mỗi lần gõ phím nên debounce 1.2s sau lần
  // gõ cuối mới đẩy 1 sự kiện, tránh làm loãng dataLayer.
- clearTimeout(duToanTinhTimer);
- duToanTinhTimer=setTimeout(()=>{
-  window.dataLayer=window.dataLayer||[];
-  window.dataLayer.push({event:'aln_du_toan_tinh',aln_nha_mau:key,aln_so_san:num($('n').value),aln_dien_tich_qd:Math.round(a.qd),aln_tong_chua_vat:result.totalChuaVat});
- },1200);
+ scheduleTinh(userInitiated,{event:'aln_du_toan_tinh',aln_nha_mau:key,aln_so_san:num($('n').value),aln_dien_tich_qd:Math.round(a.qd),aln_tong_chua_vat:result.totalChuaVat});
 }
 // Biệt thự vườn 1 tầng mái Thái (n===1, thêm 21/09/2026 (2)) — thân nhà quy
 // theo mẫu Mr Thi (LOẠI khối lượng sàn mái BTCT của mẫu qua boQuaTen), mái
 // tính riêng theo giá thị trường. Dùng chung computeBietThuVuonMaiThai() với
 // server (functions/saveEstimateToHouse.js) — xem du-toan-nha-calc.js.
-function runBietThuVuon(skipPrices){
+function runBietThuVuon(skipPrices,userInitiated){
  const key='thi';
  if(!skipPrices||drawnFor!=='thi|btv')drawPrices(key,TEN_MUC_SAN_MAI_BTCT_MR_THI);
  let block=kiemTraNgoaiVung(st.inp); // vẫn chặn nếu lỡ chọn kèm tầng hầm
@@ -576,11 +527,7 @@ function runBietThuVuon(skipPrices){
  draw($('rows'),result.lines,result.totalChuaVat);
  draw($('rowsH'),result.lineHoanThien,result.totalHoanThien);$('totH').textContent=fmt(result.totalHoanThien);
  window.__lastEstimate={modelKey:'thi_biet_thu_vuon_mai_thai',inputs:{...st.inp},priceOverrides:{...st.px},result};
- clearTimeout(duToanTinhTimer);
- duToanTinhTimer=setTimeout(()=>{
-  window.dataLayer=window.dataLayer||[];
-  window.dataLayer.push({event:'aln_du_toan_tinh',aln_nha_mau:'thi_biet_thu_vuon_mai_thai',aln_so_san:1,aln_dien_tich_qd:Math.round(result.qd),aln_tong_chua_vat:result.totalChuaVat});
- },1200);
+ scheduleTinh(userInitiated,{event:'aln_du_toan_tinh',aln_nha_mau:'thi_biet_thu_vuon_mai_thai',aln_so_san:1,aln_dien_tich_qd:Math.round(result.qd),aln_tong_chua_vat:result.totalChuaVat});
 }
 const IC='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>';
 function draw(el,lines,total){
@@ -613,6 +560,37 @@ const msg = document.getElementById('saveHouseMsg');
 const retryBtn = document.getElementById('retrySaveHouse');
 let saveSucceeded = false;
 let pendingSaves = 0;
+let saveOperation = null;
+const firedLeads = new Set();
+function operationKey() { return 'aln_estimate_pending_' + auth.currentUser.uid; }
+function getSaveOperation(payload) {
+  if (saveOperation) return saveOperation;
+  try { saveOperation = JSON.parse(sessionStorage.getItem(operationKey()) || 'null'); } catch (e) {}
+  if (!saveOperation) {
+    saveOperation = { ...payload, operationId: crypto.randomUUID() };
+    try { sessionStorage.setItem(operationKey(), JSON.stringify(saveOperation)); } catch (e) {}
+  }
+  return saveOperation;
+}
+async function trackSavedLead(d) {
+  const tracking = d.tracking || { eligible: d.contactCreated, eventId: 'lead-du-toan-' + d.houseId };
+  if (!tracking.eligible) return;
+  const id = tracking.eventId;
+  const emit = () => {
+    const key = 'aln_estimate_lead_' + id;
+    if (firedLeads.has(id)) return;
+    try { if (localStorage.getItem(key)) return; } catch (e) {}
+    // Synchronous enqueue + receipt; no await between them. Not a delivery ACK
+    // from GA4: ad blockers/browser termination can still prevent collection.
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: 'aln_du_toan_luu', aln_house_id: d.houseId, event_id: id });
+    firedLeads.add(id);
+    try { localStorage.setItem(key, '1'); } catch (e) {}
+    if (window.fbq) window.fbq('track', 'Lead', { content_name: 'du-toan-nha-luu' }, { eventID: id });
+  };
+  if (navigator.locks) await navigator.locks.request('aln-lead-' + id, emit);
+  else emit();
+}
 
 function showRetry() {
   if (saveSucceeded) return;
@@ -661,11 +639,8 @@ function buildPayload() {
     // P1.5 (spec mục 5) — server dùng để bắn CAPI Lead 'aln_du_toan_luu' khi
     // contact vừa tạo mới (xem functions/saveEstimateToHouse.js), cùng pattern
     // submitHomeLead (functions/ktsFunnel.js).
-    fbp: window.alnGetFbp ? window.alnGetFbp() : "",
-    fbc: window.alnGetFbc ? window.alnGetFbc() : "",
-    utm: window.alnGetUtm ? window.alnGetUtm() : {},
-    testEventCode: new URLSearchParams(location.search).get('test_event_code') || '',
-    sourceUrl: location.href,
+    ...window.alnEstimateFunnel.signals(),
+    sourceUrl: location.origin + location.pathname,
     // scripts/aln-optout.js đặt window.ALN_INTERNAL=true khi Founder/team tự
     // test trang qua ?internal=1 — báo cho server để KHÔNG bắn CAPI Lead thật
     // (functions/saveEstimateToHouse.js đọc field này, xem functions/capi.js).
@@ -696,8 +671,14 @@ async function doSave() {
   // chống trùng nội dung và mọi response thành công chỉ xử lý UI/tracking 1 lần.
   const slowTimer = setTimeout(showRetry, 15000);
   try {
-    const res = await callSaveEstimate(payload);
+    const res = await callSaveEstimate(getSaveOperation(payload));
     const d = res.data || {};
+    // Every successful response may recover the same server-owned Lead,
+    // regardless of which concurrent response updated the UI first.
+    if (d.ok) {
+      await trackSavedLead(d);
+      try { sessionStorage.removeItem(operationKey()); } catch (e) {}
+    }
     if (d.ok && !saveSucceeded) {
       saveSucceeded = true;
       clearAutosaveFlag();
@@ -705,25 +686,11 @@ async function doSave() {
       showMsg(d.deduped ? "Đã lưu (giống lần lưu gần nhất, không tạo bản trùng)." : "Đã lưu vào Không gian Nhà.", "ok");
       btn.textContent = "Đã lưu — Xem Không gian Nhà";
       btn.disabled = false;
-      // P1.5 (spec mục 5) — 'aln_du_toan_luu' = sự kiện Lead, CHỈ bắn khi
-      // contact VỪA được tạo mới (contactCreated=true — chủ nhà lần đầu lưu
-      // dự toán, không phải quay lại lưu thêm phiên bản). eventID phải TRÙNG
-      // với server (functions/saveEstimateToHouse.js: 'lead-du-toan-'+houseId)
-      // để Meta tự dedup Pixel/CAPI, không đếm đôi 1 lead.
-      if (d.contactCreated) {
-        try {
-          window.dataLayer = window.dataLayer || [];
-          window.dataLayer.push({ event: "aln_du_toan_luu", aln_house_id: d.houseId });
-          if (window.fbq) {
-            window.fbq("track", "Lead", { content_name: "du-toan-nha-luu" }, { eventID: "lead-du-toan-" + d.houseId });
-          }
-        } catch (e) { console.error("[du-toan-nha] aln_du_toan_luu tracking:", e); }
-      }
       return;
     }
     if (!d.ok) showRetry();
   } catch (err) {
-    console.error("[du-toan-nha] saveEstimateToHouse lỗi:", err);
+    console.error("[du-toan-nha] saveEstimateToHouse failed");
     showRetry();
   } finally {
     clearTimeout(slowTimer);
@@ -733,15 +700,8 @@ async function doSave() {
 }
 
 function goLogin() {
-  const next = new URL('du-toan-nha.html', location.href);
-  const current = new URLSearchParams(location.search);
-  for (const [key, value] of current) {
-    if (/^utm_[a-z0-9_]+$/i.test(key) || key === 'fbclid' || key === 'test_event_code') {
-      next.searchParams.set(key, value);
-    }
-  }
-  next.searchParams.set('autosave', '1');
-  window.location.href = 'dang-nhap-chu-nha.html?next=' + encodeURIComponent(next.pathname.split('/').pop() + next.search);
+  const next = window.alnEstimateFunnel.preserve('du-toan-nha.html?autosave=1');
+  window.location.href = window.alnEstimateFunnel.preserve('dang-nhap-chu-nha.html?next=' + encodeURIComponent(next.slice(1)));
 }
 
 // Sự cố production 22/09/2026 (3): trước đây chỉ kiểm `auth.currentUser`
@@ -759,7 +719,7 @@ function isPhoneAuthed(user) {
 }
 
 btn.addEventListener("click", () => {
-  if (saveSucceeded) { window.location.href = "khong-gian-nha.html"; return; }
+  if (saveSucceeded) { window.location.href = window.alnEstimateFunnel.preserve("khong-gian-nha.html"); return; }
   if (isPhoneAuthed(auth.currentUser)) doSave(); else goLogin();
 });
 retryBtn.addEventListener('click', () => {
@@ -772,11 +732,13 @@ retryBtn.addEventListener('click', () => {
 // onAuthStateChanged tạm thời báo về phiên ẩn danh cũ trước khi phiên Phone
 // Auth mới kịp thay thế.
 const params = new URLSearchParams(window.location.search);
-if (params.get("autosave") === "1") {
+{
   const unsub = onAuthStateChanged(auth, (user) => {
     if (!isPhoneAuthed(user)) return;
     unsub();
-    doSave();
+    let pending = false;
+    try { pending = !!sessionStorage.getItem(operationKey()); } catch (e) {}
+    if (params.get("autosave") === "1" || pending) doSave();
   });
 }
 </script>
