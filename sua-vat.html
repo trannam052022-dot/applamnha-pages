@@ -368,6 +368,9 @@ async function chatSend() {
   const waiting = chatAppend('bot', 'MyMy đang xem...');
   try {
     const auth = getAuth(app);
+    // Đợi SDK khôi phục phiên đã lưu (vd phiên OTP chủ nhà) — kiểm sớm thì
+    // currentUser còn null và signInAnonymously() ghi đè phiên đó.
+    await auth.authStateReady();
     if (!auth.currentUser) await signInAnonymously(auth);
     const res = await callMyMy({
       messages: chatHistory.slice(-10),

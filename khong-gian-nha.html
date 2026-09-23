@@ -913,7 +913,13 @@ function renderHouseCallback() {
       houseId: currentHouseId,
       khungGio: khungGio,
       viTri: 'khong_gian_nha',
-      save: (id, v) => callKhChonKhungGio({ houseId: id, khung_gio_goi: v }),
+      loginUrl: window.alnEstimateFunnel.preserve('dang-nhap-chu-nha.html'),
+      // Chỉ gọi khi còn phiên Phone Auth — SDK Functions tự bỏ header
+      // Authorization khi không có token (server 401), xem du-toan-nha.html.
+      save: (id, v) => {
+        if (!isPhoneAuthed(auth.currentUser)) return Promise.reject({ code: window.alnCallback.LOI_CAN_DANG_NHAP });
+        return callKhChonKhungGio({ houseId: id, khung_gio_goi: v });
+      },
     });
   } else {
     houseCallbackCtl.setHouse(currentHouseId, khungGio);

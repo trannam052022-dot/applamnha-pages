@@ -3919,9 +3919,13 @@ onAuthStateChanged(auth, async (user) => {
     const profile = (snap && snap.exists()) ? snap.data() : null;
 
     if (!profile) {
-      await signOut(auth);
+      // Không có users/{uid}: CHUYỂN TRANG ngay (lớp che vẫn phủ, chưa render
+      // dữ liệu nào), KHÔNG signOut — Auth chỉ có 1 phiên cho cả origin,
+      // signOut ở đây từng đăng xuất luôn phiên OTP của chủ nhà ở mọi tab
+      // (sự cố 23/09/2026). Chủ nhà OTP → Không gian Nhà; còn lại → login.
       try { localStorage.removeItem("aln_user"); sessionStorage.removeItem("aln_user"); } catch(e){}
-      window.location.replace("login.html");
+      const laPhoneAuth = !user.isAnonymous && !!user.phoneNumber;
+      window.location.replace(laPhoneAuth ? "khong-gian-nha.html" : "login.html");
       return;
     }
     if (profile.role !== REQUIRED_ROLE && profile.role !== "founder") {

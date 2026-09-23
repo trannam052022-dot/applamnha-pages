@@ -970,6 +970,9 @@ function postableCats(){
 }
 
 /* ════ AUTH + BOOT ════ */
+// Chủ nhà đăng nhập OTP — cùng điều kiện isPhoneAuthed() của
+// du-toan-nha/khong-gian-nha/dang-nhap-chu-nha.
+function laPhoneAuth(user){ return !!(user && !user.isAnonymous && user.phoneNumber); }
 onAuthStateChanged(auth, async user => {
   if(!user){ bootGuest(); return; }
   // Diễn đàn phải đọc được công khai — phiên đăng nhập hỏng/hết hạn hay lỗi đọc
@@ -978,12 +981,19 @@ onAuthStateChanged(auth, async user => {
   // signInAnonymously() trên CÙNG auth instance để chat công khai, không có
   // users/{uid} tương ứng (đúng thiết kế, không phải lỗi). Tự signOut phiên đó
   // ở đây sẽ phá luôn callAlnChat() đang chờ auth, khiến MyMy treo vô thời hạn.
+  // KHÔNG signOut() chủ nhà đăng nhập OTP (Phone Auth) — họ không có
+  // users/{uid} (đúng thiết kế, hồ sơ ở houses/contacts). Auth chỉ có 1 phiên
+  // cho cả origin: signOut ở đây từng đăng xuất luôn phiên Không gian Nhà/dự
+  // toán của họ ở mọi tab (sự cố 23/09/2026, khChonKhungGio 401). Họ xem diễn
+  // đàn như khách, giữ phiên. signOut chỉ còn cho tài khoản thật (email)
+  // thiếu hồ sơ/đọc lỗi — coi là phiên hỏng/hết hạn như trước.
+  const giuPhien = user.isAnonymous || laPhoneAuth(user);
   let snap;
   try {
     snap = await getDoc(doc(db, 'users', user.uid));
   } catch(e) {
     console.error('[forum] Lỗi đọc hồ sơ, lùi về chế độ khách:', e);
-    if(!user.isAnonymous){ try { await signOut(auth); } catch(_){} }
+    if(!giuPhien){ try { await signOut(auth); } catch(_){} }
     bootGuest();
     return;
   }
@@ -991,7 +1001,7 @@ onAuthStateChanged(auth, async user => {
   if(!snap.exists() && user.uid === 'h4kEguPEyMcwJwl89stc0Q6j2si2'){
     profile = { role:'founder', name:'KTS. Trần Long', status:'active', avatarUrl:'' };
   } else if(!snap.exists()){
-    if(!user.isAnonymous){ try { await signOut(auth); } catch(_){} }
+    if(!giuPhien){ try { await signOut(auth); } catch(_){} }
     bootGuest();
     return;
   } else {
