@@ -192,7 +192,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <span class="ey-line ey-line-r"></span>
   </div>
   <h1 class="brand-title">Đăng nhập bằng số điện thoại</h1>
-  <p class="brand-sub">Dành cho chủ nhà đang theo dõi tiến độ dự án cùng ALN</p>
+  <p class="brand-sub">Nhận mã qua SMS để lưu dự toán và xem Không gian Nhà của bạn</p>
 </div>
 
 <div class="card">
@@ -210,7 +210,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </span>
       <div>
         <div class="step-title">Nhập số điện thoại</div>
-        <div class="step-desc">Đúng số đã đăng ký với ALN khi ký hợp đồng</div>
+        <div class="step-desc">Nhận mã xác nhận 6 số qua SMS</div>
       </div>
     </div>
 
@@ -220,7 +220,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <svg class="icon fi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15.05 5a5 5 0 0 1 5 5M15.05 1a9 9 0 0 1 9 9M4.9 2.9 8 6c.5.5.6 1.3.2 1.9L6.6 10.3a13.3 13.3 0 0 0 7.1 7.1l2.4-1.6c.6-.4 1.4-.3 1.9.2l3.1 3.1c.6.6.6 1.6-.1 2.1l-1.6 1.3a3 3 0 0 1-2.4.6C11 21.8 2.2 13 1.1 7.1a3 3 0 0 1 .6-2.4l1.3-1.6c.5-.7 1.5-.7 2.1-.1Z"/></svg>
         <input id="phoneInput" type="tel" inputmode="numeric" autocomplete="tel" placeholder="0901 234 567" maxlength="16">
       </div>
-      <div class="field-hint">Hệ thống sẽ gửi mã xác nhận 6 số qua SMS</div>
+      <div class="field-hint">Số điện thoại của bạn — dùng để lưu hồ sơ và để ALN liên hệ khi bạn cần</div>
     </div>
 
     <button id="sendBtn" class="btn btn-gold" type="button">
@@ -274,7 +274,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div id="recaptcha-container"></div>
 </div>
 
-<p class="foot-note">Cần hỗ trợ? Liên hệ ALN qua Zalo hoặc hotline đã cung cấp trong hợp đồng.</p>
+<p class="foot-note">Cần hỗ trợ? <a href="https://zalo.me/alnsanthietke" target="_blank" rel="noopener">Nhắn Zalo ALN.</a></p>
 
 <script type="module">
 import {
@@ -343,6 +343,7 @@ const els = {
 let confirmationResult = null;
 let recaptchaVerifier = null;
 let resendTimer = null;
+let sendInFlight = false;
 
 /* ── Chặn lạm dụng SMS (lớp phòng thủ phía client, BỔ SUNG cho hạn mức
    1000/ngày CỦA DỰ ÁN ở tầng Firebase/App Check — không thay thế) ──
@@ -386,20 +387,19 @@ function fmtMinSec(ms) {
   return m > 0 ? `${m} phút ${s} giây` : `${s} giây`;
 }
 
-/* ── Thông báo lỗi tiếng Việt — phân biệt rõ từng mã, KHÔNG bao giờ gộp
-   chung thành "có lỗi xảy ra". Mã không nằm trong bảng vẫn hiện NGUYÊN VĂN
-   mã đó (không giấu) để còn tra được. */
+/* ── Thông báo lỗi tiếng Việt; không hiện message/mã lỗi thô từ SDK. */
 const ERROR_MESSAGES = {
   "auth/invalid-phone-number": "Số điện thoại không hợp lệ. Vui lòng nhập đúng số điện thoại Việt Nam, ví dụ 0901234567.",
   "auth/missing-phone-number": "Vui lòng nhập số điện thoại.",
+  "auth/operation-not-allowed": "Dịch vụ gửi mã SMS hiện chưa khả dụng. Vui lòng liên hệ ALN qua Zalo để được hỗ trợ.",
   "auth/too-many-requests": "Bạn đã thử quá nhiều lần trong thời gian ngắn. Vui lòng đợi vài phút rồi thử lại.",
   "auth/code-expired": "Mã xác nhận đã hết hạn. Vui lòng bấm “Gửi lại mã” để nhận mã mới.",
   "auth/invalid-verification-code": "Mã xác nhận không đúng. Vui lòng kiểm tra lại 6 số vừa nhận qua SMS.",
   "auth/quota-exceeded": "Hệ thống đã đạt giới hạn gửi SMS hôm nay. Vui lòng thử lại vào ngày mai hoặc liên hệ ALN qua Zalo để được hỗ trợ.",
-  "auth/captcha-check-failed": "Xác thực bảo mật trình duyệt (reCAPTCHA) thất bại. Vui lòng tải lại trang và thử lại.",
+  "auth/captcha-check-failed": "Xác thực bảo mật trình duyệt chưa thành công. Vui lòng bấm gửi mã để thử lại.",
   "auth/network-request-failed": "Lỗi kết nối mạng. Vui lòng kiểm tra Internet và thử lại.",
   "auth/app-not-authorized": "Ứng dụng chưa được xác thực với Firebase (App Check). Vui lòng liên hệ ALN.",
-  "auth/argument-error": "Không khởi tạo được xác thực bảo mật (reCAPTCHA). Vui lòng tải lại trang và thử lại.",
+  "auth/argument-error": "Không khởi tạo được xác thực bảo mật. Vui lòng bấm gửi mã để thử lại.",
 };
 
 function showError(code, rawMessage) {
@@ -408,7 +408,7 @@ function showError(code, rawMessage) {
     msg = "Không xác thực được bảo mật trình duyệt (App Check). Vui lòng tải lại trang hoặc thử trình duyệt khác.";
   }
   if (!msg) {
-    msg = `Lỗi: ${code || rawMessage || "không rõ"}. Vui lòng thử lại hoặc liên hệ ALN qua Zalo.`;
+    msg = "Chưa thể hoàn tất xác thực. Vui lòng thử lại hoặc nhắn Zalo ALN để được hỗ trợ.";
   }
   els.errText.textContent = msg;
   els.errBox.hidden = false;
@@ -421,7 +421,7 @@ function clearError() { els.errBox.hidden = true; els.errText.textContent = ""; 
 
 /* ── reCAPTCHA v2 invisible — RIÊNG cho Phone Auth, tách biệt với reCAPTCHA
    v3 của App Check (khởi tạo trong firebase-config.js). Khởi tạo lười, tái
-   sử dụng 1 instance; reset khi gặp lỗi liên quan captcha/hết lượt xác minh. */
+   sử dụng 1 instance trong mỗi lần gửi; giải phóng sau cả thành công/lỗi. */
 function ensureRecaptcha() {
   if (recaptchaVerifier) return recaptchaVerifier;
   recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", { size: "invisible" });
@@ -431,7 +431,8 @@ function resetRecaptcha() {
   try { recaptchaVerifier && recaptchaVerifier.clear(); } catch (e) {}
   recaptchaVerifier = null;
   const c = document.getElementById("recaptcha-container");
-  if (c) c.innerHTML = "";
+  // Thay node để SDK không giữ liên kết widget cũ với cùng DOM element.
+  if (c) c.replaceWith(c.cloneNode(false));
 }
 
 function startResendCountdown(seconds) {
@@ -459,6 +460,7 @@ function goToStep(n) {
 }
 
 async function handleSend() {
+  if (sendInFlight) return;
   clearError();
   const norm = normalizePhone(els.phoneInput.value);
   if (!norm) { showError("auth/invalid-phone-number"); return; }
@@ -469,7 +471,11 @@ async function handleSend() {
     return;
   }
 
+  sendInFlight = true;
+  const resendWasDisabled = els.resendBtn.disabled;
+  let sent = false;
   els.sendBtn.disabled = true;
+  els.resendBtn.disabled = true;
   const prevLabel = els.sendBtn.textContent;
   els.sendBtn.textContent = "Đang gửi...";
   try {
@@ -479,24 +485,26 @@ async function handleSend() {
     // sau đó trả lỗi khác (quota/network), đây vẫn là 1 lượt SMS đã cố gửi.
     recordAttempt(norm);
     confirmationResult = await signInWithPhoneNumber(auth, e164, verifier);
+    sent = true;
     els.phoneDisplay.textContent = formatVNDisplay(norm);
     goToStep(2);
     startResendCountdown(60);
     els.otpInput.value = "";
     els.otpInput.focus();
   } catch (err) {
-    console.error("[dang-nhap-chu-nha] signInWithPhoneNumber lỗi:", err);
+    console.warn("[dang-nhap-chu-nha] gửi mã thất bại");
     showError(err && err.code, err && err.message);
-    // reCAPTCHA invisible chỉ dùng được 1 lần xác minh — reset để lần bấm
-    // gửi kế tiếp (thử lại số khác, hoặc thử lại sau lỗi) tạo widget mới.
-    resetRecaptcha();
   } finally {
+    resetRecaptcha();
+    sendInFlight = false;
+    els.resendBtn.disabled = sent || resendWasDisabled;
     els.sendBtn.disabled = false;
     els.sendBtn.textContent = prevLabel;
   }
 }
 
 async function handleVerify() {
+  if (sendInFlight) return;
   clearError();
   const code = (els.otpInput.value || "").trim();
   if (!/^\d{6}$/.test(code)) {
@@ -515,7 +523,7 @@ async function handleVerify() {
     goToStep(3);
     window.location.href = resolveNextUrl();
   } catch (err) {
-    console.error("[dang-nhap-chu-nha] confirm OTP lỗi:", err);
+    console.warn("[dang-nhap-chu-nha] xác nhận mã thất bại");
     showError(err && err.code, err && err.message);
   } finally {
     els.verifyBtn.disabled = false;
@@ -528,6 +536,7 @@ els.resendBtn.addEventListener("click", handleSend);
 els.verifyBtn.addEventListener("click", handleVerify);
 els.changePhoneLink.addEventListener("click", (e) => {
   e.preventDefault();
+  if (sendInFlight) return;
   clearError();
   confirmationResult = null;
   clearInterval(resendTimer);
