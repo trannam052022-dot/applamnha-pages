@@ -488,6 +488,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span class="block-title" id="stepBlockTitle">Bạn đang ở đâu</span>
       </div>
       <div class="moc-list" id="mocList"></div>
+      <!-- Ai gọi, số nào, khung giờ tiện nghe máy (scripts/aln-callback.js) — chỉ truoc_c1 -->
+      <div id="houseCallback" style="margin:0 0 .9rem" hidden></div>
       <div class="step-list" id="stepList" hidden></div>
     </section>
 
@@ -606,7 +608,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span class="block-title">Gói dịch vụ ALN</span>
       </div>
       <div class="pkg-grid" id="pkgGrid"></div>
-      <p class="pkg-fine">Giá hiển thị đã gồm VAT 8% (mức thuế có thể thay đổi theo quy định). Gói Đồng hành xây gồm phí bóc khối lượng (thu trước khi bóc) và phí theo mốc: mốc móng đầu tiên miễn phí; phần còn lại chọn trả theo 3 đợt (40% sau khi nghiệm thu móng, 40% khi xong phần thô — đổ xong sàn mái, 20% khi hoàn công) hoặc trả phần theo mốc 1 lần (chọn sau khi nghiệm thu móng) được giảm khoảng 10% phần theo mốc — trả 1 lần không hoàn lại. Công trình tạm dừng thi công được bảo lưu tối đa 24 tháng.</p>
+      <p class="pkg-fine">Giá hiển thị đã gồm VAT 8% (mức thuế có thể thay đổi theo quy định). Gói Đồng hành xây: Mốc móng miễn phí. Chia 3 đợt: 40% sau nghiệm thu móng · 40% khi xong phần thô · 20% khi hoàn công. Hoặc trả phần theo mốc 1 lần (chọn sau khi nghiệm thu móng) được giảm khoảng 10% phần theo mốc — trả 1 lần không hoàn lại. Công trình phải tạm dừng thi công ngoài ý muốn được bảo lưu tối đa 24 tháng.</p>
     </section>
 
     <!-- f. Sắp có -->
@@ -629,6 +631,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- Bảng giá Gói Kiểm nhanh/Đồng hành xây — nguồn cấu hình duy nhất, dùng
      ở khối "Gói dịch vụ ALN" bên dưới (P1.3). -->
 <script src="aln-pricing.js"></script>
+<script src="scripts/aln-callback.js"></script>
 <script type="module">
 import {
   app, auth, db, onAuthStateChanged, signOut,
@@ -641,6 +644,7 @@ import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/
 const functionsInst = getFunctions(app, 'asia-southeast1');
 const callKhLienKetTaiKhoan = httpsCallable(functionsInst, 'khLienKetTaiKhoan');
 const callKhGhiUpload = httpsCallable(functionsInst, 'khGhiUpload');
+const callKhChonKhungGio = httpsCallable(functionsInst, 'khChonKhungGio');
 
 const els = {
   loading: document.getElementById('state-loading'),
@@ -664,6 +668,7 @@ const els = {
   stepBlockTitle: document.getElementById('stepBlockTitle'),
   mocList: document.getElementById('mocList'),
   stepList: document.getElementById('stepList'),
+  houseCallback: document.getElementById('houseCallback'),
 
   dtBlock: document.getElementById('dtBlock'),
   dtTotal: document.getElementById('dtTotal'),
@@ -879,6 +884,8 @@ function updateTruocC1Visibility() {
   els.mocList.hidden = isTruocC1;
   els.stepList.hidden = !isTruocC1;
   if (isTruocC1) renderSteps();
+  els.houseCallback.hidden = !isTruocC1;
+  if (isTruocC1) renderHouseCallback();
 
   els.uploadBlock.hidden = !isTruocC1;
   els.pkgBlock.hidden = !isTruocC1;
@@ -889,6 +896,27 @@ function updateTruocC1Visibility() {
   if (showDt) {
     renderDuToanLatest(duToanVersions[0]);
     renderDuToanOldList(duToanVersions.slice(1));
+  }
+}
+
+/* ── Khối b — ai gọi + khung giờ gọi (house truoc_c1), đọc lại khung_gio_goi
+   từ snapshot house, sửa qua khChonKhungGio. Mount 1 lần/house; snapshot sau
+   chỉ cập nhật giá trị (không xoá lựa chọn khách đang sửa dở). ── */
+let houseCallbackCtl = null;
+let houseCallbackFor = null;
+function renderHouseCallback() {
+  if (!window.alnCallback || !currentHouseId) return;
+  const khungGio = currentHouseData && currentHouseData.khung_gio_goi;
+  if (!houseCallbackCtl || houseCallbackFor !== currentHouseId) {
+    houseCallbackFor = currentHouseId;
+    houseCallbackCtl = window.alnCallback.mount(els.houseCallback, {
+      houseId: currentHouseId,
+      khungGio: khungGio,
+      viTri: 'khong_gian_nha',
+      save: (id, v) => callKhChonKhungGio({ houseId: id, khung_gio_goi: v }),
+    });
+  } else {
+    houseCallbackCtl.setHouse(currentHouseId, khungGio);
   }
 }
 
@@ -1057,10 +1085,10 @@ function renderPackages() {
       <p class="pkg-note">ALN đồng hành theo từng mốc thi công — nghiệm thu khối lượng, đối chiếu tạm ứng, so sánh chi phí thực tế với dự toán.${dongHanhGhiChu}</p>
       <ul class="pkg-list">
         <li>Nghiệm thu khối lượng theo từng mốc</li>
-        <li>Mốc móng đầu tiên miễn phí, 3 đợt sau nghiệm thu móng / xong phần thô / hoàn công (40% / 40% / 20%)</li>
+        <li>Mốc móng miễn phí. Chia 3 đợt: 40% sau nghiệm thu móng · 40% khi xong phần thô · 20% khi hoàn công.</li>
         <li>Sổ tạm ứng nhà thầu — đối chiếu mỗi lần tạm ứng với phần việc đã nghiệm thu</li>
         <li>Sổ chi so với dự toán</li>
-        <li>Công trình tạm dừng được bảo lưu tối đa 24 tháng</li>
+        <li>Công trình phải tạm dừng thi công ngoài ý muốn được bảo lưu tối đa 24 tháng.</li>
       </ul>
       <p class="pkg-fine">Cần 1 dự toán nền để nghiệm thu theo mốc: dùng dự toán từ gói Bóc khối lượng (nếu đã mua), hoặc dự toán bạn tự cung cấp. Nếu dùng dự toán bạn cung cấp: <strong>nghiệm thu theo dự toán bạn cung cấp — ALN không xác nhận khối lượng trong dự toán đó</strong>; mua thêm gói Bóc khối lượng để có dự toán nền do ALN chịu trách nhiệm về khối lượng.</p>
       <p class="pkg-fine">Nộp dự toán có sẵn: file Excel có khối lượng chi tiết dùng được ngay, miễn phí trong gói Đồng hành xây. Chỉ có PDF/ảnh: ALN nhập giá trị hợp đồng + lịch thanh toán để sổ tạm ứng chạy được — nghiệm thu khối lượng cần thêm gói Bóc khối lượng.</p>
