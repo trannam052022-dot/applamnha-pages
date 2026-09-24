@@ -452,7 +452,7 @@ function renderModLogs(items){
           + '<span class="chip '+(u.n>=5?'chip-red':'chip-gold')+'">'+escH(u.stage)+'</span>'
           + '<b>'+escH(u.name)+'</b><span style="color:var(--dim)">'+u.n+' lần</span></div>').join('')
       + '</div>'
-      + '<div style="font-size:var(--text-2xs);color:var(--dim);margin-top:7px">Khung xử lý: Cảnh báo (1–2) → Khóa 90 ngày (3–4) → Khóa vĩnh viễn (≥5). Nhận tiền ngoài ALN = khóa ngay + thu hồi Quỹ bảo đảm. <i>(Bản nháp chỉ đề xuất — Founder quyết định khóa thật.)</i></div></div>';
+      + '<div style="font-size:var(--text-2xs);color:var(--dim);margin-top:7px">Khung xử lý: Cảnh báo (1–2) → Khóa 90 ngày (3–4) → Khóa vĩnh viễn (≥5). Nhận tiền ngoài ALN = khóa ngay + tạm dừng thanh toán các mốc còn lại. <i>(Bản nháp chỉ đề xuất — Founder quyết định khóa thật.)</i></div></div>';
   }
   html += items.map(m => '<div class="item">'
     + '<div class="item-head">'

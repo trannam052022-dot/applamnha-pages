@@ -2562,7 +2562,7 @@ ALNRealtime.init({
     const _isReplay = !!d._replay;
     // Tranh chấp
     if(d.type==='DISPUTE_OPENED' && d.projectId===(window.KTS_PROJECT_ID||'')) {
-      if(!_isReplay){ showToast('⚠️ Chủ nhà đã mở tranh chấp C3 — dòng tiền bị đóng băng!', 't-red'); _addNotif('<i class="ph-duotone ph-warning"></i>','<b>Tranh chấp</b> — Chủ nhà mở tranh chấp C3. Dòng tiền bị đóng băng!', d.projectId); }
+      if(!_isReplay){ showToast('⚠️ Chủ nhà đã mở tranh chấp C3 — tạm dừng thanh toán các mốc còn lại!', 't-red'); _addNotif('<i class="ph-duotone ph-warning"></i>','<b>Tranh chấp</b> — Chủ nhà mở tranh chấp C3. Tạm dừng thanh toán các mốc còn lại!', d.projectId); }
       try{document.getElementById('lockedWallet').style.borderColor='var(--red)';}catch(e){}
       try{document.getElementById('lockedAmount').style.color='var(--red)';}catch(e){}
     }
@@ -4234,7 +4234,7 @@ const KTSC_SCRIPTS = {
   1: "KỊCH BẢN #1 — Ý TƯỞNG 2D (60s)\n\nHook 0-8s: nêu đúng nỗi lo của chủ nhà.\n8-40s: trình bày ý tưởng 2D — mặt bằng, công năng.\n40-55s: vì sao hợp lý.\n55-60s: CTA \"Bắt đầu Bước 1 qua link ở bio\".\nLƯU Ý: watermark + link định danh mọi bản đăng, không SĐT/Zalo cá nhân.",
   2: "KỊCH BẢN #2 — TIMELAPSE 3D\n\nTimelapse dựng 3D + nhạc nền, CTA cuối clip \"Bắt đầu Bước 1 qua link ở bio\".\nLƯU Ý: watermark + link định danh mọi bản đăng, không SĐT/Zalo cá nhân.",
   3: "KỊCH BẢN #3 — BÓC HỒ SƠ THI CÔNG\n\nGiải thích minh bạch 6 hạng mục hồ sơ thi công, chống đi đêm.\nLƯU Ý: không lộ thông tin công trình/khách hàng chưa đồng ý, không SĐT/Zalo cá nhân.",
-  4: "KỊCH BẢN #4 — NHẬN TIỀN ĐÚNG HẠN\n\nChia sẻ trải nghiệm nhận tiền đúng hạn qua Quỹ bảo đảm 4 bước.\nLƯU Ý: không tiết lộ số tiền cụ thể của khách chưa đồng ý, không SĐT/Zalo cá nhân."
+  4: "KỊCH BẢN #4 — NHẬN TIỀN ĐÚNG HẠN\n\nChia sẻ trải nghiệm nhận tiền đúng hạn theo nguyên tắc làm bước nào thanh toán bước đó.\nLƯU Ý: không tiết lộ số tiền cụ thể của khách chưa đồng ý, không SĐT/Zalo cá nhân."
 };
 window.ktscDownloadScript = function(n){
   const blob = new Blob([KTSC_SCRIPTS[n]], { type: 'text/plain;charset=utf-8' });
