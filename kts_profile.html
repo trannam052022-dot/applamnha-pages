@@ -205,14 +205,6 @@ const $ = id => document.getElementById(id);
 function escH(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 let toastTimer = null;
 function showToast(m){ const t=$('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),3600); }
-function timeAgo(ts){
-  if(!ts) return '';
-  const ms = ts.seconds ? ts.seconds*1000 : Date.now();
-  const d = Math.floor((Date.now()-ms)/86400000);
-  if(d < 1) return 'hôm nay';
-  if(d < 30) return d + ' ngày trước';
-  return new Date(ms).toLocaleDateString('vi-VN');
-}
 
 /* 3 cấp bậc KTS (đồng bộ với server) — bậc cao được ưu tiên nhận dự án */
 function rankOf(points){
@@ -287,7 +279,12 @@ onAuthStateChanged(auth, async user => {
     snap.forEach(d => posts.push(Object.assign({ id: d.id }, d.data())));
     const visible = posts
       .filter(p => p.status === 'visible' && !p.hidden)
-      .sort((a, b) => ((b.createdAt&&b.createdAt.seconds)||0) - ((a.createdAt&&a.createdAt.seconds)||0));
+      /* Không theo ngày (ngày không hiển thị): ghim → nhiều tim → nhiều bình luận
+         → cùng hạng thì bài mới hơn trước (tiêu chí phụ nội bộ) — khớp forum.html */
+      .sort((a, b) => ((b.pinned?1:0) - (a.pinned?1:0))
+        || ((b.heartCount||0) - (a.heartCount||0))
+        || ((b.commentCount||0) - (a.commentCount||0))
+        || (((b.createdAt&&b.createdAt.seconds)||0) - ((a.createdAt&&a.createdAt.seconds)||0)));
     $('stShowcase').textContent = visible.length;
     if(!visible.length){ $('scEmpty').style.display = 'block'; }
     else {
@@ -297,7 +294,7 @@ onAuthStateChanged(auth, async user => {
           + (img ? '<img src="'+escH(img)+'" loading="lazy">' : '')
           + '<div class="sc-body">'
             + '<div class="sc-text">'+escH(p.text||'')+'</div>'
-            + '<div class="sc-meta"><span>❤ '+(p.heartCount||0)+'</span><span>💬 '+(p.commentCount||0)+'</span><span>'+timeAgo(p.createdAt)+'</span>'
+            + '<div class="sc-meta"><span>❤ '+(p.heartCount||0)+'</span><span>💬 '+(p.commentCount||0)+'</span>'
             + (p.pinned ? '<span style="color:var(--gold)">📌 GHIM</span>' : '') + '</div>'
           + '</div></div>';
       }).join('');
