@@ -32,7 +32,7 @@
     dt: { label: 'Đối tác', color: '#e0aa3e', cards: [
       { badge: 'Khách tự tìm đến', title: 'Gian hàng Vật tư – Đội thi công', desc: 'Có sẵn lead giới thiệu, không cần tự quảng cáo', href: '/ncc-showcase.html',
         icon: '<path d="M4 9 12 4l8 5-8 5-8-5Z" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linejoin="round"/><path d="M4 9v6l8 5 8-5V9" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linejoin="round"/>' },
-      { badge: 'Không cần tài khoản', title: 'Nhận Gạch &amp; hoa hồng', desc: 'Giới thiệu khách ký HĐ, nhận 15% chặng C1', href: '/ctv_dashboard.html',
+      { badge: 'Không cần tài khoản', title: 'Nhận Gạch &amp; thưởng giới thiệu', desc: 'Giới thiệu khách ký HĐ, nhận 15% chặng C1', href: '/ctv_dashboard.html',
         icon: '<rect x="5" y="10" width="14" height="9" rx="1.6" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="M12 10V6.8c0-1 .8-1.8 1.8-1.8 1 0 1.8.8 1.8 1.7 0 1-1 1.3-1.8 1.3H8.4c-.9 0-1.8-.4-1.8-1.3 0-1 .8-1.7 1.8-1.7 1 0 1.8.8 1.8 1.8V10" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/>' }
     ]}
   };
