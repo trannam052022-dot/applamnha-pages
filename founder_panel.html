@@ -1631,7 +1631,7 @@ document.addEventListener('DOMContentLoaded', function() {
   <div style="margin-top:8px">
     <div style="font-family:var(--mono);font-size:15px;font-weight:700;color:var(--text1);margin-bottom:6px">Lead giới thiệu Gói Kinh Tế chờ xác nhận</div>
     <div style="font-size:11px;color:var(--dim);line-height:1.6;background:var(--raised);border:1px solid var(--border);border-radius:7px;padding:9px 12px;margin-bottom:8px">
-      Ghi từ <code>mauNhaLeads</code> mỗi khi khách bấm "Đặt mua gói kinh tế" qua link riêng của 1 CTV (<code>index.html?ctvref=</code>). Gói kinh tế hiện chỉ bán qua chat tư vấn — khi chốt đơn thật với khách, bấm "Xác nhận đã bán" và nhập giá bán để tự động cộng 15% hoa hồng vào số dư chờ chi trả của CTV đó.
+      Ghi từ <code>mauNhaLeads</code> mỗi khi khách bấm "Đặt mua gói kinh tế" qua link riêng của 1 CTV (<code>index.html?ctvref=</code>). Gói kinh tế hiện chỉ bán qua chat tư vấn — khi chốt đơn thật với khách, bấm "Xác nhận đã bán" và nhập giá bán để tự động cộng 15% thưởng giới thiệu vào số dư chờ chi trả của CTV đó.
     </div>
     <div class="table-wrap">
       <table class="data-table">
@@ -4475,7 +4475,7 @@ window.founderAwardBricksPrompt = async function(uid, name){
    query Firestore thẳng từ client vì mauNhaLeads chưa mở rule đọc công khai
    (ghi ẩn danh từ index.html qua onCall logMauNhaLead, xem functions/ctvGame.js) ── */
 var _mgMauNhaData = null;
-var MAUNHA_STATUS_LABEL = { new: 'Chờ xác nhận', confirmed: 'Đã trả hoa hồng' };
+var MAUNHA_STATUS_LABEL = { new: 'Chờ xác nhận', confirmed: 'Đã trả thưởng giới thiệu' };
 
 function renderMauNhaLeads() {
   if(window._mgMauNhaData) _mgMauNhaData = window._mgMauNhaData;
@@ -4507,17 +4507,17 @@ function _loadMauNhaLeads() {
 }
 
 window.founderConfirmMauNhaSalePrompt = async function(leadId, ma, ctvPhone){
-  var priceStr = prompt('Giá bán thật của gói mẫu ' + ma + ' (VNĐ) — hoa hồng 15% sẽ tự cộng cho CTV ' + ctvPhone + ':');
+  var priceStr = prompt('Giá bán thật của gói mẫu ' + ma + ' (VNĐ) — thưởng giới thiệu 15% sẽ tự cộng cho CTV ' + ctvPhone + ':');
   if(priceStr === null) return;
   var salePrice = parseInt(String(priceStr).replace(/[^\d]/g, ''), 10);
   if(!salePrice || salePrice <= 0){ toast('Giá bán không hợp lệ', 'err'); return; }
-  if(!confirm('Xác nhận đã bán gói ' + ma + ' giá ' + salePrice.toLocaleString('vi-VN') + 'đ — cộng ' + Math.round(salePrice*0.15).toLocaleString('vi-VN') + 'đ hoa hồng cho CTV ' + ctvPhone + '?')) return;
+  if(!confirm('Xác nhận đã bán gói ' + ma + ' giá ' + salePrice.toLocaleString('vi-VN') + 'đ — cộng ' + Math.round(salePrice*0.15).toLocaleString('vi-VN') + 'đ thưởng giới thiệu cho CTV ' + ctvPhone + '?')) return;
   try {
     var { getFunctions, httpsCallable } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js');
     var fns = getFunctions(window.app, 'asia-southeast1');
     var fn = httpsCallable(fns, 'founderConfirmMauNhaSale');
     var res = await fn({ leadId: leadId, salePrice: salePrice });
-    toast('Đã cộng ' + (res.data.commission||0).toLocaleString('vi-VN') + 'đ hoa hồng cho CTV ' + ctvPhone, 'ok');
+    toast('Đã cộng ' + (res.data.commission||0).toLocaleString('vi-VN') + 'đ thưởng giới thiệu cho CTV ' + ctvPhone, 'ok');
     window._mgMauNhaData = null; _mgMauNhaData = null;
     if(window._mauNhaLoadFromModule) window._mauNhaLoadFromModule();
   } catch(e) {
