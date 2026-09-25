@@ -2019,6 +2019,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <option value="60">60 ngày gần đây</option>
         <option value="90">90 ngày gần đây</option>
       </select>
+      <label title="Lead test = SĐT nội bộ trong config/so_noi_bo hoặc gắn la_test — ẩn mặc định" style="display:flex;align-items:center;gap:6px;padding:7px 10px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--text2);font-size:12px;font-family:var(--sans);cursor:pointer"><input type="checkbox" id="ctShowTest" onchange="initContactsPanel()"> Hiện lead test</label>
       <button onclick="initContactsPanel()" style="padding:7px 14px;background:var(--raised);border:1px solid var(--border);border-radius:7px;font-size:12px;font-weight:600;color:var(--sub);cursor:pointer;font-family:var(--sans)"><i class="ph-duotone ph-arrow-clockwise"></i> Tải lại</button>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -2064,6 +2065,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div style="display:flex;gap:8px">
       <button id="pplViewKhach" onclick="pplSwitchView('khach_hang')" style="padding:7px 14px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans)"><i class="ph-duotone ph-target"></i> Khách hàng</button>
       <button id="pplViewKts" onclick="pplSwitchView('kts_ung_tuyen')" style="padding:7px 14px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans)"><i class="ph-duotone ph-pencil-ruler"></i> KTS</button>
+      <label title="Lead test = SĐT nội bộ trong config/so_noi_bo hoặc gắn la_test — ẩn mặc định" style="display:flex;align-items:center;gap:6px;padding:7px 10px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--text2);font-size:12px;font-family:var(--sans);cursor:pointer"><input type="checkbox" id="pplShowTest" onchange="initPipelinePanel()"> Hiện lead test</label>
     </div>
     <button onclick="initPipelinePanel()" style="padding:7px 14px;background:var(--raised);border:1px solid var(--border);border-radius:7px;font-size:12px;font-weight:600;color:var(--sub);cursor:pointer;font-family:var(--sans)"><i class="ph-duotone ph-arrow-clockwise"></i> Tải lại</button>
   </div>
@@ -7972,6 +7974,11 @@ window.saveCompanySettings = async function() {
     var d = new Date(ms);
     return d.toLocaleDateString('vi-VN') + ' ' + d.toLocaleTimeString('vi-VN', {hour:'2-digit',minute:'2-digit'});
   }
+  // Lead test (la_test) ẩn mặc định — bật ô "Hiện lead test" để xem.
+  function ctShowTest(){
+    var el = document.getElementById('ctShowTest');
+    return !!(el && el.checked);
+  }
   function ctCurrentFilters(){
     var f = {};
     var loai = document.getElementById('ctFilterLoai').value;
@@ -7992,7 +7999,7 @@ window.saveCompanySettings = async function() {
     if(body) body.innerHTML = '<tr><td colspan="7" style="padding:20px;text-align:center;color:var(--dim);font-family:var(--mono);font-size:12px">Đang tải...</td></tr>';
     CT_SELECTED = {};
     try {
-      var statsRes = await ctCallFn('getContactStats');
+      var statsRes = await ctCallFn('getContactStats', { bao_gom_test: ctShowTest() });
       ctRenderStats(statsRes);
       ctFillDynamicFilters(statsRes);
       await ctFetchAndRender();
@@ -8009,7 +8016,8 @@ window.saveCompanySettings = async function() {
     var body = document.getElementById('contactsBody');
     if(body) body.innerHTML = '<tr><td colspan="7" style="padding:20px;text-align:center;color:var(--dim);font-family:var(--mono);font-size:12px">Đang tải...</td></tr>';
     var res = await ctCallFn('segmentContacts', ctCurrentFilters());
-    CT_ITEMS = res.items || [];
+    var showTest = ctShowTest();
+    CT_ITEMS = (res.items || []).filter(function(it){ return showTest || !it.la_test; });
     CT_SELECTED = {};
     ctRenderTable();
   }
@@ -8084,7 +8092,7 @@ window.saveCompanySettings = async function() {
       html += '<tr style="border-bottom:1px solid var(--border)">' +
         '<td style="padding:10px 11px"><input type="checkbox" data-ctid="'+it.id+'" onchange="ctToggleSelect(\''+it.id+'\',this.checked)" '+(CT_SELECTED[it.id]?'checked':'')+'></td>' +
         '<td style="padding:10px 11px;cursor:pointer" onclick="ctViewHistory(\''+it.id+'\')">' +
-          '<div style="font-weight:700;font-size:13px;color:var(--text1)">'+(it.name||'—')+'</div>' +
+          '<div style="font-weight:700;font-size:13px;color:var(--text1)">'+(it.name||'—')+(it.la_test?' <span style="font-size:10px;font-weight:700;color:var(--amber);border:1px solid var(--amber);border-radius:4px;padding:0 5px;margin-left:4px">TEST</span>':'')+'</div>' +
           '<div style="font-family:var(--mono);font-size:12px;color:var(--blue)">'+it.phone_normalized+'</div>' +
         '</td>' +
         '<td style="padding:10px 11px;font-size:12px;font-weight:700;color:'+(CT_LOAI_COLOR[it.loai_lien_he]||'var(--sub)')+'">'+(CT_LOAI_LABEL[it.loai_lien_he]||it.loai_lien_he||'—')+'</td>' +
@@ -8516,7 +8524,10 @@ window.saveCompanySettings = async function() {
         pplCallFn('segmentContacts', { loai_lien_he: PPL_VIEW }),
         PPL_VIEW === 'khach_hang' ? pplLoadKhungGio() : Promise.resolve({}),
       ]);
-      PPL_ITEMS = results[0].items || [];
+      // Lead test (la_test) ẩn mặc định — cả bảng lẫn đếm theo giai đoạn.
+      var pplShowTestEl = document.getElementById('pplShowTest');
+      var pplShowTest = !!(pplShowTestEl && pplShowTestEl.checked);
+      PPL_ITEMS = (results[0].items || []).filter(function(it){ return pplShowTest || !it.la_test; });
       PPL_KHUNG_GIO = results[1];
       pplRenderStageCounts();
       pplRenderTable();
@@ -8562,7 +8573,7 @@ window.saveCompanySettings = async function() {
         return '<option value="'+s.v+'"'+(it.giai_doan===s.v?' selected':'')+'>'+s.l+'</option>';
       }).join('');
       return '<tr>'
-        + '<td style="padding:10px 11px;font-size:13px;color:var(--text1);font-weight:600">'+(it.name||'(chưa có tên)')+'</td>'
+        + '<td style="padding:10px 11px;font-size:13px;color:var(--text1);font-weight:600">'+(it.name||'(chưa có tên)')+(it.la_test?' <span style="font-size:10px;font-weight:700;color:var(--amber);border:1px solid var(--amber);border-radius:4px;padding:0 5px;margin-left:4px">TEST</span>':'')+'</td>'
         + '<td style="padding:10px 11px;font-family:var(--mono);font-size:12.5px;color:var(--dim)">'+pplMaskPhone(it.phone_normalized)+'</td>'
         + '<td style="padding:10px 11px;font-size:12px;color:var(--sub)">'+(it.nguon||'—')+'</td>'
         + '<td style="padding:10px 11px;font-size:12px">'+(PPL_VIEW === 'khach_hang' ? epKhungGioCell(PPL_KHUNG_GIO[it.id]) : '<span style="color:var(--dim)">—</span>')+'</td>'
