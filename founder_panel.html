@@ -1979,6 +1979,7 @@ document.addEventListener('DOMContentLoaded', function() {
   <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--text1);margin-bottom:6px">Liên hệ</div>
   <div style="font-size:13px;color:var(--sub);margin-bottom:18px;max-width:80ch">Gộp SĐT từ nhập tay + KTS/CTV ứng tuyển + diễn đàn — lọc trùng xuyên nguồn theo số điện thoại. Click 1 dòng để xem toàn bộ lịch sử chạm nguồn.</div>
 
+  <div id="ctTestWarn"></div>
   <div id="ctStatsRow" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px"></div>
   <div id="ctTrendRow" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:18px"></div>
 
@@ -2070,6 +2071,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <button onclick="initPipelinePanel()" style="padding:7px 14px;background:var(--raised);border:1px solid var(--border);border-radius:7px;font-size:12px;font-weight:600;color:var(--sub);cursor:pointer;font-family:var(--sans)"><i class="ph-duotone ph-arrow-clockwise"></i> Tải lại</button>
   </div>
 
+  <div id="pplTestWarn"></div>
   <div id="pplStageRow" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px"></div>
 
   <div style="overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:var(--card)">
@@ -7974,6 +7976,16 @@ window.saveCompanySettings = async function() {
     var d = new Date(ms);
     return d.toLocaleDateString('vi-VN') + ' ' + d.toLocaleTimeString('vi-VN', {hour:'2-digit',minute:'2-digit'});
   }
+  // Backend segmentContacts/getContactStats bản cũ (chưa deploy) không trả la_test →
+  // bộ lọc lead test ở client âm thầm vô hiệu (sự cố 25/09/2026: tắt "Hiện lead test"
+  // vẫn ra đủ). Hiện cảnh báo rõ thay vì im lặng. Bản mới luôn trả la_test_ver = 2.
+  window.alnCanhBaoLaTestVer = function(res, elId){
+    var el = document.getElementById(elId);
+    if(!el) return;
+    if(res && res.la_test_ver >= 2){ el.innerHTML = ''; return; }
+    el.innerHTML = '<div style="margin-bottom:12px;padding:10px 14px;border:1px solid var(--red);border-radius:8px;color:var(--red);font-size:12.5px;font-family:var(--sans)">'
+      + '<b>Không ẩn được lead test:</b> Cloud Function segmentContacts/getContactStats trên production đang là bản cũ (không trả la_test). Cần deploy lại các hàm này.</div>';
+  };
   // Lead test (la_test) ẩn mặc định — bật ô "Hiện lead test" để xem.
   function ctShowTest(){
     var el = document.getElementById('ctShowTest');
@@ -8016,6 +8028,7 @@ window.saveCompanySettings = async function() {
     var body = document.getElementById('contactsBody');
     if(body) body.innerHTML = '<tr><td colspan="7" style="padding:20px;text-align:center;color:var(--dim);font-family:var(--mono);font-size:12px">Đang tải...</td></tr>';
     var res = await ctCallFn('segmentContacts', ctCurrentFilters());
+    window.alnCanhBaoLaTestVer(res, 'ctTestWarn');
     var showTest = ctShowTest();
     CT_ITEMS = (res.items || []).filter(function(it){ return showTest || !it.la_test; });
     CT_SELECTED = {};
@@ -8527,6 +8540,7 @@ window.saveCompanySettings = async function() {
       // Lead test (la_test) ẩn mặc định — cả bảng lẫn đếm theo giai đoạn.
       var pplShowTestEl = document.getElementById('pplShowTest');
       var pplShowTest = !!(pplShowTestEl && pplShowTestEl.checked);
+      window.alnCanhBaoLaTestVer(results[0], 'pplTestWarn');
       PPL_ITEMS = (results[0].items || []).filter(function(it){ return pplShowTest || !it.la_test; });
       PPL_KHUNG_GIO = results[1];
       pplRenderStageCounts();
