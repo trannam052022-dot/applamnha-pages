@@ -32,14 +32,25 @@ a{color:var(--gold);text-decoration:none}
 .logo{background:var(--gold-bg);color:var(--gold);padding:4px 12px;border-radius:var(--r-sm);border:1.5px solid rgba(152,105,10,.3);font-size:var(--text-xs);font-weight:800;letter-spacing:.07em}
 .topbar span{font-weight:700;font-size:var(--text-sm)}
 .wrap{max-width:880px;margin:0 auto;padding:0 16px 48px}
-.hero{background:linear-gradient(160deg,var(--navy),#16233f);color:#fff;padding:32px 16px 28px;text-align:center}
+.hero{background:linear-gradient(160deg,rgba(10,18,36,.86),rgba(22,35,63,.72)),url('https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=1400&q=70&auto=format&fit=crop') center/cover no-repeat,var(--navy);color:#fff;padding:48px 16px 40px;text-align:center}
+.room-img,.tier-img{display:block;width:100%;object-fit:cover;background:var(--cream2)}
+.room-img{height:90px;border-radius:10px;margin-bottom:10px;transition:filter .15s,opacity .15s}
+.room:not(.on) .room-img{filter:grayscale(1);opacity:.55}
+.tier{overflow:hidden}
+.muc-xem{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px}
+.muc-xem figure{margin:0;border-radius:12px;overflow:hidden;background:var(--white);border:1px solid var(--border)}
+.muc-xem img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:var(--cream2)}
+.muc-xem figcaption{padding:8px 10px;font-size:var(--text-xs);color:var(--sub);line-height:1.4}
+.muc-xem figcaption b{display:block;color:var(--text);font-size:var(--text-sm)}
+.tier-img{height:140px;margin:-16px -16px 12px;width:calc(100% + 32px)}
+.tier-img-note{font-size:var(--text-2xs);color:var(--muted);margin-top:8px}
 .eyebrow{font-size:var(--text-xs);font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#e8c877}
 .hero h1{font-size:var(--text-2xl);font-weight:800;margin:8px 0 10px;line-height:1.25}
 .hero p{color:#cbd5e1;max-width:620px;margin:0 auto;font-size:var(--text-md)}
 .badge-draft{display:inline-block;margin-top:14px;background:rgba(232,200,119,.15);color:#e8c877;border:1px solid rgba(232,200,119,.4);border-radius:999px;padding:3px 12px;font-size:var(--text-xs);font-weight:700}
 h2{font-size:var(--text-lg);font-weight:800;margin:28px 0 4px}
 .hint{color:var(--sub);font-size:var(--text-sm);margin-bottom:14px}
-.rooms{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.rooms{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
 .room{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);padding:14px;cursor:pointer;transition:border-color .15s,box-shadow .15s}
 .room.on{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-bg)}
 .room-top{display:flex;align-items:center;gap:10px}
@@ -168,6 +179,8 @@ tr.sum td{font-weight:800;background:var(--cream)}
 </header>
 
 <main class="wrap">
+  <div class="muc-xem" id="muc-xem"></div>
+  <div class="tier-img-note" style="text-align:center;margin-bottom:6px">Ảnh minh hoạ phong cách từng mức, không phải sản phẩm hay công trình cụ thể.</div>
   <h2>1. Chọn phòng muốn làm nội thất</h2>
   <p class="hint">Bấm vào phòng để chọn hoặc bỏ. Thêm phòng ngủ, WC theo đúng số phòng nhà anh/chị. Diện tích tính theo sàn của phòng.</p>
   <div class="rooms" id="rooms"></div>
@@ -249,21 +262,23 @@ const layBang = httpsCallable(fns, 'layBangGiaNoiThat', { timeout: 20000 });
 const docBanVe = httpsCallable(fns, 'docBanVeNoiThat', { timeout: 130000 });
 
 const LOAI = {
-  PK: { ten: 'Phòng khách', icon: 'ph-couch', dt: 25 },
-  BEP: { ten: 'Bếp + phòng ăn', icon: 'ph-cooking-pot', dt: 25 },
-  PN1: { ten: 'Phòng ngủ master', icon: 'ph-bed', dt: 20 },
-  PN: { ten: 'Phòng ngủ', icon: 'ph-bed', dt: 12 },
-  WC: { ten: 'WC', icon: 'ph-toilet', dt: 4 },
+  PK: { ten: 'Phòng khách', icon: 'ph-couch', dt: 25, anh: 'https://images.unsplash.com/photo-1724582586529-62622e50c0b3?w=640&q=70&auto=format&fit=crop' },
+  BEP: { ten: 'Bếp + phòng ăn', icon: 'ph-cooking-pot', dt: 25, anh: 'https://images.unsplash.com/photo-1644395195338-06d9dd792163?w=640&q=70&auto=format&fit=crop' },
+  PN1: { ten: 'Phòng ngủ master', icon: 'ph-bed', dt: 20, anh: 'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?w=640&q=70&auto=format&fit=crop' },
+  PN: { ten: 'Phòng ngủ', icon: 'ph-bed', dt: 12, anh: 'https://images.unsplash.com/photo-1696762932825-2737db830bbe?w=640&q=70&auto=format&fit=crop' },
+  WC: { ten: 'WC', icon: 'ph-toilet', dt: 4, anh: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=640&q=70&auto=format&fit=crop' },
 };
 const TOI_DA_PHONG = 10;
 let soId = 0;
 const moi = (ma) => ({ id: ++soId, ma, on: true, dt: String(LOAI[ma].dt), them: ma === 'PN' || ma === 'WC' });
 const DS = [moi('PK'), moi('BEP'), moi('PN1'), moi('PN'), moi('WC')];
 const MUC = [
-  { ma: 'co_ban', ten: 'Cơ bản', y: ['Gỗ công nghiệp MDF melamine', 'Sofa vải nỉ', 'Đèn và rèm phổ thông'] },
-  { ma: 'kha', ten: 'Khá', y: ['Gỗ An Cường, cánh acrylic hoặc sơn', 'Sofa da công nghiệp', 'Trần chống ẩm, sàn gỗ phòng ngủ'], nhan: 'Phổ biến' },
-  { ma: 'cao_cap', ten: 'Cao cấp', y: ['Gỗ tự nhiên sồi, xoan đào', 'Sofa da thật, mặt đá thạch anh', 'Đèn chùm, trần trang trí'] },
+  { ma: 'co_ban', ten: 'Cơ bản', anh: 'https://images.unsplash.com/photo-1632119580908-ae947d4c7691?w=640&q=70&auto=format&fit=crop', y: ['Gỗ công nghiệp MDF melamine', 'Sofa vải nỉ', 'Đèn và rèm phổ thông'] },
+  { ma: 'kha', ten: 'Khá', anh: 'https://images.unsplash.com/photo-1564078516393-cf04bd966897?w=640&q=70&auto=format&fit=crop', y: ['Gỗ An Cường, cánh acrylic hoặc sơn', 'Sofa da công nghiệp', 'Trần chống ẩm, sàn gỗ phòng ngủ'], nhan: 'Phổ biến' },
+  { ma: 'cao_cap', ten: 'Cao cấp', anh: 'https://images.unsplash.com/photo-1780257562963-3389a4105371?w=640&q=70&auto=format&fit=crop', y: ['Gỗ tự nhiên sồi, xoan đào', 'Sofa da thật, mặt đá thạch anh', 'Đèn chùm, trần trang trí'] },
 ];
+document.getElementById('muc-xem').innerHTML = MUC.map((m) => `
+  <figure><img src="${m.anh}" alt="" loading="lazy" onerror="this.remove()"><figcaption><b>${m.ten}</b>${m.y[0]}</figcaption></figure>`).join('');
 
 /* Nhãn hiển thị: phòng ngủ phụ đánh số 1, 2, 3…; WC đánh số khi có từ 2 WC. */
 function nhanPhong(ds) {
@@ -283,6 +298,7 @@ function veRooms() {
   const nhan = nhanPhong(DS);
   $rooms.innerHTML = DS.map((p) => `
     <div class="room${p.on ? ' on' : ''}" data-id="${p.id}">
+      <img class="room-img" src="${LOAI[p.ma].anh}" alt="" loading="lazy" onerror="this.remove()">
       <div class="room-top"><i class="ph-duotone ${LOAI[p.ma].icon}"></i><b>${nhan[p.id]}</b>${
         p.them ? `<button type="button" class="xoa" data-xoa="${p.id}" aria-label="Bỏ ${nhan[p.id]}">×</button>` : '<span class="tick">✓</span>'}</div>
       <label for="dt-${p.id}">Diện tích (m²)</label>
@@ -376,6 +392,7 @@ function hienKetQua(d) {
     `${d.phong.length} phòng, tổng ${d.dien_tich.toLocaleString('vi-VN')} m² sàn. Đơn vị: triệu đồng.`;
   document.getElementById('tiers').innerHTML = MUC.map((m) => `
     <div class="tier${m.ma === 'kha' ? ' mid' : ''}">
+      <img class="tier-img" src="${m.anh}" alt="" loading="lazy" onerror="this.remove()">
       <h3>${m.ten}${m.nhan ? `<small>${m.nhan}</small>` : ''}</h3>
       <div class="range">${khoang(d.tong_cong[m.ma])}</div>
       <div class="per">khoảng ${trieu(d.binh_quan_m2[m.ma].thap)} – ${trieu(d.binh_quan_m2[m.ma].cao, true)} triệu/m² sàn</div>
