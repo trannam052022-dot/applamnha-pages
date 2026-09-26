@@ -274,6 +274,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
               <input type="text" id="dtName" placeholder="Họ và tên" required maxlength="100">
               <input type="tel" id="dtPhone" placeholder="Số điện thoại (VD: 0909xxxxxx)" required maxlength="15">
             </div>
+            <p id="dtPhoneErr" class="dt-lead-msg err" aria-live="polite"></p>
             <button type="submit" class="btn btn-gold dt-lead-submit"><i class="ph-duotone ph-paper-plane-tilt"></i>Gửi yêu cầu</button>
             <p id="dtLeadMsg" class="dt-lead-msg" aria-live="polite"></p>
           </form>
@@ -498,6 +499,67 @@ document.getElementById('dtRestart').addEventListener('click', function () {
 });
 </script>
 
+<script>
+/* Lớp 1 — kiểm SĐT trước khi gửi (ES5, script thường). Khối KIEM-SDT là bản sao
+   nguyên văn functions/lib/kiemSdt.js — server submitDuToanLead kiểm lại đúng quy
+   tắc này; bảng case chung: functions/_fixture_kiem_sdt.json. Client không đọc
+   config/so_noi_bo nên truyền null (chỉ số prefix 09000000 được cho qua sớm). */
+(function () {
+  /* KIEM-SDT:BAT-DAU — khối này chép NGUYÊN VĂN vào du-toan/index.html
+     (functions/_test_kiem_sdt.js so khớp từng dòng, lệch là FAIL) */
+  var THONG_BAO_SDT_SAI = "Số điện thoại chưa đúng. Vui lòng nhập số di động 10 số, ví dụ 09xx xxx xxx.";
+  var TEST_PREFIX = "09000000";
+
+  function chuanHoaSdt(raw) {
+    var p = String(raw == null ? "" : raw).replace(/[\s.\-()]/g, "");
+    var sau;
+    if (p.slice(0, 3) === "+84") sau = p.slice(3);
+    else if (p.slice(0, 2) === "84" && p.length >= 11) sau = p.slice(2);
+    if (sau !== undefined) p = sau.charAt(0) === "0" ? sau : "0" + sau;
+    return p;
+  }
+
+  function laDayLien(p) {
+    var buoc = Number(p.charAt(2)) - Number(p.charAt(1));
+    if (buoc !== 1 && buoc !== -1) return false;
+    for (var i = 2; i < p.length; i++) {
+      if (Number(p.charAt(i)) - Number(p.charAt(i - 1)) !== buoc) return false;
+    }
+    return true;
+  }
+
+  /** → { hop_le, phone (đã chuẩn hoá, null nếu sai), loi, noi_bo }
+      loi: null | "rong" | "ky_tu" | "do_dai" | "dau_so" | "day_lap" | "day_lien"
+      noi_bo: "prefix" | "so_noi_bo" | null — số được cho qua theo quy tắc b. */
+  function kiemSdtDuToan(raw, soNoiBo) {
+    var p = chuanHoaSdt(raw);
+    if (!p) return { hop_le: false, phone: null, loi: "rong", noi_bo: null };
+    if (!/^\d+$/.test(p)) return { hop_le: false, phone: null, loi: "ky_tu", noi_bo: null };
+    if (/^0\d{8,10}$/.test(p)) {
+      if (p.indexOf(TEST_PREFIX) === 0) return { hop_le: true, phone: p, loi: null, noi_bo: "prefix" };
+      if (soNoiBo && soNoiBo.has(p)) return { hop_le: true, phone: p, loi: null, noi_bo: "so_noi_bo" };
+    }
+    if (p.length !== 10) return { hop_le: false, phone: null, loi: "do_dai", noi_bo: null };
+    if (!/^0[35789]/.test(p)) return { hop_le: false, phone: null, loi: "dau_so", noi_bo: null };
+    if (/(\d)\1{6}/.test(p)) return { hop_le: false, phone: null, loi: "day_lap", noi_bo: null };
+    if (laDayLien(p)) return { hop_le: false, phone: null, loi: "day_lien", noi_bo: null };
+    return { hop_le: true, phone: p, loi: null, noi_bo: null };
+  }
+  /* KIEM-SDT:KET-THUC */
+  function dtHienLoiSdt(text) {
+    var el = document.getElementById('dtPhoneErr');
+    if (el) el.textContent = text || '';
+  }
+  window.dtKiemSdt = function (raw) { return kiemSdtDuToan(raw, null); };
+  window.dtHienLoiSdt = dtHienLoiSdt;
+  window.DT_THONG_BAO_SDT_SAI = THONG_BAO_SDT_SAI;
+  (function () {
+    var el = document.getElementById('dtPhone');
+    if (!el) return;
+    el.addEventListener('input', function () { dtHienLoiSdt(''); });
+  })();
+})();
+</script>
 <script type="module">
 import { app } from '../firebase-config.js';
 import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js';
@@ -558,12 +620,16 @@ form.addEventListener('submit', async (e) => {
   const msg = document.getElementById('dtLeadMsg');
   const btn = form.querySelector('.dt-lead-submit');
   const name = document.getElementById('dtName').value.trim();
-  const phone = document.getElementById('dtPhone').value.trim();
-  if (!name || !/^0\d{8,10}$/.test(phone.replace(/[\s.\-()]/g, '')) || !window.lastResult) {
-    msg.textContent = 'Vui lòng nhập đúng họ tên và số điện thoại (VD: 0909xxxxxx).';
+  const phoneRaw = document.getElementById('dtPhone').value.trim();
+  const kiem = window.dtKiemSdt(phoneRaw);
+  window.dtHienLoiSdt(kiem.hop_le ? '' : window.DT_THONG_BAO_SDT_SAI);
+  if (!name || !kiem.hop_le || !window.lastResult) {
+    msg.textContent = !name ? 'Vui lòng nhập họ tên.' : (!kiem.hop_le ? '' : 'Vui lòng tính dự toán trước khi gửi.');
     msg.className = 'dt-lead-msg err';
+    if (!kiem.hop_le) document.getElementById('dtPhone').focus();
     return;
   }
+  const phone = kiem.phone;
   btn.disabled = true;
   const attribution = window.alnAttr ? window.alnAttr.forLead() : null;
   msg.textContent = 'Đang gửi...';
@@ -609,7 +675,19 @@ form.addEventListener('submit', async (e) => {
     form.reset();
   } catch (err) {
     console.error('[submitDuToanLead]', err);
-    msg.textContent = 'Có lỗi khi gửi, vui lòng thử lại hoặc gọi 0909 82 9696.';
+    /* Server kiểm lại SĐT (cùng quy tắc) — sai thì trả invalid-argument kèm
+       details.field='phone': hiện đúng câu lỗi ngay dưới ô SĐT. */
+    const code = err && err.code ? String(err.code) : '';
+    const details = err && err.details ? err.details : null;
+    if (code.indexOf('invalid-argument') !== -1 && details && details.field === 'phone') {
+      window.dtHienLoiSdt(err.message || window.DT_THONG_BAO_SDT_SAI);
+      msg.textContent = '';
+      document.getElementById('dtPhone').focus();
+    } else if (code.indexOf('invalid-argument') !== -1 && err.message) {
+      msg.textContent = err.message;
+    } else {
+      msg.textContent = 'Có lỗi khi gửi, vui lòng thử lại hoặc gọi 0909 82 9696.';
+    }
     msg.className = 'dt-lead-msg err';
   } finally {
     btn.disabled = false;
