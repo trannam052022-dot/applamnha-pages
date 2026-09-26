@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM (xem scripts/aln-optout.js) -->
+<script src="scripts/aln-optout.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ước tính chi phí nội thất trước khi có bản vẽ | App Làm Nhà</title>
+<meta name="description" content="Chọn phòng, nhập diện tích, xem khoảng chi phí nội thất tham khảo theo 3 mức Cơ bản, Khá, Cao cấp. Phí thiết kế nội thất ALN niêm yết 2026: 120.000đ/m².">
+<!-- NHÁP 26/09/2026: số liệu chờ KTS duyệt, trang CHƯA vào whitelist deploy-pages.yml -->
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+<link rel="stylesheet" href="aln-tokens.css">
+<link rel="icon" href="icon-192.png" type="image/png">
+<style>
+:root{
+  --cream:#f7f9fb;--white:#ffffff;--cream2:#eef2f6;
+  --border:#e1e7ee;--border2:#c9d3de;
+  --text:#1a2634;--text2:#3d4b5c;--sub:#5b6b7f;--muted:#6b7a8d;
+  --gold:#98690a;--gold2:#b8860b;--gold-bg:rgba(152,105,10,.09);
+  --navy:#0a1224;--green:#16a34a;--red:#b91c1c;
+  --r:14px;--r-sm:8px;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:13px}
+@media(min-width:1440px){html{font-size:14px}}
+@media(min-width:1920px){html{font-size:16px}}
+body{font-family:var(--sans);background:var(--cream);color:var(--text);min-height:100vh;font-size:1rem;line-height:1.6}
+a{color:var(--gold);text-decoration:none}
+.topbar{background:rgba(255,255,255,.94);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);padding:0 16px;height:52px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50}
+.logo{background:var(--gold-bg);color:var(--gold);padding:4px 12px;border-radius:var(--r-sm);border:1.5px solid rgba(152,105,10,.3);font-size:var(--text-xs);font-weight:800;letter-spacing:.07em}
+.topbar span{font-weight:700;font-size:var(--text-sm)}
+.wrap{max-width:880px;margin:0 auto;padding:0 16px 48px}
+.hero{background:linear-gradient(160deg,var(--navy),#16233f);color:#fff;padding:32px 16px 28px;text-align:center}
+.eyebrow{font-size:var(--text-xs);font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#e8c877}
+.hero h1{font-size:var(--text-2xl);font-weight:800;margin:8px 0 10px;line-height:1.25}
+.hero p{color:#cbd5e1;max-width:620px;margin:0 auto;font-size:var(--text-md)}
+.badge-draft{display:inline-block;margin-top:14px;background:rgba(232,200,119,.15);color:#e8c877;border:1px solid rgba(232,200,119,.4);border-radius:999px;padding:3px 12px;font-size:var(--text-xs);font-weight:700}
+h2{font-size:var(--text-lg);font-weight:800;margin:28px 0 4px}
+.hint{color:var(--sub);font-size:var(--text-sm);margin-bottom:14px}
+.rooms{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.room{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);padding:14px;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.room.on{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-bg)}
+.room-top{display:flex;align-items:center;gap:10px}
+.room-top i{font-size:26px;color:var(--gold)}
+.room-top b{flex:1;font-size:var(--text-md)}
+.tick{width:22px;height:22px;border-radius:6px;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px}
+.room.on .tick{background:var(--gold);border-color:var(--gold)}
+.room label{display:block;margin-top:12px;font-size:var(--text-xs);color:var(--sub)}
+.room .xoa{width:28px;height:28px;border-radius:8px;border:1px solid var(--border2);background:var(--white);color:var(--sub);font-size:18px;line-height:1;cursor:pointer;font-family:inherit}
+.room .xoa:hover{color:var(--red);border-color:var(--red)}
+.them{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.them button{flex:1;min-width:150px;display:flex;align-items:center;justify-content:center;gap:6px;padding:11px;border-radius:12px;border:1.5px dashed var(--gold);background:var(--gold-bg);color:var(--gold);font-family:inherit;font-weight:800;font-size:var(--text-sm);cursor:pointer}
+.them button:disabled{opacity:.5;cursor:not-allowed}
+.area{display:flex;align-items:center;gap:6px;margin-top:4px}
+.area input{width:100%;border:1px solid var(--border2);border-radius:10px;padding:10px 12px;font-size:var(--text-md);font-family:inherit;color:var(--text)}
+.area input:focus{outline:none;border-color:var(--gold)}
+.area input:disabled{background:var(--cream2);color:var(--muted)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:18px;padding:14px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff;font-size:var(--text-md);font-weight:800;font-family:inherit;cursor:pointer}
+.btn:disabled{opacity:.6;cursor:wait}
+.msg{min-height:1.4em;margin-top:10px;font-size:var(--text-sm);text-align:center;color:var(--red)}
+.tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:6px}
+.tier{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:16px}
+.tier.mid{border:2px solid var(--gold)}
+.tier h3{font-size:var(--text-md);font-weight:800;display:flex;justify-content:space-between;align-items:center}
+.tier h3 small{font-size:var(--text-2xs);font-weight:700;color:var(--gold);background:var(--gold-bg);padding:2px 8px;border-radius:999px}
+.tier .range{font-size:var(--text-xl);font-weight:800;margin:6px 0 2px;color:var(--text)}
+.tier .per{font-size:var(--text-xs);color:var(--sub)}
+.tier ul{list-style:none;margin-top:12px;border-top:1px dashed var(--border);padding-top:10px}
+.tier li{font-size:var(--text-sm);color:var(--text2);padding:2px 0;display:flex;gap:6px}
+.tier li i{color:var(--gold);margin-top:3px}
+.table-wrap{overflow-x:auto;margin-top:14px;background:var(--white);border:1px solid var(--border);border-radius:var(--r)}
+table{width:100%;border-collapse:collapse;font-size:var(--text-sm);min-width:520px}
+th,td{padding:10px 12px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{font-size:var(--text-xs);color:var(--sub);font-weight:700;background:var(--cream2)}
+tr.sum td{font-weight:800;background:var(--cream)}
+.fee{margin-top:14px;background:var(--gold-bg);border:1px solid rgba(152,105,10,.25);border-radius:var(--r);padding:14px;font-size:var(--text-sm)}
+.fee b{color:var(--gold)}
+.note{margin-top:22px;font-size:var(--text-xs);color:var(--sub);line-height:1.7}
+.note b{color:var(--text2)}
+.cta{margin-top:22px;background:var(--navy);color:#fff;border-radius:var(--r);padding:20px;text-align:center}
+.cta p{color:#cbd5e1;font-size:var(--text-sm);margin:6px 0 14px}
+.cta a{display:inline-block;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff;font-weight:800;padding:12px 22px;border-radius:12px}
+#ket-qua{display:none}
+[hidden]{display:none!important}
+
+.chinh{margin-top:30px;background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:16px}
+.chinh h2{margin-top:0}
+.gate{display:grid;gap:10px;max-width:460px}
+.gate input{border:1px solid var(--border2);border-radius:10px;padding:12px;font-size:var(--text-md);font-family:inherit}
+.gate input:focus{outline:none;border-color:var(--gold)}
+.gate .btn{margin-top:4px}
+.privacy{font-size:var(--text-2xs);color:var(--muted)}
+.muc-all{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 14px}
+.muc-all button{flex:1;min-width:90px;padding:10px;border-radius:10px;border:1.5px solid var(--border2);background:var(--white);font-family:inherit;font-weight:700;font-size:var(--text-sm);color:var(--text);cursor:pointer}
+.muc-all button.on{border-color:var(--gold);background:var(--gold-bg);color:var(--gold)}
+.room-block h3{font-size:var(--text-md);font-weight:800;margin:18px 0 8px;display:flex;justify-content:space-between;gap:8px}
+.room-block h3 span{color:var(--gold);font-size:var(--text-sm);white-space:nowrap}
+.mon{display:grid;grid-template-columns:72px 1fr;gap:10px 12px;padding:10px 0;border-top:1px solid var(--border)}
+.mon.off{opacity:.5}
+.mon img,.mon .ph{width:72px;height:72px;border-radius:10px;object-fit:cover;background:var(--cream2)}
+.mon .ph{display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:26px}
+.mon b{display:block;font-size:var(--text-sm)}
+.mon small{display:block;color:var(--sub);font-size:var(--text-xs);line-height:1.4}
+.mon-ctrl{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.mon-ctrl select{border:1px solid var(--border2);border-radius:8px;padding:8px;font-family:inherit;font-size:var(--text-sm);background:var(--white);color:var(--text)}
+.qty{display:flex;align-items:center;border:1px solid var(--border2);border-radius:8px;overflow:hidden}
+.qty button{width:34px;height:36px;border:none;background:var(--cream2);font-size:18px;cursor:pointer;color:var(--text)}
+.qty input{width:52px;height:36px;border:none;text-align:center;font-family:inherit;font-size:var(--text-sm);color:var(--text)}
+.mon-ctrl .dv{font-size:var(--text-xs);color:var(--sub)}
+.mon-ctrl .tien{margin-left:auto;font-weight:800;font-size:var(--text-sm);white-space:nowrap}
+.bar{position:sticky;bottom:0;margin:16px -16px -16px;padding:12px 16px;background:var(--navy);color:#fff;border-radius:0 0 var(--r) var(--r);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.bar b{font-size:var(--text-lg)}
+.bar small{display:block;color:#cbd5e1;font-size:var(--text-2xs)}
+.anh-note{font-size:var(--text-2xs);color:var(--muted);margin-top:10px}
+.chenh{background:var(--gold-bg);border:1px solid rgba(152,105,10,.25);border-radius:12px;padding:12px 14px;margin:4px 0 14px;font-size:var(--text-sm)}
+.chenh b{color:var(--gold)}
+.teaser{display:grid;gap:10px;margin-bottom:16px}
+.teaser-phong{border:1px solid var(--border);border-radius:12px;padding:10px 12px}
+.teaser-phong b{font-size:var(--text-sm)}
+.teaser-mon{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:5px 0;font-size:var(--text-xs);color:var(--text2)}
+.teaser-mon i.khoa{display:inline-block;width:78px;height:10px;border-radius:6px;background:linear-gradient(90deg,var(--cream2),var(--border2));filter:blur(1.5px)}
+.teaser-them{font-size:var(--text-xs);color:var(--gold);font-weight:700;margin-top:2px}
+.kt{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;background:var(--cream);border:1px dashed var(--border2);border-radius:10px;padding:8px 10px;margin-bottom:6px;font-size:var(--text-xs);color:var(--sub)}
+.kt input{width:58px;border:1px solid var(--border2);border-radius:8px;padding:7px 6px;font-family:inherit;font-size:var(--text-sm);color:var(--text);text-align:center}
+.kt input:focus{outline:none;border-color:var(--gold)}
+.kt .loi{flex-basis:100%;color:var(--red)}
+.kt .ok{flex-basis:100%;color:var(--green)}
+.ban-ve{border:1.5px dashed var(--gold);background:var(--gold-bg);border-radius:12px;padding:12px 14px;margin-bottom:14px;display:grid;gap:10px}
+.ban-ve-dau{display:flex;gap:10px;align-items:flex-start}
+.ban-ve-dau i{font-size:28px;color:var(--gold)}
+.ban-ve-dau b{display:block;font-size:var(--text-md)}
+.ban-ve-dau small{display:block;color:var(--text2);font-size:var(--text-xs);line-height:1.5}
+.btn-phu{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 14px;border-radius:10px;border:1.5px solid var(--gold);background:var(--white);color:var(--gold);font-weight:800;font-size:var(--text-sm);cursor:pointer;width:max-content}
+.bv-tt{font-size:var(--text-sm);color:var(--text2)}
+.bv-tt.loi{color:var(--red)}
+.bv-phong{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid var(--border);font-size:var(--text-sm)}
+.bv-phong small{color:var(--sub)}
+.bv-phong .thieu{color:var(--red);font-size:var(--text-xs)}
+.bv-nut{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.bv-nut button{flex:1;min-width:130px;padding:10px;border-radius:10px;font-family:inherit;font-weight:800;font-size:var(--text-sm);cursor:pointer;border:1.5px solid var(--gold)}
+.bv-nut .chinh-nut{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff;border:none}
+.bv-nut .phu{background:var(--white);color:var(--gold)}
+</style>
+<!-- Google Analytics 4 (ALN — G-5CSL1TF0RC, tách riêng khỏi property TK.HOUSE) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-5CSL1TF0RC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-5CSL1TF0RC');
+</script>
+<!-- End GA4 -->
+</head>
+<body>
+<nav class="topbar">
+  <a class="logo" href="/">ALN</a>
+  <span>Ước tính chi phí nội thất</span>
+</nav>
+
+<header class="hero">
+  <div class="eyebrow">Trước khi có bản vẽ</div>
+  <h1>Làm nội thất nhà phố hết khoảng bao nhiêu?</h1>
+  <p>Chọn phòng, nhập diện tích, xem khoảng chi phí theo 3 mức hoàn thiện. Số chính xác chỉ có sau khi có bản thiết kế.</p>
+  <span class="badge-draft">Bản thử nghiệm</span>
+</header>
+
+<main class="wrap">
+  <h2>1. Chọn phòng muốn làm nội thất</h2>
+  <p class="hint">Bấm vào phòng để chọn hoặc bỏ. Thêm phòng ngủ, WC theo đúng số phòng nhà anh/chị. Diện tích tính theo sàn của phòng.</p>
+  <div class="rooms" id="rooms"></div>
+  <div class="them">
+    <button type="button" id="them-pn"><i class="ph-duotone ph-bed"></i> + Thêm phòng ngủ</button>
+    <button type="button" id="them-wc"><i class="ph-duotone ph-toilet"></i> + Thêm WC</button>
+  </div>
+  <button class="btn" id="btn-tinh"><i class="ph-duotone ph-calculator"></i> Xem khoảng chi phí</button>
+  <div class="msg" id="msg" role="status" aria-live="polite"></div>
+
+  <section id="ket-qua">
+    <h2>2. Khoảng chi phí tham khảo</h2>
+    <p class="hint" id="tom-tat"></p>
+    <div class="tiers" id="tiers"></div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Phòng</th><th>Cơ bản</th><th>Khá</th><th>Cao cấp</th></tr></thead>
+        <tbody id="bang"></tbody>
+      </table>
+    </div>
+
+    <div class="fee" id="fee"></div>
+
+
+    <div class="chinh" id="chinh">
+      <h2>3. Tự chỉnh từng món</h2>
+      <p class="hint">Xem ảnh và đơn giá từng món, tự chọn mức và số lượng, tổng tiền cập nhật ngay. Để lại số điện thoại để mở bảng.</p>
+      <div class="chenh" id="chenh" hidden></div>
+      <div class="teaser" id="teaser"></div>
+      <form class="gate" id="gate" novalidate>
+        <input id="g-ten" type="text" autocomplete="name" placeholder="Họ tên" maxlength="100">
+        <input id="g-sdt" type="tel" inputmode="tel" autocomplete="tel" placeholder="Số điện thoại" maxlength="15">
+        <button class="btn" type="submit" id="g-btn"><i class="ph-duotone ph-lock-open"></i> Mở bảng từng món</button>
+        <div class="msg" id="g-msg" role="status" aria-live="polite"></div>
+        <div class="privacy">Thông tin chỉ dùng để App Làm Nhà liên hệ tư vấn nội thất khi anh/chị cần.</div>
+      </form>
+      <div id="editor" hidden>
+        <div class="ban-ve" id="ban-ve">
+          <div class="ban-ve-dau"><i class="ph-duotone ph-blueprint"></i><div><b>Có bản vẽ mặt bằng?</b><small>Tải ảnh hoặc file PDF, MyMy đọc kích thước từng phòng và điền sẵn cho anh/chị. Bản vẽ cũng được gửi tới KTS ALN để bóc chính xác khi anh/chị cần.</small></div></div>
+          <label class="btn-phu" for="bv-file"><i class="ph-duotone ph-upload-simple"></i> Chọn bản vẽ</label>
+          <input id="bv-file" type="file" accept="image/jpeg,image/png,image/webp,application/pdf,.pdf" hidden>
+          <div class="bv-tt" id="bv-tt" role="status" aria-live="polite"></div>
+          <div id="bv-kq" hidden></div>
+          <div class="privacy">Chỉ nhận ảnh JPG, PNG hoặc PDF dưới 7 MB. Bản vẽ chỉ dùng để tính dự toán và tư vấn cho anh/chị, không công khai.</div>
+        </div>
+        <div class="chenh">Nhập <b>ngang × dài</b> từng phòng (và bề ngang cửa sổ) để tủ bếp, tủ áo, rèm tính theo đúng nhà anh/chị. Để trống thì giữ số lượng giả định.</div>
+        <div class="hint" style="margin-bottom:4px">Áp một mức cho tất cả món:</div>
+        <div class="muc-all" id="muc-all"></div>
+        <div id="ds-phong"></div>
+        <div class="anh-note">Ảnh chỉ để hình dung loại món, không phải sản phẩm cụ thể. Ảnh từ Unsplash.</div>
+        <div class="bar"><div><small>Tổng theo lựa chọn của anh/chị (gồm dự phòng và phí thiết kế)</small><b id="tong-chinh">–</b></div></div>
+      </div>
+    </div>
+    <div class="note">
+      <b>Cách đọc:</b> mỗi mức là một khoảng, không phải báo giá. Tổng đã gồm dự phòng phát sinh 10–20% và phí thiết kế nội thất.<br>
+      <b>Đã tính:</b> đồ gỗ đóng sẵn, đồ rời chính (sofa, giường, bàn ăn, nệm), thiết bị bếp chính, thiết bị vệ sinh (bồn cầu, tủ lavabo, sen vòi, vách kính, phụ kiện), trần thạch cao, sàn gỗ phòng ngủ, đèn, rèm.<br>
+      <b>Chưa tính:</b> sơn bả, gạch, đường ống điện nước, cửa, bình nóng lạnh, đồ điện tử, tủ lạnh, đồ trang trí.<br>
+      <b>Lưu ý:</b> nếu thiết bị vệ sinh đã nằm trong hợp đồng xây nhà, anh/chị chọn "Không làm" cho các món đó ở bảng từng món để không tính hai lần.<br>
+      <b>Nguồn giá:</b> giá tham khảo thị trường từ bảng giá công khai của các đơn vị nội thất, chủ yếu tại TP.HCM. Bảng giá phiên bản 0.1, cập nhật tháng 9/2026. Tỉnh khác có thể chênh lệch.
+    </div>
+
+    <div class="cta">
+      <b>Muốn biết con số sát với căn nhà của mình?</b>
+      <p>KTS của App Làm Nhà tư vấn phạm vi nội thất phù hợp ngân sách, miễn phí.</p>
+      <a href="/?mymy=1" data-aln-cta="noi-that-tu-van">Chat với MyMy</a>
+    </div>
+  </section>
+</main>
+
+<script type="module">
+import { app } from './firebase-config.js';
+import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js';
+
+const fns = getFunctions(app, 'asia-southeast1');
+const tinh = httpsCallable(fns, 'tinhKhoangGiaNoiThat', { timeout: 20000 });
+const guiLead = httpsCallable(fns, 'submitDuToanLead', { timeout: 20000 });
+const layBang = httpsCallable(fns, 'layBangGiaNoiThat', { timeout: 20000 });
+const docBanVe = httpsCallable(fns, 'docBanVeNoiThat', { timeout: 130000 });
+
+const LOAI = {
+  PK: { ten: 'Phòng khách', icon: 'ph-couch', dt: 25 },
+  BEP: { ten: 'Bếp + phòng ăn', icon: 'ph-cooking-pot', dt: 25 },
+  PN1: { ten: 'Phòng ngủ master', icon: 'ph-bed', dt: 20 },
+  PN: { ten: 'Phòng ngủ', icon: 'ph-bed', dt: 12 },
+  WC: { ten: 'WC', icon: 'ph-toilet', dt: 4 },
+};
+const TOI_DA_PHONG = 10;
+let soId = 0;
+const moi = (ma) => ({ id: ++soId, ma, on: true, dt: String(LOAI[ma].dt), them: ma === 'PN' || ma === 'WC' });
+const DS = [moi('PK'), moi('BEP'), moi('PN1'), moi('PN'), moi('WC')];
+const MUC = [
+  { ma: 'co_ban', ten: 'Cơ bản', y: ['Gỗ công nghiệp MDF melamine', 'Sofa vải nỉ', 'Đèn và rèm phổ thông'] },
+  { ma: 'kha', ten: 'Khá', y: ['Gỗ An Cường, cánh acrylic hoặc sơn', 'Sofa da công nghiệp', 'Trần chống ẩm, sàn gỗ phòng ngủ'], nhan: 'Phổ biến' },
+  { ma: 'cao_cap', ten: 'Cao cấp', y: ['Gỗ tự nhiên sồi, xoan đào', 'Sofa da thật, mặt đá thạch anh', 'Đèn chùm, trần trang trí'] },
+];
+
+/* Nhãn hiển thị: phòng ngủ phụ đánh số 1, 2, 3…; WC đánh số khi có từ 2 WC. */
+function nhanPhong(ds) {
+  const soWc = ds.filter((p) => p.ma === 'WC').length;
+  let pn = 0, wc = 0;
+  const out = {};
+  ds.forEach((p) => {
+    if (p.ma === 'PN') out[p.id] = `Phòng ngủ ${++pn}`;
+    else if (p.ma === 'WC') out[p.id] = soWc > 1 ? `WC ${++wc}` : 'WC';
+    else out[p.id] = LOAI[p.ma].ten;
+  });
+  return out;
+}
+
+const $rooms = document.getElementById('rooms');
+function veRooms() {
+  const nhan = nhanPhong(DS);
+  $rooms.innerHTML = DS.map((p) => `
+    <div class="room${p.on ? ' on' : ''}" data-id="${p.id}">
+      <div class="room-top"><i class="ph-duotone ${LOAI[p.ma].icon}"></i><b>${nhan[p.id]}</b>${
+        p.them ? `<button type="button" class="xoa" data-xoa="${p.id}" aria-label="Bỏ ${nhan[p.id]}">×</button>` : '<span class="tick">✓</span>'}</div>
+      <label for="dt-${p.id}">Diện tích (m²)</label>
+      <div class="area"><input id="dt-${p.id}" data-id="${p.id}" type="number" inputmode="decimal" min="2" max="200" step="0.5" value="${p.dt}"${p.on ? '' : ' disabled'}></div>
+    </div>`).join('');
+  const day = DS.length >= TOI_DA_PHONG;
+  document.getElementById('them-pn').disabled = day;
+  document.getElementById('them-wc').disabled = day;
+}
+$rooms.addEventListener('click', (e) => {
+  const xoa = e.target.dataset && e.target.dataset.xoa;
+  if (xoa) {
+    const i = DS.findIndex((p) => String(p.id) === xoa);
+    if (i >= 0) DS.splice(i, 1);
+    veRooms();
+    return;
+  }
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'LABEL') return;
+  const card = e.target.closest('.room');
+  if (!card) return;
+  const p = DS.find((x) => String(x.id) === card.dataset.id);
+  if (!p || p.them) return;
+  p.on = !p.on;
+  veRooms();
+});
+$rooms.addEventListener('input', (e) => {
+  const p = DS.find((x) => String(x.id) === e.target.dataset.id);
+  if (p) {
+    p.dt = e.target.value;
+    // Khách tự sửa diện tích thì bỏ kích thước đọc từ bản vẽ (trừ khu bếp — kích thước riêng)
+    if (p.kt && p.ma !== 'BEP') { delete p.kt.ngang; delete p.kt.dai; }
+  }
+});
+function themPhong(ma) {
+  if (DS.length >= TOI_DA_PHONG) return;
+  const cuoi = DS.map((p) => p.ma).lastIndexOf(ma);
+  const viTri = cuoi >= 0 ? cuoi + 1 : (ma === 'PN' ? DS.findIndex((p) => p.ma === 'WC') : -1);
+  const p = moi(ma);
+  if (viTri >= 0) DS.splice(viTri, 0, p); else DS.push(p);
+  veRooms();
+  const el = document.getElementById(`dt-${p.id}`);
+  if (el) el.focus();
+}
+document.getElementById('them-pn').addEventListener('click', () => themPhong('PN'));
+document.getElementById('them-wc').addEventListener('click', () => themPhong('WC'));
+veRooms();
+
+const trieu = (v, len) => {
+  const t = v / 1e6;
+  const r = len ? Math.ceil(t * 10) / 10 : Math.floor(t * 10) / 10;
+  return r.toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+};
+const khoang = (o) => `${trieu(o.thap)} – ${trieu(o.cao, true)} triệu`;
+
+const $btn = document.getElementById('btn-tinh');
+const $msg = document.getElementById('msg');
+$btn.addEventListener('click', async () => {
+  $msg.textContent = '';
+  const phong = [], nhanMoi = [];
+  const nhan = nhanPhong(DS);
+  for (const p of DS) {
+    if (!p.on) continue;
+    const dt = parseFloat(String(p.dt).replace(',', '.'));
+    if (!(dt >= 2 && dt <= 200)) { $msg.textContent = `Diện tích ${nhan[p.id]} cần từ 2 đến 200 m².`; return; }
+    const vao = { ma: p.ma, dien_tich: dt };
+    if (p.kt) Object.assign(vao, p.kt); // kích thước MyMy đọc từ bản vẽ (khách đã duyệt)
+    phong.push(vao);
+    nhanMoi.push(nhan[p.id]);
+  }
+  if (!phong.length) { $msg.textContent = 'Chọn ít nhất một phòng.'; return; }
+
+  $btn.disabled = true;
+  $btn.textContent = 'Đang tính…';
+  try {
+    const { data } = await tinh({ phong });
+    PHONG_DA_TINH = phong; NHAN = nhanMoi; KQ = data;
+    hienKetQua(data);
+    if (LEAD_ID) moBang().catch(() => {});
+    try { gtag('event', 'aln_noi_that_tinh', { so_phong: phong.length }); } catch (e) {}
+  } catch (e) {
+    $msg.textContent = 'Chưa tính được lúc này. Anh/chị thử lại sau ít phút.';
+    console.error(e);
+  } finally {
+    $btn.disabled = false;
+    $btn.innerHTML = '<i class="ph-duotone ph-calculator"></i> Xem khoảng chi phí';
+  }
+});
+
+function hienKetQua(d) {
+  document.getElementById('tom-tat').textContent =
+    `${d.phong.length} phòng, tổng ${d.dien_tich.toLocaleString('vi-VN')} m² sàn. Đơn vị: triệu đồng.`;
+  document.getElementById('tiers').innerHTML = MUC.map((m) => `
+    <div class="tier${m.ma === 'kha' ? ' mid' : ''}">
+      <h3>${m.ten}${m.nhan ? `<small>${m.nhan}</small>` : ''}</h3>
+      <div class="range">${khoang(d.tong_cong[m.ma])}</div>
+      <div class="per">khoảng ${trieu(d.binh_quan_m2[m.ma].thap)} – ${trieu(d.binh_quan_m2[m.ma].cao, true)} triệu/m² sàn</div>
+      <ul>${m.y.map((t) => `<li><i class="ph-duotone ph-check-circle"></i>${t}</li>`).join('')}</ul>
+    </div>`).join('');
+  const dong = d.phong.map((p, i) => `<tr><td>${esc(NHAN[i] || p.ten)} (${p.dien_tich} m²)</td>${
+    MUC.map((m) => `<td>${khoang(p.muc[m.ma]).replace(' triệu', '')}</td>`).join('')}</tr>`);
+  dong.push(`<tr><td>Dự phòng phát sinh</td>${MUC.map((m) => `<td>${khoang(d.du_phong[m.ma]).replace(' triệu', '')}</td>`).join('')}</tr>`);
+  dong.push(`<tr><td>Phí thiết kế nội thất</td>${MUC.map(() => `<td>${trieu(d.phi_thiet_ke)}</td>`).join('')}</tr>`);
+  dong.push(`<tr class="sum"><td>Tổng cộng</td>${MUC.map((m) => `<td>${khoang(d.tong_cong[m.ma]).replace(' triệu', '')}</td>`).join('')}</tr>`);
+  document.getElementById('bang').innerHTML = dong.join('');
+  document.getElementById('fee').innerHTML =
+    `Phí thiết kế nội thất là khoản <b>cố định duy nhất</b>: ${d.dien_tich.toLocaleString('vi-VN')} m² × 120.000đ = <b>${d.phi_thiet_ke.toLocaleString('vi-VN')}đ</b>. Mọi khoản còn lại thay đổi theo lựa chọn vật liệu và đồ đạc của anh/chị.`;
+  const chenh = d.tong_cong.cao_cap.cao - d.tong_cong.co_ban.thap;
+  const $chenh = document.getElementById('chenh');
+  $chenh.hidden = false;
+  $chenh.innerHTML = `Khoảng giá của anh/chị đang chênh tới <b>${trieu(chenh, true)} triệu</b> giữa mức thấp nhất và cao nhất. Nhập kích thước từng phòng và chọn từng món để thu hẹp về con số của nhà mình.`;
+  const conLai = d.phong.length - 3;
+  document.getElementById('teaser').innerHTML = d.phong.slice(0, 3).map((p, i) => `
+    <div class="teaser-phong"><b>${esc(NHAN[i] || p.ten)}</b>
+      ${p.mon_mau.map((t) => `<div class="teaser-mon"><span>${esc(t)}</span><i class="khoa" aria-hidden="true"></i></div>`).join('')}
+      ${p.so_mon > p.mon_mau.length ? `<div class="teaser-them">và ${p.so_mon - p.mon_mau.length} món nữa · ảnh, đơn giá, tự chỉnh số lượng</div>` : ''}
+    </div>`).join('') + (conLai > 0 ? `<div class="teaser-them">…và bảng từng món của ${conLai} phòng còn lại</div>` : '');
+  const kq = document.getElementById('ket-qua');
+  kq.style.display = 'block';
+  kq.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ── Tự chỉnh từng món: mở sau khi để lại SĐT (layBangGiaNoiThat kiểm leadId ở máy chủ) ── */
+let PHONG_DA_TINH = null, NHAN = [], KQ = null, LEAD_ID = null, BANG = null, DONG = [];
+try { LEAD_ID = sessionStorage.getItem('aln_noithat_lead') || null; } catch (e) {}
+const TEN_MUC = { co_ban: 'Cơ bản', kha: 'Khá', cao_cap: 'Cao cấp', bo: 'Không làm' };
+const esc = (t) => String(t == null ? '' : t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const gia = (v) => v >= 1e6
+  ? (v / 1e6).toLocaleString('vi-VN', { maximumFractionDigits: 2 }) + ' tr'
+  : Math.round(v).toLocaleString('vi-VN') + 'đ';
+
+document.getElementById('gate').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const $m = document.getElementById('g-msg');
+  const ten = document.getElementById('g-ten').value.trim();
+  const sdt = document.getElementById('g-sdt').value.replace(/[^0-9+]/g, '');
+  $m.textContent = '';
+  if (!ten) { $m.textContent = 'Vui lòng nhập họ tên.'; return; }
+  if (!/^(\+?84|0)\d{9}$/.test(sdt)) { $m.textContent = 'Số điện thoại chưa đúng (10 số, bắt đầu bằng 0).'; return; }
+  if (!PHONG_DA_TINH) { $m.textContent = 'Bấm "Xem khoảng chi phí" trước.'; return; }
+  const $b = document.getElementById('g-btn');
+  $b.disabled = true; $b.textContent = 'Đang mở…';
+  try {
+    const t = KQ && KQ.tong_cong;
+    const r = await guiLead({
+      name: ten, phone: sdt, projectType: 'thiet_ke', loai: 'noi_that', kenh: 'noithat',
+      area: KQ ? KQ.dien_tich : null,
+      tongMin: t ? Math.round(t.co_ban.thap) : null, tongMax: t ? Math.round(t.cao_cap.cao) : null,
+      utm: (window.alnGetUtm && window.alnGetUtm()) || {}, sourceUrl: location.href,
+    });
+    LEAD_ID = r.data && r.data.id;
+    try { sessionStorage.setItem('aln_noithat_lead', LEAD_ID); } catch (e2) {}
+    await moBang();
+    try { gtag('event', 'aln_noithat_mo_bang', {}); } catch (e2) {}
+  } catch (err) {
+    $m.textContent = (err && err.message && /điện thoại|họ tên/i.test(err.message)) ? err.message : 'Chưa mở được bảng. Anh/chị thử lại sau ít phút.';
+    console.error(err);
+  } finally {
+    $b.disabled = false; $b.innerHTML = '<i class="ph-duotone ph-lock-open"></i> Mở bảng từng món';
+  }
+});
+
+async function moBang(giuLai) {
+  if (!LEAD_ID || !PHONG_DA_TINH) return;
+  let res;
+  const luot = ++LUOT_BANG;
+  try {
+    res = await layBang({ leadId: LEAD_ID, phong: PHONG_DA_TINH });
+    if (luot !== LUOT_BANG) return; // đã có yêu cầu mới hơn
+  } catch (e) {
+    if (giuLai && !/permission-denied/.test((e && e.code) || '')) throw e; // lỗi kích thước: giữ bảng, báo tại chỗ
+    LEAD_ID = null;
+    try { sessionStorage.removeItem('aln_noithat_lead'); } catch (e2) {}
+    document.getElementById('gate').hidden = false;
+    document.getElementById('editor').hidden = true;
+    document.getElementById('teaser').hidden = false;
+    document.getElementById('chenh').hidden = false;
+    throw e;
+  }
+  if (!giuLai) KT_NHAP = {};
+  const cu = giuLai ? new Map(DONG.map((d) => [`${d.phong}|${d.m.ma}`, d])) : new Map();
+  BANG = res.data;
+  DONG = [];
+  BANG.phong.forEach((p, pi) => p.mon.forEach((m) => {
+    const slMax = Math.max(...BANG.muc.map((k) => m.sl[k]));
+    const c = cu.get(`${pi}|${m.ma}`);
+    if (c) {
+      // Giữ lựa chọn của khách; món co giãn theo kích thước/diện tích thì lấy số lượng mới.
+      let sl = c.sl;
+      if (c.muc !== 'bo' && (m.co_gian || !c.tuChinh) && m.sl[c.muc] > 0) sl = m.sl[c.muc];
+      DONG.push({ phong: pi, m, muc: c.muc, sl, tuChinh: c.tuChinh && !m.co_gian });
+    } else {
+      DONG.push({ phong: pi, m, muc: m.sl.kha > 0 ? 'kha' : 'bo', sl: m.sl.kha > 0 ? m.sl.kha : slMax });
+    }
+  }));
+  document.getElementById('gate').hidden = true;
+  document.getElementById('teaser').hidden = true;
+  document.getElementById('chenh').hidden = true;
+  document.getElementById('editor').hidden = false;
+  if (!giuLai) {
+    document.getElementById('muc-all').innerHTML = BANG.muc.map((k) =>
+      `<button type="button" data-muc="${k}" class="${k === 'kha' ? 'on' : ''}">${TEN_MUC[k]}</button>`).join('');
+  }
+  veBang();
+}
+
+document.getElementById('muc-all').addEventListener('click', (e) => {
+  const k = e.target.dataset && e.target.dataset.muc;
+  if (!k) return;
+  document.querySelectorAll('#muc-all button').forEach((b) => b.classList.toggle('on', b.dataset.muc === k));
+  DONG.forEach((d) => {
+    if (d.m.sl[k] > 0) { d.muc = k; d.sl = d.m.sl[k]; } else { d.muc = 'bo'; }
+  });
+  veBang();
+});
+
+function tienDong(d) {
+  if (d.muc === 'bo') return [0, 0];
+  const g = d.m.gia[d.muc];
+  return [d.sl * g[0], d.sl * g[1]];
+}
+
+const fmtSo = (v) => Number(v).toLocaleString('vi-VN', { maximumFractionDigits: 2 });
+let LUOT_BANG = 0;
+let KT_NHAP = {}; // kích thước khách đang gõ, theo chỉ số phòng — giữ qua các lần vẽ lại bảng
+function oKichThuoc(p, pi) {
+  const kt = Object.assign({}, p.kich_thuoc || {}, KT_NHAP[pi] || {});
+  const v = (x) => (x == null ? '' : String(x).replace('.', ','));
+  // KT_NHAP lưu nguyên chuỗi khách gõ; số từ máy chủ đổi dấu thập phân sang dấu phẩy
+  return `<div class="kt" data-pi="${pi}">
+    <span style="flex-basis:100%">${p.kt_khu_bep ? 'Kích thước khu bếp, không tính chỗ bàn ăn (m)' : 'Kích thước phòng (m)'}</span>
+    <input data-kt="ngang" data-pi="${pi}" inputmode="decimal" placeholder="ngang" value="${esc(v(kt.ngang))}" aria-label="Chiều ngang (m)">
+    <span>×</span>
+    <input data-kt="dai" data-pi="${pi}" inputmode="decimal" placeholder="dài" value="${esc(v(kt.dai))}" aria-label="Chiều dài (m)">
+    ${p.hoi_cua_so ? `<span style="margin-left:6px">Cửa sổ rộng</span><input data-kt="cua_so" data-pi="${pi}" inputmode="decimal" placeholder="m" value="${esc(v(kt.cua_so))}" aria-label="Bề ngang cửa sổ (m)">` : ''}
+    <span class="loi" id="kt-loi-${pi}" hidden></span>
+  </div>`;
+}
+
+function veBang() {
+  const $ds = document.getElementById('ds-phong');
+  const f = document.activeElement;
+  const giuFocus = f && f.dataset && f.dataset.kt ? { kt: f.dataset.kt, pi: f.dataset.pi } : null;
+  $ds.innerHTML = BANG.phong.map((p, pi) => `
+    <div class="room-block"><h3>${esc(NHAN[pi] || p.ten)} (${fmtSo(p.dien_tich)} m²)<span id="tp-${pi}"></span></h3>
+    ${oKichThuoc(p, pi)}
+    ${DONG.map((d, i) => d.phong !== pi ? '' : `
+      <div class="mon${d.muc === 'bo' ? ' off' : ''}" id="mon-${i}">
+        ${d.m.anh ? `<img loading="lazy" src="${esc(d.m.anh)}" alt="${esc(d.m.ten)}" onerror="this.outerHTML='<div class=&quot;ph&quot;><i class=&quot;ph-duotone ph-image&quot;></i></div>'">` : '<div class="ph"><i class="ph-duotone ph-image"></i></div>'}
+        <div><b>${esc(d.m.ten)}</b><small id="vl-${i}"></small></div>
+        <div class="mon-ctrl">
+          <select data-i="${i}" aria-label="Mức cho ${esc(d.m.ten)}">
+            ${[...BANG.muc, 'bo'].map((k) => `<option value="${k}"${k === d.muc ? ' selected' : ''}>${TEN_MUC[k]}</option>`).join('')}
+          </select>
+          <div class="qty"><button type="button" data-i="${i}" data-d="-1" aria-label="Giảm">−</button><input data-i="${i}" type="number" min="0" step="${/bộ|cái/.test(d.m.don_vi) ? 1 : 0.5}" value="${d.sl}" aria-label="Số lượng"><button type="button" data-i="${i}" data-d="1" aria-label="Tăng">+</button></div>
+          <span class="dv">${esc(d.m.don_vi)}</span>
+          <span class="tien" id="tien-${i}"></span>
+        </div>
+      </div>`).join('')}
+    </div>`).join('');
+  if (giuFocus) {
+    const el = $ds.querySelector(`[data-kt="${giuFocus.kt}"][data-pi="${giuFocus.pi}"]`);
+    if (el) el.focus();
+  }
+  capNhat();
+}
+
+function capNhat() {
+  const tongPhong = {};
+  let thap = 0, cao = 0;
+  DONG.forEach((d, i) => {
+    const [a, b] = tienDong(d);
+    thap += a; cao += b;
+    tongPhong[d.phong] = tongPhong[d.phong] || [0, 0];
+    tongPhong[d.phong][0] += a; tongPhong[d.phong][1] += b;
+    const $row = document.getElementById(`mon-${i}`);
+    if (!$row) return;
+    $row.classList.toggle('off', d.muc === 'bo');
+    const g = d.muc === 'bo' ? null : d.m.gia[d.muc];
+    document.getElementById(`vl-${i}`).textContent = g
+      ? `${d.m.vat_lieu[d.muc] || ''}${d.m.vat_lieu[d.muc] ? ' · ' : ''}đơn giá ${gia(g[0])} – ${gia(g[1])}/${d.m.don_vi}`
+      : 'Không tính món này';
+    document.getElementById(`tien-${i}`).textContent = g ? `${gia(a)} – ${gia(b)}` : '–';
+  });
+  BANG.phong.forEach((p, pi) => {
+    const t = tongPhong[pi] || [0, 0];
+    const el = document.getElementById(`tp-${pi}`);
+    if (el) el.textContent = `${trieu(t[0])} – ${trieu(t[1], true)} tr`;
+  });
+  const dt = BANG.phong.reduce((s, p) => s + p.dien_tich, 0);
+  const phi = dt * BANG.phi_thiet_ke_m2;
+  const tThap = thap * (1 + BANG.du_phong.thap) + phi;
+  const tCao = cao * (1 + BANG.du_phong.cao) + phi;
+  document.getElementById('tong-chinh').textContent = `${trieu(tThap)} – ${trieu(tCao, true)} triệu`;
+}
+
+async function doiKichThuoc(el) {
+  const pi = Number(el.dataset.pi);
+  const box = el.closest('.kt');
+  const $loi = document.getElementById(`kt-loi-${pi}`);
+  const nhap = KT_NHAP[pi] || {};
+  const doc = (k) => {
+    const s = String(nhap[k] == null ? '' : nhap[k]).trim().replace(',', '.');
+    return s === '' ? null : Number(s);
+  };
+  const ngang = doc('ngang'), dai = doc('dai'), cuaSo = doc('cua_so');
+  $loi.hidden = true;
+  if ((ngang == null) !== (dai == null)) return; // chờ khách nhập đủ cả hai
+  const truoc = PHONG_DA_TINH[pi];
+  const sau = { ma: truoc.ma, dien_tich: truoc.dien_tich };
+  if (ngang != null) { sau.ngang = ngang; sau.dai = dai; }
+  if (cuaSo != null) sau.cua_so = cuaSo;
+  const cu = PHONG_DA_TINH.slice();
+  PHONG_DA_TINH = PHONG_DA_TINH.map((x, j) => (j === pi ? sau : x));
+  try {
+    await moBang(true);
+    try { gtag('event', 'aln_noithat_kich_thuoc', { loai_phong: sau.ma }); } catch (e2) {}
+  } catch (err) {
+    PHONG_DA_TINH = cu;
+    const m = err && err.message ? err.message.replace(/^.*?: /, '') : '';
+    const el2 = document.getElementById(`kt-loi-${pi}`);
+    if (el2) { el2.textContent = m || 'Kích thước chưa hợp lệ.'; el2.hidden = false; }
+  }
+}
+
+document.getElementById('ds-phong').addEventListener('change', (e) => {
+  if (e.target.dataset && e.target.dataset.kt) { doiKichThuoc(e.target); return; }
+  const i = Number(e.target.dataset.i);
+  if (!Number.isInteger(i) || !DONG[i]) return;
+  const d = DONG[i];
+  if (e.target.tagName === 'SELECT') {
+    d.muc = e.target.value;
+    if (d.muc !== 'bo' && d.sl <= 0) {
+      d.sl = d.m.sl[d.muc] || 1;
+      e.target.closest('.mon').querySelector('input').value = d.sl;
+    }
+  } else if (e.target.tagName === 'INPUT') {
+    const v = parseFloat(String(e.target.value).replace(',', '.'));
+    d.sl = Number.isFinite(v) && v >= 0 ? Math.min(v, 999) : 0;
+    d.tuChinh = true;
+    e.target.value = d.sl;
+  }
+  capNhat();
+});
+
+/* ── Bản vẽ mặt bằng: MyMy đọc kích thước (docBanVeNoiThat), khách duyệt rồi mới áp dụng ── */
+const TOI_DA_BYTE = 7 * 1024 * 1024;
+let BV_PHONG = null;
+
+function docFileBase64(file) {
+  return new Promise((ok, loi) => {
+    const r = new FileReader();
+    r.onload = () => ok(String(r.result).split(',')[1] || '');
+    r.onerror = () => loi(r.error);
+    r.readAsDataURL(file);
+  });
+}
+
+// Ảnh lớn thu về tối đa 2400 px (đủ đọc số kích thước, nhẹ khi gửi)
+async function thuNhoAnh(file) {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((ok, loi) => { const i = new Image(); i.onload = () => ok(i); i.onerror = loi; i.src = url; });
+    const tl = Math.min(1, 2400 / Math.max(img.naturalWidth, img.naturalHeight));
+    const c = document.createElement('canvas');
+    c.width = Math.round(img.naturalWidth * tl); c.height = Math.round(img.naturalHeight * tl);
+    const g = c.getContext('2d');
+    g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height);
+    g.drawImage(img, 0, 0, c.width, c.height);
+    return c.toDataURL('image/jpeg', 0.88).split(',')[1];
+  } finally { URL.revokeObjectURL(url); }
+}
+
+const TEN_LOAI = { PK: 'Phòng khách', BEP: 'Bếp + phòng ăn', PN1: 'Phòng ngủ master', PN: 'Phòng ngủ', WC: 'WC' };
+const so = (v) => String(v).replace('.', ',');
+
+function hienKetQuaBanVe(r) {
+  const $kq = document.getElementById('bv-kq');
+  const $tt = document.getElementById('bv-tt');
+  BV_PHONG = r.phong || [];
+  if (!BV_PHONG.length) {
+    $tt.className = 'bv-tt';
+    $tt.textContent = `MyMy chưa đọc được kích thước từ bản vẽ này${r.ghi_chu ? ` (${r.ghi_chu})` : ''}. Bản vẽ đã gửi tới KTS ALN, anh/chị vẫn có thể tự nhập kích thước bên dưới.`;
+    $kq.hidden = true;
+    return;
+  }
+  $tt.className = 'bv-tt';
+  $tt.textContent = `MyMy đọc được ${BV_PHONG.length} phòng. Anh/chị kiểm tra lại trước khi dùng:`;
+  $kq.innerHTML = BV_PHONG.map((p) => `
+    <div class="bv-phong"><div><b>${esc(TEN_LOAI[p.ma] || p.ma)}</b>${p.ten_ban_ve ? ` <small>(${esc(p.ten_ban_ve)})</small>` : ''}
+      ${p.thieu_kich_thuoc ? '<div class="thieu">Không đọc được kích thước, tạm dùng diện tích chuẩn</div>' : ''}</div>
+      <small>${p.ngang != null ? `${so(p.ngang)} × ${so(p.dai)} m${p.ma === 'BEP' ? ' khu bếp' : ''} · ` : ''}${so(p.dien_tich)} m²${p.cua_so != null ? ` · cửa sổ ${so(p.cua_so)} m` : ''}</small></div>`).join('') +
+    (r.ghi_chu ? `<div class="privacy" style="margin-top:6px">${esc(r.ghi_chu)}</div>` : '') +
+    `<div class="bv-nut"><button type="button" class="chinh-nut" id="bv-dung">Dùng các phòng này</button><button type="button" class="phu" id="bv-bo">Bỏ qua</button></div>`;
+  $kq.hidden = false;
+}
+
+document.getElementById('bv-file').addEventListener('change', async (e) => {
+  const file = e.target.files && e.target.files[0];
+  e.target.value = '';
+  if (!file) return;
+  const $tt = document.getElementById('bv-tt');
+  const $nut = document.querySelector('label[for="bv-file"]');
+  document.getElementById('bv-kq').hidden = true;
+  $tt.className = 'bv-tt';
+  if (!LEAD_ID) { $tt.className = 'bv-tt loi'; $tt.textContent = 'Vui lòng để lại số điện thoại trước.'; return; }
+  const laPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
+  let b64;
+  try {
+    if (laPdf) {
+      if (file.size > TOI_DA_BYTE) throw new Error('lon');
+      b64 = await docFileBase64(file);
+    } else {
+      b64 = await thuNhoAnh(file);
+      if (b64.length * 0.75 > TOI_DA_BYTE) throw new Error('lon');
+    }
+  } catch (err) {
+    $tt.className = 'bv-tt loi';
+    $tt.textContent = err && err.message === 'lon'
+      ? 'File lớn hơn 7 MB. Anh/chị gửi file nhỏ hơn hoặc chụp ảnh từng tầng.'
+      : 'Chưa mở được file này. Anh/chị thử ảnh JPG hoặc PNG (ảnh HEIC của iPhone nên xuất sang JPG).';
+    return;
+  }
+  $nut.style.pointerEvents = 'none'; $nut.style.opacity = '.6';
+  $tt.textContent = 'MyMy đang đọc bản vẽ, khoảng 20–40 giây…';
+  try {
+    const { data } = await docBanVe({ leadId: LEAD_ID, duLieu: b64 });
+    hienKetQuaBanVe(data);
+    try { gtag('event', 'aln_noithat_ban_ve', { doc_duoc: data.doc_duoc ? 1 : 0, so_phong: (data.phong || []).length }); } catch (e2) {}
+  } catch (err) {
+    $tt.className = 'bv-tt loi';
+    const m = err && err.message ? err.message.replace(/^.*?: /, '') : '';
+    $tt.textContent = m && !/internal|INTERNAL/.test(m) ? m : 'Chưa gửi được bản vẽ. Anh/chị thử lại sau ít phút.';
+    console.error(err);
+  } finally {
+    $nut.style.pointerEvents = ''; $nut.style.opacity = '';
+  }
+});
+
+document.getElementById('ban-ve').addEventListener('click', (e) => {
+  if (e.target.id === 'bv-bo') { document.getElementById('bv-kq').hidden = true; document.getElementById('bv-tt').textContent = 'Đã bỏ qua. Bản vẽ vẫn được gửi tới KTS ALN.'; return; }
+  if (e.target.id !== 'bv-dung' || !BV_PHONG) return;
+  // Thay danh sách phòng ở bước 1 bằng các phòng đọc từ bản vẽ, rồi tính lại
+  DS.length = 0;
+  BV_PHONG.forEach((p) => {
+    const x = moi(p.ma);
+    x.dt = String(p.dien_tich);
+    x.them = !(p.ma === 'PK' || p.ma === 'BEP' || p.ma === 'PN1') || DS.some((y) => y.ma === p.ma);
+    const kt = {};
+    if (p.ngang != null) { kt.ngang = p.ngang; kt.dai = p.dai; }
+    if (p.cua_so != null) kt.cua_so = p.cua_so;
+    if (Object.keys(kt).length) x.kt = kt;
+    DS.push(x);
+  });
+  veRooms();
+  document.getElementById('bv-kq').hidden = true;
+  document.getElementById('bv-tt').textContent = 'Đã áp dụng. Bảng bên dưới tính theo kích thước từ bản vẽ, anh/chị vẫn sửa được từng ô.';
+  try { gtag('event', 'aln_noithat_ban_ve_ap_dung', { so_phong: DS.length }); } catch (e2) {}
+  $btn.click();
+});
+
+document.getElementById('ds-phong').addEventListener('input', (e) => {
+  const k = e.target.dataset && e.target.dataset.kt;
+  if (!k) return;
+  const pi = Number(e.target.dataset.pi);
+  KT_NHAP[pi] = Object.assign({}, KT_NHAP[pi], { [k]: e.target.value });
+});
+
+document.getElementById('ds-phong').addEventListener('click', (e) => {
+  const step = Number(e.target.dataset.d);
+  const i = Number(e.target.dataset.i);
+  if (!step || !Number.isInteger(i) || !DONG[i]) return;
+  const d = DONG[i];
+  const buoc = /bộ|cái/.test(d.m.don_vi) ? 1 : 0.5;
+  d.sl = Math.max(0, Math.round((d.sl + step * buoc) * 10) / 10);
+  d.tuChinh = true;
+  e.target.parentElement.querySelector('input').value = d.sl;
+  capNhat();
+});
+</script>
+</body>
+</html>
