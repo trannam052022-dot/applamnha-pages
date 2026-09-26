@@ -596,9 +596,9 @@ async function trackSavedLead(d) {
   else emit();
 }
 
-function showRetry() {
+function showRetry(lyDo) {
   if (saveSucceeded) return;
-  showMsg('Chưa lưu được — thử lại', 'error');
+  showMsg(lyDo ? 'Chưa lưu được: ' + lyDo : 'Chưa lưu được — thử lại', 'error');
   retryBtn.hidden = false;
   btn.disabled = false;
   btn.textContent = 'Lưu vào Không gian Nhà';
@@ -712,7 +712,7 @@ async function doSave() {
   showMsg("Đang lưu vào Không gian Nhà...", "info");
   // Callable không hỗ trợ hủy request. Cho phép thử lại khi mạng treo; server
   // chống trùng nội dung và mọi response thành công chỉ xử lý UI/tracking 1 lần.
-  const slowTimer = setTimeout(showRetry, 15000);
+  const slowTimer = setTimeout(() => showRetry('mạng hoặc máy chủ đang chậm, anh/chị đợi thêm chút hoặc bấm Thử lại.'), 15000);
   try {
     const res = await callSaveEstimate(getSaveOperation(payload));
     const d = res.data || {};
@@ -734,8 +734,28 @@ async function doSave() {
     }
     if (!d.ok) showRetry();
   } catch (err) {
-    console.error("[du-toan-nha] saveEstimateToHouse failed");
-    showRetry();
+    // Hiện đúng lý do máy chủ trả về (câu tiếng Việt viết sẵn cho khách trong
+    // functions/saveEstimateToHouse.js) thay vì "Chưa lưu được" chung chung —
+    // 26/09/2026 Founder gặp lỗi lưu mà không biết vì sao.
+    const code = (err && err.code) || '';
+    console.error("[du-toan-nha] saveEstimateToHouse failed", code, err && err.message);
+    // Lỗi máy chủ đã TỪ CHỐI hẳn (sai dữ liệu / thao tác cũ không khớp) thì bỏ
+    // thao tác đang nhớ trong sessionStorage — nếu giữ, bấm "Thử lại" hay sửa
+    // số rồi lưu lại vẫn gửi y nguyên gói cũ và kẹt lỗi mãi trong tab này.
+    // Lỗi mạng/quá tải thì GIỮ để thử lại đúng thao tác cũ (server chống trùng).
+    if (/invalid-argument|failed-precondition/.test(code)) {
+      saveOperation = null;
+      try { sessionStorage.removeItem(operationKey()); } catch (e) {}
+    }
+    // Chỉ hiện câu máy chủ viết cho khách. Câu kỹ thuật nội bộ (tên collection
+    // kiểu "contact_phone_index/...", Phone Auth, mã thao tác) KHÔNG được lộ
+    // ra màn hình khách — thay bằng lời mời liên hệ Zalo.
+    const raw = (err && err.message) || '';
+    const kyThuat = !raw || /^internal$/i.test(raw) || /[a-z]+_[a-z_]+\/|contacts\/|Phone Auth|thao tác lưu/i.test(raw);
+    const lyDo = kyThuat
+      ? (code === 'functions/internal' || !raw ? '' : 'hệ thống gặp lỗi khi lưu hồ sơ của anh/chị. Anh/chị nhắn Zalo ALN để được hỗ trợ ngay.')
+      : raw;
+    showRetry(lyDo);
   } finally {
     clearTimeout(slowTimer);
     pendingSaves--;
