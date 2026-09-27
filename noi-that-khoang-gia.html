@@ -135,6 +135,27 @@ tr.sum td{font-weight:800;background:var(--cream)}
 .teaser-mon{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:5px 0;font-size:var(--text-xs);color:var(--text2)}
 .teaser-mon i.khoa{display:inline-block;width:78px;height:10px;border-radius:6px;background:linear-gradient(90deg,var(--cream2),var(--border2));filter:blur(1.5px)}
 .teaser-them{font-size:var(--text-xs);color:var(--gold);font-weight:700;margin-top:2px}
+/* Phần mồi mở bảng: đếm món, thanh khoảng giá, so 3 mức bằng chất liệu, 4 lợi ích */
+.t-so{font-size:var(--text-md);line-height:1.5}
+.t-so b{color:var(--gold)}
+.dai{border:1px solid var(--border);border-radius:14px;padding:14px;background:var(--white)}
+.dai-thanh{position:relative;height:12px;border-radius:999px;background:linear-gradient(90deg,#e9dcc0,var(--gold) 55%,#6b4a08);margin:30px 4px 8px}
+.dai-ghim{position:absolute;left:50%;top:-30px;transform:translateX(-50%);background:var(--navy);color:#fff;font-weight:800;font-size:var(--text-xs);padding:3px 10px;border-radius:999px;white-space:nowrap}
+.dai-ghim::after{content:'';position:absolute;left:50%;bottom:-5px;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--navy);border-bottom:0}
+.dai-nhan{display:flex;justify-content:space-between;font-size:var(--text-xs);color:var(--sub)}
+.dai-nhan b{display:block;color:var(--text);font-size:var(--text-sm)}
+.so3{display:flex;gap:12px;overflow-x:auto;padding:2px 2px 8px;scroll-snap-type:x mandatory}
+.so3-the{flex:0 0 250px;scroll-snap-align:start;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--white)}
+.so3-the img{width:100%;height:130px;object-fit:cover;display:block;background:var(--cream2)}
+.so3-than{padding:10px 12px}
+.so3-than>b{display:block;font-size:var(--text-md);margin-bottom:6px}
+.so3-dong{display:grid;grid-template-columns:62px 1fr auto;gap:8px;align-items:center;padding:6px 0;border-top:1px dashed var(--border);font-size:var(--text-xs)}
+.so3-dong span{color:var(--sub);font-weight:700}
+.so3-dong em{font-style:normal;color:var(--text);font-size:var(--text-sm);line-height:1.35}
+.so3-dong i.khoa{width:44px;height:12px;border-radius:6px;background:linear-gradient(90deg,var(--cream2),var(--border2));filter:blur(1.5px)}
+.loi{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.loi div{display:flex;gap:8px;align-items:flex-start;font-size:var(--text-sm);line-height:1.4;background:var(--gold-bg);border-radius:10px;padding:10px}
+.loi i{font-size:22px;color:var(--gold);flex:0 0 auto}
 .kt{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;background:var(--cream);border:1px dashed var(--border2);border-radius:10px;padding:8px 10px;margin-bottom:6px;font-size:var(--text-xs);color:var(--sub)}
 .kt input{width:58px;border:1px solid var(--border2);border-radius:8px;padding:7px 6px;font-family:inherit;font-size:var(--text-sm);color:var(--text);text-align:center}
 .kt input:focus{outline:none;border-color:var(--gold)}
@@ -409,14 +430,44 @@ function hienKetQua(d) {
     `Phí thiết kế nội thất là khoản <b>cố định duy nhất</b>: ${d.dien_tich.toLocaleString('vi-VN')} m² × 120.000đ = <b>${d.phi_thiet_ke.toLocaleString('vi-VN')}đ</b>. Mọi khoản còn lại thay đổi theo lựa chọn vật liệu và đồ đạc của anh/chị.`;
   const chenh = d.tong_cong.cao_cap.cao - d.tong_cong.co_ban.thap;
   const $chenh = document.getElementById('chenh');
-  $chenh.hidden = false;
-  $chenh.innerHTML = `Khoảng giá của anh/chị đang chênh tới <b>${trieu(chenh, true)} triệu</b> giữa mức thấp nhất và cao nhất. Nhập kích thước từng phòng và chọn từng món để thu hẹp về con số của nhà mình.`;
-  const conLai = d.phong.length - 3;
-  document.getElementById('teaser').innerHTML = d.phong.slice(0, 3).map((p, i) => `
+  const tongMon = d.phong.reduce((a, p) => a + (p.so_mon || 0), 0);
+  // Món tiêu biểu mỗi loại phòng (máy chủ mới trả mon_noi_bat; bản cũ chưa có thì dùng cách hiện cũ)
+  const daCo = new Set();
+  const noiBat = d.phong.map((p) => p.mon_noi_bat).filter((m) => m && !daCo.has(m.ten) && daCo.add(m.ten));
+  if (noiBat.length) {
+    $chenh.hidden = true;
+    $chenh.innerHTML = '';
+    const tenGon = (t) => esc(String(t).replace(/\s*\(.*?\)\s*/g, ' ').trim());
+    document.getElementById('teaser').innerHTML = `
+      <div class="t-so">Nhà anh/chị có <b>${tongMon} món</b> trong <b>${d.phong.length} phòng</b>. Mỗi món có 3 mức, và chính các lựa chọn đó tạo ra khoảng chênh bên dưới.</div>
+      <div class="dai">
+        <div class="dai-thanh"><span class="dai-ghim">Nhà anh/chị ở đâu?</span></div>
+        <div class="dai-nhan"><div>Thấp nhất<b>${trieu(d.tong_cong.co_ban.thap)} triệu</b></div><div style="text-align:right">Cao nhất<b>${trieu(d.tong_cong.cao_cap.cao, true)} triệu</b></div></div>
+        <div class="hint" style="margin:10px 0 0">Chênh tới <b>${trieu(chenh, true)} triệu</b>. Chọn từng món để thu về con số của nhà mình.</div>
+      </div>
+      <div class="so3">${noiBat.map((m) => `
+        <div class="so3-the">
+          ${m.anh ? `<img src="${esc(m.anh)}" alt="" loading="lazy" onerror="this.remove()">` : ''}
+          <div class="so3-than"><b>${tenGon(m.ten)}</b>
+            ${MUC.map((x) => `<div class="so3-dong"><span>${x.ten}</span><em>${esc(m.vat_lieu[x.ma])}</em><i class="khoa" aria-hidden="true"></i></div>`).join('')}
+          </div>
+        </div>`).join('')}</div>
+      <div class="loi">
+        <div><i class="ph-duotone ph-image"></i>Ảnh và đơn giá từng món</div>
+        <div><i class="ph-duotone ph-sliders-horizontal"></i>Đổi mức riêng từng món</div>
+        <div><i class="ph-duotone ph-ruler"></i>Tính theo kích thước thật</div>
+        <div><i class="ph-duotone ph-blueprint"></i>Gửi bản vẽ cho KTS bóc</div>
+      </div>`;
+  } else {
+    $chenh.hidden = false;
+    $chenh.innerHTML = `Khoảng giá của anh/chị đang chênh tới <b>${trieu(chenh, true)} triệu</b> giữa mức thấp nhất và cao nhất. Nhập kích thước từng phòng và chọn từng món để thu hẹp về con số của nhà mình.`;
+    const conLai = d.phong.length - 3;
+    document.getElementById('teaser').innerHTML = d.phong.slice(0, 3).map((p, i) => `
     <div class="teaser-phong"><b>${esc(NHAN[i] || p.ten)}</b>
       ${p.mon_mau.map((t) => `<div class="teaser-mon"><span>${esc(t)}</span><i class="khoa" aria-hidden="true"></i></div>`).join('')}
       ${p.so_mon > p.mon_mau.length ? `<div class="teaser-them">và ${p.so_mon - p.mon_mau.length} món nữa · ảnh, đơn giá, tự chỉnh số lượng</div>` : ''}
     </div>`).join('') + (conLai > 0 ? `<div class="teaser-them">…và bảng từng món của ${conLai} phòng còn lại</div>` : '');
+  }
   const kq = document.getElementById('ket-qua');
   kq.style.display = 'block';
   kq.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -476,7 +527,7 @@ async function moBang(giuLai) {
     document.getElementById('gate').hidden = false;
     document.getElementById('editor').hidden = true;
     document.getElementById('teaser').hidden = false;
-    document.getElementById('chenh').hidden = false;
+    document.getElementById('chenh').hidden = !document.getElementById('chenh').innerHTML;
     throw e;
   }
   if (!giuLai) KT_NHAP = {};
