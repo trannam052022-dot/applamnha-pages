@@ -3,12 +3,20 @@
 <head>
 <!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM (xem scripts/aln-optout.js) -->
 <script src="scripts/aln-optout.js"></script>
+<script src="scripts/aln-estimate-funnel.js"></script>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MB7VRGR5');</script>
+<!-- End Google Tag Manager -->
 <script src="error-monitor.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ước tính chi phí nội thất trước khi có bản vẽ | App Làm Nhà</title>
 <meta name="description" content="Chọn phòng, nhập diện tích, xem khoảng chi phí nội thất tham khảo theo 3 mức Cơ bản, Khá, Cao cấp. Phí thiết kế nội thất ALN niêm yết 2026: 120.000đ/m².">
-<!-- NHÁP 26/09/2026: số liệu chờ KTS duyệt, trang CHƯA vào whitelist deploy-pages.yml -->
+<!-- Bản thử nghiệm: số liệu chờ KTS duyệt; noindex nhưng đã có Pixel/GTM để chạy quảng cáo thử -->
 <meta name="robots" content="noindex, nofollow">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css">
 <link rel="stylesheet" href="aln-tokens.css">
@@ -227,8 +235,31 @@ tr.sum td{font-weight:800;background:var(--cream)}
   gtag('config', 'G-5CSL1TF0RC');
 </script>
 <!-- End GA4 -->
+<!-- Meta Pixel (ALN Pixel) — chỉ dùng cho ALN, tách riêng khỏi TK.HOUSE -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('set', 'autoConfig', false, '1656666692225878');
+fbq('init', '1656666692225878');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1656666692225878&ev=PageView&noscript=1"/></noscript>
+<!-- End Meta Pixel -->
+<script>window.ALN_PAGE_LABEL = 'noi-that-khoang-gia';</script>
+<script src="aln-tracking.js"></script>
 </head>
 <body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MB7VRGR5"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
 <nav class="topbar">
   <a class="logo" href="/">ALN</a>
   <span>Ước tính chi phí nội thất</span>
@@ -619,15 +650,44 @@ async function guiMa() {
     $b.disabled = false; $b.innerHTML = '<i class="ph-duotone ph-shield-check"></i> Gửi mã xác nhận';
   }
 }
+/* Đo lường quảng cáo — cùng cách trang dự toán 60 giây (du-toan/*.html):
+   gửi utm/fbp/fbc để CAPI Lead phía máy chủ (onLeadCreated) khớp Pixel, rồi
+   bắn Pixel Lead với eventID 'lead-'+leadId để Meta gộp 2 phía thành 1 lead.
+   ?internal=1 (scripts/aln-optout.js) chặn Pixel/GA4 và báo máy chủ bỏ CAPI. */
+function tinHieuQuangCao() {
+  let sig = {};
+  try { sig = (window.alnEstimateFunnel && window.alnEstimateFunnel.signals()) || {}; } catch (e) {}
+  let attribution = null;
+  try { attribution = window.alnAttr ? window.alnAttr.forLead() : null; } catch (e) {}
+  return {
+    utm: sig.utm || {}, fbp: sig.fbp || '', fbc: sig.fbc || '',
+    attribution, optout: window.ALN_INTERNAL === true,
+  };
+}
+function baoLeadQuangCao(leadId) {
+  if (!leadId) return;
+  const khoa = 'aln_noithat_lead_' + leadId;
+  try { if (localStorage.getItem(khoa)) return; } catch (e) {}
+  try {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: 'aln_lead_submit', form_name: 'noi-that', event_id: 'lead-' + leadId });
+    if (window.fbq) window.fbq('track', 'Lead',
+      { content_name: 'noi-that', content_category: 'noi-that-khoang-gia' },
+      { eventID: 'lead-' + leadId });
+    localStorage.setItem(khoa, '1');
+  } catch (e) {}
+}
 async function moSauXacNhan(f) {
   const t = KQ && KQ.tong_cong;
   const r = await guiLead({
     name: f.ten, phone: f.sdt, projectType: 'thiet_ke', loai: 'noi_that', kenh: 'noithat',
     area: KQ ? KQ.dien_tich : null,
     tongMin: t ? Math.round(t.co_ban.thap) : null, tongMax: t ? Math.round(t.cao_cap.cao) : null,
-    utm: (window.alnGetUtm && window.alnGetUtm()) || {}, sourceUrl: location.href,
+    ...tinHieuQuangCao(),
+    sourceUrl: location.origin + location.pathname,
   });
   LEAD_ID = r.data && r.data.id;
+  baoLeadQuangCao(LEAD_ID);
   try { sessionStorage.setItem('aln_noithat_lead', LEAD_ID); } catch (e2) {}
   await moBang();
   const $t = document.getElementById('da-nhan');
