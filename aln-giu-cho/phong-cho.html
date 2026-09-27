@@ -751,7 +751,7 @@ function adMeta(){
 function fireLeadPixel(uid, role){
   try{
     if (window.fbq) fbq('track','Lead',
-      { content_name:'giu-cho-'+role, content_category:'kts-funnel' },
+      { value: 100000, currency: 'VND', content_name:'giu-cho-'+role, content_category:'kts-funnel' },
       { eventID:'lead-'+uid });
   }catch(e){}
   try{

@@ -1829,7 +1829,7 @@ function mymySendClick(){
   // Chế độ công khai: chỉ tư vấn sơ bộ + xin SĐT, không chốt giá, không ghi DB trực tiếp
   if(text.match(/^[0-9 .+-]{8,14}$/) && window.MYMY_ASKED_PHONE){
     mymyAddBot('Dạ em ghi nhận SĐT ' + text + ' rồi ạ. Đội ngũ ALN sẽ liên hệ lại trong giờ hành chính nha!');
-    try { if(window.fbq) fbq('track', 'Lead', { content_name: 'MyMy - Để lại SĐT' }); } catch(e){}
+    try { if(window.fbq) fbq('track', 'Lead', { value: 100000, currency: 'VND', content_name: 'MyMy - Để lại SĐT' }); } catch(e){}
     try { if(window.gtag) gtag('event', 'generate_lead', { method: 'MyMy chat' }); } catch(e){}
     return;
   }
@@ -2286,7 +2286,7 @@ window.leadSubmit = async function(){
     const leadId = (res && res.data && res.data.id) || '';
     try {
       if (window.fbq && leadId) fbq('track', 'Lead',
-        { content_name: 'home-lead-form', content_category: 'cn-funnel' },
+        { value: 100000, currency: 'VND', content_name: 'home-lead-form', content_category: 'cn-funnel' },
         { eventID: 'lead-' + leadId });
     } catch (e) {}
 

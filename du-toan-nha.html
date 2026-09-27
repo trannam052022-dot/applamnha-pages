@@ -590,7 +590,7 @@ async function trackSavedLead(d) {
     window.dataLayer.push({ event: 'aln_du_toan_luu', aln_house_id: d.houseId, event_id: id });
     firedLeads.add(id);
     try { localStorage.setItem(key, '1'); } catch (e) {}
-    if (window.fbq) window.fbq('track', 'Lead', { content_name: 'du-toan-nha-luu' }, { eventID: id });
+    if (window.fbq) window.fbq('track', 'Lead', { value: 100000, currency: 'VND', content_name: 'du-toan-nha-luu' }, { eventID: id });
   };
   if (navigator.locks) await navigator.locks.request('aln-lead-' + id, emit);
   else emit();

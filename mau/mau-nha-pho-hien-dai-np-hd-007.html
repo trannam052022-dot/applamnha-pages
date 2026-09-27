@@ -339,7 +339,7 @@ form.addEventListener('submit', async (e) => {
     const leadId = (res && res.data && res.data.id) || '';
     try {
       if (window.fbq && leadId) window.fbq('track', 'Lead',
-        { content_name: 'mau-MAU-0012', content_category: 'kho-mau' },
+        { value: 100000, currency: 'VND', content_name: 'mau-MAU-0012', content_category: 'kho-mau' },
         { eventID: 'lead-' + leadId });
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({ event: 'aln_lead_submit', form_name: 'mau-MAU-0012' });

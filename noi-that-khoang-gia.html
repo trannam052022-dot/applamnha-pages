@@ -672,7 +672,7 @@ function baoLeadQuangCao(leadId) {
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({ event: 'aln_lead_submit', form_name: 'noi-that', event_id: 'lead-' + leadId });
     if (window.fbq) window.fbq('track', 'Lead',
-      { content_name: 'noi-that', content_category: 'noi-that-khoang-gia' },
+      { value: 100000, currency: 'VND', content_name: 'noi-that', content_category: 'noi-that-khoang-gia' },
       { eventID: 'lead-' + leadId });
     localStorage.setItem(khoa, '1');
   } catch (e) {}

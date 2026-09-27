@@ -842,7 +842,7 @@ btn.addEventListener('click', async function(){
        không đếm đôi — đúng mẫu chu-nha.html/aln-giu-cho/phong-cho.html. */
     try {
       if (window.fbq && leadId) fbq('track', 'Lead',
-        { content_name: 'chu-nha', content_category: 'cn-funnel' },
+        { value: 100000, currency: 'VND', content_name: 'chu-nha', content_category: 'cn-funnel' },
         { eventID: 'lead-' + leadId });
     } catch (e) {}
 
