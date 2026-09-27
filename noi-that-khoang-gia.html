@@ -122,7 +122,13 @@ tr.sum td{font-weight:800;background:var(--cream)}
 .room-block>summary small{display:block;color:var(--sub);font-size:var(--text-xs)}
 .room-block>summary .rt{text-align:right;white-space:nowrap}
 .room-block>summary .rt span{display:block;color:var(--gold);font-weight:800;font-size:var(--text-sm)}
-.room-block>summary .rt i{font-size:18px;color:var(--sub);transition:transform .2s}
+.room-block>summary .rt .xem{display:inline-flex;align-items:center;gap:3px;margin-top:4px;font-style:normal;font-size:var(--text-xs);font-weight:700;color:var(--gold);background:var(--gold-bg);border-radius:999px;padding:2px 8px}
+.room-block>summary .rt i{font-size:14px;transition:transform .2s}
+.room-block[open]>summary .rt .xem{background:transparent}
+.room-block .xem .dong,.room-block[open] .xem .mo{display:none}
+.room-block[open] .xem .dong{display:inline}
+.bam-goi-y{display:flex;gap:8px;align-items:center;font-size:var(--text-sm);color:var(--text2);margin:14px 0 4px}
+.bam-goi-y i{font-size:20px;color:var(--gold)}
 .room-block[open]>summary{border-bottom:1px solid var(--border);background:var(--cream)}
 .room-block[open]>summary .rt i{transform:rotate(180deg)}
 .room-than{padding:6px 14px 10px}
@@ -294,6 +300,7 @@ tr.sum td{font-weight:800;background:var(--cream)}
         <div class="chenh">Nhập <b>ngang × dài</b> từng phòng (và bề ngang cửa sổ) để tủ bếp, tủ áo, rèm tính theo đúng nhà anh/chị. Để trống thì giữ số lượng giả định.</div>
         <div class="hint" style="margin-bottom:4px">Áp một mức cho tất cả món:</div>
         <div class="muc-all" id="muc-all"></div>
+        <div class="bam-goi-y"><i class="ph-duotone ph-hand-pointing"></i><span><b>Bấm vào từng phòng</b> để xem ảnh, đơn giá và chỉnh từng món.</span></div>
         <div id="ds-phong"></div>
         <div class="anh-note">Ảnh chỉ để hình dung loại món, không phải sản phẩm cụ thể. Ảnh từ Unsplash.</div>
         <div class="bar"><div><small>Tổng theo lựa chọn của anh/chị (gồm dự phòng và phí thiết kế)</small><b id="tong-chinh">–</b></div><a href="tel:0909829696" data-aln-cta="noi-that-goi-bar"><i class="ph-duotone ph-phone-call"></i> Gọi KTS</a></div>
@@ -780,7 +787,7 @@ function veBang() {
     const hinh = loai.anh ? `<img src="${esc(loai.anh)}" alt="" loading="lazy" onerror="this.outerHTML='<span class=&quot;ph&quot;><i class=&quot;ph-duotone ${loai.icon || 'ph-house'}&quot;></i></span>'">` : `<span class="ph"><i class="ph-duotone ${loai.icon || 'ph-house'}"></i></span>`;
     return `
     <details class="room-block" data-pi="${pi}"${PHONG_MO.has(pi) ? ' open' : ''}>
-    <summary>${hinh}<div><b>${esc(NHAN[pi] || p.ten)}</b><small id="tm-${pi}">${fmtSo(p.dien_tich)} m²</small></div><div class="rt"><span id="tp-${pi}"></span><i class="ph-bold ph-caret-down"></i></div></summary>
+    <summary>${hinh}<div><b>${esc(NHAN[pi] || p.ten)}</b><small id="tm-${pi}">${fmtSo(p.dien_tich)} m²</small></div><div class="rt"><span id="tp-${pi}"></span><em class="xem"><span class="mo">Xem món</span><span class="dong">Thu gọn</span> <i class="ph-duotone ph-caret-down"></i></em></div></summary>
     <div class="room-than">
     ${oKichThuoc(p, pi)}
     ${DONG.map((d, i) => d.phong !== pi ? '' : `
