@@ -104,12 +104,43 @@ tr.sum td{font-weight:800;background:var(--cream)}
 .gate input{border:1px solid var(--border2);border-radius:10px;padding:12px;font-size:var(--text-md);font-family:inherit}
 .gate input:focus{outline:none;border-color:var(--gold)}
 .gate .btn{margin-top:4px}
+.otp{display:grid;gap:10px;border:1px solid var(--border);border-radius:12px;padding:12px;background:var(--cream)}
+.otp input{letter-spacing:.4em;text-align:center;font-size:var(--text-lg);font-weight:800}
+.otp-lk{display:flex;gap:14px;flex-wrap:wrap;font-size:var(--text-sm)}
+.otp-lk button{background:none;border:none;padding:0;color:var(--gold);font-weight:700;font-family:inherit;font-size:inherit;cursor:pointer}
+.otp-lk button:disabled{color:var(--muted);cursor:default}
+#recaptcha-nt{position:fixed;bottom:0;left:0}
 .privacy{font-size:var(--text-xs);color:var(--muted)}
 .muc-all{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 14px}
 .muc-all button{flex:1;min-width:90px;padding:10px;border-radius:10px;border:1.5px solid var(--border2);background:var(--white);font-family:inherit;font-weight:700;font-size:var(--text-sm);color:var(--text);cursor:pointer}
 .muc-all button.on{border-color:var(--gold);background:var(--gold-bg);color:var(--gold)}
-.room-block h3{font-size:var(--text-md);font-weight:800;margin:18px 0 8px;display:flex;justify-content:space-between;gap:8px}
-.room-block h3 span{color:var(--gold);font-size:var(--text-sm);white-space:nowrap}
+.room-block{border:1px solid var(--border);border-radius:14px;margin:10px 0;background:var(--white);overflow:hidden}
+.room-block>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;padding:12px 14px}
+.room-block>summary::-webkit-details-marker{display:none}
+.room-block>summary img,.room-block>summary .ph{width:44px;height:44px;border-radius:10px;object-fit:cover;background:var(--cream2);display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:22px}
+.room-block>summary b{display:block;font-size:var(--text-md)}
+.room-block>summary small{display:block;color:var(--sub);font-size:var(--text-xs)}
+.room-block>summary .rt{text-align:right;white-space:nowrap}
+.room-block>summary .rt span{display:block;color:var(--gold);font-weight:800;font-size:var(--text-sm)}
+.room-block>summary .rt i{font-size:18px;color:var(--sub);transition:transform .2s}
+.room-block[open]>summary{border-bottom:1px solid var(--border);background:var(--cream)}
+.room-block[open]>summary .rt i{transform:rotate(180deg)}
+.room-than{padding:6px 14px 10px}
+.toast{display:flex;gap:10px;align-items:flex-start;background:#ecfdf3;border:1px solid #a7e3bf;color:#14532d;border-radius:12px;padding:12px 14px;margin:6px 0 12px;font-size:var(--text-sm);line-height:1.5}
+.toast i{font-size:22px;color:#16a34a;flex:0 0 auto}
+.tk{margin-top:18px;border-radius:16px;overflow:hidden;background:var(--navy);color:#fff}
+.tk-dau{padding:18px 16px 6px}
+.tk-dau .eyebrow{margin-bottom:6px}
+.tk-dau b{display:block;font-size:var(--text-lg);line-height:1.35}
+.tk-dau p{color:#cbd5e1;font-size:var(--text-sm);margin:8px 0 0}
+.tk ul{list-style:none;margin:12px 16px 0;padding:0;display:grid;gap:8px}
+.tk li{display:flex;gap:10px;align-items:flex-start;font-size:var(--text-sm);color:#e2e8f0;line-height:1.45}
+.tk li i{color:#e8c877;font-size:20px;flex:0 0 auto}
+.tk-nut{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:16px}
+.tk-nut a{display:flex;align-items:center;justify-content:center;gap:6px;padding:13px 10px;border-radius:12px;font-weight:800;font-size:var(--text-sm);text-align:center}
+.tk-nut .goi{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff;grid-column:1/-1;font-size:var(--text-md)}
+.tk-nut .zalo{background:#0068ff;color:#fff}
+.tk-nut .mymy{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.25)}
 .mon{display:grid;grid-template-columns:72px 1fr;gap:10px 12px;padding:10px 0;border-top:1px solid var(--border)}
 .mon.off{opacity:.5}
 .mon img,.mon .ph{width:72px;height:72px;border-radius:10px;object-fit:cover;background:var(--cream2)}
@@ -125,6 +156,9 @@ tr.sum td{font-weight:800;background:var(--cream)}
 .mon-ctrl .tien{margin-left:auto;font-weight:800;font-size:var(--text-sm);white-space:nowrap}
 .bar{position:sticky;bottom:0;margin:16px -16px -16px;padding:12px 16px;background:var(--navy);color:#fff;border-radius:0 0 var(--r) var(--r);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 .bar b{font-size:var(--text-lg)}
+.bar{flex-wrap:nowrap}
+.bar>div{flex:1;min-width:0}
+.bar a{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff;font-weight:800;font-size:var(--text-sm);padding:10px 14px;border-radius:10px;white-space:nowrap}
 .bar small{display:block;color:#cbd5e1;font-size:var(--text-xs)}
 .anh-note{font-size:var(--text-xs);color:var(--muted);margin-top:10px}
 .chenh{background:var(--gold-bg);border:1px solid rgba(152,105,10,.25);border-radius:12px;padding:12px 14px;margin:4px 0 14px;font-size:var(--text-sm)}
@@ -236,11 +270,19 @@ tr.sum td{font-weight:800;background:var(--cream)}
       <form class="gate" id="gate" novalidate>
         <input id="g-ten" type="text" autocomplete="name" placeholder="Họ tên" maxlength="100">
         <input id="g-sdt" type="tel" inputmode="tel" autocomplete="tel" placeholder="Số điện thoại" maxlength="15">
-        <button class="btn" type="submit" id="g-btn"><i class="ph-duotone ph-lock-open"></i> Mở bảng từng món</button>
+        <button class="btn" type="submit" id="g-btn"><i class="ph-duotone ph-shield-check"></i> Gửi mã xác nhận</button>
+        <div class="otp" id="g-otp" hidden>
+          <div class="hint" style="margin:0">Nhập 6 số ALN vừa gửi qua SMS tới <b id="g-sdt-hien"></b></div>
+          <input id="g-ma" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="\d*" maxlength="6" placeholder="••••••">
+          <button class="btn" type="button" id="g-xn" style="margin-top:0"><i class="ph-duotone ph-lock-open"></i> Xác nhận và mở bảng</button>
+          <div class="otp-lk"><button type="button" id="g-gui-lai" disabled>Gửi lại mã</button><button type="button" id="g-doi">Đổi số điện thoại</button></div>
+        </div>
         <div class="msg" id="g-msg" role="status" aria-live="polite"></div>
-        <div class="privacy">Thông tin chỉ dùng để App Làm Nhà liên hệ tư vấn nội thất khi anh/chị cần.</div>
+        <div class="privacy">Mã xác nhận giúp bảng giá đến đúng chủ nhà. Thông tin chỉ dùng để App Làm Nhà liên hệ tư vấn nội thất khi anh/chị cần.</div>
       </form>
+      <div id="recaptcha-nt"></div>
       <div id="editor" hidden>
+        <div class="toast" id="da-nhan" hidden><i class="ph-duotone ph-check-circle"></i><div id="da-nhan-txt"></div></div>
         <div class="ban-ve" id="ban-ve">
           <div class="ban-ve-dau"><i class="ph-duotone ph-blueprint"></i><div><b>Có bản vẽ mặt bằng?</b><small>Tải ảnh hoặc file PDF, MyMy đọc kích thước từng phòng và điền sẵn cho anh/chị. Bản vẽ cũng được gửi tới KTS ALN để bóc chính xác khi anh/chị cần.</small></div></div>
           <label class="btn-phu" for="bv-file"><i class="ph-duotone ph-upload-simple"></i> Chọn bản vẽ</label>
@@ -254,7 +296,21 @@ tr.sum td{font-weight:800;background:var(--cream)}
         <div class="muc-all" id="muc-all"></div>
         <div id="ds-phong"></div>
         <div class="anh-note">Ảnh chỉ để hình dung loại món, không phải sản phẩm cụ thể. Ảnh từ Unsplash.</div>
-        <div class="bar"><div><small>Tổng theo lựa chọn của anh/chị (gồm dự phòng và phí thiết kế)</small><b id="tong-chinh">–</b></div></div>
+        <div class="bar"><div><small>Tổng theo lựa chọn của anh/chị (gồm dự phòng và phí thiết kế)</small><b id="tong-chinh">–</b></div><a href="tel:0909829696" data-aln-cta="noi-that-goi-bar"><i class="ph-duotone ph-phone-call"></i> Gọi KTS</a></div>
+        <div class="tk">
+          <div class="tk-dau"><div class="eyebrow">Bước tiếp theo</div><b>Bảng này cho khoảng giá. Bản thiết kế nội thất cho anh/chị một con số chính xác.</b>
+            <p id="tk-chenh">Khoảng giá còn rộng vì chưa có bố trí thật của từng phòng. KTS ALN thiết kế nội thất theo đúng căn nhà và ngân sách của anh/chị.</p></div>
+          <ul>
+            <li><i class="ph-duotone ph-layout"></i><span>Bản vẽ bố trí từng phòng, kích thước từng món đồ gỗ</span></li>
+            <li><i class="ph-duotone ph-cube"></i><span>Phối cảnh 3D để anh/chị xem trước khi làm</span></li>
+            <li><i class="ph-duotone ph-coins"></i><span>Phí thiết kế cố định theo m², biết trước <b id="tk-phi"></b></span></li>
+          </ul>
+          <div class="tk-nut">
+            <a class="goi" href="tel:0909829696" data-aln-cta="noi-that-goi"><i class="ph-duotone ph-phone-call"></i> Gọi KTS ALN: 0909 829 696</a>
+            <a class="zalo" href="https://zalo.me/alnsanthietke" target="_blank" rel="noopener" data-aln-cta="noi-that-zalo"><i class="ph-duotone ph-chat-circle-text"></i> Nhắn Zalo</a>
+            <a class="mymy" href="/?mymy=1" data-aln-cta="noi-that-mymy"><i class="ph-duotone ph-sparkle"></i> Hỏi MyMy</a>
+          </div>
+        </div>
       </div>
     </div>
     <div class="note">
@@ -274,7 +330,7 @@ tr.sum td{font-weight:800;background:var(--cream)}
 </main>
 
 <script type="module">
-import { app } from './firebase-config.js';
+import { app, auth, onAuthStateChanged, RecaptchaVerifier, signInWithPhoneNumber } from './firebase-config.js';
 import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js';
 
 const fns = getFunctions(app, 'asia-southeast1');
@@ -482,35 +538,155 @@ const gia = (v) => v >= 1e6
   ? (v / 1e6).toLocaleString('vi-VN', { maximumFractionDigits: 2 }) + ' tr'
   : Math.round(v).toLocaleString('vi-VN') + 'đ';
 
-document.getElementById('gate').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const $m = document.getElementById('g-msg');
-  const ten = document.getElementById('g-ten').value.trim();
-  const sdt = document.getElementById('g-sdt').value.replace(/[^0-9+]/g, '');
-  $m.textContent = '';
-  if (!ten) { $m.textContent = 'Vui lòng nhập họ tên.'; return; }
-  if (!/^(\+?84|0)\d{9}$/.test(sdt)) { $m.textContent = 'Số điện thoại chưa đúng (10 số, bắt đầu bằng 0).'; return; }
-  if (!PHONG_DA_TINH) { $m.textContent = 'Bấm "Xem khoảng chi phí" trước.'; return; }
+/* ── Mở bảng: xác nhận SĐT bằng OTP (Firebase Phone Auth, Nam chốt 27/09/2026) —
+   máy chủ chỉ trả bảng khi SĐT đã xác nhận trùng SĐT của lead. ── */
+const chuanSdt = (raw) => {
+  let p = String(raw || '').replace(/[\s.\-()]/g, '').replace(/^\+/, '');
+  if (p.startsWith('84') && p.length > 9) p = '0' + p.slice(2);
+  return /^0\d{9}$/.test(p) ? p : null;
+};
+const sdtDaXacNhan = () => {
+  const u = auth.currentUser;
+  return u && !u.isAnonymous && u.phoneNumber ? chuanSdt(u.phoneNumber) : null;
+};
+const LOI_OTP = {
+  'auth/invalid-phone-number': 'Số điện thoại chưa đúng.',
+  'auth/too-many-requests': 'Anh/chị thử quá nhiều lần. Vui lòng đợi vài phút rồi thử lại.',
+  'auth/code-expired': 'Mã đã hết hạn. Bấm "Gửi lại mã".',
+  'auth/invalid-verification-code': 'Mã chưa đúng. Kiểm tra lại 6 số trong tin nhắn.',
+  'auth/quota-exceeded': 'Hệ thống đã gửi quá nhiều mã hôm nay. Anh/chị nhắn Zalo ALN để được hỗ trợ.',
+  'auth/network-request-failed': 'Lỗi kết nối mạng. Kiểm tra Internet rồi thử lại.',
+  'auth/captcha-check-failed': 'Xác thực trình duyệt chưa thành công. Bấm gửi mã lại.',
+};
+let XAC_NHAN = null, VERIFIER = null, DEM_LUI = null;
+const $gm = () => document.getElementById('g-msg');
+function docTen() {
+  const ten = document.getElementById('g-ten').value.trim().replace(/\s+/g, ' ');
+  const chu = (ten.match(/\p{L}/gu) || []).length;
+  return chu >= 2 && !/\d{3,}/.test(ten) ? ten : null;
+}
+function kiemForm() {
+  const ten = docTen();
+  const sdt = chuanSdt(document.getElementById('g-sdt').value);
+  if (!ten) { $gm().textContent = 'Vui lòng nhập họ tên của anh/chị.'; return null; }
+  if (!sdt) { $gm().textContent = 'Số điện thoại chưa đúng (10 số, bắt đầu bằng 0).'; return null; }
+  if (!PHONG_DA_TINH) { $gm().textContent = 'Bấm "Xem khoảng chi phí" trước.'; return null; }
+  return { ten, sdt };
+}
+function demLui(giay) {
+  const $r = document.getElementById('g-gui-lai');
+  clearInterval(DEM_LUI);
+  let con = giay;
+  $r.disabled = true;
+  const tick = () => {
+    if (con <= 0) { clearInterval(DEM_LUI); $r.disabled = false; $r.textContent = 'Gửi lại mã'; return; }
+    $r.textContent = `Gửi lại mã (${con}s)`; con -= 1;
+  };
+  tick(); DEM_LUI = setInterval(tick, 1000);
+}
+async function guiMa() {
+  const f = kiemForm();
+  if (!f) return;
   const $b = document.getElementById('g-btn');
-  $b.disabled = true; $b.textContent = 'Đang mở…';
+  $b.disabled = true; $b.textContent = 'Đang gửi mã…';
   try {
-    const t = KQ && KQ.tong_cong;
-    const r = await guiLead({
-      name: ten, phone: sdt, projectType: 'thiet_ke', loai: 'noi_that', kenh: 'noithat',
-      area: KQ ? KQ.dien_tich : null,
-      tongMin: t ? Math.round(t.co_ban.thap) : null, tongMax: t ? Math.round(t.cao_cap.cao) : null,
-      utm: (window.alnGetUtm && window.alnGetUtm()) || {}, sourceUrl: location.href,
-    });
-    LEAD_ID = r.data && r.data.id;
-    try { sessionStorage.setItem('aln_noithat_lead', LEAD_ID); } catch (e2) {}
-    await moBang();
-    try { gtag('event', 'aln_noithat_mo_bang', {}); } catch (e2) {}
+    if (!VERIFIER) VERIFIER = new RecaptchaVerifier(auth, 'recaptcha-nt', { size: 'invisible' });
+    XAC_NHAN = await signInWithPhoneNumber(auth, '+84' + f.sdt.slice(1), VERIFIER);
+    document.getElementById('g-sdt-hien').textContent = f.sdt;
+    document.getElementById('g-otp').hidden = false;
+    $b.hidden = true;
+    document.getElementById('g-ten').disabled = true;
+    document.getElementById('g-sdt').disabled = true;
+    const $ma = document.getElementById('g-ma'); $ma.value = ''; $ma.focus();
+    demLui(60);
+    try { gtag('event', 'aln_noithat_gui_otp', {}); } catch (e2) {}
   } catch (err) {
-    $m.textContent = (err && err.message && /điện thoại|họ tên/i.test(err.message)) ? err.message : 'Chưa mở được bảng. Anh/chị thử lại sau ít phút.';
+    $gm().textContent = LOI_OTP[err && err.code] || 'Chưa gửi được mã. Anh/chị thử lại hoặc nhắn Zalo ALN.';
     console.error(err);
   } finally {
-    $b.disabled = false; $b.innerHTML = '<i class="ph-duotone ph-lock-open"></i> Mở bảng từng món';
+    try { VERIFIER && VERIFIER.clear(); } catch (e2) {}
+    VERIFIER = null;
+    const c = document.getElementById('recaptcha-nt'); if (c) c.replaceWith(c.cloneNode(false));
+    $b.disabled = false; $b.innerHTML = '<i class="ph-duotone ph-shield-check"></i> Gửi mã xác nhận';
   }
+}
+async function moSauXacNhan(f) {
+  const t = KQ && KQ.tong_cong;
+  const r = await guiLead({
+    name: f.ten, phone: f.sdt, projectType: 'thiet_ke', loai: 'noi_that', kenh: 'noithat',
+    area: KQ ? KQ.dien_tich : null,
+    tongMin: t ? Math.round(t.co_ban.thap) : null, tongMax: t ? Math.round(t.cao_cap.cao) : null,
+    utm: (window.alnGetUtm && window.alnGetUtm()) || {}, sourceUrl: location.href,
+  });
+  LEAD_ID = r.data && r.data.id;
+  try { sessionStorage.setItem('aln_noithat_lead', LEAD_ID); } catch (e2) {}
+  await moBang();
+  const $t = document.getElementById('da-nhan');
+  document.getElementById('da-nhan-txt').innerHTML = `<b>Đã xác nhận số ${esc(f.sdt)} và mở bảng từng món cho ${esc(f.ten)}.</b> KTS ALN sẽ liên hệ khi anh/chị cần tư vấn thiết kế. Bấm vào từng phòng để xem và chỉnh món.`;
+  $t.hidden = false;
+  $t.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  try { gtag('event', 'aln_noithat_mo_bang', {}); } catch (e2) {}
+}
+document.getElementById('gate').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  $gm().textContent = '';
+  const f = kiemForm();
+  if (!f) return;
+  if (sdtDaXacNhan() === f.sdt) { // đã xác nhận OTP số này (vd từ trang dự toán) — không bắt nhập mã lại
+    const $b = document.getElementById('g-btn');
+    $b.disabled = true; $b.textContent = 'Đang mở…';
+    try { await moSauXacNhan(f); } catch (err) {
+      $gm().textContent = (err && err.message && /điện thoại|họ tên|OTP/i.test(err.message)) ? err.message : 'Chưa mở được bảng. Anh/chị thử lại sau ít phút.';
+      console.error(err);
+    } finally { $b.disabled = false; $b.innerHTML = '<i class="ph-duotone ph-lock-open"></i> Mở bảng từng món'; }
+    return;
+  }
+  await guiMa();
+});
+document.getElementById('g-gui-lai').addEventListener('click', () => { $gm().textContent = ''; guiMa(); });
+document.getElementById('g-doi').addEventListener('click', () => {
+  XAC_NHAN = null; clearInterval(DEM_LUI);
+  document.getElementById('g-otp').hidden = true;
+  document.getElementById('g-btn').hidden = false;
+  document.getElementById('g-ten').disabled = false;
+  document.getElementById('g-sdt').disabled = false;
+  document.getElementById('g-sdt').focus();
+  $gm().textContent = '';
+});
+document.getElementById('g-ma').addEventListener('input', (e) => {
+  e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
+  if (e.target.value.length === 6) document.getElementById('g-xn').click();
+});
+document.getElementById('g-xn').addEventListener('click', async () => {
+  $gm().textContent = '';
+  const ma = document.getElementById('g-ma').value;
+  if (!/^\d{6}$/.test(ma)) { $gm().textContent = 'Vui lòng nhập đủ 6 số.'; return; }
+  if (!XAC_NHAN) { $gm().textContent = LOI_OTP['auth/code-expired']; return; }
+  const $x = document.getElementById('g-xn');
+  if ($x.disabled) return;
+  $x.disabled = true; $x.textContent = 'Đang xác nhận…';
+  try {
+    await XAC_NHAN.confirm(ma);
+    const f = { ten: docTen(), sdt: chuanSdt(document.getElementById('g-sdt').value) };
+    await moSauXacNhan(f);
+    clearInterval(DEM_LUI);
+  } catch (err) {
+    $gm().textContent = LOI_OTP[err && err.code] || ((err && err.message && /điện thoại|họ tên|OTP/i.test(err.message)) ? err.message : 'Chưa mở được bảng. Anh/chị thử lại sau ít phút.');
+    console.error(err);
+  } finally { $x.disabled = false; $x.innerHTML = '<i class="ph-duotone ph-lock-open"></i> Xác nhận và mở bảng'; }
+});
+// Đã có phiên OTP (vd vừa xác nhận ở trang dự toán phần thô): điền sẵn số, nút mở thẳng.
+onAuthStateChanged(auth, () => {
+  const sdt = sdtDaXacNhan();
+  const $s = document.getElementById('g-sdt');
+  const $b = document.getElementById('g-btn');
+  if (sdt && !$s.value) $s.value = sdt;
+  if (sdt && chuanSdt($s.value) === sdt && !$b.hidden) $b.innerHTML = '<i class="ph-duotone ph-lock-open"></i> Mở bảng từng món';
+});
+document.getElementById('g-sdt').addEventListener('input', () => {
+  const $b = document.getElementById('g-btn');
+  const ok = sdtDaXacNhan() && chuanSdt(document.getElementById('g-sdt').value) === sdtDaXacNhan();
+  $b.innerHTML = ok ? '<i class="ph-duotone ph-lock-open"></i> Mở bảng từng món' : '<i class="ph-duotone ph-shield-check"></i> Gửi mã xác nhận';
 });
 
 async function moBang(giuLai) {
@@ -525,6 +701,10 @@ async function moBang(giuLai) {
     LEAD_ID = null;
     try { sessionStorage.removeItem('aln_noithat_lead'); } catch (e2) {}
     document.getElementById('gate').hidden = false;
+    document.getElementById('g-otp').hidden = true;
+    document.getElementById('g-btn').hidden = false;
+    document.getElementById('g-ten').disabled = false;
+    document.getElementById('g-sdt').disabled = false;
     document.getElementById('editor').hidden = true;
     document.getElementById('teaser').hidden = false;
     document.getElementById('chenh').hidden = !document.getElementById('chenh').innerHTML;
@@ -575,6 +755,7 @@ function tienDong(d) {
 
 const fmtSo = (v) => Number(v).toLocaleString('vi-VN', { maximumFractionDigits: 2 });
 let LUOT_BANG = 0;
+const PHONG_MO = new Set(); // phòng khách đang mở trong bảng từng món
 let KT_NHAP = {}; // kích thước khách đang gõ, theo chỉ số phòng — giữ qua các lần vẽ lại bảng
 function oKichThuoc(p, pi) {
   const kt = Object.assign({}, p.kich_thuoc || {}, KT_NHAP[pi] || {});
@@ -594,8 +775,13 @@ function veBang() {
   const $ds = document.getElementById('ds-phong');
   const f = document.activeElement;
   const giuFocus = f && f.dataset && f.dataset.kt ? { kt: f.dataset.kt, pi: f.dataset.pi } : null;
-  $ds.innerHTML = BANG.phong.map((p, pi) => `
-    <div class="room-block"><h3>${esc(NHAN[pi] || p.ten)} (${fmtSo(p.dien_tich)} m²)<span id="tp-${pi}"></span></h3>
+  $ds.innerHTML = BANG.phong.map((p, pi) => {
+    const loai = LOAI[p.ma] || {};
+    const hinh = loai.anh ? `<img src="${esc(loai.anh)}" alt="" loading="lazy" onerror="this.outerHTML='<span class=&quot;ph&quot;><i class=&quot;ph-duotone ${loai.icon || 'ph-house'}&quot;></i></span>'">` : `<span class="ph"><i class="ph-duotone ${loai.icon || 'ph-house'}"></i></span>`;
+    return `
+    <details class="room-block" data-pi="${pi}"${PHONG_MO.has(pi) ? ' open' : ''}>
+    <summary>${hinh}<div><b>${esc(NHAN[pi] || p.ten)}</b><small id="tm-${pi}">${fmtSo(p.dien_tich)} m²</small></div><div class="rt"><span id="tp-${pi}"></span><i class="ph-bold ph-caret-down"></i></div></summary>
+    <div class="room-than">
     ${oKichThuoc(p, pi)}
     ${DONG.map((d, i) => d.phong !== pi ? '' : `
       <div class="mon${d.muc === 'bo' ? ' off' : ''}" id="mon-${i}">
@@ -610,7 +796,12 @@ function veBang() {
           <span class="tien" id="tien-${i}"></span>
         </div>
       </div>`).join('')}
-    </div>`).join('');
+    </div></details>`;
+  }).join('');
+  $ds.querySelectorAll('details.room-block').forEach((el) => el.addEventListener('toggle', () => {
+    const pi = Number(el.dataset.pi);
+    if (el.open) PHONG_MO.add(pi); else PHONG_MO.delete(pi);
+  }));
   if (giuFocus) {
     const el = $ds.querySelector(`[data-kt="${giuFocus.kt}"][data-pi="${giuFocus.pi}"]`);
     if (el) el.focus();
@@ -639,12 +830,16 @@ function capNhat() {
     const t = tongPhong[pi] || [0, 0];
     const el = document.getElementById(`tp-${pi}`);
     if (el) el.textContent = `${trieu(t[0])} – ${trieu(t[1], true)} tr`;
+    const chon = DONG.filter((d) => d.phong === pi && d.muc !== 'bo').length;
+    const tm = document.getElementById(`tm-${pi}`);
+    if (tm) tm.textContent = `${fmtSo(p.dien_tich)} m² · ${chon} món`;
   });
   const dt = BANG.phong.reduce((s, p) => s + p.dien_tich, 0);
   const phi = dt * BANG.phi_thiet_ke_m2;
   const tThap = thap * (1 + BANG.du_phong.thap) + phi;
   const tCao = cao * (1 + BANG.du_phong.cao) + phi;
   document.getElementById('tong-chinh').textContent = `${trieu(tThap)} – ${trieu(tCao, true)} triệu`;
+  document.getElementById('tk-phi').textContent = `(${Math.round(dt).toLocaleString('vi-VN')} m² × ${BANG.phi_thiet_ke_m2.toLocaleString('vi-VN')}đ = ${Math.round(phi).toLocaleString('vi-VN')}đ)`;
 }
 
 async function doiKichThuoc(el) {
