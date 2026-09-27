@@ -24,8 +24,18 @@ chứng nhận, xếp hạng hay cam kết nào khác.
 
 - Thiết kế kiến trúc nhà ở: nhà phố, biệt thự, nhà cấp 4
 - Thiết kế kết cấu
+- Thiết kế nội thất nhà ở, thường làm sau khi có thiết kế kiến trúc. Phí thiết kế
+  120.000 đ/m² (nhà phố).
 - Hồ sơ phục vụ xin phép xây dựng
 - Bảng dự toán sơ bộ để chủ nhà đối chiếu báo giá nhà thầu
+
+## Công cụ ước tính
+
+- Dự toán phần thô theo từng hạng mục: https://applamnha.vn/du-toan-nha.html
+- Khoảng chi phí nội thất theo 3 mức Cơ bản / Khá / Cao cấp:
+  https://applamnha.vn/noi-that-khoang-gia.html
+
+Số liệu tham khảo, không phải báo giá.
 
 ## Về bảng dự toán của ALN
 
