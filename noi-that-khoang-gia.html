@@ -17,7 +17,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <title>Ước tính chi phí nội thất trước khi có bản vẽ | App Làm Nhà</title>
 <meta name="description" content="Chọn phòng, nhập diện tích, xem khoảng chi phí nội thất tham khảo theo 3 mức Cơ bản, Khá, Cao cấp. Phí thiết kế nội thất ALN niêm yết 2026: 120.000đ/m².">
 <!-- Bản thử nghiệm: số liệu chờ KTS duyệt; noindex nhưng đã có Pixel/GTM để chạy quảng cáo thử -->
-<meta name="robots" content="noindex, nofollow">
+<meta name="robots" content="noindex, follow">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css">
 <link rel="stylesheet" href="aln-tokens.css">
 <link rel="icon" href="icon-192.png" type="image/png">
@@ -342,7 +342,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <ul>
             <li><i class="ph-duotone ph-layout"></i><span>Bản vẽ bố trí từng phòng, kích thước từng món đồ gỗ</span></li>
             <li><i class="ph-duotone ph-cube"></i><span>Phối cảnh 3D để anh/chị xem trước khi làm</span></li>
-            <li><i class="ph-duotone ph-coins"></i><span>Phí thiết kế cố định theo m², biết trước <b id="tk-phi"></b></span></li>
+            <li><i class="ph-duotone ph-coins"></i><span>Phí thiết kế cố định theo m², biết trước <b id="tk-phi"></b> · <a href="/cam-nang/phi-thiet-ke-noi-that-nha-pho/">cách tính</a></span></li>
           </ul>
           <div class="tk-nut">
             <a class="goi" href="tel:0909829696" data-aln-cta="noi-that-goi"><i class="ph-duotone ph-phone-call"></i> Gọi KTS ALN: 0909 829 696</a>
@@ -522,7 +522,7 @@ function hienKetQua(d) {
   dong.push(`<tr class="sum"><td>Tổng cộng</td>${MUC.map((m) => `<td>${khoang(d.tong_cong[m.ma]).replace(' triệu', '')}</td>`).join('')}</tr>`);
   document.getElementById('bang').innerHTML = dong.join('');
   document.getElementById('fee').innerHTML =
-    `Phí thiết kế nội thất là khoản <b>cố định duy nhất</b>: ${d.dien_tich.toLocaleString('vi-VN')} m² × 120.000đ = <b>${d.phi_thiet_ke.toLocaleString('vi-VN')}đ</b>. Mọi khoản còn lại thay đổi theo lựa chọn vật liệu và đồ đạc của anh/chị.`;
+    `Phí thiết kế nội thất là khoản <b>cố định duy nhất</b>: ${d.dien_tich.toLocaleString('vi-VN')} m² × 120.000đ = <b>${d.phi_thiet_ke.toLocaleString('vi-VN')}đ</b>. Mọi khoản còn lại thay đổi theo lựa chọn vật liệu và đồ đạc của anh/chị. <a href="/cam-nang/phi-thiet-ke-noi-that-nha-pho/">Xem cách tính phí thiết kế nội thất nhà phố</a>.`;
   const chenh = d.tong_cong.cao_cap.cao - d.tong_cong.co_ban.thap;
   const $chenh = document.getElementById('chenh');
   const tongMon = d.phong.reduce((a, p) => a + (p.so_mon || 0), 0);
