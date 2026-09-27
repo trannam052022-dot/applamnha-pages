@@ -739,6 +739,7 @@ async function doSave() {
     // 26/09/2026 Founder gặp lỗi lưu mà không biết vì sao.
     const code = (err && err.code) || '';
     console.error("[du-toan-nha] saveEstimateToHouse failed", code, err && err.message);
+    window.alnBaoLoiNeuCan && window.alnBaoLoiNeuCan("du-toan-nha luu", err);
     // Lỗi máy chủ đã TỪ CHỐI hẳn (sai dữ liệu / thao tác cũ không khớp) thì bỏ
     // thao tác đang nhớ trong sessionStorage — nếu giữ, bấm "Thử lại" hay sửa
     // số rồi lưu lại vẫn gửi y nguyên gói cũ và kẹt lỗi mãi trong tab này.

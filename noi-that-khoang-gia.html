@@ -3,6 +3,7 @@
 <head>
 <!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM (xem scripts/aln-optout.js) -->
 <script src="scripts/aln-optout.js"></script>
+<script src="error-monitor.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ước tính chi phí nội thất trước khi có bản vẽ | App Làm Nhà</title>
@@ -609,6 +610,7 @@ async function guiMa() {
     try { gtag('event', 'aln_noithat_gui_otp', {}); } catch (e2) {}
   } catch (err) {
     $gm().textContent = LOI_OTP[err && err.code] || 'Chưa gửi được mã. Anh/chị thử lại hoặc nhắn Zalo ALN.';
+    window.alnBaoLoiNeuCan && window.alnBaoLoiNeuCan('noi-that gui-otp', err);
     console.error(err);
   } finally {
     try { VERIFIER && VERIFIER.clear(); } catch (e2) {}
@@ -679,6 +681,7 @@ document.getElementById('g-xn').addEventListener('click', async () => {
     clearInterval(DEM_LUI);
   } catch (err) {
     $gm().textContent = LOI_OTP[err && err.code] || ((err && err.message && /điện thoại|họ tên|OTP/i.test(err.message)) ? err.message : 'Chưa mở được bảng. Anh/chị thử lại sau ít phút.');
+    window.alnBaoLoiNeuCan && window.alnBaoLoiNeuCan('noi-that xac-nhan-otp', err);
     console.error(err);
   } finally { $x.disabled = false; $x.innerHTML = '<i class="ph-duotone ph-lock-open"></i> Xác nhận và mở bảng'; }
 });

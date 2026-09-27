@@ -493,6 +493,7 @@ async function handleSend() {
     els.otpInput.focus();
   } catch (err) {
     console.warn("[dang-nhap-chu-nha] gửi mã thất bại");
+    window.alnBaoLoiNeuCan && window.alnBaoLoiNeuCan("dang-nhap gui-ma", err);
     showError(err && err.code, err && err.message);
   } finally {
     resetRecaptcha();
@@ -524,6 +525,7 @@ async function handleVerify() {
     window.location.href = resolveNextUrl();
   } catch (err) {
     console.warn("[dang-nhap-chu-nha] xác nhận mã thất bại");
+    window.alnBaoLoiNeuCan && window.alnBaoLoiNeuCan("dang-nhap xac-nhan-ma", err);
     showError(err && err.code, err && err.message);
   } finally {
     els.verifyBtn.disabled = false;
