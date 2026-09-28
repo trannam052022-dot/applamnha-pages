@@ -1639,7 +1639,7 @@ function mymyAddBot(text){
   var box = document.getElementById('mymy-msgs');
   var row = document.createElement('div');
   row.className = 'mm-row bot';
-  row.innerHTML = '<div class="mm-avatar-sm"><i class="ph ph-headset"></i></div><div class="mm-bubble">' + eH(text) + '</div>';
+  row.innerHTML = '<div class="mm-avatar-sm"><i class="ph ph-headset"></i></div><div class="mm-bubble">' + alnMyMyHtml(text) + '</div>';
   box.appendChild(row);
   box.scrollTop = box.scrollHeight;
 }
@@ -1694,7 +1694,7 @@ function mymyToggle(){
   document.getElementById('mymy-badge').style.display = 'none';
   if(win.classList.contains('open') && !window.MYMY_OPENED){
     window.MYMY_OPENED = true;
-    mymyAddBot('Chào bạn! Em là MyMy bên ALN. Cho em hỏi xưng hô là anh hay chị để em tiện trò chuyện ạ?');
+    mymyAddBot('Chào bạn! Em là MyMy của ALN. Cho em hỏi xưng hô là anh hay chị để em tiện trò chuyện ạ?');
     mymyAskGenderButtons();
   }
 }
@@ -1727,7 +1727,7 @@ function mymyShowTeaser(onDismissWithoutOpen){
   var teaser = document.createElement('div');
   teaser.className = 'mymy-teaser';
   teaser.id = 'mymy-teaser';
-  teaser.innerHTML = 'Xin chào! Em là MyMy bên ALN 👋 Anh/chị cần hỗ trợ gì không ạ?<button class="mymy-teaser-close" aria-label="Đóng" type="button">×</button>';
+  teaser.innerHTML = 'Xin chào! Em là MyMy của ALN 👋 Anh/chị cần hỗ trợ gì không ạ?<button class="mymy-teaser-close" aria-label="Đóng" type="button">×</button>';
   document.body.appendChild(teaser);
   var dismissed = false;
   var autoHide = setTimeout(function(){

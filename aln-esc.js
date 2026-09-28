@@ -74,5 +74,18 @@
     return ra.innerHTML;
   }
 
-  w.eH = eH; w.eJ = eJ; w.eU = eU; w.alnUrl = alnUrl; w.alnLocHtml = alnLocHtml;
+  // Câu trả lời MyMy/AI: escape TRƯỚC, rồi mới định dạng — chỉ sinh 2 thẻ <strong> và <br>.
+  // **chữ** → <strong>chữ</strong> (cùng dòng); bỏ '*', '#', '-' thừa ở đầu dòng (gạch đầu dòng,
+  // tiêu đề Markdown); ** lẻ còn sót bị bỏ; xuống dòng → <br>. Bản sao y hệt ở mymy-widget.js
+  // (mmHtml) — sửa ở đây thì sửa cả bên đó (scripts/_test_aln_esc.js đối chiếu 2 bản).
+  function alnMyMyHtml(text) {
+    return eH(text).split(/\r?\n/).map(function (dong) {
+      return dong
+        .replace(/^\s*(?:(?:#{1,6}|\*{1,2}(?!\*)|[-•])\s+)+/, '')
+        .replace(/\*\*(?=\S)([^*]*?\S)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*\*/g, '');
+    }).join('<br>');
+  }
+
+  w.eH = eH; w.eJ = eJ; w.eU = eU; w.alnUrl = alnUrl; w.alnLocHtml = alnLocHtml; w.alnMyMyHtml = alnMyMyHtml;
 })(window);

@@ -380,7 +380,7 @@ async function chatSend() {
       sourceUrl: location.href.slice(0, 300),
     });
     const reply = (res.data && res.data.reply) || 'Dạ em chưa nghe rõ, anh/chị mô tả lại giúp em nha.';
-    waiting.textContent = reply;
+    waiting.innerHTML = alnMyMyHtml(reply); // escape rồi mới định dạng (**đậm**, xuống dòng)
     if (res.data && res.data.submitted) waiting.classList.add('submitted');
     chatHistory.push({ role: 'assistant', content: reply });
   } catch (e) {

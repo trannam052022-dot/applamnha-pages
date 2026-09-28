@@ -5161,7 +5161,8 @@ window.closeMymyBrief = function() {
     if (!box) return;
     var d = document.createElement('div');
     d.className = 'dma-bubble ' + (role === 'user' ? 'out' : 'in');
-    d.textContent = text;
+    if (role === 'user') d.textContent = text;
+    else d.innerHTML = alnMyMyHtml(text); // MyMy: escape rồi mới định dạng (**đậm**, xuống dòng)
     box.appendChild(d);
     box.scrollTop = box.scrollHeight;
   }

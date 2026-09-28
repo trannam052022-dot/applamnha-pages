@@ -1032,7 +1032,8 @@ function anAddMsg(text, side){
   var msgs = document.getElementById('anMsgs');
   var b = document.createElement('div');
   b.className = 'an-bubble from-' + side;
-  b.textContent = text;
+  if (side === 'an') b.innerHTML = alnMyMyHtml(text); // câu trả lời AI: escape rồi mới định dạng
+  else b.textContent = text;
   msgs.appendChild(b);
   msgs.scrollTop = msgs.scrollHeight;
   /* push to LLM history */

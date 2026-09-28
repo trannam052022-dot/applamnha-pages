@@ -145,6 +145,15 @@ if (!document.getElementById('mymy-btn')) {
   // Escape đủ & < > " ' ` (bản cũ dùng textContent→innerHTML không escape dấu nháy — thoát được
   // khỏi href="…"). Widget chạy độc lập, không phụ thuộc aln-esc.js.
   function esc(s){ return String(s === undefined || s === null ? '' : s).replace(/[&<>"'`]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '`': '&#96;' }[c])); }
+  // Câu trả lời AI: escape TRƯỚC rồi mới định dạng — chỉ sinh <strong> và <br>. Bản sao y hệt
+  // alnMyMyHtml trong aln-esc.js (widget chạy cả trên trang không nạp aln-esc.js);
+  // scripts/_test_aln_esc.js đối chiếu 2 bản ra cùng kết quả.
+  function mmHtml(text){
+    return esc(text).split(/\r?\n/).map((dong) => dong
+      .replace(/^\s*(?:(?:#{1,6}|\*{1,2}(?!\*)|[-•])\s+)+/, '')
+      .replace(/\*\*(?=\S)([^*]*?\S)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*\*/g, '')).join('<br>');
+  }
   // URL gợi ý: chỉ đường dẫn nội bộ hoặc http(s) — còn lại '#'
   function escUrl(u){ const t = String(u || '').trim(); const goc = t.replace(/[\u0000-\u0020\u007f]/g, ''); return (/^([a-z][a-z0-9+.-]*):/i.test(goc) && !/^https?:/i.test(goc)) ? '#' : esc(t); }
 
@@ -177,7 +186,7 @@ if (!document.getElementById('mymy-btn')) {
     document.getElementById('mymy-badge').style.display = 'none';
     if (win.classList.contains('open') && !S.opened) {
       S.opened = true;
-      addBot('Chào bạn! Em là MyMy bên ALN. Cho em hỏi xưng hô là anh hay chị để em tiện trò chuyện ạ?');
+      addBot('Chào bạn! Em là MyMy của ALN. Cho em hỏi xưng hô là anh hay chị để em tiện trò chuyện ạ?');
       askGenderButtons();
     }
   }
@@ -208,7 +217,7 @@ if (!document.getElementById('mymy-btn')) {
     const teaser = document.createElement('div');
     teaser.className = 'mymy-teaser';
     teaser.id = 'mymy-teaser';
-    teaser.innerHTML = 'Xin chào! Em là MyMy bên ALN 👋 Anh/chị cần hỗ trợ gì không ạ?<button class="mymy-teaser-close" aria-label="Đóng" type="button">×</button>';
+    teaser.innerHTML = 'Xin chào! Em là MyMy của ALN 👋 Anh/chị cần hỗ trợ gì không ạ?<button class="mymy-teaser-close" aria-label="Đóng" type="button">×</button>';
     document.body.appendChild(teaser);
     let dismissed = false;
     const autoHide = setTimeout(() => { dismissed = true; teaser.remove(); if (onDismissWithoutOpen) onDismissWithoutOpen(); }, 12000);
@@ -335,7 +344,7 @@ if (!document.getElementById('mymy-btn')) {
     showTyping();
     callAlnChat(text, S.history).then((res) => {
       removeTyping();
-      addBot(esc(res.reply || '').replace(/\n/g, '<br>')); // prompt alnChat: chữ thuần — escape rồi mới xuống dòng
+      addBot(mmHtml(res.reply || '')); // escape rồi mới định dạng (**đậm**, xuống dòng)
       S.history.push({ role: 'assistant', content: res.reply || '' });
       renderSuggestion(res.suggestion);
       if (S.userTurns >= 3 && !S.askedPhone) {
