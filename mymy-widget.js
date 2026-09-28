@@ -320,6 +320,16 @@ if (!document.getElementById('mymy-btn')) {
   }
   autoOpenFromQuery();
 
+  /* Link/nút "Hỏi MyMy" trên trang (thuộc tính data-mymy-mo): mở khung chat ngay
+     tại trang thay vì chuyển về trang chủ. href giữ "/?mymy=1" làm đường dự phòng
+     khi widget chưa nạp được. */
+  document.addEventListener('click', (e) => {
+    const el = e.target && e.target.closest ? e.target.closest('[data-mymy-mo]') : null;
+    if (!el) return;
+    e.preventDefault();
+    if (!document.getElementById('mymy-win').classList.contains('open')) toggle();
+  });
+
   /* ── Kết nối Firebase (ẩn danh) — module con, không chặn phần UI ở trên ── */
   (async () => {
     try {
@@ -333,29 +343,26 @@ if (!document.getElementById('mymy-btn')) {
       const fnAlnChat = fnMod.httpsCallable(functions, 'alnChat');
       const fnUpsertContact = fnMod.httpsCallable(functions, 'upsertContact');
 
-      let authReady = false;
-      // Sự cố production 22/09/2026 (4): TRƯỚC ĐÂY gọi signInAnonymously()
-      // vô điều kiện — nếu trình duyệt đang có phiên Phone Auth thật (chủ
-      // nhà vừa đăng nhập OTP ở dang-nhap-chu-nha.html/du-toan-nha.html/
-      // khong-gian-nha.html, cùng origin nên Firebase Auth persist qua),
-      // gọi lại signInAnonymously() ở ĐÂY sẽ TẠO PHIÊN ẨN DANH MỚI VÀ THAY
-      // HẲN phiên hiện tại (Firebase Auth không "cộng thêm", currentUser bị
-      // ghi đè) — chủ nhà mở bất kỳ trang nào có widget MyMy sau khi đăng
-      // nhập là bị đá ra khỏi phiên Phone Auth ngay lập tức. Chỉ tạo phiên
-      // ẩn danh khi CHƯA có phiên nào (kể cả phiên ẩn danh cũ cũng giữ
-      // nguyên, không tạo mới lãng phí).
-      //
-      // Sự cố 23/09/2026: kiểm auth.currentUser NGAY lúc tải là quá sớm — SDK
-      // chưa khôi phục xong phiên lưu trong IndexedDB nên currentUser vẫn null,
-      // widget tưởng chưa có phiên và signInAnonymously() GHI ĐÈ phiên OTP của
-      // chủ nhà (mở forum.html/trang chủ/Kho mẫu là mất phiên Không gian Nhà).
-      // Đợi authStateReady() rồi mới kiểm.
-      auth.authStateReady().then(() => {
-        if (!auth.currentUser) {
-          authMod.signInAnonymously(auth).catch((e) => console.error('MyMy anon-auth lỗi:', e));
+      // Phiên đăng nhập cho alnChat/upsertContact. CHỈ tạo phiên ẩn danh khi
+      // khách THẬT SỰ gửi tin và trình duyệt chưa có phiên nào (đợi
+      // authStateReady() trước — sự cố 23/09/2026: kiểm currentUser ngay lúc
+      // tải thì SDK chưa khôi phục xong phiên nên tưởng chưa có).
+      // Sự cố production 22/09/2026 (4): gọi signInAnonymously() khi đã có
+      // phiên Phone Auth sẽ GHI ĐÈ phiên đó (chủ nhà bị đá khỏi phiên OTP).
+      // 28/09/2026: không tạo phiên ẩn danh lúc tải trang nữa — trang nội thất
+      // có OTP ngay trên trang, phiên ẩn danh tạo lúc tải mà xong SAU khi khách
+      // xác nhận OTP sẽ ghi đè phiên OTP (lead đã ghi taoBoiUid = uid OTP →
+      // khách mất quyền mở bảng/lưu lựa chọn). Khách chưa chat thì không cần phiên.
+      let dangTaoPhien = null;
+      function damBaoPhien(){
+        if (!dangTaoPhien) {
+          dangTaoPhien = auth.authStateReady().then(() => {
+            if (auth.currentUser) return;
+            return authMod.signInAnonymously(auth).then(() => undefined);
+          }).catch((e) => { dangTaoPhien = null; throw e; });
         }
-      });
-      authMod.onAuthStateChanged(auth, (u) => { authReady = !!u; });
+        return dangTaoPhien;
+      }
 
       const pageContext = (document.title || '').split('|')[0].trim().slice(0, 100);
 
@@ -380,15 +387,7 @@ if (!document.getElementById('mymy-btn')) {
       }
 
       callAlnChat = async (text, history) => {
-        if (!authReady) {
-          await withTimeout(
-            new Promise((resolve) => {
-              const unsub = authMod.onAuthStateChanged(auth, (u) => { if (u) { unsub(); resolve(); } });
-            }),
-            10000,
-            'Hết thời gian chờ đăng nhập ẩn danh'
-          );
-        }
+        await withTimeout(damBaoPhien(), 10000, 'Hết thời gian chờ đăng nhập ẩn danh');
         const res = await withTimeout(
           fnAlnChat({
             messages: history, agentName: 'MyMy', toUser: S.addr,
@@ -400,7 +399,7 @@ if (!document.getElementById('mymy-btn')) {
         return res.data || {};
       };
       upsertContact = (phone) => {
-        fnUpsertContact({ phone, name: null, loai_lien_he: 'khach_hang', nguon: 'mymy_chat', chi_tiet_nguon: 'MyMy chat — ' + pageContext }).catch((e) => console.warn('upsertContact:', e.message));
+        damBaoPhien().then(() => fnUpsertContact({ phone, name: null, loai_lien_he: 'khach_hang', nguon: 'mymy_chat', chi_tiet_nguon: 'MyMy chat — ' + pageContext })).catch((e) => console.warn('upsertContact:', e.message));
       };
     } catch (e) {
       console.error('MyMy widget init lỗi:', e);

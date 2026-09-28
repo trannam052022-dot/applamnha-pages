@@ -414,7 +414,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="bam-goi-y"><i class="ph-duotone ph-hand-pointing"></i><span><b>Bấm vào từng phòng</b> để xem ảnh, đơn giá và chỉnh từng món.</span></div>
         <div id="ds-phong"></div>
         <div class="anh-note">Ảnh chỉ để hình dung loại món, không phải sản phẩm cụ thể. Ảnh từ Unsplash.</div>
-        <div class="bar"><div><small><span class="nhan-dai">Tổng theo lựa chọn của anh/chị (gồm dự phòng và phí thiết kế)</span><span class="nhan-ngan">Tổng</span></small><b id="tong-chinh">–</b><span class="tong-aln" id="tong-aln" hidden></span></div><div class="bar-nut"><button type="button" id="nut-luu" class="nut-luu" aria-live="polite">Lưu lựa chọn</button><a href="tel:0909829696" data-aln-cta="noi-that-goi-bar"><i class="ph-duotone ph-phone-call"></i> Gọi KTS</a></div></div>
+        <div class="bar" data-mymy-tranh><div><small><span class="nhan-dai">Tổng theo lựa chọn của anh/chị (gồm dự phòng và phí thiết kế)</span><span class="nhan-ngan">Tổng</span></small><b id="tong-chinh">–</b><span class="tong-aln" id="tong-aln" hidden></span></div><div class="bar-nut"><button type="button" id="nut-luu" class="nut-luu" aria-live="polite">Lưu lựa chọn</button><a href="tel:0909829696" data-aln-cta="noi-that-goi-bar"><i class="ph-duotone ph-phone-call"></i> Gọi KTS</a></div></div>
         <div class="tk">
           <div class="tk-dau"><div class="eyebrow">Bước tiếp theo</div><b>Bảng này cho khoảng giá. Bản thiết kế nội thất cho anh/chị một con số chính xác.</b>
             <p id="tk-chenh">Khoảng giá còn rộng vì chưa có bố trí thật của từng phòng. KTS ALN thiết kế nội thất theo đúng căn nhà và ngân sách của anh/chị.</p></div>
@@ -426,7 +426,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div class="tk-nut">
             <a class="goi" href="tel:0909829696" data-aln-cta="noi-that-goi"><i class="ph-duotone ph-phone-call"></i> Gọi KTS ALN: 0909 829 696</a>
             <a class="zalo" href="https://zalo.me/alnsanthietke" target="_blank" rel="noopener" data-aln-cta="noi-that-zalo"><i class="ph-duotone ph-chat-circle-text"></i> Nhắn Zalo</a>
-            <a class="mymy" href="/?mymy=1" data-aln-cta="noi-that-mymy"><i class="ph-duotone ph-sparkle"></i> Hỏi MyMy</a>
+            <a class="mymy" href="/?mymy=1" data-mymy-mo data-aln-cta="noi-that-mymy"><i class="ph-duotone ph-sparkle"></i> Hỏi MyMy</a>
           </div>
         </div>
       </div>
@@ -442,7 +442,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="cta">
       <b>Muốn biết con số sát với căn nhà của mình?</b>
       <p>KTS của App Làm Nhà tư vấn phạm vi nội thất phù hợp ngân sách, miễn phí.</p>
-      <a href="/?mymy=1" data-aln-cta="noi-that-tu-van">Chat với MyMy</a>
+      <a href="/?mymy=1" data-mymy-mo data-aln-cta="noi-that-tu-van">Chat với MyMy</a>
     </div>
   </section>
 
@@ -1521,5 +1521,7 @@ document.getElementById('ds-phong').addEventListener('click', (e) => {
   henLuuLuaChon();
 });
 </script>
+<!-- Nút MyMy + bóng chat mời (mymy-moi.js tự nạp). Link "Hỏi MyMy"/"Chat với MyMy" có data-mymy-mo → mở chat ngay tại trang. -->
+<script type="module" src="mymy-widget.js"></script>
 </body>
 </html>

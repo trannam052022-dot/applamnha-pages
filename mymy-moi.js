@@ -181,12 +181,13 @@
       try { vt = getComputedStyle(n).position; } catch (e) { return false; }
       var q = n.getBoundingClientRect();
       var H = window.innerHeight;
+      if (n.hasAttribute && n.hasAttribute('data-mymy-tranh')) return q.top >= H * 0.4; // trang tự đánh dấu (vd thanh tổng tiền nội thất)
       return (vt === 'fixed' || vt === 'sticky') && q.width >= window.innerWidth * 0.6 && q.top >= H * 0.55 && q.height < H * 0.4;
     }
     // Đặt bóng chat: mặc định cạnh nút; nếu đè thanh cố định ở phần dưới thì
     // nâng lên ngay trên thanh đó (tối đa 3 lần cho nhiều thanh chồng nhau).
     function datViTri(b) {
-      b.style.bottom = '';
+      b.style.bottom = nutNang ? (nutNang + 4) + 'px' : ''; // đứng cạnh nút, kể cả khi nút đang nâng
       b.classList.remove('mymy-moi-nang');
       for (var lan = 0; lan < 3; lan++) {
         var che = timChe(b);
@@ -329,6 +330,36 @@
     function kichNhacLai() {
       boNghe();
       thuHien();
+    }
+
+    /* ── Nâng nút MyMy (và khung chat) lên trên thanh trang tự đánh dấu data-mymy-tranh
+       (vd thanh tổng tiền có "Lưu lựa chọn"/"Gọi KTS" ở trang nội thất) khi thanh đó
+       đang nằm dưới nút. Chỉ áp cho phần tử có đánh dấu — không đổi vị trí nút ở trang khác. ── */
+    var nutNang = 0;
+    var henNang = null;
+    function nangNut() {
+      henNang = null;
+      var ds = document.querySelectorAll('[data-mymy-tranh]');
+      var cu = nutNang;
+      nut.style.bottom = '';
+      var r = nut.getBoundingClientRect();
+      var dinh = window.innerHeight;
+      for (var i = 0; i < ds.length; i++) {
+        var q = ds[i].getBoundingClientRect();
+        if (!q.width || !q.height) continue;
+        if (q.top < r.bottom + 8 && q.bottom > r.top && q.left < r.right && q.right > r.left) dinh = Math.min(dinh, q.top);
+      }
+      nutNang = dinh < window.innerHeight ? Math.ceil(window.innerHeight - dinh + 12) : 0;
+      nut.style.bottom = nutNang ? nutNang + 'px' : '';
+      khung.style.bottom = nutNang ? (nutNang + 72) + 'px' : '';
+      if (bong && nutNang !== cu) kiemKhiDangHien();
+    }
+    function henNangNut() { if (!henNang) henNang = setTimeout(nangNut, 80); }
+    if (document.querySelector('[data-mymy-tranh]')) {
+      nangNut();
+      window.addEventListener('scroll', henNangNut, { passive: true });
+      window.addEventListener('resize', henNangNut);
+      setInterval(henNangNut, 1000); // thanh có thể hiện/ẩn khi trang đổi nội dung (vd mở bảng từng món)
     }
 
     if (dung || ssDoc(KEY_DUNG) || daChatTruocDo()) { dung = true; return; }
