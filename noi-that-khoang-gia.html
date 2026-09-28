@@ -199,6 +199,26 @@ tr.sum td{font-weight:800;background:var(--cream)}
 .gk-o .gk-loi{color:var(--red)}
 .mon .gk-co{color:var(--gold);font-weight:700}
 .bar .tong-aln{display:block;font-size:var(--text-xs);color:#cbd5e1}
+/* Thêm/bỏ món (28/09/2026) */
+.mon .bo-mon{display:inline-block;margin-top:4px;background:none;border:none;padding:2px 0;color:var(--sub);font:inherit;font-size:var(--text-xs);font-weight:700;cursor:pointer;text-decoration:underline}
+.mon.bo>img,.mon.bo>.ph,.mon.bo b,.mon.bo small{opacity:.45;filter:grayscale(1)}
+.mon.bo b{text-decoration:line-through}
+.mon.bo .bo-mon{color:var(--gold);text-decoration:none}
+.mon.bo .mon-ctrl,.mon.bo .gk{display:none}
+.mon .nhan-them{display:inline-block;margin-left:6px;padding:1px 6px;border-radius:6px;background:var(--cream2);color:var(--sub);font-size:var(--text-xs);font-weight:700;vertical-align:1px}
+.them{padding:10px 0 4px;border-top:1px solid var(--border)}
+.them-mo{background:none;border:1px dashed var(--border2);border-radius:10px;padding:10px 12px;width:100%;color:var(--gold);font:inherit;font-weight:800;font-size:var(--text-sm);cursor:pointer;text-align:left}
+.them-mo:disabled{color:var(--sub);cursor:default}
+.them-o{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;padding:10px;border:1px dashed var(--border2);border-radius:10px;background:var(--cream)}
+.them-o label{display:block;font-size:var(--text-xs);color:var(--sub);font-weight:700;margin-bottom:3px}
+.them-o .ca{grid-column:1/-1}
+.them-o>div{min-width:0}
+.them-o input,.them-o select{width:100%;min-width:0;box-sizing:border-box;border:1px solid var(--border2);border-radius:8px;padding:8px 10px;font:inherit;font-size:var(--text-sm);background:#fff;color:var(--text)}
+.them-o .them-loi{grid-column:1/-1;color:var(--red);font-size:var(--text-xs)}
+.them-o .them-nut{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.them-o .them-ok{background:var(--gold);color:#fff;border:none;border-radius:8px;padding:9px 16px;font:inherit;font-weight:800;font-size:var(--text-sm);cursor:pointer}
+.them-o .them-huy{background:none;border:none;padding:0;color:var(--sub);font:inherit;font-weight:700;font-size:var(--text-xs);cursor:pointer}
+.them-o .them-gia-aln{grid-column:1/-1;font-size:var(--text-xs);color:var(--sub)}
 .mon-ctrl select{border:1px solid var(--border2);border-radius:8px;padding:8px;font-family:inherit;font-size:var(--text-sm);background:var(--white);color:var(--text)}
 .qty{display:flex;align-items:center;border:1px solid var(--border2);border-radius:8px;overflow:hidden}
 .qty button{width:34px;height:36px;border:none;background:var(--cream2);font-size:18px;cursor:pointer;color:var(--text)}
@@ -861,7 +881,8 @@ async function moBang(giuLai) {
     throw e;
   }
   if (!giuLai) KT_NHAP = {};
-  const cu = giuLai ? new Map(DONG.map((d) => [`${d.phong}|${d.m.ma}`, d])) : new Map();
+  const cu = giuLai ? new Map(DONG.filter((d) => !d.them).map((d) => [`${d.phong}|${d.m.ma}`, d])) : new Map();
+  const themCu = giuLai ? DONG.filter((d) => d.them) : [];
   BANG = res.data;
   DONG = [];
   BANG.phong.forEach((p, pi) => p.mon.forEach((m) => {
@@ -871,11 +892,15 @@ async function moBang(giuLai) {
       // Giữ lựa chọn của khách; món co giãn theo kích thước/diện tích thì lấy số lượng mới.
       let sl = c.sl;
       if (c.muc !== 'bo' && (m.co_gian || !c.tuChinh) && m.sl[c.muc] > 0) sl = m.sl[c.muc];
-      DONG.push({ phong: pi, m, muc: c.muc, sl, tuChinh: c.tuChinh && !m.co_gian, gk: c.gk, gkNguon: c.gkNguon, gkMo: c.gkMo, gkSai: c.gkSai, gkRaw: c.gkRaw, gkLoi: c.gkLoi });
+      DONG.push({ phong: pi, m, muc: c.muc, sl, tuChinh: c.tuChinh && !m.co_gian, bo: c.bo, gk: c.gk, gkNguon: c.gkNguon, gkMo: c.gkMo, gkSai: c.gkSai, gkRaw: c.gkRaw, gkLoi: c.gkLoi });
     } else {
       DONG.push({ phong: pi, m, muc: m.sl.kha > 0 ? 'kha' : 'bo', sl: m.sl.kha > 0 ? m.sl.kha : slMax });
     }
   }));
+  // Món khách tự thêm (ALN hoặc "Món khác") giữ nguyên qua các lần tải lại bảng (đổi kích thước).
+  const DM = new Map((BANG.danh_muc_them || []).map((x) => [x.ma, x]));
+  themCu.forEach((d) => { if (d.them === 'khac' || DM.has(d.m.ma)) DONG.push(d.them === 'aln' ? Object.assign(d, { m: DM.get(d.m.ma) }) : d); });
+  if (!giuLai) THEM_MO = {};
   document.getElementById('gate').hidden = true;
   document.getElementById('teaser').hidden = true;
   document.getElementById('chenh').hidden = true;
@@ -907,7 +932,7 @@ function nutLuu(tt) {
   el.disabled = tt === 'dang';
   // Có ô giá nhập sai: báo trên nút (ưu tiên hơn "Đã lưu"/"Lưu lựa chọn"). Món sai không
   // được gửi (goiLuuLuaChon bỏ qua), các món hợp lệ vẫn lưu bình thường.
-  const soSai = tt === 'dang' ? 0 : DONG.filter((d) => d.gkSai && d.muc !== 'bo').length;
+  const soSai = tt === 'dang' ? 0 : DONG.filter((d) => d.gkSai && d.muc !== 'bo' && !d.bo).length;
   el.className = 'nut-luu' + (soSai || tt === 'loi' ? ' loi' : tt === 'ok' ? ' ok' : '');
   if (soSai) {
     el.textContent = `Còn ${soSai} món nhập sai`;
@@ -921,7 +946,10 @@ function nutLuu(tt) {
 function goiLuuLuaChon() {
   return {
     leadId: LEAD_ID, phong: PHONG_DA_TINH, muc: MUC_CHUNG,
-    mon_chinh: DONG.map((d) => ({ phong: d.phong, ma: d.m.ma, muc: d.muc, sl: d.sl, ...(d.gk && !d.gkSai ? { gia_khach: d.gk } : {}) })),
+    mon_chinh: DONG.filter((d) => !d.them).map((d) => ({ phong: d.phong, ma: d.m.ma, muc: d.muc, sl: d.sl, ...(d.bo ? { bo: true } : {}), ...(d.gk && !d.gkSai ? { gia_khach: d.gk } : {}) })),
+    mon_them: DONG.filter((d) => d.them === 'aln').map((d) => ({ phong: d.phong, ma: d.m.ma, muc: d.muc, sl: d.sl, ...(d.bo ? { bo: true } : {}), ...(d.gk && !d.gkSai ? { gia_khach: d.gk } : {}) })),
+    // Món khác đang nhập giá sai/trống thì chưa gửi (máy chủ bắt buộc có giá).
+    mon_khac: DONG.filter((d) => d.them === 'khac' && d.gk && !d.gkSai && d.sl > 0).map((d) => ({ phong: d.phong, ten: d.m.ten, don_vi: d.m.don_vi, sl: d.sl, ...(d.bo ? { bo: true } : {}), gia_khach: d.gk })),
   };
 }
 function layToken() {
@@ -987,6 +1015,8 @@ document.getElementById('muc-all').addEventListener('click', (e) => {
   MUC_CHUNG = k;
   document.querySelectorAll('#muc-all button').forEach((b) => b.classList.toggle('on', b.dataset.muc === k));
   DONG.forEach((d) => {
+    if (d.them === 'khac') return; // món khác không có mức
+    if (d.them === 'aln') { d.muc = k; return; } // món tự thêm: giữ số lượng khách chọn
     if (d.m.sl[k] > 0) { d.muc = k; d.sl = d.m.sl[k]; } else { d.muc = 'bo'; }
   });
   veBang();
@@ -994,7 +1024,9 @@ document.getElementById('muc-all').addEventListener('click', (e) => {
 });
 
 function tienDong(d, theoAln) {
-  if (d.muc === 'bo') return [0, 0];
+  if (d.bo || d.muc === 'bo') return [0, 0];
+  // Món khác: chỉ có giá khách (cả 2 tổng dùng giá này — không có giá ALN để so).
+  if (d.them === 'khac') return d.gk && !d.gkSai ? [d.sl * d.gk.don_gia, d.sl * d.gk.don_gia] : [0, 0];
   if (d.gk && !theoAln) return [d.sl * d.gk.don_gia, d.sl * d.gk.don_gia];
   const g = d.m.gia[d.muc];
   return [d.sl * g[0], d.sl * g[1]];
@@ -1014,7 +1046,7 @@ const docGiaKhach = (raw) => {
 };
 function oGiaKhach(d, i) {
   // Món "Không làm": ô giá ẩn bằng CSS (.mon.off .gk), giá khách không tính.
-  if (!d.gk && !d.gkMo) {
+  if (!d.gk && !d.gkMo && d.them !== 'khac') {
     return `<div class="gk"><button type="button" class="gk-mo" data-gk-mo="${i}">＋ Nhập giá anh/chị tham khảo</button></div>`;
   }
   const nguon = d.gk ? d.gk.nguon : (d.gkNguon || ''); // không chọn = null, không mặc định
@@ -1023,7 +1055,7 @@ function oGiaKhach(d, i) {
     <label for="gk-gia-${i}">Giá anh/chị tham khảo (đ/${esc(d.m.don_vi)})</label>
     <input id="gk-gia-${i}" data-gk-gia="${i}" inputmode="numeric" autocomplete="off" placeholder="VD: 4.500.000" value="${esc(giaTri)}">
     <select data-gk-nguon="${i}" aria-label="Nguồn giá (không bắt buộc)"><option value=""${!nguon ? ' selected' : ''}>Chọn nguồn (không bắt buộc)</option>${Object.keys(NGUON_GK).map((k) => `<option value="${k}"${k === nguon ? ' selected' : ''}>${NGUON_GK[k]}</option>`).join('')}</select>
-    <div class="gk-duoi"><span class="gk-loi" id="gk-loi-${i}"${d.gkSai ? '' : ' hidden'}>${d.gkSai ? esc(d.gkLoi || '') : ''}</span><button type="button" class="gk-bo" data-gk-bo="${i}">${d.gk || d.gkSai ? 'Bỏ giá của tôi, dùng giá ALN' : 'Đóng'}</button></div>
+    <div class="gk-duoi"><span class="gk-loi" id="gk-loi-${i}"${d.gkSai ? '' : ' hidden'}>${d.gkSai ? esc(d.gkLoi || '') : ''}</span>${d.them === 'khac' ? '' : `<button type="button" class="gk-bo" data-gk-bo="${i}">${d.gk || d.gkSai ? 'Bỏ giá của tôi, dùng giá ALN' : 'Đóng'}</button>`}</div>
   </div></div>`;
 }
 
@@ -1045,6 +1077,89 @@ function oKichThuoc(p, pi) {
   </div>`;
 }
 
+/* ── Thêm thiết bị (28/09/2026): món ALN có giá (kể cả của loại phòng khác) hoặc "Món khác".
+   Mỗi mã tối đa 1 lần/phòng (muốn nhiều hơn thì tăng số lượng); tối đa THEM_TOI_DA món thêm/phòng.
+   Máy chủ kiểm lại toàn bộ (luaChonLanCham.luaChonNoiThatSauChinh). */
+const THEM_TOI_DA = 10;
+const DON_VI_KHAC = ['cái', 'bộ', 'm²', 'mét dài', 'gói'];
+const TEN_KHAC_MAX = 60;
+let THEM_MO = {}; // phòng đang mở khung thêm: { chon: mã | 'khac', loi, nhap: {...} }
+const locTenKhac = (raw) => String(raw == null ? '' : raw).normalize('NFC')
+  .replace(/[^\p{L}\p{M}\p{N} .,\-/()+×%&]/gu, ' ').replace(/\s+/g, ' ').trim().slice(0, TEN_KHAC_MAX).trim();
+const soThem = (pi) => DONG.filter((d) => d.phong === pi && d.them).length;
+function monCoTheThem(pi) {
+  const da = new Set(DONG.filter((d) => d.phong === pi && d.m.ma).map((d) => d.m.ma));
+  return (BANG.danh_muc_them || []).filter((x) => !da.has(x.ma));
+}
+function oThemMon(pi) {
+  const n = soThem(pi);
+  const mo = THEM_MO[pi];
+  if (!mo) {
+    return n >= THEM_TOI_DA
+      ? `<div class="them"><button type="button" class="them-mo" disabled>Đã thêm tối đa ${THEM_TOI_DA} món cho phòng này</button></div>`
+      : `<div class="them"><button type="button" class="them-mo" data-them-mo="${pi}">＋ Thêm thiết bị</button></div>`;
+  }
+  const ds = monCoTheThem(pi);
+  const nhom = [];
+  ds.forEach((x) => { let g = nhom.find((y) => y.ten === x.nhom); if (!g) { g = { ten: x.nhom, mon: [] }; nhom.push(g); } g.mon.push(x); });
+  const nh = mo.nhap || {};
+  const x = ds.find((y) => y.ma === mo.chon);
+  const giaAln = x ? `Giá ALN mức ${TEN_MUC[MUC_CHUNG]}: ${gia(x.gia[MUC_CHUNG][0])} – ${gia(x.gia[MUC_CHUNG][1])}/${esc(x.don_vi)} · mặc định ${fmtSo(x.sl_mac_dinh)} ${esc(x.don_vi)}` : '';
+  return `<div class="them"><div class="them-o" data-them-pi="${pi}">
+    <div class="ca"><label for="them-chon-${pi}">Chọn thiết bị</label>
+      <select id="them-chon-${pi}" data-them-chon="${pi}">
+        <option value=""${!mo.chon ? ' selected' : ''}>— Chọn —</option>
+        ${nhom.map((g) => `<optgroup label="${esc(g.ten || 'Khác')}">${g.mon.map((y) => `<option value="${esc(y.ma)}"${y.ma === mo.chon ? ' selected' : ''}>${esc(y.ten)}</option>`).join('')}</optgroup>`).join('')}
+        <option value="khac"${mo.chon === 'khac' ? ' selected' : ''}>Món khác (tự nhập tên và giá)</option>
+      </select></div>
+    ${x ? `<div class="them-gia-aln">${giaAln}</div>` : ''}
+    ${mo.chon === 'khac' ? `
+    <div class="ca"><label for="them-ten-${pi}">Tên món</label><input id="them-ten-${pi}" data-them-f="ten" maxlength="${TEN_KHAC_MAX}" autocomplete="off" placeholder="VD: Máy lọc nước" value="${esc(nh.ten || '')}"></div>
+    <div><label for="them-dv-${pi}">Đơn vị</label><select id="them-dv-${pi}" data-them-f="don_vi">${DON_VI_KHAC.map((u) => `<option value="${u}"${u === (nh.don_vi || 'cái') ? ' selected' : ''}>${u}</option>`).join('')}</select></div>
+    <div><label for="them-sl-${pi}">Số lượng</label><input id="them-sl-${pi}" data-them-f="sl" inputmode="decimal" value="${esc(nh.sl == null ? '1' : nh.sl)}"></div>
+    <div><label for="them-gia-${pi}">Giá (đ/đơn vị)</label><input id="them-gia-${pi}" data-them-f="gia" inputmode="numeric" autocomplete="off" placeholder="VD: 4.500.000" value="${esc(nh.gia || '')}"></div>
+    <div><label for="them-nguon-${pi}">Nguồn (tuỳ chọn)</label><select id="them-nguon-${pi}" data-them-f="nguon"><option value="">Không chọn</option>${Object.keys(NGUON_GK).map((k) => `<option value="${k}"${k === nh.nguon ? ' selected' : ''}>${NGUON_GK[k]}</option>`).join('')}</select></div>` : ''}
+    ${mo.loi ? `<div class="them-loi" role="alert">${esc(mo.loi)}</div>` : ''}
+    <div class="them-nut"><button type="button" class="them-ok" data-them-ok="${pi}"${mo.chon ? '' : ' disabled'}>Thêm vào phòng</button><button type="button" class="them-huy" data-them-huy="${pi}">Huỷ</button></div>
+  </div></div>`;
+}
+function docNhapThem(pi) {
+  const box = document.querySelector(`[data-them-pi="${pi}"]`);
+  const nh = {};
+  if (box) box.querySelectorAll('[data-them-f]').forEach((el) => { nh[el.dataset.themF] = el.value; });
+  return nh;
+}
+function themMon(pi) {
+  const mo = THEM_MO[pi];
+  if (!mo || !mo.chon) return;
+  if (soThem(pi) >= THEM_TOI_DA) { mo.loi = `Mỗi phòng thêm tối đa ${THEM_TOI_DA} món.`; veBang(); return; }
+  if (mo.chon === 'khac') {
+    const nh = docNhapThem(pi);
+    mo.nhap = nh;
+    const ten = locTenKhac(nh.ten);
+    const sl = parseFloat(String(nh.sl || '').replace(',', '.'));
+    const v = docGiaKhach(nh.gia);
+    let loi = '';
+    if (!/[\p{L}\p{N}]/u.test(ten)) loi = 'Nhập tên món (chữ hoặc số).';
+    else if (!DON_VI_KHAC.includes(nh.don_vi)) loi = 'Chọn đơn vị.';
+    else if (!(sl > 0) || sl > 999) loi = 'Số lượng phải lớn hơn 0.';
+    else if (v == null) loi = 'Nhập giá anh/chị tham khảo cho món này.';
+    else if (!(v > 0)) loi = Number.isNaN(v) ? 'Chỉ nhập số tiền, ví dụ 4.500.000.' : 'Giá phải lớn hơn 0.';
+    else if (v > GIA_KHACH_MAX) loi = 'Giá quá lớn, anh/chị kiểm tra lại.';
+    if (loi) { mo.loi = loi; veBang(); return; }
+    DONG.push({ phong: pi, them: 'khac', m: { ma: null, ten, don_vi: nh.don_vi, gia: null, vat_lieu: {}, anh: null }, muc: null, sl: Math.round(sl * 100) / 100, gk: { don_gia: v, nguon: nh.nguon || null }, gkMo: true });
+  } else {
+    const x = monCoTheThem(pi).find((y) => y.ma === mo.chon);
+    if (!x) { mo.loi = 'Món này đã có trong phòng, anh/chị tăng số lượng thay vì thêm lần nữa.'; veBang(); return; }
+    DONG.push({ phong: pi, them: 'aln', m: x, muc: MUC_CHUNG, sl: x.sl_mac_dinh });
+  }
+  delete THEM_MO[pi];
+  veBang();
+  nutLuu(TT_LUU);
+  henLuuLuaChon();
+  try { gtag('event', 'aln_noithat_them_mon', { loai: mo.chon === 'khac' ? 'khac' : 'aln' }); } catch (e) {}
+}
+
 function veBang() {
   const $ds = document.getElementById('ds-phong');
   const f = document.activeElement;
@@ -1058,19 +1173,20 @@ function veBang() {
     <div class="room-than">
     ${oKichThuoc(p, pi)}
     ${DONG.map((d, i) => d.phong !== pi ? '' : `
-      <div class="mon${d.muc === 'bo' ? ' off' : ''}" id="mon-${i}">
-        ${d.m.anh ? `<img loading="lazy" src="${esc(d.m.anh)}" alt="${esc(d.m.ten)}" onerror="this.outerHTML='<div class=&quot;ph&quot;><i class=&quot;ph-duotone ph-image&quot;></i></div>'">` : '<div class="ph"><i class="ph-duotone ph-image"></i></div>'}
-        <div><b>${esc(d.m.ten)}</b><small id="vl-${i}"></small></div>
+      <div class="mon${d.muc === 'bo' ? ' off' : ''}${d.bo ? ' bo' : ''}" id="mon-${i}">
+        ${d.m.anh ? `<img loading="lazy" src="${esc(d.m.anh)}" alt="${esc(d.m.ten)}" onerror="this.outerHTML='<div class=&quot;ph&quot;><i class=&quot;ph-duotone ph-image&quot;></i></div>'">` : `<div class="ph"><i class="ph-duotone ${d.them === 'khac' ? 'ph-note-pencil' : 'ph-image'}"></i></div>`}
+        <div><b>${esc(d.m.ten)}${d.them ? `<span class="nhan-them">${d.them === 'khac' ? 'Món khác' : 'Đã thêm'}</span>` : ''}</b><small id="vl-${i}"></small><button type="button" class="bo-mon" data-bo-mon="${i}">${d.bo ? '↺ Thêm lại' : 'Bỏ món'}</button></div>
         <div class="mon-ctrl">
-          <select data-i="${i}" aria-label="Mức cho ${esc(d.m.ten)}">
-            ${[...BANG.muc, 'bo'].map((k) => `<option value="${k}"${k === d.muc ? ' selected' : ''}>${TEN_MUC[k]}</option>`).join('')}
-          </select>
+          ${d.them === 'khac' ? '' : `<select data-i="${i}" aria-label="Mức cho ${esc(d.m.ten)}">
+            ${[...BANG.muc, ...(d.them ? [] : ['bo'])].map((k) => `<option value="${k}"${k === d.muc ? ' selected' : ''}>${TEN_MUC[k]}</option>`).join('')}
+          </select>`}
           <div class="qty"><button type="button" data-i="${i}" data-d="-1" aria-label="Giảm">−</button><input data-i="${i}" type="number" min="0" step="${/bộ|cái/.test(d.m.don_vi) ? 1 : 0.5}" value="${d.sl}" aria-label="Số lượng"><button type="button" data-i="${i}" data-d="1" aria-label="Tăng">+</button></div>
           <span class="dv">${esc(d.m.don_vi)}</span>
           <span class="tien" id="tien-${i}"></span>
         </div>
         ${oGiaKhach(d, i)}
       </div>`).join('')}
+    ${oThemMon(pi)}
     </div></details>`;
   }).join('');
   $ds.querySelectorAll('details.room-block').forEach((el) => el.addEventListener('toggle', () => {
@@ -1091,14 +1207,22 @@ function capNhat() {
     const [a, b] = tienDong(d);
     const [a2, b2] = tienDong(d, true);
     thap += a; cao += b; thapAln += a2; caoAln += b2;
-    if (d.gk && d.muc !== 'bo') soGk++;
+    if (d.gk && d.muc !== 'bo' && !d.bo) soGk++;
     tongPhong[d.phong] = tongPhong[d.phong] || [0, 0];
     tongPhong[d.phong][0] += a; tongPhong[d.phong][1] += b;
     const $row = document.getElementById(`mon-${i}`);
     if (!$row) return;
     $row.classList.toggle('off', d.muc === 'bo');
-    const g = d.muc === 'bo' ? null : d.m.gia[d.muc];
     const $vl = document.getElementById(`vl-${i}`);
+    if (d.bo) { $vl.textContent = 'Đã bỏ, không tính vào tổng'; document.getElementById(`tien-${i}`).textContent = '–'; return; }
+    if (d.them === 'khac') {
+      $vl.innerHTML = d.gk && !d.gkSai
+        ? `<span class="gk-co">Giá anh/chị: ${gia(d.gk.don_gia)}/${esc(d.m.don_vi)}${d.gk.nguon ? ` (${esc(NGUON_GK[d.gk.nguon].toLowerCase())})` : ''}</span> · không có giá ALN để so`
+        : 'Chưa có giá, chưa tính vào tổng';
+      document.getElementById(`tien-${i}`).textContent = d.gk && !d.gkSai ? gia(a) : '–';
+      return;
+    }
+    const g = d.muc === 'bo' ? null : d.m.gia[d.muc];
     if (!g) $vl.textContent = 'Không tính món này';
     else if (d.gk) {
       $vl.innerHTML = `<span class="gk-co">Giá anh/chị: ${gia(d.gk.don_gia)}/${esc(d.m.don_vi)}${d.gk.nguon ? ` (${esc(NGUON_GK[d.gk.nguon].toLowerCase())})` : ''}</span> · ALN ${gia(g[0])} – ${gia(g[1])}/${esc(d.m.don_vi)}`;
@@ -1111,7 +1235,7 @@ function capNhat() {
     const t = tongPhong[pi] || [0, 0];
     const el = document.getElementById(`tp-${pi}`);
     if (el) el.textContent = `${trieu(t[0])} – ${trieu(t[1], true)} tr`;
-    const chon = DONG.filter((d) => d.phong === pi && d.muc !== 'bo').length;
+    const chon = DONG.filter((d) => d.phong === pi && d.muc !== 'bo' && !d.bo).length;
     const tm = document.getElementById(`tm-${pi}`);
     if (tm) tm.textContent = `${fmtSo(p.dien_tich)} m² · ${chon} món`;
   });
@@ -1161,6 +1285,13 @@ async function doiKichThuoc(el) {
 document.getElementById('ds-phong').addEventListener('change', (e) => {
   if (e.target.dataset && e.target.dataset.kt) { doiKichThuoc(e.target); return; }
   if (e.target.dataset && (e.target.dataset.gkGia != null || e.target.dataset.gkNguon != null)) { doiGiaKhach(e.target); return; }
+  if (e.target.dataset && e.target.dataset.themChon != null) {
+    const pi = Number(e.target.dataset.themChon);
+    if (THEM_MO[pi]) { THEM_MO[pi].nhap = docNhapThem(pi); THEM_MO[pi].chon = e.target.value; THEM_MO[pi].loi = ''; veBang(); }
+    const el = document.getElementById(e.target.value === 'khac' ? `them-ten-${pi}` : `them-chon-${pi}`);
+    if (el) el.focus();
+    return;
+  }
   const i = Number(e.target.dataset.i);
   if (!Number.isInteger(i) || !DONG[i]) return;
   const d = DONG[i];
@@ -1173,6 +1304,7 @@ document.getElementById('ds-phong').addEventListener('change', (e) => {
   } else if (e.target.tagName === 'INPUT') {
     const v = parseFloat(String(e.target.value).replace(',', '.'));
     d.sl = Number.isFinite(v) && v >= 0 ? Math.min(v, 999) : 0;
+    if (d.them === 'khac' && !(d.sl > 0)) d.sl = 1; // món khác luôn có số lượng > 0
     d.tuChinh = true;
     e.target.value = d.sl;
   }
@@ -1297,6 +1429,12 @@ document.getElementById('ban-ve').addEventListener('click', (e) => {
 });
 
 document.getElementById('ds-phong').addEventListener('input', (e) => {
+  const $them = e.target.closest && e.target.closest('[data-them-pi]');
+  if ($them && e.target.dataset.themF) { // giữ chữ khách đang gõ qua các lần vẽ lại bảng
+    const mo = THEM_MO[Number($them.dataset.themPi)];
+    if (mo) mo.nhap = Object.assign({}, mo.nhap, { [e.target.dataset.themF]: e.target.value });
+    return;
+  }
   const k = e.target.dataset && e.target.dataset.kt;
   if (!k) return;
   const pi = Number(e.target.dataset.pi);
@@ -1318,7 +1456,12 @@ function doiGiaKhach(el) {
   const truoc = JSON.stringify(d.gk || null);
   $loi.hidden = true;
   d.gkSai = false; d.gkRaw = ''; d.gkLoi = '';
-  if (v == null) {
+  if (v == null && d.them === 'khac') {
+    // Món khác bắt buộc có giá: ô trống = nhập sai, chưa gửi món này.
+    d.gk = null; d.gkSai = true; d.gkRaw = raw; d.gkLoi = 'Món khác cần có giá.';
+    $loi.textContent = d.gkLoi;
+    $loi.hidden = false;
+  } else if (v == null) {
     d.gk = null; // ô trống = không dùng giá của mình
   } else if (!(v > 0) || v > GIA_KHACH_MAX) {
     // Ô sai: KHÔNG gửi món này lên máy chủ (goiLuuLuaChon bỏ qua), tính theo giá ALN,
@@ -1338,6 +1481,19 @@ function doiGiaKhach(el) {
   if (JSON.stringify(d.gk || null) !== truoc) henLuuLuaChon(); // chỉ lưu khi giá hợp lệ thực sự đổi
 }
 document.getElementById('ds-phong').addEventListener('click', (e) => {
+  const ds = e.target.dataset || {};
+  if (ds.boMon != null) { // "Bỏ món" ↔ "Thêm lại": giữ nguyên mức/số lượng/giá để thêm lại như cũ
+    const d = DONG[Number(ds.boMon)];
+    if (!d) return;
+    d.bo = !d.bo;
+    veBang();
+    nutLuu(TT_LUU);
+    henLuuLuaChon();
+    return;
+  }
+  if (ds.themMo != null) { THEM_MO[Number(ds.themMo)] = { chon: '', loi: '', nhap: {} }; veBang(); const el = document.getElementById(`them-chon-${ds.themMo}`); if (el) el.focus(); return; }
+  if (ds.themHuy != null) { delete THEM_MO[Number(ds.themHuy)]; veBang(); return; }
+  if (ds.themOk != null) { themMon(Number(ds.themOk)); return; }
   const gkMo = e.target.dataset && e.target.dataset.gkMo;
   const gkBo = e.target.dataset && e.target.dataset.gkBo;
   if (gkMo != null || gkBo != null) {
@@ -1357,7 +1513,7 @@ document.getElementById('ds-phong').addEventListener('click', (e) => {
   if (!step || !Number.isInteger(i) || !DONG[i]) return;
   const d = DONG[i];
   const buoc = /bộ|cái/.test(d.m.don_vi) ? 1 : 0.5;
-  d.sl = Math.max(0, Math.round((d.sl + step * buoc) * 10) / 10);
+  d.sl = Math.max(d.them === 'khac' ? buoc : 0, Math.round((d.sl + step * buoc) * 10) / 10);
   d.tuChinh = true;
   e.target.parentElement.querySelector('input').value = d.sl;
   capNhat();
