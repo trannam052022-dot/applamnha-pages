@@ -193,6 +193,10 @@ tr.sum td{font-weight:800;background:var(--cream)}
 .bar>div{flex:1;min-width:0}
 .bar a{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff;font-weight:800;font-size:var(--text-sm);padding:10px 14px;border-radius:10px;white-space:nowrap}
 .bar small{display:block;color:#cbd5e1;font-size:var(--text-xs)}
+/* Trạng thái lưu lựa chọn (luuLuaChonNoiThat) — nền navy nên dùng màu sáng */
+.bar .luu{display:block;font-size:var(--text-xs);color:#cbd5e1;margin-top:2px}
+.bar .luu.ok{color:#86efac}
+.bar .luu.loi{color:#fca5a5}
 .anh-note{font-size:var(--text-xs);color:var(--muted);margin-top:10px}
 .chenh{background:var(--gold-bg);border:1px solid rgba(152,105,10,.25);border-radius:12px;padding:12px 14px;margin:4px 0 14px;font-size:var(--text-sm)}
 .chenh b{color:var(--gold)}
@@ -352,7 +356,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="bam-goi-y"><i class="ph-duotone ph-hand-pointing"></i><span><b>Bấm vào từng phòng</b> để xem ảnh, đơn giá và chỉnh từng món.</span></div>
         <div id="ds-phong"></div>
         <div class="anh-note">Ảnh chỉ để hình dung loại món, không phải sản phẩm cụ thể. Ảnh từ Unsplash.</div>
-        <div class="bar"><div><small>Tổng theo lựa chọn của anh/chị (gồm dự phòng và phí thiết kế)</small><b id="tong-chinh">–</b></div><a href="tel:0909829696" data-aln-cta="noi-that-goi-bar"><i class="ph-duotone ph-phone-call"></i> Gọi KTS</a></div>
+        <div class="bar"><div><small>Tổng theo lựa chọn của anh/chị (gồm dự phòng và phí thiết kế)</small><b id="tong-chinh">–</b><span id="trang-thai-luu" class="luu" aria-live="polite" hidden></span></div><a href="tel:0909829696" data-aln-cta="noi-that-goi-bar"><i class="ph-duotone ph-phone-call"></i> Gọi KTS</a></div>
         <div class="tk">
           <div class="tk-dau"><div class="eyebrow">Bước tiếp theo</div><b>Bảng này cho khoảng giá. Bản thiết kế nội thất cho anh/chị một con số chính xác.</b>
             <p id="tk-chenh">Khoảng giá còn rộng vì chưa có bố trí thật của từng phòng. KTS ALN thiết kế nội thất theo đúng căn nhà và ngân sách của anh/chị.</p></div>
@@ -850,7 +854,22 @@ async function moBang(giuLai) {
 /* Lưu lựa chọn của khách (mức chung, món đã chỉnh, kích thước) vào lịch sử
    liên hệ để KTS gọi lại biết khách đang cân nhắc gì. Gom 4 giây sau lần chỉnh
    cuối; máy chủ tự tính lại tổng. Lỗi lưu không ảnh hưởng bảng. */
-let MUC_CHUNG = 'kha', HEN_LUU = null, TOKEN_LUU = null;
+let MUC_CHUNG = 'kha', HEN_LUU = null, TOKEN_LUU = null, LUOT_LUU = 0;
+/* Trạng thái cạnh tổng tiền: 'dang' (có chỉnh đang chờ lưu hoặc đang gửi),
+   'ok' (máy chủ đã lưu), 'loi' (lưu thất bại). Chỉ lần lưu mới nhất được đổi
+   trạng thái, để lần cũ trả về muộn không ghi đè. */
+function hienTrangThaiLuu(tt) {
+  const el = document.getElementById('trang-thai-luu');
+  if (!el) return;
+  el.hidden = false;
+  el.className = 'luu' + (tt === 'ok' ? ' ok' : tt === 'loi' ? ' loi' : '');
+  if (tt === 'ok') {
+    const d = new Date();
+    el.textContent = `✓ Đã lưu lựa chọn · ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  } else {
+    el.textContent = tt === 'loi' ? 'Chưa lưu được' : 'Đang lưu…';
+  }
+}
 function goiLuuLuaChon() {
   return {
     leadId: LEAD_ID, phong: PHONG_DA_TINH, muc: MUC_CHUNG,
@@ -862,9 +881,16 @@ function henLuuLuaChon() {
   clearTimeout(HEN_LUU);
   // Lấy sẵn token để lúc trang bị ẩn/đóng gửi được ngay, không phải chờ bất đồng bộ.
   if (auth.currentUser) auth.currentUser.getIdToken().then((t) => { TOKEN_LUU = t; }).catch(() => {});
+  hienTrangThaiLuu('dang');
   HEN_LUU = setTimeout(() => {
     HEN_LUU = null;
-    luuLuaChon(goiLuuLuaChon()).catch((e) => console.warn('luuLuaChonNoiThat', e && e.code));
+    const luot = ++LUOT_LUU;
+    luuLuaChon(goiLuuLuaChon())
+      .then(() => { if (luot === LUOT_LUU && !HEN_LUU) hienTrangThaiLuu('ok'); })
+      .catch((e) => {
+        console.warn('luuLuaChonNoiThat', e && e.code);
+        if (luot === LUOT_LUU && !HEN_LUU) hienTrangThaiLuu('loi');
+      });
   }, 4000);
 }
 /* Khách đóng tab / chuyển app trong 4 giây chờ: gửi ngay lần chỉnh cuối.
@@ -873,12 +899,13 @@ function luuNgayKhiRoiTrang() {
   if (!HEN_LUU || !LEAD_ID || !TOKEN_LUU) return;
   clearTimeout(HEN_LUU);
   HEN_LUU = null;
+  LUOT_LUU++; // lần lưu thường còn đang chạy (nếu có) không được ghi đè trạng thái
   try {
     fetch(`https://asia-southeast1-${app.options.projectId}.cloudfunctions.net/luuLuaChonNoiThat`, {
       method: 'POST', keepalive: true,
       headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + TOKEN_LUU },
       body: JSON.stringify({ data: goiLuuLuaChon() }),
-    }).catch(() => {});
+    }).then((r) => hienTrangThaiLuu(r.ok ? 'ok' : 'loi')).catch(() => hienTrangThaiLuu('loi'));
   } catch (e) {}
 }
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') luuNgayKhiRoiTrang(); });
