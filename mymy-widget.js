@@ -41,14 +41,7 @@ if (!document.getElementById('mymy-btn')) {
 #mymy-btn{position:fixed;bottom:24px;right:24px;z-index:80;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#e0aa3e,#98690a);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(152,105,10,.34),inset 0 1px 0 rgba(255,255,255,.3);transition:transform .3s ease,box-shadow .3s ease}
 #mymy-btn:hover{box-shadow:0 14px 38px rgba(152,105,10,.42),inset 0 1px 0 rgba(255,255,255,.34);transform:scale(1.08)}
 #mymy-btn i{font-size:26px;color:#1a1400}
-#mymy-btn::after{content:'';position:absolute;inset:-5px;border-radius:50%;border:2px solid rgba(201,168,76,.45);animation:mymy-pulse 2.2s ease-out infinite}
-@keyframes mymy-pulse{0%{transform:scale(1);opacity:.7}100%{transform:scale(1.5);opacity:0}}
 .mymy-badge{position:absolute;top:-3px;right:-3px;width:18px;height:18px;border-radius:50%;background:#dc2626;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center}
-.mymy-teaser{position:fixed;bottom:96px;right:24px;z-index:78;max-width:220px;font-family:-apple-system,"Segoe UI",system-ui,sans-serif;font-size:12.5px;line-height:1.5;color:#efe9dc;text-shadow:0 1px 3px rgba(0,0,0,.6);background:rgba(16,23,35,.9);backdrop-filter:blur(24px) saturate(2);-webkit-backdrop-filter:blur(24px) saturate(2);border:1px solid rgba(255,255,255,.28);border-radius:14px;padding:11px 30px 11px 14px;cursor:pointer;box-shadow:0 14px 40px rgba(8,12,20,.4);animation:mymy-teaser-in .3s ease}
-@keyframes mymy-teaser-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.mymy-teaser-close{position:absolute;top:6px;right:6px;width:18px;height:18px;border-radius:50%;border:none;background:rgba(255,255,255,.14);color:#cfc6b0;font-size:12px;line-height:1;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center}
-.mymy-teaser-close:hover{color:#fff;background:rgba(255,255,255,.24)}
-@media(max-width:480px){.mymy-teaser{right:10px;max-width:calc(100vw - 86px)}}
 #mymy-win{position:fixed;bottom:96px;right:24px;z-index:79;width:360px;max-height:520px;font-family:-apple-system,"Segoe UI",system-ui,sans-serif;background:rgba(16,23,35,.66);backdrop-filter:blur(32px) saturate(2);-webkit-backdrop-filter:blur(32px) saturate(2);border:1px solid rgba(255,255,255,.32);border-radius:18px;display:none;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(8,12,20,.42),inset 0 1px 0 rgba(255,255,255,.28)}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){#mymy-win{background:rgba(16,23,35,.94)}}
 #mymy-win.open{display:flex}
@@ -132,10 +125,7 @@ if (!document.getElementById('mymy-btn')) {
      MYMY_CHATTED_KEY (localStorage, vĩnh viễn): đánh dấu khách ĐÃ từng
      tương tác thật với MyMy (chọn xưng hô hoặc gửi tin) — còn cờ này thì
      không tự hiện bong bóng mời chào nữa ở bất kỳ trang nào sau, tránh làm
-     phiền khách quen. Không còn giới hạn "tối đa 1 lần/phiên" qua
-     sessionStorage như bản trước — mỗi trang có widget (forum.html, nhiều
-     trang mau/*.html...) tự tính lại số lần nhắc từ đầu, xem
-     scheduleNextTeaser() bên dưới. */
+     phiền khách quen. Bóng chat mời + giới hạn số lần/phiên: mymy-moi.js. */
   const MYMY_CHATTED_KEY = 'aln_mymy_has_chatted';
   function markChatted(){
     try { localStorage.setItem(MYMY_CHATTED_KEY, '1'); } catch (e) { /* private mode — bỏ qua, không chặn chat */ }
@@ -202,74 +192,16 @@ if (!document.getElementById('mymy-btn')) {
   document.getElementById('mymy-btn').addEventListener('click', toggle);
   document.getElementById('mymy-close-btn').addEventListener('click', toggle);
 
-  /* Bong bóng mời chào nhỏ, lặp lại định kỳ — KHÔNG tự mở cả khung chat lớn
-     nữa (bản cũ mở hẳn #mymy-win làm che gần hết màn hình điện thoại, Founder
-     phản hồi 30/07/2026 là quá to). Chỉ hiện 1 bong bóng nhỏ cạnh nút tròn,
-     bấm vào mới mở khung chat đầy đủ (toggle() lo phần chào/hỏi xưng hô như
-     khách tự bấm mở).
-     Founder phản hồi thêm (30/07/2026, cùng ngày): khách lần đầu có thể
-     không để ý bong bóng thoáng qua rồi tự ẩn sau 12s — cần hiện LẠI sau
-     một khoảng thời gian thay vì chỉ 1 lần/phiên như bản trước. Giờ lặp lại
-     tối đa MYMY_TEASER_MAX_ATTEMPTS lần trong 1 lượt xem trang (không dùng
-     sessionStorage chặn nữa — mỗi trang có widget được tính lại từ đầu),
-     dừng ngay khi: khách tự mở chat (S.opened), hoặc đã chat thật ít nhất 1
-     lần trước đó (localStorage, vĩnh viễn — không nhắc lại người đã dùng
-     rồi). Vẫn giữ: có nút đóng riêng cho bong bóng, tự biến mất sau 12s nếu
-     không tương tác (tránh treo mãi trên màn hình). */
-  const MYMY_TEASER_MAX_ATTEMPTS = 3;
-  const MYMY_TEASER_REPEAT_MS = 45000; // 45s giữa các lần nhắc lại, đủ giãn cách để không làm phiền
-  let teaserAttempts = 0;
-
-  function showTeaser(onDismissWithoutOpen){
-    if (S.opened) return; // khách đã tự mở trước khi hết giờ đếm — khỏi chen ngang
-    if (document.getElementById('mymy-teaser')) return;
-    const teaser = document.createElement('div');
-    teaser.className = 'mymy-teaser';
-    teaser.id = 'mymy-teaser';
-    teaser.innerHTML = 'Xin chào! Em là MyMy của ALN 👋 Anh/chị cần hỗ trợ gì không ạ?<button class="mymy-teaser-close" aria-label="Đóng" type="button">×</button>';
-    document.body.appendChild(teaser);
-    let dismissed = false;
-    const autoHide = setTimeout(() => { dismissed = true; teaser.remove(); if (onDismissWithoutOpen) onDismissWithoutOpen(); }, 12000);
-    teaser.querySelector('.mymy-teaser-close').addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (dismissed) return;
-      dismissed = true;
-      clearTimeout(autoHide);
-      teaser.remove();
-      if (onDismissWithoutOpen) onDismissWithoutOpen();
-    });
-    teaser.addEventListener('click', () => {
-      if (dismissed) return;
-      dismissed = true;
-      clearTimeout(autoHide);
-      teaser.remove();
-      if (!document.getElementById('mymy-win').classList.contains('open')) toggle();
-    });
+  /* Bóng chat mời trò chuyện + nhịp sáng nút + GA4 (aln_mymy_moi/aln_mymy_mo):
+     file dùng chung mymy-moi.js (cùng file với index.html). Nạp theo đường
+     dẫn của CHÍNH module này nên đúng cả ở trang trong thư mục con. */
+  if (!document.getElementById('aln-mymy-moi-js')) {
+    const moiJs = document.createElement('script');
+    moiJs.id = 'aln-mymy-moi-js';
+    const moiJsUrl = new URL('mymy-moi.js', import.meta.url).href;
+    moiJs.src = moiJsUrl;
+    document.head.appendChild(moiJs);
   }
-  function scheduleNextTeaser(delay){
-    setTimeout(() => {
-      let alreadyChatted = false;
-      try { alreadyChatted = localStorage.getItem(MYMY_CHATTED_KEY) === '1'; } catch (e) { return; }
-      if (alreadyChatted || S.opened) return; // đã chat thật hoặc đã tự mở chat — dừng nhắc
-      if (teaserAttempts >= MYMY_TEASER_MAX_ATTEMPTS) return;
-      teaserAttempts++;
-      showTeaser(() => {
-        if (teaserAttempts < MYMY_TEASER_MAX_ATTEMPTS) scheduleNextTeaser(MYMY_TEASER_REPEAT_MS);
-      });
-    }, delay);
-  }
-  function scheduleProactiveGreeting(){
-    let alreadyChatted = false;
-    try {
-      alreadyChatted = localStorage.getItem(MYMY_CHATTED_KEY) === '1';
-    } catch (e) {
-      return; // Storage bị chặn (chế độ riêng tư nghiêm ngặt) — bỏ qua tính năng chủ động, widget vẫn hoạt động bình thường khi khách tự bấm
-    }
-    if (alreadyChatted) return;
-    const delay = 3000 + Math.random() * 2000; // 3-5 giây, ngẫu nhiên hoá cho tự nhiên
-    scheduleNextTeaser(delay);
-  }
-  scheduleProactiveGreeting();
 
   function askGenderButtons(){
     const row = document.createElement('div');
