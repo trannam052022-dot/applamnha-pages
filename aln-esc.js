@@ -74,16 +74,30 @@
     return ra.innerHTML;
   }
 
-  // Câu trả lời MyMy/AI: escape TRƯỚC, rồi mới định dạng — chỉ sinh 2 thẻ <strong> và <br>.
+  // Câu trả lời MyMy/AI: escape TRƯỚC, rồi mới định dạng — chỉ sinh <strong>, <br> và <a href="https://applamnha.vn…">.
   // **chữ** → <strong>chữ</strong> (cùng dòng); bỏ '*', '#', '-' thừa ở đầu dòng (gạch đầu dòng,
   // tiêu đề Markdown); ** lẻ còn sót bị bỏ; xuống dòng → <br>. Bản sao y hệt ở mymy-widget.js
   // (mmHtml) — sửa ở đây thì sửa cả bên đó (scripts/_test_aln_esc.js đối chiếu 2 bản).
+  // Link applamnha.vn trong câu trả lời (đã escape) → <a> bấm được, mở cùng tab (28/09/2026).
+  // Chỉ domain applamnha.vn (có/không https://, www.); applamnha.vn.evil.com, evil-applamnha.vn,
+  // x@applamnha.vn… giữ nguyên chữ. Đường dẫn không chứa entity ngoài &amp; (nên không chứa
+  // nháy/ngoặc nhọn) và không lấy dấu câu cuối . , ; : ! ? ) ].
+  var RE_LINK_ALN = /(^|[\s(\[>]|&quot;|&#39;)((?:https?:\/\/)?(?:www\.)?applamnha\.vn(?![\w-]|\.[\w-])(?:[\/?#](?:&amp;|[^\s<&*])*)?)/gi;
+  function alnLinkALN(dong) {
+    return dong.replace(RE_LINK_ALN, function (m, lkTruoc, lkUrl) {
+      var lkDuoi = '';
+      var c;
+      while ((c = /(?:[.,;:!?)\]]|&amp;)$/.exec(lkUrl))) { lkDuoi = c[0] + lkDuoi; lkUrl = lkUrl.slice(0, -c[0].length); }
+      var lkHref = /^https?:\/\//i.test(lkUrl) ? lkUrl : 'https://' + lkUrl;
+      return lkTruoc + '<a href="' + lkHref + '">' + lkUrl + '</a>' + lkDuoi;
+    });
+  }
   function alnMyMyHtml(text) {
     return eH(text).split(/\r?\n/).map(function (dong) {
-      return dong
+      return alnLinkALN(dong
         .replace(/^\s*(?:(?:#{1,6}|\*{1,2}(?!\*)|[-•])\s+)+/, '')
         .replace(/\*\*(?=\S)([^*]*?\S)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*\*/g, '');
+        .replace(/\*\*/g, ''));
     }).join('<br>');
   }
 

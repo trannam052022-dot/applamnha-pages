@@ -148,11 +148,20 @@ if (!document.getElementById('mymy-btn')) {
   // Câu trả lời AI: escape TRƯỚC rồi mới định dạng — chỉ sinh <strong> và <br>. Bản sao y hệt
   // alnMyMyHtml trong aln-esc.js (widget chạy cả trên trang không nạp aln-esc.js);
   // scripts/_test_aln_esc.js đối chiếu 2 bản ra cùng kết quả.
+  // Link applamnha.vn → <a> cùng tab — bản sao alnLinkALN trong aln-esc.js (xem chú thích ở đó).
+  function mmLink(dong){
+    return dong.replace(/(^|[\s(\[>]|&quot;|&#39;)((?:https?:\/\/)?(?:www\.)?applamnha\.vn(?![\w-]|\.[\w-])(?:[\/?#](?:&amp;|[^\s<&*])*)?)/gi, (m, lkTruoc, lkUrl) => {
+      let lkDuoi = ''; let c;
+      while ((c = /(?:[.,;:!?)\]]|&amp;)$/.exec(lkUrl))) { lkDuoi = c[0] + lkDuoi; lkUrl = lkUrl.slice(0, -c[0].length); }
+      const lkHref = /^https?:\/\//i.test(lkUrl) ? lkUrl : 'https://' + lkUrl;
+      return lkTruoc + '<a href="' + lkHref + '">' + lkUrl + '</a>' + lkDuoi;
+    });
+  }
   function mmHtml(text){
-    return esc(text).split(/\r?\n/).map((dong) => dong
+    return esc(text).split(/\r?\n/).map((dong) => mmLink(dong
       .replace(/^\s*(?:(?:#{1,6}|\*{1,2}(?!\*)|[-•])\s+)+/, '')
       .replace(/\*\*(?=\S)([^*]*?\S)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*\*/g, '')).join('<br>');
+      .replace(/\*\*/g, ''))).join('<br>');
   }
   // URL gợi ý: chỉ đường dẫn nội bộ hoặc http(s) — còn lại '#'
   function escUrl(u){ const t = String(u || '').trim(); const goc = t.replace(/[\u0000-\u0020\u007f]/g, ''); return (/^([a-z][a-z0-9+.-]*):/i.test(goc) && !/^https?:/i.test(goc)) ? '#' : esc(t); }
