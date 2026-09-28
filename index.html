@@ -2217,6 +2217,7 @@ window.leadSubmit = async function(){
       fbp: window.alnGetFbp ? window.alnGetFbp() : '',
       fbc: window.alnGetFbc ? window.alnGetFbc() : '',
       sourceUrl: location.origin + location.pathname,
+      attribution: (() => { try { return window.alnAttr ? window.alnAttr.forLead() : null; } catch (e) { return null; } })(),
     });
     const leadId = (res && res.data && res.data.id) || '';
     try {
@@ -2326,3 +2327,4 @@ document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeN
 <script src="aln-zalo-widget.js" defer></script>
 </body>
 </html>
+

@@ -703,7 +703,14 @@ function buildPayload() {
     // test trang qua ?internal=1 — báo cho server để KHÔNG bắn CAPI Lead thật
     // (functions/saveEstimateToHouse.js đọc field này, xem functions/capi.js).
     optout: window.ALN_INTERNAL === true,
+    // Kênh dẫn khách (aln-tracking.js) — server lưu vào house để báo cáo
+    // "Kênh & Lead" của Founder biết lead đến từ đâu.
+    attribution: layAttribution(),
   };
+}
+
+function layAttribution() {
+  try { return window.alnAttr ? window.alnAttr.forLead() : null; } catch (e) { return null; }
 }
 
 async function doSave() {
@@ -826,3 +833,4 @@ const params = new URLSearchParams(window.location.search);
 <script src="aln-zalo-widget.js" defer></script>
 </body>
 </html>
+

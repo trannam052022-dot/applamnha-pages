@@ -834,6 +834,7 @@ btn.addEventListener('click', async function(){
       dienTich,
       loaiCt: loaiBtn ? loaiBtn.dataset.loai : null,
       mucHoanThien: mucBtn ? mucBtn.dataset.muc : null,
+      attribution: (() => { try { return window.alnAttr ? window.alnAttr.forLead() : null; } catch (e) { return null; } })(),
     });
     const leadId = (res && res.data && res.data.id) || '';
 

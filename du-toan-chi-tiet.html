@@ -301,6 +301,7 @@ form.addEventListener('submit', async (e) => {
       sourceUrl: location.href,
       fbp: getCookie('_fbp'),
       fbc: getFbc(),
+      attribution: (() => { try { return window.alnAttr ? window.alnAttr.forLead() : null; } catch (e) { return null; } })(),
     });
     const leadId = (res && res.data && res.data.id) || '';
     try {

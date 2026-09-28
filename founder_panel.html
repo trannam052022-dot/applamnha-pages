@@ -941,6 +941,7 @@ body {
   <span id="fsubOps" style="display:none;align-items:center;gap:4px">
     <button class="fsub" id="tabPayments" onclick="switchTab('payments')"><i class="ph-duotone ph-money"></i>Thanh toán<span id="paymentsBadge" style="display:none;background:var(--green);color:#fff;border-radius:99px;font-size:9px;padding:1px 5px;margin-left:2px;font-weight:800">0</span></button>
     <button class="fsub" id="tabReport" onclick="switchTab('report')"><i class="ph-duotone ph-chart-bar"></i>Báo cáo thu nhập</button>
+    <button class="fsub" id="tabKenhLead" onclick="switchTab('kenhLead')"><i class="ph-duotone ph-funnel"></i>Kênh &amp; Lead</button>
     <button class="fsub" id="tabLeads" onclick="switchTab('leads')"><i class="ph-duotone ph-target"></i>Lead<span id="leadsBadge" style="display:none;background:#ef4444;color:#fff;border-radius:99px;font-size:9px;padding:1px 5px;margin-left:2px;font-weight:800">0</span></button>
     <!-- Cụm "THỢ & SỬA VẶT" (thêm 03/08/2026 (5)) — gom các tab liên quan tới
          thợ/đội thi công + kênh sửa vặt. Còn "Liên hệ" giữ NGOÀI cụm này (nó
@@ -1903,6 +1904,60 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <!-- ══ PANEL: LEAD (form khảo sát trang chủ) ══ -->
+<style>
+.kl-nhom{padding:6px 12px;border:1px solid var(--border);border-radius:7px;background:var(--raised);color:var(--sub);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans)}
+.kl-nhom.on{background:var(--gold);color:#fff;border-color:transparent}
+#panelKenhLead th{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);text-align:right;padding:9px 10px;background:var(--raised);border-bottom:1px solid var(--border);white-space:nowrap}
+#panelKenhLead th:first-child,#panelKenhLead td:first-child{text-align:left}
+#panelKenhLead td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--text1);text-align:right;white-space:nowrap}
+#panelKenhLead tr.kl-tong td{font-weight:800;background:var(--raised)}
+#panelKenhLead .kl-mo{color:var(--dim)}
+#klBangDanhGia td,#klBangDanhGia th{text-align:left}
+#panelKenhLead select.kl-dk{padding:3px 4px;border:1px solid var(--border);border-radius:5px;background:var(--raised);color:var(--text1);font-size:12px}
+</style>
+<div id="panelKenhLead" style="display:none;flex-direction:column;flex:1;overflow-y:auto;padding:24px 28px">
+  <div style="font-size:11px;font-weight:700;color:var(--dim);letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px">MARKETING · ĐO LƯỜNG</div>
+  <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--text1);margin-bottom:6px">Kênh &amp; Lead theo tuần</div>
+  <div style="font-size:13px;color:var(--sub);margin-bottom:14px;max-width:88ch">Lead = một khách để lại SĐT qua form hoặc công cụ (dự toán nhanh/chi tiết, lưu dự toán phần thô, ước tính nội thất, trang chủ, trang tỉnh, kho mẫu, thi công, sửa vặt). Một SĐT chỉ tính <b>1 lead</b> cho mỗi nhóm, vào tuần lần gửi đầu tiên. Đã loại lead test, số nội bộ và lượt tự test <code>?internal=1</code>. Không có dữ liệu nguồn thì xếp vào <b>Không xác định</b>, không đoán. Một SĐT là một khách nhưng có thể có nhiều nhu cầu, nên tổng Phần thô + Nội thất + Nguồn khác có thể lớn hơn số khách ở "Tất cả". Tuần tính theo giờ Việt Nam, từ thứ 2 đến chủ nhật.</div>
+
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px">
+    <span id="klNhomTabs" style="display:flex;gap:6px;flex-wrap:wrap">
+      <button class="kl-nhom" data-nhom="tat_ca" onclick="klChonNhom('tat_ca')">Tất cả</button>
+      <button class="kl-nhom" data-nhom="phan_tho" onclick="klChonNhom('phan_tho')">Phần thô</button>
+      <button class="kl-nhom" data-nhom="noi_that" onclick="klChonNhom('noi_that')">Nội thất</button>
+      <button class="kl-nhom" data-nhom="khac" onclick="klChonNhom('khac')">Nguồn khác</button>
+    </span>
+    <select id="klCham" onchange="klVe()" style="padding:6px 10px;border:1px solid var(--border);border-radius:7px;background:var(--raised);color:var(--text1);font-size:12px">
+      <option value="lt">Theo nguồn gần nhất</option>
+      <option value="ft">Theo nguồn đầu tiên</option>
+    </select>
+    <select id="klSoTuan" onchange="initKenhLeadPanel()" style="padding:6px 10px;border:1px solid var(--border);border-radius:7px;background:var(--raised);color:var(--text1);font-size:12px">
+      <option value="4">4 tuần</option>
+      <option value="8" selected>8 tuần</option>
+      <option value="12">12 tuần</option>
+    </select>
+    <button onclick="initKenhLeadPanel()" style="padding:7px 14px;background:var(--raised);border:1px solid var(--border);border-radius:7px;font-size:12px;font-weight:600;color:var(--sub);cursor:pointer;font-family:var(--sans)"><i class="ph-duotone ph-arrow-clockwise"></i> Tải lại</button>
+  </div>
+
+  <div id="klTrangThai" style="font-size:12.5px;color:var(--dim);margin-bottom:10px">Chưa tải.</div>
+  <div id="klTongQuan" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:18px"></div>
+
+  <div style="font-weight:700;color:var(--text1);margin:4px 0 8px">Lead mới theo tuần × kênh</div>
+  <div style="overflow:auto;border:1px solid var(--border);border-radius:12px;background:var(--card);margin-bottom:20px"><table id="klBangKenh" style="width:100%;border-collapse:collapse;font-size:12.5px"></table></div>
+
+  <div style="font-weight:700;color:var(--text1);margin:4px 0 8px">Các bước chuyển đổi (chỉ hiện bước đã có dữ liệu)</div>
+  <div style="overflow:auto;border:1px solid var(--border);border-radius:12px;background:var(--card);margin-bottom:6px"><table id="klBangPheu" style="width:100%;border-collapse:collapse;font-size:12.5px"></table></div>
+  <div id="klGhiChuPheu" style="font-size:12px;color:var(--sub);margin-bottom:20px"></div>
+
+  <div style="font-weight:700;color:var(--text1);margin:4px 0 4px">Chi phí mỗi lead</div>
+  <div style="font-size:12px;color:var(--sub);margin-bottom:8px;max-width:88ch">Nhập chi tiêu quảng cáo từng tuần (lấy từ Meta Ads Manager). Chi phí CHỈ chia cho lead mới có nguồn gần nhất là Quảng cáo (không chia cho lead tự nhiên, Zalo, Không xác định), gộp mọi nhóm sản phẩm. Nếu chạy quảng cáo trên nhiều nền tảng, nhập tổng chi tiêu các nền tảng. Chưa nhập thì không tính.</div>
+  <div style="overflow:auto;border:1px solid var(--border);border-radius:12px;background:var(--card);margin-bottom:20px"><table id="klBangChiPhi" style="width:100%;border-collapse:collapse;font-size:12.5px"></table></div>
+
+  <div style="font-weight:700;color:var(--text1);margin:4px 0 4px">Đánh giá lead đủ điều kiện</div>
+  <div style="font-size:12px;color:var(--sub);margin-bottom:8px;max-width:88ch">Đạt khi đủ cả 4: dịch vụ ALN làm được, khu vực phục vụ được, ngân sách phù hợp, thời điểm khách định làm phù hợp với lịch nhận việc. Một tiêu chí "Không" là không đạt.</div>
+  <div style="overflow:auto;border:1px solid var(--border);border-radius:12px;background:var(--card);margin-bottom:28px"><table id="klBangDanhGia" style="width:100%;border-collapse:collapse;font-size:12.5px"></table></div>
+</div>
+
 <div id="panelLeads" style="display:none;flex-direction:column;flex:1;overflow-y:auto;padding:24px 28px">
   <div style="font-size:11px;font-weight:700;color:var(--dim);letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px">MARKETING · CHĂM SÓC LEAD</div>
   <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--text1);margin-bottom:6px">Lead từ form khảo sát trang chủ</div>
@@ -3734,7 +3789,7 @@ window.ALNRealtime = (() => {
 ══════════════════════════════════════════ */
 
 function switchTab(t){
-  var ALL = ['projects','estimateProfiles','stats','mgKts','mgDn','mgCn','mgKs','mgKtv','mgNcc','bricks','pending','payments','report','leads','suaVatAi','contacts','pipeline','thoQuan','recruit','company','pricing','khomau','mkt','seo','hoikien','waitRoom','matching','c2monitor','liveKts','liveDn','liveCn','liveDes','liveKs','liveKtv','liveKeToan'];
+  var ALL = ['projects','estimateProfiles','stats','mgKts','mgDn','mgCn','mgKs','mgKtv','mgNcc','bricks','pending','payments','report','leads','kenhLead','suaVatAi','contacts','pipeline','thoQuan','recruit','company','pricing','khomau','mkt','seo','hoikien','waitRoom','matching','c2monitor','liveKts','liveDn','liveCn','liveDes','liveKs','liveKtv','liveKeToan'];
   var activeStyle  = 'padding:5px 13px;border:1px solid rgba(59,130,246,.25);border-radius:6px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;background:rgba(59,130,246,.15);color:var(--blue);white-space:nowrap';
   var inactiveStyle= 'padding:5px 13px;border:1px solid var(--border);border-radius:6px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;background:var(--raised);color:var(--sub);white-space:nowrap';
   var liveStyles = {
@@ -3784,6 +3839,7 @@ function switchTab(t){
   if(t==='payments') { renderPayments(); if(typeof renderDesignApprovals==='function') renderDesignApprovals(); }
   if(t==='report')   { renderIncomeReport(); if(typeof _fillFeeConfigForm==='function') _fillFeeConfigForm(); }
   if(t==='leads')    initLeadsPanel();
+  if(t==='kenhLead') { if(typeof window.initKenhLeadPanel==='function') window.initKenhLeadPanel(); }
   if(t==='suaVatAi') initSuaVatAiPanel();
   if(t==='contacts') initContactsPanel();
   if(t==='pipeline') initPipelinePanel();
@@ -10263,5 +10319,162 @@ window.exportProjectsCSV = async function() {
   });
 })();
 </script>
+<!-- ══ Kênh & Lead theo tuần (27/09/2026) — gọi founderBaoCaoKenh / founderDanhGiaLead / founderGhiChiPhiKenh (functions/baoCaoKenh.js) ══ -->
+<script type="module">
+import { app } from "./firebase-config.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js";
+
+const fns = getFunctions(app, "asia-southeast1");
+const goi = (ten, data) => httpsCallable(fns, ten, { timeout: 120000 })(data || {}).then((r) => r.data);
+const KENH_THU_TU = ["paid", "organic_search", "social", "zalo", "referral", "direct", "unknown"];
+const TIEU_CHI = [["dich_vu", "Dịch vụ"], ["khu_vuc", "Khu vực"], ["ngan_sach", "Ngân sách"], ["thoi_diem", "Thời điểm"]];
+let DL = null;
+let NHOM = "tat_ca";
+
+const esc = (v) => String(v == null ? "" : v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const so = (n) => Number(n || 0).toLocaleString("vi-VN");
+const $ = (id) => document.getElementById(id);
+const nhanTuan = (t) => { const [, m1, d1] = t.tu.split("-"); const [, m2, d2] = t.den.split("-"); return t.ma.slice(5) + " · " + d1 + "/" + m1 + "–" + d2 + "/" + m2; };
+
+function the(nhan, giaTri, phu) {
+  return '<div style="border:1px solid var(--border);border-radius:10px;background:var(--card);padding:12px 14px">'
+    + '<div style="font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em">' + esc(nhan) + "</div>"
+    + '<div style="font-family:var(--mono);font-size:22px;font-weight:800;color:var(--text1);margin-top:2px">' + esc(giaTri) + "</div>"
+    + (phu ? '<div style="font-size:11.5px;color:var(--sub);margin-top:2px">' + esc(phu) + "</div>" : "")
+    + "</div>";
+}
+
+function veTongQuan() {
+  const g = DL.nhom[NHOM].tong;
+  const cham = $("klCham").value;
+  const tong = g.buoc.lead;
+  const kxd = g[cham].unknown;
+  const lt = DL.loai_tru;
+  $("klTongQuan").innerHTML =
+    the("Lead duy nhất", so(tong), so(g.luot_gui) + " lượt gửi")
+    + the("Không xác định nguồn", tong ? Math.round(kxd * 100 / tong) + "%" : "—", so(kxd) + " lead")
+    + the("Chưa đánh giá", so(g.chua_danh_gia), so(g.buoc.du_dieu_kien) + " đạt · " + so(g.khong_dat) + " không đạt")
+    + (NHOM === "tat_ca" ? the("Khách nhiều nhu cầu", so(DL.nhieu_nhu_cau), "vừa phần thô vừa nội thất…") : "")
+    + (NHOM === "tat_ca" ? the("Đã loại", so(lt.test + lt.noi_bo_optout), so(lt.test) + " test/nội bộ · " + so(lt.noi_bo_optout) + " tự test") : "");
+}
+
+function veBangKenh() {
+  const cham = $("klCham").value;
+  const g = DL.nhom[NHOM];
+  const cot = KENH_THU_TU.filter((k) => k === "unknown" || g.tong[cham][k] > 0);
+  let h = "<thead><tr><th>Tuần</th>" + cot.map((k) => "<th>" + esc(DL.nhan.kenh[k]) + "</th>").join("") + "<th>Tổng</th></tr></thead><tbody>";
+  DL.tuan.slice().reverse().forEach((t) => {
+    const o = g.tuan[t.ma];
+    h += "<tr><td>" + esc(nhanTuan(t)) + "</td>" + cot.map((k) => '<td class="' + (o[cham][k] ? "" : "kl-mo") + '">' + so(o[cham][k]) + "</td>").join("") + "<td><b>" + so(o.buoc.lead) + "</b></td></tr>";
+  });
+  h += '<tr class="kl-tong"><td>Tổng</td>' + cot.map((k) => "<td>" + so(g.tong[cham][k]) + "</td>").join("") + "<td>" + so(g.tong.buoc.lead) + "</td></tr></tbody>";
+  $("klBangKenh").innerHTML = h;
+}
+
+function veBangPheu() {
+  const g = DL.nhom[NHOM];
+  const buoc = DL.buoc_co_du_lieu;
+  const pct = (a, b) => (b ? " <span class=\"kl-mo\">(" + Math.round(a * 100 / b) + "%)</span>" : "");
+  let h = "<thead><tr><th>Tuần</th>" + buoc.map((b) => "<th>" + esc(DL.nhan.buoc[b]) + "</th>").join("") + "<th>Chưa đánh giá</th></tr></thead><tbody>";
+  const dong = (nhan, o, cls) => '<tr class="' + eH(cls || "") + '"><td>' + esc(nhan) + "</td>"
+    + buoc.map((b) => "<td>" + so(o.buoc[b]) + (b === "lead" ? "" : pct(o.buoc[b], o.buoc.lead)) + "</td>").join("")
+    + "<td>" + so(o.chua_danh_gia) + "</td></tr>";
+  DL.tuan.slice().reverse().forEach((t) => { h += dong(nhanTuan(t), g.tuan[t.ma]); });
+  h += dong("Tổng", g.tong, "kl-tong") + "</tbody>";
+  $("klBangPheu").innerHTML = h;
+  $("klGhiChuPheu").textContent = DL.ty_le_website_lead_ghi_chu || "";
+}
+
+function veBangChiPhi() {
+  let h = "<thead><tr><th>Tuần</th><th>Chi tiêu quảng cáo (đ)</th><th>Lead quảng cáo</th><th>Chi phí / lead</th><th>Lead đạt</th><th>Chi phí / lead đạt</th></tr></thead><tbody>";
+  DL.tuan.slice().reverse().forEach((t) => {
+    const cp = (DL.chi_phi[t.ma] || {}).paid;
+    const c = (DL.cpl[t.ma] || {}).paid;
+    const leadQc = DL.nhom.tat_ca.tuan[t.ma].lt.paid;
+    h += "<tr><td>" + esc(nhanTuan(t)) + "</td>"
+      + '<td><input id="klCp_' + esc(t.ma) + '" type="number" min="0" step="1000" value="' + (cp != null ? esc(cp) : "") + '" placeholder="chưa nhập" style="width:120px;padding:4px 6px;border:1px solid var(--border);border-radius:5px;background:var(--raised);color:var(--text1);text-align:right"> '
+      + '<button onclick="klLuuChiPhi(' + eJ(t.ma) + ')" style="padding:4px 9px;border:1px solid var(--border);border-radius:5px;background:var(--raised);color:var(--sub);cursor:pointer;font-size:11.5px">Lưu</button></td>'
+      + "<td>" + so(leadQc) + "</td>"
+      + "<td>" + (c && c.cpl != null ? so(c.cpl) + " đ" : '<span class="kl-mo">—</span>') + "</td>"
+      + "<td>" + (c ? so(c.du_dieu_kien) : '<span class="kl-mo">—</span>') + "</td>"
+      + "<td>" + (c && c.cp_du_dieu_kien != null ? so(c.cp_du_dieu_kien) + " đ" : '<span class="kl-mo">—</span>') + "</td></tr>";
+  });
+  $("klBangChiPhi").innerHTML = h + "</tbody>";
+}
+
+function veBangDanhGia() {
+  const ds = DL.danh_sach.filter((k) => NHOM === "tat_ca" || (k.san_pham || []).indexOf(NHOM) !== -1);
+  let h = "<thead><tr><th>Khách</th><th>Tuần</th><th>Công cụ</th><th>Nguồn đầu → gần nhất</th><th>Khu vực</th>"
+    + TIEU_CHI.map((c) => "<th>" + c[1] + "</th>").join("") + "<th></th></tr></thead><tbody>";
+  if (!ds.length) h += '<tr><td colspan="10" class="kl-mo" style="text-align:center;padding:18px">Chưa có lead trong khoảng này.</td></tr>';
+  ds.forEach((k, i) => {
+    const dk = k.du_dieu_kien || {};
+    const mau = k.trang_thai_dk === "dat" ? "var(--green)" : (k.trang_thai_dk === "khong_dat" ? "var(--red)" : "var(--dim)");
+    const chon = (c) => '<select class="kl-dk" id="klDk_' + i + "_" + c + '"' + (k.contact_id ? "" : " disabled") + ">"
+      + '<option value=""' + (dk[c] == null ? " selected" : "") + ">?</option>"
+      + '<option value="1"' + (dk[c] === true ? " selected" : "") + ">Có</option>"
+      + '<option value="0"' + (dk[c] === false ? " selected" : "") + ">Không</option></select>";
+    h += "<tr><td><span style=\"display:inline-block;width:8px;height:8px;border-radius:50%;background:" + mau + ';margin-right:6px"></span>'
+      + esc(k.ten || "(chưa có tên)") + ' <span class="kl-mo" style="font-family:var(--mono)">' + esc(k.phone || "") + "</span>"
+      + (k.so_lan_gui > 1 ? ' <span class="kl-mo">×' + so(k.so_lan_gui) + "</span>" : "") + "</td>"
+      + "<td>" + esc(k.tuan.slice(5)) + "</td>"
+      + '<td style="white-space:normal;min-width:140px">' + esc((k.cong_cu || []).join(", ")) + "</td>"
+      + "<td>" + esc(DL.nhan.kenh[k.kenh_ft]) + " → " + esc(DL.nhan.kenh[k.kenh_lt]) + "</td>"
+      + "<td>" + esc(k.khu_vuc || "—") + "</td>"
+      + TIEU_CHI.map((c) => "<td>" + chon(c[0]) + "</td>").join("")
+      + "<td>" + (k.contact_id
+        ? '<button onclick="klLuuDanhGia(' + i + ')" style="padding:4px 9px;border:1px solid var(--border);border-radius:5px;background:var(--raised);color:var(--sub);cursor:pointer;font-size:11.5px">Lưu</button>'
+        : '<span class="kl-mo" title="Lead này chưa có bản ghi liên hệ">—</span>') + "</td></tr>";
+  });
+  $("klBangDanhGia").innerHTML = h + "</tbody>";
+  window._klDanhSach = ds;
+}
+
+window.klVe = function () {
+  if (!DL) return;
+  document.querySelectorAll("#klNhomTabs .kl-nhom").forEach((b) => b.classList.toggle("on", b.dataset.nhom === NHOM));
+  veTongQuan(); veBangKenh(); veBangPheu(); veBangChiPhi(); veBangDanhGia();
+};
+
+window.klChonNhom = function (n) { NHOM = n; window.klVe(); };
+
+window.initKenhLeadPanel = async function () {
+  $("klTrangThai").textContent = "Đang tải…";
+  try {
+    DL = await goi("founderBaoCaoKenh", { so_tuan: Number($("klSoTuan").value) || 8 });
+    const nk = DL.nguon_kenh || {};
+    $("klTrangThai").innerHTML = "Cập nhật " + esc(new Date(DL.tao_luc).toLocaleString("vi-VN"))
+      + " · Dữ liệu nguồn: " + so(nk.attribution) + " lượt gửi đủ đầu/gần nhất, " + so(nk.utm) + " chỉ có UTM, " + so(nk.none) + " không có."
+      + " Lượt lưu dự toán phần thô và form trang chủ chỉ ghi nguồn từ 27/09/2026.";
+    window.klVe();
+  } catch (e) {
+    $("klTrangThai").innerHTML = '<span style="color:var(--red)">Lỗi tải: ' + esc(e.message || e) + "</span>";
+  }
+};
+
+window.klLuuChiPhi = async function (ma) {
+  const v = $("klCp_" + ma).value.trim();
+  if (v === "") return;
+  try {
+    await goi("founderGhiChiPhiKenh", { tuan: ma, kenh: "paid", vnd: Number(v) });
+    await window.initKenhLeadPanel();
+  } catch (e) { alert("Chưa lưu được: " + (e.message || e)); }
+};
+
+window.klLuuDanhGia = async function (i) {
+  const k = (window._klDanhSach || [])[i];
+  if (!k || !k.contact_id) return;
+  const data = { contact_id: k.contact_id };
+  TIEU_CHI.forEach((c) => {
+    const v = $("klDk_" + i + "_" + c[0]).value;
+    data[c[0]] = v === "1" ? true : (v === "0" ? false : null);
+  });
+  try {
+    await goi("founderDanhGiaLead", data);
+    await window.initKenhLeadPanel();
+  } catch (e) { alert("Chưa lưu được: " + (e.message || e)); }
+};
+</script>
 </body>
 </html>
+
