@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
 <!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM (xem scripts/aln-optout.js) -->
+<script src="aln-esc.js"></script>
 <script src="scripts/aln-optout.js"></script>
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -196,9 +197,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </div>
 
 <script>
-function escH(s){
-  return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+function escH(s){ return eH(s); } // aln-esc.js — escape đủ & < > " ' `
 var PROV_NAME = {HCM:'TP.HCM',HN:'Hà Nội',DN:'Đà Nẵng',CT:'Cần Thơ',HP:'Hải Phòng',BD:'Bình Dương',DNai:'Đồng Nai','BR-VT':'BR–Vũng Tàu',LA:'Long An',TG:'Tiền Giang',KH:'Khánh Hòa',BDinh:'Bình Định',NA:'Nghệ An',TH:'Thanh Hóa',OTHER:'Tỉnh khác'};
 var AVATAR_COLORS = ['#98690a','#1d4ed8','#3a7a3e','#9b6ec9','#b45309','#2b7a8f','#5a7a5c','#8a4a3d'];
 var EARLY_BIRD_TARGET = 20; // mục tiêu đợt đầu chiến dịch "Đầu quân về ALN" (khớp CLAUDE.md)
@@ -230,7 +229,7 @@ function renderTeams(list){
       + '<div class="tcard-top">' + avatarHtml(b) + '<div style="min-width:0"><div class="tcard-name">' + escH(b.name || 'Đội thi công') + '</div><div class="tcard-loc">' + escH(PROV_NAME[b.province] || b.province || '') + '</div></div></div>'
       + '<div class="tcard-meta">'
         + (b.isDemo ? '<span class="demo-badge">Minh hoạ</span>' : (b.verified ? '<span class="verified-badge"><i class="ph-duotone ph-seal-check"></i>Đã xác minh</span>' : '<span></span>'))
-        + (typeof b.leadCount === 'number' && b.leadCount > 0 ? '<span class="lead-count">' + b.leadCount + ' lượt liên hệ</span>' : '')
+        + (typeof b.leadCount === 'number' && b.leadCount > 0 ? '<span class="lead-count">' + eH(b.leadCount) + ' lượt liên hệ</span>' : '')
       + '</div>'
     + '</a>';
   }).join('');

@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <script src="error-monitor.js"></script>
+  <script src="aln-esc.js"></script>
+<script src="error-monitor.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ALN Master Board v2.0 — Editor</title>
@@ -639,7 +640,7 @@ async function exportImg(fmt, btn) {
     const name = (document.querySelector('.info-main') && document.querySelector('.info-main').textContent.trim() || 'ALN-BOARD').replace(/\s+/g,'-');
     const a = document.createElement('a');
     a.download = 'ALN_BOARD_' + name + '.' + fmt;
-    a.href = url;
+    a.href = alnUrl(url);
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -674,7 +675,7 @@ function setImg(input, imgId, phId) {
     if (!tog && imgId !== 'hero-img-el') {
       tog = document.createElement('div');
       tog.id = togId;
-      tog.setAttribute('onclick', "event.stopPropagation();toggleFit('" + imgId + "')");
+      tog.addEventListener('click', function(ev){ ev.stopPropagation(); toggleFit(imgId); }); // không dựng mã từ chuỗi
       tog.style.cssText = 'display:none;position:absolute;top:3px;right:3px;background:rgba(8,12,20,.75);border:1px solid rgba(201,168,76,.5);border-radius:3px;padding:2px 6px;font-size:8px;font-weight:700;color:#C9A84C;cursor:pointer;letter-spacing:1px;z-index:10';
       img.parentElement.appendChild(tog);
     }
@@ -806,7 +807,7 @@ onAuthStateChanged(auth, async u => {
           const img = document.getElementById(id);
           // crossOrigin trước khi gán src → ảnh remote tải kèm CORS, không nhiễm canvas
           // lúc html2canvas export. Phải đặt TRƯỚC src để không dính bản cache non-CORS.
-          if (img) { img.crossOrigin = 'anonymous'; img.src = c.logoUrl; img.style.display = 'block'; }
+          if (img) { img.crossOrigin = 'anonymous'; img.src = alnUrl(c.logoUrl); img.style.display = 'block'; }
         });
         const txt = document.getElementById('logo-side-txt');
         if (txt) txt.style.display = 'none';

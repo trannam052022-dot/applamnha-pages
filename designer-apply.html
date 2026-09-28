@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
 <!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM (xem scripts/aln-optout.js) -->
+<script src="aln-esc.js"></script>
 <script src="scripts/aln-optout.js"></script>
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -598,7 +599,7 @@ document.getElementById('f_avatar').addEventListener('change', function() {
   var reader = new FileReader();
   reader.onload = function(e) {
     var img = document.getElementById('avImg');
-    img.src = e.target.result;
+    img.src = alnUrl(e.target.result);
     img.style.display = 'block';
     document.getElementById('avInit').style.display = 'none';
   };
@@ -623,7 +624,7 @@ function renderPreview(id, files, onRemove) {
     var div = document.createElement('div');
     div.className = 'prev-item';
     div.innerHTML = '<i class="ph-duotone ' + fileIcon(f.name) + ' prev-icon"></i>'
-      + '<span class="prev-name">' + f.name + '</span>'
+      + '<span class="prev-name">' + eH(f.name) + '</span>'
       + '<span class="prev-size">' + fmtSize(f.size) + '</span>'
       + '<button class="prev-rm" title="Xóa"><i class="ph-duotone ph-x-circle"></i></button>';
     div.querySelector('.prev-rm').addEventListener('click', function() { onRemove(i); });

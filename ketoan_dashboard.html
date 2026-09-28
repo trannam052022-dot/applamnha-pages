@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <script src="error-monitor.js"></script>
+  <script src="aln-esc.js"></script>
+<script src="error-monitor.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ALN — Kế toán trưởng</title>
@@ -200,7 +201,7 @@ a{color:var(--gold)}
 <div class="toast" id="toast"></div>
 
 <script>
-function esc(s){ return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function esc(s){ return eH(s); } // aln-esc.js — escape đủ & < > " ' `
 function fmtAmt(v){ return v >= 1000000 ? (v/1000000).toFixed(1).replace('.0','') + ' tr' : (v/1000).toFixed(0) + 'K'; }
 // (Từng có PLATFORM_FEE_PCT/INCOME_TAX_PCT/fallbackNet trùng lặp ở đây — dead code,
 // không nơi nào trong file gọi tới; bản dùng thật nằm ở <script type="module"> bên
@@ -233,16 +234,16 @@ function payCardHTML(pay){
     + '<div style="flex:1;min-width:220px">'
       + '<div class="pay-name">' + esc(pay.projId) + ' — ' + esc(pay.projName) + '</div>'
       + '<div class="pay-meta">' + esc(pay.roleLabel) + ': <b style="color:var(--text2)">' + esc(pay.personName) + '</b> · Chặng <b style="color:var(--amber)">' + esc(pay.stage) + '</b></div>'
-      + '<div class="pay-bank" id="' + bankId + '">Đang tải TK ngân hàng...</div>'
+      + '<div class="pay-bank" id="' + eH(bankId) + '">Đang tải TK ngân hàng...</div>'
       + (checked ? '<div class="pay-checked"><i class="ph-duotone ph-check-circle"></i> Đã kiểm tra' + (checked.checkedAt && checked.checkedAt.toDate ? ' lúc ' + checked.checkedAt.toDate().toLocaleString('vi-VN') : '') + '</div>' : '')
     + '</div>'
-    + '<div class="pay-qr" id="' + qrId + '"></div>'
+    + '<div class="pay-qr" id="' + eH(qrId) + '"></div>'
     + '<div style="text-align:right;flex-shrink:0">'
       + '<div class="pay-amt">' + (pay.netAmount != null ? fmtAmt(pay.netAmount) + 'đ' : 'Chưa tính được — thử tải lại') + '</div>'
       + '<div class="pay-amt-sub">gốc ' + fmtAmt(pay.amount) + 'đ · trừ ' + deductPctText + '</div>'
       + (checked
         ? '<button class="btn-check" disabled><i class="ph-duotone ph-check"></i> Đã kiểm tra</button>'
-        : '<button class="btn-check" onclick="markChecked(\'' + pay.coll + '\',\'' + pay.projId + '\',\'' + pay.stage + '\')"><i class="ph-duotone ph-check"></i> Đã kiểm tra</button>')
+        : '<button class="btn-check" onclick="markChecked(' + eJ(pay.coll) + ',' + eJ(pay.projId) + ',' + eJ(pay.stage) + ')"><i class="ph-duotone ph-check"></i> Đã kiểm tra</button>')
     + '</div>'
   + '</div>';
 }
@@ -300,7 +301,7 @@ function renderTaxReport(rows){
     return '<tr>'
       + '<td>' + esc(r.name) + (r.taxCode ? '' : '<div class="tax-missing"><i class="ph-duotone ph-warning"></i> Chưa có MST</div>') + '</td>'
       + '<td>' + esc(r.taxCode || '—') + '</td>'
-      + '<td class="num">' + r.count + '</td>'
+      + '<td class="num">' + eH(r.count) + '</td>'
       + '<td class="num">' + r.gross.toLocaleString('vi-VN') + 'đ</td>'
       + '<td class="num" style="color:var(--red)">' + r.tax.toLocaleString('vi-VN') + 'đ</td>'
       + '<td class="num" style="color:var(--green)">' + r.net.toLocaleString('vi-VN') + 'đ</td>'
@@ -556,7 +557,7 @@ async function _fillBankInfo(pay){
         + '?amount=' + (pay.netAmount || 0)
         + '&addInfo=' + encodeURIComponent(pay.projId + ' ' + pay.stage)
         + '&accountName=' + encodeURIComponent(ba.accountHolder || '');
-      qrEl.innerHTML = '<img src="' + qrUrl + '" alt="QR" style="width:100%;height:100%;object-fit:contain">';
+      qrEl.innerHTML = '<img src="' + eU(qrUrl) + '" alt="QR" style="width:100%;height:100%;object-fit:contain">';
       qrEl.style.display = 'flex';
     }
   } catch(e){ if (el) el.textContent = 'Lỗi tải TK ngân hàng'; }

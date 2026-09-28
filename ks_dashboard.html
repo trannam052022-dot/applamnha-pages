@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <script src="error-monitor.js"></script>
+  <script src="aln-esc.js"></script>
+<script src="error-monitor.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ALN — KS Vùng Dashboard</title>
@@ -292,7 +293,7 @@ function renderPending(list) {
   el.innerHTML = list.map(function(d) {
     var uid = d.uid || d._id;
     var provHome = PROV_NAME[d.province_home] || d.province_home || '—';
-    var provWork = (d.provinces_work || []).map(function(p){ return '<span class="chip">' + (PROV_NAME[p] || p) + '</span>'; }).join('');
+    var provWork = (d.provinces_work || []).map(function(p){ return '<span class="chip">' + eH(PROV_NAME[p] || p) + '</span>'; }).join('');
     var boMon = BOMON_NAME[d.boMon] || d.boMon || '—';
     var yrs  = d.years ? d.years + ' năm' : '—';
     var bio  = d.bio || '';
@@ -303,35 +304,35 @@ function renderPending(list) {
       var isRec = noted.recommendation === 'recommended';
       notedHtml = '<div class="ctv-noted' + (isRec ? '' : ' pass') + '">'
         + '<div class="ctv-noted-label">' + (isRec ? '✓ Đã đề xuất duyệt' : '✗ Đã đánh dấu chưa đạt') + '</div>'
-        + '<div>' + (noted.note || '') + '</div></div>';
+        + '<div>' + eH(noted.note || '') + '</div></div>';
     }
 
-    return '<div class="kts-card" id="kcard-' + uid + '">'
+    return '<div class="kts-card" id="kcard-' + eH(uid) + '">'
       + '<div class="kts-card-head">'
-        + '<div class="kts-avatar">' + initials(d.name) + '</div>'
+        + '<div class="kts-avatar">' + eH(initials(d.name)) + '</div>'
         + '<div class="kts-info">'
-          + '<div class="kts-name">' + (d.name || 'KTS') + '<span class="kts-status-badge ' + (noted ? (noted.recommendation === 'recommended' ? 'recommended' : 'pass') : 'pending') + '">' + (noted ? (noted.recommendation === 'recommended' ? 'Đã đề xuất' : 'Chưa đạt') : 'Chờ xét') + '</span></div>'
-          + '<div class="kts-meta">' + (d.phone || '') + (d.email ? ' · ' + d.email : '') + '</div>'
+          + '<div class="kts-name">' + eH(d.name || 'KTS') + '<span class="kts-status-badge ' + (noted ? (noted.recommendation === 'recommended' ? 'recommended' : 'pass') : 'pending') + '">' + (noted ? (noted.recommendation === 'recommended' ? 'Đã đề xuất' : 'Chưa đạt') : 'Chờ xét') + '</span></div>'
+          + '<div class="kts-meta">' + eH(d.phone || '') + eH(d.email ? ' · ' + d.email : '') + '</div>'
         + '</div>'
       + '</div>'
       + '<div class="kts-grid">'
-        + '<div class="kts-grid-item"><div class="kts-grid-label">Bộ môn</div><div class="kts-grid-val">' + boMon + '</div></div>'
-        + '<div class="kts-grid-item"><div class="kts-grid-label">Kinh nghiệm</div><div class="kts-grid-val">' + yrs + '</div></div>'
-        + '<div class="kts-grid-item"><div class="kts-grid-label">Tỉnh nơi ở</div><div class="kts-grid-val">' + provHome + '</div></div>'
+        + '<div class="kts-grid-item"><div class="kts-grid-label">Bộ môn</div><div class="kts-grid-val">' + eH(boMon) + '</div></div>'
+        + '<div class="kts-grid-item"><div class="kts-grid-label">Kinh nghiệm</div><div class="kts-grid-val">' + eH(yrs) + '</div></div>'
+        + '<div class="kts-grid-item"><div class="kts-grid-label">Tỉnh nơi ở</div><div class="kts-grid-val">' + eH(provHome) + '</div></div>'
         + '<div class="kts-grid-item"><div class="kts-grid-label">Khu vực làm việc</div><div class="kts-grid-val">' + (provWork || '—') + '</div></div>'
       + '</div>'
-      + (bio ? '<div class="kts-bio">' + bio + '</div>' : '')
+      + (bio ? '<div class="kts-bio">' + eH(bio) + '</div>' : '')
       + notedHtml
       + (noted ? '' :
           '<div class="ctv-note-area">'
             + '<label>Ghi chú gửi Founder</label>'
-            + '<textarea id="note-' + uid + '" placeholder="Nhận xét sơ bộ về hồ sơ, mức độ tin cậy, số lần gặp gỡ…" rows="2"></textarea>'
+            + '<textarea id="note-' + eH(uid) + '" placeholder="Nhận xét sơ bộ về hồ sơ, mức độ tin cậy, số lần gặp gỡ…" rows="2"></textarea>'
           + '</div>'
           + '<div class="action-row">'
-            + '<button class="btn btn-recommend" onclick="sendNote(\'' + uid + '\',\'recommended\')">'
+            + '<button class="btn btn-recommend" onclick="sendNote(' + eJ(uid) + ',\'recommended\')">'
               + '<i class="ph-duotone ph-thumbs-up"></i> Đề xuất duyệt'
             + '</button>'
-            + '<button class="btn btn-pass" onclick="sendNote(\'' + uid + '\',\'pass\')">'
+            + '<button class="btn btn-pass" onclick="sendNote(' + eJ(uid) + ',\'pass\')">'
               + '<i class="ph-duotone ph-thumbs-down"></i> Chưa đạt'
             + '</button>'
           + '</div>'
@@ -351,10 +352,10 @@ function renderActive(list) {
   }
   el.innerHTML = list.map(function(u) {
     return '<div class="akts-card">'
-      + '<div class="akts-avatar">' + initials(u.name) + '</div>'
+      + '<div class="akts-avatar">' + eH(initials(u.name)) + '</div>'
       + '<div class="akts-info">'
-        + '<div class="akts-name">' + (u.name || '—') + '</div>'
-        + '<div class="akts-meta">' + (u.username || '') + (u.phone ? ' · ' + u.phone : '') + '</div>'
+        + '<div class="akts-name">' + eH(u.name || '—') + '</div>'
+        + '<div class="akts-meta">' + eH(u.username || '') + eH(u.phone ? ' · ' + u.phone : '') + '</div>'
       + '</div>'
       + '<div class="akts-badge"><i class="ph-duotone ph-check-circle"></i> Active</div>'
     + '</div>';

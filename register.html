@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
 <!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM (xem scripts/aln-optout.js) -->
+<script src="aln-esc.js"></script>
 <script src="scripts/aln-optout.js"></script>
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -503,7 +504,7 @@ async function checkUsername(username){
       var num = Math.floor(Math.random()*900+10);
       var sug = username + num;
       el.className = 'username-status err';
-      el.innerHTML = '<i class="ph-duotone ph-x-circle"></i> Đã tồn tại. Thử: <b style="cursor:pointer;text-decoration:underline;color:var(--gold)" onclick="useSuggest(\'' + sug + '\')">' + sug + '</b>';
+      el.innerHTML = '<i class="ph-duotone ph-x-circle"></i> Đã tồn tại. Thử: <b style="cursor:pointer;text-decoration:underline;color:var(--gold)" onclick="useSuggest(' + eJ(sug) + ')">' + eH(sug) + '</b>';
     }
   } catch(e){
     el.className = 'username-status checking';

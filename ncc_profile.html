@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
 <!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM (xem scripts/aln-optout.js) -->
+<script src="aln-esc.js"></script>
 <script src="scripts/aln-optout.js"></script>
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -286,10 +287,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <div class="toast" id="toast"></div>
 
 <script>
-function escH(s){
-  return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-function openLightbox(url){ document.getElementById('lightboxImg').src = url; document.getElementById('lightbox').classList.add('open'); }
+function escH(s){ return eH(s); } // aln-esc.js — escape đủ & < > " ' `
+function openLightbox(url){ document.getElementById('lightboxImg').src = alnUrl(url); document.getElementById('lightbox').classList.add('open'); }
 function closeLightbox(){ document.getElementById('lightbox').classList.remove('open'); document.getElementById('lightboxImg').src=''; }
 window.openLightbox = openLightbox;
 window.closeLightbox = closeLightbox;
@@ -340,25 +339,25 @@ function videoEmbedHtml(u){
     if (host === 'youtube.com' || host === 'm.youtube.com') {
       var vid = url.searchParams.get('v');
       if (vid && /^[\w-]{6,20}$/.test(vid)) {
-        return '<div class="video-embed"><iframe src="https://www.youtube.com/embed/' + vid + '" loading="lazy" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>';
+        return '<div class="video-embed"><iframe src="https://www.youtube.com/embed/' + eH(vid) + '" loading="lazy" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>';
       }
       return '';
     }
     if (host === 'youtu.be') {
       var vid2 = url.pathname.replace(/^\//, '');
       if (vid2 && /^[\w-]{6,20}$/.test(vid2)) {
-        return '<div class="video-embed"><iframe src="https://www.youtube.com/embed/' + vid2 + '" loading="lazy" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>';
+        return '<div class="video-embed"><iframe src="https://www.youtube.com/embed/' + eH(vid2) + '" loading="lazy" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>';
       }
       return '';
     }
     if (host === 'tiktok.com') {
-      return '<a class="video-link" href="' + escH(u) + '" target="_blank" rel="noopener"><i class="ph-duotone ph-tiktok-logo"></i>Xem video trên TikTok</a>';
+      return '<a class="video-link" href="' + eU(u) + '" target="_blank" rel="noopener"><i class="ph-duotone ph-tiktok-logo"></i>Xem video trên TikTok</a>';
     }
     if (host === 'facebook.com' || host === 'm.facebook.com' || host === 'fb.watch') {
       return '<div class="video-embed"><iframe src="https://www.facebook.com/plugins/video.php?href=' + encodeURIComponent(u) + '&show_text=false" loading="lazy" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>';
     }
   } catch(e){}
-  return '<a class="video-link" href="' + escH(u) + '" target="_blank" rel="noopener"><i class="ph-duotone ph-play-circle"></i>Xem video</a>';
+  return '<a class="video-link" href="' + eU(u) + '" target="_blank" rel="noopener"><i class="ph-duotone ph-play-circle"></i>Xem video</a>';
 }
 
 function logLead(nccUid, type, extra){
@@ -474,7 +473,7 @@ function render(b){
 
   var cover = document.getElementById('cover');
   if (Array.isArray(b.gallery) && b.gallery[0] && b.gallery[0].url) {
-    cover.innerHTML = '<img src="' + escH(b.gallery[0].url) + '" alt="' + escH(b.name || '') + '">';
+    cover.innerHTML = '<img src="' + eU(b.gallery[0].url) + '" alt="' + escH(b.name || '') + '">';
   }
 
   var badges = '';
@@ -507,7 +506,7 @@ function render(b){
     var items = '';
     if (b.phone) items += '<div class="contact-item"><i class="ph-duotone ph-phone"></i><a href="tel:' + escH(b.phone) + '">' + escH(b.phone) + '</a></div>';
     if (b.zalo) items += '<div class="contact-item"><i class="ph-duotone ph-chat-circle-dots"></i><span>Zalo: ' + escH(b.zalo) + '</span></div>';
-    if (b.website) items += '<div class="contact-item"><i class="ph-duotone ph-globe"></i><a href="' + escH(b.website) + '" target="_blank" rel="noopener nofollow">' + escH(b.website.replace(/^https?:\/\//,'')) + '</a></div>';
+    if (b.website) items += '<div class="contact-item"><i class="ph-duotone ph-globe"></i><a href="' + eU(b.website) + '" target="_blank" rel="noopener nofollow">' + escH(b.website.replace(/^https?:\/\//,'')) + '</a></div>';
     if (b.address) items += '<div class="contact-item"><i class="ph-duotone ph-navigation-arrow"></i><a href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(b.address) + '" target="_blank" rel="noopener">Chỉ đường</a></div>';
     cg.innerHTML = items || '<div class="contact-item">Chưa cập nhật thông tin liên hệ.</div>';
     cg.querySelectorAll('a').forEach(function(a){
@@ -529,7 +528,7 @@ function render(b){
     document.getElementById('productsSec').style.display = 'block';
     document.getElementById('productsGrid').innerHTML = b.products.filter(function(p){ return p && (p.name || '').trim(); }).map(function(p){
       var imgHtml = p.imageUrl
-        ? '<img src="' + escH(p.imageUrl) + '" alt="' + escH(p.name || '') + '" loading="lazy" onclick="openLightbox(\'' + escH(p.imageUrl).replace(/'/g, "\\'") + '\')">'
+        ? '<img src="' + eU(p.imageUrl) + '" alt="' + escH(p.name || '') + '" loading="lazy" onclick="openLightbox(' + eJ(p.imageUrl) + ')">'
         : '<i class="ph-duotone ph-package"></i>';
       return '<div class="product-item">'
         + '<div class="product-item-img">' + imgHtml + '</div>'
@@ -545,7 +544,7 @@ function render(b){
   if (Array.isArray(b.gallery) && b.gallery.length) {
     document.getElementById('gallerySec').style.display = 'block';
     document.getElementById('galleryGrid').innerHTML = b.gallery.map(function(g){
-      return '<img src="' + escH(g.url) + '" alt="' + escH(g.caption || b.name || '') + '" loading="lazy" onclick="openLightbox(\'' + escH(g.url).replace(/'/g, "\\'") + '\')">';
+      return '<img src="' + eU(g.url) + '" alt="' + escH(g.caption || b.name || '') + '" loading="lazy" onclick="openLightbox(' + eJ(g.url) + ')">';
     }).join('');
   }
 
@@ -553,7 +552,7 @@ function render(b){
   if (b.catalogPdfUrl) {
     document.getElementById('catalogSec').style.display = 'block';
     var cl = document.getElementById('catalogLink');
-    cl.href = b.catalogPdfUrl;
+    cl.href = alnUrl(b.catalogPdfUrl);
     cl.addEventListener('click', function(){ logLead(NCC_UID, 'catalog_view'); });
     document.getElementById('catalogName').textContent = b.catalogPdfName || 'Xem catalog PDF';
   }

@@ -2,17 +2,11 @@
 <html lang="vi">
 <head>
   <script src="error-monitor.js"></script>
+  <script src="aln-esc.js"></script>
 <script>
 var DN_PROJECTS = [];
 var _dnLoaded = false;
-/* Escape dùng chung cho MỌI dữ liệu người dùng đưa vào HTML (28/09/2026).
-   eH: chữ / giá trị thuộc tính. eJ: tham số chuỗi JS bên trong thuộc tính onclick
-   (HTML-escape một mình KHÔNG đủ vì trình duyệt giải mã &#39; trước khi chạy JS).
-   eU: URL cho href/src — chỉ http(s) hoặc đường dẫn tương đối, còn lại thành '#'.
-   Test: scripts/test-founder-lich-su.js + scripts/test-founder-xss.js. */
-function eH(s){ return String(s === undefined || s === null ? '' : s).replace(/[&<>"'`]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'}[c]; }); }
-function eJ(v){ return eH(JSON.stringify(v === undefined || v === null ? '' : String(v))); }
-function eU(u){ var t = String(u === undefined || u === null ? '' : u).trim(); return /^(https?:\/\/|\/(?!\/)|\.{0,2}\/|[a-z0-9_-]+\.html)/i.test(t) && !/^\s*(javascript|data|vbscript):/i.test(t) ? eH(t) : '#'; }
+/* eH / eJ / eU / alnUrl / alnLocHtml: aln-esc.js (nạp ngay trên). Kiểm CI: scripts/check-founder-escape.js */
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -3271,7 +3265,7 @@ function renderTable(keepShown) {
 
   const sectionHeader = (label, color, count) =>
     `<tr><td colspan="6" style="padding:8px 14px;background:rgba(${eH(color)},.06);border-top:1px solid rgba(${eH(color)},.2);border-bottom:1px solid rgba(${eH(color)},.1)">
-      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(${eH(color)},1);font-family:var(--sans)">${eH(label)}</span>
+      <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(${eH(color)},1);font-family:var(--sans)">${label}</span>
       <span style="font-size:10px;color:rgba(${eH(color)},.6);margin-left:8px">${eH(count)} dự án</span>
     </td></tr>`;
 
@@ -3811,7 +3805,7 @@ function switchTab(t){
     var f = document.getElementById(IFR[k]);
     if(!f) return;
     if(k === t){
-      if(f.getAttribute('src') !== f.dataset.src) f.setAttribute('src', f.dataset.src);
+      if(f.getAttribute('src') !== alnUrl(f.dataset.src)) f.setAttribute('src', alnUrl(f.dataset.src));
     } else {
       if(f.getAttribute('src') !== 'about:blank') f.setAttribute('src', 'about:blank');
     }
@@ -3864,11 +3858,11 @@ function setActiveRow(rowId, type, idx){
 }
 function _actionBtns(type, idx){
   return '<div style="display:flex;gap:4px;justify-content:center">'
-    +'<button onclick="openProfile('+eJ(type)+','+eH(idx)+')" style="padding:3px 9px;background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.2);color:var(--cyan);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:var(--sans)" title="Xem profile"><i class="ph-duotone ph-identification-card"></i></button>'
-    +'<button onclick="mgEdit('+eJ(type)+','+eH(idx)+')" style="padding:3px 9px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);color:var(--blue);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:var(--sans)" title="Chỉnh sửa"><i class="ph-duotone ph-pen"></i></button>'
-    +'<button onclick="mgToggleStatus('+eJ(type)+','+eH(idx)+')" style="padding:3px 9px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);color:var(--amber);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:var(--sans)" title="Kích hoạt/Tạm dừng"><i class="ph-duotone ph-toggle-right"></i></button>'
-    +'<button onclick="mgResetPassword('+eJ(type)+','+eH(idx)+')" style="padding:3px 9px;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.25);color:var(--gold);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:var(--sans)" title="Đặt lại mật khẩu"><i class="ph-duotone ph-key"></i></button>'
-    +'<button onclick="mgDelete('+eJ(type)+','+eH(idx)+')" style="padding:3px 9px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:var(--sans)" title="Xoá"><i class="ph-duotone ph-trash"></i></button>'
+    +'<button onclick="openProfile('+eJ(type)+','+Number(idx)+')" style="padding:3px 9px;background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.2);color:var(--cyan);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:var(--sans)" title="Xem profile"><i class="ph-duotone ph-identification-card"></i></button>'
+    +'<button onclick="mgEdit('+eJ(type)+','+Number(idx)+')" style="padding:3px 9px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);color:var(--blue);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:var(--sans)" title="Chỉnh sửa"><i class="ph-duotone ph-pen"></i></button>'
+    +'<button onclick="mgToggleStatus('+eJ(type)+','+Number(idx)+')" style="padding:3px 9px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);color:var(--amber);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:var(--sans)" title="Kích hoạt/Tạm dừng"><i class="ph-duotone ph-toggle-right"></i></button>'
+    +'<button onclick="mgResetPassword('+eJ(type)+','+Number(idx)+')" style="padding:3px 9px;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.25);color:var(--gold);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:var(--sans)" title="Đặt lại mật khẩu"><i class="ph-duotone ph-key"></i></button>'
+    +'<button onclick="mgDelete('+eJ(type)+','+Number(idx)+')" style="padding:3px 9px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;font-family:var(--sans)" title="Xoá"><i class="ph-duotone ph-trash"></i></button>'
     +'</div>';
 }
 
@@ -5273,7 +5267,7 @@ function renderStats(){
     return '<tr style="border-top:1px solid var(--border);transition:background .1s" onmouseover="this.style.background=\'var(--raised)\'" onmouseout="this.style.background=\'\'">'
       +'<td style="padding:9px 14px"><div style="font-size:12px;font-weight:600;color:var(--text1)">'+eH(c.name)+'</div><div style="font-size:9px;color:var(--dim)">'+eH((c.phone||''))+'</div></td>'
       +'<td style="padding:9px 14px">'+projCell+'</td>'
-      +'<td style="padding:9px 14px;text-align:center;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--amber)">'+stageCell+'</td>'
+      +'<td style="padding:9px 14px;text-align:center;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--amber)">'+eH(stageCell)+'</td>'
       +'<td style="padding:9px 14px;text-align:center;font-size:10px">'+statusCell+'</td>'
     +'</tr>';
   }).join('');
@@ -5765,9 +5759,9 @@ function epRender(rows) {
     const phone = c.phone_normalized || 'Chưa có SĐT';
     const uploadsHtml = row.uploads.length ? row.uploads.map(function(u) {
       const link = u.download_url
-        ? '<a href="'+epEsc(u.download_url)+'" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;font-weight:700">Tải</a>'
+        ? '<a href="'+eU(u.download_url)+'" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;font-weight:700">Tải</a>'
         : '<span title="'+epEsc(u.download_error || 'Không có storage_path')+'" style="color:var(--red)">Không tải được</span>';
-      return '<div style="display:flex;align-items:center;gap:6px;white-space:nowrap;margin:2px 0"><span style="color:var(--text2)">'+epEsc(epUploadLabel(u.loai))+'</span><span style="font-size:9px;color:var(--dim);border:1px solid var(--border);border-radius:99px;padding:1px 5px">'+epEsc(epStatusLabel(u.trang_thai))+'</span>'+eH(link)+'</div>';
+      return '<div style="display:flex;align-items:center;gap:6px;white-space:nowrap;margin:2px 0"><span style="color:var(--text2)">'+epEsc(epUploadLabel(u.loai))+'</span><span style="font-size:9px;color:var(--dim);border:1px solid var(--border);border-radius:99px;padding:1px 5px">'+epEsc(epStatusLabel(u.trang_thai))+'</span>'+link+'</div>';
     }).join('') : '<span style="color:var(--dim)">Chưa có</span>';
     return '<tr>'
       +'<td style="white-space:nowrap">'+epEsc(epDate(h.created_at))+'<div style="font-family:var(--mono);font-size:9px;color:var(--dim);margin-top:3px">'+epEsc(row.id)+'</div></td>'
@@ -6101,7 +6095,7 @@ window.renderPayments = function renderPayments() {
         + '<div style="font-size:13px;font-weight:600;color:var(--text1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + eH(pay.projId) + ' — ' + eH(pay.projName) + '</div>'
         + '<div style="font-size:11px;color:var(--dim);margin-top:2px">' + eH(pay.roleLabel) + ': <b style="color:var(--text2)">' + eH(pay.personName) + '</b> · Chặng <b style="color:var(--amber)">' + eH(pay.stage) + '</b>' + eH(dateStr) + '</div>'
         + '<div id="' + eH(bankId) + '" style="font-size:10.5px;color:var(--dim);margin-top:4px;font-family:var(--mono)">Đang tải TK ngân hàng...</div>'
-        + (pay.check ? '<div style="font-size:10.5px;color:var(--green);margin-top:4px;font-weight:600"><i class="ph-duotone ph-check-circle"></i> Kế toán đã kiểm tra' + (pay.check.checkedByName ? ' — ' + pay.check.checkedByName : '') + (pay.check.checkedAt && pay.check.checkedAt.toDate ? ' lúc ' + pay.check.checkedAt.toDate().toLocaleString('vi-VN') : '') + '</div>' : '')
+        + (pay.check ? '<div style="font-size:10.5px;color:var(--green);margin-top:4px;font-weight:600"><i class="ph-duotone ph-check-circle"></i> Kế toán đã kiểm tra' + eH(pay.check.checkedByName ? ' — ' + pay.check.checkedByName : '') + (pay.check.checkedAt && pay.check.checkedAt.toDate ? ' lúc ' + pay.check.checkedAt.toDate().toLocaleString('vi-VN') : '') + '</div>' : '')
       + '</div>'
       + '<div id="payqr-' + eH(pay.coll) + '-' + eH(pay.projId) + '-' + eH(pay.stage) + '" style="width:84px;height:84px;flex-shrink:0;display:none;background:#fff;border:1px solid var(--border);border-radius:8px;padding:3px;align-items:center;justify-content:center;overflow:hidden"></div>'
       + '<div style="text-align:right;flex-shrink:0">'
@@ -7145,7 +7139,7 @@ window.loadCompanySettings = async function() {
     });
     if (c.logoUrl) {
       const img = document.getElementById('cpLogoImg');
-      img.src = c.logoUrl; img.style.display = 'block';
+      img.src = alnUrl(c.logoUrl); img.style.display = 'block';
       document.getElementById('cpLogoPlh').style.display = 'none';
     }
   } catch(e) { console.warn('loadCompanySettings:', e); }
@@ -8846,7 +8840,7 @@ window.saveCompanySettings = async function() {
   window.mktImgPreview = function(){
     var url = (document.getElementById('mktImgUrl').value || '').trim();
     var prev = document.getElementById('mktImgPrev');
-    if(url && /^https:\/\//.test(url)){ prev.src = url; prev.style.display = 'block'; }
+    if(url && /^https:\/\//.test(url)){ prev.src = alnUrl(url); prev.style.display = 'block'; }
     else { prev.src = ''; prev.style.display = 'none'; }
   };
 

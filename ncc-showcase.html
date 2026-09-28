@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
 <!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM (xem scripts/aln-optout.js) -->
+<script src="aln-esc.js"></script>
 <script src="scripts/aln-optout.js"></script>
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -253,9 +254,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </div>
 
 <script>
-function escH(s){
-  return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+function escH(s){ return eH(s); } // aln-esc.js — escape đủ & < > " ' `
 </script>
 
 <script type="module">
@@ -537,7 +536,7 @@ function renderFeatured(items){
       + '<div class="fcard-top">' + avatarHtml(b) + '<div style="min-width:0"><div class="fcard-name">' + escH(b.name || 'Gian hàng') + '</div><div class="fcard-loc">' + escH(PROV_NAME[b.province] || b.province || '') + '</div></div></div>'
       + '<div class="fcard-meta">'
         + (b.isDemo ? '<span class="demo-badge">Minh hoạ</span>' : (b.verified ? '<span class="verified-badge"><i class="ph-duotone ph-seal-check"></i>Đã xác minh</span>' : '<span></span>'))
-        + (typeof b.leadCount === 'number' ? '<span class="lead-count">' + b.leadCount + ' lượt liên hệ</span>' : '')
+        + (typeof b.leadCount === 'number' ? '<span class="lead-count">' + eH(b.leadCount) + ' lượt liên hệ</span>' : '')
       + '</div>'
     + '</a>';
   }).join('');

@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
 <!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM (xem scripts/aln-optout.js) -->
+<script src="aln-esc.js"></script>
 <script src="scripts/aln-optout.js"></script>
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -311,7 +312,7 @@ function renderHero(profile, postCount) {
   setRoleColor(profile.role);
   var avEl = document.getElementById('heroAv');
   if(profile.avatarURL) {
-    avEl.innerHTML = '<img src="' + profile.avatarURL + '" alt="avatar">';
+    avEl.innerHTML = '<img src="' + eU(profile.avatarURL) + '" alt="avatar">';
   } else {
     var nm = (profile.name || '').replace(/^KTS\.?\s*/i,'').replace(/^Designer\.?\s*/i,'').trim();
     var parts = nm.split(/\s+/);
@@ -319,12 +320,12 @@ function renderHero(profile, postCount) {
     avEl.textContent = ini.toUpperCase();
   }
   document.getElementById('heroName').textContent = profile.name || '—';
-  document.getElementById('heroRole').innerHTML = '<i class="ph-duotone ph-' + (profile.role==='designer'?'paint-brush':'pencil-ruler') + '"></i> ' + (ROLE_LABEL[profile.role] || profile.role);
+  document.getElementById('heroRole').innerHTML = '<i class="ph-duotone ph-' + (profile.role==='designer'?'paint-brush':'pencil-ruler') + '"></i> ' + eH(ROLE_LABEL[profile.role] || profile.role);
   var meta = [];
   if(profile.years) meta.push(profile.years + ' năm kinh nghiệm');
   if(profile.specialty) meta.push(profile.specialty);
   if(profile.license) meta.push('GP: ' + profile.license);
-  document.getElementById('heroMeta').innerHTML = meta.map(function(m){ return '<span>' + m + '</span>'; }).join('');
+  document.getElementById('heroMeta').innerHTML = meta.map(function(m){ return '<span>' + eH(m) + '</span>'; }).join('');
 }
 
 function renderStats(posts) {
@@ -357,16 +358,16 @@ function renderPhotos(posts) {
   allMedia.slice(0, 12).forEach(function(m) {
     var safeUrl = m.url.replace(/'/g,"\\'");
     if(m.type === 'video'){
-      html += '<div class="photo-cell" onclick="openLb(\'' + safeUrl + '\',\'video\')" style="position:relative">'
-            + '<video src="' + m.url + '" muted playsinline style="width:100%;height:100%;object-fit:cover;display:block"></video>'
+      html += '<div class="photo-cell" onclick="openLb(' + eJ(safeUrl) + ',\'video\')" style="position:relative">'
+            + '<video src="' + eU(m.url) + '" muted playsinline style="width:100%;height:100%;object-fit:cover;display:block"></video>'
             + '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none">'
             + '<i class="ph-duotone ph-play-circle" style="font-size:30px;color:rgba(255,255,255,.9);filter:drop-shadow(0 2px 6px rgba(0,0,0,.5))"></i></div>'
-            + '<div class="tag-dot ' + (m.tag||'arch') + '"></div>'
+            + '<div class="tag-dot ' + eH(m.tag||'arch') + '"></div>'
             + '</div>';
     } else {
-      html += '<div class="photo-cell" onclick="openLb(\'' + safeUrl + '\',\'image\')">'
-            + '<img src="' + m.url + '" alt="" loading="lazy">'
-            + '<div class="tag-dot ' + (m.tag||'arch') + '"></div>'
+      html += '<div class="photo-cell" onclick="openLb(' + eJ(safeUrl) + ',\'image\')">'
+            + '<img src="' + eU(m.url) + '" alt="" loading="lazy">'
+            + '<div class="tag-dot ' + eH(m.tag||'arch') + '"></div>'
             + '</div>';
     }
   });
@@ -386,26 +387,26 @@ function renderMoments(posts) {
     var ago = diff < 3600 ? Math.floor(diff/60)+'p trước' : diff < 86400 ? Math.floor(diff/3600)+'h trước' : Math.floor(diff/86400)+'d trước';
     return '<div class="moment-card">'
       + '<div class="moment-meta">'
-      + '<span class="moment-tag tag-'+(p.tag||'arch')+'">'+(TAG_LABEL[p.tag]||p.tag||'')+'</span>'
+      + '<span class="moment-tag tag-'+eH(p.tag||'arch')+'">'+eH(TAG_LABEL[p.tag]||p.tag||'')+'</span>'
       + '<span>' + ago + '</span>'
       + '</div>'
       + '<div class="moment-text">' + escH(p.text || '') + '</div>'
-      + (p.heartCount ? '<div class="moment-hearts">❤️ ' + p.heartCount + '</div>' : '')
+      + (p.heartCount ? '<div class="moment-hearts">❤️ ' + eH(p.heartCount) + '</div>' : '')
       + '</div>';
   }).join('');
 }
 
-function escH(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escH(s){ return eH(s); } // aln-esc.js — escape đủ & < > " ' `
 
 function openLb(url, type) {
   var img = document.getElementById('lbImg');
   var vid = document.getElementById('lbVid');
   if(type === 'video'){
     img.style.display = 'none'; img.src = '';
-    vid.style.display = ''; vid.src = url; vid.play();
+    vid.style.display = ''; vid.src = alnUrl(url); vid.play();
   } else {
     vid.style.display = 'none'; vid.pause(); vid.src = '';
-    img.style.display = ''; img.src = url;
+    img.style.display = ''; img.src = alnUrl(url);
   }
   document.getElementById('lightbox').classList.add('open');
 }

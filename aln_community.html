@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
 <!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM (xem scripts/aln-optout.js) -->
+<script src="aln-esc.js"></script>
 <script src="scripts/aln-optout.js"></script>
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -1216,7 +1217,7 @@ function renderCard(p){
   var hearted = _currentUser && p.heartedBy && p.heartedBy.indexOf(_currentUser.uid) !== -1;
   var hCount  = p.heartCount || 0;
   var avatarHtml = p.authorAvatar
-    ? '<img src="'+escH(p.authorAvatar)+'" alt="">'
+    ? '<img src="'+eU(p.authorAvatar)+'" alt="">'
     : '<span>'+escH((p.authorName||'?')[0].toUpperCase())+'</span>';
 
   var mediaItems = p.media || (p.images||[]).map(function(u){ return {url:u,type:'image'}; });
@@ -1227,11 +1228,11 @@ function renderCard(p){
       + mediaItems.map(function(m){
           if(m.type === 'video'){
             return '<div class="pc-vid-wrap">'
-              +'<video src="'+escH(m.url)+'" autoplay muted loop playsinline></video>'
+              +'<video src="'+eU(m.url)+'" autoplay muted loop playsinline></video>'
               +'<div class="pc-vid-play"><i class="ph-duotone ph-play-circle"></i></div>'
               +'</div>';
           }
-          return '<img src="'+escH(m.url)+'" loading="lazy" onclick="openLightbox(\''+escH(m.url)+'\')" alt="">';
+          return '<img src="'+eU(m.url)+'" loading="lazy" onclick="openLightbox('+eJ(m.url)+')" alt="">';
         }).join('')
       +'</div></div>';
   }
@@ -1241,13 +1242,13 @@ function renderCard(p){
   var optHtml = '';
   if(_currentUser && _currentUser.role === 'founder'){
     optHtml = '<div style="display:flex;gap:6px;align-items:center">'
-      +'<button class="founder-hide-btn'+(isHidden?' is-hidden':'')+'" onclick="toggleHidden(\''+p.id+'\','+isHidden+')">'
+      +'<button class="founder-hide-btn'+(isHidden?' is-hidden':'')+'" onclick="toggleHidden('+eJ(p.id)+','+isHidden+')">'
       +(isHidden?'<i class="ph-duotone ph-eye"></i> Hiện':'<i class="ph-duotone ph-eye-slash"></i> Ẩn')
       +'</button>'
-      +'<button class="pc-options" onclick="deletePost(\''+p.id+'\')"><i class="ph-duotone ph-trash"></i></button>'
+      +'<button class="pc-options" onclick="deletePost('+eJ(p.id)+')"><i class="ph-duotone ph-trash"></i></button>'
       +'</div>';
   } else if(_currentUser && _currentUser.uid === p.authorUid){
-    optHtml = '<button class="pc-options" onclick="deletePost(\''+p.id+'\')"><i class="ph-duotone ph-trash"></i></button>';
+    optHtml = '<button class="pc-options" onclick="deletePost('+eJ(p.id)+')"><i class="ph-duotone ph-trash"></i></button>';
   }
 
   var hasProfile = p.authorRole === 'kts' || p.authorRole === 'designer';
@@ -1255,7 +1256,7 @@ function renderCard(p){
   var authorTag   = hasProfile ? 'a' : 'div';
   var authorStyle = hasProfile ? ' style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:10px;flex:1;min-width:0"' : ' style="display:flex;align-items:center;gap:10px;flex:1;min-width:0"';
 
-  return '<div class="post-card'+(isHidden&&_currentUser&&_currentUser.role==='founder'?' post-hidden':'')+'" id="card-'+p.id+'">'
+  return '<div class="post-card'+(isHidden&&_currentUser&&_currentUser.role==='founder'?' post-hidden':'')+'" id="card-'+eH(p.id)+'">'
     +'<div class="pc-header">'
       +'<'+authorTag+' '+profileHref+authorStyle+'>'
         +'<div class="pc-avatar">'+avatarHtml+'</div>'
@@ -1273,16 +1274,16 @@ function renderCard(p){
     +(p.tag ? '<div class="pc-tag"><span class="pc-tag-chip '+(tagCls[p.tag]||'')+'"><i class="ph-duotone '+(tagIcon[p.tag]||'ph-tag')+'"></i>'+escH(tagLabel[p.tag]||p.tag)+'</span></div>' : '')
     +'<div class="pc-footer">'
       +'<button class="heart-btn'+(hearted?' hearted':'')
-        +'" onclick="toggleHeart(\''+p.id+'\')" id="heart-'+p.id+'">'
+        +'" onclick="toggleHeart('+eJ(p.id)+')" id="heart-'+eH(p.id)+'">'
         +'<span class="heart-icon">'+(hearted?'❤️':'🤍')+'</span>'
-        +'<span id="hc-'+p.id+'">'+(hCount>0?hCount:'')+'</span>'
+        +'<span id="hc-'+eH(p.id)+'">'+eH(hCount>0?hCount:'')+'</span>'
       +'</button>'
       + pinHtml
     +'</div>'
   +'</div>';
 }
 
-function escH(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escH(s){ return eH(s); } // aln-esc.js — escape đủ & < > " ' `
 
 function timeAgo(ts){
   if(!ts) return '';
@@ -1296,7 +1297,7 @@ function timeAgo(ts){
 }
 
 /* ── LIGHTBOX ── */
-function openLightbox(url){ var lb=document.getElementById('lightbox'); document.getElementById('lightboxImg').src=url; lb.classList.add('open'); }
+function openLightbox(url){ var lb=document.getElementById('lightbox'); document.getElementById('lightboxImg').src=alnUrl(url); lb.classList.add('open'); }
 function closeLightbox(){ document.getElementById('lightbox').classList.remove('open'); }
 
 /* ── TOAST ── */
@@ -1354,7 +1355,7 @@ onAuthStateChanged(auth, async function(user){
   if(tbUser) tbUser.style.display = 'flex';
   if(tbName) tbName.textContent = profile.name || user.uid;
   if(tbAvatar){
-    if(profile.avatarUrl){ tbAvatar.innerHTML = '<img src="'+profile.avatarUrl+'" alt="">'; }
+    if(profile.avatarUrl){ tbAvatar.innerHTML = '<img src="'+eU(profile.avatarUrl)+'" alt="">'; }
     else { tbAvatar.textContent = (profile.name||'?')[0].toUpperCase(); }
   }
   var backUrl = BACK_BY_ROLE[profile.role] || 'login.html';

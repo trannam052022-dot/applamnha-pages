@@ -142,7 +142,11 @@ if (!document.getElementById('mymy-btn')) {
   }
 
   const $msgs = document.getElementById('mymy-msgs');
-  function esc(s){ const d = document.createElement('div'); d.textContent = String(s); return d.innerHTML; }
+  // Escape đủ & < > " ' ` (bản cũ dùng textContent→innerHTML không escape dấu nháy — thoát được
+  // khỏi href="…"). Widget chạy độc lập, không phụ thuộc aln-esc.js.
+  function esc(s){ return String(s === undefined || s === null ? '' : s).replace(/[&<>"'`]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '`': '&#96;' }[c])); }
+  // URL gợi ý: chỉ đường dẫn nội bộ hoặc http(s) — còn lại '#'
+  function escUrl(u){ const t = String(u || '').trim(); const goc = t.replace(/[\u0000-\u0020\u007f]/g, ''); return (/^([a-z][a-z0-9+.-]*):/i.test(goc) && !/^https?:/i.test(goc)) ? '#' : esc(t); }
 
   function addBot(html){
     const row = document.createElement('div');
@@ -259,7 +263,8 @@ if (!document.getElementById('mymy-btn')) {
       btn.addEventListener('click', () => setGender(btn.getAttribute('data-g')));
     });
   }
-  function setGender(g){
+  function setGender(chon){
+    const g = chon === 'chị' ? 'chị' : 'anh'; // chỉ 2 giá trị từ nút data-g
     markChatted();
     S.addr = g;
     const ask = document.getElementById('mymy-gender-ask');
@@ -290,7 +295,7 @@ if (!document.getElementById('mymy-btn')) {
     if (!suggestion || !suggestion.url || !suggestion.key) return;
     if (S.shownSuggestKeys.has(suggestion.key)) return;
     S.shownSuggestKeys.add(suggestion.key);
-    addBot('<a class="mm-suggest" href="' + esc(suggestion.url) + '" target="_blank" rel="noopener">' + esc(suggestion.label) + ' →</a>');
+    addBot('<a class="mm-suggest" href="' + escUrl(suggestion.url) + '" target="_blank" rel="noopener">' + esc(suggestion.label) + ' →</a>');
   }
 
   let callAlnChat = null, ensureAuth = null, upsertContact = null;
@@ -330,7 +335,7 @@ if (!document.getElementById('mymy-btn')) {
     showTyping();
     callAlnChat(text, S.history).then((res) => {
       removeTyping();
-      addBot((res.reply || '').replace(/\n/g, '<br>'));
+      addBot(esc(res.reply || '').replace(/\n/g, '<br>')); // prompt alnChat: chữ thuần — escape rồi mới xuống dòng
       S.history.push({ role: 'assistant', content: res.reply || '' });
       renderSuggestion(res.suggestion);
       if (S.userTurns >= 3 && !S.askedPhone) {

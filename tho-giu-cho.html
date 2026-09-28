@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
 <!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM (xem scripts/aln-optout.js) -->
+<script src="aln-esc.js"></script>
 <script src="scripts/aln-optout.js"></script>
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -664,8 +665,8 @@ function renderPreview() {
   const grid = document.getElementById('uploadPreview');
   grid.innerHTML = selectedFiles.map((f, i) => {
     const media = f.kind === 'video'
-      ? '<video src="' + f.url + '" muted></video>'
-      : '<img src="' + f.url + '" alt="">';
+      ? '<video src="' + eU(f.url) + '" muted></video>'
+      : '<img src="' + eU(f.url) + '" alt="">';
     const badgeCls = f.status === 'done' ? 'done' : f.status === 'error' ? 'err' : '';
     const badgeText = f.status === 'done' ? 'Đã tải lên'
       : f.status === 'error' ? 'Lỗi tải lên'

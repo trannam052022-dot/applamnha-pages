@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
 <!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM (xem scripts/aln-optout.js) -->
+<script src="aln-esc.js"></script>
 <script src="scripts/aln-optout.js"></script>
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -1613,7 +1614,7 @@ function alnBannerInit(){
     window.ALN_BANNER_IDX = (window.ALN_BANNER_IDX + 1) % window.ALN_BANNER_PLAYLIST.length;
     var next = window.ALN_BANNER_PLAYLIST[window.ALN_BANNER_IDX];
     video.poster = next.poster;
-    source.src = next.src;
+    source.src = alnUrl(next.src);
     if(cap){ cap.textContent = next.label; }
     video.load();
     video.play().catch(function(){});
@@ -1638,7 +1639,7 @@ function mymyAddBot(text){
   var box = document.getElementById('mymy-msgs');
   var row = document.createElement('div');
   row.className = 'mm-row bot';
-  row.innerHTML = '<div class="mm-avatar-sm"><i class="ph ph-headset"></i></div><div class="mm-bubble">' + text + '</div>';
+  row.innerHTML = '<div class="mm-avatar-sm"><i class="ph ph-headset"></i></div><div class="mm-bubble">' + eH(text) + '</div>';
   box.appendChild(row);
   box.scrollTop = box.scrollHeight;
 }
@@ -1647,7 +1648,7 @@ function mymyAddUser(text){
   var box = document.getElementById('mymy-msgs');
   var row = document.createElement('div');
   row.className = 'mm-row user';
-  row.innerHTML = '<div class="mm-bubble">' + text + '</div>';
+  row.innerHTML = '<div class="mm-bubble">' + eH(text) + '</div>';
   box.appendChild(row);
   box.scrollTop = box.scrollHeight;
 }
@@ -2072,24 +2073,24 @@ function libRender(){
     if(LIB_AREA && it.dt != null && (it.dt < lo || it.dt > hi)){ continue; }
     count = count + 1;
     var cover = (it.imgs && it.imgs[0] && it.imgs[0].src) ? it.imgs[0].src : '';
-    var imgHtml = cover ? '<img src="' + cover + '" alt="' + it.ma + '" onerror="this.style.display=&quot;none&quot;">' : '';
+    var imgHtml = cover ? '<img src="' + eU(cover) + '" alt="' + eH(it.ma) + '" onerror="this.style.display=&quot;none&quot;">' : '';
     var dtLabel = (it.dt != null) ? it.dt : 'Đang cập nhật';
     var tangLabel = (it.tang != null) ? it.tang : 'Đang cập nhật';
     html += '<div class="lib-card">' +
-      '<div class="lib-thumb" onclick="libOpen(\'' + it.ma + '\')">' +
+      '<div class="lib-thumb" onclick="libOpen(' + eJ(it.ma) + ')">' +
         '<div class="lib-ph"><i class="ph ph-image ph-icon"></i><span class="ph-lbl">Ảnh phối cảnh</span></div>' +
         imgHtml +
         '<span class="lib-cat">' + (LIB_CATNAME[it.cat] || '') + '</span>' +
         '<div class="lib-thumb-hint"><i class="ph ph-magnifying-glass-plus"></i>Xem chi tiết mẫu</div>' +
       '</div>' +
       '<div class="lib-body">' +
-        '<div class="lib-code"># ' + it.ma + '</div>' +
+        '<div class="lib-code"># ' + eH(it.ma) + '</div>' +
         '<div class="lib-specs">' +
-          '<div class="lib-spec"><span class="v">' + dtLabel + '</span><span class="k">m² đất</span></div>' +
-          '<div class="lib-spec"><span class="v">' + tangLabel + '</span><span class="k">tầng</span></div>' +
+          '<div class="lib-spec"><span class="v">' + eH(dtLabel) + '</span><span class="k">m² đất</span></div>' +
+          '<div class="lib-spec"><span class="v">' + eH(tangLabel) + '</span><span class="k">tầng</span></div>' +
         '</div>' +
-        '<div class="lib-price-row"><span class="k">Gói kinh tế</span><span class="lib-price">' + libMoney(it.gia) + '</span></div>' +
-        '<button class="btn btn-gold lib-buy" onclick="datMua(\'' + it.ma + '\')"><i class="ph-duotone ph-shopping-cart-simple"></i>Đặt mua gói kinh tế</button>' +
+        '<div class="lib-price-row"><span class="k">Gói kinh tế</span><span class="lib-price">' + eH(libMoney(it.gia)) + '</span></div>' +
+        '<button class="btn btn-gold lib-buy" onclick="datMua(' + eJ(it.ma) + ')"><i class="ph-duotone ph-shopping-cart-simple"></i>Đặt mua gói kinh tế</button>' +
       '</div>' +
     '</div>';
   }
@@ -2154,10 +2155,10 @@ function libOpen(ma){
   var tangLabel = (it.tang != null) ? it.tang : 'Đang cập nhật';
   document.getElementById('libModalHead').innerHTML =
     '<span class="mh-cat">' + catName + '</span>' +
-    '<div class="mh-code"># ' + it.ma + '</div>' +
+    '<div class="mh-code"># ' + eH(it.ma) + '</div>' +
     '<div class="lib-modal-specs">' +
-      '<div class="lib-spec"><span class="v">' + dtLabel + '</span><span class="k">m² đất</span></div>' +
-      '<div class="lib-spec"><span class="v">' + tangLabel + '</span><span class="k">tầng</span></div>' +
+      '<div class="lib-spec"><span class="v">' + eH(dtLabel) + '</span><span class="k">m² đất</span></div>' +
+      '<div class="lib-spec"><span class="v">' + eH(tangLabel) + '</span><span class="k">tầng</span></div>' +
     '</div>';
   var imgs = it.imgs || [];
   if(imgs.length === 0){ imgs = [{ src: '', cap: 'Phối cảnh' }]; }
@@ -2165,17 +2166,17 @@ function libOpen(ma){
   for(var i = 0; i < imgs.length; i++){
     var im = imgs[i];
     var body = im.src
-      ? '<img class="mg-img" src="' + im.src + '" alt="' + im.cap + '">'
-      : '<div class="mg-ph"><i class="ph ph-image"></i><span>' + im.cap + '</span></div>';
+      ? '<img class="mg-img" src="' + eU(im.src) + '" alt="' + eH(im.cap) + '">'
+      : '<div class="mg-ph"><i class="ph ph-image"></i><span>' + eH(im.cap) + '</span></div>';
     var ico = (i === 0) ? 'ph-cube' : 'ph-ruler';
-    g += '<div class="mg-item"><div class="mg-cap"><i class="ph ' + ico + '"></i>' + im.cap + '</div>' + body + '</div>';
+    g += '<div class="mg-item"><div class="mg-cap"><i class="ph ' + ico + '"></i>' + eH(im.cap) + '</div>' + body + '</div>';
   }
   document.getElementById('libModalGallery').innerHTML = g;
-  var detailLink = it.slug ? ('<a class="btn btn-outline" href="mau/' + it.slug + '.html"><i class="ph-duotone ph-file-text"></i>Xem trang chi tiết</a>') : '';
+  var detailLink = it.slug ? ('<a class="btn btn-outline" href="mau/' + eH(it.slug) + '.html"><i class="ph-duotone ph-file-text"></i>Xem trang chi tiết</a>') : '';
   document.getElementById('libModalFoot').innerHTML =
-    '<div class="lib-mf-price"><span class="k">Gói kinh tế</span><span class="lib-price">' + libMoney(it.gia) + '</span></div>' +
+    '<div class="lib-mf-price"><span class="k">Gói kinh tế</span><span class="lib-price">' + eH(libMoney(it.gia)) + '</span></div>' +
     detailLink +
-    '<button class="btn btn-gold" onclick="datMua(\'' + it.ma + '\')"><i class="ph-duotone ph-shopping-cart-simple"></i>Đặt mua gói kinh tế</button>';
+    '<button class="btn btn-gold" onclick="datMua(' + eJ(it.ma) + ')"><i class="ph-duotone ph-shopping-cart-simple"></i>Đặt mua gói kinh tế</button>';
   document.getElementById('libModal').classList.add('open');
   document.body.style.overflow = 'hidden';
 }

@@ -15,9 +15,9 @@ var ALN_TIERS = [
    height mặc định 72 (khớp client_CN/kts_dashboard/designer_dashboard/ncc-dashboard);
    ctv_dashboard.html gọi alnHouseSVG(idx, 90) để giữ đúng kích thước gốc của trang đó. */
 function alnHouseSVG(idx, height){
-  height = height || 72;
+  var cao = Number(height) || 72; // chỉ nhận số — chuỗi SVG ghép thẳng vào innerHTML
   var lvl = Math.max(0, Math.min(4, idx || 0));
-  var s = '<svg viewBox="0 0 140 92" width="100%" height="' + height + '" style="display:block" aria-hidden="true">';
+  var s = '<svg viewBox="0 0 140 92" width="100%" height="' + cao + '" style="display:block" aria-hidden="true">';
   s += '<line x1="6" y1="86" x2="134" y2="86" stroke="currentColor" stroke-opacity=".22" stroke-width="2"/>';
   s += '<rect x="30" y="78" width="80" height="8" rx="1" fill="currentColor" fill-opacity="' + (lvl >= 1 ? '.3' : '.55') + '"/>';
   if (lvl >= 1) {

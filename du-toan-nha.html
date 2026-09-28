@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
 <!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM (xem scripts/aln-optout.js) -->
+<script src="aln-esc.js"></script>
 <script src="scripts/aln-optout.js"></script>
 <script src="scripts/aln-estimate-funnel.js"></script>
 <!-- Google Tag Manager -->
@@ -338,7 +339,7 @@ const $=id=>document.getElementById(id);
 const ty=n=>n>=1e9?(n/1e9).toLocaleString('vi-VN',{maximumFractionDigits:2})+' tỷ':(n/1e6).toLocaleString('vi-VN',{maximumFractionDigits:0})+' triệu';
 const nm=m=>NAMES[m]||m;
 for(let i=1;i<=9;i++)$('n').insertAdjacentHTML('beforeend',`<option value="${i}">${i} sàn</option>`);
-Object.keys(MAI_LOAI).forEach(k=>$('mai_loai').insertAdjacentHTML('beforeend',`<option value="${k}">${MAI_LOAI[k].label} (${Math.round(MAI_LOAI[k].tyLe*100)}% quy đổi)</option>`));
+Object.keys(MAI_LOAI).forEach(k=>$('mai_loai').insertAdjacentHTML('beforeend',`<option value="${eH(k)}">${eH(MAI_LOAI[k].label)} (${Math.round(MAI_LOAI[k].tyLe*100)}% quy đổi)</option>`));
 // "mong" KHÔNG nằm trong danh sách chung — có handler riêng bên dưới (phải
 // ghi vào đúng ô nhớ mongThuong/mongBTV theo loại nhà HIỆN TẠI lúc gõ).
 const ids=['w1','w2','l1','l2','n','st','tm','ham','sant','bc','mai','mai_loai','dua','doc_mai','dong_gia_mai_thai','khoan','cong','mep','ql','vat'];
@@ -386,7 +387,7 @@ function drawPrices(key,boQuaTen){
  const boQuaSet=boQuaTen&&boQuaTen.length?new Set(boQuaTen):null;
  const shareT={},shareH={};
  S.items.forEach(it=>{if(boQuaSet&&boQuaSet.has(it.n))return;for(const m in it.t)shareT[m]=(shareT[m]||0)+it.t[m]*S.prices[m];for(const m in it.h)shareH[m]=(shareH[m]||0)+it.h[m]*S.prices[m]});
- const row=(m)=>{const ch=st.px[m]!=null&&st.px[m]!==''&&num(st.px[m])!==S.prices[m];return `<tr class="${ch?'chg':''}"><td>${nm(m)}</td><td>${S.units[m]||''}</td><td><input type="number" min="0" inputmode="numeric" data-m="${m}" value="${price(m,S)}" aria-label="Giá ${nm(m)}"></td></tr>`};
+ const row=(m)=>{const ch=st.px[m]!=null&&st.px[m]!==''&&num(st.px[m])!==S.prices[m];return `<tr class="${ch?'chg':''}"><td>${eH(nm(m))}</td><td>${eH(S.units[m]||'')}</td><td><input type="number" min="0" inputmode="numeric" data-m="${eH(m)}" value="${eH(price(m,S))}" aria-label="Giá ${eH(nm(m))}"></td></tr>`};
  const T=Object.keys(shareT).filter(m=>shareT[m]>0&&S.cls[m]!=='hoan_thien').sort((a,b)=>shareT[b]-shareT[a]);
  const H=Object.keys(shareH).filter(m=>shareH[m]>0&&S.cls[m]==='hoan_thien').sort((a,b)=>shareH[b]-shareH[a]);
  const Tv=showAllT?T:T.slice(0,8);
@@ -549,10 +550,10 @@ const IC='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke-width="2"><path
 function draw(el,lines,total){
  el.innerHTML=lines.map((x,i)=>{
   const id=el.id+':'+x.n,op=openRows.has(id);
-  const head=`<span class="nm">${x.items?IC:''}${x.n}</span><span class="am">${fmt(x.v)}</span>${x.tag?`<span class="tag" style="grid-column:1/-1">${x.tag}</span>`:''}<span class="bar"><i style="width:${total?Math.max(1,x.v/total*100):0}%"></i></span>`;
+  const head=`<span class="nm">${x.items?IC:''}${eH(x.n)}</span><span class="am">${eH(fmt(x.v))}</span>${x.tag?`<span class="tag" style="grid-column:1/-1">${eH(x.tag)}</span>`:''}<span class="bar"><i style="width:${total?Math.max(1,x.v/total*100):0}%"></i></span>`;
   if(!x.items)return `<div class="row"><div class="h">${head}</div></div>`;
-  const det=`<div class="det"><table>${x.items.sort((a,b)=>b[3]-a[3]).map(r=>`<tr><td>${r[0]}</td><td class="q">${r[1].toLocaleString('vi-VN',{maximumFractionDigits:2})} ${r[2]||''}</td><td class="v">${fmt(r[3])}</td></tr>`).join('')}</table></div>`;
-  return `<div class="row${op?' open':''}"><button type="button" aria-expanded="${op}" data-id="${id}">${head}</button>${det}</div>`;
+  const det=`<div class="det"><table>${x.items.sort((a,b)=>b[3]-a[3]).map(r=>`<tr><td>${eH(r[0])}</td><td class="q">${r[1].toLocaleString('vi-VN',{maximumFractionDigits:2})} ${eH(r[2]||'')}</td><td class="v">${eH(fmt(r[3]))}</td></tr>`).join('')}</table></div>`;
+  return `<div class="row${op?' open':''}"><button type="button" aria-expanded="${op}" data-id="${eH(id)}">${head}</button>${det}</div>`;
  }).join('');
  el.querySelectorAll('button[data-id]').forEach(b=>b.onclick=()=>{const r=b.parentElement,o=!r.classList.contains('open');r.classList.toggle('open',o);b.setAttribute('aria-expanded',o);o?openRows.add(b.dataset.id):openRows.delete(b.dataset.id)});
 }

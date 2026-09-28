@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
 <!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM (xem scripts/aln-optout.js) -->
+<script src="aln-esc.js"></script>
 <script src="scripts/aln-optout.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -571,17 +572,17 @@ function renderTasks(){
   el.innerHTML = visible.map(function(t){
     var isDone = !!doneTasks[t.id];
     var opened = isDone || !!linkOpened[t.id];
-    var link = t.url ? '<a class="task-link" href="' + t.url + '" target="_blank" rel="noopener" onclick="markLinkOpened(\'' + t.id + '\')"><i class="ph-duotone ph-arrow-square-out"></i> Mở link</a>' : '';
+    var link = t.url ? '<a class="task-link" href="' + eU(t.url) + '" target="_blank" rel="noopener" onclick="markLinkOpened(' + eJ(t.id) + ')"><i class="ph-duotone ph-arrow-square-out"></i> Mở link</a>' : '';
     var lockedNote = (!t.url && !isDone && !opened) ? '<div class="task-desc" style="color:var(--muted)">Bấm "Sao chép" ở link giới thiệu bên dưới để mở khoá nhiệm vụ này.</div>' : '';
     var chkAttr = isDone ? 'checked disabled' : (opened ? 'checked' : 'disabled');
     return '<div class="task' + (isDone ? ' done' : '') + (t.weekly ? ' weekly' : '') + '">' +
-      '<input type="checkbox" class="task-check" id="chk_' + t.id + '" ' + chkAttr + '>' +
+      '<input type="checkbox" class="task-check" id="chk_' + eH(t.id) + '" ' + chkAttr + '>' +
       '<div class="task-body">' +
-        '<div class="task-title">' + t.title + (isDone ? ' <i class="ph-duotone ph-check-circle" style="color:var(--green)"></i>' : '') + '</div>' +
-        '<div class="task-desc">' + t.desc + '</div>' +
+        '<div class="task-title">' + eH(t.title) + (isDone ? ' <i class="ph-duotone ph-check-circle" style="color:var(--green)"></i>' : '') + '</div>' +
+        '<div class="task-desc">' + eH(t.desc) + '</div>' +
         link + lockedNote +
       '</div>' +
-      '<div class="task-pts">+' + t.pts + ' Gạch</div>' +
+      '<div class="task-pts">+' + eH(t.pts) + ' Gạch</div>' +
     '</div>';
   }).join('');
 }

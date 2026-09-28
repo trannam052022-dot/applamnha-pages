@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
 <!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM (xem scripts/aln-optout.js) -->
+<script src="aln-esc.js"></script>
 <script src="scripts/aln-optout.js"></script>
 <script src="scripts/aln-estimate-funnel.js"></script>
 <!-- Google Tag Manager -->
@@ -513,12 +514,12 @@ const $rooms = document.getElementById('rooms');
 function veRooms() {
   const nhan = nhanPhong(DS);
   $rooms.innerHTML = DS.map((p) => `
-    <div class="room${p.on ? ' on' : ''}" data-id="${p.id}">
+    <div class="room${p.on ? ' on' : ''}" data-id="${eH(p.id)}">
       <img class="room-img" src="${LOAI[p.ma].anh}" alt="" loading="lazy" onerror="this.remove()">
       <div class="room-top"><i class="ph-duotone ${LOAI[p.ma].icon}"></i><b>${nhan[p.id]}</b>${
-        p.them ? `<button type="button" class="xoa" data-xoa="${p.id}" aria-label="Bỏ ${nhan[p.id]}">×</button>` : '<span class="tick">✓</span>'}</div>
-      <label for="dt-${p.id}">Diện tích (m²)</label>
-      <div class="area"><input id="dt-${p.id}" data-id="${p.id}" type="number" inputmode="decimal" min="2" max="200" step="0.5" value="${p.dt}"${p.on ? '' : ' disabled'}></div>
+        p.them ? `<button type="button" class="xoa" data-xoa="${eH(p.id)}" aria-label="Bỏ ${nhan[p.id]}">×</button>` : '<span class="tick">✓</span>'}</div>
+      <label for="dt-${eH(p.id)}">Diện tích (m²)</label>
+      <div class="area"><input id="dt-${eH(p.id)}" data-id="${eH(p.id)}" type="number" inputmode="decimal" min="2" max="200" step="0.5" value="${eH(p.dt)}"${p.on ? '' : ' disabled'}></div>
     </div>`).join('');
   const day = DS.length >= TOI_DA_PHONG;
   document.getElementById('them-pn').disabled = day;
@@ -614,7 +615,7 @@ function hienKetQua(d) {
       <div class="per">khoảng ${trieu(d.binh_quan_m2[m.ma].thap)} – ${trieu(d.binh_quan_m2[m.ma].cao, true)} triệu/m² sàn</div>
       <ul>${m.y.map((t) => `<li><i class="ph-duotone ph-check-circle"></i>${t}</li>`).join('')}</ul>
     </div>`).join('');
-  const dong = d.phong.map((p, i) => `<tr><td>${esc(NHAN[i] || p.ten)} (${p.dien_tich} m²)</td>${
+  const dong = d.phong.map((p, i) => `<tr><td>${esc(NHAN[i] || p.ten)} (${eH(p.dien_tich)} m²)</td>${
     MUC.map((m) => `<td>${khoang(p.muc[m.ma]).replace(' triệu', '')}</td>`).join('')}</tr>`);
   dong.push(`<tr><td>Dự phòng phát sinh</td>${MUC.map((m) => `<td>${khoang(d.du_phong[m.ma]).replace(' triệu', '')}</td>`).join('')}</tr>`);
   dong.push(`<tr><td>Phí thiết kế nội thất</td>${MUC.map(() => `<td>${trieu(d.phi_thiet_ke)}</td>`).join('')}</tr>`);
@@ -633,7 +634,7 @@ function hienKetQua(d) {
     $chenh.innerHTML = '';
     const tenGon = (t) => esc(String(t).replace(/\s*\(.*?\)\s*/g, ' ').trim());
     document.getElementById('teaser').innerHTML = `
-      <div class="t-so">Nhà anh/chị có <b>${tongMon} món</b> trong <b>${d.phong.length} phòng</b>. Mỗi món có 3 mức, và chính các lựa chọn đó tạo ra khoảng chênh bên dưới.</div>
+      <div class="t-so">Nhà anh/chị có <b>${eH(tongMon)} món</b> trong <b>${d.phong.length} phòng</b>. Mỗi món có 3 mức, và chính các lựa chọn đó tạo ra khoảng chênh bên dưới.</div>
       <div class="dai">
         <div class="dai-thanh"><span class="dai-ghim">Nhà anh/chị ở đâu?</span></div>
         <div class="dai-nhan"><div>Thấp nhất<b>${trieu(d.tong_cong.co_ban.thap)} triệu</b></div><div style="text-align:right">Cao nhất<b>${trieu(d.tong_cong.cao_cap.cao, true)} triệu</b></div></div>
@@ -641,7 +642,7 @@ function hienKetQua(d) {
       </div>
       <div class="so3">${noiBat.map((m) => `
         <div class="so3-the">
-          ${m.anh ? `<img src="${esc(m.anh)}" alt="" loading="lazy" onerror="this.remove()">` : ''}
+          ${m.anh ? `<img src="${eU(m.anh)}" alt="" loading="lazy" onerror="this.remove()">` : ''}
           <div class="so3-than"><b>${tenGon(m.ten)}</b>
             ${MUC.map((x) => `<div class="so3-dong"><span>${x.ten}</span><em>${esc(m.vat_lieu[x.ma])}</em><i class="khoa" aria-hidden="true"></i></div>`).join('')}
           </div>
@@ -908,7 +909,7 @@ async function moBang(giuLai) {
   if (!giuLai) {
     MUC_CHUNG = 'kha';
     document.getElementById('muc-all').innerHTML = BANG.muc.map((k) =>
-      `<button type="button" data-muc="${k}" class="${k === 'kha' ? 'on' : ''}">${TEN_MUC[k]}</button>`).join('');
+      `<button type="button" data-muc="${eH(k)}" class="${k === 'kha' ? 'on' : ''}">${TEN_MUC[k]}</button>`).join('');
   }
   veBang();
 }
@@ -1174,13 +1175,13 @@ function veBang() {
     ${oKichThuoc(p, pi)}
     ${DONG.map((d, i) => d.phong !== pi ? '' : `
       <div class="mon${d.muc === 'bo' ? ' off' : ''}${d.bo ? ' bo' : ''}" id="mon-${i}">
-        ${d.m.anh ? `<img loading="lazy" src="${esc(d.m.anh)}" alt="${esc(d.m.ten)}" onerror="this.outerHTML='<div class=&quot;ph&quot;><i class=&quot;ph-duotone ph-image&quot;></i></div>'">` : `<div class="ph"><i class="ph-duotone ${d.them === 'khac' ? 'ph-note-pencil' : 'ph-image'}"></i></div>`}
+        ${d.m.anh ? `<img loading="lazy" src="${eU(d.m.anh)}" alt="${esc(d.m.ten)}" onerror="this.outerHTML='<div class=&quot;ph&quot;><i class=&quot;ph-duotone ph-image&quot;></i></div>'">` : `<div class="ph"><i class="ph-duotone ${d.them === 'khac' ? 'ph-note-pencil' : 'ph-image'}"></i></div>`}
         <div><b>${esc(d.m.ten)}${d.them ? `<span class="nhan-them">${d.them === 'khac' ? 'Món khác' : 'Đã thêm'}</span>` : ''}</b><small id="vl-${i}"></small><button type="button" class="bo-mon" data-bo-mon="${i}">${d.bo ? '↺ Thêm lại' : 'Bỏ món'}</button></div>
         <div class="mon-ctrl">
           ${d.them === 'khac' ? '' : `<select data-i="${i}" aria-label="Mức cho ${esc(d.m.ten)}">
-            ${[...BANG.muc, ...(d.them ? [] : ['bo'])].map((k) => `<option value="${k}"${k === d.muc ? ' selected' : ''}>${TEN_MUC[k]}</option>`).join('')}
+            ${[...BANG.muc, ...(d.them ? [] : ['bo'])].map((k) => `<option value="${eH(k)}"${k === d.muc ? ' selected' : ''}>${TEN_MUC[k]}</option>`).join('')}
           </select>`}
-          <div class="qty"><button type="button" data-i="${i}" data-d="-1" aria-label="Giảm">−</button><input data-i="${i}" type="number" min="0" step="${/bộ|cái/.test(d.m.don_vi) ? 1 : 0.5}" value="${d.sl}" aria-label="Số lượng"><button type="button" data-i="${i}" data-d="1" aria-label="Tăng">+</button></div>
+          <div class="qty"><button type="button" data-i="${i}" data-d="-1" aria-label="Giảm">−</button><input data-i="${i}" type="number" min="0" step="${/bộ|cái/.test(d.m.don_vi) ? 1 : 0.5}" value="${eH(d.sl)}" aria-label="Số lượng"><button type="button" data-i="${i}" data-d="1" aria-label="Tăng">+</button></div>
           <span class="dv">${esc(d.m.don_vi)}</span>
           <span class="tien" id="tien-${i}"></span>
         </div>
@@ -1358,7 +1359,7 @@ function hienKetQuaBanVe(r) {
   $kq.innerHTML = BV_PHONG.map((p) => `
     <div class="bv-phong"><div><b>${esc(TEN_LOAI[p.ma] || p.ma)}</b>${p.ten_ban_ve ? ` <small>(${esc(p.ten_ban_ve)})</small>` : ''}
       ${p.thieu_kich_thuoc ? '<div class="thieu">Không đọc được kích thước, tạm dùng diện tích chuẩn</div>' : ''}</div>
-      <small>${p.ngang != null ? `${so(p.ngang)} × ${so(p.dai)} m${p.ma === 'BEP' ? ' khu bếp' : ''} · ` : ''}${so(p.dien_tich)} m²${p.cua_so != null ? ` · cửa sổ ${so(p.cua_so)} m` : ''}</small></div>`).join('') +
+      <small>${eH(p.ngang != null ? `${so(p.ngang)} × ${so(p.dai)} m${p.ma === 'BEP' ? ' khu bếp' : ''} · ` : '')}${eH(so(p.dien_tich))} m²${eH(p.cua_so != null ? ` · cửa sổ ${so(p.cua_so)} m` : '')}</small></div>`).join('') +
     (r.ghi_chu ? `<div class="privacy" style="margin-top:6px">${esc(r.ghi_chu)}</div>` : '') +
     `<div class="bv-nut"><button type="button" class="chinh-nut" id="bv-dung">Dùng các phòng này</button><button type="button" class="phu" id="bv-bo">Bỏ qua</button></div>`;
   $kq.hidden = false;

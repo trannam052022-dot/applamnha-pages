@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <script src="error-monitor.js"></script>
+  <script src="aln-esc.js"></script>
+<script src="error-monitor.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ALN — KTV Dashboard</title>
@@ -314,38 +315,36 @@ function fmtDeadline(d) {
   if (isNaN(dt.getTime())) return String(d);
   return dt.toLocaleDateString('vi-VN');
 }
-function esc(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+function esc(s){ return eH(s); } // aln-esc.js — escape đủ & < > " ' `
 
 function taskCardHTML(t, isPool) {
   var st = ST_LABEL[t.status] || { cls:'st-open', text: t.status || '' };
   var filesHtml = (t.files || []).map(function(f){
     return '<div class="file-row"><i class="ph-duotone ph-file" style="color:var(--cyan)"></i>'
-      + '<a href="' + esc(f.url) + '" target="_blank" rel="noopener">' + esc(f.name) + '</a>'
+      + '<a href="' + eU(f.url) + '" target="_blank" rel="noopener">' + esc(f.name) + '</a>'
       + '<span class="file-size">' + fmtSize(f.size) + '</span></div>';
   }).join('');
   var actions = '';
   if (isPool) {
-    actions = '<button class="btn btn-claim" onclick="claimTask(\'' + t.id + '\')"><i class="ph-duotone ph-hand-grabbing"></i> Nhận việc này</button>';
+    actions = '<button class="btn btn-claim" onclick="claimTask(' + eJ(t.id) + ')"><i class="ph-duotone ph-hand-grabbing"></i> Nhận việc này</button>';
   } else if (t.status === 'assigned') {
-    actions = '<button class="btn btn-claim" onclick="acceptTask(\'' + t.id + '\')"><i class="ph-duotone ph-check"></i> Nhận việc</button>';
+    actions = '<button class="btn btn-claim" onclick="acceptTask(' + eJ(t.id) + ')"><i class="ph-duotone ph-check"></i> Nhận việc</button>';
   } else if (t.status === 'in_progress' || t.status === 'revise') {
     actions = '<div class="upload-row">'
-      + '<label class="btn btn-upload" style="cursor:pointer"><input type="file" multiple style="display:none" onchange="uploadTaskFiles(this,\'' + t.id + '\')"><i class="ph-duotone ph-upload-simple"></i> Tải file lên</label>'
-      + ((t.files || []).length ? '<button class="btn btn-submit" onclick="submitTask(\'' + t.id + '\')"><i class="ph-duotone ph-paper-plane-tilt"></i> Nộp bài</button>' : '')
+      + '<label class="btn btn-upload" style="cursor:pointer"><input type="file" multiple style="display:none" onchange="uploadTaskFiles(this,' + eJ(t.id) + ')"><i class="ph-duotone ph-upload-simple"></i> Tải file lên</label>'
+      + ((t.files || []).length ? '<button class="btn btn-submit" onclick="submitTask(' + eJ(t.id) + ')"><i class="ph-duotone ph-paper-plane-tilt"></i> Nộp bài</button>' : '')
       + '</div>';
   }
-  return '<div class="task-card" id="task-' + t.id + '">'
+  return '<div class="task-card" id="task-' + eH(t.id) + '">'
     + '<div class="task-head">'
       + '<div style="flex:1;min-width:0"><div class="task-title">' + esc(t.title || 'Việc triển khai') + '</div>'
       + '<div class="task-proj">' + esc(t.projectId || '') + (t.projectName ? ' · ' + esc(t.projectName) : '') + ' · KTS: ' + esc(t.ktsName || '—') + '</div></div>'
-      + '<span class="st-badge ' + st.cls + '">' + st.text + '</span>'
+      + '<span class="st-badge ' + eH(st.cls) + '">' + eH(st.text) + '</span>'
     + '</div>'
     + (t.desc ? '<div class="task-desc">' + esc(t.desc) + '</div>' : '')
     + '<div class="task-meta">'
       + (t.stage ? '<span class="meta-chip">Chặng ' + esc(t.stage) + '</span>' : '')
-      + (t.deadline ? '<span class="meta-chip deadline"><i class="ph-duotone ph-alarm"></i> Hạn: ' + fmtDeadline(t.deadline) + '</span>' : '')
+      + (t.deadline ? '<span class="meta-chip deadline"><i class="ph-duotone ph-alarm"></i> Hạn: ' + eH(fmtDeadline(t.deadline)) + '</span>' : '')
       + (t.mode === 'open' ? '<span class="meta-chip">Việc mở</span>' : '')
     + '</div>'
     + (t.status === 'revise' && t.ktsNote ? '<div class="revise-note"><b>KTS yêu cầu sửa:</b> ' + esc(t.ktsNote) + '</div>' : '')
@@ -457,7 +456,7 @@ function _startTaskListeners(uid) {
     window.renderMine(arr);
   }, function(err) {
     console.error('[KTV mine]', err.code, err.message);
-    document.getElementById('listMine').innerHTML = '<div class="empty"><div class="empty-text">Không thể tải dữ liệu (' + (err.code||'') + ')</div></div>';
+    document.getElementById('listMine').innerHTML = '<div class="empty"><div class="empty-text">Không thể tải dữ liệu (' + eH(err.code||'') + ')</div></div>';
   });
   /* việc đang mở */
   onSnapshot(query(collection(db, 'ktvTasks'), where('status', '==', 'open')), function(snap) {
@@ -467,7 +466,7 @@ function _startTaskListeners(uid) {
     window.renderOpen(arr);
   }, function(err) {
     console.error('[KTV open]', err.code, err.message);
-    document.getElementById('listOpen').innerHTML = '<div class="empty"><div class="empty-text">Không thể tải dữ liệu (' + (err.code||'') + ')</div></div>';
+    document.getElementById('listOpen').innerHTML = '<div class="empty"><div class="empty-text">Không thể tải dữ liệu (' + eH(err.code||'') + ')</div></div>';
   });
 }
 

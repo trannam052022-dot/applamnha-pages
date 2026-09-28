@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
 <!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM (xem scripts/aln-optout.js) -->
+<script src="aln-esc.js"></script>
 <script src="scripts/aln-optout.js"></script>
   <script src="error-monitor.js"></script>
 <meta charset="UTF-8">
@@ -212,9 +213,7 @@ function showToast(msg, isErr) {
   _tt = setTimeout(function() { el.className = 'toast'; }, 3000);
 }
 window.showToast = showToast;
-function escH(s){
-  return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+function escH(s){ return eH(s); } // aln-esc.js — escape đủ & < > " ' `
 window.escH = escH;
 
 /* Gạch & Kim Cương ALN — thang cấp bậc dùng chung (xem CLAUDE.md mục "Gạch & Kim Cương") */
@@ -338,7 +337,7 @@ function videosHtml(){
     const color = isYt ? '#ff0000' : isFb ? '#1877f2' : 'var(--text)';
     const ytId = isYt ? ytThumbId(u) : null;
     const thumbOrIcon = ytId
-      ? '<img class="vid-thumb" src="https://img.youtube.com/vi/' + ytId + '/hqdefault.jpg" alt="">'
+      ? '<img class="vid-thumb" src="https://img.youtube.com/vi/' + eH(ytId) + '/hqdefault.jpg" alt="">'
       : '<i class="ph-duotone ' + icon + '" style="color:' + color + '"></i>';
     return '<div class="pdf-row" style="margin-bottom:8px">'
       + thumbOrIcon
@@ -386,7 +385,7 @@ function priceRowsHtml(){
       + '<input type="text" class="price-card-item" placeholder="VD: Nhân công xây tô, nhân công hoàn thiện…" value="' + escH(p.item || '') + '" oninput="setPriceField(' + i + ',\'item\',this.value)">'
       + '<div class="price-card-row2">'
         + '<input type="text" placeholder="ĐVT (m², ngày công…)" value="' + escH(p.unit || '') + '" oninput="setPriceField(' + i + ',\'unit\',this.value)">'
-        + '<input type="number" min="0" placeholder="Giá (đ)" value="' + (p.price != null ? p.price : '') + '" oninput="setPriceField(' + i + ',\'price\',this.value)">'
+        + '<input type="number" min="0" placeholder="Giá (đ)" value="' + eH(p.price != null ? p.price : '') + '" oninput="setPriceField(' + i + ',\'price\',this.value)">'
         + '<button class="price-del" onclick="removePriceRow(' + i + ')" title="Xoá dòng"><i class="ph-duotone ph-trash"></i></button>'
       + '</div>'
     + '</div>';
@@ -423,7 +422,7 @@ function productsHtml(){
   const products = Array.isArray(DATA.products) ? DATA.products : [];
   let html = products.map(function(p, i){
     const imgBlock = p.imageUrl
-      ? '<div class="prod-img-wrap"><img class="prod-img" src="' + escH(p.imageUrl) + '" alt="">'
+      ? '<div class="prod-img-wrap"><img class="prod-img" src="' + eU(p.imageUrl) + '" alt="">'
         + '<button class="prod-img-del" onclick="removeProductImg(' + i + ')" title="Gỡ ảnh">✕</button></div>'
       : '<button class="prod-img-add" onclick="pickProductImg(' + i + ')"><i class="ph-duotone ph-image"></i>Thêm ảnh</button>';
     return '<div class="prod-card">'
@@ -431,7 +430,7 @@ function productsHtml(){
       + '<div class="prod-body">'
         + '<input type="text" placeholder="Tên sản phẩm" value="' + escH(p.name || '') + '" oninput="setProductField(' + i + ',\'name\',this.value)">'
         + '<div class="prod-row2">'
-          + '<input type="number" min="0" placeholder="Giá (đ)" value="' + (p.price != null ? p.price : '') + '" oninput="setProductField(' + i + ',\'price\',this.value)">'
+          + '<input type="number" min="0" placeholder="Giá (đ)" value="' + eH(p.price != null ? p.price : '') + '" oninput="setProductField(' + i + ',\'price\',this.value)">'
           + '<input type="text" placeholder="ĐVT" value="' + escH(p.unit || '') + '" oninput="setProductField(' + i + ',\'unit\',this.value)">'
         + '</div>'
         + '<button class="prod-del" onclick="removeProduct(' + i + ')"><i class="ph-duotone ph-trash"></i> Xoá</button>'
@@ -545,7 +544,7 @@ function render(){
 
   const gallery = Array.isArray(d.gallery) ? d.gallery : [];
   let galHtml = gallery.map(function(g, i){
-    return '<div class="gal-item' + (i === 0 ? ' is-cover' : '') + '"><img src="' + escH(g.url) + '" alt="">'
+    return '<div class="gal-item' + (i === 0 ? ' is-cover' : '') + '"><img src="' + eU(g.url) + '" alt="">'
       + (i === 0
           ? '<span class="cover-badge"><i class="ph-duotone ph-star"></i>Ảnh bìa</span>'
           : '<button class="btn-cover" onclick="setCover(' + i + ')"><i class="ph-duotone ph-star"></i>Đặt làm bìa</button>')
@@ -559,7 +558,7 @@ function render(){
   const pdfHtml = d.catalogPdfUrl
     ? '<div class="pdf-row"><i class="ph-duotone ph-file-pdf"></i>'
       + '<span class="pdf-name">' + escH(d.catalogPdfName || 'catalog.pdf') + '</span>'
-      + '<a class="btn btn-ghost btn-sm" href="' + escH(d.catalogPdfUrl) + '" target="_blank" rel="noopener">Xem</a>'
+      + '<a class="btn btn-ghost btn-sm" href="' + eU(d.catalogPdfUrl) + '" target="_blank" rel="noopener">Xem</a>'
       + '<button class="btn btn-ghost btn-sm" style="color:var(--red)" onclick="removePdf()">Gỡ</button></div>'
     : '<button class="btn btn-ghost" onclick="document.getElementById(\'pdfInput\').click()"><i class="ph-duotone ph-upload-simple"></i>Tải catalog PDF (tối đa ' + MAX_PDF_MB + 'MB)</button>';
 
@@ -567,8 +566,8 @@ function render(){
     // ── Thanh tiến độ đơn giản + dòng Gạch gọn (thay khối "Gạch & Kim
     //    Cương ALN" to trước đây) ──
     '<div class="hero-progress">'
-      + '<div class="hp-row"><span class="hp-label">Gian hàng hoàn thiện</span><span class="hp-pct">' + comp.pct + '%</span></div>'
-      + '<div class="hp-track"><div class="hp-fill" style="width:' + comp.pct + '%"></div></div>'
+      + '<div class="hp-row"><span class="hp-label">Gian hàng hoàn thiện</span><span class="hp-pct">' + eH(comp.pct) + '%</span></div>'
+      + '<div class="hp-track"><div class="hp-fill" style="width:' + eH(comp.pct) + '%"></div></div>'
       + '<div class="hp-sub">Hoàn thiện hồ sơ để khách tin tưởng hơn</div>'
       + '<div class="hp-bricks">'
         + '<span id="alnTierIcon">🧱</span>'
@@ -594,7 +593,7 @@ function render(){
         + '<input type="text" id="fRefLink" readonly value="' + escH(location.origin + '/register.html?ref=' + UID) + '">'
         + '<button class="btn-xl btn-gold" onclick="copyRefLink()"><i class="ph-duotone ph-copy"></i>Sao chép link</button>'
       + '</div>'
-      + '<div class="main-card-desc" style="margin:14px 0 0;font-size:14px">Đã giới thiệu: <b style="color:var(--gold)">' + (d.referralCount || 0) + '</b> khách đăng ký</div>'
+      + '<div class="main-card-desc" style="margin:14px 0 0;font-size:14px">Đã giới thiệu: <b style="color:var(--gold)">' + eH(d.referralCount || 0) + '</b> khách đăng ký</div>'
     + '</div>'
 
     + '<div class="main-card">'
@@ -634,7 +633,7 @@ function render(){
             + '<div class="field"><label>Website riêng (nếu có)</label><input type="url" id="fWebsite" placeholder="https://tencuahang.vn" value="' + escH(d.website || '') + '"></div>'
           + '</div>'
           + '<div class="field" style="margin-top:14px"><label>Địa chỉ hiển thị công khai</label><input type="text" id="fAddress" placeholder="Số nhà, đường, quận/huyện…" value="' + escH(d.address || '') + '"></div>'
-          + '<div class="hint" style="margin-top:14px;background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.2);border-radius:8px;padding:10px 12px">Yêu cầu: nếu có website riêng, vui lòng đặt 1 link trên website đó trỏ về đúng hồ sơ ALN của bạn (ví dụ trong footer hoặc mục "Liên kết") — giúp gian hàng bạn dễ được Google tìm thấy hơn.<br>Link cần dán: <code style="user-select:all">https://applamnha.vn/ncc_profile.html?uid=' + UID + '</code></div>'
+          + '<div class="hint" style="margin-top:14px;background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.2);border-radius:8px;padding:10px 12px">Yêu cầu: nếu có website riêng, vui lòng đặt 1 link trên website đó trỏ về đúng hồ sơ ALN của bạn (ví dụ trong footer hoặc mục "Liên kết") — giúp gian hàng bạn dễ được Google tìm thấy hơn.<br>Link cần dán: <code style="user-select:all">https://applamnha.vn/ncc_profile.html?uid=' + eH(UID) + '</code></div>'
           + '<label style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13px;cursor:pointer"><input type="checkbox" id="fBacklinkConfirmed"' + (d.backlinkConfirmed ? ' checked' : '') + '> Tôi đã gắn link về hồ sơ ALN trên website của mình</label>'
         + '</div>'
 

@@ -3,6 +3,7 @@
 <head>
 <!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM (xem scripts/aln-optout.js) -->
 <script src="scripts/aln-optout.js"></script>
+<script src="aln-esc.js"></script>
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -913,7 +914,7 @@ let toastTimer = null;
 
 /* ════ HELPERS ════ */
 const $ = id => document.getElementById(id);
-function escH(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escH(s){ return eH(s); } // aln-esc.js — escape cả ' và ` (bản cũ thiếu dấu nháy đơn)
 function showToast(msg){
   const t = $('toast'); t.textContent = msg; t.classList.add('show');
   clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 3600);
@@ -1001,7 +1002,7 @@ onAuthStateChanged(auth, async user => {
   $('tbGuest').style.display = 'none';
   $('btnInvite').style.display = 'inline-flex';
   $('tbName').textContent = USER.name;
-  $('tbAvatar').innerHTML = USER.avatar ? '<img src="'+escH(USER.avatar)+'">' : escH((USER.name||'?')[0].toUpperCase());
+  $('tbAvatar').innerHTML = USER.avatar ? '<img src="'+eU(USER.avatar)+'">' : escH((USER.name||'?')[0].toUpperCase());
   setTbRole(USER.role);
   $('tbBack').style.display = 'inline-flex';
   $('tbBack').href = BACK_BY_ROLE[USER.role] || 'login.html';
@@ -1138,7 +1139,7 @@ async function loadLeaderboard(){
     $('lbList').innerHTML = rows.map((r, i) =>
       '<div class="lb-row"><span class="lb-rank-num">'+(i+1)+'</span>'
       + '<span class="lb-name">'+escH(r.name)+'</span>'
-      + '<span class="lb-points">'+r.points+'đ</span></div>'
+      + '<span class="lb-points">'+eH(r.points)+'đ</span></div>'
     ).join('');
     $('lbWidget').style.display = 'block';
   } catch(e){ console.warn('[forum] leaderboard', e.message); }
@@ -1155,7 +1156,7 @@ async function loadGrowthLeaderboard(){
     $('growthLbList').innerHTML = rows.map((r, i) =>
       '<div class="lb-row"><span class="lb-rank-num">'+(i+1)+'</span>'
       + '<span class="lb-name">'+escH(r.name)+'</span>'
-      + '<span class="lb-points">'+r.points+'đ</span></div>'
+      + '<span class="lb-points">'+eH(r.points)+'đ</span></div>'
     ).join('');
     $('growthLbWidget').style.display = 'block';
   } catch(e){ console.warn('[forum] growth leaderboard', e.message); }
@@ -1163,7 +1164,7 @@ async function loadGrowthLeaderboard(){
 
 function renderGate(icon, title, msg){
   $('feedList').innerHTML =
-    '<div class="gate"><i class="ph-duotone '+icon+'"></i><h2>'+escH(title)+'</h2><p>'+escH(msg)+'</p></div>';
+    '<div class="gate"><i class="ph-duotone '+eH(icon)+'"></i><h2>'+escH(title)+'</h2><p>'+escH(msg)+'</p></div>';
 }
 
 /* ════ TABS ════ */
@@ -1301,7 +1302,7 @@ function suggestedKtsHtml(p){
         + '<a href="kts_profile.html?uid='+escH(k.uid)+'" class="sug-name">'+escH(k.name||'KTS ALN')+'</a>'
         + rankBadge(k.rank)
         + ((canChoose && k.uid !== USER.uid)
-            ? '<button class="sug-invite" onclick="openChoose(\''+escH(k.uid)+'\',\''+escH(k.name||'KTS')+'\')"><i class="ph-duotone ph-handshake"></i> Chọn làm dự án</button>'
+            ? '<button class="sug-invite" onclick="openChoose('+eJ(k.uid)+','+eJ(k.name||'KTS')+')"><i class="ph-duotone ph-handshake"></i> Chọn làm dự án</button>'
             : '')
         + '</div>').join('')
     + '</div></div>';
@@ -1311,8 +1312,8 @@ function mediaHtml(p, inThread){
   if(!media.length) return '';
   const cls = media.length >= 3 ? 'm3' : media.length === 2 ? 'm2' : 'm1';
   return '<div class="tc-media '+cls+'">' + media.map(m => {
-    if(m.type === 'video') return '<video src="'+escH(m.url)+'" controls muted playsinline></video>';
-    return '<img src="'+escH(m.url)+'" loading="lazy" onclick="event.stopPropagation();openLightbox(\''+escH(m.url)+'\')">';
+    if(m.type === 'video') return '<video src="'+eU(m.url)+'" controls muted playsinline></video>';
+    return '<img src="'+eU(m.url)+'" loading="lazy" onclick="event.stopPropagation();openLightbox('+eJ(m.url)+')">';
   }).join('') + '</div>';
 }
 function briefHtml(p){
@@ -1333,8 +1334,8 @@ function briefHtml(p){
 
 function renderCard(p){
   const hearted = p.heartedBy && p.heartedBy.includes(USER.uid);
-  const av = p.authorAvatar ? '<img src="'+escH(p.authorAvatar)+'">' : escH((p.authorName||'?')[0].toUpperCase());
-  return '<div class="thread-card" onclick="openThread(\''+p.id+'\')">'
+  const av = p.authorAvatar ? '<img src="'+eU(p.authorAvatar)+'">' : escH((p.authorName||'?')[0].toUpperCase());
+  return '<div class="thread-card" onclick="openThread('+eJ(p.id)+')">'
     + '<div class="tc-top">'
       + '<div class="tc-avatar">'+av+'</div>'
       + '<div style="flex:1;min-width:0">'
@@ -1348,9 +1349,9 @@ function renderCard(p){
     + briefHtml(p)
     + mediaHtml(p)
     + '<div class="tc-foot">'
-      + '<button class="tc-stat'+(hearted?' hearted':'')+'" onclick="event.stopPropagation();heartPost(\''+p.id+'\')">'
-        + (hearted?'❤️':'🤍') + ' <span>' + (p.heartCount||0) + '</span></button>'
-      + '<span class="tc-stat" style="cursor:pointer"><i class="ph-duotone ph-chat-circle"></i> '+(p.commentCount||0)+' bình luận</span>'
+      + '<button class="tc-stat'+(hearted?' hearted':'')+'" onclick="event.stopPropagation();heartPost('+eJ(p.id)+')">'
+        + (hearted?'❤️':'🤍') + ' <span>' + eH(p.heartCount||0) + '</span></button>'
+      + '<span class="tc-stat" style="cursor:pointer"><i class="ph-duotone ph-chat-circle"></i> '+eH(p.commentCount||0)+' bình luận</span>'
       + (p.bestAnswerId ? '<span class="badge-ba"><i class="ph-duotone ph-seal-check"></i>Best Answer</span>' : '')
     + '</div>'
   + '</div>';
@@ -1566,7 +1567,7 @@ function renderThread(){
   const p = ALL_POSTS.find(x => x.id === openThreadId);
   if(!p){ $('threadBody').innerHTML = '<div class="empty-state"><p>Bài viết không còn tồn tại.</p></div>'; return; }
   const isTuVan = catOf(p) === 'tu_van_du_an';
-  const av = p.authorAvatar ? '<img src="'+escH(p.authorAvatar)+'">' : escH((p.authorName||'?')[0].toUpperCase());
+  const av = p.authorAvatar ? '<img src="'+eU(p.authorAvatar)+'">' : escH((p.authorName||'?')[0].toUpperCase());
   const hearted = p.heartedBy && p.heartedBy.includes(USER.uid);
   const mine = p.authorUid === USER.uid;
 
@@ -1586,19 +1587,19 @@ function renderThread(){
     + (p.chosenKts ? '<div class="chosen-banner"><i class="ph-duotone ph-check-circle"></i> Chủ đầu tư đã chọn <b>'+escH(p.chosenKts.name)+'</b>'+rankBadge(p.chosenKts.rank)+' làm KTS dự án — đang trao đổi qua kênh chat sàn ALN</div>' : '')
     + suggestedKtsHtml(p)
     + '<div class="tc-foot" style="border-top:none;padding-top:0">'
-      + '<button class="tc-stat'+(hearted?' hearted':'')+'" onclick="heartPost(\''+p.id+'\')">'+(hearted?'❤️':'🤍')+' '+(p.heartCount||0)+'</button>'
-      + '<button class="tc-stat" onclick="openReport(\'post\',\''+p.id+'\')"><i class="ph-duotone ph-flag"></i> Báo cáo</button>'
-      + ((p.commentCount||0) >= 2 ? '<button class="tc-stat" onclick="summarizeThread(\''+p.id+'\')"><i class="ph-duotone ph-list-bullets"></i> Tóm tắt AI</button>' : '')
-      + ((mine || USER.role==='founder') ? '<button class="tc-stat" onclick="delPost(\''+p.id+'\')"><i class="ph-duotone ph-trash"></i> Xóa</button>' : '')
-      + (USER.role==='founder' ? '<button class="tc-stat" onclick="pinPost(\''+p.id+'\')"><i class="ph-duotone ph-push-pin"></i> '+(p.pinned?'Bỏ ghim':'Ghim')+'</button>' : '')
-      + (USER.role==='founder' && p.bestAnswerId ? '<button class="tc-stat" onclick="toCamNang(\''+p.id+'\')" style="color:var(--gold)"><i class="ph-duotone ph-book-bookmark"></i> '+(p.camNangId?'Đã vào Cẩm nang':'Đưa vào Cẩm nang')+'</button>' : '')
-      + (USER.role==='founder' && p.bestAnswerId ? '<button class="tc-stat" onclick="toMarketingDraft(\''+p.id+'\')" style="color:var(--gold)"><i class="ph-duotone ph-megaphone"></i> '+(p.marketingDraftId?'Đã có nháp Fanpage':'Tạo nháp Fanpage')+'</button>' : '')
+      + '<button class="tc-stat'+(hearted?' hearted':'')+'" onclick="heartPost('+eJ(p.id)+')">'+(hearted?'❤️':'🤍')+' '+eH(p.heartCount||0)+'</button>'
+      + '<button class="tc-stat" onclick="openReport(\'post\','+eJ(p.id)+')"><i class="ph-duotone ph-flag"></i> Báo cáo</button>'
+      + ((p.commentCount||0) >= 2 ? '<button class="tc-stat" onclick="summarizeThread('+eJ(p.id)+')"><i class="ph-duotone ph-list-bullets"></i> Tóm tắt AI</button>' : '')
+      + ((mine || USER.role==='founder') ? '<button class="tc-stat" onclick="delPost('+eJ(p.id)+')"><i class="ph-duotone ph-trash"></i> Xóa</button>' : '')
+      + (USER.role==='founder' ? '<button class="tc-stat" onclick="pinPost('+eJ(p.id)+')"><i class="ph-duotone ph-push-pin"></i> '+(p.pinned?'Bỏ ghim':'Ghim')+'</button>' : '')
+      + (USER.role==='founder' && p.bestAnswerId ? '<button class="tc-stat" onclick="toCamNang('+eJ(p.id)+')" style="color:var(--gold)"><i class="ph-duotone ph-book-bookmark"></i> '+(p.camNangId?'Đã vào Cẩm nang':'Đưa vào Cẩm nang')+'</button>' : '')
+      + (USER.role==='founder' && p.bestAnswerId ? '<button class="tc-stat" onclick="toMarketingDraft('+eJ(p.id)+')" style="color:var(--gold)"><i class="ph-duotone ph-megaphone"></i> '+(p.marketingDraftId?'Đã có nháp Fanpage':'Tạo nháp Fanpage')+'</button>' : '')
     + '</div>'
     + '<div id="aiSummaryBox" class="ai-summary" style="display:'+(p.aiSummary?'block':'none')+'">'
       + (p.aiSummary ? '<div class="ai-tag"><i class="ph-duotone ph-sparkle"></i> Tóm tắt AI</div>'+escH(p.aiSummary).replace(/\n/g,'<br>') : '')
     + '</div>'
     + '<div style="border-top:1px solid var(--border);padding-top:12px">'
-      + '<div class="f-label">'+(p.commentCount||0)+' BÌNH LUẬN</div>'
+      + '<div class="f-label">'+eH(p.commentCount||0)+' BÌNH LUẬN</div>'
       + '<div class="cm-list">' + renderComments(p) + '</div>'
       + renderComposer(p)
     + '</div>';
@@ -1625,7 +1626,7 @@ function renderComments(p){
 
 function renderComment(p, c, isReply){
   const hearted = c.heartedBy && c.heartedBy.includes(USER.uid);
-  const av = c.authorAvatar ? '<img src="'+escH(c.authorAvatar)+'">' : escH((c.authorName||'?')[0].toUpperCase());
+  const av = c.authorAvatar ? '<img src="'+eU(c.authorAvatar)+'">' : escH((c.authorName||'?')[0].toUpperCase());
   const isTuVan = catOf(p) === 'tu_van_du_an';
   const canMarkBest = !isReply && (p.authorUid === USER.uid || USER.role === 'founder') && !c.isBestAnswer && c.authorUid !== USER.uid;
   const buyerRole = (USER.role === 'cn' || USER.role === 'dn' || USER.role === 'founder');
@@ -1648,16 +1649,16 @@ function renderComment(p, c, isReply){
       + '<div class="cm-text">'+escH(c.text)+'</div>'
       + (isTuVan && c.authorRole === 'kts' ? '<div class="cm-disclaimer">'+escH(DISCLAIMER)+'</div>' : '')
       + '<div class="cm-actions">'
-        + '<button class="cm-act'+(hearted?' hearted':'')+'" onclick="heartComment(\''+p.id+'\',\''+c.id+'\')">'+(hearted?'❤️':'🤍')+' '+(c.heartCount||0)+'</button>'
-        + (canCommentHere(p) ? '<button class="cm-act" onclick="startReply(\''+(c.replyToId||c.id)+'\',\''+escH(c.authorName)+'\')">↩ Trả lời</button>' : '')
-        + (canMarkBest ? '<button class="cm-act" onclick="markBest(\''+p.id+'\',\''+c.id+'\')" style="color:#3a7a3e">✔ Best Answer</button>' : '')
-        + (canInvite ? '<button class="cm-act invite" onclick="inviteKts(\''+escH(c.authorUid)+'\',\''+p.id+'\')"><i class="ph-duotone ph-chats-circle"></i> Mời tư vấn</button>' : '')
-        + (canChoose ? '<button class="cm-act choose" onclick="openChoose(\''+escH(c.authorUid)+'\',\''+escH(c.authorName||'KTS')+'\')"><i class="ph-duotone ph-handshake"></i> Chọn KTS này làm dự án</button>' : '')
-        + (canShareBest ? '<button class="cm-act" onclick="shareBestAnswer(\''+p.id+'\')" style="color:var(--c-blue,#4a8fff)"><i class="ph-duotone ph-share-network"></i> Chia sẻ Best Answer</button>' : '')
+        + '<button class="cm-act'+(hearted?' hearted':'')+'" onclick="heartComment('+eJ(p.id)+','+eJ(c.id)+')">'+(hearted?'❤️':'🤍')+' '+eH(c.heartCount||0)+'</button>'
+        + (canCommentHere(p) ? '<button class="cm-act" onclick="startReply('+eJ(c.replyToId||c.id)+','+eJ(c.authorName)+')">↩ Trả lời</button>' : '')
+        + (canMarkBest ? '<button class="cm-act" onclick="markBest('+eJ(p.id)+','+eJ(c.id)+')" style="color:#3a7a3e">✔ Best Answer</button>' : '')
+        + (canInvite ? '<button class="cm-act invite" onclick="inviteKts('+eJ(c.authorUid)+','+eJ(p.id)+')"><i class="ph-duotone ph-chats-circle"></i> Mời tư vấn</button>' : '')
+        + (canChoose ? '<button class="cm-act choose" onclick="openChoose('+eJ(c.authorUid)+','+eJ(c.authorName||'KTS')+')"><i class="ph-duotone ph-handshake"></i> Chọn KTS này làm dự án</button>' : '')
+        + (canShareBest ? '<button class="cm-act" onclick="shareBestAnswer('+eJ(p.id)+')" style="color:var(--c-blue,#4a8fff)"><i class="ph-duotone ph-share-network"></i> Chia sẻ Best Answer</button>' : '')
         + (USER.role==='founder' && isTuVan && c.authorRole==='kts' && !p.firstAnswerRewarded
-            ? '<button class="cm-act" onclick="rewardFirst(\''+p.id+'\',\''+c.id+'\')" style="color:var(--gold)">⭐ Thưởng trả lời đầu ×2</button>' : '')
-        + '<button class="cm-act" onclick="openReport(\'comment\',\''+p.id+'\',\''+c.id+'\')">⚑</button>'
-        + ((c.authorUid === USER.uid || USER.role === 'founder') ? '<button class="cm-act" onclick="delComment(\''+p.id+'\',\''+c.id+'\')">🗑</button>' : '')
+            ? '<button class="cm-act" onclick="rewardFirst('+eJ(p.id)+','+eJ(c.id)+')" style="color:var(--gold)">⭐ Thưởng trả lời đầu ×2</button>' : '')
+        + '<button class="cm-act" onclick="openReport(\'comment\','+eJ(p.id)+','+eJ(c.id)+')">⚑</button>'
+        + ((c.authorUid === USER.uid || USER.role === 'founder') ? '<button class="cm-act" onclick="delComment('+eJ(p.id)+','+eJ(c.id)+')">🗑</button>' : '')
       + '</div>'
     + '</div>'
   + '</div>';
@@ -1678,10 +1679,10 @@ function renderComposer(p){
   return '<div class="reply-tag" id="replyTag" style="display:'+(replyTo?'flex':'none')+'">'
       + (replyTo ? '↩ Đang trả lời <b>'+escH(replyTo.name)+'</b>' : '')
       + '<button onclick="cancelReply()">✕ hủy</button></div>'
-    + (showAi ? '<button class="ai-draft-btn" id="aiDraftBtn" onclick="aiDraft(\''+p.id+'\')"><i class="ph-duotone ph-sparkle"></i> AI soạn nháp trả lời</button>' : '')
+    + (showAi ? '<button class="ai-draft-btn" id="aiDraftBtn" onclick="aiDraft('+eJ(p.id)+')"><i class="ph-duotone ph-sparkle"></i> AI soạn nháp trả lời</button>' : '')
     + '<div class="cm-composer">'
       + '<textarea class="cm-input" id="cmInput" placeholder="Viết bình luận... (không SĐT / Zalo / link ngoài)" oninput="liveCmFilter()"></textarea>'
-      + '<button class="cm-send" id="cmSendBtn" onclick="submitComment(\''+p.id+'\')"><i class="ph-duotone ph-paper-plane-tilt"></i></button>'
+      + '<button class="cm-send" id="cmSendBtn" onclick="submitComment('+eJ(p.id)+')"><i class="ph-duotone ph-paper-plane-tilt"></i></button>'
     + '</div>'
     + '<div class="ai-gate" id="aiGate" style="display:none">'
       + '<label class="ai-gate-label"><input type="checkbox" id="aiConfirm" onchange="onAiConfirm()" disabled>'
@@ -1865,7 +1866,7 @@ function renderMyPoints(data){
   const ptsEl = $('tbPoints');
   if(ptsEl){
     ptsEl.style.display = 'inline-flex';
-    ptsEl.innerHTML = '<i class="ph-duotone ph-medal"></i>' + points + 'đ';
+    ptsEl.innerHTML = '<i class="ph-duotone ph-medal"></i>' + eH(points) + 'đ';
     const topBadge = badges.length ? badges[badges.length - 1].label : '';
     const toGo = data.nextBadge ? ('Còn ' + data.nextBadge.pointsToGo + 'đ để đạt "' + data.nextBadge.label + '"') : '';
     ptsEl.title = [topBadge ? ('Huy hiệu: ' + topBadge) : '', toGo].filter(Boolean).join(' — ');
@@ -1911,7 +1912,7 @@ window.checkSimilar = function(){
       if(!items.length){ box.style.display = 'none'; box.innerHTML = ''; return; }
       box.style.display = 'block';
       box.innerHTML = '<div class="sim-title"><i class="ph-duotone ph-magnifying-glass"></i> Câu hỏi tương tự đã có — bấm để xem trước khi đăng</div>'
-        + items.map(i => '<div class="sim-item" onclick="closePostModal();openThread(\''+i.id+'\')">'
+        + items.map(i => '<div class="sim-item" onclick="closePostModal();openThread('+eJ(i.id)+')">'
             + (i.hasBest ? '<span class="sim-best"><i class="ph-duotone ph-seal-check"></i> Đã có Best Answer</span>' : '')
             + escH(i.title) + '…</div>').join('');
     } catch(e){ /* im lặng — không cản người dùng đăng */ }
@@ -2023,7 +2024,7 @@ window.submitReport = async function(){
 
 /* ════ LIGHTBOX ════ */
 window.openLightbox = function(url){
-  $('lightboxImg').src = url;
+  $('lightboxImg').src = alnUrl(url);
   $('lightbox').classList.add('open');
 };
 </script>

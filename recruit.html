@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
 <!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM (xem scripts/aln-optout.js) -->
+<script src="aln-esc.js"></script>
 <script src="scripts/aln-optout.js"></script>
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -492,7 +493,7 @@ function renderPosts(){
     var reqs  = (p.requirements || []).slice(0,4).map(function(r){
       return '<div class="req-item">'+escH(r)+'</div>';
     }).join('');
-    return '<div class="post-card type-'+p.type+'">'
+    return '<div class="post-card type-'+eH(p.type)+'">'
       +'<div class="post-header">'
         +'<div class="post-icon"><i class="ph-duotone '+icon+'"></i></div>'
         +'<div class="post-meta"><div class="post-type-label">'+label+'</div><div class="post-title">'+escH(p.title)+'</div></div>'
@@ -507,7 +508,7 @@ function renderPosts(){
   }).join('');
 }
 
-function escH(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escH(s){ return eH(s); } // aln-esc.js — escape đủ & < > " ' `
 
 /* ─── STATIC FALLBACK POSTS (shown if Firestore has no posts yet) ─── */
 var STATIC_POSTS = [

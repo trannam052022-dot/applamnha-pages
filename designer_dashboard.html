@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <script src="error-monitor.js"></script>
+  <script src="aln-esc.js"></script>
+<script src="error-monitor.js"></script>
 <script>
 window.DES_PROJECT_ID   = null;
 window.DES_PROJECT_DATA = null;
@@ -763,7 +764,7 @@ function renderDesUploadSlots() {
       + '<div class="us-icon">' + s.icon + '</div>'
       + '<div class="us-label">' + s.label + '</div>'
       + '<div class="us-sub">' + (s.req ? 'Bắt buộc' : 'Tùy chọn') + '</div>'
-      + (f ? '<div class="us-file-name">' + (f.file ? f.file.name : '') + '</div>' : '')
+      + (f ? '<div class="us-file-name">' + eH(f.file ? f.file.name : '') + '</div>' : '')
       + '<input type="file" accept="' + s.accept + '" onchange="desHandleC3File(this,\'' + s.id + '\')">'
       + '</div>';
   }).join('');
@@ -884,17 +885,17 @@ function renderProjCards(projs, containerId) {
     var prog = p.progress || {};
     var pct = Math.round((['C1','C2','C3','C4'].reduce(function(a,s){ return a + (prog[s]||0); },0))/4*100);
     var clientInfo = (p.cn && p.cn.name ? 'CN: ' + p.cn.name : '') + (p.dn && p.dn.name ? (p.cn ? ' · DN: ' : 'DN: ') + p.dn.name : '');
-    return '<div class="proj-card" onclick="window.desSelectProject && window.desSelectProject(\'' + p.id + '\')">'
+    return '<div class="proj-card" onclick="window.desSelectProject && window.desSelectProject(' + eJ(p.id) + ')">'
       + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'
-      + '<span class="proj-card-id">' + p.id + '</span>'
-      + '<span class="stat-badge ' + STAGE_CLS[p.stage||'C1'] + '">' + (STAGE_LABEL[p.stage]||p.stage) + '</span>'
+      + '<span class="proj-card-id">' + eH(p.id) + '</span>'
+      + '<span class="stat-badge ' + STAGE_CLS[p.stage||'C1'] + '">' + eH(STAGE_LABEL[p.stage]||p.stage) + '</span>'
       + '</div>'
-      + '<div class="proj-card-name">' + (p.name || '—') + '</div>'
+      + '<div class="proj-card-name">' + eH(p.name || '—') + '</div>'
       + '<div style="margin:8px 0 4px;background:var(--ink3);border-radius:99px;height:5px;overflow:hidden">'
       + '<div style="height:100%;background:var(--violet);border-radius:99px;width:' + pct + '%"></div>'
       + '</div>'
       + '<div class="proj-meta">'
-      + (clientInfo ? '<span><i class="ph-duotone ph-user"></i> ' + clientInfo + '</span>' : '')
+      + (clientInfo ? '<span><i class="ph-duotone ph-user"></i> ' + eH(clientInfo) + '</span>' : '')
       + '<span style="font-family:var(--mono)">' + fmtM(p.totalFee) + 'đ</span>'
       + '</div>'
       + '</div>';
@@ -913,7 +914,7 @@ window._desRvLoad = function(stage) {
   );
   onSnapshot(q, function(snap) {
     if (snap.empty) {
-      el.innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:40px">Chưa có phương án nào cho chặng ' + stage + '</div>';
+      el.innerHTML = '<div style="color:var(--muted);font-size:13px;text-align:center;padding:40px">Chưa có phương án nào cho chặng ' + eH(stage) + '</div>';
       return;
     }
     el.innerHTML = snap.docs.map(function(d) {
@@ -923,11 +924,11 @@ window._desRvLoad = function(stage) {
       var imgs = pa.images || [];
       return '<div class="pa-card ' + (cls==='approved'?'selected':'') + '">'
         + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">'
-        + '<span class="pa-card-name">' + (pa.name||'Phương án') + '</span>'
+        + '<span class="pa-card-name">' + eH(pa.name||'Phương án') + '</span>'
         + '<span class="pa-badge ' + cls + '">' + badgeLabel + '</span>'
         + '</div>'
-        + '<div class="pa-card-sub">' + (pa.desc||'') + '</div>'
-        + (imgs.length ? '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:8px">' + imgs.slice(0,4).map(function(u){ return '<img src="' + u + '" style="width:56px;height:56px;object-fit:cover;border-radius:6px;border:1px solid var(--border)">'; }).join('') + '</div>' : '')
+        + '<div class="pa-card-sub">' + eH(pa.desc||'') + '</div>'
+        + (imgs.length ? '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:8px">' + imgs.slice(0,4).map(function(u){ return '<img src="' + eU(u) + '" style="width:56px;height:56px;object-fit:cover;border-radius:6px;border:1px solid var(--border)">'; }).join('') + '</div>' : '')
         + '</div>';
     }).join('');
   });
@@ -987,7 +988,7 @@ window.desSubmitProposal = async function() {
     await updateDoc(doc(db, 'designProjects', pid), { updatedAt: serverTimestamp() });
     if (btn) { btn.disabled = false; btn.innerHTML = '<i class="ph-duotone ph-paper-plane-tilt"></i> Gửi phương án cho Khách hàng'; }
     document.getElementById('paScanResult').style.display = '';
-    document.getElementById('paScanResult').innerHTML = '<div style="padding:10px 14px;background:var(--green-bg);border:1px solid rgba(22,163,74,.2);border-radius:var(--r-sm);font-size:12px;color:var(--green);font-weight:600">✅ Đã gửi phương án ' + name + ' — Chặng ' + stage + ' cho Khách hàng!</div>';
+    document.getElementById('paScanResult').innerHTML = '<div style="padding:10px 14px;background:var(--green-bg);border:1px solid rgba(22,163,74,.2);border-radius:var(--r-sm);font-size:12px;color:var(--green);font-weight:600">✅ Đã gửi phương án ' + eH(name) + ' — Chặng ' + eH(stage) + ' cho Khách hàng!</div>';
     showToast('Đã gửi phương án!', 't-green');
     paImgFiles = [];
     var pi = document.getElementById('paImgInput'); if(pi) pi.value='';
@@ -1058,9 +1059,9 @@ window.desUploadAvatar = async function(input) {
     await uploadBytes(ref, f);
     var url = await getDownloadURL(ref);
     var av = document.getElementById('desAvInit');
-    if (av) { av.innerHTML = '<img src="' + url + '" style="width:80px;height:80px;border-radius:50%;object-fit:cover">'; }
+    if (av) { av.innerHTML = '<img src="' + eU(url) + '" style="width:80px;height:80px;border-radius:50%;object-fit:cover">'; }
     var sav = document.getElementById('desSidebarAv');
-    if (sav) sav.innerHTML = '<img src="' + url + '" style="width:34px;height:34px;border-radius:50%;object-fit:cover">';
+    if (sav) sav.innerHTML = '<img src="' + eU(url) + '" style="width:34px;height:34px;border-radius:50%;object-fit:cover">';
     await updateDoc(doc(db, 'users', u.uid), { avatarURL: url });
     showToast('Đã cập nhật ảnh đại diện', 't-green');
   } catch(e) { showToast('Lỗi upload: ' + (e.code||e.message), 't-red'); }
@@ -1188,9 +1189,9 @@ onAuthStateChanged(auth, async function(user) {
 
   /* load avatar */
   if (profile.avatarURL) {
-    var avImg = '<img src="' + profile.avatarURL + '" style="width:80px;height:80px;border-radius:50%;object-fit:cover">';
+    var avImg = '<img src="' + eU(profile.avatarURL) + '" style="width:80px;height:80px;border-radius:50%;object-fit:cover">';
     if(avEl) avEl.outerHTML = '<div id="desAvInit" class="profile-avatar-init">' + avImg + '</div>';
-    if(sav) sav.innerHTML = '<img src="' + profile.avatarURL + '" style="width:34px;height:34px;border-radius:50%;object-fit:cover">';
+    if(sav) sav.innerHTML = '<img src="' + eU(profile.avatarURL) + '" style="width:34px;height:34px;border-radius:50%;object-fit:cover">';
   }
 
   /* hide veil */

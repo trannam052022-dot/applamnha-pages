@@ -1047,7 +1047,7 @@ function renderPackages() {
   if (soSan) {
     const d = P.tinhDongHanh(soSan);
     dongHanhPrice = esc(fmtMoney(d.sauVat3Dot));
-    dongHanhSub = `<div class="pkg-sub">Chưa VAT: ${esc(fmtMoney(d.chuaVat3Dot))} (đơn giá tạm tính 400.000 đ/mốc × ${d.mocTinhTien} mốc tính tiền, mốc móng miễn phí)</div>`;
+    dongHanhSub = `<div class="pkg-sub">Chưa VAT: ${esc(fmtMoney(d.chuaVat3Dot))} (đơn giá tạm tính 400.000 đ/mốc × ${esc(d.mocTinhTien)} mốc tính tiền, mốc móng miễn phí)</div>`;
     // Giảm ~10% chỉ áp cho gói này (phần theo mốc) — không liên quan phí bóc
     // khối lượng của gói khác (Founder chốt 20/09/2026, tách 2 gói độc lập).
     dongHanhGhiChu = ` Trả 1 lần (chọn sau khi nghiệm thu móng): ${esc(fmtMoney(d.tra1LanSauVat))} — chưa VAT ${esc(fmtMoney(d.tra1LanChuaVat))}, giảm khoảng 10% so với chia 3 đợt, không hoàn lại.`;

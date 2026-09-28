@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
 <!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM (xem scripts/aln-optout.js) -->
+<script src="../aln-esc.js"></script>
 <script src="../scripts/aln-optout.js"></script>
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -943,7 +944,7 @@ function openUploadSheet(){
   uploads.portfolio=[]; uploads.projects=[]; uploads.license=[];
   let html='';
   const roleLabel={architect:'Kiến trúc sư',designer:'Designer NT',business:'Doanh nghiệp'}[role]||role;
-  html+='<div class="sheet-title">Hồ sơ '+roleLabel+'</div>';
+  html+='<div class="sheet-title">Hồ sơ '+eH(roleLabel)+'</div>';
   if(role==='business'){
     html+='<div class="sheet-sub">3 mục để ALN xác minh &amp; kích hoạt tài khoản</div>';
     html+=upzone('license','Giấy phép kinh doanh ✦','Ảnh chụp hoặc PDF · tối đa 10MB','image/*,.pdf',false);
@@ -986,7 +987,7 @@ function renderPrev(key){
   const el=document.getElementById('prev_'+key); if(!el)return; el.innerHTML='';
   uploads[key].forEach(function(file,i){
     const d=document.createElement('div'); d.className='prev-item';
-    d.innerHTML='<i class="ph-duotone '+ficon(file.name)+'"></i><span class="nm">'+file.name+'</span><span class="rm" onclick="removeFile(\''+key+'\','+i+')"><i class="ph-duotone ph-x-circle"></i></span>';
+    d.innerHTML='<i class="ph-duotone '+ficon(file.name)+'"></i><span class="nm">'+eH(file.name)+'</span><span class="rm" onclick="removeFile('+eJ(key)+','+i+')"><i class="ph-duotone ph-x-circle"></i></span>';
     el.appendChild(d);
   });
 }

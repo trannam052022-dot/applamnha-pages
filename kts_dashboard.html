@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <script src="error-monitor.js"></script>
+  <script src="aln-esc.js"></script>
+<script src="error-monitor.js"></script>
 <script>
 window.KTS_PROJECT_ID = null; // sẽ được điền từ Firestore
 window.KTS_PROJECT_DATA = null;
@@ -2465,9 +2466,9 @@ function _addNotif(icon, body, projId) {
   if (dot) dot.style.display = 'block';
   var list = document.getElementById('notifList');
   if (list) list.innerHTML = _KTS_NOTIFS.map(function(n) {
-    return '<div class="notif-item' + (n.unread ? ' ni-amber' : '') + '" onclick="selectProj(\'' + (n.projId||'') + '\');document.getElementById(\'notifPanel\').style.display=\'none\'">'
+    return '<div class="notif-item' + (n.unread ? ' ni-amber' : '') + '" onclick="selectProj(' + eJ(n.projId||'') + ');document.getElementById(\'notifPanel\').style.display=\'none\'">'
       + '<div class="ni-icon">' + n.icon + '</div>'
-      + '<div><div class="ni-text">' + n.body + '</div><div class="ni-time">' + n.ts + '</div></div></div>';
+      + '<div><div class="ni-text">' + n.body + '</div><div class="ni-time">' + eH(n.ts) + '</div></div></div>';
   }).join('');
 }
 function toggleNotif() {
@@ -2593,7 +2594,7 @@ ALNRealtime.init({
     // DN gửi tài liệu cho KTS
     if(d.type==='DN_FILE_UPLOADED' && Array.isArray(d.audience) && d.audience.includes('kts')) {
       const _dnMsg = `📁 ${d.senderName||'Doanh nghiệp'} gửi ${d.count||1} tài liệu — dự án ${d.projectId||''} · Xem: Bảng Review → Tài liệu`;
-      if(!_isReplay){ showToast(_dnMsg, 't-blue'); _addNotif('<i class="ph-duotone ph-folder"></i>', `<b>${d.senderName||'DN'}</b> gửi ${d.count||1} tài liệu`, d.projectId); }
+      if(!_isReplay){ showToast(_dnMsg, 't-blue'); _addNotif('<i class="ph-duotone ph-folder"></i>', `<b>${eH(d.senderName||'DN')}</b> gửi ${eH(d.count||1)} tài liệu`, d.projectId); }
       _alnReceive({ text: _dnMsg, senderName: d.senderName||'Doanh nghiệp', _role:'dn', ts: Date.now(), _replay: d._replay });
       if(!d._replay && typeof window._alnWatchDocs === 'function') {
         window._alnWatchDocs(d.projectId);
@@ -2605,7 +2606,7 @@ ALNRealtime.init({
     // CN gửi tài liệu cho KTS
     if(d.type==='CN_FILE_UPLOADED' && Array.isArray(d.audience) && d.audience.includes('kts')) {
       const _cnMsg = `📁 ${d.senderName||'Chủ nhà'} gửi ${d.count||1} tài liệu — dự án ${d.projectId||''} · Xem: Bảng Review → Tài liệu`;
-      if(!_isReplay){ showToast(_cnMsg, 't-blue'); _addNotif('<i class="ph-duotone ph-folder"></i>', `<b>${d.senderName||'Chủ nhà'}</b> gửi ${d.count||1} tài liệu`, d.projectId); }
+      if(!_isReplay){ showToast(_cnMsg, 't-blue'); _addNotif('<i class="ph-duotone ph-folder"></i>', `<b>${eH(d.senderName||'Chủ nhà')}</b> gửi ${eH(d.count||1)} tài liệu`, d.projectId); }
       _alnReceive({ text: _cnMsg, senderName: d.senderName||'Chủ nhà', _role:'cn', ts: Date.now(), _replay: d._replay });
       if(!d._replay && typeof window._alnWatchDocs === 'function') {
         window._alnWatchDocs(d.projectId);
@@ -2617,12 +2618,12 @@ ALNRealtime.init({
     // Rating nhận được
     if(d.type==='KTS_RATED' && !_isReplay) {
       showToast(`⭐ Bạn nhận được đánh giá ${d.score}/5 sao cho Chặng ${d.stage} — ${d.projName}`, 't-green');
-      _addNotif('⭐', `<b>${d.projName}</b>: Chặng ${d.stage} được đánh giá ${d.score}/5 sao`, d.projectId);
+      _addNotif('⭐', `<b>${eH(d.projName)}</b>: Chặng ${eH(d.stage)} được đánh giá ${eH(d.score)}/5 sao`, d.projectId);
     }
     // Stage approved
     if(d.type==='STAGE_APPROVED' && !_isReplay) {
       showToast(`✅ Chặng ${d.stage} đã được phê duyệt — thanh toán đang xử lý`, 't-green');
-      _addNotif('<i class="ph-duotone ph-check-circle"></i>', `<b>Thanh toán Chặng ${d.stage}</b> được duyệt — đang xử lý`, d.projectId);
+      _addNotif('<i class="ph-duotone ph-check-circle"></i>', `<b>Thanh toán Chặng ${eH(d.stage)}</b> được duyệt — đang xử lý`, d.projectId);
       try {
         var _sMsg = '✅ Chủ nhà DUYỆT Chặng ' + (d.stage||'') + ' — dự án ' + (d.projName||d.projectId||'') + '. Thanh toán đang xử lý.';
         alnThreads.cn.push({ mine:false, text:_sMsg, senderName:'Hệ thống ALN', ts:new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}) });
@@ -2652,9 +2653,9 @@ function _ktsRenderMsg(d, isMine) {
   const el = document.createElement('div');
   el.style.cssText = `display:flex;flex-direction:column;align-items:${isMine?'flex-end':'flex-start'};gap:2px`;
   el.innerHTML = `
-    ${!isMine?`<div style="font-size:9px;color:var(--muted);padding:0 4px">${d.senderName||d._role}</div>`:''}
+    ${!isMine?`<div style="font-size:9px;color:var(--muted);padding:0 4px">${eH(d.senderName||d._role)}</div>`:''}
     <div style="background:${isMine?'var(--accent-bg)':'var(--ink2)'};border:1px solid ${isMine?'rgba(152,105,10,.2)':'var(--border)'};padding:8px 12px;border-radius:${isMine?'10px 2px 10px 10px':'2px 10px 10px 10px'};max-width:80%;font-size:12px;color:var(--text);word-break:break-word">
-      ${d.text}
+      ${eH(d.text)}
       <span style="display:block;font-size:9px;color:var(--muted);margin-top:3px;text-align:${isMine?'right':'left'}">${time}</span>
     </div>`;
   thread.appendChild(el);
@@ -2824,9 +2825,9 @@ function _alnRender(){
   const body = document.getElementById('alnBody'); if(!body) return;
   body.innerHTML = alnThreads[_alnThread].map(m=>`
     <div style="display:flex;flex-direction:column;align-items:${m.mine?'flex-end':'flex-start'};gap:2px">
-      ${!m.mine?`<div style="font-size:9px;color:rgba(240,235,224,.4);padding:0 4px">${m.senderName||''}</div>`:''}
-      <div style="background:${m.mine?'rgba(152,105,10,.15)':'#111114'};color:#F0EBE0;border:1px solid ${m.mine?'rgba(152,105,10,.3)':'rgba(255,255,255,.08)'};padding:8px 12px;border-radius:${m.mine?'10px 2px 10px 10px':'2px 10px 10px 10px'};max-width:80%;font-size:12px;word-break:break-word">${m.text}
-        <span style="display:block;font-size:9px;opacity:.6;margin-top:3px;text-align:${m.mine?'right':'left'}">${m.ts}</span>
+      ${!m.mine?`<div style="font-size:9px;color:rgba(240,235,224,.4);padding:0 4px">${eH(m.senderName||'')}</div>`:''}
+      <div style="background:${m.mine?'rgba(152,105,10,.15)':'#111114'};color:#F0EBE0;border:1px solid ${m.mine?'rgba(152,105,10,.3)':'rgba(255,255,255,.08)'};padding:8px 12px;border-radius:${m.mine?'10px 2px 10px 10px':'2px 10px 10px 10px'};max-width:80%;font-size:12px;word-break:break-word">${eH(m.text)}
+        <span style="display:block;font-size:9px;opacity:.6;margin-top:3px;text-align:${m.mine?'right':'left'}">${eH(m.ts)}</span>
       </div>
     </div>`).join('');
   body.scrollTop = body.scrollHeight;
@@ -3010,7 +3011,7 @@ var KTV_TASK_ST = {
   revise:      { color:'var(--red)',     bg:'rgba(220,38,38,.07)',   text:'Đã yêu cầu sửa' },
   done:        { color:'var(--green)',   bg:'rgba(21,128,61,.08)',   text:'Hoàn thành ✓' }
 };
-function _ktvEsc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function _ktvEsc(s){ return eH(s); } // aln-esc.js — escape đủ & < > " ' `
 function ktvModeChanged(){
   var mode = (document.getElementById('ktvTaskMode')||{}).value;
   var wrap = document.getElementById('ktvAssigneeWrap');
@@ -3046,7 +3047,7 @@ function renderKtsKtvTasks(){
   el.innerHTML = list.map(function(t){
     var st = KTV_TASK_ST[t.status] || { color:'var(--muted)', bg:'var(--ink3)', text: t.status||'' };
     var files = (t.files||[]).map(function(f){
-      return '<a href="' + _ktvEsc(f.url) + '" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;background:var(--ink3);border:1px solid var(--border);border-radius:6px;padding:3px 8px;margin:2px 4px 2px 0"><i class="ph-duotone ph-file"></i>' + _ktvEsc(f.name) + '</a>';
+      return '<a href="' + eU(_ktvEsc(f.url)) + '" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;background:var(--ink3);border:1px solid var(--border);border-radius:6px;padding:3px 8px;margin:2px 4px 2px 0"><i class="ph-duotone ph-file"></i>' + _ktvEsc(f.name) + '</a>';
     }).join('');
     var deadline = '';
     if (t.deadline) {
@@ -3056,20 +3057,20 @@ function renderKtsKtvTasks(){
     var actions = '';
     if (t.status === 'submitted') {
       actions = '<div style="display:flex;gap:8px;margin-top:8px">'
-        + '<button onclick="ktvApproveTask(\'' + t.id + '\')" style="padding:6px 14px;background:rgba(21,128,61,.1);border:1.5px solid rgba(21,128,61,.35);border-radius:7px;color:var(--green);font-size:11px;font-weight:700;cursor:pointer"><i class="ph-duotone ph-check"></i> Duyệt — đạt yêu cầu</button>'
-        + '<button onclick="ktvReviseTask(\'' + t.id + '\')" style="padding:6px 14px;background:rgba(220,38,38,.06);border:1.5px solid rgba(220,38,38,.25);border-radius:7px;color:var(--red);font-size:11px;font-weight:700;cursor:pointer"><i class="ph-duotone ph-arrow-counter-clockwise"></i> Yêu cầu sửa</button>'
+        + '<button onclick="ktvApproveTask(' + eJ(t.id) + ')" style="padding:6px 14px;background:rgba(21,128,61,.1);border:1.5px solid rgba(21,128,61,.35);border-radius:7px;color:var(--green);font-size:11px;font-weight:700;cursor:pointer"><i class="ph-duotone ph-check"></i> Duyệt — đạt yêu cầu</button>'
+        + '<button onclick="ktvReviseTask(' + eJ(t.id) + ')" style="padding:6px 14px;background:rgba(220,38,38,.06);border:1.5px solid rgba(220,38,38,.25);border-radius:7px;color:var(--red);font-size:11px;font-weight:700;cursor:pointer"><i class="ph-duotone ph-arrow-counter-clockwise"></i> Yêu cầu sửa</button>'
         + '</div>';
     } else if (t.status === 'open' || t.status === 'assigned') {
-      actions = '<div style="margin-top:8px"><button onclick="ktvCancelTask(\'' + t.id + '\')" style="padding:5px 12px;background:none;border:1px solid var(--border);border-radius:7px;color:var(--muted);font-size:10px;cursor:pointer">Huỷ việc</button></div>';
+      actions = '<div style="margin-top:8px"><button onclick="ktvCancelTask(' + eJ(t.id) + ')" style="padding:5px 12px;background:none;border:1px solid var(--border);border-radius:7px;color:var(--muted);font-size:10px;cursor:pointer">Huỷ việc</button></div>';
     }
-    return '<div style="border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:' + st.bg + '">'
+    return '<div style="border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:' + eH(st.bg) + '">'
       + '<div style="display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap">'
         + '<div style="flex:1;min-width:180px">'
           + '<div style="font-size:12.5px;font-weight:700;color:var(--text)">' + _ktvEsc(t.title||'Việc triển khai') + '</div>'
           + '<div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:2px">' + _ktvEsc(t.projectId||'') + (t.stage?' · '+_ktvEsc(t.stage):'') + ' · ' + (t.ktvName ? 'KTV: <b>' + _ktvEsc(t.ktvName) + '</b>' : (t.mode==='open'?'Việc mở':'—')) + '</div>'
         + '</div>'
         + deadline
-        + '<span style="font-size:10px;font-weight:700;color:' + st.color + ';white-space:nowrap">' + st.text + '</span>'
+        + '<span style="font-size:10px;font-weight:700;color:' + eH(st.color) + ';white-space:nowrap">' + eH(st.text) + '</span>'
       + '</div>'
       + (t.desc ? '<div style="font-size:11px;color:var(--sub);margin-top:6px;white-space:pre-wrap">' + _ktvEsc(t.desc) + '</div>' : '')
       + (files ? '<div style="margin-top:8px">' + files + '</div>' : '')
@@ -3131,7 +3132,7 @@ function _startKtsProjectListen(uid) {
 
     // Cập nhật header chat (ALN chat panel)
     const chatH = document.querySelector('.aln-chat-header h3');
-    if (chatH) chatH.innerHTML = `<i class="ph-duotone ph-chats-circle" style="color:var(--blue)"></i> Chat — Dự án ${_displayId}`;
+    if (chatH) chatH.innerHTML = `<i class="ph-duotone ph-chats-circle" style="color:var(--blue)"></i> Chat — Dự án ${eH(_displayId)}`;
 
     // Cập nhật thông tin dự án trên dashboard nếu có element
     const projEl = document.getElementById('ktsDashProjName');
@@ -3158,7 +3159,7 @@ function _startKtsProjectListen(uid) {
       _rvPicker.innerHTML = allProjs.map(p => {
         const _isDNopt = !!(p.dn && p.dn.uid);
         const _shortId = _isDNopt ? 'DN · '+(p.CODE||p.code||p.id.replace(/^ALN-/,'')) : 'CN · '+(p.CHUNHA||p.id.replace(/^ALN-/,''));
-        return `<option value="${p.id}"${p.id === window.KTS_PROJECT_ID ? ' selected' : ''}>${_shortId} — ${p.name || ''}</option>`;
+        return `<option value="${eH(p.id)}"${p.id === window.KTS_PROJECT_ID ? ' selected' : ''}>${eH(_shortId)} — ${eH(p.name || '')}</option>`;
       }).join('');
     }
     // Khởi động bảng review (tài liệu + phương án)
@@ -3210,7 +3211,7 @@ window.switchKtsProject = function(pid) {
   _setTxt('c3ProjId', '#' + _displayId);
   _setTxt('chatModalProjId', _displayId);
   const chatH = document.querySelector('.aln-chat-header h3');
-  if (chatH) chatH.innerHTML = '<i class="ph-duotone ph-chats-circle" style="color:var(--blue)"></i> Chat — Dự án ' + _displayId;
+  if (chatH) chatH.innerHTML = '<i class="ph-duotone ph-chats-circle" style="color:var(--blue)"></i> Chat — Dự án ' + eH(_displayId);
   if (typeof window._alnWatchDocs === 'function') window._alnWatchDocs(pid);
   if (typeof window.rvLoadStage === 'function') window.rvLoadStage('C2');
   const _rvP = document.getElementById('rvProjPicker');
@@ -3259,10 +3260,10 @@ function renderDashProjList(projs) {
     var color = SC[p.status] || 'var(--muted)';
     var isLast = i === Math.min(projs.length, 5) - 1;
     var stage = p.stage || 'C1';
-    return '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;' + (isLast ? '' : 'border-bottom:1px solid var(--border);') + 'cursor:pointer" onclick="window.switchKtsProject && window.switchKtsProject(\'' + p.id + '\')">'
+    return '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;' + (isLast ? '' : 'border-bottom:1px solid var(--border);') + 'cursor:pointer" onclick="window.switchKtsProject && window.switchKtsProject(' + eJ(p.id) + ')">'
       + '<div style="width:6px;height:6px;border-radius:50%;background:' + color + ';flex-shrink:0;margin-top:1px"></div>'
-      + '<div style="flex:1;min-width:0;font-size:13px;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + (p.name || p.id) + '</div>'
-      + '<span style="font-size:11px;font-weight:600;color:var(--text2);flex-shrink:0">' + stage + '</span>'
+      + '<div style="flex:1;min-width:0;font-size:13px;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + eH(p.name || p.id) + '</div>'
+      + '<span style="font-size:11px;font-weight:600;color:var(--text2);flex-shrink:0">' + eH(stage) + '</span>'
     + '</div>';
   }).join('');
   if (projs.length > 5) {
@@ -3313,17 +3314,17 @@ function renderProjCards(projs) {
     var earnPct = (prog[0]||0)*0.10 + (prog[1]||0)*0.20 + (prog[2]||0)*0.60 + (prog[3]||0)*0.10;
     var earnPctDisp = Math.round(earnPct * 100);
     var delay = (i * 80) + 'ms';
-    return '<div class="proj-card proj-card-anim" style="animation-delay:' + delay + '" onclick="window.switchKtsProject && window.switchKtsProject(\'' + p.id + '\')">'
+    return '<div class="proj-card proj-card-anim" style="animation-delay:' + delay + '" onclick="window.switchKtsProject && window.switchKtsProject(' + eJ(p.id) + ')">'
       + '<div class="proj-thumb">'
         + '<div class="proj-thumb-inner" style="background:' + GRAD[i % GRAD.length] + '">'
-          + '<div class="proj-card-title">' + (p.name || did) + '</div>'
+          + '<div class="proj-card-title">' + eH(p.name || did) + '</div>'
         + '</div>'
       + '</div>'
       + '<div class="proj-card-body">'
-        + '<div class="proj-card-meta">' + did + ' · Chặng ' + (p.stage||'C1') + '</div>'
+        + '<div class="proj-card-meta">' + eH(did) + ' · Chặng ' + eH(p.stage||'C1') + '</div>'
         + '<div class="proj-card-foot">'
           + '<span class="proj-stage-pill">' + earnPctDisp + '% hoàn thành</span>'
-          + '<span style="font-size:11px;font-weight:600;color:' + color + '">' + label + '</span>'
+          + '<span style="font-size:11px;font-weight:600;color:' + color + '">' + eH(label) + '</span>'
         + '</div>'
       + '</div>'
     + '</div>';
@@ -3337,9 +3338,7 @@ function renderProjCards(projs) {
    từ chặng C2 trở đi — ưu tiên tier cao + cùng tỉnh dự án (meetingProvince),
    dự phòng NCC toàn quốc nếu tỉnh đó chưa đủ. Tên NCC do người dùng tự
    nhập (auto-publish, không qua Founder duyệt trước) nên PHẢI escape. */
-function _nccEscH(s){
-  return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+function _nccEscH(s){ return eH(s); } // aln-esc.js — escape đủ & < > " ' `
 var NCC_CAT_LABEL_KTS = {sat_thep_vlxd:'Sắt thép, Gạch, VLXD', go_noithat:'Gỗ, nội thất', son_hoanthien:'Sơn, hoàn thiện', dien_nuoc:'Điện, nước', dv_thicong:'Thợ - Đội thi công', thietbi_vanchuyen:'Thiết bị & vận chuyển', thang_may:'Thang máy', khac:'Khác'};
 var NCC_TIER_RANK_KTS = {diamond:3, featured:2, basic:1};
 function nccPickSuggestionsKts(provinceCode, count){
@@ -3414,12 +3413,12 @@ function renderMyProjects(projects) {
     const client = showCN ? (p.cn&&p.cn.name)||'—' : (p.dn&&p.dn.name)||'—';
     const _isDNp = !!(p.dn && p.dn.uid);
     const mCode = (/^ALN-(CN|DN)-/.test(p.code||p.id) ? (p.code||p.id) : (_isDNp ? 'ALN-DN-' : 'ALN-CN-') + (p.code||p.id).replace(/^ALN-/,''));
-    return `<div class="mpl-item${isOn?' on':''}" data-pid="${p.id}" onclick="window.mplSelect('${p.id}')">
+    return `<div class="mpl-item${isOn?' on':''}" data-pid="${eH(p.id)}" onclick="window.mplSelect(${eJ(p.id)})">
       <div class="mpl-dot" style="background:${S_DOT[p.status]||'var(--muted)'}"></div>
       <div style="flex:1;min-width:0">
-        <div class="mpl-nm">${p.name||'—'}</div>
-        <div class="mpl-sub">${mCode} · ${p.stage||'C1'}</div>
-        <div style="font-size:10px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${client}</div>
+        <div class="mpl-nm">${eH(p.name||'—')}</div>
+        <div class="mpl-sub">${eH(mCode)} · ${eH(p.stage||'C1')}</div>
+        <div style="font-size:10px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${eH(client)}</div>
       </div>
     </div>`;
   }
@@ -3470,12 +3469,12 @@ function renderMyProjects(projects) {
     el.innerHTML = `
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:14px">
         <div>
-          <div style="font-family:var(--mono);font-size:10px;color:var(--gold);background:var(--gold-bg);padding:2px 8px;border-radius:99px;display:inline-block;margin-bottom:5px">${detCode}</div>
-          <div style="font-size:15px;font-weight:700;color:var(--text);line-height:1.3">${p.name||'—'}</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:3px">${isDN?'<i class="ph-duotone ph-buildings"></i>':'<i class="ph-duotone ph-user"></i>'} ${isDN?(p.dn&&p.dn.name)||'—':(p.cn&&p.cn.name)||'—'}</div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--gold);background:var(--gold-bg);padding:2px 8px;border-radius:99px;display:inline-block;margin-bottom:5px">${eH(detCode)}</div>
+          <div style="font-size:15px;font-weight:700;color:var(--text);line-height:1.3">${eH(p.name||'—')}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:3px">${isDN?'<i class="ph-duotone ph-buildings"></i>':'<i class="ph-duotone ph-user"></i>'} ${eH(isDN?(p.dn&&p.dn.name)||'—':(p.cn&&p.cn.name)||'—')}</div>
         </div>
         <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-          <div style="padding:4px 10px;border-radius:99px;font-size:10px;font-weight:700;${stClr}">${stLbl}</div>
+          <div style="padding:4px 10px;border-radius:99px;font-size:10px;font-weight:700;${stClr}">${eH(stLbl)}</div>
           <button onclick="window.mplCloseDetail()" title="Đóng" style="background:var(--ink3);border:1px solid var(--border);border-radius:6px;width:26px;height:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:14px;padding:0;flex-shrink:0"><i class="ph-duotone ph-x"></i></button>
         </div>
       </div>
@@ -3483,25 +3482,25 @@ function renderMyProjects(projects) {
       <div style="font-size:10px;margin-bottom:16px">${stages}</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px">
         <div class="proj-detail-item"><div class="proj-detail-label">Phí thiết kế</div><div class="proj-detail-val">${fmtM2(p.totalFee||0)}đ</div></div>
-        <div class="proj-detail-item"><div class="proj-detail-label">Chặng</div><div class="proj-detail-val">${p.stage||'C1'}</div></div>
+        <div class="proj-detail-item"><div class="proj-detail-label">Chặng</div><div class="proj-detail-val">${eH(p.stage||'C1')}</div></div>
         <div class="proj-detail-item"><div class="proj-detail-label">Loại</div><div class="proj-detail-val" style="font-size:11px;color:${isDN?'var(--gold)':'var(--green)'}">${isDN?'Doanh nghiệp':'Chủ nhà'}</div></div>
       </div>
       ${nccSuggestBlockHtmlKts(p)}
       <div style="font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Làm việc trên dự án này</div>
       <div class="kts-work-grid">
-        <div class="kts-work-card" onclick="window.switchKtsProject&&window.switchKtsProject('${pid}');window.ktsShowTab('proposal')">
+        <div class="kts-work-card" onclick="window.switchKtsProject&&window.switchKtsProject(${eJ(pid)});window.ktsShowTab('proposal')">
           <div class="kwc-icon" style="background:var(--gold-bg);color:var(--gold)"><i class="ph-duotone ph-paper-plane-tilt"></i></div>
           <div class="kwc-label">Gửi phương án</div>
         </div>
-        <div class="kts-work-card" onclick="window.switchKtsProject&&window.switchKtsProject('${pid}');window.openBoardEditor()">
+        <div class="kts-work-card" onclick="window.switchKtsProject&&window.switchKtsProject(${eJ(pid)});window.openBoardEditor()">
           <div class="kwc-icon" style="background:rgba(201,168,76,.08);color:var(--gold)"><i class="ph-duotone ph-layout"></i></div>
           <div class="kwc-label">Tạo Board PA</div>
         </div>
-        <div class="kts-work-card" onclick="window.switchKtsProject&&window.switchKtsProject('${pid}');window.ktsShowTab('review')">
+        <div class="kts-work-card" onclick="window.switchKtsProject&&window.switchKtsProject(${eJ(pid)});window.ktsShowTab('review')">
           <div class="kwc-icon" style="background:var(--blue-bg);color:var(--blue)"><i class="ph-duotone ph-clipboard-text"></i></div>
           <div class="kwc-label">Bảng Review</div>
         </div>
-        <div class="kts-work-card" onclick="window.switchKtsProject&&window.switchKtsProject('${pid}');window.ktsShowTab('c3')">
+        <div class="kts-work-card" onclick="window.switchKtsProject&&window.switchKtsProject(${eJ(pid)});window.ktsShowTab('c3')">
           <div class="kwc-icon" style="background:var(--green-bg);color:var(--green)"><i class="ph-duotone ph-folder-open"></i></div>
           <div class="kwc-label">Nộp hồ sơ</div>
         </div>
@@ -3620,7 +3619,7 @@ window.uploadPaymentQr = async function uploadPaymentQr(input) {
 function _showQr(url) {
   const wrap = document.getElementById('qrPreviewWrap');
   if (!wrap || !url) return;
-  wrap.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover">`;
+  wrap.innerHTML = `<img src="${eU(url)}" style="width:100%;height:100%;object-fit:cover">`;
 }
 
 window.uploadSignature = async function(input) {
@@ -3651,7 +3650,7 @@ function _showSignature(url) {
     if (empty) empty.style.display = 'none';
     let img = wrap.querySelector('img');
     if (!img) { img = document.createElement('img'); wrap.appendChild(img); }
-    img.src = url;
+    img.src = alnUrl(url);
     img.style.cssText = 'max-width:100%;max-height:68px;object-fit:contain;padding:4px';
   }
 }
@@ -3660,12 +3659,12 @@ function _showAvatar(url) {
   const wrap = document.getElementById('profileAvatarWrap');
   if (!wrap) return;
   wrap.innerHTML = url
-    ? `<img class="profile-avatar-img" src="${url}" alt="avatar">`
-    : `<div class="profile-avatar-init" id="profileAvatarInit">${_getInitials()}</div>`;
+    ? `<img class="profile-avatar-img" src="${eU(url)}" alt="avatar">`
+    : `<div class="profile-avatar-init" id="profileAvatarInit">${eH(_getInitials())}</div>`;
   // Cũng cập nhật avatar sidebar
   const heroAv = document.getElementById('ktsHeroAv');
   if (heroAv && url) {
-    heroAv.innerHTML = `<img src="${url}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;
+    heroAv.innerHTML = `<img src="${eU(url)}" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`;
   }
 }
 
@@ -3863,7 +3862,7 @@ async function _updateWallet(allProjs) {
         var isLock = tx.type === 'lock';
         return '<div class="tx-row">'
           + '<div class="tx-icon" style="background:var(' + (isLock ? '--amber-bg);color:var(--amber' : '--green-bg);color:var(--green') + ')"><i class="ph-duotone ph-' + (isLock ? 'lock' : 'money') + '"></i></div>'
-          + '<div class="tx-info"><div class="tx-title">' + tx.label + '</div><div class="tx-meta">' + tx.sub + '</div></div>'
+          + '<div class="tx-info"><div class="tx-title">' + eH(tx.label) + '</div><div class="tx-meta">' + eH(tx.sub) + '</div></div>'
           + '<div class="tx-amount ' + (isLock ? 'tx-lock' : 'tx-pos') + '">+' + fmtVN(tx.amount) + '</div>'
           + '</div>';
       }).join('');
@@ -4122,7 +4121,7 @@ function _ktvInit(uid, profile) {
     const projs = window._KTS_ALL_PROJECTS || [];
     const cur = sel.value;
     sel.innerHTML = '<option value="">— Chọn dự án —</option>' + projs.map(p =>
-      '<option value="' + p.id + '|' + String(p.name||'').replace(/"/g,'') + '|' + (p.stage||'') + '">' + p.id + ' — ' + (p.name||'') + '</option>'
+      '<option value="' + eH(p.id) + '|' + eH(String(p.name||'').replace(/"/g,'')) + '|' + eH(p.stage||'') + '">' + eH(p.id) + ' — ' + eH(p.name||'') + '</option>'
     ).join('');
     if (cur) sel.value = cur;
   };
@@ -4137,7 +4136,7 @@ function _ktvInit(uid, profile) {
       if (snap.empty) { sel.innerHTML = '<option value="">Chưa có KTV nào được duyệt</option>'; return; }
       sel.innerHTML = '<option value="">— Chọn KTV —</option>' + snap.docs.map(d => {
         const u = d.data();
-        return '<option value="' + d.id + '|' + String(u.name||'').replace(/"/g,'') + '">' + (u.name||d.id) + (u.province ? ' · ' + u.province : '') + '</option>';
+        return '<option value="' + eH(d.id) + '|' + eH(String(u.name||'').replace(/"/g,'')) + '">' + eH(u.name||d.id) + eH(u.province ? ' · ' + u.province : '') + '</option>';
       }).join('');
     } catch(e) { console.error('[KTV list]', e); }
   })();
@@ -4150,7 +4149,7 @@ function _ktvInit(uid, profile) {
   }, (err) => {
     console.error('[KTV tasks]', err.code, err.message);
     const el = document.getElementById('ktvTaskList');
-    if (el) el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--red);font-size:12px">Không tải được (' + (err.code||'') + ')</div>';
+    if (el) el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--red);font-size:12px">Không tải được (' + eH(err.code||'') + ')</div>';
   });
 }
 
@@ -4226,7 +4225,7 @@ window.alnLogout = async function(){
 <script type="module">
 import { auth, db, onAuthStateChanged, doc, getDoc, setDoc, updateDoc, collection, addDoc, getDocs, query, where, serverTimestamp } from "./firebase-config.js";
 
-function ktscEsc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function ktscEsc(s){ return eH(s); } // aln-esc.js — escape đủ & < > " ' `
 const KTSC_LANDING_BASE = location.origin + location.pathname.replace(/kts_dashboard\.html$/, 'kts/');
 const KTSC_FORMAT_LABEL = { '1':'Ý tưởng 2D', '2':'Timelapse 3D', '3':'Bóc hồ sơ thi công', '4':'Nhận tiền đúng hạn' };
 const KTSC_STATUS_LABEL = { cho_duyet:'Chờ duyệt', dat_chuan:'Đạt chuẩn', tu_choi:'Từ chối' };
@@ -4312,7 +4311,7 @@ async function ktscLoadClips(){
       return '<div style="padding:10px 0;border-bottom:1px solid var(--border)">'
         + '<div style="font-size:12px;font-weight:600;color:var(--text)">' + ktscEsc(c.title) + '</div>'
         + '<div style="font-size:11px;color:var(--muted);margin-top:3px">Format ' + ktscEsc(c.format) + ' — ' + ktscEsc(KTSC_FORMAT_LABEL[c.format] || '')
-          + ' · <span style="padding:1px 8px;border-radius:99px;background:' + pillBg + ';color:' + pillColor + ';font-weight:700">' + (KTSC_STATUS_LABEL[c.status] || c.status) + '</span></div>'
+          + ' · <span style="padding:1px 8px;border-radius:99px;background:' + pillBg + ';color:' + pillColor + ';font-weight:700">' + eH(KTSC_STATUS_LABEL[c.status] || c.status) + '</span></div>'
         + (c.status === 'tu_choi' && c.rejectReason ? '<div style="font-size:11px;color:var(--red);margin-top:3px">Lý do: ' + ktscEsc(c.rejectReason) + '</div>' : '')
         + '</div>';
     }).join('');
@@ -4417,7 +4416,7 @@ function paRenderStrip(){
     return '<div class="pa-thumb">'
       + '<img src="'+url+'" alt="">'
       + '<button type="button" class="pa-x" data-i="'+i+'" title="Bỏ ảnh này">✕</button>'
-      + '<div class="pa-nm">'+f.name+'</div>'
+      + '<div class="pa-nm">'+eH(f.name)+'</div>'
       + '</div>';
   }).join('');
   /* nút ✕ — chặn nổi bọt để không mở lại hộp chọn file */
@@ -4490,11 +4489,11 @@ window.alnSubmitProposal = async function(){
   const _isDNpa = !!(_kpd.dn && _kpd.dn.uid);
   const _dpid = _kpd.code || PID;
   paStatus(`<div style="background:var(--ink3);border:1px solid rgba(152,105,10,.3);border-radius:8px;padding:10px 12px">
-    <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px">📋 Sắp gửi <b>${total} ảnh</b> · Chặng <b>${stage}</b> · <b>${name}</b></div>
-    <div style="font-size:10px;color:var(--sub);margin-bottom:10px">Dự án ${_dpid} — Chủ nhà &amp; DN nhận ngay sau khi gửi.</div>
+    <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px">📋 Sắp gửi <b>${total} ảnh</b> · Chặng <b>${eH(stage)}</b> · <b>${eH(name)}</b></div>
+    <div style="font-size:10px;color:var(--sub);margin-bottom:10px">Dự án ${eH(_dpid)} — Chủ nhà &amp; DN nhận ngay sau khi gửi.</div>
     <div style="display:flex;gap:8px">
       <button onclick="window._paDoUpload()" style="padding:5px 14px;background:rgba(34,201,122,.12);border:1px solid rgba(34,201,122,.3);color:var(--green);border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans)"><i class="ph-duotone ph-check-circle"></i> Xác nhận gửi</button>
-      <button onclick="paStatus('','var(--muted)')" style="padding:5px 12px;background:var(--ink4);border:1px solid var(--border);color:var(--sub);border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--sans)">Hủy</button>
+      <button onclick="document.getElementById('paStatus').innerHTML=''" style="padding:5px 12px;background:var(--ink4);border:1px solid var(--border);color:var(--sub);border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--sans)">Hủy</button>
     </div></div>`,'');
   // Capture upload closure
   window._paDoUpload = async function(){
@@ -4555,7 +4554,7 @@ window.alnSubmitProposal = async function(){
     }
   }catch(err){
     console.error('[ALN proposal]', err);
-    paStatus('❌ Lỗi gửi: '+((err&&err.message)||err)+'. Kiểm tra mạng & Storage rules.', 'var(--red)');
+    paStatus('❌ Lỗi gửi: '+eH((err&&err.message)||err)+'. Kiểm tra mạng & Storage rules.', 'var(--red)');
     if(typeof showToast==='function') showToast('Lỗi gửi phương án — xem mục trạng thái','t-red');
   }finally{
     if(btn) btn.disabled=false;
@@ -4594,7 +4593,7 @@ window.c2HandleFiles = function(fileList) {
   if (!preview) return;
   if (!window._c2PickedFiles.length) { preview.innerHTML = ''; return; }
   preview.innerHTML = window._c2PickedFiles.map(function(f) {
-    return '<div style="display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text2);padding:4px 0;border-bottom:1px solid var(--border)"><i class="ph-duotone ph-file" style="color:var(--gold)"></i>' + f.name + '</div>';
+    return '<div style="display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text2);padding:4px 0;border-bottom:1px solid var(--border)"><i class="ph-duotone ph-file" style="color:var(--gold)"></i>' + eH(f.name) + '</div>';
   }).join('');
 };
 window.c2OpenModal = function() {
@@ -4622,13 +4621,13 @@ function paWatch(stage){
                  : p.status==='rejected' ? '<span style="color:var(--red)">● Từ chối</span>'
                  : '<span style="color:var(--amber)">● Chờ duyệt</span>';
         const thumb = p.imageURL
-          ? '<img src="'+p.imageURL+'" style="width:42px;height:42px;border-radius:6px;object-fit:cover;flex-shrink:0">'
+          ? '<img src="'+eU(p.imageURL)+'" style="width:42px;height:42px;border-radius:6px;object-fit:cover;flex-shrink:0">'
           : '<div style="width:42px;height:42px;border-radius:6px;background:var(--ink3);display:flex;align-items:center;justify-content:center;flex-shrink:0">🖼</div>';
         return '<div style="display:flex;align-items:center;gap:8px;background:var(--ink2);border:1px solid var(--border);border-radius:8px;padding:7px 9px">'
           + thumb
           + '<div style="flex:1;min-width:0">'
-          +   '<div style="font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(p.name||'(không tên)')+'</div>'
-          +   '<div style="font-size:10px;color:var(--muted)">'+(p.version||'')+' · '+st+'</div>'
+          +   '<div style="font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+eH(p.name||'(không tên)')+'</div>'
+          +   '<div style="font-size:10px;color:var(--muted)">'+eH(p.version||'')+' · '+st+'</div>'
           + '</div></div>';
       }).join('');
     }, err=>{ console.error('[ALN proposal list]', err); box.innerHTML='<div style="color:var(--red);font-size:12px">Không tải được danh sách (kiểm tra rules/mạng).</div>'; });
@@ -4666,7 +4665,7 @@ window.openImgLight = function(url, name) {
     lb.onclick = function() { window.closeImgLight(); };
     document.body.appendChild(lb);
   }
-  document.getElementById('imgLightImg').src = url;
+  document.getElementById('imgLightImg').src = alnUrl(url);
   document.getElementById('imgLightName').textContent = name || '';
   lb.style.display = 'flex';
 };
@@ -4690,7 +4689,7 @@ window.rvLoadStage = function(stage) {
   try {
     const q = query(collection(db,'projects',pid,'stages',stage,'proposals'), orderBy('order','asc'));
     _rvUnsub = onSnapshot(q, snap => {
-      if (snap.empty) { list.innerHTML = '<div style="color:var(--muted);font-size:12px">Chưa có phương án ở chặng ' + stage + '.</div>'; return; }
+      if (snap.empty) { list.innerHTML = '<div style="color:var(--muted);font-size:12px">Chưa có phương án ở chặng ' + eH(stage) + '.</div>'; return; }
       const _pending = snap.docs.filter(d => !d.data().status || d.data().status === 'pending').length;
       const _badge = document.getElementById('reviewBadge');
       if (_badge) { if (_pending > 0) { _badge.textContent = _pending; _badge.style.display = ''; } else { _badge.style.display = 'none'; } }
@@ -4708,17 +4707,17 @@ window.rvLoadStage = function(stage) {
                  : p.status==='rejected' ? '<span style="color:var(--red)">● Từ chối</span>'
                  : '<span style="color:var(--amber)">● Chờ duyệt</span>';
         const thumb = p.imageURL
-          ? `<img src="${p.imageURL}" style="width:52px;height:52px;border-radius:7px;object-fit:cover;flex-shrink:0;border:1px solid var(--border)">`
+          ? `<img src="${eU(p.imageURL)}" style="width:52px;height:52px;border-radius:7px;object-fit:cover;flex-shrink:0;border:1px solid var(--border)">`
           : `<div style="width:52px;height:52px;border-radius:7px;background:var(--ink3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px;color:var(--muted)"><i class="ph-duotone ph-image"></i></div>`;
         const _safeName = displayName.replace(/'/g, '&#39;');
         const viewBtn = p.imageURL
-          ? `<button onclick="window.openImgLight('${p.imageURL}','${_safeName}')" style="flex-shrink:0;padding:5px 9px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-weight:600;color:var(--text2);background:var(--ink2);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;white-space:nowrap"><i class="ph-duotone ph-eye"></i> Xem</button>`
+          ? `<button onclick="window.openImgLight(${eJ(p.imageURL)},${eJ(_safeName)})" style="flex-shrink:0;padding:5px 9px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-weight:600;color:var(--text2);background:var(--ink2);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;white-space:nowrap"><i class="ph-duotone ph-eye"></i> Xem</button>`
           : '';
         return `<div style="display:flex;align-items:center;gap:10px;background:var(--ink3);border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:6px">
           ${thumb}
           <div style="flex:1;min-width:0">
-            <div style="font-size:12px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${displayName}</div>
-            <div style="font-size:10px;color:var(--muted)">${p.version||''} · Chặng ${stage}</div>
+            <div style="font-size:12px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${eH(displayName)}</div>
+            <div style="font-size:10px;color:var(--muted)">${eH(p.version||'')} · Chặng ${eH(stage)}</div>
             <div style="font-size:10px;margin-top:2px">${st}</div>
           </div>
           ${viewBtn}
@@ -4763,18 +4762,18 @@ function _watchDocs(pid) {
         const isImg = ['JPG','JPEG','PNG','GIF','WEBP'].includes(ext);
         const roleLabel = upRole==='kts' ? 'KTS' : upRole==='dn' ? 'DN' : 'CN';
         const roleColor = upRole==='kts' ? 'var(--gold)' : upRole==='dn' ? 'var(--blue)' : 'var(--green)';
-        const dlBtn = dc.url ? `<a href="${dc.url}" target="_blank" style="flex-shrink:0;width:30px;height:30px;border-radius:7px;background:var(--blue-bg);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:15px;text-decoration:none;border:1px solid rgba(152,105,10,.2)" title="Tải về"><i class="ph-duotone ph-download-simple"></i></a>` : '';
-        const meta = `<div style="font-size:10px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:5px"><span style="color:${roleColor};font-weight:700;background:${roleColor}1a;padding:1px 6px;border-radius:4px">${roleLabel}</span><span>${upName}</span><span>·</span><span>${dc.date || ''}</span></div>`;
+        const dlBtn = dc.url ? `<a href="${eU(dc.url)}" target="_blank" style="flex-shrink:0;width:30px;height:30px;border-radius:7px;background:var(--blue-bg);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:15px;text-decoration:none;border:1px solid rgba(152,105,10,.2)" title="Tải về"><i class="ph-duotone ph-download-simple"></i></a>` : '';
+        const meta = `<div style="font-size:10px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:5px"><span style="color:${roleColor};font-weight:700;background:${roleColor}1a;padding:1px 6px;border-radius:4px">${roleLabel}</span><span>${eH(upName)}</span><span>·</span><span>${eH(dc.date || '')}</span></div>`;
         if (isImg && dc.url) {
           const _ua = dc.url.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
           const _na = (dc.name||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
           return `<div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:8px;background:var(--ink3);transition:box-shadow .15s" onmouseover="this.style.boxShadow='var(--sh)'" onmouseout="this.style.boxShadow='none'">
-            <div style="width:100%;height:150px;overflow:hidden;background:var(--ink4);cursor:zoom-in" data-u="${_ua}" data-n="${_na}" onclick="_showDocImg(this.dataset.u,this.dataset.n)">
-              <img src="${dc.url}" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .25s" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform=''">
+            <div style="width:100%;height:150px;overflow:hidden;background:var(--ink4);cursor:zoom-in" data-u="${eH(_ua)}" data-n="${eH(_na)}" onclick="_showDocImg(this.dataset.u,this.dataset.n)">
+              <img src="${eU(dc.url)}" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .25s" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform=''">
             </div>
             <div style="padding:8px 10px;display:flex;align-items:center;gap:8px">
               <div style="flex:1;min-width:0">
-                <div style="font-size:11px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${dc.name || '(không tên)'}</div>
+                <div style="font-size:11px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${eH(dc.name || '(không tên)')}</div>
                 ${meta}
               </div>
               ${dlBtn}
@@ -4784,7 +4783,7 @@ function _watchDocs(pid) {
         return `<div style="display:flex;align-items:center;gap:10px;background:var(--ink3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:6px;transition:box-shadow .15s" onmouseover="this.style.boxShadow='var(--sh)'" onmouseout="this.style.boxShadow='none'">
           <div style="width:48px;height:48px;border-radius:8px;background:var(--ink2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;color:${iconColor}"><i class="ph-duotone ${iconClass}"></i></div>
           <div style="flex:1;min-width:0">
-            <div style="font-size:12px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${dc.name || '(không tên)'}</div>
+            <div style="font-size:12px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${eH(dc.name || '(không tên)')}</div>
             ${meta}
           </div>
           ${dlBtn}
@@ -4808,7 +4807,7 @@ window._showDocImg = function(url, name) {
   var wrap = document.createElement('div');
   wrap.setAttribute('style', 'position:relative;max-width:92vw;max-height:92vh;display:flex;flex-direction:column;align-items:center;gap:10px');
   var img = document.createElement('img');
-  img.src = url;
+  img.src = alnUrl(url);
   img.setAttribute('style', 'max-width:100%;max-height:80vh;object-fit:contain;border-radius:10px;box-shadow:0 12px 48px rgba(0,0,0,.6);cursor:default');
   img.addEventListener('click', function(e) { e.stopPropagation(); });
   wrap.appendChild(img);
@@ -4819,7 +4818,7 @@ window._showDocImg = function(url, name) {
   nameEl.setAttribute('style', 'font-size:11px;color:rgba(255,255,255,.6);max-width:55vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap');
   bar.appendChild(nameEl);
   var dlLink = document.createElement('a');
-  dlLink.href = url;
+  dlLink.href = alnUrl(url);
   dlLink.target = '_blank';
   dlLink.innerHTML = '<i class="ph-duotone ph-download-simple"></i> Tải về';
   dlLink.setAttribute('style', 'color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:7px;padding:5px 12px;font-size:11px;text-decoration:none;display:flex;align-items:center;gap:5px;white-space:nowrap');
@@ -4861,7 +4860,7 @@ window.submitC3 = async function() {
   for (const slot of toUpload) {
     const f = files[slot.id].file;
     try {
-      if (sr) sr.innerHTML = `<div style="font-size:11px;color:var(--muted)"><i class="ph-duotone ph-spinner-gap ph-spin"></i> Đang upload ${done+1}/${total}: ${slot.label}...</div>`;
+      if (sr) sr.innerHTML = `<div style="font-size:11px;color:var(--muted)"><i class="ph-duotone ph-spinner-gap ph-spin"></i> Đang upload ${done+1}/${total}: ${eH(slot.label)}...</div>`;
       const ref = storageRef(storage, `projects/${pid}/c3/${slot.id}/${Date.now()}_${f.name}`);
       await uploadBytes(ref, f);
       const url = await getDownloadURL(ref);
@@ -4878,7 +4877,7 @@ window.submitC3 = async function() {
     } catch(e) {
       console.error('[C3 upload]', slot.id, e);
       failed++;
-      if (sr) sr.innerHTML = `<div style="font-size:11px;color:var(--red)"><i class="ph-duotone ph-x-circle"></i> Lỗi: ${slot.label} — ${(e&&e.code)||e.message}</div>`;
+      if (sr) sr.innerHTML = `<div style="font-size:11px;color:var(--red)"><i class="ph-duotone ph-x-circle"></i> Lỗi: ${eH(slot.label)} — ${eH((e&&e.code)||e.message)}</div>`;
     }
   }
 
@@ -4967,7 +4966,7 @@ window.openC2Modal = function(files) {
     fileList.innerHTML = '<div style="font-size:11px;color:#c85a3a;padding:6px 0">⚠ Chưa có file đính kèm</div>';
   } else {
     fileList.innerHTML = window._c2mFiles.map(function(f) {
-      return '<div class="c2m-file-row"><span style="font-size:15px;color:#c9a84c">📄</span><span style="flex:1;font-size:12px;color:#e0d4b0">' + f.name + '</span></div>';
+      return '<div class="c2m-file-row"><span style="font-size:15px;color:#c9a84c">📄</span><span style="flex:1;font-size:12px;color:#e0d4b0">' + eH(f.name) + '</span></div>';
     }).join('');
   }
   document.getElementById('c2mStep1').style.display = '';
@@ -5075,7 +5074,7 @@ window.c2mDoSubmit = async function() {
     items += '<div class="c2m-confirm-item" style="color:#c85a3a"><span>⛔</span><span>Vị trí không được cấp phép — đã ghi nhận</span></div>';
   }
   uploadedNames.forEach(function(n) {
-    items += '<div class="c2m-confirm-item"><span class="c2m-check">✓</span><span>' + n + ' đã gửi</span></div>';
+    items += '<div class="c2m-confirm-item"><span class="c2m-check">✓</span><span>' + eH(n) + ' đã gửi</span></div>';
   });
   if (!uploadedNames.length) {
     items += '<div class="c2m-confirm-item"><span style="color:#c9a84c">•</span><span>Không có file được upload</span></div>';
@@ -5170,7 +5169,7 @@ function hkRenderDock(){
   html += '<div id="hkPicker" class="hk-pick" style="display:none"></div>';
   act.forEach(function(p){
     var label = (p.code || p.id) + '';
-    html += '<button class="hk-live-btn" onclick="hkJoin(\'' + (p.meeting.roomId||'') + '\',\'' + label.replace(/'/g,'') + '\')">🏛 Phiên họp đang diễn ra — Mời vào <span style="font-weight:400;font-size:11px;opacity:.85">(' + label + ')</span></button>';
+    html += '<button class="hk-live-btn" onclick="hkJoin(' + eJ(p.meeting.roomId||'') + ',' + eJ(label.replace(/'/g,'')) + ')">🏛 Phiên họp đang diễn ra — Mời vào <span style="font-weight:400;font-size:11px;opacity:.85">(' + eH(label) + ')</span></button>';
   });
   if (HK_CAN_OPEN) html += '<button class="hk-idle-btn" onclick="hkTogglePicker()">🏛 Phòng Hội Kiến</button>';
   dock.innerHTML = html;
@@ -5188,11 +5187,11 @@ window.hkTogglePicker = function(){
     if (label.length > 42) label = label.slice(0,42) + '…';
     var active = hkIsActive(p.meeting);
     rows += '<div class="hk-pick-row">'
-      + '<div style="font-size:12px;color:var(--text,#dce6f4);font-weight:600">' + label + '</div>'
+      + '<div style="font-size:12px;color:var(--text,#dce6f4);font-weight:600">' + eH(label) + '</div>'
       + (active
-        ? '<span style="display:flex;gap:6px"><button onclick="hkJoin(\'' + (p.meeting.roomId||'') + '\',\'' + (p.code||p.id) + '\')" style="background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.4);color:#3dd68c;border-radius:7px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer">Vào</button>'
-          + '<button onclick="hkClose(\'' + p.id + '\')" style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#f06060;border-radius:7px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer">Kết thúc</button></span>'
-        : '<button onclick="hkOpen(\'' + p.id + '\')" style="background:rgba(152,105,10,.12);border:1px solid rgba(152,105,10,.35);color:#b8860b;border-radius:7px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">Mở phiên họp</button>')
+        ? '<span style="display:flex;gap:6px"><button onclick="hkJoin(' + eJ(p.meeting.roomId||'') + ',' + eJ(p.code||p.id) + ')" style="background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.4);color:#3dd68c;border-radius:7px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer">Vào</button>'
+          + '<button onclick="hkClose(' + eJ(p.id) + ')" style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#f06060;border-radius:7px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer">Kết thúc</button></span>'
+        : '<button onclick="hkOpen(' + eJ(p.id) + ')" style="background:rgba(152,105,10,.12);border:1px solid rgba(152,105,10,.35);color:#b8860b;border-radius:7px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">Mở phiên họp</button>')
       + '</div>';
   });
   pk.innerHTML = rows;

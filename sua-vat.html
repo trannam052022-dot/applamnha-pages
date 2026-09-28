@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
 <!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM (xem scripts/aln-optout.js) -->
+<script src="aln-esc.js"></script>
 <script src="scripts/aln-optout.js"></script>
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -334,7 +335,7 @@ document.getElementById('btnSubmit').addEventListener('click', async () => {
     btn.innerHTML = '<i class="ph-duotone ph-check-circle"></i>Đã gửi thành công';
   } catch (e) {
     console.error('[sua-vat submit]', e);
-    svShowMsg('err', (e && e.message ? e.message + '<br>' : '') + 'Không gửi được? Nhắn Zalo cho ALN: <a href="https://zalo.me/alnsanthietke" target="_blank" rel="noopener"><b>zalo.me/alnsanthietke</b></a>');
+    svShowMsg('err', (e && e.message ? eH(e.message) + '<br>' : '') + 'Không gửi được? Nhắn Zalo cho ALN: <a href="https://zalo.me/alnsanthietke" target="_blank" rel="noopener"><b>zalo.me/alnsanthietke</b></a>');
     btn.disabled = false;
     btn.innerHTML = '<i class="ph-duotone ph-paper-plane-tilt"></i>Gửi yêu cầu miễn phí';
   }

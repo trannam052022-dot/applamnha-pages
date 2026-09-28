@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
 <!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM (xem scripts/aln-optout.js) -->
+<script src="aln-esc.js"></script>
 <script src="scripts/aln-optout.js"></script>
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -202,7 +203,7 @@ const fns = getFunctions(app, 'asia-southeast1');
 const callInvite = httpsCallable(fns, 'forumInvite');
 
 const $ = id => document.getElementById(id);
-function escH(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escH(s){ return eH(s); } // aln-esc.js — escape đủ & < > " ' `
 let toastTimer = null;
 function showToast(m){ const t=$('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),3600); }
 
@@ -241,7 +242,7 @@ onAuthStateChanged(auth, async user => {
   const kts = ktsSnap.data();
   $('pfName').textContent = kts.name || 'Kiến trúc sư ALN';
   $('pfAvatar').innerHTML = kts.avatarUrl
-    ? '<img src="'+escH(kts.avatarUrl)+'">' : escH((kts.name||'K')[0].toUpperCase());
+    ? '<img src="'+eU(kts.avatarUrl)+'">' : escH((kts.name||'K')[0].toUpperCase());
 
   /* Nút mời — hiện với CN/DN/founder, không hiện với chính KTS */
   if((ME.role === 'cn' || ME.role === 'dn' || ME.role === 'founder') && ME.uid !== KTS_UID){
@@ -291,10 +292,10 @@ onAuthStateChanged(auth, async user => {
       $('scGrid').innerHTML = visible.map(p => {
         const img = (p.images && p.images[0]) || '';
         return '<div class="sc-card">'
-          + (img ? '<img src="'+escH(img)+'" loading="lazy">' : '')
+          + (img ? '<img src="'+eU(img)+'" loading="lazy">' : '')
           + '<div class="sc-body">'
             + '<div class="sc-text">'+escH(p.text||'')+'</div>'
-            + '<div class="sc-meta"><span>❤ '+(p.heartCount||0)+'</span><span>💬 '+(p.commentCount||0)+'</span>'
+            + '<div class="sc-meta"><span>❤ '+eH(p.heartCount||0)+'</span><span>💬 '+eH(p.commentCount||0)+'</span>'
             + (p.pinned ? '<span style="color:var(--gold)">📌 GHIM</span>' : '') + '</div>'
           + '</div></div>';
       }).join('');
