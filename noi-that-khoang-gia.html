@@ -414,6 +414,7 @@ const tinh = httpsCallable(fns, 'tinhKhoangGiaNoiThat', { timeout: 20000 });
 const guiLead = httpsCallable(fns, 'submitDuToanLead', { timeout: 20000 });
 const layBang = httpsCallable(fns, 'layBangGiaNoiThat', { timeout: 20000 });
 const docBanVe = httpsCallable(fns, 'docBanVeNoiThat', { timeout: 130000 });
+const luuLuaChon = httpsCallable(fns, 'luuLuaChonNoiThat', { timeout: 20000 });
 
 const LOAI = {
   PK: { ten: 'Phòng khách', icon: 'ph-couch', dt: 25, anh: 'https://images.unsplash.com/photo-1724582586529-62622e50c0b3?w=640&q=70&auto=format&fit=crop' },
@@ -719,6 +720,7 @@ async function moSauXacNhan(f) {
   const r = await guiLead({
     name: f.ten, phone: f.sdt, projectType: 'thiet_ke', loai: 'noi_that', kenh: 'noithat',
     area: KQ ? KQ.dien_tich : null,
+    phong: PHONG_DA_TINH, // máy chủ tóm tắt phòng + kích thước vào lịch sử liên hệ
     tongMin: t ? Math.round(t.co_ban.thap) : null, tongMax: t ? Math.round(t.cao_cap.cao) : null,
     ...tinHieuQuangCao(),
     sourceUrl: location.origin + location.pathname,
@@ -838,20 +840,59 @@ async function moBang(giuLai) {
   document.getElementById('chenh').hidden = true;
   document.getElementById('editor').hidden = false;
   if (!giuLai) {
+    MUC_CHUNG = 'kha';
     document.getElementById('muc-all').innerHTML = BANG.muc.map((k) =>
       `<button type="button" data-muc="${k}" class="${k === 'kha' ? 'on' : ''}">${TEN_MUC[k]}</button>`).join('');
   }
   veBang();
 }
 
+/* Lưu lựa chọn của khách (mức chung, món đã chỉnh, kích thước) vào lịch sử
+   liên hệ để KTS gọi lại biết khách đang cân nhắc gì. Gom 4 giây sau lần chỉnh
+   cuối; máy chủ tự tính lại tổng. Lỗi lưu không ảnh hưởng bảng. */
+let MUC_CHUNG = 'kha', HEN_LUU = null, TOKEN_LUU = null;
+function goiLuuLuaChon() {
+  return {
+    leadId: LEAD_ID, phong: PHONG_DA_TINH, muc: MUC_CHUNG,
+    mon_chinh: DONG.map((d) => ({ phong: d.phong, ma: d.m.ma, muc: d.muc, sl: d.sl })),
+  };
+}
+function henLuuLuaChon() {
+  if (!LEAD_ID || !PHONG_DA_TINH) return;
+  clearTimeout(HEN_LUU);
+  // Lấy sẵn token để lúc trang bị ẩn/đóng gửi được ngay, không phải chờ bất đồng bộ.
+  if (auth.currentUser) auth.currentUser.getIdToken().then((t) => { TOKEN_LUU = t; }).catch(() => {});
+  HEN_LUU = setTimeout(() => {
+    HEN_LUU = null;
+    luuLuaChon(goiLuuLuaChon()).catch((e) => console.warn('luuLuaChonNoiThat', e && e.code));
+  }, 4000);
+}
+/* Khách đóng tab / chuyển app trong 4 giây chờ: gửi ngay lần chỉnh cuối.
+   fetch keepalive vẫn đi tiếp sau khi trang đóng (httpsCallable thì không). */
+function luuNgayKhiRoiTrang() {
+  if (!HEN_LUU || !LEAD_ID || !TOKEN_LUU) return;
+  clearTimeout(HEN_LUU);
+  HEN_LUU = null;
+  try {
+    fetch(`https://asia-southeast1-${app.options.projectId}.cloudfunctions.net/luuLuaChonNoiThat`, {
+      method: 'POST', keepalive: true,
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + TOKEN_LUU },
+      body: JSON.stringify({ data: goiLuuLuaChon() }),
+    }).catch(() => {});
+  } catch (e) {}
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') luuNgayKhiRoiTrang(); });
+window.addEventListener('pagehide', luuNgayKhiRoiTrang);
 document.getElementById('muc-all').addEventListener('click', (e) => {
   const k = e.target.dataset && e.target.dataset.muc;
   if (!k) return;
+  MUC_CHUNG = k;
   document.querySelectorAll('#muc-all button').forEach((b) => b.classList.toggle('on', b.dataset.muc === k));
   DONG.forEach((d) => {
     if (d.m.sl[k] > 0) { d.muc = k; d.sl = d.m.sl[k]; } else { d.muc = 'bo'; }
   });
   veBang();
+  henLuuLuaChon();
 });
 
 function tienDong(d) {
@@ -969,6 +1010,7 @@ async function doiKichThuoc(el) {
   PHONG_DA_TINH = PHONG_DA_TINH.map((x, j) => (j === pi ? sau : x));
   try {
     await moBang(true);
+    henLuuLuaChon();
     try { gtag('event', 'aln_noithat_kich_thuoc', { loai_phong: sau.ma }); } catch (e2) {}
   } catch (err) {
     PHONG_DA_TINH = cu;
@@ -996,6 +1038,7 @@ document.getElementById('ds-phong').addEventListener('change', (e) => {
     e.target.value = d.sl;
   }
   capNhat();
+  henLuuLuaChon();
 });
 
 /* ── Bản vẽ mặt bằng: MyMy đọc kích thước (docBanVeNoiThat), khách duyệt rồi mới áp dụng ── */
@@ -1131,6 +1174,7 @@ document.getElementById('ds-phong').addEventListener('click', (e) => {
   d.tuChinh = true;
   e.target.parentElement.querySelector('input').value = d.sl;
   capNhat();
+  henLuuLuaChon();
 });
 </script>
 </body>
