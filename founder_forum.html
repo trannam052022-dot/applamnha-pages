@@ -225,7 +225,11 @@ const callAdmin = httpsCallable(fns, 'forumAdmin');
 const callNormalizeUsers = httpsCallable(fns, 'founderNormalizeUsers');
 
 const $ = id => document.getElementById(id);
-function escH(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escH(s){ return String(s==null?'':s).replace(/[&<>"'`]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'}[c])); }
+/* eJ: tham số chuỗi JS bên trong onclick — HTML-escape một mình không đủ vì trình duyệt
+   giải mã &#39; trước khi chạy JS (28/09/2026). */
+function eH(s){ return escH(s); }
+function eJ(v){ return escH(JSON.stringify(v == null ? '' : String(v))); }
 let toastTimer = null;
 function showToast(m){ const t=$('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),3600); }
 function timeAgo(ts){
@@ -321,16 +325,16 @@ function renderReports(items){
     const isNew = r.status === 'new';
     return '<div class="item">'
       + '<div class="item-head">'
-        + '<span class="chip '+(isNew?'chip-red':'chip-dim')+'">'+(isNew?'MỚI':'ĐÃ XỬ LÝ'+(r.resolution?' · '+escH(r.resolution):''))+'</span>'
+        + '<span class="chip '+eH((isNew?'chip-red':'chip-dim'))+'">'+eH((isNew?'MỚI':'ĐÃ XỬ LÝ'+(r.resolution?' · '+r.resolution:'')))+'</span>'
         + '<span class="chip chip-gold">'+escH(REASON_LABEL[r.reason]||r.reason)+'</span>'
         + '<span class="item-title">'+escH(r.targetType === 'comment' ? 'Bình luận' : 'Bài viết')+' của '+escH(r.targetAuthorName||'?')+'</span>'
-        + '<span class="item-time">'+timeAgo(r.createdAt)+'</span>'
+        + '<span class="item-time">'+eH(timeAgo(r.createdAt))+'</span>'
       + '</div>'
       + '<div style="font-size:var(--text-2xs);color:var(--dim)">Người báo cáo: '+escH(r.reporterName||r.reporterUid)+(r.note?' — “'+escH(r.note)+'”':'')+'</div>'
       + '<div class="item-snippet">'+escH(r.targetSnippet||'(không có nội dung text)')+'</div>'
       + (isNew ? '<div class="item-actions">'
-          + '<button class="btn danger" onclick="removeReported(\''+r.id+'\',\''+escH(r.postId)+'\',\''+escH(r.commentId||'')+'\')"><i class="ph-duotone ph-trash"></i>Gỡ nội dung</button>'
-          + '<button class="btn" onclick="resolveReport(\''+r.id+'\',\'ignored\')"><i class="ph-duotone ph-check"></i>Bỏ qua</button>'
+          + '<button class="btn danger" onclick="removeReported('+eJ(r.id)+','+eJ(r.postId)+','+eJ(r.commentId||'')+')"><i class="ph-duotone ph-trash"></i>Gỡ nội dung</button>'
+          + '<button class="btn" onclick="resolveReport('+eJ(r.id)+',\'ignored\')"><i class="ph-duotone ph-check"></i>Bỏ qua</button>'
         + '</div>' : '')
     + '</div>';
   }).join('');
@@ -355,15 +359,15 @@ function renderQueue(items){
   if(!items.length){ $('pQueue').innerHTML = '<div class="empty">Không có bài / bình luận nào chờ duyệt.</div>'; return; }
   $('pQueue').innerHTML = items.map(q => '<div class="item">'
     + '<div class="item-head">'
-      + '<span class="chip chip-blue">'+(q.kind === 'comment' ? 'BÌNH LUẬN' : 'BÀI VIẾT')+'</span>'
+      + '<span class="chip chip-blue">'+eH((q.kind === 'comment' ? 'BÌNH LUẬN' : 'BÀI VIẾT'))+'</span>'
       + (q.category ? '<span class="chip chip-amber">'+escH(q.category)+'</span>' : '')
       + '<span class="item-title">'+escH(q.authorName||'?')+' ('+escH(q.authorRole||'')+')</span>'
-      + '<span class="item-time">'+timeAgo(q.createdAt)+'</span>'
+      + '<span class="item-time">'+eH(timeAgo(q.createdAt))+'</span>'
     + '</div>'
     + '<div class="item-snippet">'+escH(q.snippet||'')+'</div>'
     + '<div class="item-actions">'
-      + '<button class="btn primary" onclick="approveItem(\''+escH(q.postId)+'\',\''+escH(q.commentId||'')+'\')"><i class="ph-duotone ph-check-circle"></i>Duyệt</button>'
-      + '<button class="btn danger" onclick="rejectItem(\''+escH(q.postId)+'\',\''+escH(q.commentId||'')+'\')"><i class="ph-duotone ph-x-circle"></i>Từ chối</button>'
+      + '<button class="btn primary" onclick="approveItem('+eJ(q.postId)+','+eJ(q.commentId||'')+')"><i class="ph-duotone ph-check-circle"></i>Duyệt</button>'
+      + '<button class="btn danger" onclick="rejectItem('+eJ(q.postId)+','+eJ(q.commentId||'')+')"><i class="ph-duotone ph-x-circle"></i>Từ chối</button>'
       + '<a class="btn" href="forum.html" target="_blank"><i class="ph-duotone ph-eye"></i>Mở diễn đàn</a>'
     + '</div>'
   + '</div>').join('');
@@ -386,17 +390,17 @@ function renderInvites(items){
   const counts = {};
   INV_STAGES.forEach(s => counts[s] = items.filter(i => i.status === s).length);
   let html = '<div class="funnel">' + INV_STAGES.map(s =>
-    '<div class="fstage"><b>'+counts[s]+'</b><span>'+INV_LABEL[s]+'</span></div>').join('') + '</div>';
+    '<div class="fstage"><b>'+eH(counts[s])+'</b><span>'+eH(INV_LABEL[s])+'</span></div>').join('') + '</div>';
   if(!items.length){
     html += '<div class="empty">Chưa có invite nào. KPI chính: số invite chuyển thành thanh toán Bước 1.</div>';
   } else {
     html += items.map(i => '<div class="item">'
       + '<div class="item-head">'
-        + '<span class="chip '+(INV_COLOR[i.status]||'chip-dim')+'">'+escH(INV_LABEL[i.status]||i.status)+'</span>'
+        + '<span class="chip '+eH((INV_COLOR[i.status]||'chip-dim'))+'">'+escH(INV_LABEL[i.status]||i.status)+'</span>'
         + '<span class="item-title">'+escH(i.cnName||i.cnUid)+' → KTS '+escH(i.ktsName||i.ktsUid)+'</span>'
-        + '<span class="item-time">'+timeAgo(i.createdAt)+'</span>'
+        + '<span class="item-time">'+eH(timeAgo(i.createdAt))+'</span>'
       + '</div>'
-      + '<div style="font-size:var(--text-2xs);color:var(--dim)">'+(i.threadId?'Từ thread: '+escH(i.threadId):'Từ trang hồ sơ KTS')+'</div>'
+      + '<div style="font-size:var(--text-2xs);color:var(--dim)">'+eH((i.threadId?'Từ thread: '+i.threadId:'Từ trang hồ sơ KTS'))+'</div>'
       + (i.intent === 'project' ? (
           i.projectId
             ? '<div style="font-size:var(--text-2xs);color:var(--green);margin-top:4px"><i class="ph-duotone ph-check-circle"></i> Đã tạo dự án: '+escH(i.projectId)+'</div>'
@@ -404,7 +408,7 @@ function renderInvites(items){
         ) : '')
       + '<div class="item-actions">Chuyển trạng thái: '
         + INV_STAGES.filter(s => s !== i.status).map(s =>
-            '<button class="btn" onclick="setInvite(\''+i.id+'\',\''+s+'\')">'+INV_LABEL[s]+'</button>').join('')
+            '<button class="btn" onclick="setInvite('+eJ(i.id)+','+eJ(s)+')">'+eH(INV_LABEL[s])+'</button>').join('')
       + '</div>'
     + '</div>').join('');
   }
@@ -421,10 +425,10 @@ function renderLeads(items){
   if(!items.length){ $('pLeads').innerHTML = '<div class="empty">Chưa có lead nào từ diễn đàn (thread Tư vấn Dự án sẽ tự sinh lead vào đây).</div>'; return; }
   $('pLeads').innerHTML = items.map(l => '<div class="item">'
     + '<div class="item-head">'
-      + '<span class="chip '+(TIER_CHIP[l.tier]||'chip-dim')+'">'+escH((l.tier||'?').toUpperCase())+' · '+(l.score||0)+' điểm</span>'
+      + '<span class="chip '+eH((TIER_CHIP[l.tier]||'chip-dim'))+'">'+escH((l.tier||'?').toUpperCase())+' · '+eH((l.score||0))+' điểm</span>'
       + '<span class="item-title">'+escH(l.name||'?')+'</span>'
       + '<span class="chip chip-dim">'+escH(l.source||'')+'</span>'
-      + '<span class="item-time">'+timeAgo(l.createdAt)+'</span>'
+      + '<span class="item-time">'+eH(timeAgo(l.createdAt))+'</span>'
     + '</div>'
     + '<div style="font-size:var(--text-xs);color:var(--text2)">'
       + escH(l.projectType||'')+' · '+escH(l.area||'?')+'m² · '+escH(l.budget||'')+' · '+escH(l.timeline||'')
@@ -449,17 +453,17 @@ function renderModLogs(items){
     html += '<div class="item" style="border-color:rgba(248,113,113,.5)"><div class="item-head"><span class="chip chip-red">⚠ TÁI PHẠM LÁCH SÀN — TỰ LEO THANG</span></div>'
       + '<div style="display:flex;flex-direction:column;gap:6px;margin-top:6px">'
       + repeat.map(u => '<div style="display:flex;align-items:center;gap:8px;font-size:var(--text-xs);color:var(--text2)">'
-          + '<span class="chip '+(u.n>=5?'chip-red':'chip-gold')+'">'+escH(u.stage)+'</span>'
-          + '<b>'+escH(u.name)+'</b><span style="color:var(--dim)">'+u.n+' lần</span></div>').join('')
+          + '<span class="chip '+eH((u.n>=5?'chip-red':'chip-gold'))+'">'+escH(u.stage)+'</span>'
+          + '<b>'+escH(u.name)+'</b><span style="color:var(--dim)">'+eH(u.n)+' lần</span></div>').join('')
       + '</div>'
       + '<div style="font-size:var(--text-2xs);color:var(--dim);margin-top:7px">Khung xử lý: Cảnh báo (1–2) → Khóa 90 ngày (3–4) → Khóa vĩnh viễn (≥5). Nhận tiền ngoài ALN = khóa ngay + tạm dừng thanh toán các mốc còn lại. <i>(Bản nháp chỉ đề xuất — Founder quyết định khóa thật.)</i></div></div>';
   }
   html += items.map(m => '<div class="item">'
     + '<div class="item-head">'
       + '<span class="chip chip-red">'+escH(VLABEL[m.reason]||m.reason)+'</span>'
-      + '<span class="chip chip-dim">'+(m.kind === 'comment' ? 'BÌNH LUẬN' : 'BÀI VIẾT')+'</span>'
+      + '<span class="chip chip-dim">'+eH((m.kind === 'comment' ? 'BÌNH LUẬN' : 'BÀI VIẾT'))+'</span>'
       + '<span class="item-title">'+escH(m.name||m.uid)+' ('+escH(m.role||'')+')</span>'
-      + '<span class="item-time">'+timeAgo(m.createdAt)+'</span>'
+      + '<span class="item-time">'+eH(timeAgo(m.createdAt))+'</span>'
     + '</div>'
     + '<div class="item-snippet">'+escH(m.snippet||'')+'</div>'
   + '</div>').join('');
