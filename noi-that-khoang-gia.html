@@ -193,10 +193,28 @@ tr.sum td{font-weight:800;background:var(--cream)}
 .bar>div{flex:1;min-width:0}
 .bar a{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff;font-weight:800;font-size:var(--text-sm);padding:10px 14px;border-radius:10px;white-space:nowrap}
 .bar small{display:block;color:#cbd5e1;font-size:var(--text-xs)}
-/* Trạng thái lưu lựa chọn (luuLuaChonNoiThat) — nền navy nên dùng màu sáng */
-.bar .luu{display:block;font-size:var(--text-xs);color:#cbd5e1;margin-top:2px}
-.bar .luu.ok{color:#86efac}
-.bar .luu.loi{color:#fca5a5}
+/* Nút "Lưu lựa chọn" (nút phụ, viền mảnh) cạnh "Gọi KTS" (nút chính, nền vàng) */
+/* Nút "Lưu lựa chọn" (nút phụ, viền mảnh) cạnh "Gọi KTS" (nút chính, nền vàng) */
+.bar>.bar-nut{flex:0 0 auto;display:flex;align-items:center;gap:8px}
+.bar .nut-luu{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:transparent;color:#e2e8f0;border:1px solid rgba(226,232,240,.45);font:inherit;font-weight:700;font-size:var(--text-sm);padding:9px 12px;border-radius:10px;cursor:pointer;white-space:nowrap;line-height:1.2}
+.bar .nut-luu:hover:not(:disabled){border-color:#fff;color:#fff}
+.bar .nut-luu:disabled{cursor:default}
+.bar .nut-luu.ok{color:#86efac;border-color:rgba(134,239,172,.5)}
+.bar .nut-luu.loi{color:#fca5a5;border-color:rgba(252,165,165,.6)}
+.bar .nhan-ngan{display:none}
+/* Điện thoại: 2 hàng cố định — hàng 1 tổng tiền, hàng 2 hai nút (Lưu rộng, Gọi KTS
+   giữ nền vàng). Không ép 1 hàng vì tổng dài + 2 nút không đủ chỗ ở 360px. */
+@media (max-width:560px){
+  .bar{flex-wrap:wrap;padding:10px 12px;gap:8px}
+  .bar>div:first-child{flex:1 1 100%;display:flex;align-items:baseline;gap:6px}
+  .bar small{display:inline}
+  .bar .nhan-dai{display:none}
+  .bar .nhan-ngan{display:inline}
+  .bar b{font-size:var(--text-md);white-space:nowrap}
+  .bar>.bar-nut{flex:1 1 100%;gap:8px}
+  .bar .nut-luu{flex:1 1 0;min-width:0;padding:8px 8px;font-size:var(--text-xs)}
+  .bar a{flex:1 1 0;justify-content:center;padding:8px 8px;font-size:var(--text-xs)}
+}
 .anh-note{font-size:var(--text-xs);color:var(--muted);margin-top:10px}
 .chenh{background:var(--gold-bg);border:1px solid rgba(152,105,10,.25);border-radius:12px;padding:12px 14px;margin:4px 0 14px;font-size:var(--text-sm)}
 .chenh b{color:var(--gold)}
@@ -356,7 +374,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="bam-goi-y"><i class="ph-duotone ph-hand-pointing"></i><span><b>Bấm vào từng phòng</b> để xem ảnh, đơn giá và chỉnh từng món.</span></div>
         <div id="ds-phong"></div>
         <div class="anh-note">Ảnh chỉ để hình dung loại món, không phải sản phẩm cụ thể. Ảnh từ Unsplash.</div>
-        <div class="bar"><div><small>Tổng theo lựa chọn của anh/chị (gồm dự phòng và phí thiết kế)</small><b id="tong-chinh">–</b><span id="trang-thai-luu" class="luu" aria-live="polite" hidden></span></div><a href="tel:0909829696" data-aln-cta="noi-that-goi-bar"><i class="ph-duotone ph-phone-call"></i> Gọi KTS</a></div>
+        <div class="bar"><div><small><span class="nhan-dai">Tổng theo lựa chọn của anh/chị (gồm dự phòng và phí thiết kế)</span><span class="nhan-ngan">Tổng</span></small><b id="tong-chinh">–</b></div><div class="bar-nut"><button type="button" id="nut-luu" class="nut-luu" aria-live="polite">Lưu lựa chọn</button><a href="tel:0909829696" data-aln-cta="noi-that-goi-bar"><i class="ph-duotone ph-phone-call"></i> Gọi KTS</a></div></div>
         <div class="tk">
           <div class="tk-dau"><div class="eyebrow">Bước tiếp theo</div><b>Bảng này cho khoảng giá. Bản thiết kế nội thất cho anh/chị một con số chính xác.</b>
             <p id="tk-chenh">Khoảng giá còn rộng vì chưa có bố trí thật của từng phòng. KTS ALN thiết kế nội thất theo đúng căn nhà và ngân sách của anh/chị.</p></div>
@@ -854,20 +872,26 @@ async function moBang(giuLai) {
 /* Lưu lựa chọn của khách (mức chung, món đã chỉnh, kích thước) vào lịch sử
    liên hệ để KTS gọi lại biết khách đang cân nhắc gì. Gom 4 giây sau lần chỉnh
    cuối; máy chủ tự tính lại tổng. Lỗi lưu không ảnh hưởng bảng. */
-let MUC_CHUNG = 'kha', HEN_LUU = null, TOKEN_LUU = null, LUOT_LUU = 0;
-/* Trạng thái cạnh tổng tiền: 'dang' (có chỉnh đang chờ lưu hoặc đang gửi),
-   'ok' (máy chủ đã lưu), 'loi' (lưu thất bại). Chỉ lần lưu mới nhất được đổi
-   trạng thái, để lần cũ trả về muộn không ghi đè. */
-function hienTrangThaiLuu(tt) {
-  const el = document.getElementById('trang-thai-luu');
+let MUC_CHUNG = 'kha', HEN_LUU = null, TOKEN_LUU = null;
+/* Lưu lựa chọn (luuLuaChonNoiThat). Một đường gửi duy nhất (guiLuu) dùng chung
+   cho nút "Lưu lựa chọn", tự lưu 4 giây sau lần chỉnh cuối và khi rời trang.
+   - Chỉ 1 lần gửi tại một thời điểm; chỉnh thêm trong lúc gửi thì gửi lại sau.
+   - Cách nhau tối thiểu KHOANG_GUI_MS giữa 2 lần gửi → luôn
+     dưới giới hạn máy chủ 20 lần/phút (quyetDinhLuuLuaChon).
+   Trạng thái nút: 'chua' (Lưu lựa chọn) · 'dang' · 'ok' (✓ Đã lưu · HH:MM) · 'loi'. */
+const KHOANG_GUI_MS = 3500; // 3,5 giây → tối đa ~17 lần/phút, chừa khoảng cho độ trễ mạng
+let DANG_GUI = false, CO_THAY_DOI = false, GUI_LAI = false, LAN_GUI_CUOI = 0, TT_LUU = 'chua';
+function nutLuu(tt) {
+  TT_LUU = tt;
+  const el = document.getElementById('nut-luu');
   if (!el) return;
-  el.hidden = false;
-  el.className = 'luu' + (tt === 'ok' ? ' ok' : tt === 'loi' ? ' loi' : '');
+  el.className = 'nut-luu' + (tt === 'ok' ? ' ok' : tt === 'loi' ? ' loi' : '');
+  el.disabled = tt === 'dang';
   if (tt === 'ok') {
     const d = new Date();
-    el.textContent = `✓ Đã lưu lựa chọn · ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+    el.textContent = `✓ Đã lưu · ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
   } else {
-    el.textContent = tt === 'loi' ? 'Chưa lưu được' : 'Đang lưu…';
+    el.textContent = tt === 'dang' ? 'Đang lưu…' : tt === 'loi' ? 'Chưa lưu được, thử lại' : 'Lưu lựa chọn';
   }
 }
 function goiLuuLuaChon() {
@@ -876,36 +900,59 @@ function goiLuuLuaChon() {
     mon_chinh: DONG.map((d) => ({ phong: d.phong, ma: d.m.ma, muc: d.muc, sl: d.sl })),
   };
 }
-function henLuuLuaChon() {
-  if (!LEAD_ID || !PHONG_DA_TINH) return;
-  clearTimeout(HEN_LUU);
+function layToken() {
   // Lấy sẵn token để lúc trang bị ẩn/đóng gửi được ngay, không phải chờ bất đồng bộ.
   if (auth.currentUser) auth.currentUser.getIdToken().then((t) => { TOKEN_LUU = t; }).catch(() => {});
-  hienTrangThaiLuu('dang');
-  HEN_LUU = setTimeout(() => {
-    HEN_LUU = null;
-    const luot = ++LUOT_LUU;
-    luuLuaChon(goiLuuLuaChon())
-      .then(() => { if (luot === LUOT_LUU && !HEN_LUU) hienTrangThaiLuu('ok'); })
-      .catch((e) => {
-        console.warn('luuLuaChonNoiThat', e && e.code);
-        if (luot === LUOT_LUU && !HEN_LUU) hienTrangThaiLuu('loi');
-      });
-  }, 4000);
 }
-/* Khách đóng tab / chuyển app trong 4 giây chờ: gửi ngay lần chỉnh cuối.
+function guiLuu() {
+  if (!LEAD_ID || !PHONG_DA_TINH) return;
+  if (DANG_GUI) { GUI_LAI = true; return; }
+  const cho = LAN_GUI_CUOI + KHOANG_GUI_MS - Date.now();
+  if (cho > 0) { clearTimeout(HEN_LUU); HEN_LUU = setTimeout(() => { HEN_LUU = null; guiLuu(); }, cho); nutLuu('dang'); return; }
+  clearTimeout(HEN_LUU); HEN_LUU = null;
+  DANG_GUI = true; GUI_LAI = false; CO_THAY_DOI = false; LAN_GUI_CUOI = Date.now();
+  nutLuu('dang');
+  luuLuaChon(goiLuuLuaChon())
+    .then(() => {
+      DANG_GUI = false;
+      if (CO_THAY_DOI) { nutLuu('chua'); if (GUI_LAI) guiLuu(); } else nutLuu('ok');
+    })
+    .catch((e) => {
+      console.warn('luuLuaChonNoiThat', e && e.code);
+      DANG_GUI = false; GUI_LAI = false; CO_THAY_DOI = true;
+      nutLuu('loi');
+    });
+}
+/* Khách chỉnh món/mức/kích thước: nút về "Lưu lựa chọn", hẹn tự lưu sau 4 giây. */
+function henLuuLuaChon() {
+  if (!LEAD_ID || !PHONG_DA_TINH) return;
+  CO_THAY_DOI = true;
+  layToken();
+  if (!DANG_GUI) nutLuu('chua');
+  clearTimeout(HEN_LUU);
+  HEN_LUU = setTimeout(() => { HEN_LUU = null; guiLuu(); }, 4000);
+}
+document.getElementById('nut-luu').addEventListener('click', () => {
+  if (DANG_GUI || (TT_LUU === 'ok' && !CO_THAY_DOI)) return; // đang gửi / không có gì mới để lưu
+  layToken();
+  guiLuu();
+});
+/* Khách đóng tab / chuyển app khi còn chỉnh chưa lưu: gửi ngay.
    fetch keepalive vẫn đi tiếp sau khi trang đóng (httpsCallable thì không). */
 function luuNgayKhiRoiTrang() {
-  if (!HEN_LUU || !LEAD_ID || !TOKEN_LUU) return;
+  if (!CO_THAY_DOI || !LEAD_ID || !TOKEN_LUU) return;
   clearTimeout(HEN_LUU);
   HEN_LUU = null;
-  LUOT_LUU++; // lần lưu thường còn đang chạy (nếu có) không được ghi đè trạng thái
+  CO_THAY_DOI = false; LAN_GUI_CUOI = Date.now();
   try {
     fetch(`https://asia-southeast1-${app.options.projectId}.cloudfunctions.net/luuLuaChonNoiThat`, {
       method: 'POST', keepalive: true,
       headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + TOKEN_LUU },
       body: JSON.stringify({ data: goiLuuLuaChon() }),
-    }).then((r) => hienTrangThaiLuu(r.ok ? 'ok' : 'loi')).catch(() => hienTrangThaiLuu('loi'));
+    }).then((r) => {
+      if (DANG_GUI) return;
+      if (!r.ok) { CO_THAY_DOI = true; nutLuu('loi'); } else if (!CO_THAY_DOI) nutLuu('ok');
+    }).catch(() => { if (!DANG_GUI) { CO_THAY_DOI = true; nutLuu('loi'); } });
   } catch (e) {}
 }
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') luuNgayKhiRoiTrang(); });
