@@ -127,11 +127,13 @@ tr.sum td{font-weight:800;background:var(--cream)}
 
 .chinh{margin-top:30px;background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:16px}
 .chinh h2{margin-top:0}
-.gate{display:grid;gap:10px;max-width:460px}
-.gate input{border:1px solid var(--border2);border-radius:10px;padding:12px;font-size:var(--text-md);font-family:inherit}
+/* minmax(0,1fr) + min-width:0: ô nhập có độ rộng tự nhiên (ô OTP giãn chữ ~370px)
+   không được kéo cột lưới rộng hơn màn hình điện thoại. */
+.gate{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;max-width:460px}
+.gate input{width:100%;min-width:0;box-sizing:border-box;border:1px solid var(--border2);border-radius:10px;padding:12px;font-size:var(--text-md);font-family:inherit}
 .gate input:focus{outline:none;border-color:var(--gold)}
 .gate .btn{margin-top:4px}
-.otp{display:grid;gap:10px;border:1px solid var(--border);border-radius:12px;padding:12px;background:var(--cream)}
+.otp{display:grid;grid-template-columns:minmax(0,1fr);min-width:0;gap:10px;border:1px solid var(--border);border-radius:12px;padding:12px;background:var(--cream)}
 .otp input{letter-spacing:.4em;text-align:center;font-size:var(--text-lg);font-weight:800}
 .otp-lk{display:flex;gap:14px;flex-wrap:wrap;font-size:var(--text-sm)}
 .otp-lk button{background:none;border:none;padding:0;color:var(--gold);font-weight:700;font-family:inherit;font-size:inherit;cursor:pointer}
@@ -162,6 +164,9 @@ tr.sum td{font-weight:800;background:var(--cream)}
 .toast{display:flex;gap:10px;align-items:flex-start;background:#ecfdf3;border:1px solid #a7e3bf;color:#14532d;border-radius:12px;padding:12px 14px;margin:6px 0 12px;font-size:var(--text-sm);line-height:1.5}
 .toast i{font-size:22px;color:#16a34a;flex:0 0 auto}
 .tk{margin-top:18px;border-radius:16px;overflow:hidden;background:var(--navy);color:#fff}
+/* Tách khối "Bước tiếp theo" khỏi thanh tổng tiền (cùng nền navy, trước đây chỉ cách 2px
+   nên trông như một khối tối ló ra dưới thanh). Thanh có margin-bottom -16px. */
+.bar+.tk{margin-top:40px}
 .tk-dau{padding:18px 16px 6px}
 .tk-dau .eyebrow{margin-bottom:6px}
 .tk-dau b{display:block;font-size:var(--text-lg);line-height:1.35}
