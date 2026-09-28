@@ -186,6 +186,19 @@ tr.sum td{font-weight:800;background:var(--cream)}
 .mon b{display:block;font-size:var(--text-sm)}
 .mon small{display:block;color:var(--sub);font-size:var(--text-xs);line-height:1.4}
 .mon-ctrl{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+/* Giá khách tự nhập cho từng món (28/09/2026) */
+.gk{grid-column:1/-1;min-width:0}
+.mon.off .gk{display:none}
+.gk-mo{background:none;border:none;padding:0;color:var(--gold);font:inherit;font-weight:700;font-size:var(--text-xs);cursor:pointer}
+.gk-o{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,auto);gap:6px 8px;align-items:center;padding:10px;border:1px dashed var(--border2);border-radius:10px;background:var(--cream)}
+.gk-o label{grid-column:1/-1;font-size:var(--text-xs);color:var(--sub);font-weight:700}
+.gk-o input{width:100%;min-width:0;box-sizing:border-box;border:1px solid var(--border2);border-radius:8px;padding:8px 10px;font:inherit;font-size:var(--text-sm)}
+.gk-o select{min-width:0;max-width:100%;border:1px solid var(--border2);border-radius:8px;padding:8px 6px;font:inherit;font-size:var(--text-xs);background:#fff}
+.gk-o .gk-duoi{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;font-size:var(--text-xs);color:var(--sub)}
+.gk-o .gk-bo{background:none;border:none;padding:0;color:var(--gold);font:inherit;font-weight:700;cursor:pointer}
+.gk-o .gk-loi{color:var(--red)}
+.mon .gk-co{color:var(--gold);font-weight:700}
+.bar .tong-aln{display:block;font-size:var(--text-xs);color:#cbd5e1}
 .mon-ctrl select{border:1px solid var(--border2);border-radius:8px;padding:8px;font-family:inherit;font-size:var(--text-sm);background:var(--white);color:var(--text)}
 .qty{display:flex;align-items:center;border:1px solid var(--border2);border-radius:8px;overflow:hidden}
 .qty button{width:34px;height:36px;border:none;background:var(--cream2);font-size:18px;cursor:pointer;color:var(--text)}
@@ -211,7 +224,8 @@ tr.sum td{font-weight:800;background:var(--cream)}
    giữ nền vàng). Không ép 1 hàng vì tổng dài + 2 nút không đủ chỗ ở 360px. */
 @media (max-width:560px){
   .bar{flex-wrap:wrap;padding:10px 12px;gap:8px}
-  .bar>div:first-child{flex:1 1 100%;display:flex;align-items:baseline;gap:6px}
+  .bar>div:first-child{flex:1 1 100%;display:flex;flex-wrap:wrap;align-items:baseline;gap:0 6px}
+  .bar .tong-aln{display:none!important} /* điện thoại: giữ thanh ~93px; so giá ALN vẫn có ở từng món */
   .bar small{display:inline}
   .bar .nhan-dai{display:none}
   .bar .nhan-ngan{display:inline}
@@ -379,7 +393,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="bam-goi-y"><i class="ph-duotone ph-hand-pointing"></i><span><b>Bấm vào từng phòng</b> để xem ảnh, đơn giá và chỉnh từng món.</span></div>
         <div id="ds-phong"></div>
         <div class="anh-note">Ảnh chỉ để hình dung loại món, không phải sản phẩm cụ thể. Ảnh từ Unsplash.</div>
-        <div class="bar"><div><small><span class="nhan-dai">Tổng theo lựa chọn của anh/chị (gồm dự phòng và phí thiết kế)</span><span class="nhan-ngan">Tổng</span></small><b id="tong-chinh">–</b></div><div class="bar-nut"><button type="button" id="nut-luu" class="nut-luu" aria-live="polite">Lưu lựa chọn</button><a href="tel:0909829696" data-aln-cta="noi-that-goi-bar"><i class="ph-duotone ph-phone-call"></i> Gọi KTS</a></div></div>
+        <div class="bar"><div><small><span class="nhan-dai">Tổng theo lựa chọn của anh/chị (gồm dự phòng và phí thiết kế)</span><span class="nhan-ngan">Tổng</span></small><b id="tong-chinh">–</b><span class="tong-aln" id="tong-aln" hidden></span></div><div class="bar-nut"><button type="button" id="nut-luu" class="nut-luu" aria-live="polite">Lưu lựa chọn</button><a href="tel:0909829696" data-aln-cta="noi-that-goi-bar"><i class="ph-duotone ph-phone-call"></i> Gọi KTS</a></div></div>
         <div class="tk">
           <div class="tk-dau"><div class="eyebrow">Bước tiếp theo</div><b>Bảng này cho khoảng giá. Bản thiết kế nội thất cho anh/chị một con số chính xác.</b>
             <p id="tk-chenh">Khoảng giá còn rộng vì chưa có bố trí thật của từng phòng. KTS ALN thiết kế nội thất theo đúng căn nhà và ngân sách của anh/chị.</p></div>
@@ -857,7 +871,7 @@ async function moBang(giuLai) {
       // Giữ lựa chọn của khách; món co giãn theo kích thước/diện tích thì lấy số lượng mới.
       let sl = c.sl;
       if (c.muc !== 'bo' && (m.co_gian || !c.tuChinh) && m.sl[c.muc] > 0) sl = m.sl[c.muc];
-      DONG.push({ phong: pi, m, muc: c.muc, sl, tuChinh: c.tuChinh && !m.co_gian });
+      DONG.push({ phong: pi, m, muc: c.muc, sl, tuChinh: c.tuChinh && !m.co_gian, gk: c.gk, gkNguon: c.gkNguon, gkMo: c.gkMo, gkSai: c.gkSai, gkRaw: c.gkRaw, gkLoi: c.gkLoi });
     } else {
       DONG.push({ phong: pi, m, muc: m.sl.kha > 0 ? 'kha' : 'bo', sl: m.sl.kha > 0 ? m.sl.kha : slMax });
     }
@@ -890,9 +904,14 @@ function nutLuu(tt) {
   TT_LUU = tt;
   const el = document.getElementById('nut-luu');
   if (!el) return;
-  el.className = 'nut-luu' + (tt === 'ok' ? ' ok' : tt === 'loi' ? ' loi' : '');
   el.disabled = tt === 'dang';
-  if (tt === 'ok') {
+  // Có ô giá nhập sai: báo trên nút (ưu tiên hơn "Đã lưu"/"Lưu lựa chọn"). Món sai không
+  // được gửi (goiLuuLuaChon bỏ qua), các món hợp lệ vẫn lưu bình thường.
+  const soSai = tt === 'dang' ? 0 : DONG.filter((d) => d.gkSai && d.muc !== 'bo').length;
+  el.className = 'nut-luu' + (soSai || tt === 'loi' ? ' loi' : tt === 'ok' ? ' ok' : '');
+  if (soSai) {
+    el.textContent = `Còn ${soSai} món nhập sai`;
+  } else if (tt === 'ok') {
     const d = new Date();
     el.textContent = `✓ Đã lưu · ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
   } else {
@@ -902,7 +921,7 @@ function nutLuu(tt) {
 function goiLuuLuaChon() {
   return {
     leadId: LEAD_ID, phong: PHONG_DA_TINH, muc: MUC_CHUNG,
-    mon_chinh: DONG.map((d) => ({ phong: d.phong, ma: d.m.ma, muc: d.muc, sl: d.sl })),
+    mon_chinh: DONG.map((d) => ({ phong: d.phong, ma: d.m.ma, muc: d.muc, sl: d.sl, ...(d.gk && !d.gkSai ? { gia_khach: d.gk } : {}) })),
   };
 }
 function layToken() {
@@ -974,10 +993,38 @@ document.getElementById('muc-all').addEventListener('click', (e) => {
   henLuuLuaChon();
 });
 
-function tienDong(d) {
+function tienDong(d, theoAln) {
   if (d.muc === 'bo') return [0, 0];
+  if (d.gk && !theoAln) return [d.sl * d.gk.don_gia, d.sl * d.gk.don_gia];
   const g = d.m.gia[d.muc];
   return [d.sl * g[0], d.sl * g[1]];
+}
+/* Giá khách tự nhập: đơn giá đ/đơn vị + nguồn. Máy chủ kiểm lại (luaChonLanCham.kiemGiaKhach). */
+const GIA_KHACH_MAX = 1e9;
+const NGUON_GK = { cua_hang: 'Báo giá cửa hàng', mang: 'Thấy trên mạng', uoc_chung: 'Ước chừng' };
+/* "4.500.000", "4 500 000", "4500000đ" → 4500000. Chuỗi rỗng → null (chưa nhập).
+   Có ký tự khác (dấu trừ, chữ…) → NaN để báo lỗi, không lặng lẽ bỏ dấu trừ. */
+const docGiaKhach = (raw) => {
+  const t = String(raw || '').trim();
+  if (!t) return null;
+  if (/^-\s*\d/.test(t)) return -1; // số âm → báo "phải lớn hơn 0"
+  if (/[^\d\s.,đ]/i.test(t)) return NaN;
+  const so = t.replace(/[^\d]/g, '');
+  return so ? Number(so) : NaN;
+};
+function oGiaKhach(d, i) {
+  // Món "Không làm": ô giá ẩn bằng CSS (.mon.off .gk), giá khách không tính.
+  if (!d.gk && !d.gkMo) {
+    return `<div class="gk"><button type="button" class="gk-mo" data-gk-mo="${i}">＋ Nhập giá anh/chị tham khảo</button></div>`;
+  }
+  const nguon = d.gk ? d.gk.nguon : (d.gkNguon || ''); // không chọn = null, không mặc định
+  const giaTri = d.gkSai ? d.gkRaw : (d.gk ? d.gk.don_gia.toLocaleString('vi-VN') : '');
+  return `<div class="gk"><div class="gk-o">
+    <label for="gk-gia-${i}">Giá anh/chị tham khảo (đ/${esc(d.m.don_vi)})</label>
+    <input id="gk-gia-${i}" data-gk-gia="${i}" inputmode="numeric" autocomplete="off" placeholder="VD: 4.500.000" value="${esc(giaTri)}">
+    <select data-gk-nguon="${i}" aria-label="Nguồn giá (không bắt buộc)"><option value=""${!nguon ? ' selected' : ''}>Chọn nguồn (không bắt buộc)</option>${Object.keys(NGUON_GK).map((k) => `<option value="${k}"${k === nguon ? ' selected' : ''}>${NGUON_GK[k]}</option>`).join('')}</select>
+    <div class="gk-duoi"><span class="gk-loi" id="gk-loi-${i}"${d.gkSai ? '' : ' hidden'}>${d.gkSai ? esc(d.gkLoi || '') : ''}</span><button type="button" class="gk-bo" data-gk-bo="${i}">${d.gk || d.gkSai ? 'Bỏ giá của tôi, dùng giá ALN' : 'Đóng'}</button></div>
+  </div></div>`;
 }
 
 const fmtSo = (v) => Number(v).toLocaleString('vi-VN', { maximumFractionDigits: 2 });
@@ -1022,6 +1069,7 @@ function veBang() {
           <span class="dv">${esc(d.m.don_vi)}</span>
           <span class="tien" id="tien-${i}"></span>
         </div>
+        ${oGiaKhach(d, i)}
       </div>`).join('')}
     </div></details>`;
   }).join('');
@@ -1038,20 +1086,26 @@ function veBang() {
 
 function capNhat() {
   const tongPhong = {};
-  let thap = 0, cao = 0;
+  let thap = 0, cao = 0, thapAln = 0, caoAln = 0, soGk = 0;
   DONG.forEach((d, i) => {
     const [a, b] = tienDong(d);
-    thap += a; cao += b;
+    const [a2, b2] = tienDong(d, true);
+    thap += a; cao += b; thapAln += a2; caoAln += b2;
+    if (d.gk && d.muc !== 'bo') soGk++;
     tongPhong[d.phong] = tongPhong[d.phong] || [0, 0];
     tongPhong[d.phong][0] += a; tongPhong[d.phong][1] += b;
     const $row = document.getElementById(`mon-${i}`);
     if (!$row) return;
     $row.classList.toggle('off', d.muc === 'bo');
     const g = d.muc === 'bo' ? null : d.m.gia[d.muc];
-    document.getElementById(`vl-${i}`).textContent = g
-      ? `${d.m.vat_lieu[d.muc] || ''}${d.m.vat_lieu[d.muc] ? ' · ' : ''}đơn giá ${gia(g[0])} – ${gia(g[1])}/${d.m.don_vi}`
-      : 'Không tính món này';
-    document.getElementById(`tien-${i}`).textContent = g ? `${gia(a)} – ${gia(b)}` : '–';
+    const $vl = document.getElementById(`vl-${i}`);
+    if (!g) $vl.textContent = 'Không tính món này';
+    else if (d.gk) {
+      $vl.innerHTML = `<span class="gk-co">Giá anh/chị: ${gia(d.gk.don_gia)}/${esc(d.m.don_vi)}${d.gk.nguon ? ` (${esc(NGUON_GK[d.gk.nguon].toLowerCase())})` : ''}</span> · ALN ${gia(g[0])} – ${gia(g[1])}/${esc(d.m.don_vi)}`;
+    } else {
+      $vl.textContent = `${d.m.vat_lieu[d.muc] || ''}${d.m.vat_lieu[d.muc] ? ' · ' : ''}đơn giá ${gia(g[0])} – ${gia(g[1])}/${d.m.don_vi}`;
+    }
+    document.getElementById(`tien-${i}`).textContent = !g ? '–' : (d.gk ? gia(a) : `${gia(a)} – ${gia(b)}`);
   });
   BANG.phong.forEach((p, pi) => {
     const t = tongPhong[pi] || [0, 0];
@@ -1066,6 +1120,11 @@ function capNhat() {
   const tThap = thap * (1 + BANG.du_phong.thap) + phi;
   const tCao = cao * (1 + BANG.du_phong.cao) + phi;
   document.getElementById('tong-chinh').textContent = `${trieu(tThap)} – ${trieu(tCao, true)} triệu`;
+  const $aln = document.getElementById('tong-aln');
+  if ($aln) {
+    $aln.hidden = !soGk;
+    if (soGk) $aln.textContent = `${soGk} món giá anh/chị · toàn giá ALN: ${trieu(thapAln * (1 + BANG.du_phong.thap) + phi)} – ${trieu(caoAln * (1 + BANG.du_phong.cao) + phi, true)} tr`;
+  }
   document.getElementById('tk-phi').textContent = `(${Math.round(dt).toLocaleString('vi-VN')} m² × ${BANG.phi_thiet_ke_m2.toLocaleString('vi-VN')}đ = ${Math.round(phi).toLocaleString('vi-VN')}đ)`;
 }
 
@@ -1101,6 +1160,7 @@ async function doiKichThuoc(el) {
 
 document.getElementById('ds-phong').addEventListener('change', (e) => {
   if (e.target.dataset && e.target.dataset.kt) { doiKichThuoc(e.target); return; }
+  if (e.target.dataset && (e.target.dataset.gkGia != null || e.target.dataset.gkNguon != null)) { doiGiaKhach(e.target); return; }
   const i = Number(e.target.dataset.i);
   if (!Number.isInteger(i) || !DONG[i]) return;
   const d = DONG[i];
@@ -1243,7 +1303,55 @@ document.getElementById('ds-phong').addEventListener('input', (e) => {
   KT_NHAP[pi] = Object.assign({}, KT_NHAP[pi], { [k]: e.target.value });
 });
 
+/* Giá khách: ô số + nguồn. Sai (≤0, quá lớn) thì báo tại chỗ, không đổi tổng. */
+function doiGiaKhach(el) {
+  const i = Number(el.dataset.gkGia != null ? el.dataset.gkGia : el.dataset.gkNguon);
+  const d = DONG[i];
+  if (!d) return;
+  const $mon = document.getElementById(`mon-${i}`);
+  const nguon = $mon.querySelector(`[data-gk-nguon="${i}"]`).value || null; // "" = không chọn nguồn
+  d.gkNguon = nguon;
+  const $loi = document.getElementById(`gk-loi-${i}`);
+  const $gia = $mon.querySelector(`[data-gk-gia="${i}"]`);
+  const raw = $gia.value;
+  const v = docGiaKhach(raw);
+  const truoc = JSON.stringify(d.gk || null);
+  $loi.hidden = true;
+  d.gkSai = false; d.gkRaw = ''; d.gkLoi = '';
+  if (v == null) {
+    d.gk = null; // ô trống = không dùng giá của mình
+  } else if (!(v > 0) || v > GIA_KHACH_MAX) {
+    // Ô sai: KHÔNG gửi món này lên máy chủ (goiLuuLuaChon bỏ qua), tính theo giá ALN,
+    // giữ nguyên chữ khách gõ + báo lỗi tại ô. Các món hợp lệ khác vẫn lưu bình thường.
+    d.gk = null; d.gkSai = true; d.gkRaw = raw;
+    d.gkLoi = Number.isNaN(v) ? 'Chỉ nhập số tiền, ví dụ 4.500.000.' : v > GIA_KHACH_MAX ? 'Giá quá lớn, anh/chị kiểm tra lại.' : 'Giá phải lớn hơn 0.';
+    $loi.textContent = d.gkLoi;
+    $loi.hidden = false;
+  } else {
+    d.gk = { don_gia: v, nguon };
+    $gia.value = v.toLocaleString('vi-VN');
+  }
+  const $bo = $mon.querySelector(`[data-gk-bo="${i}"]`);
+  if ($bo) $bo.textContent = d.gk || d.gkSai ? 'Bỏ giá của tôi, dùng giá ALN' : 'Đóng';
+  capNhat();
+  nutLuu(TT_LUU); // cập nhật "Còn N món nhập sai"
+  if (JSON.stringify(d.gk || null) !== truoc) henLuuLuaChon(); // chỉ lưu khi giá hợp lệ thực sự đổi
+}
 document.getElementById('ds-phong').addEventListener('click', (e) => {
+  const gkMo = e.target.dataset && e.target.dataset.gkMo;
+  const gkBo = e.target.dataset && e.target.dataset.gkBo;
+  if (gkMo != null || gkBo != null) {
+    const i = Number(gkMo != null ? gkMo : gkBo);
+    const d = DONG[i];
+    if (!d) return;
+    const coGia = !!d.gk;
+    if (gkMo != null) d.gkMo = true; else { d.gk = null; d.gkMo = false; d.gkSai = false; d.gkRaw = ''; d.gkLoi = ''; }
+    veBang();
+    nutLuu(TT_LUU);
+    if (gkMo != null) { const el = document.getElementById(`gk-gia-${i}`); if (el) el.focus(); }
+    if (gkBo != null && coGia) henLuuLuaChon();
+    return;
+  }
   const step = Number(e.target.dataset.d);
   const i = Number(e.target.dataset.i);
   if (!step || !Number.isInteger(i) || !DONG[i]) return;
