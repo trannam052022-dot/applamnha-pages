@@ -986,7 +986,21 @@ body {
 /* ── switchGroup: chuyển nhóm + hiện sub-bar ── */
 var _fActiveGroup = '';
 var _fGroupFirstTab = { projects:'projects', members:'mgKts', ops:'payments', live:'liveKts' };
-function switchGroup(g) {
+/* Nhớ tab đang mở qua lần tải lại (29/09/2026). Đọc TRƯỚC khi mặc định mở
+   nhóm Dự án ghi đè; chỉ khôi phục sau khi đăng nhập xong (__fpKhoiPhucTab
+   gọi từ onAuthStateChanged), vì nhiều tab cần phiên mới tải được dữ liệu. */
+var _fTabDaLuu = null;
+try { _fTabDaLuu = localStorage.getItem('aln_fp_tab'); } catch(e) {}
+window.__fpKhoiPhucTab = function() {
+  var t = _fTabDaLuu; _fTabDaLuu = null;
+  if (!t || t === 'projects') return;
+  if (t === 'stats') { switchGroup('stats'); return; }
+  var btn = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
+  var wrap = btn && btn.closest('[id^="fsub"]');
+  var g = wrap && { fsubProjects:'projects', fsubMembers:'members', fsubOps:'ops', fsubLive:'live' }[wrap.id];
+  if (g) switchGroup(g, t);
+};
+function switchGroup(g, tab) {
   _fActiveGroup = g;
   // Group buttons
   ['stats','projects','members','ops','live'].forEach(function(id){
@@ -1007,8 +1021,8 @@ function switchGroup(g) {
     var subId = { projects:'fsubProjects', members:'fsubMembers', ops:'fsubOps', live:'fsubLive' }[g];
     var subEl = subId && document.getElementById(subId);
     if (subEl) subEl.style.display = 'flex';
-    // Kích hoạt tab đầu tiên của nhóm nếu đang ở nhóm khác
-    switchTab(_fGroupFirstTab[g]);
+    // Kích hoạt tab được chỉ định, hoặc tab đầu tiên của nhóm
+    switchTab(tab || _fGroupFirstTab[g]);
   }
 }
 /* Gọi switchGroup khi cần (ví dụ badge click từ bên ngoài) */
@@ -1018,6 +1032,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var _orig = window.switchTab;
   window.switchTab = function(tab) {
     _orig(tab);
+    try { localStorage.setItem('aln_fp_tab', tab); } catch(e) {}
     // Xoá inline style do _orig gán, chuyển sang class-based
     document.querySelectorAll('.fsub').forEach(function(b){
       b.style.cssText = '';
@@ -6956,6 +6971,8 @@ onAuthStateChanged(auth, async (user) => {
     try { _startFeeConfigListen(); } catch(e){ console.error('[Founder fee config listen]', e); }
     try { _startBankAccountConfigListen(); } catch(e){ console.error('[Founder bankAccount config listen]', e); }
     try { _startPendingListen(); } catch(e){ console.error('[Founder pending]', e); }
+    // Mở lại tab đang dùng trước khi tải lại trang
+    try { if (typeof window.__fpKhoiPhucTab === 'function') window.__fpKhoiPhucTab(); } catch(e){ console.error('[Founder tab]', e); }
 
     // ── Đến từ founder_forum.html "Tạo dự án từ đây" (invite intent:project) ──
     try {
