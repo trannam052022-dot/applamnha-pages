@@ -290,7 +290,7 @@ const KHONG_GIAN_NHA_URL = 'khong-gian-nha.html';
 // OTP thay vì luôn về khong-gian-nha.html. CHỈ nhận đường dẫn NỘI BỘ, CÙNG
 // ORIGIN, đúng 1 trong các trang whitelist dưới đây — chặn open redirect
 // (không nhận scheme/host lạ kiểu "https://...", "//evil.com", "javascript:").
-const NEXT_ALLOWED_PAGES = ['khong-gian-nha.html', 'du-toan-nha.html'];
+const NEXT_ALLOWED_PAGES = ['khong-gian-nha.html', 'du-toan-nha.html', 'phieu-yeu-cau.html'];
 function resolveNextUrl() {
   const raw = new URLSearchParams(window.location.search).get('next');
   if (!raw) return window.alnEstimateFunnel.preserve(KHONG_GIAN_NHA_URL);

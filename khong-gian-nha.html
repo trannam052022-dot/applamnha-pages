@@ -930,6 +930,14 @@ function renderHouseCallback() {
 function renderSteps() {
   els.stepList.innerHTML = `
     <div class="step-item">
+      <div class="step-badge"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8l3 3v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M9 11l2 2 4-4M9 17h6"/></svg></div>
+      <div class="step-body">
+        <div class="step-ten">Hẹn gặp KTS chốt phương án? Điền phiếu thông tin nhu cầu cho cuộc gặp</div>
+        <p class="step-note">Ghi công năng từng tầng, người cùng quyết định, giấy tờ đang có… — số liệu dự toán đã điền sẵn. KTS đọc phiếu rồi gọi theo khung giờ bạn chọn để hẹn gặp. Tải phiếu về làm cơ sở làm việc.</p>
+        <div class="step-actions"><a class="btn btn-gold" href="phieu-yeu-cau.html?h=${encodeURIComponent(currentHouseId || '')}">Hẹn gặp KTS — điền phiếu</a></div>
+      </div>
+    </div>
+    <div class="step-item">
       <div class="step-badge"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg></div>
       <div class="step-body">
         <div class="step-ten">Gửi bản vẽ để ALN kiểm nhanh miễn phí</div>

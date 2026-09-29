@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM -->
+<script src="scripts/aln-optout.js"></script>
+<script src="scripts/aln-estimate-funnel.js"></script>
+<script src="aln-esc.js"></script>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MB7VRGR5');</script>
+<!-- End Google Tag Manager -->
+
+<script src="error-monitor.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>ALN — Phiếu thống nhất yêu cầu thiết kế</title>
+<!--
+  Phiếu thống nhất yêu cầu thiết kế — chủ nhà TỰ ĐIỀN trong Không gian Nhà
+  (Founder chốt 29/09/2026). Bố cục in theo mẫu phiếu đã duyệt (đầu trang
+  hotline KTS Trần Long, số mục La Mã có dấu chấm, mã QR Không gian Nhà,
+  chân trang công ty). Dữ liệu điền sẵn + phí thiết kế do Cloud Function
+  khPhieuYeuCau trả về (server tính, cùng hàm với brief buổi gặp); lưu cũng
+  qua hàm đó (houses/{id}.phieu_yeu_cau). Trang KHÔNG ghép dữ liệu vào
+  innerHTML — mọi giá trị đi qua .value/.textContent/.checked.
+  Tải PDF = window.print(): bảng .print-khung lặp thead/tfoot làm lề mỗi
+  trang, @page margin 0 để trình duyệt không in tiêu đề/đường dẫn.
+-->
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- Google Analytics 4 (ALN — G-5CSL1TF0RC) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-5CSL1TF0RC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-5CSL1TF0RC');
+</script>
+<!-- End GA4 -->
+
+<style>
+:root{
+  --navy:#0f1a30; --gold:#b88a12; --gold-hi:#d4a017; --gold-soft:#f5ecd6;
+  --ink:#1c2233; --muted:#5d6577; --line:#d9dbe1; --paper:#ffffff; --fill:#f6f7f9; --ok:#1f7a4d; --err:#b3261e;
+  --display:'Oswald','Arial Narrow',Arial,sans-serif;
+  --body:'Be Vietnam Pro','Segoe UI',Arial,sans-serif;
+  --mono:'IBM Plex Mono','Courier New',monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:#e9ebef;color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.65;-webkit-text-size-adjust:100%}
+[hidden]{display:none!important}
+
+/* Thanh công cụ (chỉ màn hình) */
+.bar{position:sticky;top:0;z-index:10;background:var(--navy);color:#fff;border-bottom:2px solid var(--gold-hi);padding:10px 16px calc(10px) 16px}
+.bar-in{max-width:860px;margin:0 auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.bar a.back{color:#d8dde8;text-decoration:none;font-size:14px}
+.bar .st{flex:1;min-width:140px;font-size:13px;color:#a9b3c7}
+.bar .st.ok{color:#8fd9b0}.bar .st.err{color:#ffb4ab}
+.btn{font:600 14px var(--body);border-radius:6px;padding:9px 14px;border:1px solid transparent;cursor:pointer;line-height:1.2}
+.btn-gold{background:var(--gold-hi);color:#1a1405}
+.btn-ghost{background:transparent;color:#fff;border-color:#55617c}
+.btn:disabled{opacity:.55;cursor:default}
+.btn:focus-visible,.f:focus-visible,.cb input:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px}
+.tip{max-width:860px;margin:10px auto 0;padding:0 16px;font-size:13px;color:var(--muted)}
+
+.state{max-width:860px;margin:24px auto;padding:24px 16px;text-align:center;color:var(--muted)}
+
+/* Tờ phiếu */
+.wrap{padding:14px 16px 40px}
+.sheet{max-width:820px;margin:0 auto;background:var(--paper);padding:34px 36px;box-shadow:0 1px 8px rgba(15,26,48,.12)}
+.print-khung{width:100%;border-collapse:collapse}
+.print-khung>thead,.print-khung>tfoot{display:none}
+.print-khung>tbody>tr>td{padding:0}
+
+.head{display:flex;align-items:center;gap:14px;padding-bottom:12px;border-bottom:2px solid var(--gold)}
+.head img{width:54px;height:54px;border-radius:6px;flex:none}
+.brand{flex:1;min-width:0}
+.brand b{display:block;font-family:var(--display);font-weight:600;font-size:26px;letter-spacing:.14em;color:var(--navy);line-height:1.22}
+.brand span{font-size:10px;letter-spacing:.16em;color:var(--muted)}
+.contact{text-align:right;font-size:12px;line-height:1.5}
+.contact .web{color:var(--gold);font-weight:600}
+.contact .hot{display:block;margin-top:2px;color:var(--navy);font-weight:600}
+.contact .hot i{font-style:normal;font-family:var(--mono);font-weight:500}
+
+.titlerow{display:flex;align-items:center;gap:16px;margin:14px 0 12px}
+.titletext{flex:1;min-width:0}
+.eyebrow{margin:0 0 2px;font-size:11.5px;font-weight:600;letter-spacing:.1em;color:var(--gold);text-transform:uppercase}
+h1{margin:0;font-family:var(--display);font-weight:600;font-size:29px;line-height:1.22;color:var(--navy);text-wrap:balance}
+.lead{margin:4px 0 0;color:var(--muted);font-size:14px}
+.qrcard{flex:none;width:250px;display:flex;gap:10px;align-items:center;padding:8px;border:1px solid var(--line);border-top:2.5px solid var(--gold);border-radius:4px}
+.qr{width:90px;height:90px;flex:none}.qr svg{display:block;width:100%;height:100%}
+.qrtext{font-size:11px;line-height:1.45;color:var(--muted);min-width:0}
+.qrtext b{display:block;font-size:12.5px;color:var(--navy);margin-bottom:2px}
+.qrtext .mono{font-family:var(--mono);color:var(--navy);font-weight:500}
+
+.meta{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:4px;background:var(--fill)}
+.meta>div{padding:7px 10px;border-right:1px solid var(--line);min-width:0}
+.meta>div:last-child{border-right:0}
+.meta small{display:block;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.meta strong{font-size:13.5px;color:var(--navy);overflow-wrap:anywhere}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.meta .cho{font-family:var(--body);font-size:12px;font-weight:500;color:var(--muted)}
+
+.xh-chon{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;margin-top:10px;padding:8px 10px;background:var(--gold-soft);border-radius:4px;font-size:13.5px}
+
+section{margin-top:18px}
+h2{display:flex;align-items:baseline;gap:8px;margin:0 0 6px;font-family:var(--display);font-weight:500;font-size:17px;line-height:1.3;color:var(--navy);text-transform:uppercase;letter-spacing:.04em;break-after:avoid}
+h2 .n{font-family:var(--display);font-size:17px;color:var(--gold);font-weight:600;min-width:40px}
+.hint{margin:-2px 0 8px 48px;font-size:12.5px;color:var(--muted)}
+.keep{break-inside:avoid}
+
+.road{display:grid;grid-template-columns:repeat(4,1fr)}
+.road>div{padding:8px 10px 8px 12px;border:1px solid var(--line);border-left-width:0;font-size:12.5px;line-height:1.45;min-width:0}
+.road>div:first-child{border-left-width:1px;border-radius:4px 0 0 4px}
+.road>div:last-child{border-radius:0 4px 4px 0}
+.road b{display:block;font-family:var(--display);font-weight:500;font-size:14px;color:var(--navy)}
+.road em{display:block;font-style:normal;font-family:var(--mono);font-size:10.5px;color:var(--muted);letter-spacing:.06em}
+.road .now{background:var(--gold-soft);border-color:#e3cf9c}
+
+table.t{width:100%;table-layout:fixed;border-collapse:collapse;font-size:13.5px;line-height:1.5}
+.t th{text-align:left;font-weight:600;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:5px 8px;border-bottom:1.5px solid var(--navy)}
+.t td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+.t tr{break-inside:avoid}
+.t td.k{width:25%;font-weight:600;color:var(--navy)}
+.t td.num,.t th.num{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.t .total td{font-weight:700;border-bottom:1.5px solid var(--navy);color:var(--navy)}
+.note{font-size:12.5px;color:var(--muted)}
+.q{display:inline-block;margin-right:16px}
+
+/* Ô nhập — trên giấy trông như dòng chấm điền tay */
+.f{font:inherit;color:var(--navy);font-weight:500;border:0;border-bottom:1px dotted #8b93a3;background:transparent;padding:1px 2px;min-width:0;border-radius:0}
+.f:focus{outline:none;border-bottom:1.5px solid var(--gold-hi);background:#fffaf0}
+.f.w{width:100%}
+.f.m{width:180px;max-width:100%}
+.f.s{width:64px}
+textarea.f{width:100%;resize:vertical;min-height:2.6em;display:block}
+.f::placeholder{color:#a3a9b6;font-weight:400}
+.cb{display:inline;margin-right:12px;white-space:nowrap;cursor:pointer}
+.cb input{appearance:none;-webkit-appearance:none;display:inline-block;vertical-align:-2px;width:13px;height:13px;margin:0 5px 0 0;border:1.3px solid var(--navy);border-radius:2px;background:#fff;flex:none;cursor:pointer;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+.cb input:checked{background:var(--navy);box-shadow:inset 0 0 0 2px #fff}
+.tang-them{margin-top:6px;font:500 13px var(--body);color:var(--gold);background:none;border:1px dashed var(--gold);border-radius:4px;padding:4px 10px;cursor:pointer}
+
+.fee{display:grid;grid-template-columns:1fr auto;gap:4px 16px;align-items:baseline;padding:10px 12px;border:1px solid var(--navy);border-radius:4px}
+.fee .big{font-family:var(--mono);font-weight:600;font-size:21px;color:var(--navy);text-align:right}
+.fee .calc{font-family:var(--mono);font-size:12.5px;color:var(--muted);text-align:right}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.two>*{min-width:0}
+ul.plain{margin:4px 0 0;padding-left:18px;font-size:13.5px}
+ul.plain li{margin:2px 0}
+.tag{display:inline-block;font-size:11.5px;font-weight:600;letter-spacing:.04em;padding:0 7px;border-radius:9px;background:var(--gold-soft);color:#7a5b08}
+
+.faq{display:grid;grid-template-columns:1fr 1fr;gap:10px 18px}
+.faq>div{break-inside:avoid;min-width:0}
+.faq b{display:block;color:var(--navy);font-size:13.5px}
+.faq p{margin:1px 0 0;font-size:13px;line-height:1.55}
+
+.sign{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:10px;text-align:center}
+.sign b{font-family:var(--display);font-weight:500;font-size:15px;color:var(--navy);text-transform:uppercase;letter-spacing:.05em}
+.sign .space{height:90px}
+.ngay-ky{margin:22px 0 4px 50%;text-align:center;white-space:nowrap;font-style:italic;font-size:13px;color:var(--ink)}
+.disclaimer{margin-top:14px;padding:8px 12px;background:var(--fill);border-radius:4px;font-size:12px;color:var(--muted)}
+
+.corp{margin-top:16px;padding:12px 16px 14px;background:var(--navy);border-top:2.5px solid var(--gold-hi);border-radius:3px;color:#fff;break-inside:avoid;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+.corp-id{display:flex;align-items:center;gap:10px}
+.corp-id img{width:36px;height:36px;border-radius:5px}
+.corp-id b{display:block;font-weight:700;font-size:15px;letter-spacing:.02em;line-height:1.3}
+.corp-id span{font-size:12px;color:#a9b3c7}
+.corp-row{display:grid;grid-template-columns:auto 1fr auto;margin-top:10px}
+.corp-row>div{padding:0 14px;border-left:1px solid #34405a;min-width:0}
+.corp-row>div:first-child{padding-left:0;border-left:0}
+.corp-row small{display:block;font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-hi)}
+.corp-row small svg{vertical-align:-1px;margin-right:5px}
+.corp-row strong{font-size:13px;font-weight:600;color:#fff;line-height:1.45}
+.corp-row em{font-style:normal;font-size:12px;color:#a9b3c7}
+
+@media (max-width:680px){
+  body{font-size:14.5px}
+  .wrap{padding:10px 0 32px}
+  .sheet{padding:18px 16px;box-shadow:none}
+  .head{flex-wrap:wrap}.contact{text-align:left}
+  .titlerow{flex-direction:column;align-items:stretch}.qrcard{width:auto}
+  .meta,.road,.two,.faq,.sign,.corp-row{grid-template-columns:1fr}
+  .ngay-ky{margin-left:0}
+  .meta>div{border-right:0;border-bottom:1px solid var(--line)}
+  .road>div{border-left-width:1px}
+  .corp-row{gap:8px}.corp-row>div{padding:0;border:0}
+  .hint{margin-left:0}
+  .t.rt,.t.rt tbody,.t.rt tr,.t.rt td{display:block;width:auto}
+  .t.rt td.k{width:auto;border-bottom:0;padding-bottom:0}
+  .t.tang td{padding:6px 4px}
+}
+
+/* ── In / Lưu PDF ── */
+@page{size:A4;margin:0}
+@media print{
+  /* Giấy in: chữ xám nhạt + chữ < 8pt dễ mờ trên máy in văn phòng → đậm màu, nâng cỡ tối thiểu */
+  :root{--muted:#343b4a;--line:#9ea4b0;--ink:#10151f}
+  body{background:#fff;font-size:12.8px;-webkit-font-smoothing:auto}
+  .meta small,.road em,.t th,.corp-row small{font-size:11px}
+  .hint,.note,.qrtext,.disclaimer,.faq p{font-size:12px}
+  .t td{border-bottom-color:#b5bac4}
+  .bar,.tip,.no-print,.tang-them{display:none!important}
+  .wrap{padding:0}
+  .sheet{max-width:none;box-shadow:none;padding:0 14mm;margin:0}
+  .print-khung>thead,.print-khung>tfoot{display:table-header-group}
+  .print-khung>tfoot{display:table-footer-group}
+  .print-khung .le-tren{height:12mm}.print-khung .le-duoi{height:14mm}
+  .f{border-bottom:1px dotted #555c6b}
+  .f::placeholder{color:transparent}
+  textarea.f{resize:none;overflow:hidden}
+  .cb{cursor:default}
+  h1{font-size:25px}
+  /* Trang ký riêng: mục XIII ở đầu trang cuối, bảng công ty sát chân trang
+     (Nam chốt 29/09/2026); ghi chú + bảng công ty (.chan-ky) cùng xuống đáy. 268mm = 297 − lề trên 12 − lề dưới 14 − 3mm dư
+     để không tràn sang trang mới. */
+  .trang-ky{break-before:page;min-height:268mm;display:flex;flex-direction:column}
+  .trang-ky .chan-ky{margin-top:auto}
+}
+</style>
+</head>
+<body>
+
+<div class="bar" id="bar">
+  <div class="bar-in">
+    <a class="back" id="backLink" href="khong-gian-nha.html">← Không gian Nhà</a>
+    <span class="st" id="status" role="status" aria-live="polite">Đang tải phiếu…</span>
+    <button type="button" class="btn btn-ghost" id="btnLuu" disabled>Lưu phiếu</button>
+    <button type="button" class="btn btn-gold" id="btnPdf" disabled>Lưu &amp; tải PDF</button>
+  </div>
+</div>
+<p class="tip" id="tip" hidden>Điền những gì anh/chị đã biết, mục nào chưa rõ cứ để trống. Phiếu tự lưu nháp trên máy này; bấm <b>Lưu phiếu</b> để KTS xem trước buổi gặp. Trên điện thoại: bấm <b>Lưu &amp; tải PDF</b> rồi chọn <b>In</b> → <b>Lưu PDF</b> (hoặc Chia sẻ).</p>
+
+<div class="state" id="stLoading">Đang tải phiếu của anh/chị…</div>
+<div class="state" id="stError" hidden><p id="errText">Chưa tải được phiếu.</p><button type="button" class="btn btn-gold" id="btnRetry">Thử lại</button></div>
+
+<div class="wrap" id="stSheet" hidden>
+<div class="sheet">
+<table class="print-khung"><thead><tr><td><div class="le-tren"></div></td></tr></thead>
+<tfoot><tr><td><div class="le-duoi"></div></td></tr></tfoot>
+<tbody><tr><td>
+
+<header class="head">
+  <img src="icon-192.png" alt="Logo App Làm Nhà">
+  <div class="brand"><b>APP LÀM NHÀ</b><span>ARCHITECTURE · LIVING · NETWORK</span></div>
+  <div class="contact">
+    <span class="web">applamnha.vn</span>
+    <span class="hot">Hotline: KTS Trần Long – <i>0909 829 696</i></span>
+  </div>
+</header>
+
+<div class="titlerow">
+  <div class="titletext">
+    <p class="eyebrow">Dành cho chủ nhà · Chuẩn bị ký hợp đồng thiết kế</p>
+    <h1>Phiếu thống nhất yêu cầu thiết kế</h1>
+    <p class="lead">Phiếu này tập hợp những gì ALN đã ghi nhận và những điểm <span class="xh">anh/chị</span> cần bổ sung. Khi hai bên thống nhất đủ các mục, nội dung sẽ được đưa vào hợp đồng thiết kế.</p>
+  </div>
+  <div class="qrcard">
+    <div class="qr"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 29 29" aria-label="Mã QR mở Không gian Nhà"><path stroke="#0f1a30" d="M0 0.5h7m3 0h3m1 0h1m3 0h1m3 0h7m-29 1h1m5 0h1m1 0h1m2 0h1m6 0h1m1 0h1m1 0h1m5 0h1m-29 1h1m1 0h3m1 0h1m1 0h1m7 0h1m1 0h2m2 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m1 0h2m1 0h3m1 0h3m1 0h2m1 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m2 0h3m2 0h1m2 0h4m1 0h1m1 0h3m1 0h1m-29 1h1m5 0h1m2 0h1m1 0h1m2 0h1m1 0h2m2 0h1m1 0h1m5 0h1m-29 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-21 1h2m2 0h1m6 0h2m-21 1h1m5 0h1m1 0h1m1 0h1m2 0h3m1 0h1m1 0h1m1 0h2m2 0h3m-27 1h1m1 0h1m1 0h1m4 0h1m1 0h4m1 0h4m2 0h2m1 0h2m-28 1h2m3 0h5m1 0h2m1 0h2m1 0h1m3 0h1m2 0h1m-25 1h4m1 0h1m2 0h2m2 0h1m1 0h1m3 0h4m1 0h1m1 0h1m-26 1h1m1 0h2m1 0h3m2 0h1m1 0h1m3 0h1m3 0h1m1 0h2m4 0h1m-27 1h1m1 0h1m3 0h1m1 0h4m1 0h2m1 0h3m1 0h3m2 0h2m-29 1h1m1 0h2m1 0h2m1 0h2m1 0h2m1 0h2m1 0h1m4 0h1m1 0h3m-27 1h2m1 0h2m2 0h1m2 0h2m2 0h2m3 0h1m1 0h2m1 0h1m1 0h1m1 0h1m-28 1h1m1 0h8m6 0h2m1 0h1m2 0h1m1 0h2m-27 1h3m1 0h2m3 0h1m1 0h2m2 0h6m1 0h3m1 0h3m-29 1h2m1 0h5m4 0h4m1 0h1m1 0h2m2 0h3m2 0h1m-29 1h1m3 0h2m1 0h1m1 0h1m2 0h1m3 0h1m2 0h2m1 0h1m1 0h1m-25 1h1m2 0h1m2 0h1m3 0h3m4 0h1m1 0h6m1 0h3m-21 1h1m1 0h1m1 0h5m1 0h1m1 0h1m3 0h2m-26 1h7m4 0h5m1 0h1m1 0h2m1 0h1m1 0h3m-27 1h1m5 0h1m3 0h2m1 0h1m1 0h2m3 0h1m3 0h1m-25 1h1m1 0h3m1 0h1m2 0h5m2 0h1m2 0h7m1 0h1m-28 1h1m1 0h3m1 0h1m2 0h2m1 0h2m1 0h5m1 0h1m1 0h1m1 0h2m1 0h1m-29 1h1m1 0h3m1 0h1m5 0h2m1 0h2m1 0h1m2 0h7m-28 1h1m5 0h1m2 0h4m3 0h1m6 0h4m1 0h1m-29 1h7m1 0h1m1 0h1m1 0h4m1 0h1m1 0h1m1 0h1m2 0h1m1 0h1"/></svg></div>
+    <div class="qrtext"><b>Không gian Nhà của <span class="xh">anh/chị</span></b>Quét mã để xem lại dự toán đã lưu và thông tin đã gửi. Đăng nhập bằng mã OTP gửi về số điện thoại đuôi <span class="mono" id="vSdtQr"></span>.</div>
+  </div>
+</div>
+
+<div class="meta">
+  <div><small>Chủ nhà</small><strong><span class="Xh">Anh/chị</span> <span id="vTen"></span></strong></div>
+  <div><small>Điện thoại</small><strong class="mono" id="vSdt"></strong></div>
+  <div><small>Mã phiếu</small><strong class="mono" id="vMaPhieu"></strong></div>
+  <div><small>Ngày lập</small><strong class="mono" id="vNgay"></strong></div>
+</div>
+
+<div class="xh-chon no-print">
+  <span>Xưng hô trong phiếu:</span>
+  <label class="cb"><input type="radio" name="xung_ho" value="anh">Anh</label>
+  <label class="cb"><input type="radio" name="xung_ho" value="chi">Chị</label>
+  <label class="cb"><input type="radio" name="xung_ho" value="anh_chi">Anh/chị</label>
+  <span>Họ tên: <input class="f m" data-k="ho_ten" maxlength="80" placeholder="Họ tên chủ nhà" aria-label="Họ tên chủ nhà"></span>
+</div>
+
+<section class="keep">
+  <h2><span class="n">I.</span>Lộ trình đến ký hợp đồng</h2>
+  <div class="road">
+    <div id="buoc1"><em id="buoc1Nhan">BƯỚC 1</em><b>Tính dự toán sơ bộ</b><span id="buoc1Text">Tính trên công cụ dự toán của applamnha.vn.</span></div>
+    <div class="now"><em>BƯỚC 2 · ĐANG LÀM</em><b>Điền phiếu &amp; gặp KTS</b>Điền phiếu này, KTS gọi lại theo khung giờ <span class="xh">anh/chị</span> chọn để hẹn gặp.</div>
+    <div><em>BƯỚC 3</em><b>Dự thảo hợp đồng</b>ALN gửi dự thảo theo nội dung đã thống nhất để <span class="xh">anh/chị</span> xem trước.</div>
+    <div><em>BƯỚC 4</em><b>Ký &amp; bắt đầu</b>Ký hợp đồng, chuyển C1 (10%) để lên mặt bằng công năng.</div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">II.</span>Thông tin công trình</h2>
+  <p class="hint">Số liệu điền sẵn từ dự toán <span class="xh">anh/chị</span> đã lưu. Sửa lại nếu chưa đúng.</p>
+  <table class="t rt"><tbody>
+    <tr><td class="k">Vị trí khu đất</td><td><input class="f w" data-k="dia_chi_dat" maxlength="200" placeholder="Số nhà, đường, phường/xã (tên mới), tỉnh/thành" aria-label="Vị trí khu đất"></td></tr>
+    <tr><td class="k">Kích thước lô đất</td><td><input class="f w" data-k="kich_thuoc" maxlength="120" placeholder="Mặt tiền … m · mặt hậu … m · sâu … m" aria-label="Kích thước lô đất"></td></tr>
+    <tr><td class="k">Quy mô</td><td><input class="f w" data-k="quy_mo" maxlength="120" placeholder="Số sàn · diện tích xây dựng dự kiến" aria-label="Quy mô"></td></tr>
+    <tr><td class="k">Đường trước nhà</td><td><label class="cb"><input type="radio" name="duong_truoc_nha" value="mat_tien">Mặt tiền đường</label> <label class="cb"><input type="radio" name="duong_truoc_nha" value="hem">Hẻm</label> <span class="q">rộng <input class="f s" data-k="hem_rong" maxlength="20" aria-label="Độ rộng đường/hẻm"> m</span></td></tr>
+    <tr><td class="k">Hướng nhà</td><td><input class="f m" data-k="huong_nha" maxlength="40" placeholder="VD: Đông Nam" aria-label="Hướng nhà"></td></tr>
+    <tr><td class="k">Hiện trạng</td><td><label class="cb"><input type="radio" name="hien_trang" value="dat_trong">Đất trống</label> <label class="cb"><input type="radio" name="hien_trang" value="nha_cu">Nhà cũ cần tháo dỡ</label></td></tr>
+    <tr><td class="k">Giờ tiện nghe máy</td><td><span id="vKhungGio"></span></td></tr>
+  </tbody></table>
+</section>
+
+<section>
+  <h2><span class="n">III.</span>Mục tiêu khai thác căn nhà</h2>
+  <p class="hint">Mục đích sử dụng quyết định cách chia luồng đi lại và không gian ngay từ mặt bằng.</p>
+  <table class="t rt"><tbody>
+    <tr><td class="k">Căn nhà dùng để</td><td><label class="cb"><input type="checkbox" data-set="muc_dich" value="o">Gia đình ở</label> <label class="cb"><input type="checkbox" data-set="muc_dich" value="kinh_doanh">Kinh doanh</label> <label class="cb"><input type="checkbox" data-set="muc_dich" value="cho_thue">Cho thuê</label> <span class="q">Khác: <input class="f m" data-k="muc_dich_khac" maxlength="80" aria-label="Mục đích khác"></span></td></tr>
+    <tr id="rowKd" hidden><td class="k">Kinh doanh</td><td><span class="q">Loại hình: <input class="f m" data-k="kinh_doanh_loai" maxlength="80" aria-label="Loại hình kinh doanh"></span> <span class="q">Cần kho / quầy / vệ sinh riêng cho khách? <label class="cb"><input type="radio" name="kinh_doanh_rieng" value="co">Có</label> <label class="cb"><input type="radio" name="kinh_doanh_rieng" value="khong">Không</label></span></td></tr>
+    <tr id="rowCt" hidden><td class="k">Cho thuê</td><td><span class="q"><label class="cb"><input type="checkbox" data-set="cho_thue_loai" value="phong_tro">Phòng trọ</label> <label class="cb"><input type="checkbox" data-set="cho_thue_loai" value="can_ho">Căn hộ dịch vụ</label> <label class="cb"><input type="checkbox" data-set="cho_thue_loai" value="nguyen_tang">Nguyên tầng</label></span> <span class="q">Số phòng/căn dự kiến: <input class="f s" data-k="cho_thue_so_phong" maxlength="20" aria-label="Số phòng cho thuê"></span><br><span class="q">Mỗi phòng có: <label class="cb"><input type="checkbox" data-set="cho_thue_moi_phong" value="wc">WC riêng</label> <label class="cb"><input type="checkbox" data-set="cho_thue_moi_phong" value="bep">Bếp riêng</label> <label class="cb"><input type="checkbox" data-set="cho_thue_moi_phong" value="ban_cong">Ban công</label> <label class="cb"><input type="checkbox" data-set="cho_thue_moi_phong" value="giat_phoi">Chỗ giặt phơi</label></span></td></tr>
+    <tr id="rowLoiDi" hidden><td class="k">Lối đi</td><td>Khách thuê đi lối riêng, không qua khu gia đình ở? <span class="q"><label class="cb"><input type="radio" name="loi_di_rieng" value="co">Có</label> <label class="cb"><input type="radio" name="loi_di_rieng" value="khong">Không</label> <label class="cb"><input type="radio" name="loi_di_rieng" value="tu_van">Nhờ ALN tư vấn</label></span></td></tr>
+    <tr><td class="k">Để xe</td><td><span class="q">Số xe máy cần chỗ để: <input class="f s" data-k="xe_may" maxlength="20" aria-label="Số xe máy"></span> <span class="q">Ô tô: <label class="cb"><input type="radio" name="o_to" value="co">Có</label> <label class="cb"><input type="radio" name="o_to" value="khong">Không</label></span></td></tr>
+    <tr><td class="k">Thiết bị lớn</td><td><span class="q">Thang máy: <label class="cb"><input type="radio" name="thang_may" value="co">Có</label> <label class="cb"><input type="radio" name="thang_may" value="chua_cho">Chừa chỗ lắp sau</label> <label class="cb"><input type="radio" name="thang_may" value="khong">Không</label></span> <span class="q">Năng lượng mặt trời: <label class="cb"><input type="radio" name="nang_luong_mt" value="co">Có</label> <label class="cb"><input type="radio" name="nang_luong_mt" value="khong">Không</label></span></td></tr>
+  </tbody></table>
+</section>
+
+<section>
+  <h2><span class="n">IV.</span>Công năng từng tầng</h2>
+  <p class="hint"><span class="Xh">Anh/chị</span> ghi theo mong muốn. KTS sẽ đề xuất phương án mặt bằng dựa trên bảng này ở bước C1.</p>
+  <table class="t tang">
+    <thead><tr><th style="width:20%">Tầng</th><th>Công năng chính</th><th style="width:13%">Phòng ngủ</th><th style="width:10%">WC</th><th style="width:25%">Ghi chú</th></tr></thead>
+    <tbody id="tangBody"></tbody>
+  </table>
+  <button type="button" class="tang-them" id="btnThemTang">+ Thêm tầng (hầm, lửng…)</button>
+  <p class="note" style="margin:6px 0 0"><span class="q">Phòng thờ đặt ở: <input class="f m" data-k="phong_tho" maxlength="80" aria-label="Vị trí phòng thờ"></span> <span class="q">Khu giặt phơi: <input class="f m" data-k="giat_phoi" maxlength="80" aria-label="Khu giặt phơi"></span></p>
+</section>
+
+<section>
+  <h2><span class="n">V.</span>Người sử dụng và người quyết định</h2>
+  <table class="t rt"><tbody>
+    <tr><td class="k">Gia đình ở tại nhà</td><td><span class="q">Số người: <input class="f s" data-k="so_nguoi" maxlength="20" aria-label="Số người ở"></span> <span class="q">Người lớn tuổi: <label class="cb"><input type="radio" name="nguoi_lon_tuoi" value="co">Có</label> <label class="cb"><input type="radio" name="nguoi_lon_tuoi" value="khong">Không</label></span> <span class="q">Trẻ nhỏ: <label class="cb"><input type="radio" name="tre_nho" value="co">Có</label> <label class="cb"><input type="radio" name="tre_nho" value="khong">Không</label></span></td></tr>
+    <tr><td class="k">Người cùng quyết định</td><td><span class="q"><label class="cb"><input type="checkbox" data-set="nguoi_quyet" value="vo_chong">Vợ/chồng</label> <label class="cb"><input type="checkbox" data-set="nguoi_quyet" value="bo_me">Bố mẹ</label> <label class="cb"><input type="checkbox" data-set="nguoi_quyet" value="khac">Khác:</label> <input class="f m" data-k="nguoi_quyet_khac" maxlength="80" aria-label="Người cùng quyết định khác"></span><br><span class="q">Cùng dự buổi chốt phương án và buổi ký: <label class="cb"><input type="radio" name="du_buoi_ky" value="duoc">Được</label> <label class="cb"><input type="radio" name="du_buoi_ky" value="khong">Không</label></span></td></tr>
+    <tr><td class="k">Người ký hợp đồng</td><td>Họ tên: <input class="f m" data-k="nguoi_ky" maxlength="80" aria-label="Người ký hợp đồng"></td></tr>
+  </tbody></table>
+</section>
+
+<section>
+  <h2><span class="n">VI.</span>Pháp lý và hồ sơ đầu vào</h2>
+  <p class="hint">Đánh dấu những gì <span class="xh">anh/chị</span> đang có — gửi trước qua Zalo hoặc mục Tải lên trong Không gian Nhà.</p>
+  <table class="t rt"><tbody>
+    <tr><td class="k">Giấy tờ đất</td><td><label class="cb"><input type="checkbox" data-set="ho_so_co" value="so_dat">Sổ đất (giấy chứng nhận)</label> <span class="q">Đứng tên: <input class="f m" data-k="so_dat_dung_ten" maxlength="80" aria-label="Sổ đất đứng tên"></span><br><label class="cb"><input type="checkbox" data-set="ho_so_co" value="quy_hoach">Thông tin quy hoạch, lộ giới</label> <label class="cb"><input type="checkbox" data-set="ho_so_co" value="ban_ve_cu">Bản vẽ cũ / hiện trạng</label></td></tr>
+    <tr><td class="k">Hình ảnh</td><td><label class="cb"><input type="checkbox" data-set="ho_so_co" value="anh_hien_trang">Ảnh lô đất, mặt đường</label> <label class="cb"><input type="checkbox" data-set="ho_so_co" value="anh_nha_ben">Ảnh hai nhà liền kề</label> <label class="cb"><input type="checkbox" data-set="ho_so_co" value="anh_mau">3–5 ảnh nhà mẫu thích</label></td></tr>
+  </tbody></table>
+</section>
+
+<section>
+  <h2><span class="n">VII.</span>Phong cách và ưu tiên</h2>
+  <table class="t rt"><tbody>
+    <tr><td class="k">Phong cách</td><td><label class="cb"><input type="checkbox" data-set="phong_cach" value="hien_dai">Hiện đại</label> <label class="cb"><input type="checkbox" data-set="phong_cach" value="toi_gian">Tối giản</label> <label class="cb"><input type="checkbox" data-set="phong_cach" value="nhiet_doi">Nhiệt đới</label> <label class="cb"><input type="checkbox" data-set="phong_cach" value="tan_co_dien">Tân cổ điển</label> <label class="cb"><input type="checkbox" data-set="phong_cach" value="nho_tu_van">Chưa rõ, nhờ tư vấn</label></td></tr>
+    <tr><td class="k">Ưu tiên (tối đa 3)</td><td><label class="cb"><input type="checkbox" data-set="uu_tien" value="anh_sang">Ánh sáng tự nhiên</label> <label class="cb"><input type="checkbox" data-set="uu_tien" value="thong_gio">Thông gió, mát</label> <label class="cb"><input type="checkbox" data-set="uu_tien" value="chi_phi">Chi phí xây hợp lý</label> <label class="cb"><input type="checkbox" data-set="uu_tien" value="bao_tri">Dễ bảo trì</label> <label class="cb" id="uuThue"><input type="checkbox" data-set="uu_tien" value="nhieu_phong_thue">Tối đa phòng cho thuê</label> <label class="cb" id="uuKd"><input type="checkbox" data-set="uu_tien" value="mat_tien_kd">Mặt tiền nổi bật cho kinh doanh</label></td></tr>
+    <tr><td class="k">Điều <span class="xh">anh/chị</span> không muốn</td><td><textarea class="f" data-k="khong_muon" maxlength="400" rows="2" aria-label="Điều không muốn"></textarea></td></tr>
+  </tbody></table>
+</section>
+
+<section class="keep">
+  <h2><span class="n">VIII.</span>Ngân sách tham khảo</h2>
+  <p class="hint">Số liệu <span class="xh">anh/chị</span> đã tự tính trên công cụ applamnha.vn. Đây là dự toán sơ bộ để đối chiếu báo giá nhà thầu, chưa phải dự toán chính thức. Khi có bản vẽ, con số sẽ sát với căn nhà hơn.</p>
+  <table class="t">
+    <thead><tr><th>Khoản</th><th>Cơ sở</th><th class="num" style="width:30%">Số tiền (đ)</th></tr></thead>
+    <tbody>
+      <tr id="rowPhanTho"><td class="k">Phần thô</td><td id="vPhanThoCs"></td><td class="num" id="vPhanTho"></td></tr>
+      <tr id="rowVatTu"><td class="k">Vật tư chủ nhà tự mua</td><td>Tách riêng khỏi phần thô</td><td class="num" id="vVatTu"></td></tr>
+      <tr><td class="k">Ngân sách <span class="xh">anh/chị</span> dự kiến</td><td>Cho toàn bộ công trình</td><td class="num"><input class="f w" data-k="ngan_sach" maxlength="60" style="text-align:right" placeholder="VD: 3 tỷ" aria-label="Ngân sách dự kiến"></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2><span class="n">IX.</span>Phạm vi dịch vụ và phí thiết kế</h2>
+  <div class="fee" id="feeBox">
+    <div><b style="color:var(--navy)" id="vTenGoi">Gói Thiết kế kiến trúc</b><br><span class="note">Phí tính theo m² sàn xây dựng. Diện tích chốt lại theo phương án được duyệt.</span></div>
+    <div class="big" id="vPhi"></div>
+    <div class="note">Chưa gồm VAT</div>
+    <div class="calc" id="vPhiCalc"></div>
+  </div>
+  <div class="two" style="margin-top:10px">
+    <div>
+      <b style="color:var(--navy)">Bao gồm</b>
+      <ul class="plain">
+        <li>Mặt bằng công năng các tầng</li>
+        <li>Phối cảnh 3D mặt tiền</li>
+        <li>Hồ sơ kỹ thuật: kiến trúc, kết cấu, điện nước</li>
+        <li>Hồ sơ lập theo yêu cầu hồ sơ xin phép xây dựng; hồ sơ đứng tên ALN, ALN chịu trách nhiệm pháp lý về hồ sơ thiết kế</li>
+        <li><b>Không gian Nhà</b>: nơi lưu hồ sơ, dự toán và tài liệu của căn nhà</li>
+        <li><b>Sổ tay công trình</b> bản cơ bản <span class="tag">Sắp ra mắt</span> — mở cho <span class="xh">anh/chị</span> khi ra mắt; không thay thế công tác giám sát thi công</li>
+      </ul>
+    </div>
+    <div>
+      <b style="color:var(--navy)">Không bao gồm</b>
+      <ul class="plain">
+        <li>Thi công. ALN không nhận thi công; ALN giới thiệu đơn vị thi công đối tác, <span class="xh">anh/chị</span> ký hợp đồng thi công trực tiếp với đơn vị đó</li>
+        <li>Cấp phép xây dựng. Hồ sơ xin phép nộp tại UBND phường/xã nơi có đất; việc cấp phép do cơ quan này xem xét theo quy định</li>
+        <li>Thuế VAT</li>
+      </ul>
+      <b style="color:var(--navy);display:block;margin-top:8px">Tùy chọn: thiết kế nội thất</b>
+      <p class="note" style="margin:2px 0 0">Làm sau phần kiến trúc. <span id="vDgNoiThat"></span> đ/m² sử dụng các phòng <span class="xh">anh/chị</span> chọn, chưa gồm VAT. Diện tích đo theo phương án đã chốt.</p>
+    </div>
+  </div>
+</section>
+
+<section class="keep" id="secMoc">
+  <h2><span class="n">X.</span>Quy trình 4 bước và thanh toán</h2>
+  <p class="hint">Bước trước <span class="xh">anh/chị</span> duyệt xong mới sang bước sau. Mỗi khoản chỉ thanh toán khi đến đúng mốc.</p>
+  <table class="t">
+    <thead><tr><th style="width:27%">Mốc</th><th class="num" style="width:9%">Tỷ lệ</th><th class="num" style="width:18%">Số tiền (đ)</th><th>Thanh toán khi</th><th>Để làm</th></tr></thead>
+    <tbody id="mocBody"></tbody>
+  </table>
+</section>
+
+<section class="keep">
+  <h2><span class="n">XI.</span>Điều khoản cần thống nhất trước khi ký</h2>
+  <p class="hint">Có thể để trống và cùng điền tại buổi gặp. Nội dung này ghi thẳng vào hợp đồng.</p>
+  <table class="t rt"><tbody>
+    <tr><td class="k">Điều chỉnh phương án</td><td><span class="q">Số lần điều chỉnh mặt bằng: <input class="f s" data-k="sua_mat_bang" maxlength="20" aria-label="Số lần điều chỉnh mặt bằng"></span> <span class="q">Số lần điều chỉnh phối cảnh: <input class="f s" data-k="sua_phoi_canh" maxlength="20" aria-label="Số lần điều chỉnh phối cảnh"></span><br><span class="q">Hoặc thời hạn phản hồi của chủ nhà mỗi bước: <input class="f s" data-k="han_phan_hoi" maxlength="20" aria-label="Thời hạn phản hồi"> ngày</span></td></tr>
+    <tr><td class="k">Thời gian từng bước</td><td><span class="q">C1 → C2: <input class="f s" data-k="tg_c1_c2" maxlength="30" aria-label="Thời gian C1 sang C2"></span> <span class="q">C2 → C3: <input class="f s" data-k="tg_c2_c3" maxlength="30" aria-label="Thời gian C2 sang C3"></span> <span class="q">C3 → C4: <input class="f s" data-k="tg_c3_c4" maxlength="30" aria-label="Thời gian C3 sang C4"></span></td></tr>
+    <tr><td class="k">Hình thức bàn giao</td><td><label class="cb"><input type="checkbox" data-set="ban_giao" value="pdf">File PDF</label> <label class="cb"><input type="checkbox" data-set="ban_giao" value="ban_in">Bản in:</label> <input class="f s" data-k="ban_in_so_bo" maxlength="10" aria-label="Số bộ bản in"> bộ</td></tr>
+    <tr><td class="k">Người liên hệ chính</td><td><span class="q">Phía chủ nhà: <input class="f m" data-k="lien_he_chu_nha" maxlength="80" aria-label="Người liên hệ phía chủ nhà"></span> <span class="q">KTS phụ trách (ALN): <span id="vKts" class="f" style="display:inline-block;min-width:150px"></span></span></td></tr>
+  </tbody></table>
+</section>
+
+<section class="keep">
+  <h2><span class="n">XII.</span>Câu hỏi thường gặp</h2>
+  <div class="faq">
+    <div><b>Trả tiền rồi phương án không vừa ý thì sao?</b><p>C1 chỉ 10% để lên mặt bằng. C2 trả khi <span class="xh">anh/chị</span> đã chốt mặt bằng, C3 trả khi đã chốt phối cảnh. <span class="Xh">Anh/chị</span> duyệt từng bước.</p></div>
+    <div><b>Bên thi công vẽ miễn phí nếu ký xây với họ?</b><p>Đó là lựa chọn của <span class="xh">anh/chị</span>. Hồ sơ ALN độc lập với bên thi công: <span class="xh">anh/chị</span> giữ hồ sơ, đưa nhiều nhà thầu báo giá trên cùng một bộ bản vẽ để so sánh. <strong style="color:var(--navy)">Đã có thiết kế, <span class="xh">anh/chị</span> cũng có cơ sở đề nghị bên thi công giảm giá, vì họ không phải làm phần thiết kế.</strong></p></div>
+    <div><b>Số dự toán trên web có tin được không?</b><p>Đó là dự toán sơ bộ để đối chiếu báo giá, chưa phải dự toán chính thức. Có bản vẽ, con số sẽ sát căn nhà hơn.</p></div>
+    <div><b>ALN có lo giấy phép xây dựng không?</b><p>ALN lập hồ sơ thiết kế theo yêu cầu hồ sơ xin phép. Hồ sơ nộp tại UBND phường/xã; việc cấp phép do cơ quan này xem xét.</p></div>
+  </div>
+</section>
+
+<div class="trang-ky">
+<section class="keep">
+  <h2><span class="n">XIII.</span>Xác nhận nội dung đã thống nhất</h2>
+  <p class="ngay-ky"><span class="f" style="display:inline-block;width:90px"></span>, ngày <span class="f" style="display:inline-block;width:34px"></span> tháng <span class="f" style="display:inline-block;width:34px"></span> năm <span id="vNam"></span></p>
+  <div class="sign">
+    <div><b>Chủ nhà</b><div class="note">(Ký, ghi rõ họ tên)</div><div class="space"></div></div>
+    <div><b>Đại diện ALN</b><div class="note">(Ký, ghi rõ họ tên)</div><div class="space"></div></div>
+  </div>
+</section>
+
+<div class="chan-ky">
+<div class="disclaimer">Phiếu này dùng để thống nhất yêu cầu thiết kế, không thay thế hợp đồng. Các nội dung đã thống nhất sẽ được đưa vào hợp đồng thiết kế giữa chủ nhà và Công ty TNHH ALN. Mọi số tiền trong phiếu chưa gồm VAT.</div>
+<footer class="corp">
+  <div class="corp-id">
+    <img src="icon-192.png" alt="">
+    <div><b>CÔNG TY TNHH ALN</b><span>Đơn vị chủ quản website applamnha.vn</span></div>
+  </div>
+  <div class="corp-row">
+    <div><small><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#d4a017" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>Mã số thuế</small><strong class="mono">3502593013</strong></div>
+    <div><small><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#d4a017" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Địa chỉ</small><strong>Khu TTTM Sonadezi, 536 Trung Sơn, Ngãi Giao, TP. Hồ Chí Minh</strong></div>
+    <div><small><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#d4a017" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>Hotline</small><strong class="mono">0909 829 696</strong> <em>KTS Trần Long</em></div>
+  </div>
+</footer>
+<!-- ALN-PHAP-NHAN --><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"><style id="alnpn-css">.alnpn,.alnpn *{box-sizing:border-box;margin:0;padding:0;border:0;font:inherit;letter-spacing:normal;text-transform:none;text-shadow:none;float:none;background:none;min-width:0}.alnpn{display:block;width:100%;clear:both;position:relative;z-index:0;background:#0b1428;border-top:2px solid #d4a017;color:#cbd5e1;font-family:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:15px;font-weight:400;line-height:1.5;text-align:left;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;padding:28px 20px 88px}.alnpn-in{max-width:1280px;margin:0 auto;display:grid;gap:22px}.alnpn-brand{display:flex;align-items:center;gap:14px}.alnpn-brand img{display:block;flex:none;width:44px;height:44px;border-radius:10px}.alnpn-ten{font-weight:700;font-size:17px;line-height:1.3;letter-spacing:.03em;color:#fff}.alnpn-sub{margin-top:2px;font-size:13px;line-height:1.4;color:#9fb0c8}.alnpn-muc dt{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;line-height:1.3;letter-spacing:.08em;text-transform:uppercase;color:#e0b43a;margin-bottom:6px}.alnpn-muc dt svg{display:block;flex:none;width:16px;height:16px;fill:none;stroke:#e0b43a;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.alnpn-muc dd{font-size:15px;font-weight:500;line-height:1.45;color:#f1f5f9}.alnpn-mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:600;letter-spacing:.02em}.alnpn a{color:#fff;text-decoration:none}.alnpn a:hover,.alnpn a:focus-visible{color:#e0b43a;outline:none}.alnpn-note{font-size:13px;font-weight:400;color:#9fb0c8;margin-left:8px;white-space:nowrap}@media (min-width:768px){.alnpn{padding:26px 28px}.alnpn-in{grid-template-columns:auto auto auto auto;justify-content:space-between;align-items:stretch;gap:0}.alnpn-brand{align-self:center}.alnpn-muc{padding:0 0 0 28px;margin-left:28px;border-left:1px solid rgba(224,180,58,.22)}}@media (min-width:768px) and (max-width:1099px){.alnpn-in{grid-template-columns:auto minmax(0,1fr) auto;justify-content:stretch;row-gap:20px}.alnpn-brand{grid-column:1/-1;align-self:start}.alnpn-muc:nth-child(2){border-left:0;margin-left:0;padding-left:0}}</style><section class="alnpn" aria-label="Thông tin doanh nghiệp"><div class="alnpn-in"><div class="alnpn-brand"><img src="/icon-192.png" alt="" width="44" height="44" loading="lazy"><div><div class="alnpn-ten">CÔNG TY TNHH ALN</div><div class="alnpn-sub">Đơn vị chủ quản website applamnha.vn</div></div></div><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M10 12h5M10 16h5"/></svg>Mã số thuế</dt><dd class="alnpn-mono">3502593013</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-6-5.3-6-11a6 6 0 1 1 12 0c0 5.7-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/></svg>Địa chỉ</dt><dd>Khu TTTM Sonadezi, 536 Trung Sơn, Ngãi Giao, TP. Hồ Chí Minh</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 5 5L14 13l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>Hotline</dt><dd><a class="alnpn-mono" href="tel:0909829696">0909 829 696</a><span class="alnpn-note">KTS Trần Long</span></dd></dl></div></section>
+</div>
+</div>
+
+</td></tr></tbody></table>
+</div>
+</div>
+
+<script type="module">
+import { app, auth, onAuthStateChanged } from './firebase-config.js';
+import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js';
+
+const callPhieu = httpsCallable(getFunctions(app, 'asia-southeast1'), 'khPhieuYeuCau');
+const $ = (id) => document.getElementById(id);
+const sheet = document.querySelector('#stSheet');
+
+const KHUNG_GIO = { sang: 'Buổi sáng', trua: 'Buổi trưa', chieu: 'Buổi chiều', toi: 'Buổi tối', bat_ky: 'Giờ nào cũng được' };
+const MOC = [
+  { ten: 'C1 · Chốt việc', khi: 'Ký hợp đồng', lam: 'Lên mặt bằng công năng' },
+  { ten: 'C2 · Chốt phương án', khi: 'Chủ nhà chốt mặt bằng', lam: 'Làm phối cảnh 3D' },
+  { ten: 'C3 · Chốt triển khai', khi: 'Chủ nhà chốt phối cảnh', lam: 'Triển khai hồ sơ kỹ thuật' },
+  { ten: 'C4 · Nghiệm thu & bàn giao hồ sơ', khi: 'Bàn giao hồ sơ', lam: '—' },
+];
+
+let houseId = null;
+let dienSan = null;
+let banLuuCuoi = '';
+let dangLuu = false;
+
+function isPhoneAuthed(user) { return !!(user && !user.isAnonymous && user.phoneNumber); }
+function soVN(n) { return n == null ? '' : Math.round(Number(n)).toLocaleString('vi-VN'); }
+function soLe(n) { return n == null ? '' : Number(n).toLocaleString('vi-VN', { maximumFractionDigits: 2 }); }
+function duoiSdt(d4) { d4 = String(d4 || '').replace(/\D/g, '').slice(-4); return d4 ? '•••• ' + d4 : ''; }
+function ngayVN(msv) { return msv ? new Date(msv).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : ''; }
+function gioVN(msv) { return msv ? new Date(msv).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Ho_Chi_Minh' }) : ''; }
+function nhapTrangThai(text, kieu) { const s = $('status'); s.textContent = text; s.className = 'st' + (kieu ? ' ' + kieu : ''); }
+function hienState(ten) {
+  $('stLoading').hidden = ten !== 'loading';
+  $('stError').hidden = ten !== 'error';
+  sheet.hidden = ten !== 'sheet';
+  $('tip').hidden = ten !== 'sheet';
+}
+function khoaDraft() { return 'aln_phieu_yeu_cau_' + houseId; }
+
+function capNhatTen() {
+  const o = sheet.querySelector('[data-k="ho_ten"]');
+  $('vTen').textContent = o ? o.value.trim() : '';
+}
+
+/* ── Xưng hô: đổi mọi chỗ .xh / .Xh ── */
+function apXungHo() {
+  const r = sheet.querySelector('input[name="xung_ho"]:checked');
+  const v = r ? r.value : 'anh_chi';
+  const xh = v === 'anh' ? 'anh' : (v === 'chi' ? 'chị' : 'anh/chị');
+  document.querySelectorAll('.xh').forEach((el) => { el.textContent = xh; });
+  document.querySelectorAll('.Xh').forEach((el) => { el.textContent = xh.charAt(0).toUpperCase() + xh.slice(1); });
+}
+
+/* ── Dòng hiện theo mục đích (III, VII) ── */
+function apMucDich() {
+  const chon = (v) => !!sheet.querySelector('input[data-set="muc_dich"][value="' + v + '"]:checked');
+  const kd = chon('kinh_doanh'), ct = chon('cho_thue');
+  $('rowKd').hidden = !kd;
+  $('rowCt').hidden = !ct;
+  $('rowLoiDi').hidden = !ct;
+  $('uuKd').hidden = !kd;
+  $('uuThue').hidden = !ct;
+}
+
+/* ── Ưu tiên tối đa 3 ── */
+function gioiHanUuTien(e) {
+  const ds = sheet.querySelectorAll('input[data-set="uu_tien"]:checked');
+  if (ds.length > 3 && e && e.target) { e.target.checked = false; nhapTrangThai('Chọn tối đa 3 ưu tiên.', 'err'); }
+}
+
+/* ── Bảng tầng ── */
+function taoO(cls, k, max, val, label) {
+  const i = document.createElement('input');
+  i.className = 'f ' + cls; i.dataset.tk = k; i.maxLength = max; i.value = val || ''; i.setAttribute('aria-label', label);
+  return i;
+}
+function themDongTang(r) {
+  const tr = document.createElement('tr');
+  const cot = [['w', 'ten', 40, 'Tên tầng'], ['w', 'cong_nang', 120, 'Công năng chính'], ['w', 'phong_ngu', 10, 'Số phòng ngủ'], ['w', 'wc', 10, 'Số WC'], ['w', 'ghi_chu', 160, 'Ghi chú']];
+  cot.forEach((c, i) => {
+    const td = document.createElement('td');
+    if (i === 0) td.className = 'k';
+    td.appendChild(taoO(c[0], c[1], c[2], r && r[c[1]], c[3]));
+    tr.appendChild(td);
+  });
+  $('tangBody').appendChild(tr);
+}
+function tangMacDinh(soTang) {
+  const ds = [];
+  const n = Math.max(1, Math.min(10, Number(soTang) || 1));
+  for (let i = 0; i < n; i += 1) ds.push({ ten: i === 0 ? 'Trệt' : 'Lầu ' + i });
+  ds.push({ ten: 'Sân thượng / mái' });
+  return ds;
+}
+
+/* ── Thu / trả câu trả lời ── */
+function thuTraLoi() {
+  const o = {};
+  sheet.querySelectorAll('[data-k]').forEach((el) => { const v = el.value.trim(); if (v) o[el.dataset.k] = v; });
+  sheet.querySelectorAll('input[type="radio"]:checked').forEach((el) => { o[el.name] = el.value; });
+  sheet.querySelectorAll('input[data-set]:checked').forEach((el) => {
+    const k = el.dataset.set;
+    if (!o[k]) o[k] = [];
+    o[k].push(el.value);
+  });
+  o.tang = [];
+  $('tangBody').querySelectorAll('tr').forEach((tr) => {
+    const r = {};
+    tr.querySelectorAll('[data-tk]').forEach((el) => { r[el.dataset.tk] = el.value.trim(); });
+    if (r.ten) o.tang.push(r);
+  });
+  return o;
+}
+function traVao(t) {
+  sheet.querySelectorAll('[data-k]').forEach((el) => { if (t[el.dataset.k] != null) el.value = t[el.dataset.k]; });
+  sheet.querySelectorAll('input[type="radio"]').forEach((el) => { if (t[el.name] != null) el.checked = t[el.name] === el.value; });
+  sheet.querySelectorAll('input[data-set]').forEach((el) => {
+    const ds = t[el.dataset.set];
+    if (Array.isArray(ds)) el.checked = ds.indexOf(el.value) > -1;
+  });
+  if (Array.isArray(t.tang) && t.tang.length) {
+    $('tangBody').textContent = '';
+    t.tang.forEach(themDongTang);
+  }
+}
+
+/* ── Hiển thị số liệu điền sẵn (chỉ textContent) ── */
+function veMaPhieu(ma) {
+  const el = $('vMaPhieu');
+  el.textContent = ma || 'Cấp khi lưu lần đầu';
+  el.classList.toggle('cho', !ma);
+}
+function veDienSan(sdt4, ds, phieu) {
+  $('vSdt').textContent = duoiSdt(sdt4);
+  $('vSdtQr').textContent = String(sdt4 || '');
+  capNhatTen();
+  veMaPhieu(phieu && phieu.ma_phieu);
+  const luuMs = phieu && phieu.luu_luc_ms;
+  $('vNgay').textContent = ngayVN(luuMs || Date.now()) + (phieu ? ' · lần ' + phieu.so_lan_luu : '');
+  $('vNam').textContent = String(new Date().getFullYear());
+  $('vKhungGio').textContent = ds.khung_gio_goi ? KHUNG_GIO[ds.khung_gio_goi] || ds.khung_gio_goi : 'Chưa chọn — chọn trong Không gian Nhà để KTS gọi đúng giờ.';
+  $('vKts').textContent = ds.kts_phu_trach || '';
+
+  // Bước 1 lộ trình
+  if (ds.du_toan_luc_ms) {
+    $('buoc1Nhan').textContent = 'BƯỚC 1 · ĐÃ XONG';
+    $('buoc1Text').textContent = 'Đã tính trên công cụ applamnha.vn ngày ' + ngayVN(ds.du_toan_luc_ms) + '.';
+  }
+
+  // Ngân sách tham khảo
+  $('rowPhanTho').hidden = ds.tong_chua_vat == null;
+  $('vPhanTho').textContent = soVN(ds.tong_chua_vat);
+  $('vPhanThoCs').textContent = ds.dt_quy_doi != null ? soLe(ds.dt_quy_doi) + ' m² quy đổi' + (ds.don_gia_m2 ? ' · ' + soVN(ds.don_gia_m2) + ' đ/m²' : '') : '';
+  $('rowVatTu').hidden = ds.vat_tu_chu_nha_mua == null;
+  $('vVatTu').textContent = soVN(ds.vat_tu_chu_nha_mua);
+
+  // Phí + mốc
+  $('vDgNoiThat').textContent = soVN(ds.don_gia_noi_that);
+  const mocBody = $('mocBody');
+  mocBody.textContent = '';
+  if (ds.phi) {
+    $('vTenGoi').textContent = ds.phi.nhan;
+    $('vPhi').textContent = soVN(ds.phi.phi_chua_vat) + ' đ';
+    $('vPhiCalc').textContent = soVN(ds.phi.don_gia) + ' đ/m² × ' + soLe(ds.phi.dien_tich) + ' m² (tạm tính)';
+    ds.phi.moc.forEach((m, i) => {
+      const tr = document.createElement('tr');
+      [MOC[i].ten, Math.round(m.ty_le * 100) + '%', soVN(m.tien), MOC[i].khi, MOC[i].lam].forEach((txt, j) => {
+        const td = document.createElement('td');
+        if (j === 0) td.className = 'k';
+        if (j === 1 || j === 2) td.className = 'num';
+        td.textContent = txt;
+        tr.appendChild(td);
+      });
+      mocBody.appendChild(tr);
+    });
+    const tr = document.createElement('tr');
+    tr.className = 'total';
+    ['Tổng', '100%', soVN(ds.phi.phi_chua_vat), 'Chưa gồm VAT · tạm tính theo ' + soLe(ds.phi.dien_tich) + ' m²'].forEach((txt, j) => {
+      const td = document.createElement('td');
+      if (j === 1 || j === 2) td.className = 'num';
+      if (j === 3) td.colSpan = 2;
+      td.textContent = txt;
+      tr.appendChild(td);
+    });
+    mocBody.appendChild(tr);
+  } else {
+    $('vPhi').textContent = soVN(ds.don_gia_thiet_ke) + ' đ/m²';
+    $('vPhiCalc').textContent = 'Tính khi có diện tích sàn';
+    $('secMoc').hidden = true;
+  }
+}
+
+function dienMacDinhOTrong(ds) {
+  const o = (k) => sheet.querySelector('[data-k="' + k + '"]');
+  if (!o('ho_ten').value && ds.ten_goi_y) o('ho_ten').value = ds.ten_goi_y;
+  if (!o('kich_thuoc').value && ds.rong_truoc != null) {
+    o('kich_thuoc').value = 'Mặt tiền ' + soLe(ds.rong_truoc) + ' m · mặt hậu ' + soLe(ds.rong_sau != null ? ds.rong_sau : ds.rong_truoc) + ' m · sâu ' + soLe(ds.sau_trai) + ' m';
+  }
+  if (!o('quy_mo').value && ds.so_tang != null) {
+    o('quy_mo').value = ds.so_tang + ' sàn' + (ds.dt_thuc_xay != null ? ' · diện tích xây dựng dự kiến ' + soLe(ds.dt_thuc_xay) + ' m²' : '');
+  }
+}
+
+/* ── Nháp trên máy (per-viewer, có thể không có) ── */
+function luuNhap() {
+  try { localStorage.setItem(khoaDraft(), JSON.stringify({ ts: Date.now(), t: thuTraLoi() })); } catch (e) { /* bỏ qua */ }
+}
+function docNhap() {
+  try { const x = JSON.parse(localStorage.getItem(khoaDraft()) || 'null'); return x && x.t ? x : null; } catch (e) { return null; }
+}
+
+async function luuLenHeThong() {
+  if (dangLuu) return false;
+  dangLuu = true;
+  $('btnLuu').disabled = true; $('btnPdf').disabled = true;
+  nhapTrangThai('Đang lưu…');
+  try {
+    if (!isPhoneAuthed(auth.currentUser)) throw { code: 'unauthenticated' };
+    const t = thuTraLoi();
+    const res = await callPhieu({ houseId, hanh_dong: 'luu', tra_loi: t });
+    banLuuCuoi = JSON.stringify(t);
+    luuNhap();
+    const d = res.data || {};
+    nhapTrangThai('Đã lưu lúc ' + gioVN(Date.now()) + (d.lan_dau ? ' — KTS sẽ xem trước khi gọi hẹn gặp.' : '.'), 'ok');
+    if (d.ma_phieu) veMaPhieu(d.ma_phieu);
+    if (d.lan_dau && window.dataLayer) window.dataLayer.push({ event: 'aln_phieu_yeu_cau_luu' });
+    return true;
+  } catch (e) {
+    const code = e && e.code ? String(e.code) : '';
+    if (/unauthenticated/.test(code)) nhapTrangThai('Phiên đăng nhập đã hết — đăng nhập lại rồi bấm Lưu. Nội dung đã giữ nháp trên máy này.', 'err');
+    else if (/resource-exhausted/.test(code)) nhapTrangThai('Lưu quá nhiều lần trong 1 giờ — thử lại sau ít phút. Nội dung vẫn giữ nháp trên máy này.', 'err');
+    else nhapTrangThai('Chưa lưu được — kiểm tra mạng rồi bấm Lưu lại. Nội dung vẫn giữ nháp trên máy này.', 'err');
+    luuNhap();
+    return false;
+  } finally {
+    dangLuu = false;
+    $('btnLuu').disabled = false; $('btnPdf').disabled = false;
+  }
+}
+
+function taiPdf() {
+  // Gọi print() NGAY trong lượt bấm (Safari iOS chặn print sau await);
+  // phần lưu chạy song song, trạng thái hiện ở thanh trên khi xong.
+  if (JSON.stringify(thuTraLoi()) !== banLuuCuoi) luuLenHeThong();
+  const tenCu = document.title;
+  const ma = $('vMaPhieu').classList.contains('cho') ? 'ALN' : $('vMaPhieu').textContent;
+  document.title = 'Phieu-thong-nhat-yeu-cau-' + ma;
+  window.print();
+  setTimeout(() => { document.title = tenCu; }, 1500);
+}
+
+async function moPhieu() {
+  hienState('loading');
+  try {
+    const res = await callPhieu({ houseId, hanh_dong: 'mo' });
+    const d = res.data || {};
+    dienSan = d.dien_san || {};
+    $('tangBody').textContent = '';
+    tangMacDinh(dienSan.so_tang).forEach(themDongTang);
+    const nhap = docNhap();
+    const svMs = d.phieu && d.phieu.luu_luc_ms;
+    if (nhap && (!svMs || nhap.ts > svMs)) traVao(nhap.t);
+    else if (d.phieu && d.phieu.tra_loi) traVao(d.phieu.tra_loi);
+    dienMacDinhOTrong(dienSan);
+    veDienSan(d.sdt_4so, dienSan, d.phieu);
+    apXungHo(); apMucDich();
+    banLuuCuoi = d.phieu && d.phieu.tra_loi ? JSON.stringify(thuTraLoi()) : '';
+    hienState('sheet');
+    $('btnLuu').disabled = false; $('btnPdf').disabled = false;
+    nhapTrangThai(d.phieu ? 'Phiếu đã lưu ' + ngayVN(svMs) + ' — sửa rồi bấm Lưu phiếu.' : 'Chưa lưu — điền rồi bấm Lưu phiếu.');
+  } catch (e) {
+    console.error('[phieu-yeu-cau] mở phiếu lỗi:', e && e.code);
+    const code = e && e.code ? String(e.code) : '';
+    $('errText').textContent = /permission-denied|not-found/.test(code)
+      ? 'Không mở được phiếu của hồ sơ nhà này. Quay lại Không gian Nhà và bấm lại nút Hẹn gặp KTS.'
+      : 'Chưa tải được phiếu — kiểm tra mạng rồi thử lại.';
+    hienState('error');
+    nhapTrangThai('');
+  }
+}
+
+/* ── Sự kiện ── */
+let henNhap = null;
+sheet.addEventListener('input', (e) => {
+  if (e.target && e.target.dataset && e.target.dataset.k === 'ho_ten') capNhatTen();
+  clearTimeout(henNhap); henNhap = setTimeout(luuNhap, 600);
+});
+sheet.addEventListener('change', (e) => {
+  if (e.target && e.target.name === 'xung_ho') apXungHo();
+  if (e.target && e.target.dataset && e.target.dataset.set === 'muc_dich') apMucDich();
+  if (e.target && e.target.dataset && e.target.dataset.set === 'uu_tien') gioiHanUuTien(e);
+  luuNhap();
+});
+$('btnThemTang').addEventListener('click', () => { themDongTang({ ten: '' }); const o = $('tangBody').lastElementChild.querySelector('input'); if (o) o.focus(); });
+$('btnLuu').addEventListener('click', luuLenHeThong);
+$('btnPdf').addEventListener('click', taiPdf);
+$('btnRetry').addEventListener('click', moPhieu);
+
+async function batDau() {
+  const q = new URLSearchParams(location.search).get('h') || '';
+  if (!/^[A-Za-z0-9_-]{1,80}$/.test(q)) {
+    // Không có mã hồ sơ: lấy hồ sơ đầu tiên của tài khoản (thường chỉ có 1).
+    try {
+      const r = await httpsCallable(getFunctions(app, 'asia-southeast1'), 'khLienKetTaiKhoan')();
+      const hs = (r.data && Array.isArray(r.data.houses)) ? r.data.houses : [];
+      if (!hs.length) { window.location.href = alnUrl('khong-gian-nha.html'); return; }
+      houseId = hs[0].id;
+    } catch (e) { $('errText').textContent = 'Chưa tải được hồ sơ nhà — thử lại.'; hienState('error'); return; }
+  } else {
+    houseId = q;
+  }
+  moPhieu();
+}
+
+onAuthStateChanged(auth, (user) => {
+  if (!isPhoneAuthed(user)) {
+    const tiep = 'phieu-yeu-cau.html' + location.search;
+    window.location.href = alnUrl(window.alnEstimateFunnel.preserve('dang-nhap-chu-nha.html?next=' + encodeURIComponent(tiep)));
+    return;
+  }
+  if (!houseId) batDau();
+});
+</script>
+</body>
+</html>
