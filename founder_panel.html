@@ -5821,7 +5821,9 @@ function epRender(rows) {
     }).join('') : '<span style="color:var(--dim)">Chưa có</span>';
     return '<tr>'
       +'<td style="white-space:nowrap">'+epEsc(epDate(h.created_at))+'<div style="font-family:var(--mono);font-size:9px;color:var(--dim);margin-top:3px">'+epEsc(row.id)+'</div></td>'
-      +'<td><div style="font-weight:700;color:var(--text1)">'+epEsc(contactName)+'</div><div style="font-family:var(--mono);font-size:11px;color:var(--sub);margin-top:3px">'+epEsc(phone)+'</div></td>'
+      +'<td><div style="font-weight:700;color:var(--text1)">'+epEsc(contactName)+'</div><div style="font-family:var(--mono);font-size:11px;color:var(--sub);margin-top:3px">'+epEsc(phone)+'</div>'
+        +(h.contact_id ? '<button onclick="bgkMo('+eJ(h.contact_id)+')" style="margin-top:6px;padding:4px 9px;border-radius:6px;border:1px solid rgba(201,168,76,.4);background:rgba(201,168,76,.1);color:var(--gold);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans)">📝 Brief gặp khách</button>' : '')
+      +'</td>'
       +'<td>'+epKhungGioCell(h.khung_gio_goi)+'</td>'
       +'<td style="text-align:center;font-family:var(--mono);font-weight:700">'+epEsc(h.so_tang == null ? '—' : h.so_tang)+'</td>'
       +'<td style="white-space:nowrap;font-family:var(--mono)">'+epEsc(epNumber(kq.qd, 1))+(kq.qd == null ? '' : ' m²')+'</td>'
@@ -8699,7 +8701,8 @@ window.saveCompanySettings = async function() {
           + (pplCoNutDaGoi(it) ? ' <span id="pplGoi_'+eH(it.id)+'"><button onclick="pplMoChonKetQua('+eJ(it.id)+')" style="'+eH(PPL_GOI_BTN_CSS)+'">📞 Đã gọi</button></span>' : '')
         + '</td>'
         + '<td style="padding:10px 11px;font-family:var(--mono);font-size:11.5px;color:var(--dim);white-space:nowrap">'+eH(pplFmtDate(it.updated_at))+'</td>'
-        + '<td style="padding:10px 11px;text-align:center">'
+        + '<td style="padding:10px 11px;text-align:center;white-space:nowrap">'
+          + (PPL_VIEW === 'khach_hang' ? '<button onclick="bgkMo('+eJ(it.id)+')" title="Brief chuẩn bị buổi gặp" style="'+eH(PPL_GOI_BTN_CSS)+'">📝 Brief</button>' : '')
           + '<button onclick="pplDeleteContact('+eJ(it.id)+')" title="Xóa liên hệ" style="border:0;background:none;color:#f97316;cursor:pointer;font-size:15px;padding:5px 8px;border-radius:6px"><i class="ph ph-x"></i></button>'
         + '</td>'
       + '</tr>';
@@ -8786,6 +8789,147 @@ window.saveCompanySettings = async function() {
     } catch(e) {
       alert('Lỗi xóa: ' + (e.message||e));
     }
+  };
+})();
+
+/* ══════════════════════════════════════════
+   BRIEF GẶP KHÁCH (29/09/2026) — founderTaoBriefGapKhach / founderGhiKetQuaGapKhach
+   (functions/briefGapKhach.js). Mọi dữ liệu hiển thị gán bằng textContent.
+══════════════════════════════════════════ */
+(function(){
+  var BGK_CONTACT = null, BGK_BRIEF_ID = null;
+  var BGK_BO_SUNG = [
+    ['khu_vuc','Khu vực (phường/xã, tỉnh)'], ['cong_nang','Công năng (phòng ngủ, WC, thờ, gara...)'],
+    ['ngan_sach','Ngân sách tổng dự kiến'], ['thoi_diem','Thời điểm khởi công'],
+    ['nguoi_quyet','Ai cùng quyết định'], ['thi_cong','Đơn vị thi công'], ['phap_ly_dat','Tình trạng đất/sổ'],
+  ];
+
+  async function bgkFn(name, data){
+    var mod = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js');
+    var res = await mod.httpsCallable(mod.getFunctions(window.app, 'asia-southeast1'), name, { timeout: 70000 })(data || {});
+    return res.data;
+  }
+  function el(tag, text, css){
+    var e = document.createElement(tag);
+    if(text != null) e.textContent = String(text);
+    if(css) e.style.cssText = css;
+    return e;
+  }
+  function tien(n){ return n == null ? '—' : Math.round(n).toLocaleString('vi-VN') + ' đ'; }
+  function danhSach(parent, tieuDe, items, co){
+    if(!items || !items.length) return;
+    parent.appendChild(el('h3', tieuDe));
+    var l = el(co ? 'ol' : 'ul');
+    items.forEach(function(x){ l.appendChild(el('li', x)); });
+    parent.appendChild(l);
+  }
+
+  function bgkVe(b, taoLuc){
+    var box = document.getElementById('bgkNoiDung');
+    box.textContent = '';
+    if(!b){ box.appendChild(el('div', 'Chưa có brief nào cho khách này. Bấm "Tạo brief mới".', 'margin-top:16px;color:var(--dim);font-size:13px')); return; }
+    document.getElementById('bgkTieuDe').textContent = (b.khach.ten || 'Khách chưa để tên') + ' · SĐT ' + b.khach.sdt_4so + (taoLuc ? ' · tạo lúc ' + new Date(taoLuc).toLocaleString('vi-VN') : '');
+    var ai = b.ai || {};
+    box.appendChild(el('div', ai.dung ? 'Phần lời có AI hỗ trợ, số liệu do hệ thống tính.' + (ai.ly_do ? ' ' + ai.ly_do + '.' : '') : (ai.ly_do || 'Brief do hệ thống dựng.'), 'margin-top:12px;font-size:11.5px;color:var(--dim)'));
+    danhSach(box, 'Tóm tắt khách', b.tom_tat);
+    if(b.cau_mo_dau){ box.appendChild(el('h3', 'Câu mở đầu gợi ý')); box.appendChild(el('div', b.cau_mo_dau, 'font-size:13.5px;color:var(--text2);font-style:italic')); }
+    danhSach(box, 'Lưu ý', b.luu_y);
+    danhSach(box, 'Nhu cầu đã biết', b.nhu_cau_da_biet);
+    danhSach(box, 'Thông tin còn thiếu — cần hỏi', b.can_hoi, true);
+    danhSach(box, 'Số liệu dự toán khách đã thấy', b.so_lieu_du_toan);
+    danhSach(box, 'Đề xuất gói và phí', b.de_xuat);
+    if(b.moc_thanh_toan && b.moc_thanh_toan.length){
+      var t = el('table'), hr = el('tr');
+      ['Mốc','Tỷ lệ','Số tiền (chưa VAT)','Trả khi','Để làm'].forEach(function(h){ hr.appendChild(el('th', h)); });
+      t.appendChild(hr);
+      b.moc_thanh_toan.forEach(function(m){
+        var r = el('tr');
+        [m.ma + ' · ' + m.ten, m.ty_le_pct + '%', tien(m.tien), m.tra_khi, m.de_lam || '—'].forEach(function(v){ r.appendChild(el('td', v)); });
+        t.appendChild(r);
+      });
+      var tr = el('tr');
+      tr.appendChild(el('td', 'Tổng', 'font-weight:700')); tr.appendChild(el('td', '100%')); tr.appendChild(el('td', tien(b.phi.phi_chua_vat), 'font-weight:700')); tr.appendChild(el('td', '')); tr.appendChild(el('td', ''));
+      t.appendChild(tr);
+      box.appendChild(t);
+    }
+    danhSach(box, 'Đường chốt — thứ tự buổi gặp', b.duong_chot, true);
+    box.appendChild(el('h3', 'Phản đối nên chuẩn bị'));
+    (b.phan_doi || []).concat(b.phan_doi_khac || []).forEach(function(p, i){
+      var d = el('div'); d.className = 'bgk-pd';
+      if(i >= (b.phan_doi || []).length) d.style.opacity = '.75';
+      d.appendChild(el('b', '“' + p.hoi + '”'));
+      d.appendChild(el('div', p.dap));
+      box.appendChild(d);
+    });
+    danhSach(box, 'Điều kiện ký', b.dieu_kien_ky);
+    danhSach(box, 'Chưa chốt — quyết trước khi ký', b.chua_chot_truoc_ky);
+    danhSach(box, 'Mang theo buổi gặp', b.mang_theo);
+    document.getElementById('bgkKetQuaWrap').style.display = 'block';
+  }
+
+  function bgkVeBoSung(){
+    var w = document.getElementById('bgkBoSung');
+    w.textContent = '';
+    BGK_BO_SUNG.forEach(function(f){
+      var lb = el('label', f[1], 'font-size:12px;color:var(--sub)');
+      var ip = document.createElement('input');
+      ip.type = 'text'; ip.maxLength = 200; ip.id = 'bgkBs_' + f[0];
+      lb.appendChild(ip); w.appendChild(lb);
+    });
+  }
+
+  window.bgkMo = async function(contactId){
+    BGK_CONTACT = contactId; BGK_BRIEF_ID = null;
+    document.getElementById('bgkTieuDe').textContent = '';
+    document.getElementById('bgkGhiChuThem').value = '';
+    document.getElementById('bgkKqGhiChu').value = '';
+    document.getElementById('bgkHenLai').value = '';
+    document.getElementById('bgkKqTrangThai').textContent = '';
+    document.getElementById('bgkKetQuaWrap').style.display = 'none';
+    bgkVeBoSung();
+    document.getElementById('bgkModal').style.display = 'flex';
+    document.body.classList.add('bgk-in');
+    var st = document.getElementById('bgkTrangThai');
+    st.textContent = 'Đang tải brief gần nhất...';
+    document.getElementById('bgkNoiDung').textContent = '';
+    try {
+      var r = await bgkFn('founderTaoBriefGapKhach', { contact_id: contactId, chi_xem: true });
+      if(r.ganNhat){ BGK_BRIEF_ID = r.ganNhat.id; bgkVe(r.ganNhat.brief, r.ganNhat.tao_luc); st.textContent = 'Đang xem brief đã lưu. Bấm "Tạo brief mới" để cập nhật theo dữ liệu mới nhất.'; }
+      else { bgkVe(null); st.textContent = ''; }
+    } catch(e) { st.textContent = 'Lỗi tải: ' + (e.message || e); }
+  };
+  window.bgkDong = function(){
+    document.getElementById('bgkModal').style.display = 'none';
+    document.body.classList.remove('bgk-in');
+  };
+  window.bgkTao = async function(){
+    if(!BGK_CONTACT) return;
+    var st = document.getElementById('bgkTrangThai'), nut = document.getElementById('bgkNutTao');
+    nut.disabled = true; st.textContent = 'Đang tạo brief (tối đa ~15 giây)...';
+    try {
+      var r = await bgkFn('founderTaoBriefGapKhach', { contact_id: BGK_CONTACT, ghi_chu_them: document.getElementById('bgkGhiChuThem').value });
+      BGK_BRIEF_ID = r.brief_id;
+      bgkVe(r.brief, Date.now());
+      st.textContent = 'Xong sau ' + (Math.round(r.thoi_gian_ms / 100) / 10) + ' giây · chi phí AI ~' + (r.chi_phi_uoc_vnd || 0).toLocaleString('vi-VN') + ' đ · ' + (r.telegram_ok ? 'đã gửi Telegram' : 'CHƯA gửi được Telegram');
+    } catch(e) { st.textContent = 'Lỗi tạo brief: ' + (e.message || e); }
+    finally { nut.disabled = false; }
+  };
+  window.bgkGhiKetQua = async function(){
+    if(!BGK_CONTACT) return;
+    var st = document.getElementById('bgkKqTrangThai');
+    var bs = {};
+    BGK_BO_SUNG.forEach(function(f){ var v = document.getElementById('bgkBs_' + f[0]).value.trim(); if(v) bs[f[0]] = v; });
+    st.textContent = 'Đang lưu...';
+    try {
+      await bgkFn('founderGhiKetQuaGapKhach', {
+        contact_id: BGK_CONTACT, brief_id: BGK_BRIEF_ID || '',
+        ket_qua: document.getElementById('bgkKq').value,
+        hen_lai: document.getElementById('bgkHenLai').value || null,
+        ghi_chu: document.getElementById('bgkKqGhiChu').value,
+        bo_sung: bs,
+      });
+      st.textContent = '✓ Đã lưu kết quả buổi gặp.';
+    } catch(e) { st.textContent = 'Lỗi lưu: ' + (e.message || e); }
   };
 })();
 
@@ -10475,6 +10619,70 @@ window.klLuuDanhGia = async function (i) {
   } catch (e) { alert("Chưa lưu được: " + (e.message || e)); }
 };
 </script>
+
+<!-- ══ MODAL: BRIEF GẶP KHÁCH (29/09/2026, functions/briefGapKhach.js) ══ -->
+<style>
+#bgkModal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-start;justify-content:center;z-index:9000;overflow-y:auto;padding:24px 12px}
+#bgkBox{background:var(--card);border:1px solid var(--border);border-radius:14px;max-width:860px;width:100%;padding:22px 24px;color:var(--text1);font-family:var(--sans)}
+#bgkBox h3{font-size:14px;font-family:var(--sans);font-weight:800;color:var(--gold);margin:20px 0 8px}
+#bgkBox ul,#bgkBox ol{margin:0;padding-left:20px;font-size:13.5px;line-height:1.6;color:var(--text2)}
+#bgkBox li{margin:3px 0}
+#bgkBox table{border-collapse:collapse;width:100%;font-size:13px;margin-top:6px}
+#bgkBox td,#bgkBox th{border:1px solid var(--border);padding:6px 8px;text-align:left}
+#bgkBox .bgk-btn{padding:8px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--text2);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans)}
+#bgkBox .bgk-btn.gold{border-color:rgba(201,168,76,.5);background:rgba(201,168,76,.15);color:var(--gold)}
+#bgkBox textarea,#bgkBox input,#bgkBox select{width:100%;box-sizing:border-box;padding:8px 10px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--text1);font-family:var(--sans);font-size:13px}
+#bgkBox .bgk-pd{border:1px solid var(--border);border-radius:9px;padding:9px 12px;margin:6px 0;font-size:13px}
+#bgkBox .bgk-pd b{color:var(--text1)}
+#bgkBox .bgk-pd div{color:var(--text2);margin-top:4px;line-height:1.55}
+@media print{
+  body.bgk-in > *{display:none !important}
+  body.bgk-in #bgkModal{display:block !important;position:static;background:#fff;padding:0}
+  body.bgk-in #bgkBox{border:0;color:#000;background:#fff;max-width:none}
+  body.bgk-in #bgkBox *{color:#000 !important;background:#fff !important}
+  body.bgk-in .bgk-khong-in{display:none !important}
+}
+</style>
+<div id="bgkModal" onclick="if(event.target===this)bgkDong()">
+  <div id="bgkBox">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <div style="flex:1;min-width:220px">
+        <div style="font-size:17px;font-weight:800">Brief gặp khách</div>
+        <div id="bgkTieuDe" style="font-size:12px;color:var(--sub);margin-top:3px"></div>
+      </div>
+      <button class="bgk-btn bgk-khong-in" onclick="window.print()">🖨 In / lưu PDF</button>
+      <button class="bgk-btn bgk-khong-in" onclick="bgkDong()">Đóng</button>
+    </div>
+    <div class="bgk-khong-in" style="margin-top:14px">
+      <textarea id="bgkGhiChuThem" rows="2" placeholder="Ghi chú thêm trước buổi gặp (tuỳ chọn) — vd điều khách nói ở cuộc gọi gần nhất"></textarea>
+      <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap">
+        <button id="bgkNutTao" class="bgk-btn gold" onclick="bgkTao()">Tạo brief mới</button>
+        <span id="bgkTrangThai" style="font-size:12px;color:var(--dim)"></span>
+      </div>
+    </div>
+    <div id="bgkNoiDung"></div>
+    <div id="bgkKetQuaWrap" class="bgk-khong-in" style="display:none;margin-top:22px;border-top:1px dashed var(--border);padding-top:14px">
+      <h3 style="margin-top:0">Ghi kết quả buổi gặp</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px">
+        <label style="font-size:12px;color:var(--sub)">Kết quả
+          <select id="bgkKq">
+            <option value="chot_ky">Đồng ý ký — hẹn ngày ký/chuyển C1</option>
+            <option value="hen_lai">Hẹn gặp/gọi lại</option>
+            <option value="can_them">Cần thêm thông tin/bản vẽ</option>
+            <option value="khong_chot">Không chốt</option>
+          </select></label>
+        <label style="font-size:12px;color:var(--sub)">Ngày hẹn (ký hoặc gọi lại)<input id="bgkHenLai" type="date"></label>
+      </div>
+      <div id="bgkBoSung" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:10px"></div>
+      <label style="display:block;font-size:12px;color:var(--sub);margin-top:10px">Ghi chú buổi gặp<textarea id="bgkKqGhiChu" rows="3"></textarea></label>
+      <div style="display:flex;gap:8px;align-items:center;margin-top:10px">
+        <button class="bgk-btn gold" onclick="bgkGhiKetQua()">Lưu kết quả</button>
+        <span id="bgkKqTrangThai" style="font-size:12px;color:var(--dim)"></span>
+      </div>
+      <div style="font-size:11.5px;color:var(--dim);margin-top:6px">Thông tin bổ sung được dùng cho brief lần sau (không hỏi lại). Đổi giai đoạn khách vẫn làm ở cột Giai đoạn của tab Pipeline.</div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
 
