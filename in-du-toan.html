@@ -253,6 +253,7 @@ h2{margin:20px 0 6px;font-family:var(--display);font-weight:500;font-size:18px;l
 </div>
 </div>
 
+<script src="aln-founder-xem.js"></script>
 <script type="module">
 import { app, auth, onAuthStateChanged } from './firebase-config.js';
 import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js';
@@ -414,15 +415,21 @@ $('btnPdf').addEventListener('click', () => { day('aln_xuat_du_toan_in'); window
 $('btnRetry').addEventListener('click', xuat);
 
 onAuthStateChanged(auth, (user) => {
-  if (!isPhoneAuthed(user)) {
+  const xemFounder = !!(window.alnFounderXem && window.alnFounderXem.la(user));
+  if (xemFounder) window.alnFounderXem.hienThanh('dấu chìm vẫn in tên khách');
+  if (!isPhoneAuthed(user) && !xemFounder) {
     const tiep = 'in-du-toan.html' + location.search;
     window.location.href = alnUrl(window.alnEstimateFunnel.preserve('dang-nhap-chu-nha.html?next=' + encodeURIComponent(tiep)));
     return;
   }
   if (daBatDau) return;
   const q = new URLSearchParams(location.search).get('h') || '';
-  if (!/^[A-Za-z0-9_-]{1,80}$/.test(q)) { window.location.href = alnUrl('khong-gian-nha.html'); return; }
+  if (!/^[A-Za-z0-9_-]{1,80}$/.test(q)) {
+    if (xemFounder) { $('errText').textContent = 'Mở trang này từ founder_panel (nút "Xem như khách") để có mã hồ sơ.'; hienState('error'); return; }
+    window.location.href = alnUrl('khong-gian-nha.html'); return;
+  }
   houseId = q;
+  if (xemFounder) $('backLink').href = alnUrl('khong-gian-nha.html?h=' + encodeURIComponent(houseId));
   daBatDau = true;
   xuat();
 });

@@ -391,6 +391,9 @@ a{color:inherit}
 #state-house.truoc-c1-layout #logBlock{order:6}
 #state-house.truoc-c1-layout #sochiBlock{order:7}
 #state-house.truoc-c1-layout #soonBlock{order:8}
+/* Founder xem như khách (30/09/2026): thấy đúng giao diện khách, các nút ghi bị khoá. */
+body.xem-founder #btnPickBanVe,body.xem-founder #btnPickBaoGia,body.xem-founder #sochiForm,
+body.xem-founder #houseCallback,body.xem-founder #btnSaveLocalEstimate{pointer-events:none;opacity:.45}
 </style>
 </head>
 <body>
@@ -636,6 +639,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
      ở khối "Gói dịch vụ ALN" bên dưới (P1.3). -->
 <script src="aln-pricing.js"></script>
 <script src="scripts/aln-callback.js"></script>
+<script src="aln-founder-xem.js"></script>
 <script type="module">
 import {
   app, auth, db, onAuthStateChanged, signOut,
@@ -647,6 +651,7 @@ import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/
 
 const functionsInst = getFunctions(app, 'asia-southeast1');
 const callKhLienKetTaiKhoan = httpsCallable(functionsInst, 'khLienKetTaiKhoan');
+let XEM_FOUNDER = false;
 const callKhGhiUpload = httpsCallable(functionsInst, 'khGhiUpload');
 const callKhChonKhungGio = httpsCallable(functionsInst, 'khChonKhungGio');
 
@@ -921,6 +926,7 @@ function renderHouseCallback() {
       // Chỉ gọi khi còn phiên Phone Auth — SDK Functions tự bỏ header
       // Authorization khi không có token (server 401), xem du-toan-nha.html.
       save: (id, v) => {
+        if (XEM_FOUNDER) return Promise.reject({ code: 'xem-founder', message: 'Chế độ xem của Founder không lưu.' });
         if (!isPhoneAuthed(auth.currentUser)) return Promise.reject({ code: window.alnCallback.LOI_CAN_DANG_NHAP });
         return callKhChonKhungGio({ houseId: id, khung_gio_goi: v });
       },
@@ -1135,6 +1141,7 @@ const UPLOAD_LOAI_TAG = { ban_ve: 'Bản vẽ', bao_gia: 'Báo giá', khac: 'Kh�
  * người dùng thấy đúng khối khi đóng hộp thoại.
  */
 function openFilePicker(loai) {
+  if (XEM_FOUNDER) return;
   if (uploadBusy || pickerContext || !currentHouseId) return;
   pickerContext = { houseId: currentHouseId, loai };
   els.switchHouseLink.disabled = true;
@@ -1301,6 +1308,7 @@ function startEditSoChi(item) {
 }
 
 async function deleteSoChi(id) {
+  if (XEM_FOUNDER) return;
   if (!currentHouseId) return;
   if (!confirm('Xóa khoản chi này? Không thể hoàn tác.')) return;
   try {
@@ -1352,7 +1360,7 @@ function loadHouse(houseId) {
     (err) => console.error('[khong-gian-nha] onSnapshot nhat_ky lỗi:', err)
   ));
 
-  unsubscribers.push(onSnapshot(collection(db, 'houses', houseId, 'so_chi'), (snap) => {
+  if (!XEM_FOUNDER) unsubscribers.push(onSnapshot(collection(db, 'houses', houseId, 'so_chi'), (snap) => {
     sochiItems = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
     sochiItems.sort((a, b) => String(b.ngay_chi || '').localeCompare(String(a.ngay_chi || '')));
     renderSoChiTotal(sochiItems);
@@ -1482,6 +1490,7 @@ els.sochiCancelBtn.addEventListener('click', () => resetSoChiForm());
 
 els.sochiForm.addEventListener('submit', async (e) => {
   e.preventDefault();
+  if (XEM_FOUNDER) return;
   if (!currentHouseId) return;
 
   const hangMuc = els.sfHangMuc.value.trim();
@@ -1634,7 +1643,30 @@ els.fileInput.addEventListener('change', async () => {
 function isPhoneAuthed(user) {
   return !!(user && !user.isAnonymous && user.phoneNumber);
 }
+/* Founder xem như khách (30/09/2026): mở thẳng house theo ?h= (firestore.rules
+   isFounder() đã cho đọc), không gọi khLienKetTaiKhoan, khoá mọi nút ghi.
+   Sổ chi là dữ liệu riêng của chủ nhà — Founder không đọc (đúng rules). */
+function initFounder() {
+  document.body.classList.add('xem-founder');
+  window.alnFounderXem.hienThanh('sổ chi riêng của chủ nhà không hiện');
+  els.logoutLink.hidden = true;
+  els.switchHouseLink.hidden = true;
+  const h = new URLSearchParams(location.search).get('h') || '';
+  if (!/^[A-Za-z0-9_-]{1,80}$/.test(h)) {
+    showState('error');
+    const t = els.error.querySelector('p');
+    if (t) t.textContent = 'Mở trang này từ founder_panel (nút "Xem như khách") để có mã hồ sơ.';
+    els.retryBtn.hidden = true;
+    return;
+  }
+  loadHouse(h);
+}
 onAuthStateChanged(auth, (user) => {
+  if (window.alnFounderXem && window.alnFounderXem.la(user)) {
+    XEM_FOUNDER = true;
+    initFounder();
+    return;
+  }
   if (!isPhoneAuthed(user)) {
     window.location.href = window.alnEstimateFunnel.preserve('dang-nhap-chu-nha.html');
     return;

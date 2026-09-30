@@ -467,6 +467,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- BANG-TINH:END -->
 </main>
 
+<script src="aln-founder-xem.js"></script>
 <script type="module">
 import { app, auth, onAuthStateChanged, RecaptchaVerifier, signInWithPhoneNumber } from './firebase-config.js';
 import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js';
@@ -593,7 +594,7 @@ $btn.addEventListener('click', async () => {
     const { data } = await tinh({ phong });
     PHONG_DA_TINH = phong; NHAN = nhanMoi; KQ = data;
     hienKetQua(data);
-    if (LEAD_ID) moBang().catch(() => {});
+    if (LEAD_ID || (XEM_FOUNDER && BANG)) moBang(XEM_FOUNDER).catch(() => {});
     try { gtag('event', 'aln_noi_that_tinh', { so_phong: phong.length }); } catch (e) {}
   } catch (e) {
     $msg.textContent = 'Chưa tính được lúc này. Anh/chị thử lại sau ít phút.';
@@ -670,6 +671,8 @@ function hienKetQua(d) {
 
 /* ── Tự chỉnh từng món: mở sau khi để lại SĐT (layBangGiaNoiThat kiểm leadId ở máy chủ) ── */
 let PHONG_DA_TINH = null, NHAN = [], KQ = null, LEAD_ID = null, BANG = null, DONG = [];
+// Founder xem như khách (30/09/2026): mở bảng không cần OTP, không lưu lựa chọn (LEAD_ID luôn null).
+let XEM_FOUNDER = false;
 try { LEAD_ID = sessionStorage.getItem('aln_noithat_lead') || null; } catch (e) {}
 const TEN_MUC = { co_ban: 'Cơ bản', kha: 'Khá', cao_cap: 'Cao cấp', bo: 'Không làm' };
 const esc = (t) => String(t == null ? '' : t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -800,6 +803,11 @@ async function moSauXacNhan(f) {
 document.getElementById('gate').addEventListener('submit', async (e) => {
   e.preventDefault();
   $gm().textContent = '';
+  if (XEM_FOUNDER) {
+    if (!PHONG_DA_TINH) { $gm().textContent = 'Bấm "Xem khoảng chi phí" trước.'; return; }
+    try { await moBang(); } catch (err) { $gm().textContent = 'Chưa mở được bảng (' + ((err && err.code) || 'lỗi') + '). Kiểm tra hàm layBangGiaNoiThat đã deploy bản mới chưa.'; console.error(err); }
+    return;
+  }
   const f = kiemForm();
   if (!f) return;
   if (sdtDaXacNhan() === f.sdt) { // đã xác nhận OTP số này (vd từ trang dự toán) — không bắt nhập mã lại
@@ -848,6 +856,12 @@ document.getElementById('g-xn').addEventListener('click', async () => {
 });
 // Đã có phiên OTP (vd vừa xác nhận ở trang dự toán phần thô): điền sẵn số, nút mở thẳng.
 onAuthStateChanged(auth, () => {
+  XEM_FOUNDER = !!(window.alnFounderXem && window.alnFounderXem.la(auth.currentUser));
+  if (XEM_FOUNDER) {
+    window.alnFounderXem.hienThanh('bấm "Mở bảng" không cần OTP');
+    document.getElementById('g-btn').innerHTML = '<i class="ph-duotone ph-lock-open"></i> Mở bảng (Founder xem)';
+    return;
+  }
   const sdt = sdtDaXacNhan();
   const $s = document.getElementById('g-sdt');
   const $b = document.getElementById('g-btn');
@@ -855,17 +869,18 @@ onAuthStateChanged(auth, () => {
   if (sdt && chuanSdt($s.value) === sdt && !$b.hidden) $b.innerHTML = '<i class="ph-duotone ph-lock-open"></i> Mở bảng từng món';
 });
 document.getElementById('g-sdt').addEventListener('input', () => {
+  if (XEM_FOUNDER) return;
   const $b = document.getElementById('g-btn');
   const ok = sdtDaXacNhan() && chuanSdt(document.getElementById('g-sdt').value) === sdtDaXacNhan();
   $b.innerHTML = ok ? '<i class="ph-duotone ph-lock-open"></i> Mở bảng từng món' : '<i class="ph-duotone ph-shield-check"></i> Gửi mã xác nhận';
 });
 
 async function moBang(giuLai) {
-  if (!LEAD_ID || !PHONG_DA_TINH) return;
+  if ((!LEAD_ID && !XEM_FOUNDER) || !PHONG_DA_TINH) return;
   let res;
   const luot = ++LUOT_BANG;
   try {
-    res = await layBang({ leadId: LEAD_ID, phong: PHONG_DA_TINH });
+    res = await layBang(XEM_FOUNDER ? { phong: PHONG_DA_TINH } : { leadId: LEAD_ID, phong: PHONG_DA_TINH });
     if (luot !== LUOT_BANG) return; // đã có yêu cầu mới hơn
   } catch (e) {
     if (giuLai && !/permission-denied/.test((e && e.code) || '')) throw e; // lỗi kích thước: giữ bảng, báo tại chỗ
@@ -912,6 +927,7 @@ async function moBang(giuLai) {
       `<button type="button" data-muc="${eH(k)}" class="${k === 'kha' ? 'on' : ''}">${TEN_MUC[k]}</button>`).join('');
   }
   veBang();
+  if (XEM_FOUNDER) { const n = document.getElementById('nut-luu'); if (n) n.style.display = 'none'; }
 }
 
 /* Lưu lựa chọn của khách (mức chung, món đã chỉnh, kích thước) vào lịch sử

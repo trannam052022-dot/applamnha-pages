@@ -1346,6 +1346,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <div style="font-size:11px;color:var(--sub);margin-top:3px">Hồ sơ chủ nhà tự lưu từ công cụ dự toán · Chỉ đọc</div>
     </div>
     <div id="estimateProfilesSummary" style="font-family:var(--mono);font-size:11px;color:var(--dim)">Chưa tải dữ liệu</div>
+    <a href="noi-that-khoang-gia.html" target="_blank" rel="noopener" title="Bảng khoảng giá nội thất — Founder mở bảng từng món không cần OTP" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;text-decoration:none;font-family:var(--sans)">👁 Bảng nội thất như khách</a>
     <button onclick="refreshEstimateProfiles()" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;gap:5px"><i class="ph-duotone ph-arrow-clockwise"></i> Tải lại</button>
   </div>
   <div class="table-wrap" style="flex:1;overflow:auto">
@@ -5838,6 +5839,7 @@ function epRender(rows) {
       +'<td style="white-space:nowrap">'+epEsc(epDate(h.created_at))+'<div style="font-family:var(--mono);font-size:9px;color:var(--dim);margin-top:3px">'+epEsc(row.id)+'</div></td>'
       +'<td><div style="font-weight:700;color:var(--text1)">'+epEsc(contactName)+'</div><div style="font-family:var(--mono);font-size:11px;color:var(--sub);margin-top:3px">'+epEsc(phone)+'</div>'
         +(h.contact_id ? '<button onclick="bgkMo('+eJ(h.contact_id)+')" style="margin-top:6px;padding:4px 9px;border-radius:6px;border:1px solid rgba(201,168,76,.4);background:rgba(201,168,76,.1);color:var(--gold);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans)">📝 Brief gặp khách</button>' : '')
+        +'<a href="'+eU('khong-gian-nha.html?h='+encodeURIComponent(row.id))+'" target="_blank" rel="noopener" title="Mở Không gian Nhà đúng như khách thấy (chỉ xem)" style="display:inline-block;margin:6px 0 0 6px;padding:4px 9px;border-radius:6px;border:1px solid var(--border);color:var(--text2);font-size:11px;font-weight:700;text-decoration:none">👁 Xem như khách</a>'
       +'</td>'
       +'<td>'+epKhungGioCell(h.khung_gio_goi)+'</td>'
       +'<td style="text-align:center;font-family:var(--mono);font-weight:700">'+epEsc(h.so_tang == null ? '—' : h.so_tang)+'</td>'

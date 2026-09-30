@@ -461,6 +461,7 @@ ul.plain li{margin:2px 0}
 </div>
 </div>
 
+<script src="aln-founder-xem.js"></script>
 <script type="module">
 import { app, auth, onAuthStateChanged } from './firebase-config.js';
 import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js';
@@ -483,6 +484,8 @@ let banLuuCuoi = '';
 let dangLuu = false;
 
 function isPhoneAuthed(user) { return !!(user && !user.isAnonymous && user.phoneNumber); }
+// Founder xem như khách (30/09/2026): chỉ xem phiếu của khách, không lưu, không giữ nháp.
+let XEM_FOUNDER = false;
 function soVN(n) { return n == null ? '' : Math.round(Number(n)).toLocaleString('vi-VN'); }
 function soLe(n) { return n == null ? '' : Number(n).toLocaleString('vi-VN', { maximumFractionDigits: 2 }); }
 function duoiSdt(d4) { d4 = String(d4 || '').replace(/\D/g, '').slice(-4); return d4 ? '•••• ' + d4 : ''; }
@@ -663,14 +666,16 @@ function dienMacDinhOTrong(ds) {
 
 /* ── Nháp trên máy (per-viewer, có thể không có) ── */
 function luuNhap() {
+  if (XEM_FOUNDER) return;
   try { localStorage.setItem(khoaDraft(), JSON.stringify({ ts: Date.now(), t: thuTraLoi() })); } catch (e) { /* bỏ qua */ }
 }
 function docNhap() {
+  if (XEM_FOUNDER) return null;
   try { const x = JSON.parse(localStorage.getItem(khoaDraft()) || 'null'); return x && x.t ? x : null; } catch (e) { return null; }
 }
 
 async function luuLenHeThong() {
-  if (dangLuu) return false;
+  if (dangLuu || XEM_FOUNDER) return false;
   dangLuu = true;
   $('btnLuu').disabled = true; $('btnPdf').disabled = true;
   nhapTrangThai('Đang lưu…');
@@ -727,6 +732,12 @@ async function moPhieu() {
     banLuuCuoi = d.phieu && d.phieu.tra_loi ? JSON.stringify(thuTraLoi()) : '';
     hienState('sheet');
     $('btnLuu').disabled = false; $('btnPdf').disabled = false;
+    if (XEM_FOUNDER) {
+      $('btnLuu').hidden = true;
+      $('btnPdf').textContent = 'Tải PDF';
+      nhapTrangThai(d.phieu ? 'Phiếu khách đã lưu ' + ngayVN(svMs) + ' (chỉ xem).' : 'Khách chưa lưu phiếu (chỉ xem).');
+      return;
+    }
     nhapTrangThai(d.phieu ? 'Phiếu đã lưu ' + ngayVN(svMs) + ' — sửa rồi bấm Lưu phiếu.' : 'Chưa lưu — điền rồi bấm Lưu phiếu.');
   } catch (e) {
     console.error('[phieu-yeu-cau] mở phiếu lỗi:', e && e.code);
@@ -758,6 +769,9 @@ $('btnRetry').addEventListener('click', moPhieu);
 
 async function batDau() {
   const q = new URLSearchParams(location.search).get('h') || '';
+  if (!/^[A-Za-z0-9_-]{1,80}$/.test(q) && XEM_FOUNDER) {
+    $('errText').textContent = 'Mở trang này từ founder_panel (nút "Xem như khách") để có mã hồ sơ.'; hienState('error'); return;
+  }
   if (!/^[A-Za-z0-9_-]{1,80}$/.test(q)) {
     // Không có mã hồ sơ: lấy hồ sơ đầu tiên của tài khoản (thường chỉ có 1).
     try {
@@ -773,7 +787,9 @@ async function batDau() {
 }
 
 onAuthStateChanged(auth, (user) => {
-  if (!isPhoneAuthed(user)) {
+  XEM_FOUNDER = !!(window.alnFounderXem && window.alnFounderXem.la(user));
+  if (XEM_FOUNDER) window.alnFounderXem.hienThanh('phiếu của khách');
+  if (!isPhoneAuthed(user) && !XEM_FOUNDER) {
     const tiep = 'phieu-yeu-cau.html' + location.search;
     window.location.href = alnUrl(window.alnEstimateFunnel.preserve('dang-nhap-chu-nha.html?next=' + encodeURIComponent(tiep)));
     return;
