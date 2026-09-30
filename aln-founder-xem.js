@@ -20,7 +20,9 @@
       document.body.insertBefore(d, document.body.firstChild);
       // Không in thanh này ra PDF
       var st = document.createElement('style');
-      st.textContent = '@media print{#aln-founder-xem{display:none!important}}';
+      // Thanh công cụ dính đầu trang (.bar ở trang in) nằm ngay dưới thanh này, không bị che
+      st.textContent = '@media print{#aln-founder-xem{display:none!important}}'
+        + '@media screen{body>.bar{top:' + (d.offsetHeight || 34) + 'px}}';
       document.head.appendChild(st);
     };
     if (document.body) chen(); else document.addEventListener('DOMContentLoaded', chen);
