@@ -459,6 +459,26 @@ function goToStep(n) {
   els.step3.hidden = n !== 3;
 }
 
+/* Đo luồng OTP (30/09/2026) — phân biệt: gửi mã lỗi, không nhập mã, nhập sai,
+   xác thực xong. KHÔNG gửi SĐT/mã OTP vào GA4, chỉ mã lỗi Firebase + luồng
+   (luu_du_toan khi đến từ du-toan-nha, khac cho các trang còn lại). */
+function luongOtp() {
+  try {
+    const next = new URLSearchParams(location.search).get("next") || "";
+    return /du-toan-nha/.test(next) ? "luu_du_toan" : "khac";
+  } catch (e) { return "khac"; }
+}
+function maLoiOtp(err) {
+  const ma = err && typeof err.code === "string" ? err.code : "khong_ro";
+  return ma.replace(/[^a-z0-9/_-]/gi, "").slice(0, 60) || "khong_ro";
+}
+function doLuongOtp(ten, thamSo) {
+  try {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push(Object.assign({ event: ten, luong: luongOtp() }, thamSo || {}));
+  } catch (e) {}
+}
+
 async function handleSend() {
   if (sendInFlight) return;
   clearError();
@@ -484,8 +504,10 @@ async function handleSend() {
     // Tính là 1 lần gửi ngay khi thật sự gọi Firebase — kể cả nếu Firebase
     // sau đó trả lỗi khác (quota/network), đây vẫn là 1 lượt SMS đã cố gửi.
     recordAttempt(norm);
+    doLuongOtp("aln_otp_gui_yeu_cau", { lan_gui_lai: resendWasDisabled ? 0 : 1 });
     confirmationResult = await signInWithPhoneNumber(auth, e164, verifier);
     sent = true;
+    doLuongOtp("aln_otp_gui_ok");
     els.phoneDisplay.textContent = formatVNDisplay(norm);
     goToStep(2);
     startResendCountdown(60);
@@ -493,6 +515,7 @@ async function handleSend() {
     els.otpInput.focus();
   } catch (err) {
     console.warn("[dang-nhap-chu-nha] gửi mã thất bại");
+    doLuongOtp("aln_otp_gui_loi", { ma_loi: maLoiOtp(err) });
     window.alnBaoLoiNeuCan && window.alnBaoLoiNeuCan("dang-nhap gui-ma", err);
     showError(err && err.code, err && err.message);
   } finally {
@@ -521,10 +544,12 @@ async function handleVerify() {
   els.verifyBtn.textContent = "Đang xác nhận...";
   try {
     await confirmationResult.confirm(code);
+    doLuongOtp("aln_otp_xac_thuc_ok");
     goToStep(3);
     window.location.href = resolveNextUrl();
   } catch (err) {
     console.warn("[dang-nhap-chu-nha] xác nhận mã thất bại");
+    doLuongOtp("aln_otp_xac_thuc_loi", { ma_loi: maLoiOtp(err) });
     window.alnBaoLoiNeuCan && window.alnBaoLoiNeuCan("dang-nhap xac-nhan-ma", err);
     showError(err && err.code, err && err.message);
   } finally {

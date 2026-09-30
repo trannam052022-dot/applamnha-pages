@@ -101,7 +101,7 @@
 
     container.appendChild(el('p', 'aln-cb-head', 'ALN đã nhận dự toán của anh/chị.'));
     var p2 = el('p');
-    p2.appendChild(document.createTextNode(NGUOI_GOI + ' sẽ gọi trong 24 giờ từ số '));
+    p2.appendChild(document.createTextNode(NGUOI_GOI + ' sẽ gọi trong 1–2 ngày làm việc, từ số '));
     p2.appendChild(el('span', 'aln-cb-so', soHienThi(SO_GOI)));
     p2.appendChild(document.createTextNode('.'));
     container.appendChild(p2);

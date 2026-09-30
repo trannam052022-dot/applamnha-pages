@@ -152,6 +152,26 @@ table{width:100%;border-collapse:collapse}
 .fine{font-size:12.5px;color:var(--muted);margin-top:14px;line-height:1.6}
 .cta{display:block;text-align:center;margin-top:16px;background:var(--navy2);color:#fff;text-decoration:none;border-radius:10px;padding:12px;font-weight:600}
 #btnSaveHouse{font-family:inherit;font-size:16px;font-weight:700}
+/* Form "Nhờ KTS xem giúp dự toán này" (30/09/2026) — nút chính ngay dưới kết quả;
+   Lưu vào Không gian Nhà thành nút phụ (cần OTP). */
+.tv{margin-top:18px;padding:16px 14px;border:1.5px solid var(--gold);border-radius:12px;background:var(--gold-soft)}
+.tv h3{font-family:var(--head);font-weight:600;font-size:19px;line-height:1.3;margin:0 0 4px}
+.tv .tv-sub{font-size:14.5px;color:var(--sub);margin:0 0 12px;line-height:1.55}
+.tv .tv-f{margin-top:10px}
+.tv input,.tv select{font-family:var(--body);font-size:16px;min-height:46px}
+.tv .seg label{font-size:14.5px;padding:10px 6px;min-height:44px;display:flex;align-items:center;justify-content:center}
+.tv .tv-dy{display:flex;gap:10px;align-items:flex-start;margin-top:12px;font-size:13.5px;color:var(--sub);line-height:1.5;cursor:pointer}
+.tv .tv-dy input{width:20px;height:20px;min-height:0;flex:none;margin-top:2px;accent-color:var(--navy2)}
+.tv .tv-dy a{color:inherit}
+.tv .tv-go{display:block;width:100%;margin-top:14px;min-height:50px;border:0;border-radius:10px;background:var(--navy2);color:#fff;font:inherit;font-size:16.5px;font-weight:700;cursor:pointer}
+.tv .tv-go:disabled{opacity:.7;cursor:default}
+.tv .tv-msg{min-height:1.4em;margin-top:8px;font-size:14px;line-height:1.55}
+.tv .tv-msg.err{color:var(--warn);font-weight:500}
+.tv .tv-ok{font-size:15px;line-height:1.6}
+.tv .tv-ok b{font-family:var(--mono);font-weight:600;white-space:nowrap}
+#btnSaveHouse.phu{background:transparent;color:var(--navy2);border:1.5px solid var(--line2)!important;font-size:15px;font-weight:600}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) #btnSaveHouse.phu{color:var(--ink)}}
+:root[data-theme="dark"] #btnSaveHouse.phu{color:var(--ink)}
 .dock{position:fixed;left:0;right:0;bottom:0;background:var(--navy);color:#fff;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px;z-index:5}
 .dock b{font-family:var(--mono);font-weight:500;color:#e8c877}
 .dock a{color:#fff;font-size:14px}
@@ -293,7 +313,27 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
    <div class="rows" id="rowsH"></div>
    <div class="tot"><span>Cộng vật tư hoàn thiện</span><span id="totH"></span></div>
    <div class="fine">Chưa gồm: ép cọc, thiết bị thang máy (hai phần này chủ nhà ký riêng), nội thất rời, chi phí thiết kế và xin phép.<br>Đây là ước tính theo nhà mẫu cùng loại, chưa phải dự toán chính thức cho công trình của bạn. Dự toán đúng cho nhà bạn phải bóc từ chính bản vẽ của bạn.</div>
-   <button class="cta" id="btnSaveHouse" type="button" style="border:0;cursor:pointer;width:100%">Lưu vào Không gian Nhà</button>
+   <section class="tv" id="tuVan" aria-labelledby="tuVanTitle">
+    <h3 id="tuVanTitle">Nhờ KTS xem giúp dự toán này</h3>
+    <p class="tv-sub">KTS Trần Long trao đổi 10–15 phút về con số vừa tính và báo giá anh/chị đang có (nếu có). Miễn phí, không ràng buộc.</p>
+    <form id="tvForm" novalidate>
+     <div class="tv-f"><label for="tvTen">Họ tên (để KTS xưng hô khi gọi)</label><input id="tvTen" type="text" autocomplete="name" maxlength="60" placeholder="VD: Anh Minh" required></div>
+     <div class="tv-f"><label for="tvSdt">Số điện thoại</label><input id="tvSdt" type="tel" inputmode="tel" autocomplete="tel" maxlength="15" placeholder="VD: 0909 123 456" required></div>
+     <div class="tv-f"><label for="tvThoiDiem">Dự kiến khởi công</label><select id="tvThoiDiem" required><option value="">Chọn thời điểm</option><option value="truoc_tet">Trước Tết</option><option value="sau_tet">Sau Tết</option><option value="chua_chac">Chưa xác định</option></select></div>
+     <div class="tv-f"><label id="tvGoiLbl">Anh/chị có cần KTS gọi không?</label>
+      <div class="seg" role="radiogroup" aria-labelledby="tvGoiLbl">
+       <label><input type="radio" name="tvGoi" value="co" checked>Có, nhờ KTS gọi</label>
+       <label><input type="radio" name="tvGoi" value="khong">Chưa, chỉ để lại liên hệ</label>
+      </div>
+     </div>
+     <div class="tv-f" id="tvGioWrap"><label for="tvGio">Khung giờ tiện nghe máy</label><select id="tvGio"><option value="">Chọn khung giờ</option></select></div>
+     <label class="tv-dy" for="tvDongY"><input id="tvDongY" type="checkbox"><span><span id="tvDongYText">Tôi đồng ý để ALN lưu họ tên, số điện thoại và dự toán này để liên hệ tư vấn thiết kế theo yêu cầu của tôi, theo Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 và Nghị định 356/2025/NĐ-CP.</span> <a href="/privacy.html" target="_blank" rel="noopener">Chính sách bảo mật</a></span></label>
+     <button class="tv-go" id="tvGui" type="submit">Gửi yêu cầu</button>
+     <div class="tv-msg" id="tvMsg" role="status" aria-live="polite"></div>
+    </form>
+   </section>
+   <button class="cta phu" id="btnSaveHouse" type="button" style="cursor:pointer;width:100%">Lưu vào Không gian Nhà</button>
+   <div class="hint" style="margin-top:4px">Lưu để quay lại sửa, so sánh nhiều phương án. Cần xác nhận số điện thoại bằng mã OTP.</div>
    <div id="saveHouseMsg" class="hint" style="margin-top:8px" hidden></div>
    <button class="btn" id="retrySaveHouse" type="button" style="margin-top:8px" hidden>Thử lại</button>
    <div id="saveCallback" hidden></div>
@@ -302,7 +342,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
  </div>
 </aside>
 </div>
-<div class="dock"><span>Ước tính: <b id="dockT">—</b></span><a href="#res">Xem chi tiết</a></div>
+<div class="dock"><span>Ước tính: <b id="dockT">—</b></span><a href="#tuVan">Nhờ KTS xem</a></div>
 
 <!-- Dữ liệu 2 nhà mẫu + hàm tính — module dùng chung với Cloud Function
      saveEstimateToHouse (functions/saveEstimateToHouse.js). Nạp TRƯỚC script
@@ -493,7 +533,7 @@ function runThongThuong(skipPrices,userInitiated){
  $('dockT').textContent=ty(result.totalChuaVat);
  draw($('rows'),result.lines,result.totalChuaVat);
  draw($('rowsH'),result.lineHoanThien,result.totalHoanThien);$('totH').textContent=fmt(result.totalHoanThien);
- window.__lastEstimate={modelKey:key,inputs:{...st.inp},priceOverrides:{...st.px},result};
+ window.__lastEstimate={modelKey:key,nhaMauNhan:S.label,dienTich:{tx:a.tx,qd:a.qd,km:a.km},inputs:{...st.inp},priceOverrides:{...st.px},result};
  // P1.5 (spec mục 5) — dataLayer thuần, KHÔNG kèm Pixel/CAPI (chưa có contact/
  // lead ở bước này). run() chạy lại mỗi lần gõ phím nên debounce 1.2s sau lần
  // gõ cuối mới đẩy 1 sự kiện, tránh làm loãng dataLayer.
@@ -543,7 +583,7 @@ function runBietThuVuon(skipPrices,userInitiated){
  $('dockT').textContent=ty(result.totalChuaVat);
  draw($('rows'),result.lines,result.totalChuaVat);
  draw($('rowsH'),result.lineHoanThien,result.totalHoanThien);$('totH').textContent=fmt(result.totalHoanThien);
- window.__lastEstimate={modelKey:'thi_biet_thu_vuon_mai_thai',inputs:{...st.inp},priceOverrides:{...st.px},result};
+ window.__lastEstimate={modelKey:'thi_biet_thu_vuon_mai_thai',nhaMauNhan:'Biệt thự vườn 1 tầng mái Thái',dienTich:{tx:result.tx,qd:result.qd,km:result.km},inputs:{...st.inp},priceOverrides:{...st.px},result};
  scheduleTinh(userInitiated,{event:'aln_du_toan_tinh',aln_nha_mau:'thi_biet_thu_vuon_mai_thai',aln_so_san:1,aln_dien_tich_qd:Math.round(result.qd),aln_tong_chua_vat:result.totalChuaVat});
 }
 const IC='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>';
@@ -762,6 +802,8 @@ async function doSave() {
     const code = (err && err.code) || '';
     console.error("[du-toan-nha] saveEstimateToHouse failed", code, err && err.message);
     window.alnBaoLoiNeuCan && window.alnBaoLoiNeuCan("du-toan-nha luu", err);
+    // Đo luồng lưu (30/09/2026): chỉ mã lỗi, không dữ liệu khách.
+    try { window.dataLayer = window.dataLayer || []; window.dataLayer.push({ event: "aln_luu_loi", ma_loi: String(code || "khong_ro").slice(0, 60) }); } catch (e) {}
     // Lỗi máy chủ đã TỪ CHỐI hẳn (sai dữ liệu / thao tác cũ không khớp) thì bỏ
     // thao tác đang nhớ trong sessionStorage — nếu giữ, bấm "Thử lại" hay sửa
     // số rồi lưu lại vẫn gửi y nguyên gói cũ và kẹt lỗi mãi trong tab này.
@@ -807,7 +849,11 @@ function isPhoneAuthed(user) {
 
 btn.addEventListener("click", () => {
   if (saveSucceeded) { window.location.href = window.alnEstimateFunnel.preserve("khong-gian-nha.html"); return; }
-  if (isPhoneAuthed(auth.currentUser)) doSave(); else goLogin();
+  const daDangNhap = isPhoneAuthed(auth.currentUser);
+  // Đo luồng lưu (30/09/2026): bấm Lưu → (chưa đăng nhập) sang OTP. Các bước
+  // OTP đo ở dang-nhap-chu-nha.html (aln_otp_*), luong = luu_du_toan.
+  try { window.dataLayer = window.dataLayer || []; window.dataLayer.push({ event: "aln_luu_bam", da_dang_nhap: daDangNhap ? 1 : 0 }); } catch (e) {}
+  if (daDangNhap) doSave(); else goLogin();
 });
 retryBtn.addEventListener('click', () => {
   if (isPhoneAuthed(auth.currentUser)) doSave(); else goLogin();
@@ -828,6 +874,179 @@ const params = new URLSearchParams(window.location.search);
     if (params.get("autosave") === "1" || pending) doSave();
   });
 }
+</script>
+
+<!-- Form "Nhờ KTS xem giúp dự toán này" (Nam chốt 30/09/2026). Không OTP:
+     gửi submitDuToanLead kenh "phantho" → leads/ + contacts/ (Pipeline) + CAPI
+     Lead phía máy chủ. Pixel Lead + aln_lead_submit CHỈ bắn khi máy chủ trả mã
+     lead (cùng eventID 'lead-'+id để Meta gộp với CAPI). Không gửi PII vào GA4.
+     Câu đồng ý phải giống hệt CONSENT_TEXTS.du_toan (functions/consent_constants.js,
+     kiểm ở functions/_test_tuVanPhanTho.js). -->
+<script type="module">
+import { app } from './firebase-config.js';
+import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js';
+
+const guiYeuCau = httpsCallable(getFunctions(app, 'asia-southeast1'), 'submitDuToanLead', { timeout: 20000 });
+
+/* Tóm tắt dự toán gửi kèm (Nam chốt 30/09/2026 (2)) — để KTS có đủ thông tin
+   nói chuyện với khách, không phải mở lại bảng. Máy chủ lọc lại từng trường
+   (functions/lib/tuVanPhanTho.js chuanHoaTomTat). */
+function tomTatDuToan(est) {
+  try {
+    const r = est.result || {}, inp = est.inputs || {}, dt = est.dienTich || {};
+    const so = (v) => { const n = Number(String(v == null ? '' : v).replace(',', '.')); return Number.isFinite(n) ? n : null; };
+    const maiSel = document.getElementById('mai_loai');
+    const maiNhan = maiSel && maiSel.selectedIndex >= 0 ? maiSel.options[maiSel.selectedIndex].text : '';
+    const hangMuc = (Array.isArray(r.lines) ? r.lines : [])
+      .filter((x) => x && x.v > 0).slice().sort((a, b) => b.v - a.v).slice(0, 8)
+      .map((x) => ({ ten: String(x.n || '').slice(0, 80), tien: Math.round(x.v) }));
+    return {
+      nha_mau: est.modelKey || null, nha_mau_nhan: est.nhaMauNhan || null,
+      inputs: { n: so(inp.n), w1: so(inp.w1), w2: so(inp.w2), l1: so(inp.l1), l2: so(inp.l2), tm: so(inp.tm), ham: so(inp.ham) },
+      mai_loai_nhan: maiNhan || null,
+      tx: dt.tx != null ? dt.tx : null, qd: dt.qd != null ? dt.qd : null,
+      tong_chua_vat: r.totalChuaVat, tong_sau_vat: r.totalSauVat, don_gia_m2: r.perM2ChuaVat,
+      vat: so(r.vatPct), vat_tu_chu_nha_mua: r.totalHoanThien,
+      nhan_cong: inp.lm || 'khoan',
+      hang_muc: hangMuc,
+    };
+  } catch (e) { return null; }
+}
+const f = {
+  form: document.getElementById('tvForm'), ten: document.getElementById('tvTen'),
+  sdt: document.getElementById('tvSdt'), thoiDiem: document.getElementById('tvThoiDiem'),
+  gioWrap: document.getElementById('tvGioWrap'), gio: document.getElementById('tvGio'),
+  dongY: document.getElementById('tvDongY'), gui: document.getElementById('tvGui'),
+  msg: document.getElementById('tvMsg'), box: document.getElementById('tuVan'),
+};
+const CB = window.alnCallback || {};
+(CB.KHUNG_GIO || []).forEach((k) => {
+  const o = document.createElement('option'); o.value = k.v; o.textContent = k.l; f.gio.appendChild(o);
+});
+
+function day(ten, thamSo) {
+  try { window.dataLayer = window.dataLayer || []; window.dataLayer.push(Object.assign({ event: ten }, thamSo || {})); } catch (e) {}
+}
+function canGoi() {
+  const r = f.form.querySelector('input[name="tvGoi"]:checked');
+  return !r || r.value === 'co';
+}
+function capNhatGio() { f.gioWrap.hidden = !canGoi(); }
+f.form.querySelectorAll('input[name="tvGoi"]').forEach((r) => r.addEventListener('change', capNhatGio));
+capNhatGio();
+
+let daBatDau = false;
+f.form.addEventListener('focusin', () => {
+  if (daBatDau) return;
+  daBatDau = true;
+  day('aln_tuvan_bat_dau');
+});
+
+function baoLoi(text, o) {
+  f.msg.textContent = text;
+  f.msg.className = 'tv-msg err';
+  if (o) { o.setAttribute('aria-invalid', 'true'); o.focus(); }
+}
+function xoaLoi() {
+  f.msg.textContent = ''; f.msg.className = 'tv-msg';
+  [f.ten, f.sdt, f.thoiDiem, f.gio, f.dongY].forEach((o) => o.removeAttribute('aria-invalid'));
+}
+function sdtSach(v) { return String(v || '').replace(/[\s.\-()]/g, '').replace(/^\+84/, '0'); }
+function soHienThi(so) { return so.replace(/^(\d{4})(\d{3})(\d{3})$/, '$1 $2 $3'); }
+
+function kiemTruocKhiGui() {
+  const chuCai = (f.ten.value.match(/\p{L}/gu) || []).length;
+  if (chuCai < 2) return ['ten', 'Anh/chị cho ALN biết họ tên để KTS xưng hô khi gọi.', f.ten];
+  if (!/^0\d{9}$/.test(sdtSach(f.sdt.value))) return ['sdt', 'Số điện thoại chưa đúng (VD: 0909 123 456).', f.sdt];
+  if (!f.thoiDiem.value) return ['thoi_diem', 'Anh/chị chọn thời điểm dự kiến khởi công.', f.thoiDiem];
+  if (canGoi() && !f.gio.value) return ['khung_gio', 'Anh/chị chọn khung giờ tiện nghe máy.', f.gio];
+  if (!f.dongY.checked) return ['dong_y', 'Anh/chị tick ô đồng ý để ALN được liên hệ.', f.dongY];
+  return null;
+}
+
+function hienThanhCong(goi, gio, sdt) {
+  const ok = document.createElement('div');
+  ok.className = 'tv-ok';
+  ok.setAttribute('role', 'status');
+  const p1 = document.createElement('p');
+  p1.style.margin = '0 0 6px';
+  p1.style.fontWeight = '700';
+  p1.textContent = 'ALN đã nhận yêu cầu của anh/chị.';
+  const p2 = document.createElement('p');
+  p2.style.margin = '0';
+  const soGoi = CB.SO_GOI || '0909829696';
+  if (goi) {
+    p2.append((CB.NGUOI_GOI || 'KTS Trần Long') + ' sẽ gọi số …' + sdt.slice(-4) + ' vào khung ' + ((CB.nhanKhungGio && CB.nhanKhungGio(gio)) || gio) + ' trong 1–2 ngày làm việc, từ số ');
+  } else {
+    p2.append('ALN đã lưu dự toán này theo số …' + sdt.slice(-4) + '. Khi cần trao đổi, anh/chị gọi hoặc nhắn Zalo số ');
+  }
+  const b = document.createElement('b');
+  b.textContent = soHienThi(soGoi);
+  p2.append(b, '.');
+  ok.append(p1, p2);
+  f.form.replaceWith(ok);
+}
+
+let dangGui = false;
+f.form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (dangGui) return;
+  xoaLoi();
+  const est = window.__lastEstimate;
+  const blocked = document.getElementById('blocked');
+  if (!est || !est.result || (blocked && !blocked.hidden)) {
+    baoLoi('Anh/chị nhập kích thước nhà để có dự toán trước khi gửi.');
+    day('aln_tuvan_thieu', { truong: 'du_toan' });
+    return;
+  }
+  const thieu = kiemTruocKhiGui();
+  if (thieu) { baoLoi(thieu[1], thieu[2]); day('aln_tuvan_thieu', { truong: thieu[0] }); return; }
+
+  const goi = canGoi();
+  const gio = goi ? f.gio.value : '';
+  const sdt = sdtSach(f.sdt.value);
+  dangGui = true;
+  f.gui.disabled = true;
+  f.gui.textContent = 'Đang gửi...';
+  day('aln_tuvan_gui', { can_goi: goi ? 1 : 0 });
+  try {
+    const sig = (window.alnEstimateFunnel && window.alnEstimateFunnel.signals()) || {};
+    const res = await guiYeuCau({
+      name: f.ten.value.trim(), phone: sdt,
+      kenh: 'phantho', loai: 'phan_tho', projectType: 'xay_moi',
+      tang: Number(est.inputs && est.inputs.n) || null,
+      tongMin: est.result.totalChuaVat, tongMax: est.result.totalChuaVat,
+      tomTat: tomTatDuToan(est),
+      canGoi: goi, khungGio: gio || null, thoiDiemXay: f.thoiDiem.value, dongY: f.dongY.checked === true,
+      utm: sig.utm || {}, fbp: sig.fbp || '', fbc: sig.fbc || '',
+      sourceUrl: location.origin + location.pathname,
+      optout: window.ALN_INTERNAL === true,
+      attribution: (() => { try { return window.alnAttr ? window.alnAttr.forLead() : null; } catch (err) { return null; } })(),
+    });
+    const leadId = (res && res.data && res.data.id) || '';
+    try {
+      if (window.fbq && leadId) window.fbq('track', 'Lead',
+        { value: 100000, currency: 'VND', content_name: 'du-toan-nha-tu-van', content_category: 'du-toan-nha' },
+        { eventID: 'lead-' + leadId });
+    } catch (err) {}
+    if (leadId) day('aln_lead_submit', { form_name: 'du-toan-nha', can_goi: goi ? 1 : 0, trung: res.data.dup ? 1 : 0 });
+    hienThanhCong(goi, gio, sdt);
+  } catch (err) {
+    const code = (err && err.code) || '';
+    day('aln_tuvan_loi', { ma_loi: String(code || 'khong_ro').slice(0, 60) });
+    const field = err && err.details && err.details.field;
+    const o = { phone: f.sdt, name: f.ten, dongY: f.dongY, khungGio: f.gio, thoiDiemXay: f.thoiDiem }[field];
+    if (/invalid-argument/.test(code) && err.message) baoLoi(err.message, o);
+    else {
+      window.alnBaoLoiNeuCan && window.alnBaoLoiNeuCan('du-toan-nha tu-van', err);
+      baoLoi('Chưa gửi được, anh/chị bấm Gửi lại. Nếu vẫn lỗi, gọi hoặc nhắn Zalo ' + soHienThi(CB.SO_GOI || '0909829696') + '.');
+    }
+  } finally {
+    dangGui = false;
+    f.gui.disabled = false;
+    f.gui.textContent = 'Gửi yêu cầu';
+  }
+});
 </script>
 
 <script src="aln-zalo-widget.js" defer></script>
