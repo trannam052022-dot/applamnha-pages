@@ -171,6 +171,21 @@
           }
         }
       }
+      // Lấy mẫu điểm có thể lọt nhãn/ô nhỏ nằm giữa 2 điểm (30/09/2026: bóng
+      // chat đè "Giá khoán theo m²" trên du-toan-nha) — kiểm thêm khung thật của
+      // từng phần tử quan trọng đang hiện.
+      var ptu = document.querySelectorAll(QUAN_TRONG);
+      for (var m = 0; m < ptu.length; m++) {
+        var e = ptu[m];
+        if (e === el || el.contains(e) || laCuaWidget(e)) continue;
+        var q = e.getBoundingClientRect();
+        if (!q.width || !q.height) continue;
+        if (q.left >= r.right - 1 || q.right <= r.left + 1 || q.top >= r.bottom - 1 || q.bottom <= r.top + 1) continue;
+        var cs;
+        try { cs = getComputedStyle(e); } catch (x) { continue; }
+        if (cs.visibility === 'hidden' || cs.pointerEvents === 'none' || +cs.opacity === 0) continue;
+        return phanTuQuanTrong(e) || e;
+      }
       return null;
     }
     // Thanh cố định ngang ở phần dưới màn hình (thanh tổng tiền, thanh Zalo
@@ -206,7 +221,9 @@
       b.setAttribute('role', 'dialog');
       b.setAttribute('aria-label', 'MyMy mời trò chuyện');
       var chu = document.createElement('span');
-      chu.textContent = LOI_MOI;
+      // Trang có hướng dẫn riêng (window.ALN_MYMY_TRANG, xem mymy-widget.js) đặt câu mời riêng.
+      var trangMoi = window.ALN_MYMY_TRANG && window.ALN_MYMY_TRANG.loiMoi;
+      chu.textContent = (typeof trangMoi === 'string' && trangMoi) ? trangMoi : LOI_MOI;
       var x = document.createElement('button');
       x.type = 'button';
       x.className = 'mymy-moi-x';

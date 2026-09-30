@@ -70,6 +70,12 @@ if (!document.getElementById('mymy-btn')) {
 .mm-suggest{display:inline-flex;align-items:center;gap:6px;margin-top:6px;padding:7px 13px;border-radius:99px;background:rgba(0,0,0,.48);border:1px solid rgba(224,170,62,.55);color:#e0aa3e;text-shadow:0 1px 3px rgba(0,0,0,.6);font-size:12px;font-weight:700;text-decoration:none;cursor:pointer}
 .mm-suggest:hover{background:rgba(224,170,62,.22);border-color:#e0aa3e}
 #mymy-quick{padding:0 14px 10px;display:flex;flex-wrap:wrap;gap:6px}
+.mm-nut-hang{display:flex;flex-wrap:wrap;gap:7px;max-width:88%}
+.mm-qbtn.mm-nut-lon{font-size:14px;padding:9px 14px;font-weight:600}
+/* Trang có hướng dẫn riêng (khách nhiều người lớn tuổi): chữ lớn hơn */
+#mymy-win.mm-chu-lon .mm-bubble{font-size:15px;line-height:1.55}
+#mymy-win.mm-chu-lon .mm-qbtn.mm-nut-lon{font-size:15px;padding:10px 15px}
+#mymy-win.mm-chu-lon #mymy-input{font-size:16px}
 .mm-qbtn{padding:6px 12px;border-radius:99px;font-size:11px;font-weight:700;letter-spacing:.01em;border:1px solid rgba(255,255,255,.22);color:#efe9dc;text-shadow:0 1px 3px rgba(0,0,0,.6);background:rgba(0,0,0,.44);cursor:pointer}
 .mm-qbtn:hover{background:rgba(224,170,62,.22);border-color:rgba(224,170,62,.55);color:#fff}
 #mymy-input-row{padding:10px 12px;border-top:1px solid rgba(255,255,255,.18);display:flex;gap:8px;align-items:center}
@@ -115,10 +121,13 @@ if (!document.getElementById('mymy-btn')) {
   wrap.innerHTML = HTML;
   while (wrap.firstChild) document.body.appendChild(wrap.firstChild);
 
+  // Trang có hướng dẫn riêng (nạp trước widget) → chữ lớn cho dễ đọc.
+  if (window.ALN_MYMY_TRANG) document.getElementById('mymy-win').classList.add('mm-chu-lon');
+
   /* ── State ── */
   const S = {
     history: [], opened: false, userTurns: 0, askedPhone: false, addr: 'bạn',
-    shownSuggestKeys: new Set(), sending: false,
+    shownSuggestKeys: new Set(), sending: false, cho: null,
   };
 
   /* ── Lời chào chủ động (Part D, ALN_SPEC_MYMY_DIEUHUONG.md) ──
@@ -179,12 +188,72 @@ if (!document.getElementById('mymy-btn')) {
   }
   function removeTyping(){ const el = document.getElementById('mymy-typing'); if (el) el.remove(); }
 
+  /* ── Hướng dẫn theo trang (30/09/2026) ──
+     Trang nào muốn MyMy hướng dẫn riêng (vd du-toan-nha.html: điền giúp kích
+     thước, chỉ từng ô) thì nạp script đặt window.ALN_MYMY_TRANG TRƯỚC widget:
+       { loiMoi: 'câu bóng chat mời',            (mymy-moi.js đọc)
+         moDau(api): lời chào + nút riêng, thay câu hỏi xưng hô,
+         xuLyTin(text, api): trả true nếu tự trả lời được, không gửi AI }
+     Trang không đặt biến này giữ nguyên hành vi cũ. Chữ do trang đưa vào đi
+     qua mmHtml/textContent — không có đường nào ghép HTML thô. */
+  const API = {
+    bot(text){ addBot(mmHtml(text)); },
+    user(text){ addUser(text); },
+    // Hàng nút lớn (dễ bấm cho người lớn tuổi). Bấm 1 nút: gỡ hàng nút, hiện
+    // lại chữ của nút như khách vừa nói, rồi chạy việc của nút.
+    nut(ds){
+      const row = document.createElement('div');
+      row.className = 'mm-row bot';
+      const av = document.createElement('div');
+      av.className = 'mm-avatar-sm';
+      av.innerHTML = '<i class="ph-duotone ph-headset"></i>';
+      const bb = document.createElement('div');
+      bb.className = 'mm-bubble mm-nut-hang';
+      (ds || []).forEach((d) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'mm-qbtn mm-nut-lon';
+        b.textContent = String(d.nhan || '');
+        b.addEventListener('click', () => {
+          row.remove();
+          markChatted();
+          API.boCho(); // bấm nút = đã trả lời, bỏ lượt chờ gõ của câu hỏi này
+          if (!d.khongNhacLai) addUser(String(d.nhan || ''));
+          try { d.lam(); } catch (e) { console.error('MyMy nút lỗi:', e); }
+        });
+        bb.appendChild(b);
+      });
+      row.appendChild(av); row.appendChild(bb);
+      $msgs.appendChild(row);
+      $msgs.scrollTop = $msgs.scrollHeight;
+    },
+    // Tin kế tiếp khách gõ sẽ đi vào fn(text) trước; fn trả true = đã xử lý.
+    cho(fn, goiY){
+      S.cho = fn;
+      const input = document.getElementById('mymy-input');
+      if (input) { input.placeholder = goiY || 'Nhắn cho MyMy...'; if (window.innerWidth > 480) input.focus(); }
+    },
+    boCho(){ S.cho = null; const input = document.getElementById('mymy-input'); if (input) input.placeholder = 'Nhắn cho MyMy...'; },
+    mo(){ if (!document.getElementById('mymy-win').classList.contains('open')) toggle(); },
+    // Đóng khung chat để khách nhìn thấy chỗ MyMy đang chỉ trên trang; hiện lại
+    // chấm đỏ để khách biết bấm nút là quay lại được cuộc trò chuyện.
+    dong(){
+      if (document.getElementById('mymy-win').classList.contains('open')) toggle();
+      document.getElementById('mymy-badge').style.display = 'flex';
+    },
+    hienNutChung(){ document.getElementById('mymy-quick').style.display = 'flex'; },
+  };
+
   function toggle(){
     const win = document.getElementById('mymy-win');
     win.classList.toggle('open');
     document.getElementById('mymy-badge').style.display = 'none';
     if (win.classList.contains('open') && !S.opened) {
       S.opened = true;
+      const trang = window.ALN_MYMY_TRANG;
+      if (trang && typeof trang.moDau === 'function') {
+        try { S.addr = 'anh/chị'; trang.moDau(API); return; } catch (e) { console.error('MyMy moDau lỗi:', e); }
+      }
       addBot('Chào bạn! Em là MyMy của ALN. Cho em hỏi xưng hô là anh hay chị để em tiện trò chuyện ạ?');
       askGenderButtons();
     }
@@ -268,11 +337,23 @@ if (!document.getElementById('mymy-btn')) {
     markChatted();
     input.value = '';
     addUser(text);
-    S.history.push({ role: 'user', content: text });
-    S.userTurns++;
 
     const phone = extractPhone(text);
     if (phone && upsertContact) upsertContact(phone);
+
+    // Trang tự trả lời trước (câu MyMy đang chờ, hoặc câu trang hiểu được như
+    // "5x20 3 tầng") — không tốn lượt gọi AI, không vào lịch sử gửi AI.
+    if (S.cho) {
+      const fn = S.cho; API.boCho();
+      try { if (fn(text) === true) return; } catch (e) { console.error('MyMy cho lỗi:', e); }
+    }
+    const trang = window.ALN_MYMY_TRANG;
+    if (trang && typeof trang.xuLyTin === 'function') {
+      try { if (trang.xuLyTin(text, API) === true) return; } catch (e) { console.error('MyMy xuLyTin lỗi:', e); }
+    }
+
+    S.history.push({ role: 'user', content: text });
+    S.userTurns++;
 
     if (text.match(/^[0-9 .+-]{8,14}$/) && S.askedPhone) {
       addBot('Dạ em ghi nhận SĐT ' + esc(text) + ' rồi ạ. Đội ngũ ALN sẽ liên hệ lại trong giờ hành chính nha!');

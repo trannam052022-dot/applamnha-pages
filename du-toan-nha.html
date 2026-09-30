@@ -173,6 +173,9 @@ table{width:100%;border-collapse:collapse}
 .luu-loi-ich{margin:4px 0 10px;padding:12px 14px;border:1px solid var(--line2);border-radius:10px}
 .luu-tieu-de{font-weight:700;font-size:15px;color:var(--navy2);margin-bottom:6px}
 /* Bản doanh nghiệp (?dn=1, 30/09/2026): ẩn phần dành cho chủ nhà, hiện khung lưu báo giá. */
+.mm-moi{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 14px;padding:11px 14px;border:1px dashed var(--gold);border-radius:10px;background:var(--gold-soft);font-size:15px;color:var(--ink)}
+.mm-moi button{font:inherit;font-size:15px;font-weight:700;padding:8px 16px;border-radius:99px;border:0;cursor:pointer;background:linear-gradient(135deg,#e0aa3e,#98690a);color:#1a1400}
+body.che-do-dn .mm-moi{display:none!important}
 body.che-do-dn #tuVan,body.che-do-dn .luu-loi-ich,body.che-do-dn #btnSaveHouse,body.che-do-dn #btnSaveHouse + .hint,body.che-do-dn #saveHouseMsg,body.che-do-dn #retrySaveHouse,body.che-do-dn #saveCallback,body.che-do-dn a[href="/du-toan-chi-tiet.html#form"]{display:none!important}
 .tv .tv-lk{display:block;margin-top:10px;text-align:center;color:var(--navy2);font-weight:600}
 .luu-loi-ich ul{margin:0;padding-left:18px}
@@ -205,6 +208,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
  <details class="sec card" open>
   <summary><span class="st"><span class="sn">1</span>Kích thước &amp; quy mô</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary>
   <div class="body">
+   <!-- MyMy điền giúp (30/09/2026): khách lớn tuổi không rành điền bảng → bấm là MyMy hỏi 5 câu bằng nút rồi tự điền (mymy-du-toan-nha.js). -->
+   <div class="mm-moi"><span>Không rành điền bảng?</span><button type="button" data-mymy-dien-giup>Để MyMy điền giúp</button></div>
    <div class="grid">
     <!-- type="text" (KHÔNG phải "number") — cùng lớp lỗi PR #219/#220 (input
          type="number" chuẩn HTML5 từ chối dấu phẩy thập phân kiểu VN, "4,5"
@@ -634,6 +639,19 @@ function draw(el,lines,total){
  }).join('');
  el.querySelectorAll('button[data-id]').forEach(b=>b.onclick=()=>{const r=b.parentElement,o=!r.classList.contains('open');r.classList.toggle('open',o);b.setAttribute('aria-expanded',o);o?openRows.add(b.dataset.id):openRows.delete(b.dataset.id)});
 }
+// MyMy điền giúp (mymy-du-toan-nha.js, 30/09/2026): khách lớn tuổi trả lời vài
+// câu trong khung chat, MyMy đặt giá trị vào ĐÚNG các ô như khách tự gõ rồi tính
+// lại (userInitiated=true — khách chủ động nhờ tính nên vẫn đếm aln_du_toan_tinh).
+// Chỉ nhận id trong danh sách ô chung `ids`, không đụng giá vật tư/nhân công.
+window.alnDuToanDienGiup=function(gt){
+ Object.keys(gt||{}).forEach(id=>{if(!ids.includes(id))return;$(id).value=String(gt[id]);st.inp[id]=$(id).value});
+ run(false,true);
+ const ghiChu=$('blocked').hidden?'':$('blocked').textContent.trim();
+ if($('out').hidden)return {tong:0,tongChu:'',moiM2:'',chan:ghiChu||'Chưa tính được.'};
+ const chu=(!$('btvTong').hidden?$('btvTongCong'):$('total')).textContent||'';
+ const so=Number(chu.replace(/[^\d]/g,''))||0;
+ return {tong:so,tongChu:so?ty(so):'',moiM2:$('perM2').textContent.trim(),chan:'',ghiChu:ghiChu};
+};
 run();
 </script>
 
@@ -1245,6 +1263,7 @@ f.form.addEventListener('submit', async (e) => {
 </script>
 
 <!-- Nút MyMy + bóng chat mời (mymy-moi.js tự nạp). Gắn sau mốc đo 7 ngày DT-T9-2026 (Nam chốt, 01/10/2026). Thanh .dock có data-mymy-tranh → nút tự nâng lên trên thanh trên điện thoại. -->
+<script src="mymy-du-toan-nha.js"></script>
 <script type="module" src="mymy-widget.js"></script>
 <script src="aln-zalo-widget.js" defer></script>
 <!-- ALN-PHAP-NHAN --><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"><style id="alnpn-css">.alnpn,.alnpn *{box-sizing:border-box;margin:0;padding:0;border:0;font:inherit;letter-spacing:normal;text-transform:none;text-shadow:none;float:none;background:none;min-width:0}.alnpn{display:block;width:100%;clear:both;position:relative;z-index:0;background:#0b1428;border-top:2px solid #d4a017;color:#cbd5e1;font-family:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:15px;font-weight:400;line-height:1.5;text-align:left;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;padding:28px 20px 88px}.alnpn-in{max-width:1280px;margin:0 auto;display:grid;gap:22px}.alnpn-brand{display:flex;align-items:center;gap:14px}.alnpn-brand img{display:block;flex:none;width:44px;height:44px;border-radius:10px}.alnpn-ten{font-weight:700;font-size:17px;line-height:1.3;letter-spacing:.03em;color:#fff}.alnpn-sub{margin-top:2px;font-size:13px;line-height:1.4;color:#9fb0c8}.alnpn-muc dt{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;line-height:1.3;letter-spacing:.08em;text-transform:uppercase;color:#e0b43a;margin-bottom:6px}.alnpn-muc dt svg{display:block;flex:none;width:16px;height:16px;fill:none;stroke:#e0b43a;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.alnpn-muc dd{font-size:15px;font-weight:500;line-height:1.45;color:#f1f5f9}.alnpn-mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:600;letter-spacing:.02em}.alnpn a{color:#fff;text-decoration:none}.alnpn a:hover,.alnpn a:focus-visible{color:#e0b43a;outline:none}.alnpn-note{font-size:13px;font-weight:400;color:#9fb0c8;margin-left:8px;white-space:nowrap}@media (min-width:768px){.alnpn{padding:26px 28px}.alnpn-in{grid-template-columns:auto auto auto auto;justify-content:space-between;align-items:stretch;gap:0}.alnpn-brand{align-self:center}.alnpn-muc{padding:0 0 0 28px;margin-left:28px;border-left:1px solid rgba(224,180,58,.22)}}@media (min-width:768px) and (max-width:1099px){.alnpn-in{grid-template-columns:auto minmax(0,1fr) auto;justify-content:stretch;row-gap:20px}.alnpn-brand{grid-column:1/-1;align-self:start}.alnpn-muc:nth-child(2){border-left:0;margin-left:0;padding-left:0}}</style><section class="alnpn" aria-label="Thông tin doanh nghiệp"><div class="alnpn-in"><div class="alnpn-brand"><img src="/icon-192.png" alt="" width="44" height="44" loading="lazy"><div><div class="alnpn-ten">CÔNG TY TNHH ALN</div><div class="alnpn-sub">Đơn vị chủ quản website applamnha.vn</div></div></div><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M10 12h5M10 16h5"/></svg>Mã số thuế</dt><dd class="alnpn-mono">3502593013</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-6-5.3-6-11a6 6 0 1 1 12 0c0 5.7-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/></svg>Địa chỉ</dt><dd>Khu TTTM Sonadezi, 536 Trung Sơn, Ngãi Giao, TP. Hồ Chí Minh</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 5 5L14 13l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>Hotline</dt><dd><a class="alnpn-mono" href="tel:0909829696">0909 829 696</a><span class="alnpn-note">KTS Trần Long</span></dd></dl></div></section>
