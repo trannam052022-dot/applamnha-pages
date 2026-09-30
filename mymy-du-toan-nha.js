@@ -234,7 +234,7 @@
       dl[ten] = v;
       tiep();
       return true;
-    }, 'Gõ số mét, ví dụ ' + goiY);
+    }, 'Ví dụ ' + goiY + ' hoặc 5x20');
   }
 
   function batDauDienGiup(tuTrang) {
@@ -373,10 +373,12 @@
     moDau: function (api) {
       MM = api;
       ga('aln_mymy_huong_dan', { buoc: 'mo' });
-      api.bot('Dạ em chào anh/chị, em là MyMy của ALN.\n'
-        + 'Em điền giúp bảng dự toán nhé, anh/chị chỉ cần **bấm trả lời vài câu** (hoặc gõ kiểu 5x20, 1 trệt 2 lầu).');
+      // Lời chào ngắn (2 dòng) để lời chào + câu hỏi + nút vừa khung chat, không bị cuộn mất.
+      // Gợi ý gõ tự do "5x20, 1 trệt 2 lầu" nằm ở ô nhập, không chiếm chỗ lời chào.
+      api.bot('Dạ em chào anh/chị, em là MyMy của ALN. Em **điền giúp bảng dự toán** nhé!');
       if (choMo) { var f = choMo; choMo = null; f(); } // mở từ nút trên trang: vào thẳng câu hỏi
       else menuChinh();
+      api.hienTuDau();
     },
 
     // Câu gõ tự do có kích thước → điền luôn; thiếu gì thì hỏi tiếp phần thiếu.

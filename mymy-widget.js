@@ -76,7 +76,7 @@ if (!document.getElementById('mymy-btn')) {
 #mymy-win.mm-chu-lon .mm-bubble{font-size:15px;line-height:1.55}
 #mymy-win.mm-chu-lon .mm-qbtn.mm-nut-lon{font-size:15px;padding:10px 15px}
 #mymy-win.mm-chu-lon #mymy-input{font-size:16px}
-#mymy-win.mm-chu-lon #mymy-msgs{max-height:min(420px,50vh)}
+#mymy-win.mm-chu-lon #mymy-msgs{max-height:min(460px,56vh)}
 .mm-qbtn{padding:6px 12px;border-radius:99px;font-size:11px;font-weight:700;letter-spacing:.01em;border:1px solid rgba(255,255,255,.22);color:#efe9dc;text-shadow:0 1px 3px rgba(0,0,0,.6);background:rgba(0,0,0,.44);cursor:pointer}
 .mm-qbtn:hover{background:rgba(224,170,62,.22);border-color:rgba(224,170,62,.55);color:#fff}
 #mymy-input-row{padding:10px 12px;border-top:1px solid rgba(255,255,255,.18);display:flex;gap:8px;align-items:center}
@@ -243,6 +243,14 @@ if (!document.getElementById('mymy-btn')) {
       document.getElementById('mymy-badge').style.display = 'flex';
     },
     hienNutChung(){ document.getElementById('mymy-quick').style.display = 'flex'; },
+    // Cuộn khung tin về đầu (lời chào) nếu từ lời chào tới cuối vừa khung; không vừa
+    // thì giữ ở cuối để khách luôn thấy câu hỏi + nút đang chờ trả lời.
+    hienTuDau(){
+      const dau = $msgs.firstElementChild;
+      if (!dau) return;
+      const conLai = $msgs.scrollHeight - dau.offsetTop;
+      if (conLai <= $msgs.clientHeight + 2) $msgs.scrollTop = Math.max(0, dau.offsetTop - 16);
+    },
   };
 
   function toggle(){
