@@ -120,7 +120,10 @@
        (bấm nút, bấm bóng chat, ?mymy=1, nút "Chat với MyMy" trên trang). ── */
     var dangMo = khung.classList.contains('open');
     function khiMo() {
-      guiGA('aln_mymy_mo');
+      // Trang tự mở chat (MyMy tự chào, xem window.alnMyMyMo) — không phải khách mở,
+      // không tính aln_mymy_mo; vẫn dừng bóng chat mời vì khách đã thấy MyMy.
+      if (khung.getAttribute('data-tu-mo') === '1') khung.removeAttribute('data-tu-mo');
+      else guiGA('aln_mymy_mo');
       dungHet('mo');
     }
     if (dangMo) khiMo();

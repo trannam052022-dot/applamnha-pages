@@ -208,12 +208,13 @@
   /* ── Điền giúp: 5 câu hỏi bằng nút ── */
   var dl = {};
 
-  function hoiSo(cau, goiY, cacNut, khoang, ten, tiep) {
+  function hoiSo(cau, goiY, cacNut, khoang, ten, tiep, them) {
     MM.bot(cau);
     var ds = cacNut.map(function (v) {
       return { nhan: soDep(v) + ' m', lam: function () { dl[ten] = v; tiep(); } };
     });
     ds.push({ nhan: 'Số khác', lam: function () { MM.bot('Dạ anh/chị gõ số mét vào ô bên dưới giúp em, ví dụ ' + goiY + ' ạ.'); nhanSo(khoang, ten, tiep, goiY); } });
+    (them || []).forEach(function (n) { ds.push(n); });
     MM.nut(ds);
     nhanSo(khoang, ten, tiep, goiY);
   }
@@ -244,10 +245,13 @@
   }
   function MM_moRoi(fn) { if (MM) { MM.mo(); fn(); } else { choMo = fn; nutMyMy(); } }
   var choMo = null;
-  function nutMyMy() { var b = $('mymy-btn'); if (b) b.click(); }
+  function nutMyMy() {
+    if (typeof window.alnMyMyMo === 'function') { window.alnMyMyMo(false); return; }
+    var b = $('mymy-btn'); if (b) b.click();
+  }
 
-  function hoiNgang() {
-    hoiSo('Câu 1/5: Bề ngang lô đất (mặt tiền) bao nhiêu mét ạ?', '4,5', [4, 4.5, 5, 6, 8], NGANG_HOP_LE, 'ngang', hoiDai);
+  function hoiNgang(them) {
+    hoiSo('Câu 1/5: Bề ngang lô đất (mặt tiền) bao nhiêu mét ạ?', '4,5', [4, 4.5, 5, 6, 8], NGANG_HOP_LE, 'ngang', hoiDai, them);
   }
   function hoiDai() {
     hoiSo('Câu 2/5: Chiều dài lô đất bao nhiêu mét ạ?', '18', [12, 15, 18, 20, 25], DAI_HOP_LE, 'dai', hoiTang);
@@ -370,8 +374,7 @@
       MM = api;
       ga('aln_mymy_huong_dan', { buoc: 'mo' });
       api.bot('Dạ em chào anh/chị, em là MyMy của ALN.\n'
-        + 'Anh/chị chỉ cần cho em biết **đất rộng bao nhiêu, dài bao nhiêu, xây mấy tầng** — em điền giúp và tính luôn ạ.\n'
-        + 'Hoặc gõ thẳng, ví dụ: 5x20, 1 trệt 2 lầu');
+        + 'Em điền giúp bảng dự toán nhé, anh/chị chỉ cần **bấm trả lời vài câu** (hoặc gõ kiểu 5x20, 1 trệt 2 lầu).');
       if (choMo) { var f = choMo; choMo = null; f(); } // mở từ nút trên trang: vào thẳng câu hỏi
       else menuChinh();
     },
@@ -408,6 +411,39 @@
     }
     return true;
   }
+
+  /* ── MyMy tự chào và hỏi luôn (Nam 30/09/2026: "MyMy nên chào và chủ động hỏi
+        để điền thông tin cho khách") ──
+     Sau TU_CHAO_SAU_MS, nếu khách chưa gõ ô nào, không đang ở trong ô nhập và
+     chưa mở chat → mở khung chat, chào, hỏi ngay câu 1/5, kèm nút "Để tôi tự điền".
+     1 lần mỗi phiên trình duyệt (bấm "tự điền" hay × cũng không hỏi lại trong phiên).
+     Chỉ chạy khi widget đúng bản có window.alnMyMyMo — bản cũ còn trong bộ nhớ
+     đệm thì bỏ qua, không mở lời chào cũ. Không tính là khách mở chat (GA4). */
+  var TU_CHAO_SAU_MS = 5000;
+  var KEY_TU_CHAO = 'aln_mymy_dt_tu_chao';
+  function daTuChaoPhienNay() { try { return sessionStorage.getItem(KEY_TU_CHAO) === '1'; } catch (e) { return false; } }
+  function ghiDaTuChao() { try { sessionStorage.setItem(KEY_TU_CHAO, '1'); } catch (e) { /* bỏ qua */ } }
+  function tuDienThoi() {
+    MM.boCho();
+    var hang = document.querySelectorAll('#mymy-msgs .mm-nut-hang');
+    for (var i = 0; i < hang.length; i++) hang[i].closest('.mm-row').remove();
+    ga('aln_mymy_huong_dan', { buoc: 'tu_chao_tu_dien' });
+    MM.bot('Dạ, anh/chị cứ điền ạ. Cần giúp thì bấm nút MyMy ở góc dưới, em hỗ trợ ngay.');
+    setTimeout(function () { MM.dong(); }, 1600);
+  }
+  setTimeout(function () {
+    if (daTuChaoPhienNay() || MM || daGo) return;
+    if (typeof window.alnMyMyMo !== 'function') return;
+    var win = $('mymy-win');
+    if (!win || win.classList.contains('open')) return;
+    var dang = document.activeElement;
+    if (dang && /^(INPUT|SELECT|TEXTAREA)$/.test(dang.tagName)) return; // đang tự điền
+    ghiDaTuChao();
+    ga('aln_mymy_huong_dan', { buoc: 'tu_chao' });
+    dl = {};
+    choMo = function () { hoiNgang([{ nhan: 'Để tôi tự điền', lam: tuDienThoi, khongNhacLai: false }]); };
+    window.alnMyMyMo(true);
+  }, TU_CHAO_SAU_MS);
 
   /* ── Dấu hiệu sống trên trang (không phụ thuộc bóng chat mời — góc dưới
         phải trang này luôn có nút/ô nhập nên bóng chat mời thường không hiện) ──

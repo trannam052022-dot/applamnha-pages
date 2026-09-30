@@ -76,6 +76,7 @@ if (!document.getElementById('mymy-btn')) {
 #mymy-win.mm-chu-lon .mm-bubble{font-size:15px;line-height:1.55}
 #mymy-win.mm-chu-lon .mm-qbtn.mm-nut-lon{font-size:15px;padding:10px 15px}
 #mymy-win.mm-chu-lon #mymy-input{font-size:16px}
+#mymy-win.mm-chu-lon #mymy-msgs{max-height:min(420px,50vh)}
 .mm-qbtn{padding:6px 12px;border-radius:99px;font-size:11px;font-weight:700;letter-spacing:.01em;border:1px solid rgba(255,255,255,.22);color:#efe9dc;text-shadow:0 1px 3px rgba(0,0,0,.6);background:rgba(0,0,0,.44);cursor:pointer}
 .mm-qbtn:hover{background:rgba(224,170,62,.22);border-color:rgba(224,170,62,.55);color:#fff}
 #mymy-input-row{padding:10px 12px;border-top:1px solid rgba(255,255,255,.18);display:flex;gap:8px;align-items:center}
@@ -259,6 +260,15 @@ if (!document.getElementById('mymy-btn')) {
     }
   }
   document.getElementById('mymy-btn').addEventListener('click', toggle);
+
+  /* Trang mở chat không qua cú bấm của khách (vd du-toan-nha: MyMy tự chào).
+     tuDong=true: đánh dấu để mymy-moi.js KHÔNG tính là khách mở chat (aln_mymy_mo). */
+  window.alnMyMyMo = function (tuDong) {
+    const win = document.getElementById('mymy-win');
+    if (win.classList.contains('open')) return;
+    if (tuDong) win.setAttribute('data-tu-mo', '1');
+    toggle();
+  };
   document.getElementById('mymy-close-btn').addEventListener('click', toggle);
 
   /* Bóng chat mời trò chuyện + nhịp sáng nút + GA4 (aln_mymy_moi/aln_mymy_mo):
@@ -267,7 +277,9 @@ if (!document.getElementById('mymy-btn')) {
   if (!document.getElementById('aln-mymy-moi-js')) {
     const moiJs = document.createElement('script');
     moiJs.id = 'aln-mymy-moi-js';
-    const moiJsUrl = new URL('mymy-moi.js', import.meta.url).href;
+    // Mang theo số phiên bản của chính widget (vd mymy-widget.js?v=3 → mymy-moi.js?v=3)
+    // để trang đổi phiên bản là nạp lại cả bóng chat mời, không dùng bản cũ trong bộ nhớ đệm.
+    const moiJsUrl = new URL('mymy-moi.js' + new URL(import.meta.url).search, import.meta.url).href;
     moiJs.src = moiJsUrl;
     document.head.appendChild(moiJs);
   }
