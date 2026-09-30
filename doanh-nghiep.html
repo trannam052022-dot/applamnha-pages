@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM -->
+<script src="scripts/aln-optout.js"></script>
+<script src="aln-esc.js"></script>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MB7VRGR5');</script>
+<!-- End Google Tag Manager -->
+
+<script src="error-monitor.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>ALN — Báo giá doanh nghiệp</title>
+<!--
+  Bản doanh nghiệp (Nam chốt 30/09/2026): nhà thầu khai hồ sơ công ty + logo,
+  lưu báo giá cho từng khách (tính trên du-toan-nha.html?dn=1), trả tiền theo
+  từng file qua payOS rồi xuất PDF mang thương hiệu của họ (in-bao-gia-dn.html).
+  Máy chủ: functions/doanhNghiep.js. Trang không ghép dữ liệu vào innerHTML.
+-->
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+
+<!-- Google Analytics 4 (ALN — G-5CSL1TF0RC) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-5CSL1TF0RC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-5CSL1TF0RC');
+</script>
+<!-- End GA4 -->
+
+<style>
+:root{
+  --navy:#0f1a30; --gold:#b88a12; --gold-hi:#d4a017; --gold-soft:#f5ecd6;
+  --ink:#1c2233; --muted:#5d6577; --line:#d9dbe1; --paper:#fff; --fill:#f6f7f9; --err:#b3261e; --ok:#1f7a4a;
+  --display:'Oswald','Arial Narrow',Arial,sans-serif;
+  --body:'Be Vietnam Pro','Segoe UI',Arial,sans-serif;
+  --mono:'IBM Plex Mono','Courier New',monospace;
+}
+*{box-sizing:border-box}
+html{font-size:16px}
+body{margin:0;background:#eef0f3;color:var(--ink);font-family:var(--body);line-height:1.55;-webkit-text-size-adjust:100%}
+[hidden]{display:none!important}
+.bar{background:var(--navy);color:#fff;border-bottom:2px solid var(--gold-hi);padding:12px 16px}
+.bar-in{max-width:960px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.bar img{width:34px;height:34px;border-radius:5px}
+.bar b{font-family:var(--display);font-weight:600;letter-spacing:.08em;font-size:18px}
+.bar span{color:#a9b3c7;font-size:13px}
+.bar .sp{flex:1}
+.bar a{color:#d8dde8;font-size:13px}
+.wrap{max-width:960px;margin:0 auto;padding:16px 16px 60px}
+h1{font-family:var(--display);font-weight:600;font-size:26px;color:var(--navy);margin:8px 0 4px}
+.lead{color:var(--muted);margin:0 0 16px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:16px;margin-bottom:16px}
+.card h2{font-family:var(--display);font-weight:500;font-size:18px;letter-spacing:.03em;color:var(--navy);margin:0 0 10px;text-transform:uppercase}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
+label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:4px}
+input[type=text],input[type=tel],input[type=email]{width:100%;font:inherit;font-size:15px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:#fff}
+.full{grid-column:1/-1}
+.btn{font:600 14px var(--body);border-radius:6px;padding:10px 16px;border:1px solid transparent;cursor:pointer;line-height:1.2;text-decoration:none;display:inline-block}
+.btn-gold{background:var(--gold-hi);color:#1a1405}
+.btn-navy{background:var(--navy);color:#fff}
+.btn-line{background:transparent;color:var(--navy);border:1px solid var(--navy)}
+.nut-hang{display:flex;gap:6px;flex-wrap:wrap}
+.ghi-sua{font-size:12.5px;color:var(--muted);margin-top:4px;line-height:1.4}
+.btn-ghost{background:#fff;border-color:var(--line);color:var(--ink)}
+.btn:disabled{opacity:.55;cursor:default}
+.hang{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.msg{font-size:14px;margin:8px 0 0}
+.msg.err{color:var(--err)} .msg.ok{color:var(--ok)}
+.logo-xem{display:flex;align-items:center;gap:12px}
+.logo-xem img{max-width:120px;height:54px;object-fit:contain;border:1px solid var(--line);border-radius:4px;background:#fff}
+.gia{font-size:15px}
+.gia strong{font-family:var(--mono);color:var(--navy)}
+table.ds{width:100%;border-collapse:collapse;font-size:14px}
+.ds th{text-align:left;font-size:12px;color:var(--muted);font-weight:600;border-bottom:1px solid var(--line);padding:6px}
+.ds td{border-bottom:1px solid var(--line);padding:8px 6px;vertical-align:top}
+.ds td.so{text-align:right;font-family:var(--mono);white-space:nowrap}
+.tag{font-size:12px;font-weight:600;border-radius:99px;padding:2px 8px;white-space:nowrap}
+.tag.ok{background:#e3f3ea;color:var(--ok)} .tag.cho{background:var(--gold-soft);color:#6b4f00}
+.trong{color:var(--muted);font-size:14px}
+.state{text-align:center;color:var(--muted);padding:40px 16px}
+@media (max-width:640px){
+  .grid{grid-template-columns:1fr}
+  .ds thead{display:none}
+  .ds tr{display:block;border-bottom:1px solid var(--line);padding:8px 0}
+  .ds td{display:block;border:0;padding:2px 0}
+  .ds td.so{text-align:left}
+}
+</style>
+</head>
+<body>
+<div class="bar"><div class="bar-in">
+  <img src="icon-192.png" alt="Logo App Làm Nhà">
+  <b>APP LÀM NHÀ</b><span>Báo giá doanh nghiệp</span>
+  <span class="sp"></span>
+  <a href="#" id="dangXuat">Đăng xuất</a>
+</div></div>
+
+<div class="state" id="stLoading">Đang tải…</div>
+<div class="state" id="stError" hidden><p id="errText">Chưa tải được dữ liệu.</p><button class="btn btn-gold" id="btnRetry" type="button">Thử lại</button></div>
+
+<div class="wrap" id="stMain" hidden>
+  <h1>Báo giá doanh nghiệp</h1>
+  <p class="lead">Lập báo giá phần thô cho khách của anh/chị bằng công cụ dự toán ALN. File PDF mang tên và logo công ty anh/chị, có đầy đủ mã hạng mục.</p>
+
+  <div class="card" id="ttBox" hidden><p class="msg" id="ttMsg"></p></div>
+
+  <section class="card">
+    <h2>1. Hồ sơ công ty</h2>
+    <form id="fHoSo" novalidate>
+      <div class="grid">
+        <div class="full"><label for="hTen">Tên công ty</label><input type="text" id="hTen" maxlength="120" autocomplete="organization"></div>
+        <div><label for="hMst">Mã số thuế</label><input type="text" id="hMst" maxlength="14" inputmode="numeric"></div>
+        <div><label for="hSdt">Số điện thoại liên hệ (in trên báo giá)</label><input type="tel" id="hSdt" maxlength="15" inputmode="tel"></div>
+        <div class="full"><label for="hDiaChi">Địa chỉ</label><input type="text" id="hDiaChi" maxlength="200" autocomplete="street-address"></div>
+        <div class="full"><label for="hEmail">Email nhận hoá đơn (không bắt buộc)</label><input type="email" id="hEmail" maxlength="120"></div>
+        <div class="full">
+          <label for="hLogo">Logo (PNG hoặc JPG)</label>
+          <div class="logo-xem"><img id="logoXem" alt="Logo" hidden><input type="file" id="hLogo" accept="image/png,image/jpeg"></div>
+        </div>
+      </div>
+      <div class="hang"><button class="btn btn-navy" type="submit" id="btnLuuHs">Lưu hồ sơ công ty</button></div>
+      <p class="msg" id="hsMsg"></p>
+    </form>
+  </section>
+
+  <section class="card" id="bgCard">
+    <h2>2. Báo giá</h2>
+    <p class="gia" id="giaTxt"></p>
+    <div class="hang"><a class="btn btn-gold" id="btnTao" href="du-toan-nha.html?dn=1">+ Lập báo giá mới</a></div>
+    <p class="msg" id="bgMsg"></p>
+    <div id="dsWrap" style="margin-top:12px">
+      <table class="ds" id="dsBang" hidden>
+        <thead><tr><th>Khách hàng</th><th>Công trình</th><th class="so">Tổng sau VAT</th><th>Ngày lập</th><th>Trạng thái</th><th></th></tr></thead>
+        <tbody id="dsBody"></tbody>
+      </table>
+      <p class="trong" id="dsTrong">Chưa có báo giá nào.</p>
+    </div>
+  </section>
+</div>
+
+<script src="aln-founder-xem.js"></script>
+<script type="module">
+import { app, auth, onAuthStateChanged, signOut } from './firebase-config.js';
+import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js';
+
+const fns = getFunctions(app, 'asia-southeast1');
+const callHoSo = httpsCallable(fns, 'dnHoSo');
+const callBaoGia = httpsCallable(fns, 'dnBaoGia');
+const callTaoTT = httpsCallable(fns, 'dnTaoThanhToan', { timeout: 30000 });
+const callKiemTT = httpsCallable(fns, 'dnKiemThanhToan');
+const $ = (id) => document.getElementById(id);
+let GIA = null, HO_SO = null, LOGO_MOI = null, daBatDau = false;
+
+function isPhoneAuthed(u) { return !!(u && !u.isAnonymous && u.phoneNumber); }
+function soVN(n) { return n == null ? '' : Math.round(Number(n)).toLocaleString('vi-VN'); }
+function ngayVN(ms) { return ms ? new Date(ms).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : ''; }
+function day(ev, p) { try { (window.dataLayer = window.dataLayer || []).push(Object.assign({ event: ev }, p || {})); } catch (e) {} }
+function hien(s) { $('stLoading').hidden = s !== 'loading'; $('stError').hidden = s !== 'error'; $('stMain').hidden = s !== 'main'; }
+function msg(el, text, kind) { el.textContent = text || ''; el.className = 'msg' + (kind ? ' ' + kind : ''); }
+function loiText(e, macDinh) {
+  const ma = String((e && e.code) || '').replace('functions/', '');
+  return (['invalid-argument', 'failed-precondition', 'permission-denied', 'not-found', 'resource-exhausted', 'unavailable'].includes(ma) && e.message) ? e.message : macDinh;
+}
+
+function veHoSo(hs) {
+  HO_SO = hs;
+  $('hTen').value = hs ? hs.ten_cong_ty : '';
+  $('hMst').value = hs ? hs.mst : '';
+  $('hDiaChi').value = hs ? hs.dia_chi : '';
+  $('hSdt').value = hs && hs.sdt_lien_he ? hs.sdt_lien_he : '';
+  $('hEmail').value = hs && hs.email_hoa_don ? hs.email_hoa_don : '';
+  const img = $('logoXem');
+  if (hs && hs.logo) { img.src = alnUrl(hs.logo); img.hidden = false; } else img.hidden = true;
+  $('bgCard').hidden = !hs;
+}
+function veGia(g, cs) {
+  GIA = g;
+  let t = g && g.mo_ban
+    ? 'Mỗi file báo giá: ' + soVN(g.gia_moi_file) + ' đ. Trả bằng mã QR chuyển khoản, trả xong tải PDF ngay.'
+    : 'Dịch vụ xuất file đang chuẩn bị mở bán. Anh/chị vẫn lập và lưu báo giá được.';
+  t += ' Trước khi thanh toán, anh/chị sửa báo giá thoải mái.';
+  if (cs) t += ' Sau khi thanh toán vẫn được sửa miễn phí ' + cs.so_lan_sua + ' lần trong ' + cs.so_ngay_sua + ' ngày và xuất lại không mất thêm phí.';
+  $('giaTxt').textContent = t;
+}
+
+function nut(text, cls, onClick) {
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'btn ' + cls; b.textContent = text;
+  b.addEventListener('click', onClick);
+  return b;
+}
+function veDanhSach(ds) {
+  const body = $('dsBody'); body.textContent = '';
+  $('dsBang').hidden = !ds.length;
+  $('dsTrong').hidden = !!ds.length;
+  ds.forEach((b) => {
+    const tr = document.createElement('tr');
+    const c1 = document.createElement('td'); c1.textContent = b.ten_khach;
+    const c2 = document.createElement('td');
+    c2.textContent = [b.dia_chi_ct, b.so_san ? b.so_san + ' sàn' : '', b.lo ? 'lô ' + b.lo + ' m' : ''].filter(Boolean).join(' · ') || '—';
+    const c3 = document.createElement('td'); c3.className = 'so'; c3.textContent = soVN(b.tong_sau_vat) + ' đ';
+    const c4 = document.createElement('td'); c4.textContent = ngayVN(b.tao_luc_ms);
+    const c5 = document.createElement('td');
+    const tag = document.createElement('span'); tag.className = 'tag ' + (b.da_thanh_toan ? 'ok' : 'cho');
+    tag.textContent = b.da_thanh_toan ? 'Đã thanh toán' : 'Chưa xuất';
+    c5.appendChild(tag);
+    const sua = b.sua || {};
+    const ghi = document.createElement('div'); ghi.className = 'ghi-sua';
+    if (b.phien_ban > 1) ghi.textContent = 'Bản ' + b.phien_ban + '. ';
+    if (sua.da_tra) {
+      ghi.textContent += sua.duoc_sua
+        ? 'Còn ' + sua.con_lan + ' lần sửa miễn phí đến hết ' + ngayVN(sua.han_ms) + '.'
+        : 'Hết lượt sửa miễn phí.';
+    }
+    if (ghi.textContent) c5.appendChild(ghi);
+    const c6 = document.createElement('td');
+    const nhom = document.createElement('div'); nhom.className = 'nut-hang';
+    if (b.da_thanh_toan || XEM_FOUNDER) {
+      const a = document.createElement('a'); a.className = 'btn btn-navy'; a.textContent = 'Xuất PDF';
+      a.href = alnUrl('in-bao-gia-dn.html?b=' + encodeURIComponent(b.id));
+      nhom.appendChild(a);
+    } else if (GIA && GIA.mo_ban) {
+      nhom.appendChild(nut('Thanh toán ' + soVN(GIA.gia_moi_file) + ' đ & xuất', 'btn-gold', (ev) => thanhToan(b.id, ev.currentTarget)));
+    }
+    if (sua.duoc_sua) {
+      const s2 = document.createElement('a'); s2.className = 'btn btn-line'; s2.textContent = 'Sửa';
+      s2.href = alnUrl('du-toan-nha.html?dn=1&b=' + encodeURIComponent(b.id));
+      s2.addEventListener('click', () => { try { sessionStorage.removeItem('aln_dn_sua'); } catch (e) {} });
+      nhom.appendChild(s2);
+    }
+    c6.appendChild(nhom);
+    [c1, c2, c3, c4, c5, c6].forEach((c) => tr.appendChild(c));
+    body.appendChild(tr);
+  });
+}
+
+async function taiDanhSach() {
+  const r = await callBaoGia({ hanh_dong: 'ds' });
+  veDanhSach((r.data && r.data.bao_gia) || []);
+}
+
+async function thanhToan(id, btn) {
+  btn.disabled = true; btn.textContent = 'Đang tạo mã thanh toán…';
+  msg($('bgMsg'), '');
+  day('aln_dn_thanh_toan_bam');
+  try {
+    const r = await callTaoTT({ bao_gia_id: id });
+    const d = r.data || {};
+    if (d.da_thanh_toan) { await taiDanhSach(); return; }
+    const u = new URL(String(d.checkout_url || ''));
+    if (u.protocol !== 'https:' || !/(^|\.)payos\.vn$/.test(u.hostname)) throw new Error('Đường dẫn thanh toán không hợp lệ.');
+    window.location.href = alnUrl(u.href);
+  } catch (e) {
+    msg($('bgMsg'), loiText(e, 'Chưa tạo được mã thanh toán. Vui lòng thử lại sau ít phút.'), 'err');
+    btn.disabled = false; btn.textContent = 'Thử lại';
+    day('aln_dn_thanh_toan_loi', { ma_loi: String((e && e.code) || 'khac').replace('functions/', '') });
+  }
+}
+
+/* Quay về từ payOS: ?tt=ok|huy&don=<orderCode>. Webhook có thể tới chậm vài giây,
+   nên hỏi lại máy chủ (dnKiemThanhToan tự tra payOS) tối đa ~20 giây. */
+async function xuLyQuayVe() {
+  const q = new URLSearchParams(location.search);
+  const tt = q.get('tt'), don = q.get('don');
+  if (!tt || !/^\d{6,16}$/.test(don || '')) return;
+  history.replaceState(null, '', location.pathname);
+  $('ttBox').hidden = false;
+  if (tt === 'huy') { msg($('ttMsg'), 'Anh/chị đã huỷ thanh toán. Báo giá vẫn được lưu, có thể thanh toán lại bất cứ lúc nào.'); return; }
+  msg($('ttMsg'), 'Đang xác nhận thanh toán…');
+  for (let i = 0; i < 8; i++) {
+    try {
+      const r = await callKiemTT({ order_code: Number(don) });
+      const d = r.data || {};
+      if (d.trang_thai === 'PAID') {
+        msg($('ttMsg'), 'Đã nhận thanh toán. Bấm "Xuất PDF" ở báo giá tương ứng bên dưới.', 'ok');
+        day('aln_dn_thanh_toan_ok');
+        await taiDanhSach();
+        return;
+      }
+      if (d.trang_thai === 'CANCELLED') { msg($('ttMsg'), 'Giao dịch đã huỷ.', 'err'); return; }
+    } catch (e) { /* thử lại */ }
+    await new Promise((ok) => setTimeout(ok, 2500));
+  }
+  msg($('ttMsg'), 'Chưa thấy xác nhận thanh toán. Nếu anh/chị đã chuyển khoản, tải lại trang sau 1–2 phút; cần hỗ trợ gọi 0909 829 696.', 'err');
+}
+
+/* Logo: thu về tối đa 400 px, PNG (nền trong) hoặc JPEG, ≤ 200 KB. */
+$('hLogo').addEventListener('change', async () => {
+  const f = $('hLogo').files && $('hLogo').files[0];
+  LOGO_MOI = null;
+  if (!f) return;
+  if (!/^image\/(png|jpeg)$/.test(f.type)) { msg($('hsMsg'), 'Logo phải là ảnh PNG hoặc JPG.', 'err'); return; }
+  try {
+    const url = URL.createObjectURL(f);
+    const img = await new Promise((ok, loi) => { const i = new Image(); i.onload = () => ok(i); i.onerror = loi; i.src = url; });
+    const tl = Math.min(1, 400 / Math.max(img.width, img.height));
+    const c = document.createElement('canvas');
+    c.width = Math.max(1, Math.round(img.width * tl)); c.height = Math.max(1, Math.round(img.height * tl));
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    URL.revokeObjectURL(url);
+    let du = c.toDataURL(f.type === 'image/png' ? 'image/png' : 'image/jpeg', 0.9);
+    if (du.length * 0.75 > 200 * 1024) du = c.toDataURL('image/jpeg', 0.8);
+    if (du.length * 0.75 > 200 * 1024) { msg($('hsMsg'), 'Logo quá lớn, vui lòng chọn ảnh nhỏ hơn.', 'err'); return; }
+    LOGO_MOI = du;
+    $('logoXem').src = alnUrl(du); $('logoXem').hidden = false;
+    msg($('hsMsg'), '');
+  } catch (e) { msg($('hsMsg'), 'Không đọc được ảnh logo.', 'err'); }
+});
+
+$('fHoSo').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const b = $('btnLuuHs'); b.disabled = true;
+  msg($('hsMsg'), 'Đang lưu…');
+  try {
+    const r = await callHoSo({
+      hanh_dong: 'luu', ten_cong_ty: $('hTen').value, mst: $('hMst').value, dia_chi: $('hDiaChi').value,
+      sdt_lien_he: $('hSdt').value, email_hoa_don: $('hEmail').value,
+      logo: LOGO_MOI, giu_logo: !LOGO_MOI,
+    });
+    veHoSo(r.data.ho_so);
+    LOGO_MOI = null;
+    msg($('hsMsg'), 'Đã lưu hồ sơ công ty.', 'ok');
+    day('aln_dn_luu_ho_so');
+    await taiDanhSach();
+  } catch (err) {
+    msg($('hsMsg'), loiText(err, 'Chưa lưu được. Vui lòng thử lại.'), 'err');
+  } finally { b.disabled = false; }
+});
+
+$('btnRetry').addEventListener('click', batDau);
+$('dangXuat').addEventListener('click', async (e) => {
+  e.preventDefault();
+  try { await signOut(auth); } catch (err) { /* bỏ qua */ }
+  window.location.href = alnUrl('dang-nhap-chu-nha.html?next=' + encodeURIComponent('doanh-nghiep.html'));
+});
+
+let XEM_FOUNDER = false;
+async function batDau() {
+  hien('loading');
+  try {
+    const r = await callHoSo({ hanh_dong: 'doc' });
+    veGia(r.data.gia, r.data.chinh_sach_sua);
+    veHoSo(r.data.ho_so);
+    hien('main');
+    if (r.data.ho_so) await taiDanhSach();
+    else msg($('hsMsg'), 'Khai hồ sơ công ty một lần để bắt đầu lập báo giá.');
+    await xuLyQuayVe();
+  } catch (e) {
+    $('errText').textContent = loiText(e, 'Chưa tải được dữ liệu. Vui lòng thử lại.');
+    hien('error');
+    if (window.alnBaoLoiNeuCan) window.alnBaoLoiNeuCan('dn_trang_chinh', e);
+  }
+}
+
+onAuthStateChanged(auth, (user) => {
+  XEM_FOUNDER = !!(window.alnFounderXem && window.alnFounderXem.la(user));
+  if (XEM_FOUNDER) window.alnFounderXem.hienThanh('Founder dùng thử, xuất không cần thanh toán');
+  if (!isPhoneAuthed(user) && !XEM_FOUNDER) {
+    window.location.href = alnUrl('dang-nhap-chu-nha.html?next=' + encodeURIComponent('doanh-nghiep.html' + location.search));
+    return;
+  }
+  if (daBatDau) return;
+  daBatDau = true;
+  batDau();
+});
+</script>
+<!-- ALN-PHAP-NHAN --><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"><style id="alnpn-css">.alnpn,.alnpn *{box-sizing:border-box;margin:0;padding:0;border:0;font:inherit;letter-spacing:normal;text-transform:none;text-shadow:none;float:none;background:none;min-width:0}.alnpn{display:block;width:100%;clear:both;position:relative;z-index:0;background:#0b1428;border-top:2px solid #d4a017;color:#cbd5e1;font-family:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:15px;font-weight:400;line-height:1.5;text-align:left;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;padding:28px 20px 88px}.alnpn-in{max-width:1280px;margin:0 auto;display:grid;gap:22px}.alnpn-brand{display:flex;align-items:center;gap:14px}.alnpn-brand img{display:block;flex:none;width:44px;height:44px;border-radius:10px}.alnpn-ten{font-weight:700;font-size:17px;line-height:1.3;letter-spacing:.03em;color:#fff}.alnpn-sub{margin-top:2px;font-size:13px;line-height:1.4;color:#9fb0c8}.alnpn-muc dt{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;line-height:1.3;letter-spacing:.08em;text-transform:uppercase;color:#e0b43a;margin-bottom:6px}.alnpn-muc dt svg{display:block;flex:none;width:16px;height:16px;fill:none;stroke:#e0b43a;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.alnpn-muc dd{font-size:15px;font-weight:500;line-height:1.45;color:#f1f5f9}.alnpn-mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:600;letter-spacing:.02em}.alnpn a{color:#fff;text-decoration:none}.alnpn a:hover,.alnpn a:focus-visible{color:#e0b43a;outline:none}.alnpn-note{font-size:13px;font-weight:400;color:#9fb0c8;margin-left:8px;white-space:nowrap}@media (min-width:768px){.alnpn{padding:26px 28px}.alnpn-in{grid-template-columns:auto auto auto auto;justify-content:space-between;align-items:stretch;gap:0}.alnpn-brand{align-self:center}.alnpn-muc{padding:0 0 0 28px;margin-left:28px;border-left:1px solid rgba(224,180,58,.22)}}@media (min-width:768px) and (max-width:1099px){.alnpn-in{grid-template-columns:auto minmax(0,1fr) auto;justify-content:stretch;row-gap:20px}.alnpn-brand{grid-column:1/-1;align-self:start}.alnpn-muc:nth-child(2){border-left:0;margin-left:0;padding-left:0}}</style><section class="alnpn" aria-label="Thông tin doanh nghiệp"><div class="alnpn-in"><div class="alnpn-brand"><img src="/icon-192.png" alt="" width="44" height="44" loading="lazy"><div><div class="alnpn-ten">CÔNG TY TNHH ALN</div><div class="alnpn-sub">Đơn vị chủ quản website applamnha.vn</div></div></div><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M10 12h5M10 16h5"/></svg>Mã số thuế</dt><dd class="alnpn-mono">3502593013</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-6-5.3-6-11a6 6 0 1 1 12 0c0 5.7-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/></svg>Địa chỉ</dt><dd>Khu TTTM Sonadezi, 536 Trung Sơn, Ngãi Giao, TP. Hồ Chí Minh</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 5 5L14 13l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>Hotline</dt><dd><a class="alnpn-mono" href="tel:0909829696">0909 829 696</a><span class="alnpn-note">KTS Trần Long</span></dd></dl></div></section>
+</body>
+</html>
