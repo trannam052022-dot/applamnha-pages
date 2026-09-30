@@ -169,6 +169,12 @@ table{width:100%;border-collapse:collapse}
 .tv .tv-msg.err{color:var(--warn);font-weight:500}
 .tv .tv-ok{font-size:15px;line-height:1.6}
 .tv .tv-ok b{font-family:var(--mono);font-weight:600;white-space:nowrap}
+.luu-loi-ich{margin:4px 0 10px;padding:12px 14px;border:1px solid var(--line2);border-radius:10px}
+.luu-tieu-de{font-weight:700;font-size:15px;color:var(--navy2);margin-bottom:6px}
+.luu-loi-ich ul{margin:0;padding-left:18px}
+.luu-loi-ich li{font-size:14px;line-height:1.5;margin:3px 0}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .luu-tieu-de{color:var(--ink)}}
+:root[data-theme="dark"] .luu-tieu-de{color:var(--ink)}
 #btnSaveHouse.phu{background:transparent;color:var(--navy2);border:1.5px solid var(--line2)!important;font-size:15px;font-weight:600}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) #btnSaveHouse.phu{color:var(--ink)}}
 :root[data-theme="dark"] #btnSaveHouse.phu{color:var(--ink)}
@@ -332,8 +338,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
      <div class="tv-msg" id="tvMsg" role="status" aria-live="polite"></div>
     </form>
    </section>
+   <!-- Lợi ích khi lưu — Nam duyệt câu chữ 30/09/2026. Chỉ ghi lợi ích ĐANG CÓ;
+        "Xuất file chi tiết" thêm khi tính năng xuất file xong. -->
+   <div class="luu-loi-ich">
+    <div class="luu-tieu-de">Lưu vào Không gian Nhà — miễn phí</div>
+    <ul>
+     <li>Giữ dự toán này, quay lại sửa bất cứ lúc nào, không mất khi đóng trình duyệt</li>
+     <li>Lưu nhiều phương án để so sánh (đổi số tầng, loại mái, giá vật tư)</li>
+     <li>Gửi bản vẽ hoặc báo giá nhà thầu để KTS xem giúp</li>
+    </ul>
+   </div>
    <button class="cta phu" id="btnSaveHouse" type="button" style="cursor:pointer;width:100%">Lưu vào Không gian Nhà</button>
-   <div class="hint" style="margin-top:4px">Lưu để quay lại sửa, so sánh nhiều phương án. Cần xác nhận số điện thoại bằng mã OTP.</div>
+   <div class="hint" style="margin-top:4px">Xác nhận số điện thoại bằng mã OTP để chỉ anh/chị mở được hồ sơ của mình.</div>
    <div id="saveHouseMsg" class="hint" style="margin-top:8px" hidden></div>
    <button class="btn" id="retrySaveHouse" type="button" style="margin-top:8px" hidden>Thử lại</button>
    <div id="saveCallback" hidden></div>
