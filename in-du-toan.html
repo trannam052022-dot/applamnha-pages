@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM -->
+<script src="scripts/aln-optout.js"></script>
+<script src="scripts/aln-estimate-funnel.js"></script>
+<script src="aln-esc.js"></script>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MB7VRGR5');</script>
+<!-- End Google Tag Manager -->
+
+<script src="error-monitor.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>ALN — Dự toán phần thô chi tiết</title>
+<!--
+  File chi tiết dự toán phần thô cho chủ nhà (Nam chốt 30/09/2026).
+  Dữ liệu từ Cloud Function xuatDuToan: bản dự toán đã lưu trong Không gian
+  Nhà + mã ALN từng hạng mục (data/ma_aln_du_toan_nhanh.json). Mỗi lần mở
+  trang = 1 lần xuất có mã riêng (ALN-X…), in chìm tên khách + 4 số cuối SĐT
+  + mã trên mọi trang. Trang KHÔNG ghép dữ liệu vào innerHTML — chỉ
+  textContent. Tải PDF = window.print() gọi ngay trong lượt bấm.
+-->
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- Google Analytics 4 (ALN — G-5CSL1TF0RC) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-5CSL1TF0RC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-5CSL1TF0RC');
+</script>
+<!-- End GA4 -->
+
+<style>
+:root{
+  --navy:#0f1a30; --gold:#b88a12; --gold-hi:#d4a017; --gold-soft:#f5ecd6;
+  --ink:#1c2233; --muted:#5d6577; --line:#d9dbe1; --paper:#ffffff; --fill:#f6f7f9; --err:#b3261e;
+  --display:'Oswald','Arial Narrow',Arial,sans-serif;
+  --body:'Be Vietnam Pro','Segoe UI',Arial,sans-serif;
+  --mono:'IBM Plex Mono','Courier New',monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:#e9ebef;color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.6;-webkit-text-size-adjust:100%}
+[hidden]{display:none!important}
+
+.bar{position:sticky;top:0;z-index:10;background:var(--navy);color:#fff;border-bottom:2px solid var(--gold-hi);padding:10px 16px}
+.bar-in{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.bar a.back{color:#d8dde8;text-decoration:none;font-size:14px}
+.bar .st{flex:1;min-width:140px;font-size:13px;color:#a9b3c7}
+.btn{font:600 14px var(--body);border-radius:6px;padding:9px 14px;border:1px solid transparent;cursor:pointer;line-height:1.2}
+.btn-gold{background:var(--gold-hi);color:#1a1405}
+.btn:disabled{opacity:.55;cursor:default}
+.btn:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px}
+.tip{max-width:900px;margin:10px auto 0;padding:0 16px;font-size:13px;color:var(--muted)}
+.state{max-width:900px;margin:24px auto;padding:24px 16px;text-align:center;color:var(--muted)}
+
+.wrap{padding:14px 16px 40px}
+.sheet{position:relative;max-width:860px;margin:0 auto;background:var(--paper);padding:30px 34px;box-shadow:0 1px 8px rgba(15,26,48,.12);overflow:hidden}
+.print-khung{width:100%;border-collapse:collapse;table-layout:fixed}
+.print-khung>thead,.print-khung>tfoot{display:none}
+.print-khung>tbody>tr>td{padding:0}
+
+/* Dấu chìm: tên khách + 4 số cuối + mã xuất, nằm TRÊN nội dung, rất nhạt */
+.wm{position:absolute;inset:0;pointer-events:none;z-index:2;overflow:hidden}
+.wm div{position:absolute;left:-10%;width:120%;text-align:center;transform:rotate(-28deg);white-space:nowrap;
+  font-family:var(--display);font-size:26px;letter-spacing:.12em;color:rgba(15,26,48,.07);print-color-adjust:exact;-webkit-print-color-adjust:exact}
+
+.head{display:flex;align-items:center;gap:14px;padding-bottom:12px;border-bottom:2px solid var(--gold)}
+.head img{width:54px;height:54px;border-radius:6px;flex:none}
+.brand{flex:1;min-width:0}
+.brand b{display:block;font-family:var(--display);font-weight:600;font-size:26px;letter-spacing:.14em;color:var(--navy);line-height:1.22}
+.brand span{font-size:10px;letter-spacing:.16em;color:var(--muted)}
+.contact{text-align:right;font-size:12px;line-height:1.5}
+.contact .web{color:var(--gold);font-weight:600}
+.contact .hot{display:block;margin-top:2px;color:var(--navy);font-weight:600}
+.contact .hot i{font-style:normal;font-family:var(--mono);font-weight:500}
+
+.eyebrow{margin:14px 0 2px;font-size:11.5px;font-weight:600;letter-spacing:.1em;color:var(--gold);text-transform:uppercase}
+h1{margin:0;font-family:var(--display);font-weight:600;font-size:28px;line-height:1.22;color:var(--navy)}
+.lead{margin:4px 0 12px;color:var(--muted);font-size:14px}
+
+.meta{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:4px;background:var(--fill)}
+.meta>div{padding:7px 10px;border-right:1px solid var(--line);min-width:0}
+.meta>div:last-child{border-right:0}
+.meta small{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.meta strong{font-size:13.5px;color:var(--navy);overflow-wrap:anywhere}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+.ct{margin-top:14px;border:1.5px solid var(--navy);border-radius:4px;break-inside:avoid}
+.ct-h{margin:0;padding:6px 10px;background:var(--navy);color:#fff;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+.ct-nhan{padding:8px 10px 0;font-size:13.5px;color:var(--ink)}
+.ct-chinh{display:grid;grid-template-columns:repeat(3,1fr);gap:0;padding:6px 0 0}
+.ct-chinh>div{padding:4px 10px 8px;border-right:1px solid var(--line);min-width:0}
+.ct-chinh>div:last-child{border-right:0}
+.ct-chinh small,.ct-phu small{display:block;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.ct-chinh strong{display:block;font-size:19px;line-height:1.25;color:var(--navy);font-variant-numeric:tabular-nums}
+.ct-chinh span{display:block;font-size:12px;color:var(--muted)}
+.ct-phu{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);background:var(--fill);print-color-adjust:exact;-webkit-print-color-adjust:exact}
+.ct-phu>div{padding:6px 10px;min-width:0}
+.ct-phu strong{font-size:13px;color:var(--navy);overflow-wrap:anywhere}
+
+h2{margin:20px 0 6px;font-family:var(--display);font-weight:500;font-size:18px;letter-spacing:.04em;color:var(--navy);text-transform:uppercase}
+.bang{width:100%;border-collapse:collapse;font-size:13px}
+.bang th{background:var(--navy);color:#fff;font-weight:600;font-size:11.5px;letter-spacing:.04em;text-align:left;padding:6px 6px;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+.bang td{padding:5px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+.bang td.so,.bang th.so{text-align:right;white-space:nowrap;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.bang td.ma{font-family:var(--mono);font-size:12px;white-space:nowrap;color:var(--navy)}
+.bang tr.nhom td{background:var(--gold-soft);font-weight:700;color:var(--navy);print-color-adjust:exact;-webkit-print-color-adjust:exact}
+.bang tr.nhom td .gc{display:block;font-weight:400;font-size:11.5px;color:var(--muted)}
+.bang tr{break-inside:avoid}
+.bang thead{display:table-header-group}
+
+.tong{margin-top:10px;margin-left:auto;width:min(100%,420px);border-collapse:collapse;font-size:14px}
+.tong td{padding:5px 8px;border-bottom:1px solid var(--line)}
+.tong td.so{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.tong tr.chinh td{font-weight:700;color:var(--navy);font-size:15px;border-bottom:2px solid var(--gold)}
+
+.luu-y{margin-top:16px;padding:9px 12px;background:var(--fill);border-left:3px solid var(--gold);font-size:12.5px;color:var(--ink)}
+.luu-y p{margin:0 0 4px}.luu-y p:last-child{margin:0}
+.cap{margin-top:10px;font-size:12px;color:var(--muted)}
+
+.corp{margin-top:16px;padding:12px 16px 14px;background:var(--navy);border-top:2.5px solid var(--gold-hi);border-radius:3px;color:#fff;break-inside:avoid;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+.corp b{display:block;font-weight:700;font-size:14px}
+.corp span{font-size:12px;color:#c3cad8}
+
+@media (max-width:680px){
+  body{font-size:14.5px}
+  .wrap{padding:10px 0 32px}
+  .sheet{padding:18px 12px;box-shadow:none}
+  .head{flex-wrap:wrap}.contact{text-align:left;flex-basis:100%}
+  .brand b{font-size:20px;letter-spacing:.1em}
+  h1{font-size:23px}
+  .meta{grid-template-columns:1fr 1fr}
+  .meta>div:nth-child(2){border-right:0}
+  .meta>div:nth-child(-n+2){border-bottom:1px solid var(--line)}
+  .ct-chinh{grid-template-columns:1fr}
+  .ct-chinh>div{border-right:0;border-bottom:1px solid var(--line)}
+  .ct-chinh>div:last-child{border-bottom:0}
+  .ct-phu{grid-template-columns:1fr 1fr}
+  .bang{font-size:12.5px}
+  .bang .an-dt{display:none}
+}
+
+@page{size:A4;margin:0}
+@media print{
+  :root{--muted:#343b4a;--line:#9ea4b0;--ink:#10151f}
+  body{background:#fff;font-size:12.5px}
+  .bar,.tip,.no-print{display:none!important}
+  .wrap{padding:0}
+  .sheet{max-width:none;box-shadow:none;padding:0 12mm;margin:0;overflow:visible;position:static}
+  .print-khung>thead,.print-khung>tfoot{display:table-header-group}
+  .print-khung>tfoot{display:table-footer-group}
+  .print-khung .le-tren{height:11mm}.print-khung .le-duoi{height:12mm}
+  /* In: dấu chìm cố định trên TỪNG trang */
+  .wm{position:fixed;inset:0}
+  .bang .an-dt{display:table-cell}
+  .bang{font-size:11.5px}
+  /* Phần vật tư chủ nhà tự mua luôn sang trang mới — không để tiêu đề nằm lẻ cuối trang (Nam 30/09/2026) */
+  #vtWrap{break-before:page}
+  h2{break-after:avoid}
+}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="bar-in">
+    <a class="back" id="backLink" href="khong-gian-nha.html">← Không gian Nhà</a>
+    <span class="st" id="status" role="status" aria-live="polite">Đang lập file…</span>
+    <button type="button" class="btn btn-gold" id="btnPdf" disabled>Tải PDF</button>
+  </div>
+</div>
+<p class="tip" id="tip" hidden>Trên điện thoại: bấm <b>Tải PDF</b> rồi chọn <b>In</b> → <b>Lưu PDF</b> (hoặc Chia sẻ).</p>
+
+<div class="state" id="stLoading">Đang lập file dự toán của anh/chị…</div>
+<div class="state" id="stError" hidden><p id="errText">Chưa lập được file.</p><button type="button" class="btn btn-gold" id="btnRetry">Thử lại</button></div>
+
+<div class="wrap" id="stSheet" hidden>
+<div class="sheet">
+<div class="wm" id="wm" aria-hidden="true"></div>
+<table class="print-khung"><thead><tr><td><div class="le-tren"></div></td></tr></thead>
+<tfoot><tr><td><div class="le-duoi"></div></td></tr></tfoot>
+<tbody><tr><td>
+
+<header class="head">
+  <img src="icon-192.png" alt="Logo App Làm Nhà">
+  <div class="brand"><b>APP LÀM NHÀ</b><span>ARCHITECTURE · LIVING · NETWORK</span></div>
+  <div class="contact">
+    <span class="web">applamnha.vn</span>
+    <span class="hot">Hotline: KTS Trần Long – <i>0909 829 696</i></span>
+  </div>
+</header>
+
+<p class="eyebrow">Dành cho chủ nhà · Tự kiểm tra dự toán</p>
+<h1>Dự toán phần thô — bản chi tiết</h1>
+<p class="lead">Chi tiết từng hạng mục của dự toán anh/chị đã lưu trong Không gian Nhà, kèm mã ALN để đối chiếu khi trao đổi với KTS.</p>
+
+<div class="meta">
+  <div><small>Mã file</small><strong class="mono" id="mMa"></strong></div>
+  <div><small>Ngày xuất</small><strong id="mNgay"></strong></div>
+  <div><small>Chủ nhà</small><strong id="mKhach"></strong></div>
+  <div><small>Phiên bản dự toán</small><strong id="mPhien"></strong></div>
+</div>
+<section class="ct" id="congTrinh" aria-labelledby="ctTieuDe">
+  <p class="ct-h" id="ctTieuDe">Thông tin công trình</p>
+  <p class="ct-nhan" id="ctNhaMau"></p>
+  <div class="ct-chinh">
+    <div><small>Số tầng</small><strong id="ctTang"></strong><span id="ctTangPhu"></span></div>
+    <div><small>Kích thước lô đất</small><strong id="ctLo"></strong><span id="ctLoPhu"></span></div>
+    <div><small>Diện tích sàn</small><strong id="ctDt"></strong><span id="ctDtPhu"></span></div>
+  </div>
+  <div class="ct-phu" id="ctPhu"></div>
+</section>
+
+<h2>Phần thô và nhân công</h2>
+<table class="bang">
+  <thead><tr><th>STT</th><th>Mã ALN</th><th>Hạng mục</th><th class="an-dt">Đơn vị</th><th class="so an-dt">Khối lượng</th><th class="so">Thành tiền (đ)</th></tr></thead>
+  <tbody id="bangPhanTho"></tbody>
+</table>
+<table class="tong" id="tongPhanTho"></table>
+
+<section id="vtWrap">
+<h2>Vật tư hoàn thiện chủ nhà tự mua (tách riêng)</h2>
+<table class="bang">
+  <thead><tr><th>STT</th><th>Mã ALN</th><th>Hạng mục</th><th class="an-dt">Đơn vị</th><th class="so an-dt">Khối lượng</th><th class="so">Thành tiền (đ)</th></tr></thead>
+  <tbody id="bangVatTu"></tbody>
+</table>
+<table class="tong" id="tongVatTu"></table>
+</section>
+
+<div class="luu-y">
+  <p>Đây là ước tính theo nhà mẫu cùng loại, chưa phải dự toán chính thức cho công trình của anh/chị. Khối lượng từng hạng mục được quy từ nhà mẫu theo diện tích nhà anh/chị; dự toán đúng phải bóc từ chính bản vẽ của công trình.</p>
+  <p>Thành tiền từng hạng mục là phần vật tư; nhân công, điện nước, máy thi công, biện pháp thi công và quản lý của nhà thầu tính thành dòng riêng.</p>
+  <p>Mã ALN dùng để nhận diện hạng mục khi trao đổi với KTS của ALN.</p>
+</div>
+<p class="cap" id="capCho"></p>
+
+<footer class="corp">
+  <b>CÔNG TY TNHH ALN</b>
+  <span>Đơn vị chủ quản website applamnha.vn · MST 3502593013 · Hotline 0909 829 696 (KTS Trần Long)</span>
+</footer>
+<!-- ALN-PHAP-NHAN --><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"><style id="alnpn-css">.alnpn,.alnpn *{box-sizing:border-box;margin:0;padding:0;border:0;font:inherit;letter-spacing:normal;text-transform:none;text-shadow:none;float:none;background:none;min-width:0}.alnpn{display:block;width:100%;clear:both;position:relative;z-index:0;background:#0b1428;border-top:2px solid #d4a017;color:#cbd5e1;font-family:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:15px;font-weight:400;line-height:1.5;text-align:left;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;padding:28px 20px 88px}.alnpn-in{max-width:1280px;margin:0 auto;display:grid;gap:22px}.alnpn-brand{display:flex;align-items:center;gap:14px}.alnpn-brand img{display:block;flex:none;width:44px;height:44px;border-radius:10px}.alnpn-ten{font-weight:700;font-size:17px;line-height:1.3;letter-spacing:.03em;color:#fff}.alnpn-sub{margin-top:2px;font-size:13px;line-height:1.4;color:#9fb0c8}.alnpn-muc dt{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;line-height:1.3;letter-spacing:.08em;text-transform:uppercase;color:#e0b43a;margin-bottom:6px}.alnpn-muc dt svg{display:block;flex:none;width:16px;height:16px;fill:none;stroke:#e0b43a;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.alnpn-muc dd{font-size:15px;font-weight:500;line-height:1.45;color:#f1f5f9}.alnpn-mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:600;letter-spacing:.02em}.alnpn a{color:#fff;text-decoration:none}.alnpn a:hover,.alnpn a:focus-visible{color:#e0b43a;outline:none}.alnpn-note{font-size:13px;font-weight:400;color:#9fb0c8;margin-left:8px;white-space:nowrap}@media (min-width:768px){.alnpn{padding:26px 28px}.alnpn-in{grid-template-columns:auto auto auto auto;justify-content:space-between;align-items:stretch;gap:0}.alnpn-brand{align-self:center}.alnpn-muc{padding:0 0 0 28px;margin-left:28px;border-left:1px solid rgba(224,180,58,.22)}}@media (min-width:768px) and (max-width:1099px){.alnpn-in{grid-template-columns:auto minmax(0,1fr) auto;justify-content:stretch;row-gap:20px}.alnpn-brand{grid-column:1/-1;align-self:start}.alnpn-muc:nth-child(2){border-left:0;margin-left:0;padding-left:0}}</style><section class="alnpn" aria-label="Thông tin doanh nghiệp"><div class="alnpn-in"><div class="alnpn-brand"><img src="/icon-192.png" alt="" width="44" height="44" loading="lazy"><div><div class="alnpn-ten">CÔNG TY TNHH ALN</div><div class="alnpn-sub">Đơn vị chủ quản website applamnha.vn</div></div></div><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M10 12h5M10 16h5"/></svg>Mã số thuế</dt><dd class="alnpn-mono">3502593013</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-6-5.3-6-11a6 6 0 1 1 12 0c0 5.7-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/></svg>Địa chỉ</dt><dd>Khu TTTM Sonadezi, 536 Trung Sơn, Ngãi Giao, TP. Hồ Chí Minh</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 5 5L14 13l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>Hotline</dt><dd><a class="alnpn-mono" href="tel:0909829696">0909 829 696</a><span class="alnpn-note">KTS Trần Long</span></dd></dl></div></section>
+
+</td></tr></tbody></table>
+</div>
+</div>
+
+<script type="module">
+import { app, auth, onAuthStateChanged } from './firebase-config.js';
+import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js';
+
+const callXuat = httpsCallable(getFunctions(app, 'asia-southeast1'), 'xuatDuToan', { timeout: 30000 });
+const $ = (id) => document.getElementById(id);
+let houseId = '';
+let daBatDau = false;
+
+function isPhoneAuthed(user) { return !!(user && !user.isAnonymous && user.phoneNumber); }
+function soVN(n) { return n == null ? '' : Math.round(Number(n)).toLocaleString('vi-VN'); }
+function soLe(n) { return n == null ? '' : Number(n).toLocaleString('vi-VN', { maximumFractionDigits: 2 }); }
+function ngayVN(ms) { return ms ? new Date(ms).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : ''; }
+function day(ev, p) { try { (window.dataLayer = window.dataLayer || []).push(Object.assign({ event: ev }, p || {})); } catch (e) {} }
+
+function hienState(s) {
+  $('stLoading').hidden = s !== 'loading';
+  $('stError').hidden = s !== 'error';
+  $('stSheet').hidden = s !== 'sheet';
+  $('tip').hidden = s !== 'sheet';
+}
+function td(text, cls, colspan) {
+  const c = document.createElement('td');
+  if (cls) c.className = cls;
+  if (colspan) c.colSpan = colspan;
+  c.textContent = text == null ? '' : String(text);
+  return c;
+}
+function veBang(tbody, nhom) {
+  tbody.textContent = '';
+  (nhom || []).forEach((n) => {
+    const tr = document.createElement('tr'); tr.className = 'nhom';
+    tr.appendChild(td(n.hang_muc.length ? '' : '•'));
+    tr.appendChild(td(n.ma || ''));
+    const ten = td(n.ten, null, 3);
+    if (n.ghi_chu) { const s = document.createElement('span'); s.className = 'gc'; s.textContent = n.ghi_chu; ten.appendChild(s); }
+    tr.appendChild(ten);
+    tr.appendChild(td(soVN(n.tien), 'so'));
+    tbody.appendChild(tr);
+    n.hang_muc.forEach((h) => {
+      const r = document.createElement('tr');
+      r.appendChild(td(h.stt));
+      r.appendChild(td(h.ma, 'ma'));
+      r.appendChild(td(h.ten));
+      r.appendChild(td(h.don_vi || '', 'an-dt'));
+      r.appendChild(td(soLe(h.khoi_luong), 'so an-dt'));
+      r.appendChild(td(soVN(h.thanh_tien), 'so'));
+      tbody.appendChild(r);
+    });
+  });
+}
+function dongTong(bang, nhan, giaTri, chinh) {
+  const tr = document.createElement('tr'); if (chinh) tr.className = 'chinh';
+  tr.appendChild(td(nhan)); tr.appendChild(td(giaTri, 'so')); bang.appendChild(tr);
+}
+function veDauChim(b) {
+  const khach = [b.khach.ten, b.khach.sdt_4so ? '•••• ' + b.khach.sdt_4so : ''].filter(Boolean).join(' · ');
+  const chu = 'BẢN CỦA ' + (khach ? khach.toUpperCase() + ' · ' : '') + b.ma_xuat;
+  const wm = $('wm'); wm.textContent = '';
+  for (let i = 0; i < 9; i++) {
+    const d = document.createElement('div');
+    d.style.top = (6 + i * 11) + '%';
+    d.textContent = chu;
+    wm.appendChild(d);
+  }
+}
+
+function coKhong(v) { return v === true ? 'Có' : v === false ? 'Không' : '—'; }
+function veCongTrinh(n) {
+  $('ctNhaMau').textContent = n.nha_mau ? 'Tính theo nhà mẫu: ' + n.nha_mau : '';
+  $('ctNhaMau').hidden = !n.nha_mau;
+  $('ctTang').textContent = n.so_san ? n.so_san + ' sàn' : '—';
+  const tangPhu = [];
+  if (n.so_san) tangPhu.push('trệt + lửng + lầu');
+  if (n.tang_ham) tangPhu.push('thêm 1 tầng hầm');
+  $('ctTangPhu').textContent = tangPhu.join(', ');
+  const coLo = n.rong_truoc && n.sau_trai;
+  const lechRong = coLo && n.rong_sau && n.rong_sau !== n.rong_truoc;
+  const lechSau = coLo && n.sau_phai && n.sau_phai !== n.sau_trai;
+  $('ctLo').textContent = coLo ? soLe(n.rong_truoc) + ' × ' + soLe(n.sau_trai) + ' m' : '—';
+  const loPhu = [];
+  if (coLo) loPhu.push('ngang mặt tiền × sâu cạnh trái');
+  if (lechRong || lechSau) loPhu.push('lô không vuông, xem dòng dưới');
+  $('ctLoPhu').textContent = loPhu.join(' · ');
+  $('ctDt').textContent = n.dt_thuc_xay ? soLe(n.dt_thuc_xay) + ' m²' : '—';
+  $('ctDtPhu').textContent = [n.dt_thuc_xay ? 'thực xây' : '', n.dt_quy_doi ? soLe(n.dt_quy_doi) + ' m² quy đổi (dùng để tính đơn giá)' : ''].filter(Boolean).join(' · ');
+  const phu = [
+    ['Thang máy', coKhong(n.thang_may)],
+    ['Tầng hầm', coKhong(n.tang_ham)],
+    ['Sân thượng', n.san_thuong || '—'],
+    ['Loại mái', n.loai_mai ? n.loai_mai + (n.mai_m2 ? ' · ' + soLe(n.mai_m2) + ' m²' : '') : '—'],
+    ['Sân trước đổ sàn', n.san_truoc_sau ? 'sâu ' + soLe(n.san_truoc_sau) + ' m' : (n.san_truoc_sau === 0 ? 'Không' : '—')],
+    ['Ban công', n.ban_cong_m2 ? soLe(n.ban_cong_m2) + ' m²' : (n.ban_cong_m2 === 0 ? 'Không' : '—')],
+    ['Móng', n.mong_pct != null ? soLe(n.mong_pct) + '% sàn trệt' : '—'],
+    ['Mặt hậu · sâu cạnh phải', n.rong_sau && n.sau_phai ? soLe(n.rong_sau) + ' m · ' + soLe(n.sau_phai) + ' m' : '—'],
+  ];
+  const box = $('ctPhu'); box.textContent = '';
+  phu.forEach(([nhan, gt]) => {
+    const d = document.createElement('div');
+    const sm = document.createElement('small'); sm.textContent = nhan;
+    const st = document.createElement('strong'); st.textContent = gt;
+    d.appendChild(sm); d.appendChild(st); box.appendChild(d);
+  });
+}
+
+function ve(b) {
+  $('mMa').textContent = b.ma_xuat;
+  $('mNgay').textContent = ngayVN(b.ngay_ms);
+  $('mKhach').textContent = [b.khach.ten, b.khach.sdt_4so ? '•••• ' + b.khach.sdt_4so : ''].filter(Boolean).join(' · ') || '—';
+  $('mPhien').textContent = b.phien_ban ? 'Phiên bản ' + b.phien_ban : '—';
+  veCongTrinh(b.nha || {});
+
+  veBang($('bangPhanTho'), b.phan_tho.nhom);
+  const t = $('tongPhanTho'); t.textContent = '';
+  dongTong(t, 'Cộng, chưa VAT', soVN(b.phan_tho.tong_chua_vat) + ' đ', true);
+  if (b.phan_tho.vat_pct != null) dongTong(t, 'Sau VAT ' + soLe(b.phan_tho.vat_pct) + '%' + (b.ma_vat ? ' (' + b.ma_vat + ')' : ''), soVN(b.phan_tho.tong_sau_vat) + ' đ');
+  if (b.phan_tho.don_gia_m2) dongTong(t, 'Đơn giá theo m² quy đổi, chưa VAT', soVN(b.phan_tho.don_gia_m2) + ' đ/m²');
+
+  const coVt = b.vat_tu_chu_nha && b.vat_tu_chu_nha.nhom && b.vat_tu_chu_nha.nhom.length;
+  $('vtWrap').hidden = !coVt;
+  if (coVt) {
+    veBang($('bangVatTu'), b.vat_tu_chu_nha.nhom);
+    const v = $('tongVatTu'); v.textContent = '';
+    dongTong(v, 'Cộng vật tư hoàn thiện', soVN(b.vat_tu_chu_nha.tong) + ' đ', true);
+  }
+  $('capCho').textContent = 'File cấp cho ' + ($('mKhach').textContent || 'chủ nhà') + ' · mã ' + b.ma_xuat + '. Dùng để chủ nhà tự kiểm tra dự toán của công trình mình.';
+  veDauChim(b);
+  document.title = 'ALN — Dự toán ' + b.ma_xuat;
+}
+
+async function xuat() {
+  hienState('loading');
+  $('status').textContent = 'Đang lập file…';
+  $('btnPdf').disabled = true;
+  try {
+    const params = { houseId };
+    const v = new URLSearchParams(location.search).get('v');
+    if (v && /^\d{1,3}$/.test(v)) params.phien_ban = Number(v);
+    const r = await callXuat(params);
+    const b = r && r.data && r.data.bang;
+    if (!b) throw new Error('no-data');
+    ve(b);
+    hienState('sheet');
+    $('status').textContent = 'Mã file ' + b.ma_xuat;
+    $('btnPdf').disabled = false;
+    day('aln_xuat_du_toan', { phien_ban: b.phien_ban || 0 });
+  } catch (e) {
+    const ma = String((e && e.code) || '').replace('functions/', '');
+    $('errText').textContent = (ma === 'resource-exhausted' || ma === 'not-found' || ma === 'permission-denied') && e.message
+      ? e.message : 'Chưa lập được file — anh/chị thử lại giúp em.';
+    $('status').textContent = '';
+    hienState('error');
+    day('aln_xuat_du_toan_loi', { ma_loi: ma || 'khac' });
+    if (window.alnBaoLoiNeuCan) window.alnBaoLoiNeuCan('xuat_du_toan', e);
+  }
+}
+
+$('btnPdf').addEventListener('click', () => { day('aln_xuat_du_toan_in'); window.print(); });
+$('btnRetry').addEventListener('click', xuat);
+
+onAuthStateChanged(auth, (user) => {
+  if (!isPhoneAuthed(user)) {
+    const tiep = 'in-du-toan.html' + location.search;
+    window.location.href = alnUrl(window.alnEstimateFunnel.preserve('dang-nhap-chu-nha.html?next=' + encodeURIComponent(tiep)));
+    return;
+  }
+  if (daBatDau) return;
+  const q = new URLSearchParams(location.search).get('h') || '';
+  if (!/^[A-Za-z0-9_-]{1,80}$/.test(q)) { window.location.href = alnUrl('khong-gian-nha.html'); return; }
+  houseId = q;
+  daBatDau = true;
+  xuat();
+});
+</script>
+</body>
+</html>

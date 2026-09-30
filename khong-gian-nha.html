@@ -340,6 +340,8 @@ a{color:inherit}
 .dt-foot{display:flex;justify-content:space-between;padding:.7rem 0 .2rem;font-weight:600;font-size:var(--text-sm);color:var(--text-1)}
 .dt-foot span:last-child{font-family:var(--f-mono)}
 .dt-sub{font-family:var(--f-head);font-weight:500;font-size:var(--text-sm);color:var(--text-3);margin:1rem 0 .2rem}
+.dt-xuat{display:inline-block;margin-top:1rem;text-decoration:none}
+.dt-xuat-hint{font-size:var(--text-sm);color:var(--text-3);margin:.4rem 0 0}
 .dt-fine{font-size:var(--text-sm);color:var(--text-3);line-height:1.7;margin-top:.8rem}
 .dt-oldlist{display:flex;flex-direction:column;gap:.4rem;margin-top:.5rem}
 .dt-old-item{display:flex;justify-content:space-between;align-items:baseline;gap:.5rem;padding:.6rem .7rem;background:var(--surface);border:1px solid var(--border-soft);border-radius:var(--r-sm);font-size:var(--text-sm)}
@@ -511,6 +513,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="dt-sub">Phần bạn tự mua</div>
       <div class="dt-rows" id="dtRowsH"></div>
       <div class="dt-foot"><span>Cộng vật tư hoàn thiện</span><span id="dtTotH"></span></div>
+      <a class="btn btn-gold dt-xuat" id="dtXuat" href="#">Xuất file chi tiết (PDF)</a>
+      <p class="dt-xuat-hint">Bảng từng hạng mục có mã ALN, dùng để tự kiểm tra hoặc trao đổi với KTS.</p>
       <p class="dt-fine">Đây là ước tính theo nhà mẫu cùng loại, chưa phải dự toán chính thức cho công trình của bạn. Dự toán đúng cho nhà bạn phải bóc từ chính bản vẽ của bạn — gửi bản vẽ ở khối bên dưới để ALN bóc khối lượng thật.</p>
       <div class="dt-sub" id="dtOldTitle" hidden>Phiên bản trước</div>
       <div class="dt-oldlist" id="dtOldList"></div>
@@ -1011,6 +1015,9 @@ function renderDuToanLatest(v) {
   const vatTuChuNha = kq.vat_tu_chu_nha_mua || {};
   drawDuToanRows(els.dtRowsH, vatTuChuNha.theo_nhom, vatTuChuNha.tong);
   els.dtTotH.textContent = fmtMoney(vatTuChuNha.tong) || '';
+  // Xuất file chi tiết có mã ALN (in-du-toan.html, Nam chốt 30/09/2026)
+  const xuat = document.getElementById('dtXuat');
+  if (xuat && currentHouseId) xuat.href = 'in-du-toan.html?h=' + encodeURIComponent(currentHouseId);
 }
 
 function renderDuToanOldList(oldVersions) {
