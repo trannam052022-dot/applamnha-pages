@@ -165,6 +165,7 @@ table{width:100%;border-collapse:collapse}
 .tv .tv-dy a{color:inherit}
 .tv .tv-go{display:block;width:100%;margin-top:14px;min-height:50px;border:0;border-radius:10px;background:var(--navy2);color:#fff;font:inherit;font-size:16.5px;font-weight:700;cursor:pointer}
 .tv .tv-go:disabled{opacity:.7;cursor:default}
+.tv .dn-goi-y{font-size:14px;color:var(--sub);margin:6px 0 0;line-height:1.5}
 .tv .tv-msg{min-height:1.4em;margin-top:8px;font-size:14px;line-height:1.55}
 .tv .tv-msg.err{color:var(--warn);font-weight:500}
 .tv .tv-ok{font-size:15px;line-height:1.6}
@@ -195,8 +196,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 <div class="top"><div class="in">
   <div class="brand">ALN · APP LÀM NHÀ</div>
-  <h1>Dự toán xây nhà của bạn</h1>
-  <p>Nhập kích thước và giá vật tư ở nơi bạn ở. Bảng tính theo khối lượng bóc từ nhà mẫu cùng loại, chia từng phần để bạn biết tiền đi vào đâu — bấm vào từng phần để xem chi tiết.</p>
+  <h1 id="tieuDeTrang">Dự toán xây nhà của bạn</h1>
+  <p id="moTaTrang">Nhập kích thước và giá vật tư ở nơi bạn ở. Bảng tính theo khối lượng bóc từ nhà mẫu cùng loại, chia từng phần để bạn biết tiền đi vào đâu — bấm vào từng phần để xem chi tiết.</p>
 </div></div>
 
 <div class="wrap">
@@ -350,7 +351,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
      <div class="tv-f"><label for="dnTenKhach">Tên khách hàng</label><input id="dnTenKhach" maxlength="80" autocomplete="off" placeholder="Ví dụ: Anh Minh"></div>
      <div class="tv-f"><label for="dnDiaChiCt">Địa chỉ công trình (không bắt buộc)</label><input id="dnDiaChiCt" maxlength="200" autocomplete="off"></div>
      <button class="tv-go" id="dnLuu" type="submit">Lưu báo giá</button>
+     <p class="dn-goi-y" id="dnGoiYLuu" hidden></p>
      <button class="tv-go" id="dnLuuMoi" type="button" hidden style="background:transparent;color:var(--navy2);border:1px solid var(--navy2)">Lưu thành báo giá mới</button>
+     <p class="dn-goi-y" id="dnGoiYMoi" hidden>Giữ nguyên báo giá đang sửa và tạo thêm một báo giá khác, ví dụ phương án thứ hai hoặc cho khách khác (đổi tên khách ở trên trước khi bấm). Báo giá mới thanh toán riêng khi xuất file.</p>
      <div class="tv-msg" id="dnMsg" role="status" aria-live="polite"></div>
     </form>
     <a class="tv-lk" href="doanh-nghiep.html">Về trang Doanh nghiệp</a>
@@ -923,6 +926,9 @@ const Q = new URLSearchParams(location.search);
 if (Q.get('dn') === '1') {
   document.body.classList.add('che-do-dn');
   const $ = (id) => document.getElementById(id);
+  $('tieuDeTrang').textContent = 'Dự toán xây nhà của doanh nghiệp bạn';
+  $('moTaTrang').textContent = 'Nhập kích thước công trình và giá vật tư ở khu vực thi công. Bảng tính theo khối lượng bóc từ nhà mẫu cùng loại, chia từng phần để anh/chị và khách thấy rõ tiền đi vào đâu. Xong thì lưu thành báo giá ở cuối bảng bên phải.';
+  document.title = 'Báo giá doanh nghiệp | App Làm Nhà';
   const panel = $('dnPanel'), form = $('dnForm'), nut = $('dnLuu'), nutMoi = $('dnLuuMoi'), msg = $('dnMsg');
   const tenEl = $('dnTenKhach'), dcEl = $('dnDiaChiCt');
   const dock = document.querySelector('.dock a[href="#tuVan"]');
@@ -953,9 +959,14 @@ if (Q.get('dn') === '1') {
     let sub = 'Anh/chị đang sửa báo giá đã lưu (bản ' + suaInfo.phien_ban + '). Sửa số ở trên rồi bấm "Lưu thay đổi".';
     if (t.da_tra && t.duoc_sua) sub += ' Báo giá đã thanh toán: còn ' + t.con_lan + ' lần sửa miễn phí đến hết ngày ' + ngayVN(t.han_ms) + ', xuất lại không mất phí.';
     $('dnSub').textContent = sub;
-    if (t.duoc_sua) { nut.textContent = 'Lưu thay đổi'; nutMoi.hidden = false; }
-    else {
-      nut.textContent = 'Lưu thành báo giá mới';
+    const goiY = $('dnGoiYLuu'), goiYMoi = $('dnGoiYMoi');
+    if (t.duoc_sua) {
+      nut.textContent = 'Lưu thay đổi'; nutMoi.hidden = false; goiYMoi.hidden = false;
+      goiY.textContent = 'Ghi đè lên chính báo giá này (bản ' + suaInfo.phien_ban + ' thành bản ' + (Number(suaInfo.phien_ban) + 1) + '), dùng khi chỉnh cho cùng khách. '
+        + (t.da_tra ? 'Tính 1 lượt sửa miễn phí, còn ' + t.con_lan + ' lượt.' : 'Chưa thanh toán nên sửa không giới hạn.');
+      goiY.hidden = false;
+    } else {
+      nut.textContent = 'Lưu thành báo giá mới'; goiY.hidden = true; goiYMoi.hidden = true;
       baoMsg(t.con_lan === 0 ? 'Báo giá này đã dùng hết lượt sửa miễn phí, nên sẽ lưu thành báo giá mới.' : 'Đã quá hạn sửa miễn phí, nên sẽ lưu thành báo giá mới.', true);
     }
   }
@@ -1051,7 +1062,12 @@ if (Q.get('dn') === '1') {
     } finally { dangLuu = false; nut.disabled = false; nutMoi.disabled = false; }
   }
   form.addEventListener('submit', (e) => { e.preventDefault(); luu(false); });
-  nutMoi.addEventListener('click', () => luu(true));
+  nutMoi.addEventListener('click', () => {
+    // Bấm nhầm nút này sẽ phải trả tiền thêm một file, nên hỏi lại khi báo giá gốc đã thanh toán.
+    const t = (suaInfo && suaInfo.sua) || {};
+    if (t.da_tra && !confirm('Tạo báo giá mới? Báo giá cũ giữ nguyên, báo giá mới sẽ thanh toán riêng khi xuất file.\n\nNếu chỉ muốn chỉnh báo giá này, bấm Huỷ rồi chọn "Lưu thay đổi" (miễn phí).')) return;
+    luu(true);
+  });
 }
 </script>
 
