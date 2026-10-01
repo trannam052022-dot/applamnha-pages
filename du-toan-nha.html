@@ -182,6 +182,10 @@ body.che-do-dn #tuVan,body.che-do-dn .luu-loi-ich,body.che-do-dn #btnSaveHouse,b
 .dan-dn{margin-top:10px!important;font-size:14px;color:#aeb6c8!important}
 .dan-dn a{color:#e8c877;font-weight:600}
 body.che-do-dn .dan-dn{display:none}
+/* Khách chọn "Công trình của khách" ở form Nhờ KTS xem (01/10/2026): ẩn cụm Lưu vào
+   Không gian Nhà + link bóc khối lượng — Không gian Nhà là của chủ nhà (có hạn mức
+   3 công trình), nhà thầu đi bản doanh nghiệp. Chỉ frontend, chọn lại "Nhà của tôi" là hiện lại. */
+body.nha-thau .luu-loi-ich,body.nha-thau #btnSaveHouse,body.nha-thau #btnSaveHouse + .hint,body.nha-thau #saveHouseMsg,body.nha-thau #retrySaveHouse,body.nha-thau #saveCallback,body.nha-thau a[href="/du-toan-chi-tiet.html#form"]{display:none!important}
 .tv .tv-nt{margin-top:10px;padding:11px 12px;border:1px solid var(--line2);border-radius:10px;background:#fff;font-size:14px;line-height:1.55;color:var(--sub)}
 .tv .tv-nt b{color:var(--navy2)}
 .tv .tv-nt a.tv-go{margin-top:10px;text-align:center;text-decoration:none;line-height:50px;min-height:0;padding:0 10px}
@@ -1270,6 +1274,7 @@ function capNhatDoiTuong() {
   const nt = doiTuong() === 'nha_thau';
   f.nhaThau.hidden = !nt;
   f.diaChiWrap.hidden = nt;
+  document.body.classList.toggle('nha-thau', nt); // ẩn cụm Lưu vào Không gian Nhà (CSS body.nha-thau)
   if (nt) day('aln_tuvan_doi_tuong', { doi_tuong: 'nha_thau' });
 }
 f.form.querySelectorAll('input[name="tvDoiTuong"]').forEach((r) => r.addEventListener('change', capNhatDoiTuong));
