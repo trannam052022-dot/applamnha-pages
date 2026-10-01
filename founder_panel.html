@@ -1348,6 +1348,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div id="estimateProfilesSummary" style="font-family:var(--mono);font-size:11px;color:var(--dim)">Chưa tải dữ liệu</div>
     <a href="noi-that-khoang-gia.html" target="_blank" rel="noopener" title="Bảng khoảng giá nội thất — Founder mở bảng từng món không cần OTP" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;text-decoration:none;font-family:var(--sans)">👁 Bảng nội thất như khách</a>
     <button onclick="fpDnCaiDat()" title="Bản doanh nghiệp: giá mỗi file báo giá, mở/đóng bán, số liệu" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans)">🏢 Bản doanh nghiệp</button>
+    <button onclick="fpBocBanVe()" title="Thử nghiệm: AI đọc bộ bản vẽ kết cấu PDF, code tính khối lượng, so với A.Hoàng v67" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans)">🧪 Thử AI bóc bản vẽ</button>
     <a href="doanh-nghiep.html" target="_blank" rel="noopener" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;text-decoration:none;font-family:var(--sans)">👁 Trang doanh nghiệp</a>
     <button onclick="refreshEstimateProfiles()" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;gap:5px"><i class="ph-duotone ph-arrow-clockwise"></i> Tải lại</button>
   </div>
@@ -4576,6 +4577,225 @@ window.fpDnCaiDat = async function() {
   } catch(e) {
     toast('Lỗi: ' + (e.message || e), 'err');
   }
+};
+
+/* ── THỬ AI BÓC BẢN VẼ KẾT CẤU (30/09/2026, chỉ Founder) — founderBocBanVe ──
+   AI chỉ đọc cấu kiện; khối lượng do code tính theo quy ước (functions/lib/bocBanVe.js).
+   Mọi chữ từ AI/bản vẽ gán bằng textContent. */
+var _bbLuot = null;
+function _bb(tag, css, text) {
+  var e = document.createElement(tag);
+  if (css) e.style.cssText = css;
+  if (text != null) e.textContent = String(text);
+  return e;
+}
+function _bbSo(v, k) {
+  if (v == null || v === '') return '—';
+  return Number(v).toLocaleString('vi-VN', { maximumFractionDigits: k == null ? 2 : k });
+}
+async function _bbGoi(data) {
+  var mod = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js');
+  var fn = mod.httpsCallable(mod.getFunctions(window.app, 'asia-southeast1'), 'founderBocBanVe', { timeout: 540000 });
+  return (await fn(data)).data || {};
+}
+function _bbSoVoi() {
+  var cb = document.getElementById('bbSoVoi');
+  return cb && !cb.checked ? 'khong' : 'a_hoang';
+}
+function _bbQuyUoc() {
+  return {
+    san: document.getElementById('bbSan').value,
+    dam_net: document.getElementById('bbDamNet').checked,
+    cot_net: document.getElementById('bbCotNet').checked
+  };
+}
+function _bbVeKetQua(r) {
+  _bbLuot = r;
+  var box = document.getElementById('bbKetQua');
+  box.textContent = '';
+  var dau = 'Lượt ' + (r.id || '') + (r.ten_file ? ' · ' + r.ten_file : '');
+  if (r.thoi_gian_ms) dau += ' · AI đọc ' + Math.round(r.thoi_gian_ms / 1000) + ' giây';
+  if (r.usage) dau += ' · ' + ((r.usage.input_tokens || 0) + (r.usage.output_tokens || 0)).toLocaleString('vi-VN') + ' token';
+  box.appendChild(_bb('div', 'font-size:11px;color:var(--dim);margin:10px 0 6px', dau));
+  var tb = _bb('table', 'width:100%;border-collapse:collapse;font-size:11.5px');
+  var th = document.createElement('tr');
+  ['Hạng mục', 'AI + code', 'v67', 'Lệch', 'Ước/thiếu', 'Trang', 'Cách tính'].forEach(function(h) {
+    th.appendChild(_bb('th', 'text-align:left;padding:5px 6px;border-bottom:1px solid var(--border);color:var(--sub);font-weight:700', h));
+  });
+  tb.appendChild(th);
+  (r.dong || []).forEach(function(d) {
+    var tr = document.createElement('tr');
+    var lech = d.lech_pct == null ? '—' : (d.lech_pct > 0 ? '+' : '') + d.lech_pct + '%' + (d.day_du === false ? ' (thiếu)' : '');
+    var mau = (d.lech_pct == null || d.day_du === false) ? 'var(--dim)' : (Math.abs(d.lech_pct) <= 10 ? 'var(--green)' : (Math.abs(d.lech_pct) <= 25 ? 'var(--amber)' : 'var(--red)'));
+    [
+      [d.ten + ' (' + d.dvt + ')', 'color:var(--text1)'],
+      [_bbSo(d.khoi_luong), 'font-family:var(--mono);text-align:right'],
+      [_bbSo(d.dap_an), 'font-family:var(--mono);text-align:right;color:var(--sub)'],
+      [lech, 'font-family:var(--mono);text-align:right;font-weight:700;color:' + mau],
+      [(d.so_uoc || 0) + ' / ' + (d.so_thieu || 0), 'text-align:center;color:var(--sub)'],
+      [(d.trang || []).join(', ') || '—', 'color:var(--sub)'],
+      [d.cach_tinh || '', 'color:var(--dim);font-size:10.5px']
+    ].forEach(function(c) {
+      tr.appendChild(_bb('td', 'padding:5px 6px;border-bottom:1px solid var(--border);vertical-align:top;' + c[1], c[0]));
+    });
+    if (d.dap_an_ghi_chu) tr.title = d.dap_an_ghi_chu;
+    tb.appendChild(tr);
+  });
+  box.appendChild(tb);
+  box.appendChild(_bb('div', 'font-size:10.5px;color:var(--dim);margin-top:6px', (r.so_voi === 'khong' ? 'Không so với đáp án (bản vẽ công trình khác). ' : 'Xanh: lệch ≤ 10% · Vàng: ≤ 25% · Đỏ: > 25% · Xám: tổng còn thiếu cấu kiện, % chỉ để tham khảo. Rê chuột lên dòng để xem ghi chú đáp án v67. ') + '"Ước/thiếu" = số cấu kiện AI phải suy luận / không có số.'));
+  var ck = r.cau_kien || {};
+  var nhac = [].concat(r.canh_bao || [], ck.cau_hoi || []);
+  if (nhac.length) {
+    box.appendChild(_bb('div', 'font-weight:700;color:var(--amber);margin:12px 0 4px;font-size:12px', 'AI hỏi lại / cảnh báo'));
+    var ul = _bb('ul', 'margin:0;padding-left:18px;font-size:11.5px;color:var(--text2)');
+    nhac.forEach(function(x) { ul.appendChild(_bb('li', '', x)); });
+    box.appendChild(ul);
+  }
+  var nhom = [['tang', 'Tầng'], ['mong', 'Móng'], ['dam_mong', 'Đà kiềng'], ['cot', 'Cột'], ['dam', 'Dầm'], ['san', 'Sàn'], ['cau_thang', 'Cầu thang']];
+  var chiTiet = _bb('details', 'margin-top:12px');
+  chiTiet.appendChild(_bb('summary', 'cursor:pointer;font-weight:700;color:var(--text1);font-size:12px', 'Cấu kiện AI đọc được (để KTS soát)'));
+  nhom.forEach(function(n) {
+    var ds = ck[n[0]] || [];
+    if (!ds.length) return;
+    chiTiet.appendChild(_bb('div', 'font-weight:700;color:var(--gold);margin:10px 0 4px;font-size:11.5px', n[1] + ' (' + ds.length + ')'));
+    var t2 = _bb('table', 'width:100%;border-collapse:collapse;font-size:11px');
+    ds.forEach(function(x) {
+      var tr = document.createElement('tr');
+      var kt = [];
+      if (x.dai != null) kt.push('dài ' + x.dai);
+      if (x.rong != null) kt.push('rộng ' + x.rong);
+      if (x.cao != null) kt.push('cao ' + x.cao);
+      if (x.b != null || x.h != null) kt.push((x.b == null ? '?' : x.b) + ' × ' + (x.h == null ? '?' : x.h));
+      if (x.dien_tich_bao != null) kt.push('bao ' + x.dien_tich_bao + ' m², lỗ ' + (x.dien_tich_lo == null ? '?' : x.dien_tich_lo) + ' m²');
+      if (x.cao_tang != null) kt.push('cao ' + x.cao_tang + ' m, sàn trên ' + (x.san_tren || '?'));
+      if (x.dien_tich != null) kt.push(x.dien_tich + ' m²');
+      if (x.day != null) kt.push('dày ' + x.day);
+      var tang = Array.isArray(x.tang) ? x.tang.join(', ') : (x.tang || x.ma || '');
+      [
+        [x.ten || tang, 'color:var(--text1)'],
+        [kt.join(' · ') || 'thiếu số', 'font-family:var(--mono)'],
+        [n[0] === 'tang' || n[0] === 'san' ? '' : 'SL ' + (x.so_luong == null ? '?' : x.so_luong), 'color:var(--sub)'],
+        [tang, 'color:var(--sub)'],
+        ['tr. ' + ((x.trang || []).join(', ') || '—'), 'color:var(--dim)'],
+        [x.thieu ? 'THIẾU SỐ' : (x.trang_thai === 'uoc' ? 'ước' : 'đọc thẳng'), x.thieu ? 'color:var(--red);font-weight:700' : (x.trang_thai === 'uoc' ? 'color:var(--amber)' : 'color:var(--green)')],
+        [x.ghi_chu || '', 'color:var(--dim)']
+      ].forEach(function(c) {
+        tr.appendChild(_bb('td', 'padding:3px 6px;border-bottom:1px solid var(--border);vertical-align:top;' + c[1], c[0]));
+      });
+      t2.appendChild(tr);
+    });
+    chiTiet.appendChild(t2);
+  });
+  if ((ck.loai_bo || []).length) {
+    chiTiet.appendChild(_bb('div', 'font-weight:700;color:var(--red);margin:10px 0 4px;font-size:11.5px', 'Số AI ghi nhưng bị loại (' + ck.loai_bo.length + ')'));
+    var ul2 = _bb('ul', 'margin:0;padding-left:18px;font-size:11px;color:var(--text2)');
+    ck.loai_bo.forEach(function(x) { ul2.appendChild(_bb('li', '', x)); });
+    chiTiet.appendChild(ul2);
+  }
+  box.appendChild(chiTiet);
+}
+window.fpBocBanVeTinhLai = async function() {
+  if (!_bbLuot || !_bbLuot.id) return;
+  try {
+    document.getElementById('bbTrangThai').textContent = 'Đang tính lại theo quy ước mới…';
+    _bbVeKetQua(await _bbGoi({ hanh_dong: 'tinh', id: _bbLuot.id, quy_uoc: _bbQuyUoc(), so_voi: _bbSoVoi() }));
+    document.getElementById('bbTrangThai').textContent = 'Đã tính lại (không gọi AI).';
+  } catch (e) { document.getElementById('bbTrangThai').textContent = 'Lỗi: ' + (e.message || e); }
+};
+window.fpBocBanVeChay = async function() {
+  var f = document.getElementById('bbFile').files[0];
+  var tt = document.getElementById('bbTrangThai');
+  if (!f) { tt.textContent = 'Chọn file PDF bản vẽ kết cấu trước.'; return; }
+  if (f.size > 7 * 1024 * 1024) { tt.textContent = 'File trên 7 MB — tách bộ bản vẽ thành file nhỏ hơn.'; return; }
+  if (!confirm('Gửi "' + f.name + '" cho AI đọc? Mỗi lượt tốn phí gọi AI (tối đa 20 lượt/ngày), mất khoảng 1–4 phút.')) return;
+  var nut = document.getElementById('bbChay');
+  nut.disabled = true;
+  tt.textContent = 'AI đang đọc bản vẽ… đừng đóng cửa sổ (1–4 phút).';
+  try {
+    var b64 = await new Promise(function(ok, loi) {
+      var rd = new FileReader();
+      rd.onload = function() { ok(String(rd.result).split(',')[1] || ''); };
+      rd.onerror = function() { loi(new Error('Không đọc được file')); };
+      rd.readAsDataURL(f);
+    });
+    _bbVeKetQua(await _bbGoi({ hanh_dong: 'doc', duLieu: b64, ten_file: f.name, quy_uoc: _bbQuyUoc(), so_voi: _bbSoVoi() }));
+    tt.textContent = 'Xong. Đổi quy ước rồi bấm "Tính lại" để xem ngay (không gọi AI lần nữa).';
+  } catch (e) {
+    tt.textContent = 'Lỗi: ' + (e.message || e);
+  } finally { nut.disabled = false; }
+};
+window.fpBocBanVeLuotCu = async function() {
+  var tt = document.getElementById('bbTrangThai');
+  try {
+    tt.textContent = 'Đang tải các lượt đã chạy…';
+    var r = await _bbGoi({ hanh_dong: 'ds' });
+    var sel = document.getElementById('bbLuotCu');
+    sel.textContent = '';
+    sel.appendChild(_bb('option', '', '— chọn lượt đã chạy —'));
+    (r.ds || []).forEach(function(x) {
+      var o = _bb('option', '', (x.tao_luc_ms ? new Date(x.tao_luc_ms).toLocaleString('vi-VN') : '?') + ' · ' + (x.ten_file || 'không tên') + (x.loi ? ' · LỖI' : ' · ' + x.so_cau_kien + ' cấu kiện'));
+      o.value = x.id;
+      if (x.loi) o.disabled = true;
+      sel.appendChild(o);
+    });
+    sel.style.display = '';
+    tt.textContent = (r.ds || []).length ? 'Chọn một lượt để xem lại.' : 'Chưa có lượt nào.';
+  } catch (e) { tt.textContent = 'Lỗi: ' + (e.message || e); }
+};
+window.fpBocBanVeMoLuot = async function(id) {
+  if (!id) return;
+  _bbLuot = { id: id };
+  await window.fpBocBanVeTinhLai();
+};
+window.fpBocBanVe = function() {
+  var cu = document.getElementById('bbModal');
+  if (cu) { cu.style.display = 'flex'; return; }
+  var nen = _bb('div', 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9000;display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:30px 12px');
+  nen.id = 'bbModal';
+  var hop = _bb('div', 'background:var(--surface,#0e1420);border:1px solid var(--border);border-radius:12px;max-width:980px;width:100%;padding:18px 20px;color:var(--text1);font-family:var(--sans)');
+  var dau = _bb('div', 'display:flex;justify-content:space-between;align-items:center;gap:10px');
+  dau.appendChild(_bb('div', 'font-weight:800;font-size:15px', '🧪 Thử AI bóc bản vẽ kết cấu'));
+  var dong = _bb('button', 'background:none;border:0;color:var(--sub);font-size:20px;cursor:pointer', '×');
+  dong.onclick = function() { nen.style.display = 'none'; };
+  dau.appendChild(dong);
+  hop.appendChild(dau);
+  hop.appendChild(_bb('div', 'font-size:11.5px;color:var(--sub);margin:6px 0 12px;line-height:1.5',
+    'AI chỉ đọc cấu kiện (kích thước, số lượng, tầng, trang). Khối lượng do code tính theo quy ước bên dưới, rồi so với bảng A.Hoàng v67. Không lưu file bản vẽ, chỉ lưu cấu kiện AI đọc được. Kết quả chỉ để thử nghiệm, chưa dùng cho khách.'));
+  var hang = _bb('div', 'display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:12px');
+  var file = _bb('input', ''); file.type = 'file'; file.accept = 'application/pdf'; file.id = 'bbFile';
+  hang.appendChild(file);
+  var san = _bb('select', 'padding:4px 6px;background:var(--raised);color:var(--text1);border:1px solid var(--border);border-radius:6px'); san.id = 'bbSan';
+  [['full', 'Sàn: tính full (quy ước v60)'], ['tru_lo', 'Sàn: trừ lỗ thang/giếng']].forEach(function(o) { var x = _bb('option', '', o[1]); x.value = o[0]; san.appendChild(x); });
+  hang.appendChild(san);
+  [['bbDamNet', 'Dầm NET'], ['bbCotNet', 'Cột NET'], ['bbSoVoi', 'So với A.Hoàng v67']].forEach(function(o) {
+    var lb = _bb('label', 'display:flex;gap:4px;align-items:center;color:var(--sub)');
+    var cb = _bb('input', ''); cb.type = 'checkbox'; cb.id = o[0]; cb.checked = true;
+    lb.appendChild(cb); lb.appendChild(_bb('span', '', o[1]));
+    hang.appendChild(lb);
+  });
+  var chay = _bb('button', 'padding:7px 14px;border-radius:7px;border:0;background:var(--gold);color:#111;font-weight:800;cursor:pointer', 'Chạy AI đọc');
+  chay.id = 'bbChay'; chay.onclick = function() { window.fpBocBanVeChay(); };
+  hang.appendChild(chay);
+  var tinh = _bb('button', 'padding:7px 12px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);cursor:pointer', 'Tính lại');
+  tinh.onclick = function() { window.fpBocBanVeTinhLai(); };
+  hang.appendChild(tinh);
+  var cuBtn = _bb('button', 'padding:7px 12px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);cursor:pointer', 'Lượt đã chạy');
+  cuBtn.onclick = function() { window.fpBocBanVeLuotCu(); };
+  hang.appendChild(cuBtn);
+  var sel = _bb('select', 'display:none;padding:4px 6px;background:var(--raised);color:var(--text1);border:1px solid var(--border);border-radius:6px;max-width:320px');
+  sel.id = 'bbLuotCu';
+  sel.onchange = function() { window.fpBocBanVeMoLuot(sel.value); };
+  hang.appendChild(sel);
+  hop.appendChild(hang);
+  var tt = _bb('div', 'font-size:12px;color:var(--amber);margin-top:8px;min-height:16px', '');
+  tt.id = 'bbTrangThai';
+  hop.appendChild(tt);
+  var kq = _bb('div', 'overflow-x:auto');
+  kq.id = 'bbKetQua';
+  hop.appendChild(kq);
+  nen.appendChild(hop);
+  nen.addEventListener('click', function(e) { if (e.target === nen) nen.style.display = 'none'; });
+  document.body.appendChild(nen);
 };
 
 /* ── LEAD GIỚI THIỆU GÓI KINH TẾ — đọc qua Cloud Function (Admin SDK), KHÔNG
