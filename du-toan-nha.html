@@ -178,6 +178,24 @@ table{width:100%;border-collapse:collapse}
 body.che-do-dn .mm-moi{display:none!important}
 body.che-do-dn #tuVan,body.che-do-dn .luu-loi-ich,body.che-do-dn #btnSaveHouse,body.che-do-dn #btnSaveHouse + .hint,body.che-do-dn #saveHouseMsg,body.che-do-dn #retrySaveHouse,body.che-do-dn #saveCallback,body.che-do-dn a[href="/du-toan-chi-tiet.html#form"]{display:none!important}
 .tv .tv-lk{display:block;margin-top:10px;text-align:center;color:var(--navy2);font-weight:600}
+/* Tách chủ nhà / nhà thầu (Nam chốt 01/10/2026) */
+.dan-dn{margin-top:10px!important;font-size:14px;color:#aeb6c8!important}
+.dan-dn a{color:#e8c877;font-weight:600}
+body.che-do-dn .dan-dn{display:none}
+.tv .tv-nt{margin-top:10px;padding:11px 12px;border:1px solid var(--line2);border-radius:10px;background:#fff;font-size:14px;line-height:1.55;color:var(--sub)}
+.tv .tv-nt b{color:var(--navy2)}
+.tv .tv-nt a.tv-go{margin-top:10px;text-align:center;text-decoration:none;line-height:50px;min-height:0;padding:0 10px}
+/* Bản doanh nghiệp: trả tiền trước, xem kết quả sau — che toàn bộ số tiền tới khi báo giá đã thanh toán */
+body.che-do-dn.dn-che #out{display:none!important}
+#dnChe{display:none}
+body.che-do-dn.dn-che #dnChe{display:block}
+#dnChe .eyebrow{margin-bottom:6px}
+#dnChe h3{font-family:var(--head);font-weight:600;font-size:20px;margin:0 0 8px;line-height:1.3}
+#dnChe ul{margin:8px 0 0;padding-left:18px}
+#dnChe li{font-size:14px;line-height:1.5;margin:3px 0}
+#dnChe .gia{margin-top:10px;font-size:15px}
+#dnChe .gia b{font-family:var(--mono);font-size:19px;color:var(--navy2)}
+#dnChe .mo{font-size:13px;color:var(--sub);margin-top:8px}
 .luu-loi-ich ul{margin:0;padding-left:18px}
 .luu-loi-ich li{font-size:14px;line-height:1.5;margin:3px 0}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .luu-tieu-de{color:var(--ink)}}
@@ -201,6 +219,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="brand">ALN · APP LÀM NHÀ</div>
   <h1 id="tieuDeTrang">Dự toán xây nhà của bạn</h1>
   <p id="moTaTrang">Nhập kích thước và giá vật tư ở nơi bạn ở. Bảng tính theo khối lượng bóc từ nhà mẫu cùng loại, chia từng phần để bạn biết tiền đi vào đâu — bấm vào từng phần để xem chi tiết.</p>
+  <!-- Dòng dẫn nhỏ cho nhà thầu (Nam chốt 01/10/2026): trang vẫn nói với chủ nhà là chính, không chia đôi. -->
+  <p class="dan-dn" id="danDn">Nhà thầu / đội thầu lập báo giá cho khách? <a href="doanh-nghiep.html">Bản dành cho doanh nghiệp →</a></p>
 </div></div>
 
 <div class="wrap">
@@ -306,6 +326,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <aside class="res" id="res">
  <div class="card">
   <div id="blocked" class="note warn" hidden></div>
+  <!-- Bản doanh nghiệp (?dn=1): trả tiền trước, xem kết quả sau (Nam chốt 01/10/2026).
+       Che #out tới khi báo giá đã thanh toán; số tiền bị xoá khỏi màn hình sau mỗi lần tính. -->
+  <div id="dnChe">
+   <div class="eyebrow">Bản doanh nghiệp</div>
+   <h3>Kết quả hiện sau khi thanh toán</h3>
+   <p class="tv-sub" style="margin:0">Anh/chị nhập xong kích thước và giá vật tư, bấm <b>Lưu báo giá</b> ở cuối, thanh toán ở trang Doanh nghiệp rồi quay lại là thấy đầy đủ bảng và xuất được file.</p>
+   <ul>
+    <li>Bảng dự toán phần thô chia từng phần, có mã hạng mục ALN và khối lượng</li>
+    <li>File PDF mang logo, tên và số điện thoại của anh/chị</li>
+    <li>Sửa lại và xuất lại miễn phí trong thời hạn sau khi trả</li>
+   </ul>
+   <p class="gia" id="dnCheGia" hidden>Mỗi file báo giá: <b id="dnCheGiaSo"></b></p>
+   <p class="mo" id="dnCheMo">Diện tích thực xây và quy đổi ở mục 1 vẫn hiện để anh/chị kiểm tra kích thước trước khi lưu.</p>
+  </div>
   <div id="out">
    <div class="eyebrow">Giá nhà thầu nhận, chưa VAT</div>
    <div class="big" id="total">—</div>
@@ -332,8 +366,27 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <h3 id="tuVanTitle">Nhờ KTS xem giúp dự toán này</h3>
     <p class="tv-sub">KTS Trần Long trao đổi 10–15 phút về con số vừa tính và báo giá anh/chị đang có (nếu có). Miễn phí, không ràng buộc.</p>
     <form id="tvForm" novalidate>
+     <!-- Tách chủ nhà / nhà thầu ngay tại form (Nam chốt 01/10/2026): quảng cáo không
+          phân biệt được hai nhóm; nhà thầu vẫn được lưu lead (không bỏ sót) nhưng
+          đi nhánh riêng — bản doanh nghiệp trả phí, không vào Pipeline khách hàng,
+          Meta không tính Lead. -->
+     <div class="tv-f"><label id="tvDoiTuongLbl">Anh/chị đang dự toán cho</label>
+      <div class="seg" role="radiogroup" aria-labelledby="tvDoiTuongLbl">
+       <label><input type="radio" name="tvDoiTuong" value="chu_nha" checked>Nhà của tôi</label>
+       <label><input type="radio" name="tvDoiTuong" value="nha_thau">Công trình của khách</label>
+      </div>
+      <div class="hint" id="tvDoiTuongHint">Đội thầu, nhà thầu, KTS lập cho khách của mình thì chọn "Công trình của khách".</div>
+     </div>
+     <div class="tv-nt" id="tvNhaThau" hidden>
+      <b>Bản dành cho doanh nghiệp</b> cho anh/chị lưu báo giá cho từng khách, xuất file mang logo và tên công ty của mình, không giới hạn số công trình, trả tiền theo từng file. Số vừa nhập ở trên được mang theo.
+      <a class="tv-go" href="du-toan-nha.html?dn=1" id="tvNhaThauLink">Mở bản doanh nghiệp</a>
+      <div class="hint" style="margin-top:8px">Hoặc để lại liên hệ bên dưới, ALN gửi hướng dẫn qua Zalo.</div>
+     </div>
      <div class="tv-f"><label for="tvTen">Họ tên (để KTS xưng hô khi gọi)</label><input id="tvTen" type="text" autocomplete="name" maxlength="60" placeholder="VD: Anh Minh" required></div>
      <div class="tv-f"><label for="tvSdt">Số điện thoại</label><input id="tvSdt" type="tel" inputmode="tel" autocomplete="tel" maxlength="15" placeholder="VD: 0909 123 456" required></div>
+     <!-- Địa chỉ công trình: để KTS biết khu vực, đồng thời là khoá đếm hạn mức
+          3 công trình / 12 tháng của chủ nhà (functions/lib/hanMucChuNha.js). -->
+     <div class="tv-f" id="tvDiaChiWrap"><label for="tvDiaChi">Địa chỉ công trình (đường, phường/xã, tỉnh)</label><input id="tvDiaChi" type="text" autocomplete="off" maxlength="200" placeholder="VD: 12 Lê Lợi, P. Bến Nghé, TP.HCM"></div>
      <div class="tv-f"><label for="tvThoiDiem">Dự kiến khởi công</label><select id="tvThoiDiem" required><option value="">Chọn thời điểm</option><option value="truoc_tet">Trước Tết</option><option value="sau_tet">Sau Tết</option><option value="chua_chac">Chưa xác định</option></select></div>
      <div class="tv-f"><label id="tvGoiLbl">Anh/chị có cần KTS gọi không?</label>
       <div class="seg" role="radiogroup" aria-labelledby="tvGoiLbl">
@@ -969,6 +1022,48 @@ if (Q.get('dn') === '1') {
   const baoMsg = (t, loi) => { msg.textContent = t; msg.className = 'tv-msg' + (loi ? ' err' : ''); };
   const ngayVN = (ms) => new Date(ms).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
   const authSan = new Promise((ok) => { const h = onAuthStateChanged(auth, (u) => { ok(u); Promise.resolve().then(() => h()); }); });
+  const goiHoSo = httpsCallable(getFunctions(app, 'asia-southeast1'), 'dnHoSo', { timeout: 20000 });
+
+  /* ── Trả tiền trước, xem kết quả sau (Nam chốt 01/10/2026) ──
+     Che khung kết quả (#out) và xoá mọi số tiền khỏi màn hình sau MỖI lần tính,
+     tới khi báo giá đang mở đã thanh toán (hoặc Founder xem thử). Số liệu vẫn
+     được tính trong trình duyệt để lưu báo giá (máy chủ tính lại khi lưu). */
+  let dnDaTra = false, dnFounder = false;
+  const O_TIEN = ['total', 'perM2', 'tot2', 'totH', 'dockT', 'btvPhanTho', 'btvMaiThai', 'btvTongCong'];
+  function xoaSoTien() {
+    O_TIEN.forEach((id) => { const el = $(id); if (el) el.textContent = '•••'; });
+    ['vatLine', 'btvGhiChuDonGia', 'rows', 'rowsH'].forEach((id) => { const el = $(id); if (el) el.textContent = ''; });
+  }
+  function capNhatChe() {
+    const che = !(dnDaTra || dnFounder);
+    document.body.classList.toggle('dn-che', che);
+    if (che) xoaSoTien();
+    else if (typeof window.run === 'function') { try { window.run(true, false); } catch (e) {} }
+  }
+  // Bọc run(): hàm tính của công cụ nằm ở script thường (window.run); sau mỗi lần tính, xoá số tiền nếu còn che.
+  if (typeof window.run === 'function') {
+    const runGoc = window.run;
+    window.run = function () {
+      const r = runGoc.apply(this, arguments);
+      if (document.body.classList.contains('dn-che')) xoaSoTien();
+      return r;
+    };
+  }
+  capNhatChe();
+  // Giá mỗi file + Founder xem thử — cần đăng nhập; chưa đăng nhập thì giữ che, không hiện giá.
+  (async () => {
+    const u = await authSan;
+    if (!hopLe(u)) return;
+    try {
+      const d = (await goiHoSo({ hanh_dong: 'doc' })).data || {};
+      if (d.xem_founder) { dnFounder = true; capNhatChe(); }
+      const g = d.gia || {};
+      if (g.mo_ban && g.gia_moi_file > 0) {
+        $('dnCheGiaSo').textContent = Math.round(Number(g.gia_moi_file)).toLocaleString('vi-VN') + ' đ';
+        $('dnCheGia').hidden = false;
+      }
+    } catch (e) {}
+  })();
   const bRaw = Q.get('b') || '';
   const suaId = /^[A-Za-z0-9]{10,40}$/.test(bRaw) ? bRaw : '';
   const docSS = (k) => { try { return JSON.parse(sessionStorage.getItem(k) || 'null'); } catch (e) { return null; } };
@@ -986,6 +1081,7 @@ if (Q.get('dn') === '1') {
     if (!suaInfo) return;
     $('dnTitle').textContent = 'Sửa báo giá';
     const t = suaInfo.sua || {};
+    dnDaTra = !!t.da_tra; capNhatChe();
     let sub = 'Anh/chị đang sửa báo giá đã lưu (bản ' + suaInfo.phien_ban + '). Sửa số ở trên rồi bấm "Lưu thay đổi".';
     if (t.da_tra && t.duoc_sua) sub += ' Báo giá đã thanh toán: còn ' + t.con_lan + ' lần sửa miễn phí đến hết ngày ' + ngayVN(t.han_ms) + ', xuất lại không mất phí.';
     $('dnSub').textContent = sub;
@@ -1068,18 +1164,19 @@ if (Q.get('dn') === '1') {
       try { sessionStorage.removeItem('aln_dn_khach'); } catch (e) {}
       const tong = Math.round(Number(r.tong_sau_vat) || 0);
       const tien = tong ? ' (' + tong.toLocaleString('vi-VN') + ' đ sau VAT)' : '';
+      const chuaTra = !r.da_thanh_toan && !dnFounder;
       if (r.sua_lai) {
         suaInfo = { id: r.bao_gia_id, phien_ban: r.phien_ban, sua: r.sua || (suaInfo && suaInfo.sua) };
         ghiSS('aln_dn_sua', suaInfo);
         veCheDoSua();
-        baoMsg('Đã lưu thay đổi (bản ' + r.phien_ban + ')' + tien + '. Mở trang Doanh nghiệp để xuất lại file.');
+        baoMsg('Đã lưu thay đổi (bản ' + r.phien_ban + ')' + tien + (chuaTra ? '. Thanh toán ở trang Doanh nghiệp để xem kết quả và xuất file.' : '. Mở trang Doanh nghiệp để xuất lại file.'));
       } else {
         // Báo giá mới: chuyển sang chế độ sửa chính báo giá vừa lưu, để lỡ quên gì thì sửa tiếp, không tạo bản trùng.
         suaInfo = { id: r.bao_gia_id, phien_ban: 1, sua: { duoc_sua: true, da_tra: false } };
         ghiSS('aln_dn_sua', suaInfo);
         try { history.replaceState(null, '', location.pathname + '?dn=1&b=' + r.bao_gia_id); } catch (e) {}
         veCheDoSua();
-        baoMsg('Đã lưu báo giá' + tien + '. Cần chỉnh thêm thì sửa số ở trên rồi bấm "Lưu thay đổi". Xong thì mở trang Doanh nghiệp để xuất file.');
+        baoMsg('Đã lưu báo giá' + tien + '. Cần chỉnh thêm thì sửa số ở trên rồi bấm "Lưu thay đổi". Xong thì mở trang Doanh nghiệp để thanh toán — kết quả và file hiện sau khi thanh toán.');
       }
     } catch (err) {
       const code = (err && err.code) || '';
@@ -1143,6 +1240,8 @@ const f = {
   gioWrap: document.getElementById('tvGioWrap'), gio: document.getElementById('tvGio'),
   dongY: document.getElementById('tvDongY'), gui: document.getElementById('tvGui'),
   msg: document.getElementById('tvMsg'), box: document.getElementById('tuVan'),
+  diaChi: document.getElementById('tvDiaChi'), diaChiWrap: document.getElementById('tvDiaChiWrap'),
+  nhaThau: document.getElementById('tvNhaThau'),
 };
 const CB = window.alnCallback || {};
 (CB.KHUNG_GIO || []).forEach((k) => {
@@ -1159,6 +1258,20 @@ function canGoi() {
 function capNhatGio() { f.gioWrap.hidden = !canGoi(); }
 f.form.querySelectorAll('input[name="tvGoi"]').forEach((r) => r.addEventListener('change', capNhatGio));
 capNhatGio();
+/* Đối tượng (01/10/2026): nhà thầu → hiện khung mời sang bản doanh nghiệp, ẩn ô địa chỉ
+   (không cần, không đếm hạn mức); vẫn cho gửi liên hệ để không bỏ sót lead. */
+function doiTuong() {
+  const r = f.form.querySelector('input[name="tvDoiTuong"]:checked');
+  return r && r.value === 'nha_thau' ? 'nha_thau' : 'chu_nha';
+}
+function capNhatDoiTuong() {
+  const nt = doiTuong() === 'nha_thau';
+  f.nhaThau.hidden = !nt;
+  f.diaChiWrap.hidden = nt;
+  if (nt) day('aln_tuvan_doi_tuong', { doi_tuong: 'nha_thau' });
+}
+f.form.querySelectorAll('input[name="tvDoiTuong"]').forEach((r) => r.addEventListener('change', capNhatDoiTuong));
+capNhatDoiTuong();
 
 let daBatDau = false;
 f.form.addEventListener('focusin', () => {
@@ -1174,7 +1287,7 @@ function baoLoi(text, o) {
 }
 function xoaLoi() {
   f.msg.textContent = ''; f.msg.className = 'tv-msg';
-  [f.ten, f.sdt, f.thoiDiem, f.gio, f.dongY].forEach((o) => o.removeAttribute('aria-invalid'));
+  [f.ten, f.sdt, f.diaChi, f.thoiDiem, f.gio, f.dongY].forEach((o) => o.removeAttribute('aria-invalid'));
 }
 function sdtSach(v) { return String(v || '').replace(/[\s.\-()]/g, '').replace(/^\+84/, '0'); }
 function soHienThi(so) { return so.replace(/^(\d{4})(\d{3})(\d{3})$/, '$1 $2 $3'); }
@@ -1183,13 +1296,14 @@ function kiemTruocKhiGui() {
   const chuCai = (f.ten.value.match(/\p{L}/gu) || []).length;
   if (chuCai < 2) return ['ten', 'Anh/chị cho ALN biết họ tên để KTS xưng hô khi gọi.', f.ten];
   if (!/^0\d{9}$/.test(sdtSach(f.sdt.value))) return ['sdt', 'Số điện thoại chưa đúng (VD: 0909 123 456).', f.sdt];
+  if (doiTuong() === 'chu_nha' && (f.diaChi.value.match(/[\p{L}\d]/gu) || []).length < 3) return ['dia_chi', 'Anh/chị cho biết địa chỉ công trình (đường, phường/xã, tỉnh) để KTS nắm khu vực.', f.diaChi];
   if (!f.thoiDiem.value) return ['thoi_diem', 'Anh/chị chọn thời điểm dự kiến khởi công.', f.thoiDiem];
   if (canGoi() && !f.gio.value) return ['khung_gio', 'Anh/chị chọn khung giờ tiện nghe máy.', f.gio];
   if (!f.dongY.checked) return ['dong_y', 'Anh/chị tick ô đồng ý để ALN được liên hệ.', f.dongY];
   return null;
 }
 
-function hienThanhCong(goi, gio, sdt) {
+function hienThanhCong(goi, gio, sdt, nhanh) {
   const ok = document.createElement('div');
   ok.className = 'tv-ok';
   ok.setAttribute('role', 'status');
@@ -1200,6 +1314,23 @@ function hienThanhCong(goi, gio, sdt) {
   const p2 = document.createElement('p');
   p2.style.margin = '0';
   const soGoi = CB.SO_GOI || '0909829696';
+  if (nhanh === 'nha_thau' || nhanh === 'han_muc') {
+    /* Nhà thầu / vượt hạn mức 3 công trình: mời sang bản doanh nghiệp, không hứa KTS gọi tư vấn thiết kế. */
+    p2.append(nhanh === 'han_muc'
+      ? 'Số …' + sdt.slice(-4) + ' đã lập dự toán cho 3 công trình khác nhau trong 12 tháng. Nếu anh/chị lập cho nhiều công trình, bản doanh nghiệp không giới hạn số công trình và xuất file mang thương hiệu riêng. Nếu đây là nhà của mình, gọi hoặc nhắn Zalo '
+      : 'ALN sẽ gửi hướng dẫn dùng bản doanh nghiệp qua Zalo số …' + sdt.slice(-4) + '. Anh/chị cũng có thể mở ngay bên dưới, hoặc gọi ');
+    const b0 = document.createElement('b');
+    b0.textContent = soHienThi(soGoi);
+    p2.append(b0, nhanh === 'han_muc' ? ' để ALN mở thêm.' : '.');
+    const a = document.createElement('a');
+    a.className = 'tv-go';
+    a.style.cssText = 'display:block;margin-top:12px;text-align:center;text-decoration:none;line-height:50px;min-height:0';
+    a.href = 'du-toan-nha.html?dn=1';
+    a.textContent = 'Mở bản doanh nghiệp';
+    ok.append(p1, p2, a);
+    f.form.replaceWith(ok);
+    return;
+  }
   if (goi) {
     p2.append((CB.NGUOI_GOI || 'KTS Trần Long') + ' sẽ gọi số …' + sdt.slice(-4) + ' vào khung ' + ((CB.nhanKhungGio && CB.nhanKhungGio(gio)) || gio) + ' trong 1–2 ngày làm việc, từ số ');
   } else {
@@ -1236,9 +1367,11 @@ f.form.addEventListener('submit', async (e) => {
   day('aln_tuvan_gui', { can_goi: goi ? 1 : 0 });
   try {
     const sig = (window.alnEstimateFunnel && window.alnEstimateFunnel.signals()) || {};
+    const dt = doiTuong();
     const res = await guiYeuCau({
       name: f.ten.value.trim(), phone: sdt,
       kenh: 'phantho', loai: 'phan_tho', projectType: 'xay_moi',
+      doiTuong: dt, diaChiCt: dt === 'chu_nha' ? f.diaChi.value.trim() : '',
       tang: Number(est.inputs && est.inputs.n) || null,
       tongMin: est.result.totalChuaVat, tongMax: est.result.totalChuaVat,
       tomTat: tomTatDuToan(est),
@@ -1249,18 +1382,26 @@ f.form.addEventListener('submit', async (e) => {
       attribution: (() => { try { return window.alnAttr ? window.alnAttr.forLead() : null; } catch (err) { return null; } })(),
     });
     const leadId = (res && res.data && res.data.id) || '';
+    const d = (res && res.data) || {};
+    /* Nhà thầu hoặc vượt hạn mức: KHÔNG bắn Lead (quảng cáo đang tối ưu Lead cho chủ
+       nhà) — bắn sự kiện riêng NhaThauLead, cùng eventID với CAPI (onLeadCreated). */
+    const nhanh = dt === 'nha_thau' ? 'nha_thau' : (d.han_muc_vuot ? 'han_muc' : '');
     try {
-      if (window.fbq && leadId) window.fbq('track', 'Lead',
+      if (window.fbq && leadId && !nhanh) window.fbq('track', 'Lead',
         { value: 100000, currency: 'VND', content_name: 'du-toan-nha-tu-van', content_category: 'du-toan-nha' },
         { eventID: 'lead-' + leadId });
+      if (window.fbq && leadId && nhanh && !d.dup) window.fbq('trackCustom', 'NhaThauLead',
+        { content_name: 'du-toan-nha-tu-van', content_category: 'du-toan-nha', ly_do: nhanh },
+        { eventID: 'lead-' + leadId });
     } catch (err) {}
-    if (leadId) day('aln_lead_submit', { form_name: 'du-toan-nha', can_goi: goi ? 1 : 0, trung: res.data.dup ? 1 : 0 });
-    hienThanhCong(goi, gio, sdt);
+    if (leadId && !nhanh) day('aln_lead_submit', { form_name: 'du-toan-nha', can_goi: goi ? 1 : 0, trung: d.dup ? 1 : 0 });
+    if (leadId && nhanh) day('aln_lead_nha_thau', { form_name: 'du-toan-nha', ly_do: nhanh, trung: d.dup ? 1 : 0 });
+    hienThanhCong(goi, gio, sdt, nhanh);
   } catch (err) {
     const code = (err && err.code) || '';
     day('aln_tuvan_loi', { ma_loi: String(code || 'khong_ro').slice(0, 60) });
     const field = err && err.details && err.details.field;
-    const o = { phone: f.sdt, name: f.ten, dongY: f.dongY, khungGio: f.gio, thoiDiemXay: f.thoiDiem }[field];
+    const o = { phone: f.sdt, name: f.ten, dongY: f.dongY, khungGio: f.gio, thoiDiemXay: f.thoiDiem, diaChiCt: f.diaChi }[field];
     if (/invalid-argument/.test(code) && err.message) baoLoi(err.message, o);
     else {
       window.alnBaoLoiNeuCan && window.alnBaoLoiNeuCan('du-toan-nha tu-van', err);

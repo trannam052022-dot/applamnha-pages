@@ -121,7 +121,7 @@ textarea{width:100%;font:inherit;font-size:15px;padding:10px 12px;border:1px sol
 
 <div class="wrap" id="stMain" hidden>
   <h1>Báo giá doanh nghiệp</h1>
-  <p class="lead">Lập báo giá phần thô cho khách của anh/chị bằng công cụ dự toán ALN. File PDF mang tên và logo công ty anh/chị, có đầy đủ mã hạng mục.</p>
+  <p class="lead">Lập báo giá phần thô cho khách của anh/chị bằng công cụ dự toán ALN. File PDF mang tên và logo công ty anh/chị, có đầy đủ mã hạng mục. Trả tiền theo từng file — bảng kết quả và file hiện sau khi thanh toán; trước đó anh/chị nhập, lưu và sửa thoải mái.</p>
 
   <div class="card" id="ttBox" hidden><p class="msg" id="ttMsg"></p></div>
 
@@ -234,7 +234,7 @@ function veGia(g, cs) {
   let t = g && g.mo_ban
     ? 'Mỗi file báo giá: ' + soVN(g.gia_moi_file) + ' đ. Trả bằng mã QR chuyển khoản, trả xong tải PDF ngay.'
     : 'Dịch vụ xuất file đang chuẩn bị mở bán. Anh/chị vẫn lập và lưu báo giá được.';
-  t += ' Trước khi thanh toán, anh/chị sửa báo giá thoải mái.';
+  t += ' Trước khi thanh toán, anh/chị sửa báo giá thoải mái; bảng kết quả và file hiện sau khi thanh toán.';
   if (cs) t += ' Sau khi thanh toán vẫn được sửa miễn phí ' + cs.so_lan_sua + ' lần trong ' + cs.so_ngay_sua + ' ngày và xuất lại không mất thêm phí.';
   $('giaTxt').textContent = t;
 }
@@ -361,7 +361,9 @@ function veDanhSach(ds) {
     const c1 = document.createElement('td'); c1.textContent = b.ten_khach;
     const c2 = document.createElement('td');
     c2.textContent = [b.dia_chi_ct, b.so_san ? b.so_san + ' sàn' : '', b.lo ? 'lô ' + b.lo + ' m' : ''].filter(Boolean).join(' · ') || '—';
-    const c3 = document.createElement('td'); c3.className = 'so'; c3.textContent = soVN(b.tong_sau_vat) + ' đ';
+    const c3 = document.createElement('td'); c3.className = 'so';
+    c3.textContent = b.tong_sau_vat == null ? 'Hiện sau thanh toán' : soVN(b.tong_sau_vat) + ' đ';
+    if (b.tong_sau_vat == null) c3.style.color = 'var(--muted)';
     const c4 = document.createElement('td'); c4.textContent = ngayVN(b.tao_luc_ms);
     const c5 = document.createElement('td');
     const tag = document.createElement('span'); tag.className = 'tag ' + (b.da_thanh_toan ? 'ok' : 'cho');
@@ -386,7 +388,7 @@ function veDanhSach(ds) {
       nhom.appendChild(nut('Thanh toán ' + soVN(GIA.gia_moi_file) + ' đ & xuất', 'btn-gold', (ev) => thanhToan(b.id, ev.currentTarget)));
     }
     if (sua.duoc_sua) {
-      const s2 = document.createElement('a'); s2.className = 'btn btn-line'; s2.textContent = 'Sửa';
+      const s2 = document.createElement('a'); s2.className = 'btn btn-line'; s2.textContent = b.da_thanh_toan ? 'Xem / Sửa' : 'Sửa';
       s2.href = alnUrl('du-toan-nha.html?dn=1&b=' + encodeURIComponent(b.id));
       s2.addEventListener('click', () => { try { sessionStorage.removeItem('aln_dn_sua'); } catch (e) {} });
       nhom.appendChild(s2);

@@ -2072,6 +2072,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <option value="ks_ung_tuyen">KS Vùng ứng tuyển</option>
         <option value="ncc_ung_tuyen">NCC ứng tuyển</option>
         <option value="tho_ung_tuyen">Thợ/Đội thi công</option>
+        <option value="nha_thau">Nhà thầu (bản DN)</option>
       </select>
       <select id="ctFilterTrangThai" onchange="ctApplyFilter()" style="padding:7px 10px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--text2);font-size:12px;font-family:var(--sans)">
         <option value="">Tất cả trạng thái</option>
@@ -2257,6 +2258,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <option value="ks_ung_tuyen">KS Vùng ứng tuyển</option>
       <option value="ncc_ung_tuyen">NCC ứng tuyển</option>
       <option value="tho_ung_tuyen">Thợ/Đội thi công</option>
+        <option value="nha_thau">Nhà thầu (bản DN)</option>
     </select>
     <label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Nguồn</label>
     <select id="ctmNguon" style="width:100%;padding:9px 11px;border-radius:8px;border:1px solid var(--border);background:var(--raised);color:var(--text1);font-family:var(--sans);font-size:13px;margin-bottom:14px">
@@ -8570,12 +8572,14 @@ window.saveCompanySettings = async function() {
     dn_ung_tuyen: 'DN ứng tuyển', designer_ung_tuyen: 'Designer ứng tuyển',
     ks_ung_tuyen: 'KS Vùng ứng tuyển', ncc_ung_tuyen: 'NCC ứng tuyển',
     tho_ung_tuyen: 'Thợ/Đội thi công', pipeline: 'Đổi giai đoạn',
+    nha_thau: 'Nhà thầu (bản DN)', // 01/10/2026: nhà thầu/đội thầu lập dự toán cho khách của họ — đích bán là bản doanh nghiệp
   };
   var CT_LOAI_COLOR = {
     khach_hang: 'var(--green)', kts_ung_tuyen: 'var(--amber)', dien_dan: 'var(--blue)',
     dn_ung_tuyen: 'var(--blue)', designer_ung_tuyen: '#a78bfa',
     ks_ung_tuyen: 'var(--gold)', ncc_ung_tuyen: 'var(--gold)',
     tho_ung_tuyen: '#f97316',
+    nha_thau: '#0ea5e9',
   };
   // 03/08/2026 (5): CHỐT LẠI đúng 12 nghề (khớp TUYỆT ĐỐI NGHE_ENUM trong
   // functions/thoGiuCho.js + NGHE_OPTIONS trong tho-giu-cho.html) — bỏ
@@ -8620,6 +8624,7 @@ window.saveCompanySettings = async function() {
   };
   var CT_STATUS_OPTIONS = {
     khach_hang: ['moi','da_lien_he','da_chuyen_doi'],
+    nha_thau: ['moi','da_lien_he','da_chuyen_doi'], // 01/10/2026 — da_chuyen_doi = đã dùng bản doanh nghiệp
     dien_dan: ['chua_lien_he','da_lien_he'],
     _default: ['moi_nop','dang_xet','da_duyet','tu_choi'], // 4 loại *_ung_tuyen
   };
