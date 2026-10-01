@@ -165,7 +165,15 @@ h2{margin:20px 0 6px;font-family:var(--display);font-weight:500;font-size:18px;l
 }
 
 @page{size:A4;margin:0}
+/* Bản mẫu (?mau=1, 01/10/2026): nhà thầu xem trước file sẽ nhận trước khi trả tiền — số minh hoạ, chữ chìm mọi trang. */
+.mau-chim{display:none}
+body.ban-mau .mau-chim{display:flex;position:fixed;inset:0;z-index:50;pointer-events:none;align-items:center;justify-content:center}
+body.ban-mau .mau-chim span{font-family:var(--display);font-weight:600;font-size:64px;letter-spacing:.12em;color:rgba(184,138,18,.18);transform:rotate(-24deg);white-space:nowrap;border:4px solid rgba(184,138,18,.18);padding:10px 28px;border-radius:14px}
+.mau-ghi{display:none;margin:0 auto 10px;max-width:960px;padding:10px 14px;border:1px solid var(--gold);background:var(--gold-soft);border-radius:8px;font-size:14px;line-height:1.5}
+body.ban-mau .mau-ghi{display:block}
 @media print{
+body.ban-mau .mau-chim{display:flex}
+
   :root{--muted:#343b4a;--line:#9ea4b0;--ink:#10151f}
   body{background:#fff;font-size:12.5px}
   .bar,.tip,.no-print{display:none!important}
@@ -201,6 +209,8 @@ h2{margin:20px 0 6px;font-family:var(--display);font-weight:500;font-size:18px;l
 </div>
 <p class="tip" id="tip" hidden>Trên điện thoại: bấm <b>Tải PDF</b> rồi chọn <b>In</b> → <b>Lưu PDF</b> (hoặc Chia sẻ).</p>
 
+<div class="mau-chim" aria-hidden="true"><span>BẢN MẪU · SỐ MINH HOẠ</span></div>
+<div class="mau-ghi" id="mauGhi">Đây là <b>file mẫu</b> để anh/chị xem bố cục và mức chi tiết: số liệu minh hoạ, tên công ty giả định. File thật mang logo, tên và số điện thoại của anh/chị, số do công cụ tính từ kích thước công trình anh/chị nhập. <a href="doanh-nghiep.html">Về trang Doanh nghiệp</a></div>
 <div class="state" id="stLoading">Đang lập file báo giá…</div>
 <div class="state" id="stError" hidden><p id="errText">Chưa lập được file.</p><button type="button" class="btn btn-gold" id="btnRetry">Thử lại</button></div>
 
@@ -450,7 +460,78 @@ async function xuat() {
 $('btnPdf').addEventListener('click', () => { day('aln_dn_xuat_bao_gia_in'); window.print(); });
 $('btnRetry').addEventListener('click', xuat);
 
+/* ── Bản mẫu (?mau=1, Nam chốt 01/10/2026: nhà thầu trả tiền trước, xem kết quả sau —
+   cần một file mẫu cố định để hình dung bố cục). Không cần đăng nhập, không gọi máy
+   chủ, số là minh hoạ (không phải kết quả tính), chữ chìm "BẢN MẪU" mọi trang. ── */
+function bangMau() {
+  const nhom = (ma, ten, items, ghiChu) => {
+    const hang_muc = items.map(([stt, m, t, dv, kl, tt]) => ({ stt, ma: m, ten: t, don_vi: dv, khoi_luong: kl, thanh_tien: tt }));
+    return { ma, ten, ghi_chu: ghiChu || '', hang_muc, tien: hang_muc.reduce((a, h) => a + h.thanh_tien, 0) };
+  };
+  const phanTho = [
+    nhom('ALN-M', 'Móng', [
+      ['1', 'ALN-M01', 'Bê tông lót móng đá 4×6 M100', 'm³', 4.2, 5460000],
+      ['2', 'ALN-M02', 'Bê tông móng, đà kiềng M250', 'm³', 18.6, 44640000],
+      ['3', 'ALN-M03', 'Cốt thép móng, đà kiềng', 'kg', 2790, 55800000],
+      ['4', 'ALN-M04', 'Ván khuôn móng, đà kiềng', 'm²', 96, 14400000],
+    ]),
+    nhom('ALN-TM', 'Khung bê tông cốt thép', [
+      ['5', 'ALN-TM01', 'Bê tông cột, dầm, sàn M250', 'm³', 62.4, 149760000],
+      ['6', 'ALN-TM02', 'Cốt thép cột, dầm, sàn', 'kg', 7488, 149760000],
+      ['7', 'ALN-TM03', 'Ván khuôn cột, dầm, sàn', 'm²', 655, 98250000],
+      ['8', 'ALN-TM04', 'Bê tông cầu thang M250', 'm³', 3.8, 9120000],
+    ]),
+    nhom('ALN-NG', 'Xây tô', [
+      ['9', 'ALN-NG01', 'Xây tường gạch ống 8×8×18, tường 100', 'm²', 580, 98600000],
+      ['10', 'ALN-NG02', 'Xây tường gạch ống, tường 200', 'm²', 96, 24960000],
+      ['11', 'ALN-NG03', 'Tô tường trong, vữa M75', 'm²', 1150, 80500000],
+      ['12', 'ALN-NG04', 'Tô tường ngoài, vữa M75', 'm²', 210, 16800000],
+    ]),
+    nhom('ALN-ĐN', 'Điện nước âm tường', [
+      ['13', 'ALN-ĐN01', 'Ống điện âm tường, hộp nối, dây', 'm² sàn', 280, 50400000],
+      ['14', 'ALN-ĐN02', 'Ống cấp thoát nước âm tường, âm sàn', 'm² sàn', 280, 36400000],
+    ]),
+    nhom('ALN-MTC', 'Mái và chống thấm', [
+      ['15', 'ALN-MTC01', 'Chống thấm sàn mái, sàn vệ sinh', 'm²', 94, 14100000],
+      ['16', 'ALN-MTC02', 'Lát gạch chống nóng sân thượng', 'm²', 62, 9300000],
+    ]),
+    nhom('ALN-NC', 'Nhân công và chi phí nhà thầu', [
+      ['17', 'ALN-NC01', 'Nhân công phần thô, khoán theo m² quy đổi', 'm²', 280, 532000000],
+      ['18', 'ALN-NC02', 'Chi phí chung, quản lý công trường', '%', 23.8, 300000000],
+    ], 'Khoán theo m² quy đổi, đã gồm ván khuôn, giàn giáo, máy thi công'),
+  ];
+  const tongChuaVat = phanTho.reduce((a, n) => a + n.tien, 0);
+  const vatTu = [
+    nhom('ALN-HT', 'Vật tư hoàn thiện chủ nhà tự mua (tham khảo)', [
+      ['1', 'ALN-HT01', 'Gạch lát nền 60×60', 'm²', 240, 60000000],
+      ['2', 'ALN-HT02', 'Sơn nước trong, ngoài', 'm²', 1360, 54400000],
+      ['3', 'ALN-HT03', 'Thiết bị vệ sinh (lavabo, bàn cầu, sen vòi)', 'bộ', 3, 27000000],
+      ['4', 'ALN-HT04', 'Cửa đi, cửa sổ nhôm kính', 'm²', 48, 96000000],
+    ]),
+  ];
+  return {
+    ma_xuat: 'ALN-MAU-0000', ngay_ms: Date.now(),
+    nha: { nha_mau: 'Nhà ≤5 tầng, không thang máy', so_san: 4, rong_truoc: 5, rong_sau: 5, sau_trai: 20, sau_phai: 20, dt_thuc_xay: 300, dt_quy_doi: 280, thang_may: false, tang_ham: false, san_thuong: 'Có, không mái', loai_mai: 'Mái bằng BTCT', mai_m2: 32, san_truoc_sau: 3, ban_cong_m2: 8, mong_pct: 70 },
+    phan_tho: { nhom: phanTho, tong_chua_vat: tongChuaVat, vat_pct: 8, tong_sau_vat: Math.round(tongChuaVat * 1.08), don_gia_m2: Math.round(tongChuaVat / 280) },
+    vat_tu_chu_nha: { nhom: vatTu, tong: vatTu.reduce((a, n) => a + n.tien, 0) },
+  };
+}
+const laMau = new URLSearchParams(location.search).get('mau') === '1';
+if (laMau) {
+  document.body.classList.add('ban-mau');
+  ve(bangMau(), { ten_cong_ty: 'CÔNG TY TNHH XÂY DỰNG MINH HOẠ', mst: '', dia_chi: 'Địa chỉ công ty của anh/chị sẽ in ở đây', sdt_lien_he: '0900 000 000' },
+    { ten_khach: 'Anh Minh (khách của anh/chị)', dia_chi_ct: '12 Lê Lợi, phường Bến Nghé, TP.HCM', phien_ban: 1 });
+  $('mMa').textContent = 'BẢN MẪU';
+  $('capCho').textContent = 'Bản mẫu — số liệu minh hoạ, không phải kết quả tính cho công trình nào.';
+  document.title = 'Báo giá doanh nghiệp — bản mẫu | App Làm Nhà';
+  hienState('sheet');
+  $('status').textContent = 'Bản mẫu';
+  $('btnPdf').disabled = false;
+  day('aln_dn_xem_ban_mau');
+}
+
 onAuthStateChanged(auth, (user) => {
+  if (laMau) return;
   const xemFounder = !!(window.alnFounderXem && window.alnFounderXem.la(user));
   if (xemFounder) window.alnFounderXem.hienThanh('xuất thử không cần thanh toán');
   if (!isPhoneAuthed(user) && !xemFounder) {

@@ -1348,6 +1348,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div id="estimateProfilesSummary" style="font-family:var(--mono);font-size:11px;color:var(--dim)">Chưa tải dữ liệu</div>
     <a href="noi-that-khoang-gia.html" target="_blank" rel="noopener" title="Bảng khoảng giá nội thất — Founder mở bảng từng món không cần OTP" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;text-decoration:none;font-family:var(--sans)">👁 Bảng nội thất như khách</a>
     <button onclick="fpDnCaiDat()" title="Bản doanh nghiệp: giá mỗi file báo giá, mở/đóng bán, số liệu" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans)">🏢 Bản doanh nghiệp</button>
+    <button onclick="fpHanMucChuNha()" title="Hạn mức chủ nhà: mỗi SĐT tối đa 3 công trình/12 tháng — xem và mở thêm cho khách thật" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans)">🔓 Hạn mức chủ nhà</button>
     <button onclick="fpBocBanVe()" title="Thử nghiệm: AI đọc bộ bản vẽ kết cấu PDF, code tính khối lượng, so với A.Hoàng v67" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans)">🧪 Thử AI bóc bản vẽ</button>
     <button onclick="fpBocGia()" title="Dịch vụ Dự toán từ bản vẽ cho doanh nghiệp: giá 2026/2027, mở/đóng nhận hồ sơ" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans)">📐 Giá dự toán từ bản vẽ</button>
     <a href="doanh-nghiep.html" target="_blank" rel="noopener" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;text-decoration:none;font-family:var(--sans)">👁 Trang doanh nghiệp</a>
@@ -4577,6 +4578,39 @@ window.fpDnCaiDat = async function() {
     else alert('Đã lưu giá ' + Number(gia).toLocaleString('vi-VN') + ' đ/file. Chưa bật cổng payOS nên chưa mở bán được — có khoá payOS thì báo Claude bật.');
     r = (await fn({ hanh_dong: 'luu', gia_moi_file: gia, mo_ban: moBan })).data || {};
     toast('Đã lưu: ' + Number(r.gia.gia_moi_file).toLocaleString('vi-VN') + ' đ/file · ' + (r.gia.mo_ban ? 'đang mở bán' : 'đang đóng'), 'ok');
+  } catch(e) {
+    toast('Lỗi: ' + (e.message || e), 'err');
+  }
+};
+
+/* ── HẠN MỨC CHỦ NHÀ (01/10/2026) — 3 công trình/12 tháng/SĐT, qua founderHanMucChuNha ──
+   Dùng khi khách thật nhắn Zalo xin mở thêm. Chữ từ dữ liệu chỉ đưa vào prompt/alert (không dựng HTML). */
+window.fpHanMucChuNha = async function() {
+  try {
+    var sdt = prompt('Hạn mức chủ nhà — nhập số điện thoại cần xem:');
+    if (sdt === null || !sdt.trim()) return;
+    var { getFunctions, httpsCallable } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js');
+    var fn = httpsCallable(getFunctions(window.app, 'asia-southeast1'), 'founderHanMucChuNha');
+    var r = (await fn({ hanh_dong: 'xem', sdt: sdt })).data || {};
+    var ngay = function(ms) { return ms ? new Date(ms).toLocaleDateString('vi-VN') : '?'; };
+    var ds = r.cong_trinh || [];
+    if (!ds.length) { alert('SĐT ' + r.sdt + ': chưa lập công trình nào — còn đủ ' + r.toi_da + ' lượt.'); return; }
+    var dong = ds.map(function(c, i) {
+      return (i + 1) + '. ' + (c.nhan || c.khoa) + ' — ' + c.so_lan + ' lần, lần đầu ' + ngay(c.lan_dau_ms) + (c.con_hieu_luc ? '' : ' (đã quá 12 tháng, không tính)') + (c.nguon ? ' · ' + c.nguon : '');
+    }).join('\n');
+    var tt = 'SĐT ' + r.sdt + ': đang tính ' + r.dang_tinh + '/' + r.toi_da + ' công trình, còn ' + r.con_lai + ' lượt.\n\n' + dong +
+      '\n\nMở thêm: nhập SỐ THỨ TỰ công trình muốn bỏ khỏi hạn mức (vd 2), nhập "tat_ca" để xoá hết, để trống nếu chỉ xem.';
+    var chon = prompt(tt, '');
+    if (chon === null || !chon.trim()) return;
+    var d = { hanh_dong: 'mo_them', sdt: sdt };
+    if (chon.trim() !== 'tat_ca') {
+      var i2 = parseInt(chon, 10) - 1;
+      if (!(i2 >= 0 && i2 < ds.length)) { toast('Số thứ tự không hợp lệ', 'err'); return; }
+      d.khoa = ds[i2].khoa;
+    }
+    if (!confirm(chon.trim() === 'tat_ca' ? 'Xoá toàn bộ hạn mức của ' + r.sdt + '?' : 'Bỏ "' + (ds[i2].nhan || ds[i2].khoa) + '" khỏi hạn mức của ' + r.sdt + '?')) return;
+    r = (await fn(d)).data || {};
+    toast('Đã mở thêm cho ' + r.sdt + ' (bỏ ' + r.da_xoa + ' công trình) — còn ' + r.con_lai + '/' + r.toi_da + ' lượt', 'ok');
   } catch(e) {
     toast('Lỗi: ' + (e.message || e), 'err');
   }
