@@ -4605,9 +4605,81 @@ function _bbSoVoi() {
 function _bbQuyUoc() {
   return {
     san: document.getElementById('bbSan').value,
+    dk_dai: document.getElementById('bbDkDai').value,
     dam_net: document.getElementById('bbDamNet').checked,
     cot_net: document.getElementById('bbCotNet').checked
   };
+}
+function _bbNut(text, chinh) {
+  return _bb('button', chinh ? 'padding:7px 14px;border-radius:7px;border:0;background:var(--gold);color:#111;font-weight:800;cursor:pointer'
+    : 'padding:7px 12px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);cursor:pointer', text);
+}
+/* Cộng một tầng theo nhóm: bê tông (m³), ván khuôn (m²), thép (tấn). */
+function _bbTongTang(kl) {
+  var o = { bt: 0, vk: 0, thep: 0, lot: 0 };
+  Object.keys(kl || {}).forEach(function(ma) {
+    var v = Number(kl[ma]) || 0;
+    if (/_THEP$/.test(ma)) o.thep += v;
+    else if (/_VK$/.test(ma)) o.vk += v;
+    else if (ma === 'MONG_LOT') o.lot += v;
+    else if (/_BT$/.test(ma)) o.bt += v;
+  });
+  return o;
+}
+function _bbVeTang(box, r) {
+  var dsTang = r.tang || [];
+  if (!dsTang.length) return;
+  var kt = r.khoa_tang || {};
+  box.appendChild(_bb('div', 'font-weight:700;color:var(--text1);margin:14px 0 4px;font-size:12.5px', 'Bóc theo tầng — KTS soát xong tầng nào thì khoá tầng đó'));
+  box.appendChild(_bb('div', 'font-size:10.5px;color:var(--dim);margin-bottom:6px', 'Khoá = chụp lại số của tầng theo quy ước đang chọn. Tổng chính thức chỉ cộng các tầng đã khoá; đổi quy ước sau đó không làm đổi số đã khoá. Cột tính theo tầng đặt cột; dầm, sàn, cầu thang theo mã sàn (vd dòng LU = cột tầng lửng + dầm, sàn lửng).'));
+  var tb = _bb('table', 'width:100%;border-collapse:collapse;font-size:11.5px');
+  var th = document.createElement('tr');
+  ['Tầng', 'Bê tông (m³)', 'Ván khuôn (m²)', 'Thép (tấn)', 'Trạng thái', ''].forEach(function(h) {
+    th.appendChild(_bb('th', 'text-align:left;padding:5px 6px;border-bottom:1px solid var(--border);color:var(--sub);font-weight:700', h));
+  });
+  tb.appendChild(th);
+  dsTang.forEach(function(t) {
+    var hienTai = {};
+    (r.dong || []).forEach(function(d) { if (d.theo_tang && d.theo_tang[t] != null) hienTai[d.ma] = d.theo_tang[t]; });
+    var k = kt[t];
+    var so = _bbTongTang(k ? k.kl : hienTai);
+    var tr = document.createElement('tr');
+    var trangThai = k ? ('🔒 Đã khoá' + (k.luc_ms ? ' ' + new Date(k.luc_ms).toLocaleDateString('vi-VN') : '') + (k.khac_quy_uoc ? ' · theo quy ước cũ' : '')) : 'Chưa khoá';
+    [
+      [t === 'MONG' ? 'Móng, đà kiềng' : (t === 'CHUNG' ? 'Chung (bảng thép)' : t), 'color:var(--text1);font-weight:700'],
+      [_bbSo(so.bt, 3) + (so.lot ? ' (+ lót ' + _bbSo(so.lot, 3) + ')' : ''), 'font-family:var(--mono)'],
+      [_bbSo(so.vk, 2), 'font-family:var(--mono)'],
+      [_bbSo(so.thep, 4), 'font-family:var(--mono)'],
+      [trangThai, k ? (k.khac_quy_uoc ? 'color:var(--amber)' : 'color:var(--green)') : 'color:var(--dim)']
+    ].forEach(function(c) { tr.appendChild(_bb('td', 'padding:5px 6px;border-bottom:1px solid var(--border);' + c[1], c[0])); });
+    var td = _bb('td', 'padding:5px 6px;border-bottom:1px solid var(--border);text-align:right');
+    var nut = _bbNut(k ? 'Mở khoá' : 'Khoá tầng', !k);
+    nut.style.padding = '4px 10px';
+    nut.onclick = function() { window.fpBocBanVeKhoa(t, !k); };
+    td.appendChild(nut);
+    tr.appendChild(td);
+    tb.appendChild(tr);
+  });
+  box.appendChild(tb);
+
+  var tk = r.tong_khoa || {};
+  var tieuDe = 'Tổng các tầng đã khoá: ' + (tk.so_tang_khoa || 0) + '/' + (tk.so_tang || dsTang.length) + ' tầng' + (tk.du ? ' — ĐỦ' : ' — chưa đủ, chưa phải tổng chính thức');
+  box.appendChild(_bb('div', 'font-weight:700;margin:12px 0 4px;font-size:12px;color:' + (tk.du ? 'var(--green)' : 'var(--amber)'), tieuDe));
+  if (!tk.so_tang_khoa) return;
+  var tb2 = _bb('table', 'width:100%;border-collapse:collapse;font-size:11.5px');
+  (r.dong || []).forEach(function(d) {
+    if (!tk.tong || tk.tong[d.ma] == null) return;
+    var tr = document.createElement('tr');
+    [[d.ten + ' (' + d.dvt + ')', 'color:var(--text1)'], [_bbSo(tk.tong[d.ma], d.dvt === 'tấn' ? 4 : 3), 'font-family:var(--mono);text-align:right'],
+     [d.nguon_thep === 'noi_suy' ? 'thép ước tính theo công trình tương tự' : '', 'color:var(--dim);font-size:10.5px']].forEach(function(c) {
+      tr.appendChild(_bb('td', 'padding:4px 6px;border-bottom:1px solid var(--border);' + c[1], c[0]));
+    });
+    tb2.appendChild(tr);
+  });
+  box.appendChild(tb2);
+  if (tk.du && r.cau_sai_so) {
+    box.appendChild(_bb('div', 'font-size:11.5px;color:var(--text2);margin-top:6px', 'Câu ghi trên bản giao khách: “' + r.cau_sai_so + '” — không áp cho dòng thép nội suy.'));
+  }
 }
 function _bbVeKetQua(r) {
   _bbLuot = r;
@@ -4629,8 +4701,8 @@ function _bbVeKetQua(r) {
     var mau = (d.lech_pct == null || d.day_du === false) ? 'var(--dim)' : (Math.abs(d.lech_pct) <= 10 ? 'var(--green)' : (Math.abs(d.lech_pct) <= 25 ? 'var(--amber)' : 'var(--red)'));
     [
       [d.ten + ' (' + d.dvt + ')', 'color:var(--text1)'],
-      [_bbSo(d.khoi_luong), 'font-family:var(--mono);text-align:right'],
-      [_bbSo(d.dap_an), 'font-family:var(--mono);text-align:right;color:var(--sub)'],
+      [_bbSo(d.khoi_luong, d.dvt === 'tấn' ? 3 : 2), 'font-family:var(--mono);text-align:right'],
+      [_bbSo(d.dap_an, d.dvt === 'tấn' ? 3 : 2), 'font-family:var(--mono);text-align:right;color:var(--sub)'],
       [lech, 'font-family:var(--mono);text-align:right;font-weight:700;color:' + mau],
       [(d.so_uoc || 0) + ' / ' + (d.so_thieu || 0), 'text-align:center;color:var(--sub)'],
       [(d.trang || []).join(', ') || '—', 'color:var(--sub)'],
@@ -4643,6 +4715,7 @@ function _bbVeKetQua(r) {
   });
   box.appendChild(tb);
   box.appendChild(_bb('div', 'font-size:10.5px;color:var(--dim);margin-top:6px', (r.so_voi === 'khong' ? 'Không so với đáp án (bản vẽ công trình khác). ' : 'Xanh: lệch ≤ 10% · Vàng: ≤ 25% · Đỏ: > 25% · Xám: tổng còn thiếu cấu kiện, % chỉ để tham khảo. Rê chuột lên dòng để xem ghi chú đáp án v67. ') + '"Ước/thiếu" = số cấu kiện AI phải suy luận / không có số.'));
+  _bbVeTang(box, r);
   var ck = r.cau_kien || {};
   var nhac = [].concat(r.canh_bao || [], ck.cau_hoi || []);
   if (nhac.length) {
@@ -4724,6 +4797,39 @@ window.fpBocBanVeChay = async function() {
     tt.textContent = 'Lỗi: ' + (e.message || e);
   } finally { nut.disabled = false; }
 };
+window.fpBocBanVeKhoa = async function(tang, khoa) {
+  if (!_bbLuot || !_bbLuot.id) return;
+  var tt = document.getElementById('bbTrangThai');
+  if (!khoa && !confirm('Mở khoá tầng ' + tang + '? Số đã khoá của tầng này sẽ bị bỏ.')) return;
+  try {
+    tt.textContent = (khoa ? 'Đang khoá tầng ' : 'Đang mở khoá tầng ') + tang + '…';
+    _bbVeKetQua(await _bbGoi({ hanh_dong: 'khoa', id: _bbLuot.id, tang: tang, khoa: !!khoa, quy_uoc: _bbQuyUoc(), so_voi: _bbSoVoi() }));
+    tt.textContent = khoa ? 'Đã khoá tầng ' + tang + '.' : 'Đã mở khoá tầng ' + tang + '.';
+  } catch (e) { tt.textContent = 'Lỗi: ' + (e.message || e); }
+};
+window.fpBocBanVeChepHuongDan = async function() {
+  var tt = document.getElementById('bbTrangThai');
+  try {
+    tt.textContent = 'Đang lấy hướng dẫn…';
+    var r = await _bbGoi({ hanh_dong: 'huong_dan' });
+    var o = document.getElementById('bbHuongDan');
+    o.value = r.van_ban || '';
+    o.style.display = '';
+    try { await navigator.clipboard.writeText(o.value); tt.textContent = 'Đã chép hướng dẫn. Mở claude.ai, đính kèm PDF kết cấu, dán hướng dẫn rồi gửi. Chép khối JSON Claude trả về dán vào ô bên dưới.'; }
+    catch (e2) { o.select(); tt.textContent = 'Trình duyệt không cho tự chép — bôi đen ô hướng dẫn rồi Ctrl+C.'; }
+  } catch (e) { tt.textContent = 'Lỗi: ' + (e.message || e); }
+};
+window.fpBocBanVeDan = async function() {
+  var tt = document.getElementById('bbTrangThai');
+  var vb = document.getElementById('bbDan').value.trim();
+  if (!vb) { tt.textContent = 'Dán khối JSON Claude trả về vào ô trước.'; return; }
+  var ten = document.getElementById('bbTenDan').value.trim();
+  try {
+    tt.textContent = 'Đang tính từ kết quả dán (không gọi AI)…';
+    _bbVeKetQua(await _bbGoi({ hanh_dong: 'dan', van_ban: vb, ten_file: ten, quy_uoc: _bbQuyUoc(), so_voi: _bbSoVoi() }));
+    tt.textContent = 'Đã lưu thành một lượt mới. Soát rồi khoá từng tầng.';
+  } catch (e) { tt.textContent = 'Lỗi: ' + (e.message || e); }
+};
 window.fpBocBanVeLuotCu = async function() {
   var tt = document.getElementById('bbTrangThai');
   try {
@@ -4733,7 +4839,7 @@ window.fpBocBanVeLuotCu = async function() {
     sel.textContent = '';
     sel.appendChild(_bb('option', '', '— chọn lượt đã chạy —'));
     (r.ds || []).forEach(function(x) {
-      var o = _bb('option', '', (x.tao_luc_ms ? new Date(x.tao_luc_ms).toLocaleString('vi-VN') : '?') + ' · ' + (x.ten_file || 'không tên') + (x.loi ? ' · LỖI' : ' · ' + x.so_cau_kien + ' cấu kiện'));
+      var o = _bb('option', '', (x.tao_luc_ms ? new Date(x.tao_luc_ms).toLocaleString('vi-VN') : '?') + ' · ' + (x.ten_file || 'không tên') + (x.loi ? ' · LỖI' : ' · ' + x.so_cau_kien + ' cấu kiện' + (x.so_tang_khoa ? ' · khoá ' + x.so_tang_khoa + ' tầng' : '')));
       o.value = x.id;
       if (x.loi) o.disabled = true;
       sel.appendChild(o);
@@ -4760,16 +4866,20 @@ window.fpBocBanVe = function() {
   dau.appendChild(dong);
   hop.appendChild(dau);
   hop.appendChild(_bb('div', 'font-size:11.5px;color:var(--sub);margin:6px 0 12px;line-height:1.5',
-    'AI chỉ đọc cấu kiện (kích thước, số lượng, tầng, trang). Khối lượng do code tính theo quy ước bên dưới, rồi so với bảng A.Hoàng v67. Không lưu file bản vẽ, chỉ lưu cấu kiện AI đọc được. Kết quả chỉ để thử nghiệm, chưa dùng cho khách.'));
+    'AI chỉ đọc cấu kiện (kích thước, số lượng, tầng, trang). Khối lượng do code tính theo quy ước bên dưới, rồi so với bảng A.Hoàng v67. Thép: có bảng thống kê trên bản vẽ thì lấy bảng, không có thì nội suy theo tỷ lệ A.Hoàng. Không lưu file bản vẽ, chỉ lưu cấu kiện AI đọc được. Kết quả chỉ để thử nghiệm, chưa dùng cho khách.'));
   var hang = _bb('div', 'display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:12px');
   var file = _bb('input', ''); file.type = 'file'; file.accept = 'application/pdf'; file.id = 'bbFile';
   hang.appendChild(file);
   var san = _bb('select', 'padding:4px 6px;background:var(--raised);color:var(--text1);border:1px solid var(--border);border-radius:6px'); san.id = 'bbSan';
-  [['full', 'Sàn: tính full (quy ước v60)'], ['tru_lo', 'Sàn: trừ lỗ thang/giếng']].forEach(function(o) { var x = _bb('option', '', o[1]); x.value = o[0]; san.appendChild(x); });
+  [['tru_lo', 'Sàn: trừ lỗ thang/giếng'], ['full', 'Sàn: tính đủ, không trừ lỗ']].forEach(function(o) { var x = _bb('option', '', o[1]); x.value = o[0]; san.appendChild(x); });
   hang.appendChild(san);
-  [['bbDamNet', 'Dầm NET'], ['bbCotNet', 'Cột NET'], ['bbSoVoi', 'So với A.Hoàng v67']].forEach(function(o) {
+  var dk = _bb('select', 'padding:4px 6px;background:var(--raised);color:var(--text1);border:1px solid var(--border);border-radius:6px'); dk.id = 'bbDkDai';
+  [['truc', 'Đà kiềng: dài theo trục'], ['thong_thuy', 'Đà kiềng: thông thủy giữa móng']].forEach(function(o) { var x = _bb('option', '', o[1]); x.value = o[0]; dk.appendChild(x); });
+  hang.appendChild(dk);
+  // Mặc định theo quy ước Nam chốt 01/10/2026: dầm KHÔNG trừ phần nằm trong sàn, cột trừ chiều cao dầm sàn trên.
+  [['bbDamNet', 'Dầm trừ phần nằm trong sàn', false], ['bbCotNet', 'Cột trừ chiều cao dầm', true], ['bbSoVoi', 'So với A.Hoàng v67', true]].forEach(function(o) {
     var lb = _bb('label', 'display:flex;gap:4px;align-items:center;color:var(--sub)');
-    var cb = _bb('input', ''); cb.type = 'checkbox'; cb.id = o[0]; cb.checked = true;
+    var cb = _bb('input', ''); cb.type = 'checkbox'; cb.id = o[0]; cb.checked = o[2];
     lb.appendChild(cb); lb.appendChild(_bb('span', '', o[1]));
     hang.appendChild(lb);
   });
@@ -4787,6 +4897,30 @@ window.fpBocBanVe = function() {
   sel.onchange = function() { window.fpBocBanVeMoLuot(sel.value); };
   hang.appendChild(sel);
   hop.appendChild(hang);
+  // Thử không tốn phí API: Founder tự đọc trên claude.ai rồi dán JSON vào đây.
+  var web = _bb('details', 'margin-top:10px;font-size:12px');
+  web.appendChild(_bb('summary', 'cursor:pointer;color:var(--sub);font-weight:700', 'Dán kết quả từ claude.ai (không tốn phí API)'));
+  var huong = _bb('div', 'display:flex;flex-direction:column;gap:6px;margin-top:6px');
+  huong.appendChild(_bb('div', 'font-size:11px;color:var(--dim);line-height:1.5', '1) Bấm "Chép hướng dẫn". 2) Mở claude.ai, đính kèm PDF kết cấu, dán hướng dẫn, gửi. 3) Chép khối JSON Claude trả về, dán vào ô dưới, bấm "Tính từ kết quả dán".'));
+  var chep = _bbNut('Chép hướng dẫn cho claude.ai', false);
+  chep.onclick = function() { window.fpBocBanVeChepHuongDan(); };
+  chep.style.alignSelf = 'flex-start';
+  huong.appendChild(chep);
+  var hd = _bb('textarea', 'display:none;width:100%;height:70px;background:var(--raised);color:var(--text2);border:1px solid var(--border);border-radius:6px;font-size:10.5px;font-family:var(--mono)');
+  hd.id = 'bbHuongDan'; hd.readOnly = true;
+  huong.appendChild(hd);
+  var tenDan = _bb('input', 'padding:5px 8px;background:var(--raised);color:var(--text1);border:1px solid var(--border);border-radius:6px;max-width:360px');
+  tenDan.id = 'bbTenDan'; tenDan.placeholder = 'Tên công trình / file (tuỳ chọn)'; tenDan.maxLength = 120;
+  huong.appendChild(tenDan);
+  var dan = _bb('textarea', 'width:100%;height:120px;background:var(--raised);color:var(--text1);border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:var(--mono)');
+  dan.id = 'bbDan'; dan.placeholder = 'Dán khối JSON claude.ai trả về vào đây';
+  huong.appendChild(dan);
+  var tinhDan = _bbNut('Tính từ kết quả dán', true);
+  tinhDan.onclick = function() { window.fpBocBanVeDan(); };
+  tinhDan.style.alignSelf = 'flex-start';
+  huong.appendChild(tinhDan);
+  web.appendChild(huong);
+  hop.appendChild(web);
   var tt = _bb('div', 'font-size:12px;color:var(--amber);margin-top:8px;min-height:16px', '');
   tt.id = 'bbTrangThai';
   hop.appendChild(tt);
