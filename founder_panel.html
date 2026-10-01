@@ -1349,6 +1349,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <a href="noi-that-khoang-gia.html" target="_blank" rel="noopener" title="Bảng khoảng giá nội thất — Founder mở bảng từng món không cần OTP" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;text-decoration:none;font-family:var(--sans)">👁 Bảng nội thất như khách</a>
     <button onclick="fpDnCaiDat()" title="Bản doanh nghiệp: giá mỗi file báo giá, mở/đóng bán, số liệu" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans)">🏢 Bản doanh nghiệp</button>
     <button onclick="fpBocBanVe()" title="Thử nghiệm: AI đọc bộ bản vẽ kết cấu PDF, code tính khối lượng, so với A.Hoàng v67" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans)">🧪 Thử AI bóc bản vẽ</button>
+    <button onclick="fpBocGia()" title="Dịch vụ Dự toán từ bản vẽ cho doanh nghiệp: giá 2026/2027, mở/đóng nhận hồ sơ" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans)">📐 Giá dự toán từ bản vẽ</button>
     <a href="doanh-nghiep.html" target="_blank" rel="noopener" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;text-decoration:none;font-family:var(--sans)">👁 Trang doanh nghiệp</a>
     <button onclick="refreshEstimateProfiles()" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;gap:5px"><i class="ph-duotone ph-arrow-clockwise"></i> Tải lại</button>
   </div>
@@ -4579,6 +4580,37 @@ window.fpDnCaiDat = async function() {
   }
 };
 
+/* ── GIÁ DỊCH VỤ "DỰ TOÁN TỪ BẢN VẼ" (01/10/2026) — 2 mốc theo năm, qua founderDnCaiDat 'luu_boc' ── */
+window.fpBocGia = async function() {
+  try {
+    var { getFunctions, httpsCallable } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js');
+    var fn = httpsCallable(getFunctions(window.app, 'asia-southeast1'), 'founderDnCaiDat');
+    var r = (await fn({ hanh_dong: 'doc' })).data || {};
+    var gb = r.gia_boc || {};
+    var bang = gb.bang || [];
+    var tt = 'Dự toán từ bản vẽ — giá hiện tại (đang áp dụng năm ' + gb.nam + '):\n' +
+      bang.map(function(g) { return '  Từ ' + g.tu_nam + ': ' + Number(g.don_gia_m2).toLocaleString('vi-VN') + ' đ/m², tối thiểu ' + Number(g.toi_thieu).toLocaleString('vi-VN') + ' đ/hồ sơ'; }).join('\n') +
+      '\nTrạng thái: ' + (gb.mo_ban ? 'ĐANG NHẬN hồ sơ' : 'đang ĐÓNG') + '\n\n' +
+      'Nhập 4 số cách nhau bằng dấu phẩy: đơn giá 2026, tối thiểu 2026, đơn giá 2027, tối thiểu 2027. Để trống nếu không đổi giá.';
+    var macDinh = bang.map(function(g) { return g.don_gia_m2 + ', ' + g.toi_thieu; }).join(', ');
+    var nhap = prompt(tt, macDinh);
+    if (nhap === null) return;
+    var d = { hanh_dong: 'luu_boc' };
+    if (nhap.trim()) {
+      var so = nhap.split(',').map(function(x) { return parseInt(x.replace(/[^0-9]/g, ''), 10); });
+      if (so.length !== 4 || so.some(function(x) { return !x; })) { toast('Cần đúng 4 số', 'err'); return; }
+      d.gia_2026 = { don_gia_m2: so[0], toi_thieu: so[1] };
+      d.gia_2027 = { don_gia_m2: so[2], toi_thieu: so[3] };
+    }
+    d.mo_ban = confirm('Bấm OK để NHẬN hồ sơ (doanh nghiệp gửi được), Cancel để ĐÓNG tạm.');
+    r = (await fn(d)).data || {};
+    var m = r.gia_boc || {};
+    toast('Đã lưu: ' + (m.bang || []).map(function(g) { return g.tu_nam + ': ' + Number(g.don_gia_m2).toLocaleString('vi-VN') + ' đ/m²'; }).join(' · ') + ' · ' + (m.mo_ban ? 'đang nhận' : 'đang đóng'), 'ok');
+  } catch(e) {
+    toast('Lỗi: ' + (e.message || e), 'err');
+  }
+};
+
 /* ── THỬ AI BÓC BẢN VẼ KẾT CẤU (30/09/2026, chỉ Founder) — founderBocBanVe ──
    AI chỉ đọc cấu kiện; khối lượng do code tính theo quy ước (functions/lib/bocBanVe.js).
    Mọi chữ từ AI/bản vẽ gán bằng textContent. */
@@ -4854,6 +4886,154 @@ window.fpBocBanVeMoLuot = async function(id) {
   _bbLuot = { id: id };
   await window.fpBocBanVeTinhLai();
 };
+/* ── ĐƠN DOANH NGHIỆP "Dự toán từ bản vẽ" (01/10/2026) — founderBocBanVeDon ──
+   Mỗi đơn: AI đọc 3 lượt song song → bảng hợp nhất (trung vị, lệch, tin cậy) + lưới neo
+   → KTS mở lượt được chọn (fpBocBanVeMoLuot), khoá từng tầng → "Giao kết quả". */
+var _bbDonHienTai = null;
+async function _bbGoiDon(data) {
+  var mod = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js');
+  var fn = mod.httpsCallable(mod.getFunctions(window.app, 'asia-southeast1'), 'founderBocBanVeDon', { timeout: 540000 });
+  return (await fn(data)).data || {};
+}
+function _bbVeDon(d) {
+  _bbDonHienTai = d;
+  var box = document.getElementById('bbDonChiTiet');
+  box.textContent = '';
+  if (!d) return;
+  var phi = d.phi && d.phi.phi ? Number(d.phi.phi).toLocaleString('vi-VN') + ' đ' : '—';
+  box.appendChild(_bb('div', 'font-weight:700;color:var(--text1);font-size:12.5px;margin-top:10px', d.ten_cong_trinh + ' · ' + d.dien_tich_san + ' m² · ' + (d.so_trang || '?') + ' trang · phí ' + phi + ' (' + (d.da_thanh_toan ? 'đã thu' : 'chưa thu') + ') · ' + d.trang_thai_nhan));
+  var meta = 'Gửi ' + (d.tao_luc_ms ? new Date(d.tao_luc_ms).toLocaleString('vi-VN') : '?') + (d.sdt ? ' · SĐT ' + d.sdt : '') + (d.ten_file ? ' · ' + d.ten_file : '');
+  if (d.ghi_chu) meta += ' · Ghi chú: ' + d.ghi_chu;
+  if (d.soat_bat_dau_luc_ms) meta += ' · bắt đầu soát ' + new Date(d.soat_bat_dau_luc_ms).toLocaleString('vi-VN');
+  if (d.gio_soat != null) meta += ' · soát ' + d.gio_soat + ' giờ';
+  box.appendChild(_bb('div', 'font-size:11px;color:var(--dim);margin:2px 0 6px', meta));
+  if (d.loi_ai) box.appendChild(_bb('div', 'font-size:11px;color:var(--red)', 'Lỗi AI: ' + d.loi_ai));
+  var hang = _bb('div', 'display:flex;flex-wrap:wrap;gap:8px;margin:6px 0');
+  if (d.trang_thai === 'moi' || d.trang_thai === 'dang_boc') {
+    var ai = _bbNut('AI đọc 3 lượt' + (d.so_luot_ai ? ' (đã có ' + d.so_luot_ai + ')' : ''), true);
+    ai.onclick = function() { window.fpBocDonDocAI(d.id); };
+    hang.appendChild(ai);
+  }
+  if (d.luot_chon && d.trang_thai !== 'huy') {
+    var mo = _bbNut('Mở lượt được chọn để soát', !d.hop_nhat);
+    mo.onclick = function() { window.fpBocBanVeMoLuot(d.luot_chon); };
+    hang.appendChild(mo);
+  }
+  if (d.trang_thai === 'dang_boc' || (d.trang_thai === 'moi' && d.luot_ids.length)) {
+    var giao = _bbNut('Giao kết quả (lượt đang mở)', true);
+    giao.onclick = function() { window.fpBocDonGiao(d.id); };
+    hang.appendChild(giao);
+  }
+  if (d.trang_thai === 'da_giao') {
+    var thu = _bbNut(d.da_thanh_toan ? 'Đánh dấu CHƯA thu' : 'Đã thu tiền', !d.da_thanh_toan);
+    thu.onclick = function() { window.fpBocDonThuTien(d.id, !d.da_thanh_toan); };
+    hang.appendChild(thu);
+  }
+  if (d.trang_thai !== 'da_giao' && d.trang_thai !== 'huy') {
+    var huy = _bbNut('Huỷ đơn', false);
+    huy.onclick = function() { if (confirm('Huỷ đơn này?')) window.fpBocDonHuy(d.id); };
+    hang.appendChild(huy);
+  }
+  box.appendChild(hang);
+  var h = d.hop_nhat;
+  if (h && h.dong && h.dong.length) {
+    var tt = h.tom_tat || {};
+    box.appendChild(_bb('div', 'font-weight:700;font-size:12px;color:var(--text1);margin:8px 0 4px', 'Hợp nhất ' + h.so_luot + ' lượt AI: ' + (tt.cao || 0) + ' hạng mục tin cậy cao · ' + (tt.vua || 0) + ' vừa · ' + (tt.thap || 0) + ' thấp (cần KTS soát kỹ)'));
+    var tb = _bb('table', 'width:100%;border-collapse:collapse;font-size:11.5px');
+    var th = document.createElement('tr');
+    ['Hạng mục'].concat((h.luot || []).map(function(l, i) { return 'Lượt ' + (i + 1) + (l.id === d.luot_chon ? ' ★' : ''); })).concat(['Trung vị', 'Lệch', 'Tin cậy']).forEach(function(x) {
+      th.appendChild(_bb('th', 'text-align:left;padding:4px 6px;border-bottom:1px solid var(--border);color:var(--sub);font-weight:700', x));
+    });
+    tb.appendChild(th);
+    h.dong.forEach(function(r) {
+      var tr = document.createElement('tr');
+      var mau = r.tin_cay === 'cao' ? 'var(--green)' : (r.tin_cay === 'vua' ? 'var(--amber)' : 'var(--red)');
+      var o = [[r.ten + ' (' + r.dvt + ')', 'color:var(--text1)']];
+      (r.gia_tri || []).forEach(function(v, i) { o.push([_bbSo(v, r.dvt === 'tấn' ? 3 : 2) + ((r.so_thieu || [])[i] ? ' (thiếu ' + r.so_thieu[i] + ')' : ''), 'font-family:var(--mono);text-align:right']); });
+      o.push([_bbSo(r.trung_vi, r.dvt === 'tấn' ? 3 : 2), 'font-family:var(--mono);text-align:right;font-weight:700']);
+      o.push([r.lech == null ? '—' : Math.round(r.lech * 100) + '%', 'font-family:var(--mono);text-align:right']);
+      o.push([r.tin_cay === 'cao' ? 'cao' : (r.tin_cay === 'vua' ? 'vừa' : 'THẤP'), 'font-weight:700;color:' + mau]);
+      o.forEach(function(c) { tr.appendChild(_bb('td', 'padding:4px 6px;border-bottom:1px solid var(--border);' + c[1], c[0])); });
+      tb.appendChild(tr);
+    });
+    box.appendChild(tb);
+    box.appendChild(_bb('div', 'font-size:10.5px;color:var(--dim);margin-top:4px', '★ = lượt có tổng bê tông gần trung vị nhất, KTS mở lượt này để soát và khoá tầng. Tin cậy cao: mọi lượt có số, không thiếu cấu kiện, lệch ≤ 10%; vừa: ≤ 25%.'));
+  }
+  var neo = d.neo_v4;
+  if (neo) {
+    var kh = neo.khoang || {};
+    box.appendChild(_bb('div', 'font-size:11.5px;color:var(--text2);margin-top:6px', 'Lưới neo ALN (lượt ★): bê tông ' + _bbSo(neo.bt_m2_san, 4) + ' m³/m² sàn (khoảng ' + (kh.bt_m2_san || []).join('–') + ') · ván khuôn ' + _bbSo(neo.vk_m3_bt, 2) + ' m²/m³ (khoảng ' + (kh.vk_m3_bt || []).join('–') + ')'));
+    (neo.canh_bao || []).forEach(function(c) { box.appendChild(_bb('div', 'font-size:11.5px;color:var(--amber)', '⚠ ' + c)); });
+  }
+  if (d.ket_qua && d.ket_qua.dong) {
+    box.appendChild(_bb('div', 'font-weight:700;font-size:12px;color:var(--green);margin:8px 0 4px', 'Đã giao cho doanh nghiệp (' + d.ket_qua.dong.length + ' dòng, ' + (d.ket_qua.so_tang || '?') + ' tầng)'));
+  }
+}
+window.fpBocDonDs = async function() {
+  var tt = document.getElementById('bbTrangThai');
+  try {
+    tt.textContent = 'Đang tải đơn doanh nghiệp…';
+    var r = await _bbGoiDon({ hanh_dong: 'ds' });
+    var sel = document.getElementById('bbDonSel');
+    sel.textContent = '';
+    sel.appendChild(_bb('option', '', '— chọn đơn —'));
+    (r.ds || []).forEach(function(x) {
+      var o = _bb('option', '', (x.tao_luc_ms ? new Date(x.tao_luc_ms).toLocaleDateString('vi-VN') : '?') + ' · ' + x.ten_cong_trinh + ' · ' + x.dien_tich_san + ' m² · ' + x.trang_thai_nhan + (x.da_thanh_toan ? ' · đã thu' : ''));
+      o.value = x.id;
+      sel.appendChild(o);
+    });
+    sel.style.display = '';
+    tt.textContent = (r.ds || []).length ? 'Chọn một đơn.' : 'Chưa có đơn nào.';
+  } catch (e) { tt.textContent = 'Lỗi: ' + (e.message || e); }
+};
+window.fpBocDonMo = async function(id) {
+  if (!id) { _bbVeDon(null); return; }
+  var tt = document.getElementById('bbTrangThai');
+  try {
+    tt.textContent = 'Đang mở đơn…';
+    var r = await _bbGoiDon({ hanh_dong: 'mo', id: id });
+    _bbVeDon(r.don);
+    document.getElementById('bbSoVoi').checked = false; // bản vẽ công trình khác, không so v67
+    tt.textContent = '';
+  } catch (e) { tt.textContent = 'Lỗi: ' + (e.message || e); }
+};
+window.fpBocDonDocAI = async function(id) {
+  if (!confirm('Gửi bản vẽ của đơn này cho AI đọc 3 lượt song song? Tốn khoảng 3 lượt phí API (~30–60 nghìn đồng), mất 2–5 phút.')) return;
+  var tt = document.getElementById('bbTrangThai');
+  try {
+    tt.textContent = 'AI đang đọc 3 lượt song song… đừng đóng cửa sổ (2–5 phút).';
+    var r = await _bbGoiDon({ hanh_dong: 'doc_ai', id: id, so_luot: 3, quy_uoc: _bbQuyUoc() });
+    _bbVeDon(r.don);
+    tt.textContent = 'Xong. Xem bảng hợp nhất, rồi mở lượt ★ để soát và khoá tầng.';
+  } catch (e) { tt.textContent = 'Lỗi: ' + (e.message || e); }
+};
+window.fpBocDonGiao = async function(id) {
+  if (!_bbLuot || !_bbLuot.id) { document.getElementById('bbTrangThai').textContent = 'Mở lượt đã soát trước (nút "Mở lượt được chọn").'; return; }
+  if (!confirm('Giao tổng các tầng đã khoá của lượt đang mở cho doanh nghiệp? Sau khi giao không đọc lại được.')) return;
+  var tt = document.getElementById('bbTrangThai');
+  try {
+    tt.textContent = 'Đang giao…';
+    var r = await _bbGoiDon({ hanh_dong: 'giao', id: id, luot_id: _bbLuot.id, quy_uoc: _bbQuyUoc() });
+    _bbVeDon(r.don);
+    tt.textContent = 'Đã giao. Doanh nghiệp xem được kết quả trên trang của họ. Nhớ báo họ chuyển khoản rồi bấm "Đã thu tiền".';
+  } catch (e) { tt.textContent = 'Lỗi: ' + (e.message || e); }
+};
+window.fpBocDonThuTien = async function(id, da) {
+  var tt = document.getElementById('bbTrangThai');
+  try {
+    var r = await _bbGoiDon({ hanh_dong: 'thu_tien', id: id, da_thanh_toan: !!da });
+    _bbVeDon(r.don);
+    tt.textContent = da ? 'Đã ghi thu tiền.' : 'Đã bỏ dấu thu tiền.';
+  } catch (e) { tt.textContent = 'Lỗi: ' + (e.message || e); }
+};
+window.fpBocDonHuy = async function(id) {
+  var tt = document.getElementById('bbTrangThai');
+  try {
+    var r = await _bbGoiDon({ hanh_dong: 'huy', id: id });
+    _bbVeDon(r.don);
+    tt.textContent = 'Đã huỷ đơn.';
+  } catch (e) { tt.textContent = 'Lỗi: ' + (e.message || e); }
+};
 window.fpBocBanVe = function() {
   var cu = document.getElementById('bbModal');
   if (cu) { cu.style.display = 'flex'; return; }
@@ -4867,7 +5047,7 @@ window.fpBocBanVe = function() {
   dau.appendChild(dong);
   hop.appendChild(dau);
   hop.appendChild(_bb('div', 'font-size:11.5px;color:var(--sub);margin:6px 0 12px;line-height:1.5',
-    'AI chỉ đọc cấu kiện (kích thước, số lượng, tầng, trang). Khối lượng do code tính theo quy ước bên dưới, rồi so với bảng A.Hoàng v67. Thép: có bảng thống kê trên bản vẽ thì lấy bảng, không có thì nội suy theo tỷ lệ A.Hoàng. Không lưu file bản vẽ, chỉ lưu cấu kiện AI đọc được. Kết quả chỉ để thử nghiệm, chưa dùng cho khách.'));
+    'AI chỉ đọc cấu kiện (kích thước, số lượng, tầng, trang). Khối lượng do code tính theo quy ước bên dưới, rồi so với bảng A.Hoàng v67. Thép: có bảng thống kê trên bản vẽ thì lấy bảng, không có thì nội suy theo tỷ lệ A.Hoàng. Lượt thử tay không lưu file bản vẽ, chỉ lưu cấu kiện AI đọc được; đơn doanh nghiệp (mục dưới) lưu PDF để chỉnh sửa, đối chiếu.'));
   var hang = _bb('div', 'display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:12px');
   var file = _bb('input', ''); file.type = 'file'; file.accept = 'application/pdf'; file.id = 'bbFile';
   hang.appendChild(file);
@@ -4922,6 +5102,24 @@ window.fpBocBanVe = function() {
   huong.appendChild(tinhDan);
   web.appendChild(huong);
   hop.appendChild(web);
+  // Đơn doanh nghiệp "Dự toán từ bản vẽ" (01/10/2026).
+  var don = _bb('details', 'margin-top:10px;font-size:12px');
+  don.open = true;
+  don.appendChild(_bb('summary', 'cursor:pointer;color:var(--gold);font-weight:700', '📐 Đơn doanh nghiệp — Dự toán từ bản vẽ'));
+  var donHang = _bb('div', 'display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px');
+  var donBtn = _bbNut('Tải danh sách đơn', false);
+  donBtn.onclick = function() { window.fpBocDonDs(); };
+  donHang.appendChild(donBtn);
+  var donSel = _bb('select', 'display:none;padding:4px 6px;background:var(--raised);color:var(--text1);border:1px solid var(--border);border-radius:6px;max-width:420px');
+  donSel.id = 'bbDonSel';
+  donSel.onchange = function() { window.fpBocDonMo(donSel.value); };
+  donHang.appendChild(donSel);
+  don.appendChild(donHang);
+  don.appendChild(_bb('div', 'font-size:10.5px;color:var(--dim);margin-top:4px;line-height:1.5', 'Quy trình: chọn đơn → "AI đọc 3 lượt" → xem bảng hợp nhất (hạng mục tin cậy THẤP soát kỹ) → "Mở lượt ★" → soát, khoá từng tầng ở bảng phía dưới (lần khoá đầu = mốc bắt đầu soát) → "Giao kết quả" → thu tiền ghi tay.'));
+  var donCt = _bb('div', 'overflow-x:auto');
+  donCt.id = 'bbDonChiTiet';
+  don.appendChild(donCt);
+  hop.appendChild(don);
   var tt = _bb('div', 'font-size:12px;color:var(--amber);margin-top:8px;min-height:16px', '');
   tt.id = 'bbTrangThai';
   hop.appendChild(tt);

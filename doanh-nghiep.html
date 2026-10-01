@@ -86,6 +86,19 @@ table.ds{width:100%;border-collapse:collapse;font-size:14px}
 .tag.ok{background:#e3f3ea;color:var(--ok)} .tag.cho{background:var(--gold-soft);color:#6b4f00}
 .trong{color:var(--muted);font-size:14px}
 .state{text-align:center;color:var(--muted);padding:40px 16px}
+.boc-dk{font-size:14px;line-height:1.6;margin:0 0 12px}
+.boc-dk p{margin:0 0 8px}
+.boc-dk strong{color:var(--navy)}
+.boc-gia{background:var(--gold-soft);border-radius:6px;padding:10px 12px;font-size:14px;margin-bottom:12px}
+.boc-gia b{font-family:var(--mono);color:var(--navy)}
+input[type=number]{width:100%;font:inherit;font-size:15px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:#fff}
+textarea{width:100%;font:inherit;font-size:15px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:#fff;min-height:70px;resize:vertical}
+.boc-file{font-size:13px;color:var(--muted);margin-top:4px}
+.tag.boc{background:#e8edf6;color:#2b4a7a}
+.kq-bang{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
+.kq-bang th,.kq-bang td{border-bottom:1px solid var(--line);padding:6px;text-align:left}
+.kq-bang td.so{text-align:right;font-family:var(--mono);white-space:nowrap}
+.kq-ghi{font-size:13px;color:var(--muted);margin-top:8px}
 @media (max-width:640px){
   .grid{grid-template-columns:1fr}
   .ds thead{display:none}
@@ -144,6 +157,39 @@ table.ds{width:100%;border-collapse:collapse;font-size:14px}
       <p class="trong" id="dsTrong">Chưa có báo giá nào.</p>
     </div>
   </section>
+
+  <section class="card" id="bocCard">
+    <h2>3. Dự toán từ bản vẽ</h2>
+    <div class="boc-dk">
+      <p>Gửi bộ bản vẽ, ALN bóc khối lượng kết cấu và lập bảng dự toán có mã ALN cho công trình của anh/chị.</p>
+      <p id="bocGiaDk"><strong>Giá giai đoạn 2026:</strong> 5.000 đ/m² sàn, tối thiểu 1.000.000 đ/hồ sơ, áp dụng đến hết 31/12/2026. Từ 01/01/2027: 8.000 đ/m² sàn, tối thiểu 2.000.000 đ/hồ sơ.</p>
+      <p><strong>Yêu cầu hồ sơ:</strong> bản vẽ kiến trúc và kết cấu dạng PDF xuất từ CAD, đủ kích thước. Bản chụp, bản scan hoặc ảnh điện thoại không đủ rõ để bóc chính xác nên chưa nhận.</p>
+      <p><strong>Giao hồ sơ:</strong> bảng khối lượng và dự toán có mã ALN trong 1–2 ngày làm việc. Khối lượng bóc từ bản vẽ do khách cung cấp, có thể sai số với thực tế 5–10%. Hồ sơ gửi lên được ALN lưu để phục vụ chỉnh sửa, đối chiếu khi khách cần, và được bảo mật, không chuyển cho bên khác.</p>
+    </div>
+    <div class="boc-gia" id="bocGia"></div>
+    <form id="fBoc" novalidate>
+      <div class="grid">
+        <div class="full"><label for="bTen">Tên công trình</label><input type="text" id="bTen" maxlength="120" placeholder="VD: Nhà phố anh Hoàng, Gò Vấp"></div>
+        <div><label for="bDt">Diện tích sàn xây dựng (m², không tính móng)</label><input type="number" id="bDt" min="20" max="5000" step="0.01" inputmode="decimal"></div>
+        <div><label for="bFile">Bản vẽ (PDF xuất từ CAD, tối đa 7 MB)</label><input type="file" id="bFile" accept="application/pdf,.pdf"><div class="boc-file" id="bFileTxt"></div></div>
+        <div class="full"><label for="bGhi">Ghi chú (không bắt buộc)</label><textarea id="bGhi" maxlength="500" placeholder="VD: có bảng thống kê thép ở trang cuối; móng cọc ép…"></textarea></div>
+      </div>
+      <div class="hang"><button class="btn btn-gold" type="submit" id="btnGuiBoc">Gửi hồ sơ</button><span class="gia" id="bocPhiTxt"></span></div>
+      <p class="msg" id="bocMsg"></p>
+    </form>
+    <div id="bocDsWrap" style="margin-top:14px">
+      <table class="ds" id="bocBang" hidden>
+        <thead><tr><th>Công trình</th><th class="so">Diện tích</th><th class="so">Phí</th><th>Ngày gửi</th><th>Trạng thái</th><th></th></tr></thead>
+        <tbody id="bocBody"></tbody>
+      </table>
+      <p class="trong" id="bocTrong">Chưa gửi hồ sơ nào.</p>
+    </div>
+    <div class="card" id="bocKq" hidden style="margin:14px 0 0;background:var(--fill)">
+      <h2 id="bocKqTen"></h2>
+      <table class="kq-bang"><thead><tr><th>Mã</th><th>Hạng mục</th><th>Đơn vị</th><th class="so">Khối lượng</th></tr></thead><tbody id="bocKqBody"></tbody></table>
+      <p class="kq-ghi" id="bocKqGhi"></p>
+    </div>
+  </section>
 </div>
 
 <script src="aln-founder-xem.js"></script>
@@ -156,6 +202,7 @@ const callHoSo = httpsCallable(fns, 'dnHoSo');
 const callBaoGia = httpsCallable(fns, 'dnBaoGia');
 const callTaoTT = httpsCallable(fns, 'dnTaoThanhToan', { timeout: 30000 });
 const callKiemTT = httpsCallable(fns, 'dnKiemThanhToan');
+const callBoc = httpsCallable(fns, 'dnBocBanVe', { timeout: 120000 });
 const $ = (id) => document.getElementById(id);
 let GIA = null, HO_SO = null, LOGO_MOI = null, daBatDau = false;
 
@@ -180,6 +227,7 @@ function veHoSo(hs) {
   const img = $('logoXem');
   if (hs && hs.logo) { img.src = alnUrl(hs.logo); img.hidden = false; } else img.hidden = true;
   $('bgCard').hidden = !hs;
+  $('bocCard').hidden = !hs;
 }
 function veGia(g, cs) {
   GIA = g;
@@ -189,6 +237,113 @@ function veGia(g, cs) {
   t += ' Trước khi thanh toán, anh/chị sửa báo giá thoải mái.';
   if (cs) t += ' Sau khi thanh toán vẫn được sửa miễn phí ' + cs.so_lan_sua + ' lần trong ' + cs.so_ngay_sua + ' ngày và xuất lại không mất thêm phí.';
   $('giaTxt').textContent = t;
+}
+
+/* ── 3. Dự toán từ bản vẽ ── */
+let GIA_BOC = null, FILE_BOC = null;
+function veGiaBoc(g) {
+  GIA_BOC = g || null;
+  const el = $('bocGia');
+  if (!g) { el.textContent = ''; return; }
+  const a = g.ap_dung;
+  // Câu giá (Nam duyệt 01/10/2026) dựng lại từ bảng giá máy chủ để Founder đổi giá là trang tự khớp.
+  const g26 = g.bang.find((x) => x.tu_nam === 2026), g27 = g.bang.find((x) => x.tu_nam === 2027);
+  if (g26 && g27) {
+    const dk = $('bocGiaDk'); dk.textContent = '';
+    const st = document.createElement('strong'); st.textContent = 'Giá giai đoạn 2026:'; dk.appendChild(st);
+    dk.appendChild(document.createTextNode(' ' + soVN(g26.don_gia_m2) + ' đ/m² sàn, tối thiểu ' + soVN(g26.toi_thieu) + ' đ/hồ sơ, áp dụng đến hết 31/12/2026. Từ 01/01/2027: ' + soVN(g27.don_gia_m2) + ' đ/m² sàn, tối thiểu ' + soVN(g27.toi_thieu) + ' đ/hồ sơ.'));
+  }
+  el.textContent = '';
+  const b = document.createElement('b'); b.textContent = soVN(a.don_gia_m2) + ' đ/m² sàn, tối thiểu ' + soVN(a.toi_thieu) + ' đ/hồ sơ';
+  el.appendChild(document.createTextNode('Giá đang áp dụng (năm ' + g.nam + '): '));
+  el.appendChild(b);
+  el.appendChild(document.createTextNode(g.mo_ban ? '. Phí thanh toán khi nhận kết quả, ALN gửi hướng dẫn chuyển khoản qua Zalo/điện thoại.' : '. Dịch vụ tạm ngưng nhận hồ sơ mới.'));
+  $('btnGuiBoc').disabled = !g.mo_ban && !XEM_FOUNDER;
+  tinhPhiXem();
+}
+function tinhPhiXem() {
+  const dt = Number($('bDt').value);
+  const el = $('bocPhiTxt');
+  if (!GIA_BOC || !(dt >= 20)) { el.textContent = ''; return; }
+  const a = GIA_BOC.ap_dung;
+  const phi = Math.max(Math.round(dt * a.don_gia_m2), a.toi_thieu);
+  el.textContent = 'Phí dự kiến: ' + soVN(phi) + ' đ';
+}
+$('bDt').addEventListener('input', tinhPhiXem);
+$('bFile').addEventListener('change', async () => {
+  const f = $('bFile').files && $('bFile').files[0];
+  FILE_BOC = null; $('bFileTxt').textContent = '';
+  if (!f) return;
+  if (f.size > 7 * 1024 * 1024) { msg($('bocMsg'), 'File quá lớn (tối đa 7 MB). Tách bộ bản vẽ thành file nhỏ hơn.', 'err'); $('bFile').value = ''; return; }
+  const dau = new Uint8Array(await f.slice(0, 4).arrayBuffer());
+  if (String.fromCharCode.apply(null, dau) !== '%PDF') { msg($('bocMsg'), 'Chỉ nhận file PDF xuất từ CAD.', 'err'); $('bFile').value = ''; return; }
+  FILE_BOC = f;
+  $('bFileTxt').textContent = f.name + ' · ' + (f.size / 1024 / 1024).toFixed(2) + ' MB';
+  msg($('bocMsg'), '');
+});
+function docB64(f) {
+  return new Promise((ok, loi) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(',')[1] || ''); r.onerror = loi; r.readAsDataURL(f); });
+}
+$('fBoc').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!FILE_BOC) { msg($('bocMsg'), 'Chọn file PDF bản vẽ.', 'err'); return; }
+  const b = $('btnGuiBoc'); b.disabled = true;
+  msg($('bocMsg'), 'Đang gửi và kiểm tra file…');
+  day('aln_dn_boc_gui_bam');
+  try {
+    const duLieu = await docB64(FILE_BOC);
+    const r = await callBoc({ hanh_dong: 'gui', ten_cong_trinh: $('bTen').value, dien_tich_san: $('bDt').value, ghi_chu: $('bGhi').value, ten_file: FILE_BOC.name, duLieu });
+    msg($('bocMsg'), 'Đã nhận hồ sơ "' + (r.data.don.ten_cong_trinh || '') + '". Phí ' + soVN(r.data.don.phi && r.data.don.phi.phi) + ' đ. ALN sẽ giao kết quả trong 1–2 ngày làm việc.', 'ok');
+    day('aln_dn_boc_gui_ok');
+    $('fBoc').reset(); FILE_BOC = null; $('bFileTxt').textContent = ''; $('bocPhiTxt').textContent = '';
+    await taiDsBoc();
+  } catch (err) {
+    msg($('bocMsg'), loiText(err, 'Chưa gửi được. Vui lòng thử lại.'), 'err');
+    day('aln_dn_boc_gui_loi', { ma_loi: String((err && err.code) || 'khac').replace('functions/', '') });
+  } finally { b.disabled = false; }
+});
+function veDsBoc(ds) {
+  const body = $('bocBody'); body.textContent = '';
+  $('bocBang').hidden = !ds.length;
+  $('bocTrong').hidden = !!ds.length;
+  ds.forEach((d) => {
+    const tr = document.createElement('tr');
+    const c1 = document.createElement('td'); c1.textContent = d.ten_cong_trinh;
+    const c2 = document.createElement('td'); c2.className = 'so'; c2.textContent = d.dien_tich_san + ' m²';
+    const c3 = document.createElement('td'); c3.className = 'so'; c3.textContent = soVN(d.phi && d.phi.phi) + ' đ';
+    const c4 = document.createElement('td'); c4.textContent = ngayVN(d.tao_luc_ms);
+    const c5 = document.createElement('td');
+    const tag = document.createElement('span'); tag.className = 'tag ' + (d.trang_thai === 'da_giao' ? 'ok' : (d.trang_thai === 'huy' ? '' : 'boc'));
+    tag.textContent = d.trang_thai_nhan; c5.appendChild(tag);
+    if (d.trang_thai === 'da_giao') { const g = document.createElement('div'); g.className = 'ghi-sua'; g.textContent = (d.da_thanh_toan ? 'Đã thanh toán' : 'Chờ thanh toán') + (d.giao_luc_ms ? ' · giao ' + ngayVN(d.giao_luc_ms) : ''); c5.appendChild(g); }
+    const c6 = document.createElement('td');
+    if (d.trang_thai === 'da_giao') c6.appendChild(nut('Xem kết quả', 'btn-navy', () => moKqBoc(d.id)));
+    [c1, c2, c3, c4, c5, c6].forEach((c) => tr.appendChild(c));
+    body.appendChild(tr);
+  });
+}
+async function taiDsBoc() {
+  try { const r = await callBoc({ hanh_dong: 'ds' }); veDsBoc((r.data && r.data.ds) || []); } catch (e) { /* bảng để trống */ }
+}
+async function moKqBoc(id) {
+  msg($('bocMsg'), 'Đang tải kết quả…');
+  try {
+    const r = await callBoc({ hanh_dong: 'mo', id });
+    const kq = r.data.ket_qua;
+    if (!kq) { msg($('bocMsg'), 'Hồ sơ chưa có kết quả.', 'err'); return; }
+    $('bocKqTen').textContent = 'Khối lượng kết cấu — ' + r.data.don.ten_cong_trinh;
+    const body = $('bocKqBody'); body.textContent = '';
+    kq.dong.forEach((d) => {
+      const tr = document.createElement('tr');
+      [d.ma, d.ten, d.dvt].forEach((v) => { const td = document.createElement('td'); td.textContent = v; tr.appendChild(td); });
+      const so = document.createElement('td'); so.className = 'so'; so.textContent = Number(d.khoi_luong).toLocaleString('vi-VN', { maximumFractionDigits: /_THEP$/.test(d.ma) ? 3 : 2 }); tr.appendChild(so);
+      body.appendChild(tr);
+    });
+    $('bocKqGhi').textContent = (kq.cau_sai_so || '') + (kq.so_tang ? ' Bóc và khoá theo ' + kq.so_tang + ' tầng.' : '') + ' Thép là nội suy từ bê tông theo hệ số ALN nếu bản vẽ không có bảng thống kê thép.';
+    $('bocKq').hidden = false;
+    $('bocKq').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    msg($('bocMsg'), '');
+  } catch (e) { msg($('bocMsg'), loiText(e, 'Chưa tải được kết quả.'), 'err'); }
 }
 
 function nut(text, cls, onClick) {
@@ -349,8 +504,9 @@ async function batDau() {
     const r = await callHoSo({ hanh_dong: 'doc' });
     veGia(r.data.gia, r.data.chinh_sach_sua);
     veHoSo(r.data.ho_so);
+    veGiaBoc(r.data.gia_boc);
     hien('main');
-    if (r.data.ho_so) await taiDanhSach();
+    if (r.data.ho_so) await Promise.all([taiDanhSach(), taiDsBoc()]);
     else msg($('hsMsg'), 'Khai hồ sơ công ty một lần để bắt đầu lập báo giá.');
     await xuLyQuayVe();
   } catch (e) {
