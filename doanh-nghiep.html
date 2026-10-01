@@ -488,6 +488,7 @@ $('ckDaChuyen').addEventListener('click', async () => {
     const d = r.data || {};
     if (d.da_thanh_toan) { msg($('ckMsg'), 'Báo giá này đã mở rồi.', 'ok'); }
     else if (d.mo_truoc) msg($('ckMsg'), 'Cảm ơn anh/chị. Bảng kết quả và nút Xuất PDF của báo giá này đã mở ngay — ALN sẽ đối chiếu chuyển khoản trong giờ làm việc.', 'ok');
+    else if (d.ly_do === 'da_khoa') msg($('ckMsg'), 'ALN đã nhận thông báo. Lần trước ALN chưa thấy khoản chuyển cho báo giá này, nên lần này bảng kết quả sẽ mở sau khi ALN đối chiếu xong (trong giờ làm việc). Cần gấp, nhắn Zalo 0909 829 696 kèm ảnh chuyển khoản.', 'ok');
     else if (d.ly_do === 'dang_cho_doi_chieu') msg($('ckMsg'), 'ALN đã nhận thông báo. Anh/chị đang có 1 báo giá ALN chưa đối chiếu xong, nên báo giá này sẽ mở ngay sau khi ALN xác nhận (trong giờ làm việc).', 'ok');
     else msg($('ckMsg'), 'ALN đã nhận thông báo. Sau khi đối chiếu, bảng kết quả và nút Xuất PDF sẽ tự mở — anh/chị tải lại trang này để xem.', 'ok');
     day('aln_dn_ck_bao');
