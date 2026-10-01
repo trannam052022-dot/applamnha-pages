@@ -4932,6 +4932,10 @@ function _bbVeDon(d) {
     hang.appendChild(thu);
   }
   if (d.trang_thai !== 'da_giao' && d.trang_thai !== 'huy') {
+    var dan = _bbNut('Dán JSON bóc tay cho đơn này', false);
+    dan.title = 'Dán khối JSON (claude.ai/Codex/KTS sửa tay) vào ô "Dán kết quả" phía trên rồi bấm nút này — lượt mới gắn vào đơn, thành lượt ★';
+    dan.onclick = function() { window.fpBocDonDan(d.id); };
+    hang.appendChild(dan);
     var huy = _bbNut('Huỷ đơn', false);
     huy.onclick = function() { if (confirm('Huỷ đơn này?')) window.fpBocDonHuy(d.id); };
     hang.appendChild(huy);
@@ -4997,6 +5001,20 @@ window.fpBocDonMo = async function(id) {
     _bbVeDon(r.don);
     document.getElementById('bbSoVoi').checked = false; // bản vẽ công trình khác, không so v67
     tt.textContent = '';
+  } catch (e) { tt.textContent = 'Lỗi: ' + (e.message || e); }
+};
+window.fpBocDonDan = async function(id) {
+  var tt = document.getElementById('bbTrangThai');
+  var vb = document.getElementById('bbDan').value.trim();
+  if (!vb) { document.querySelector('#bbModal details').open = true; tt.textContent = 'Dán khối JSON vào ô "Dán kết quả từ claude.ai" phía trên trước, rồi bấm lại.'; return; }
+  try {
+    tt.textContent = 'Đang lưu lượt dán vào đơn (không gọi AI)…';
+    var ten = document.getElementById('bbTenDan').value.trim() || ((_bbDonHienTai && _bbDonHienTai.ten_cong_trinh) || '') + ' — bóc tay';
+    _bbVeKetQua(await _bbGoi({ hanh_dong: 'dan', van_ban: vb, ten_file: ten, don_id: id, quy_uoc: _bbQuyUoc(), so_voi: 'khong' }));
+    document.getElementById('bbSoVoi').checked = false;
+    var r = await _bbGoiDon({ hanh_dong: 'mo', id: id });
+    _bbVeDon(r.don);
+    tt.textContent = 'Đã gắn lượt dán vào đơn (thành lượt ★). Soát, khoá từng tầng ở bảng dưới rồi "Giao kết quả".';
   } catch (e) { tt.textContent = 'Lỗi: ' + (e.message || e); }
 };
 window.fpBocDonDocAI = async function(id) {
