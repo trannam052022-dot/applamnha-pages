@@ -4741,7 +4741,8 @@ function _bbVeKetQua(r) {
       if (x.b != null || x.h != null) kt.push((x.b == null ? '?' : x.b) + ' × ' + (x.h == null ? '?' : x.h));
       if (x.dien_tich_bao != null) kt.push('bao ' + x.dien_tich_bao + ' m², lỗ ' + (x.dien_tich_lo == null ? '?' : x.dien_tich_lo) + ' m²');
       if (x.cao_tang != null) kt.push('cao ' + x.cao_tang + ' m, sàn trên ' + (x.san_tren || '?'));
-      if (x.dien_tich != null) kt.push(x.dien_tich + ' m²');
+      if (x.rong_ban != null || x.dai_ngang != null || x.cao_ve != null) kt.push('rộng ' + (x.rong_ban == null ? '?' : x.rong_ban) + ' · chiếu ' + (x.dai_ngang == null ? '?' : x.dai_ngang) + ' · cao ' + (x.cao_ve == null ? '?' : x.cao_ve) + (x.dien_tich_chieu_nghi != null ? ' · chiếu nghỉ ' + x.dien_tich_chieu_nghi + ' m²' : ''));
+      if (x.dien_tich != null) kt.push(x.dien_tich + ' m²' + (x.tu_tinh ? ' (code tính)' : ''));
       if (x.day != null) kt.push('dày ' + x.day);
       var tang = Array.isArray(x.tang) ? x.tang.join(', ') : (x.tang || x.ma || '');
       [
