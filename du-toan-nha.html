@@ -186,7 +186,9 @@ body.che-do-dn .dan-dn{display:none}
 .tv .tv-nt b{color:var(--navy2)}
 .tv .tv-nt a.tv-go{margin-top:10px;text-align:center;text-decoration:none;line-height:50px;min-height:0;padding:0 10px}
 /* Bản doanh nghiệp: trả tiền trước, xem kết quả sau — che toàn bộ số tiền tới khi báo giá đã thanh toán */
-body.che-do-dn.dn-che #out{display:none!important}
+/* Che kết quả nhưng GIỮ #dnPanel (form Lưu báo giá nằm trong #out) — lỗi 01/10/2026:
+   bản đầu ẩn cả #out nên nhà thầu không thấy nút Lưu báo giá khi chưa trả. */
+body.che-do-dn.dn-che #out > :not(#dnPanel){display:none!important}
 #dnChe{display:none}
 body.che-do-dn.dn-che #dnChe{display:block}
 #dnChe .eyebrow{margin-bottom:6px}

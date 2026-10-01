@@ -1348,6 +1348,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div id="estimateProfilesSummary" style="font-family:var(--mono);font-size:11px;color:var(--dim)">Chưa tải dữ liệu</div>
     <a href="noi-that-khoang-gia.html" target="_blank" rel="noopener" title="Bảng khoảng giá nội thất — Founder mở bảng từng món không cần OTP" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;text-decoration:none;font-family:var(--sans)">👁 Bảng nội thất như khách</a>
     <button onclick="fpDnCaiDat()" title="Bản doanh nghiệp: giá mỗi file báo giá, mở/đóng bán, số liệu" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans)">🏢 Bản doanh nghiệp</button>
+    <button onclick="fpDnChoThu()" title="Doanh nghiệp đã báo chuyển khoản tay, chờ Founder xác nhận đã nhận tiền để mở kết quả + xuất file" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans)">💳 DN chờ xác nhận CK</button>
     <button onclick="fpHanMucChuNha()" title="Hạn mức chủ nhà: mỗi SĐT tối đa 3 công trình/12 tháng — xem và mở thêm cho khách thật" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans)">🔓 Hạn mức chủ nhà</button>
     <button onclick="fpBocBanVe()" title="Thử nghiệm: AI đọc bộ bản vẽ kết cấu PDF, code tính khối lượng, so với A.Hoàng v67" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans)">🧪 Thử AI bóc bản vẽ</button>
     <button onclick="fpBocGia()" title="Dịch vụ Dự toán từ bản vẽ cho doanh nghiệp: giá 2026/2027, mở/đóng nhận hồ sơ" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans)">📐 Giá dự toán từ bản vẽ</button>
@@ -4556,28 +4557,72 @@ window.founderAwardBricksPrompt = async function(uid, name){
   }
 };
 
-/* ── BẢN DOANH NGHIỆP (30/09/2026) — giá mỗi file + mở bán, qua founderDnCaiDat ── */
+/* ── BẢN DOANH NGHIỆP (30/09/2026) — giá mỗi file + mở bán, qua founderDnCaiDat.
+   01/10/2026: thêm chuyển khoản tay khi chưa bật payOS — nhập STK (luu_ck) rồi mới mở bán được;
+   doanh nghiệp báo đã CK → fpDnChoThu() xác nhận (thu_tien). Chữ từ dữ liệu chỉ vào prompt/alert. */
 window.fpDnCaiDat = async function() {
   try {
     var { getFunctions, httpsCallable } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js');
     var fn = httpsCallable(getFunctions(window.app, 'asia-southeast1'), 'founderDnCaiDat');
     var r = (await fn({ hanh_dong: 'doc' })).data || {};
     var g = r.gia || {};
+    var ck = r.ck_da_luu;
+    var ckStr = ck ? ck.ngan_hang + ' · ' + ck.so_tk + ' · ' + ck.chu_tk : 'chưa có';
     var tt = 'Bản doanh nghiệp\n' +
       'Giá mỗi file: ' + (g.gia_moi_file ? Number(g.gia_moi_file).toLocaleString('vi-VN') + ' đ' : 'chưa đặt') + '\n' +
-      'Trạng thái: ' + (g.mo_ban ? 'ĐANG MỞ BÁN' : 'đang đóng') + (r.payos_da_bat ? '' : ' (chưa bật payOS)') + '\n' +
-      'Doanh nghiệp đã khai hồ sơ: ' + (r.so_doanh_nghiep || 0) + '\n' +
+      'Trạng thái: ' + (g.mo_ban ? 'ĐANG MỞ BÁN' + (g.thanh_toan_tay ? ' (chuyển khoản tay)' : ' (payOS)') : 'đang đóng') + (r.payos_da_bat ? '' : ' · chưa bật payOS') + '\n' +
+      'STK nhận tiền: ' + ckStr + '\n' +
+      'Doanh nghiệp đã khai hồ sơ: ' + (r.so_doanh_nghiep || 0) + ' · Đang chờ xác nhận CK: ' + (r.so_cho_thu || 0) + '\n' +
       'File đã bán: ' + (r.so_file_da_ban || 0) + ' · Doanh thu: ' + Number(r.doanh_thu || 0).toLocaleString('vi-VN') + ' đ\n\n' +
       'Nhập giá mới mỗi file (đồng, 10.000–50.000.000), để trống nếu không đổi:';
     var giaStr = prompt(tt, g.gia_moi_file ? String(g.gia_moi_file) : '');
     if (giaStr === null) return;
     var gia = giaStr.trim() ? parseInt(giaStr.replace(/[^0-9]/g, ''), 10) : g.gia_moi_file;
     if (!gia) { toast('Chưa có giá — không mở bán được', 'err'); return; }
+    if (!r.payos_da_bat) {
+      var ckIn = prompt('Chưa bật payOS → thu bằng CHUYỂN KHOẢN TAY.\nNhập tài khoản nhận tiền theo mẫu: Ngân hàng | Số tài khoản | Chủ tài khoản\n(để trống = giữ nguyên; nhập "xoa" = xoá STK và đóng bán)',
+        ck ? ck.ngan_hang + ' | ' + ck.so_tk + ' | ' + ck.chu_tk : '');
+      if (ckIn === null) return;
+      if (ckIn.trim() === 'xoa') {
+        r = (await fn({ hanh_dong: 'luu_ck', ngan_hang: '', so_tk: '', chu_tk: '' })).data || {};
+        ck = null;
+      } else if (ckIn.trim()) {
+        var ph = ckIn.split('|').map(function(x) { return x.trim(); });
+        if (ph.length !== 3) { toast('Cần đúng 3 phần: Ngân hàng | Số TK | Chủ TK', 'err'); return; }
+        r = (await fn({ hanh_dong: 'luu_ck', ngan_hang: ph[0], so_tk: ph[1], chu_tk: ph[2] })).data || {};
+        ck = r.ck_da_luu;
+      }
+    }
     var moBan = false;
-    if (r.payos_da_bat) moBan = confirm('Giá ' + Number(gia).toLocaleString('vi-VN') + ' đ/file.\nBấm OK để MỞ BÁN, Cancel để ĐÓNG bán (doanh nghiệp không thanh toán được).');
-    else alert('Đã lưu giá ' + Number(gia).toLocaleString('vi-VN') + ' đ/file. Chưa bật cổng payOS nên chưa mở bán được — có khoá payOS thì báo Claude bật.');
+    if (r.payos_da_bat) moBan = confirm('Giá ' + Number(gia).toLocaleString('vi-VN') + ' đ/file.\nBấm OK để MỞ BÁN qua payOS, Cancel để ĐÓNG bán.');
+    else if (ck) moBan = confirm('Giá ' + Number(gia).toLocaleString('vi-VN') + ' đ/file, thu bằng chuyển khoản tay tới ' + ck.ngan_hang + ' ' + ck.so_tk + '.\nBấm OK để MỞ BÁN, Cancel để ĐÓNG bán.');
+    else alert('Đã lưu giá ' + Number(gia).toLocaleString('vi-VN') + ' đ/file. Chưa có STK nhận tiền và chưa bật payOS nên vẫn đóng bán.');
     r = (await fn({ hanh_dong: 'luu', gia_moi_file: gia, mo_ban: moBan })).data || {};
-    toast('Đã lưu: ' + Number(r.gia.gia_moi_file).toLocaleString('vi-VN') + ' đ/file · ' + (r.gia.mo_ban ? 'đang mở bán' : 'đang đóng'), 'ok');
+    toast('Đã lưu: ' + Number(r.gia.gia_moi_file).toLocaleString('vi-VN') + ' đ/file · ' + (r.gia.mo_ban ? (r.gia.thanh_toan_tay ? 'đang mở bán (CK tay)' : 'đang mở bán (payOS)') : 'đang đóng'), 'ok');
+  } catch(e) {
+    toast('Lỗi: ' + (e.message || e), 'err');
+  }
+};
+
+window.fpDnChoThu = async function() {
+  try {
+    var { getFunctions, httpsCallable } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js');
+    var fn = httpsCallable(getFunctions(window.app, 'asia-southeast1'), 'founderDnCaiDat');
+    var r = (await fn({ hanh_dong: 'ds_cho_thu' })).data || {};
+    var ds = r.cho_thu || [];
+    if (!ds.length) { alert('Không có doanh nghiệp nào đang chờ xác nhận chuyển khoản.'); return; }
+    var luc = function(ms) { return ms ? new Date(ms).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : '?'; };
+    var dong = ds.map(function(c, i) {
+      return (i + 1) + '. ' + c.ten_cong_ty + (c.sdt ? ' (' + c.sdt + ')' : '') + ' — khách ' + c.ten_khach + ' — ' + Number(c.so_tien || 0).toLocaleString('vi-VN') + ' đ — ND "' + c.noi_dung + '" — báo lúc ' + luc(c.bao_luc_ms) + (c.so_lan_bao > 1 ? ' (' + c.so_lan_bao + ' lần)' : '');
+    }).join('\n');
+    var chon = prompt('Doanh nghiệp đã báo chuyển khoản, chờ xác nhận:\n\n' + dong + '\n\nKiểm tra tài khoản ngân hàng ĐÃ NHẬN TIỀN rồi nhập SỐ THỨ TỰ để xác nhận (mở kết quả + xuất file cho họ). Để trống nếu chỉ xem.', '');
+    if (chon === null || !chon.trim()) return;
+    var i2 = parseInt(chon, 10) - 1;
+    if (!(i2 >= 0 && i2 < ds.length)) { toast('Số thứ tự không hợp lệ', 'err'); return; }
+    var c = ds[i2];
+    if (!confirm('Xác nhận ĐÃ NHẬN ' + Number(c.so_tien || 0).toLocaleString('vi-VN') + ' đ từ ' + c.ten_cong_ty + ' (ND "' + c.noi_dung + '")?\nSau bước này doanh nghiệp xem được số và xuất PDF.')) return;
+    r = (await fn({ hanh_dong: 'thu_tien', bao_gia_id: c.id })).data || {};
+    toast(r.da_tra_truoc_do ? 'Báo giá này đã được xác nhận trước đó' : 'Đã xác nhận thu ' + Number(r.so_tien || 0).toLocaleString('vi-VN') + ' đ — ' + c.ten_cong_ty + ' xuất file được ngay', 'ok');
   } catch(e) {
     toast('Lỗi: ' + (e.message || e), 'err');
   }

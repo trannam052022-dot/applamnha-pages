@@ -95,6 +95,13 @@ input[type=number]{width:100%;font:inherit;font-size:15px;padding:10px 12px;bord
 textarea{width:100%;font:inherit;font-size:15px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:#fff;min-height:70px;resize:vertical}
 .boc-file{font-size:13px;color:var(--muted);margin-top:4px}
 .tag.boc{background:#e8edf6;color:#2b4a7a}
+/* Khung chuyển khoản tay (01/10/2026) — hiện dưới danh sách khi bấm "Chuyển khoản & nhận file" */
+.ck-box{margin-top:12px;padding:14px 16px;border:1px solid var(--gold-hi);border-radius:10px;background:var(--gold-soft)}
+.ck-box h3{margin:0 0 8px;font-size:16px}
+.ck-box dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0 0 10px;font-size:15px}
+.ck-box dt{color:var(--sub)} .ck-box dd{margin:0;font-weight:600;font-family:var(--mono,monospace)}
+.ck-box .nho{font-size:13px;color:var(--sub);margin:0 0 10px}
+.ck-box .hang{margin:0}
 .kq-bang{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
 .kq-bang th,.kq-bang td{border-bottom:1px solid var(--line);padding:6px;text-align:left}
 .kq-bang td.so{text-align:right;font-family:var(--mono);white-space:nowrap}
@@ -155,6 +162,19 @@ textarea{width:100%;font:inherit;font-size:15px;padding:10px 12px;border:1px sol
         <tbody id="dsBody"></tbody>
       </table>
       <p class="trong" id="dsTrong">Chưa có báo giá nào.</p>
+    </div>
+    <div class="ck-box" id="ckBox" hidden>
+      <h3>Chuyển khoản để nhận file</h3>
+      <dl>
+        <dt>Ngân hàng</dt><dd id="ckNganHang"></dd>
+        <dt>Số tài khoản</dt><dd id="ckSoTk"></dd>
+        <dt>Chủ tài khoản</dt><dd id="ckChuTk"></dd>
+        <dt>Số tiền</dt><dd id="ckSoTien"></dd>
+        <dt>Nội dung</dt><dd id="ckNoiDung"></dd>
+      </dl>
+      <p class="nho">Báo giá cho khách: <span id="ckKhach"></span>. Anh/chị ghi đúng nội dung chuyển khoản để ALN đối chiếu nhanh. Sau khi chuyển, bấm nút dưới — ALN xác nhận trong giờ làm việc rồi bảng kết quả và nút Xuất PDF tự mở.</p>
+      <div class="hang"><button class="btn btn-gold" type="button" id="ckDaChuyen">Tôi đã chuyển khoản</button><button class="btn btn-line" type="button" id="ckDong">Đóng</button></div>
+      <p class="msg" id="ckMsg"></p>
     </div>
   </section>
 
@@ -231,9 +251,10 @@ function veHoSo(hs) {
 }
 function veGia(g, cs) {
   GIA = g;
-  let t = g && g.mo_ban
-    ? 'Mỗi file báo giá: ' + soVN(g.gia_moi_file) + ' đ. Trả bằng mã QR chuyển khoản, trả xong tải PDF ngay.'
-    : 'Dịch vụ xuất file đang chuẩn bị mở bán. Anh/chị vẫn lập và lưu báo giá được.';
+  let t;
+  if (g && g.mo_ban && g.thanh_toan_tay) t = 'Mỗi file báo giá: ' + soVN(g.gia_moi_file) + ' đ, thanh toán bằng chuyển khoản tới tài khoản ALN (hiện khi bấm "Chuyển khoản & nhận file"). ALN xác nhận trong giờ làm việc, sau đó bảng kết quả và file PDF mở ngay.';
+  else if (g && g.mo_ban) t = 'Mỗi file báo giá: ' + soVN(g.gia_moi_file) + ' đ. Trả bằng mã QR chuyển khoản, trả xong tải PDF ngay.';
+  else t = 'Dịch vụ xuất file đang chuẩn bị mở bán. Anh/chị vẫn lập và lưu báo giá được.';
   t += ' Trước khi thanh toán, anh/chị sửa báo giá thoải mái; bảng kết quả và file hiện sau khi thanh toán.';
   if (cs) t += ' Sau khi thanh toán vẫn được sửa miễn phí ' + cs.so_lan_sua + ' lần trong ' + cs.so_ngay_sua + ' ngày và xuất lại không mất thêm phí.';
   $('giaTxt').textContent = t;
@@ -367,7 +388,7 @@ function veDanhSach(ds) {
     const c4 = document.createElement('td'); c4.textContent = ngayVN(b.tao_luc_ms);
     const c5 = document.createElement('td');
     const tag = document.createElement('span'); tag.className = 'tag ' + (b.da_thanh_toan ? 'ok' : 'cho');
-    tag.textContent = b.da_thanh_toan ? 'Đã thanh toán' : 'Chưa xuất';
+    tag.textContent = b.da_thanh_toan ? 'Đã thanh toán' : (b.cho_thu_tay ? 'Đã báo chuyển khoản — chờ ALN xác nhận' : 'Chưa xuất');
     c5.appendChild(tag);
     const sua = b.sua || {};
     const ghi = document.createElement('div'); ghi.className = 'ghi-sua';
@@ -384,6 +405,8 @@ function veDanhSach(ds) {
       const a = document.createElement('a'); a.className = 'btn btn-navy'; a.textContent = 'Xuất PDF';
       a.href = alnUrl('in-bao-gia-dn.html?b=' + encodeURIComponent(b.id));
       nhom.appendChild(a);
+    } else if (GIA && GIA.mo_ban && GIA.thanh_toan_tay) {
+      nhom.appendChild(nut(b.cho_thu_tay ? 'Xem lại thông tin chuyển khoản' : 'Chuyển khoản ' + soVN(GIA.gia_moi_file) + ' đ & nhận file', b.cho_thu_tay ? 'btn-line' : 'btn-gold', () => moCkBox(b)));
     } else if (GIA && GIA.mo_ban) {
       nhom.appendChild(nut('Thanh toán ' + soVN(GIA.gia_moi_file) + ' đ & xuất', 'btn-gold', (ev) => thanhToan(b.id, ev.currentTarget)));
     }
@@ -403,6 +426,44 @@ async function taiDanhSach() {
   const r = await callBaoGia({ hanh_dong: 'ds' });
   veDanhSach((r.data && r.data.bao_gia) || []);
 }
+
+/* ── Chuyển khoản tay (01/10/2026, trong lúc chưa bật payOS) ── */
+let CK_BAO_GIA = null;
+function noiDungCK(id) { return 'ALN ' + String(id || '').slice(-6).toUpperCase(); } // khớp lib/doanhNghiep.noiDungCK
+function moCkBox(b) {
+  const ck = (GIA && GIA.ck) || {};
+  CK_BAO_GIA = b;
+  $('ckNganHang').textContent = ck.ngan_hang || '';
+  $('ckSoTk').textContent = ck.so_tk || '';
+  $('ckChuTk').textContent = ck.chu_tk || '';
+  $('ckSoTien').textContent = soVN(GIA.gia_moi_file) + ' đ';
+  $('ckNoiDung').textContent = noiDungCK(b.id);
+  $('ckKhach').textContent = b.ten_khach || '';
+  msg($('ckMsg'), b.cho_thu_tay ? 'Anh/chị đã báo chuyển khoản lúc ' + ngayVN(b.ck_bao_luc_ms) + '. ALN đang đối chiếu; bấm lại nút nếu vừa chuyển bổ sung.' : '', b.cho_thu_tay ? 'ok' : '');
+  $('ckDaChuyen').disabled = false; $('ckDaChuyen').textContent = 'Tôi đã chuyển khoản';
+  $('ckBox').hidden = false;
+  $('ckBox').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  day('aln_dn_ck_mo');
+}
+$('ckDong').addEventListener('click', () => { $('ckBox').hidden = true; CK_BAO_GIA = null; });
+$('ckDaChuyen').addEventListener('click', async () => {
+  if (!CK_BAO_GIA) return;
+  const btn = $('ckDaChuyen');
+  btn.disabled = true; btn.textContent = 'Đang gửi…';
+  try {
+    const r = await callBaoGia({ hanh_dong: 'bao_ck', bao_gia_id: CK_BAO_GIA.id });
+    const d = r.data || {};
+    if (d.da_thanh_toan) { msg($('ckMsg'), 'Báo giá này đã được xác nhận thanh toán.', 'ok'); }
+    else msg($('ckMsg'), 'ALN đã nhận thông báo. Sau khi đối chiếu, bảng kết quả và nút Xuất PDF sẽ tự mở — anh/chị tải lại trang này để xem.', 'ok');
+    day('aln_dn_ck_bao');
+    await taiDanhSach();
+    btn.textContent = 'Đã gửi';
+  } catch (e) {
+    msg($('ckMsg'), loiText(e, 'Chưa gửi được. Vui lòng thử lại hoặc nhắn Zalo 0909 829 696.'), 'err');
+    btn.disabled = false; btn.textContent = 'Thử lại';
+    day('aln_dn_ck_loi', { ma_loi: String((e && e.code) || 'khac').replace('functions/', '') });
+  }
+});
 
 async function thanhToan(id, btn) {
   btn.disabled = true; btn.textContent = 'Đang tạo mã thanh toán…';
