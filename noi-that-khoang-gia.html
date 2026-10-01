@@ -141,6 +141,11 @@ tr.sum td{font-weight:800;background:var(--cream)}
 .otp-lk button:disabled{color:var(--muted);cursor:default}
 #recaptcha-nt{position:fixed;bottom:0;left:0}
 .privacy{font-size:var(--text-xs);color:var(--muted)}
+.trung-pt{border:1px solid var(--border2);border-radius:12px;background:var(--gold-bg);padding:12px 14px;margin:6px 0 14px;font-size:var(--text-sm)}
+.trung-pt b{display:block;margin-bottom:4px}
+.trung-pt label{display:flex;gap:10px;align-items:flex-start;margin-top:8px;cursor:pointer}
+.trung-pt input{width:20px;height:20px;flex:none;margin-top:1px;accent-color:var(--gold)}
+.trung-pt small{display:block;color:var(--muted);margin-top:8px}
 .muc-all{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 14px}
 .muc-all button{flex:1;min-width:90px;padding:10px;border-radius:10px;border:1.5px solid var(--border2);background:var(--white);font-family:inherit;font-weight:700;font-size:var(--text-sm);color:var(--text);cursor:pointer}
 .muc-all button.on{border-color:var(--gold);background:var(--gold-bg);color:var(--gold)}
@@ -409,6 +414,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <div class="privacy">Chỉ nhận ảnh JPG, PNG hoặc PDF dưới 7 MB. Bản vẽ chỉ dùng để tính dự toán và tư vấn cho anh/chị, không công khai.</div>
         </div>
         <div class="chenh">Nhập <b>ngang × dài</b> từng phòng (và bề ngang cửa sổ) để tủ bếp, tủ áo, rèm tính theo đúng nhà anh/chị. Để trống thì giữ số lượng giả định.</div>
+        <div class="trung-pt" id="trung-pt">
+          <b>Đã tính phần thô ở trang dự toán của ALN?</b>
+          <span id="trung-pt-tt">Phần vật tư anh/chị tự mua ở trang đó có thể đã gồm trần thạch cao và thiết bị vệ sinh. Đánh dấu để bảng này không tính lại các món đó.</span>
+          <label><input type="checkbox" id="pt-tran"><span>Trần thạch cao đã tính ở phần thô</span></label>
+          <label><input type="checkbox" id="pt-tbvs"><span>Bồn cầu, vòi lavabo, sen tắm đã tính ở phần thô</span></label>
+          <small>Món được đánh dấu chuyển sang "Đã bỏ", bấm "Thêm lại" ở từng món nếu muốn tính lại. Tủ lavabo kèm chậu và gương vẫn tính ở đây.</small>
+        </div>
         <div class="hint" style="margin-bottom:4px">Áp một mức cho tất cả món:</div>
         <div class="muc-all" id="muc-all"></div>
         <div class="bam-goi-y"><i class="ph-duotone ph-hand-pointing"></i><span><b>Bấm vào từng phòng</b> để xem ảnh, đơn giá và chỉnh từng món.</span></div>
@@ -435,7 +447,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <b>Cách đọc:</b> mỗi mức là một khoảng, không phải báo giá. Tổng đã gồm dự phòng phát sinh 10–20% và phí thiết kế nội thất.<br>
       <b>Đã tính:</b> đồ gỗ đóng sẵn, đồ rời chính (sofa, giường, bàn ăn, nệm), thiết bị bếp chính, thiết bị vệ sinh (bồn cầu, tủ lavabo, sen vòi, vách kính, phụ kiện), trần thạch cao, sàn gỗ phòng ngủ, đèn, rèm.<br>
       <b>Chưa tính:</b> sơn bả, gạch, đường ống điện nước, cửa, bình nóng lạnh, đồ điện tử, tủ lạnh, đồ trang trí.<br>
-      <b>Lưu ý:</b> nếu thiết bị vệ sinh đã nằm trong hợp đồng xây nhà, anh/chị chọn "Không làm" cho các món đó ở bảng từng món để không tính hai lần.<br>
+      <b>Lưu ý:</b> nếu trần thạch cao hoặc thiết bị vệ sinh đã tính ở trang dự toán phần thô của ALN, hoặc đã nằm trong hợp đồng xây nhà, anh/chị đánh dấu ở đầu bảng từng món để không tính hai lần.<br>
       <b>Nguồn giá:</b> giá tham khảo thị trường từ bảng giá công khai của các đơn vị nội thất, chủ yếu tại TP.HCM. Bảng giá phiên bản 0.2, cập nhật tháng 9/2026. Tỉnh khác có thể chênh lệch.
     </div>
 
@@ -908,9 +920,9 @@ async function moBang(giuLai) {
       // Giữ lựa chọn của khách; món co giãn theo kích thước/diện tích thì lấy số lượng mới.
       let sl = c.sl;
       if (c.muc !== 'bo' && (m.co_gian || !c.tuChinh) && m.sl[c.muc] > 0) sl = m.sl[c.muc];
-      DONG.push({ phong: pi, m, muc: c.muc, sl, tuChinh: c.tuChinh && !m.co_gian, bo: c.bo, gk: c.gk, gkNguon: c.gkNguon, gkMo: c.gkMo, gkSai: c.gkSai, gkRaw: c.gkRaw, gkLoi: c.gkLoi });
+      DONG.push({ phong: pi, m, muc: c.muc, sl, tuChinh: c.tuChinh && !m.co_gian, bo: c.bo, boPhanTho: c.boPhanTho, gk: c.gk, gkNguon: c.gkNguon, gkMo: c.gkMo, gkSai: c.gkSai, gkRaw: c.gkRaw, gkLoi: c.gkLoi });
     } else {
-      DONG.push({ phong: pi, m, muc: m.sl.kha > 0 ? 'kha' : 'bo', sl: m.sl.kha > 0 ? m.sl.kha : slMax });
+      DONG.push({ phong: pi, m, muc: m.sl.kha > 0 ? 'kha' : 'bo', sl: m.sl.kha > 0 ? m.sl.kha : slMax, bo: boTheoPhanTho(m.ma) || undefined, boPhanTho: boTheoPhanTho(m.ma) || undefined });
     }
   }));
   // Món khách tự thêm (ALN hoặc "Món khác") giữ nguyên qua các lần tải lại bảng (đổi kích thước).
@@ -1038,6 +1050,45 @@ document.getElementById('muc-all').addEventListener('click', (e) => {
   });
   veBang();
   henLuuLuaChon();
+});
+
+/* Không tính trùng với trang dự toán phần thô (01/10/2026). Phần "vật tư tự mua"
+   ở du-toan-nha.html gồm thiết bị vệ sinh (lavabo, bàn cầu, sen vòi), và với nhà
+   6 tầng trở lên gồm cả trần thạch cao. Trang đó ghi dấu 'aln-phantho-ht'
+   (localStorage, cùng tên miền) sau mỗi lần tính → ô tự đánh dấu sẵn.
+   Món đánh dấu dùng cờ "Bỏ món" có sẵn (d.bo), nên máy chủ lưu như món bỏ thường. */
+const MA_PHAN_THO = { tran: ['HT01'], tbvs: ['WC01', 'WC02', 'WC04'] };
+const PT = { tran: false, tbvs: false };
+function boTheoPhanTho(ma) {
+  return (PT.tran && MA_PHAN_THO.tran.includes(ma)) || (PT.tbvs && MA_PHAN_THO.tbvs.includes(ma));
+}
+(function docDauPhanTho() {
+  let dau = null;
+  try { dau = JSON.parse(localStorage.getItem('aln-phantho-ht') || 'null'); } catch (e) {}
+  if (!dau || typeof dau !== 'object' || !(Date.now() - Number(dau.luc) < 90 * 864e5)) return;
+  PT.tran = dau.tran === true;
+  PT.tbvs = dau.tbvs === true;
+  document.getElementById('pt-tran').checked = PT.tran;
+  document.getElementById('pt-tbvs').checked = PT.tbvs;
+  if (PT.tran || PT.tbvs) {
+    const ds = [PT.tran ? 'trần thạch cao' : '', PT.tbvs ? 'bồn cầu, vòi lavabo, sen tắm' : ''].filter(Boolean).join(' và ');
+    document.getElementById('trung-pt-tt').textContent = `Lần tính phần thô gần nhất của anh/chị ở trang dự toán ALN đã gồm ${ds}. Bảng này đã đánh dấu sẵn để không tính lại; bỏ đánh dấu nếu anh/chị muốn tính ở đây.`;
+  }
+})();
+['tran', 'tbvs'].forEach((k) => {
+  document.getElementById(k === 'tran' ? 'pt-tran' : 'pt-tbvs').addEventListener('change', (e) => {
+    PT[k] = e.target.checked;
+    let doi = false;
+    DONG.forEach((d) => {
+      if (d.them || !MA_PHAN_THO[k].includes(d.m.ma)) return;
+      if (PT[k] && !d.bo) { d.bo = true; d.boPhanTho = true; doi = true; }
+      else if (!PT[k] && d.bo && d.boPhanTho) { d.bo = false; d.boPhanTho = false; doi = true; }
+    });
+    if (!doi || !BANG) return;
+    veBang();
+    nutLuu(TT_LUU);
+    henLuuLuaChon();
+  });
 });
 
 function tienDong(d, theoAln) {
@@ -1503,6 +1554,7 @@ document.getElementById('ds-phong').addEventListener('click', (e) => {
     const d = DONG[Number(ds.boMon)];
     if (!d) return;
     d.bo = !d.bo;
+    d.boPhanTho = false;
     veBang();
     nutLuu(TT_LUU);
     henLuuLuaChon();

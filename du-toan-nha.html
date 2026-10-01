@@ -551,6 +551,16 @@ function run(skipPrices,userInitiated){
  if(isBTV)return runBietThuVuon(skipPrices,userInitiated);
  return runThongThuong(skipPrices,userInitiated);
 }
+// Ghi dấu cho trang nội thất (01/10/2026): phần vật tư tự mua có trần thạch cao /
+// thiết bị vệ sinh không, để noi-that-khoang-gia.html không tính trùng. Bản doanh nghiệp bỏ qua.
+function ghiDauPhanTho(result){
+ try{
+  if(new URLSearchParams(location.search).get('dn')==='1')return;
+  const it=[];(result.lineHoanThien||[]).forEach(l=>(l.items||[]).forEach(r=>it.push(r)));
+  const co=re=>it.some(r=>re.test(r[0])&&r[3]>0);
+  localStorage.setItem('aln-phantho-ht',JSON.stringify({luc:Date.now(),tran:co(/^Trần thạch cao/),tbvs:co(/^Thiết bị vệ sinh/)}));
+ }catch(e){}
+}
 function runThongThuong(skipPrices,userInitiated){
  const key=cur(),S=DATA[key];
  if(!skipPrices||drawnFor!==key)drawPrices(key);
@@ -575,6 +585,7 @@ function runThongThuong(skipPrices,userInitiated){
  $('dockT').textContent=ty(result.totalChuaVat);
  draw($('rows'),result.lines,result.totalChuaVat);
  draw($('rowsH'),result.lineHoanThien,result.totalHoanThien);$('totH').textContent=fmt(result.totalHoanThien);
+ ghiDauPhanTho(result);
  window.__lastEstimate={modelKey:key,nhaMauNhan:S.label,dienTich:{tx:a.tx,qd:a.qd,km:a.km},inputs:{...st.inp},priceOverrides:{...st.px},result};
  // P1.5 (spec mục 5) — dataLayer thuần, KHÔNG kèm Pixel/CAPI (chưa có contact/
  // lead ở bước này). run() chạy lại mỗi lần gõ phím nên debounce 1.2s sau lần
@@ -625,6 +636,7 @@ function runBietThuVuon(skipPrices,userInitiated){
  $('dockT').textContent=ty(result.totalChuaVat);
  draw($('rows'),result.lines,result.totalChuaVat);
  draw($('rowsH'),result.lineHoanThien,result.totalHoanThien);$('totH').textContent=fmt(result.totalHoanThien);
+ ghiDauPhanTho(result);
  window.__lastEstimate={modelKey:'thi_biet_thu_vuon_mai_thai',nhaMauNhan:'Biệt thự vườn 1 tầng mái Thái',dienTich:{tx:result.tx,qd:result.qd,km:result.km},inputs:{...st.inp},priceOverrides:{...st.px},result};
  scheduleTinh(userInitiated,{event:'aln_du_toan_tinh',aln_nha_mau:'thi_biet_thu_vuon_mai_thai',aln_so_san:1,aln_dien_tich_qd:Math.round(result.qd),aln_tong_chua_vat:result.totalChuaVat});
 }
