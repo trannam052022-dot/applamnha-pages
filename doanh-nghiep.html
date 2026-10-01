@@ -102,6 +102,10 @@ textarea{width:100%;font:inherit;font-size:15px;padding:10px 12px;border:1px sol
 .ck-box dt{color:var(--sub)} .ck-box dd{margin:0;font-weight:600;font-family:var(--mono,monospace)}
 .ck-box .nho{font-size:13px;color:var(--sub);margin:0 0 10px}
 .ck-box .hang{margin:0}
+/* Khung xác nhận ALN đã nhận tiền (Nam yêu cầu 01/10/2026): hiện đầu mục 2 trong 24 giờ sau khi xác nhận */
+.da-nhan{margin:10px 0 0;padding:12px 14px;border:1px solid var(--ok);border-radius:10px;background:#e3f3ea;color:#14532d;font-size:15px;line-height:1.5}
+.da-nhan b{font-family:var(--mono,monospace)}
+.tag-ghi{display:block;font-size:12px;color:var(--sub);margin-top:3px}
 .kq-bang{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
 .kq-bang th,.kq-bang td{border-bottom:1px solid var(--line);padding:6px;text-align:left}
 .kq-bang td.so{text-align:right;font-family:var(--mono);white-space:nowrap}
@@ -154,6 +158,7 @@ textarea{width:100%;font:inherit;font-size:15px;padding:10px 12px;border:1px sol
   <section class="card" id="bgCard">
     <h2>2. Báo giá</h2>
     <p class="gia" id="giaTxt"></p>
+    <div class="da-nhan" id="daNhan" hidden role="status"></div>
     <div class="hang"><a class="btn btn-gold" id="btnTao" href="du-toan-nha.html?dn=1">+ Lập báo giá mới</a><a class="btn btn-line" href="in-bao-gia-dn.html?mau=1" target="_blank" rel="noopener">Xem file mẫu</a></div>
     <p class="msg" id="bgMsg"></p>
     <div id="dsWrap" style="margin-top:12px">
@@ -229,6 +234,7 @@ let GIA = null, HO_SO = null, LOGO_MOI = null, daBatDau = false;
 function isPhoneAuthed(u) { return !!(u && !u.isAnonymous && u.phoneNumber); }
 function soVN(n) { return n == null ? '' : Math.round(Number(n)).toLocaleString('vi-VN'); }
 function ngayVN(ms) { return ms ? new Date(ms).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : ''; }
+function gioNgayVN(ms) { return ms ? new Date(ms).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' }) : ''; }
 function day(ev, p) { try { (window.dataLayer = window.dataLayer || []).push(Object.assign({ event: ev }, p || {})); } catch (e) {} }
 function hien(s) { $('stLoading').hidden = s !== 'loading'; $('stError').hidden = s !== 'error'; $('stMain').hidden = s !== 'main'; }
 function msg(el, text, kind) { el.textContent = text || ''; el.className = 'msg' + (kind ? ' ' + kind : ''); }
@@ -373,7 +379,18 @@ function nut(text, cls, onClick) {
   b.addEventListener('click', onClick);
   return b;
 }
+function veKhungDaNhan(ds) {
+  const el = $('daNhan'); el.textContent = '';
+  const moi = ds.filter((b) => b.da_thanh_toan && b.tt_luc_ms && Date.now() - b.tt_luc_ms < 24 * 3600e3).sort((a, b) => b.tt_luc_ms - a.tt_luc_ms);
+  if (!moi.length) { el.hidden = true; return; }
+  const b = moi[0];
+  el.appendChild(document.createTextNode('✓ ALN đã nhận '));
+  const so = document.createElement('b'); so.textContent = b.tt_so_tien ? soVN(b.tt_so_tien) + ' đ' : 'thanh toán'; el.appendChild(so);
+  el.appendChild(document.createTextNode((b.phuong_thuc_tt === 'ck_tay' ? ' chuyển khoản' : '') + ' cho báo giá "' + b.ten_khach + '" lúc ' + gioNgayVN(b.tt_luc_ms) + '. Cảm ơn anh/chị — bảng kết quả và nút Xuất PDF của báo giá này đã mở.'));
+  el.hidden = false;
+}
 function veDanhSach(ds) {
+  veKhungDaNhan(ds);
   const body = $('dsBody'); body.textContent = '';
   $('dsBang').hidden = !ds.length;
   $('dsTrong').hidden = !!ds.length;
@@ -390,6 +407,12 @@ function veDanhSach(ds) {
     const tag = document.createElement('span'); tag.className = 'tag ' + (b.da_thanh_toan ? 'ok' : 'cho');
     tag.textContent = b.da_thanh_toan ? 'Đã thanh toán' : (b.cho_thu_tay ? 'Đã báo chuyển khoản — chờ ALN xác nhận' : 'Chưa xuất');
     c5.appendChild(tag);
+    if (b.da_thanh_toan) {
+      // Nói rõ ALN đã nhận bao nhiêu, lúc nào, bằng cách nào — "Đã thanh toán" trơn khách không yên tâm (Nam 01/10/2026).
+      const xn = document.createElement('span'); xn.className = 'tag-ghi';
+      xn.textContent = 'ALN đã nhận ' + (b.tt_so_tien ? soVN(b.tt_so_tien) + ' đ' : 'thanh toán') + (b.phuong_thuc_tt === 'ck_tay' ? ' (chuyển khoản)' : b.phuong_thuc_tt === 'payos' ? ' (payOS)' : '') + (b.tt_luc_ms ? ' lúc ' + gioNgayVN(b.tt_luc_ms) : '') + '.';
+      c5.appendChild(xn);
+    }
     const sua = b.sua || {};
     const ghi = document.createElement('div'); ghi.className = 'ghi-sua';
     if (b.phien_ban > 1) ghi.textContent = 'Bản ' + b.phien_ban + '. ';
