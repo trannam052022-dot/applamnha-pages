@@ -4613,16 +4613,25 @@ window.fpDnChoThu = async function() {
     if (!ds.length) { alert('Không có doanh nghiệp nào đang chờ xác nhận chuyển khoản.'); return; }
     var luc = function(ms) { return ms ? new Date(ms).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : '?'; };
     var dong = ds.map(function(c, i) {
-      return (i + 1) + '. ' + c.ten_cong_ty + (c.sdt ? ' (' + c.sdt + ')' : '') + ' — khách ' + c.ten_khach + ' — ' + Number(c.so_tien || 0).toLocaleString('vi-VN') + ' đ — ND "' + c.noi_dung + '" — báo lúc ' + luc(c.bao_luc_ms) + (c.so_lan_bao > 1 ? ' (' + c.so_lan_bao + ' lần)' : '');
+      var tt = c.qua_han ? ' [QUÁ 48h — đã tự khoá]' : (c.mo_truoc ? ' [ĐÃ MỞ TRƯỚC, chờ đối chiếu]' : ' [chưa mở, chờ xác nhận]');
+      return (i + 1) + '. ' + c.ten_cong_ty + (c.sdt ? ' (' + c.sdt + ')' : '') + ' — khách ' + c.ten_khach + ' — ' + Number(c.so_tien || 0).toLocaleString('vi-VN') + ' đ — ND "' + c.noi_dung + '" — báo lúc ' + luc(c.bao_luc_ms) + (c.so_lan_bao > 1 ? ' (' + c.so_lan_bao + ' lần)' : '') + tt;
     }).join('\n');
-    var chon = prompt('Doanh nghiệp đã báo chuyển khoản, chờ xác nhận:\n\n' + dong + '\n\nKiểm tra tài khoản ngân hàng ĐÃ NHẬN TIỀN rồi nhập SỐ THỨ TỰ để xác nhận (mở kết quả + xuất file cho họ). Để trống nếu chỉ xem.', '');
+    var chon = prompt('Doanh nghiệp đã báo chuyển khoản:\n\n' + dong + '\n\nKiểm tra tài khoản ngân hàng rồi nhập:\n• SỐ THỨ TỰ (vd 1) = ĐÃ NHẬN TIỀN, xác nhận\n• k + số (vd k1) = KHÔNG thấy tiền, khoá lại báo giá đã mở trước\nĐể trống nếu chỉ xem.', '');
     if (chon === null || !chon.trim()) return;
-    var i2 = parseInt(chon, 10) - 1;
+    var khoa = /^k/i.test(chon.trim());
+    var i2 = parseInt(chon.trim().replace(/^k/i, ''), 10) - 1;
     if (!(i2 >= 0 && i2 < ds.length)) { toast('Số thứ tự không hợp lệ', 'err'); return; }
     var c = ds[i2];
-    if (!confirm('Xác nhận ĐÃ NHẬN ' + Number(c.so_tien || 0).toLocaleString('vi-VN') + ' đ từ ' + c.ten_cong_ty + ' (ND "' + c.noi_dung + '")?\nSau bước này doanh nghiệp xem được số và xuất PDF.')) return;
+    if (khoa) {
+      if (!c.mo_truoc && !c.qua_han) { toast('Báo giá này chưa mở trước — không có gì để khoá', 'err'); return; }
+      if (!confirm('KHÔNG thấy tiền từ ' + c.ten_cong_ty + ' (ND "' + c.noi_dung + '")?\nBáo giá sẽ bị khoá lại (ẩn số, không xuất PDF) cho tới khi anh xác nhận đã nhận.')) return;
+      r = (await fn({ hanh_dong: 'khong_nhan', bao_gia_id: c.id })).data || {};
+      toast('Đã khoá lại báo giá của ' + c.ten_cong_ty, 'ok');
+      return;
+    }
+    if (!confirm('Xác nhận ĐÃ NHẬN ' + Number(c.so_tien || 0).toLocaleString('vi-VN') + ' đ từ ' + c.ten_cong_ty + ' (ND "' + c.noi_dung + '")?' + (c.mo_truoc ? '\n(Báo giá đã mở trước — bước này chốt đối chiếu, đếm vào doanh thu.)' : '\nSau bước này doanh nghiệp xem được số và xuất PDF.'))) return;
     r = (await fn({ hanh_dong: 'thu_tien', bao_gia_id: c.id })).data || {};
-    toast(r.da_tra_truoc_do ? 'Báo giá này đã được xác nhận trước đó' : 'Đã xác nhận thu ' + Number(r.so_tien || 0).toLocaleString('vi-VN') + ' đ — ' + c.ten_cong_ty + ' xuất file được ngay', 'ok');
+    toast(r.da_tra_truoc_do ? 'Báo giá này đã được xác nhận trước đó' : 'Đã xác nhận thu ' + Number(r.so_tien || 0).toLocaleString('vi-VN') + ' đ — ' + c.ten_cong_ty + (r.mo_truoc ? ' (đã đối chiếu xong)' : ' xuất file được ngay'), 'ok');
   } catch(e) {
     toast('Lỗi: ' + (e.message || e), 'err');
   }

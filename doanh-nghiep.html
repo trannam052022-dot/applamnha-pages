@@ -177,7 +177,7 @@ textarea{width:100%;font:inherit;font-size:15px;padding:10px 12px;border:1px sol
         <dt>Số tiền</dt><dd id="ckSoTien"></dd>
         <dt>Nội dung</dt><dd id="ckNoiDung"></dd>
       </dl>
-      <p class="nho">Báo giá cho khách: <span id="ckKhach"></span>. Anh/chị ghi đúng nội dung chuyển khoản để ALN đối chiếu nhanh. Sau khi chuyển, bấm nút dưới — ALN xác nhận trong giờ làm việc rồi bảng kết quả và nút Xuất PDF tự mở.</p>
+      <p class="nho">Báo giá cho khách: <span id="ckKhach"></span>. Anh/chị ghi đúng nội dung chuyển khoản để ALN đối chiếu nhanh. Chuyển xong bấm nút dưới — bảng kết quả và nút Xuất PDF mở ngay, ALN đối chiếu sau trong giờ làm việc.</p>
       <div class="hang"><button class="btn btn-gold" type="button" id="ckDaChuyen">Tôi đã chuyển khoản</button><button class="btn btn-line" type="button" id="ckDong">Đóng</button></div>
       <p class="msg" id="ckMsg"></p>
     </div>
@@ -258,7 +258,7 @@ function veHoSo(hs) {
 function veGia(g, cs) {
   GIA = g;
   let t;
-  if (g && g.mo_ban && g.thanh_toan_tay) t = 'Mỗi file báo giá: ' + soVN(g.gia_moi_file) + ' đ, thanh toán bằng chuyển khoản tới tài khoản ALN (hiện khi bấm "Chuyển khoản & nhận file"). ALN xác nhận trong giờ làm việc, sau đó bảng kết quả và file PDF mở ngay.';
+  if (g && g.mo_ban && g.thanh_toan_tay) t = 'Mỗi file báo giá: ' + soVN(g.gia_moi_file) + ' đ, thanh toán bằng chuyển khoản tới tài khoản ALN (hiện khi bấm "Chuyển khoản & nhận file"). Chuyển xong bấm "Tôi đã chuyển khoản" là bảng kết quả và file PDF mở ngay; ALN đối chiếu sau trong giờ làm việc.';
   else if (g && g.mo_ban) t = 'Mỗi file báo giá: ' + soVN(g.gia_moi_file) + ' đ. Trả bằng mã QR chuyển khoản, trả xong tải PDF ngay.';
   else t = 'Dịch vụ xuất file đang chuẩn bị mở bán. Anh/chị vẫn lập và lưu báo giá được.';
   t += ' Trước khi thanh toán, anh/chị sửa báo giá thoải mái; bảng kết quả và file hiện sau khi thanh toán.';
@@ -381,7 +381,7 @@ function nut(text, cls, onClick) {
 }
 function veKhungDaNhan(ds) {
   const el = $('daNhan'); el.textContent = '';
-  const moi = ds.filter((b) => b.da_thanh_toan && b.tt_luc_ms && Date.now() - b.tt_luc_ms < 24 * 3600e3).sort((a, b) => b.tt_luc_ms - a.tt_luc_ms);
+  const moi = ds.filter((b) => b.da_thanh_toan && !b.cho_doi_chieu && b.tt_luc_ms && Date.now() - b.tt_luc_ms < 24 * 3600e3).sort((a, b) => b.tt_luc_ms - a.tt_luc_ms);
   if (!moi.length) { el.hidden = true; return; }
   const b = moi[0];
   el.appendChild(document.createTextNode('✓ ALN đã nhận '));
@@ -405,9 +405,19 @@ function veDanhSach(ds) {
     const c4 = document.createElement('td'); c4.textContent = ngayVN(b.tao_luc_ms);
     const c5 = document.createElement('td');
     const tag = document.createElement('span'); tag.className = 'tag ' + (b.da_thanh_toan ? 'ok' : 'cho');
-    tag.textContent = b.da_thanh_toan ? 'Đã thanh toán' : (b.cho_thu_tay ? 'Đã báo chuyển khoản — chờ ALN xác nhận' : 'Chưa xuất');
+    tag.textContent = b.cho_doi_chieu ? 'Đã mở — ALN đang đối chiếu chuyển khoản'
+      : b.doi_chieu_qua_han ? 'Tạm khoá — quá 48 giờ ALN chưa đối chiếu được'
+      : b.da_thanh_toan ? 'Đã thanh toán' : (b.cho_thu_tay ? 'Đã báo chuyển khoản — chờ ALN xác nhận' : 'Chưa xuất');
     c5.appendChild(tag);
-    if (b.da_thanh_toan) {
+    if (b.cho_doi_chieu) {
+      const xn = document.createElement('span'); xn.className = 'tag-ghi';
+      xn.textContent = 'Bảng kết quả và Xuất PDF đã mở từ ' + gioNgayVN(b.tt_luc_ms) + '. ALN đối chiếu chuyển khoản trong giờ làm việc; chưa thấy tiền sau 48 giờ thì tạm khoá lại.';
+      c5.appendChild(xn);
+    } else if (b.doi_chieu_qua_han) {
+      const xn = document.createElement('span'); xn.className = 'tag-ghi';
+      xn.textContent = 'Nhắn Zalo 0909 829 696 kèm ảnh giao dịch để ALN kiểm tra và mở lại.';
+      c5.appendChild(xn);
+    } else if (b.da_thanh_toan) {
       // Nói rõ ALN đã nhận bao nhiêu, lúc nào, bằng cách nào — "Đã thanh toán" trơn khách không yên tâm (Nam 01/10/2026).
       const xn = document.createElement('span'); xn.className = 'tag-ghi';
       xn.textContent = 'ALN đã nhận ' + (b.tt_so_tien ? soVN(b.tt_so_tien) + ' đ' : 'thanh toán') + (b.phuong_thuc_tt === 'ck_tay' ? ' (chuyển khoản)' : b.phuong_thuc_tt === 'payos' ? ' (payOS)' : '') + (b.tt_luc_ms ? ' lúc ' + gioNgayVN(b.tt_luc_ms) : '') + '.';
@@ -476,7 +486,9 @@ $('ckDaChuyen').addEventListener('click', async () => {
   try {
     const r = await callBaoGia({ hanh_dong: 'bao_ck', bao_gia_id: CK_BAO_GIA.id });
     const d = r.data || {};
-    if (d.da_thanh_toan) { msg($('ckMsg'), 'Báo giá này đã được xác nhận thanh toán.', 'ok'); }
+    if (d.da_thanh_toan) { msg($('ckMsg'), 'Báo giá này đã mở rồi.', 'ok'); }
+    else if (d.mo_truoc) msg($('ckMsg'), 'Cảm ơn anh/chị. Bảng kết quả và nút Xuất PDF của báo giá này đã mở ngay — ALN sẽ đối chiếu chuyển khoản trong giờ làm việc.', 'ok');
+    else if (d.ly_do === 'dang_cho_doi_chieu') msg($('ckMsg'), 'ALN đã nhận thông báo. Anh/chị đang có 1 báo giá ALN chưa đối chiếu xong, nên báo giá này sẽ mở ngay sau khi ALN xác nhận (trong giờ làm việc).', 'ok');
     else msg($('ckMsg'), 'ALN đã nhận thông báo. Sau khi đối chiếu, bảng kết quả và nút Xuất PDF sẽ tự mở — anh/chị tải lại trang này để xem.', 'ok');
     day('aln_dn_ck_bao');
     await taiDanhSach();
