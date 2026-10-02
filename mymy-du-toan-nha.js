@@ -386,6 +386,16 @@
       MM = api;
       return dienTuCau(text);
     },
+
+    // Ngữ cảnh gửi kèm mỗi câu hỏi AI (02/10/2026): số lần tính + 2 phương án gần
+    // nhất (du-toan-nha.html ghi window.alnDuToanLanTinh). Máy chủ lọc lại và tự
+    // quyết lúc nào được xin liên hệ (functions/lib/mymyPrompt.js khoiDuToanNha) —
+    // nên widget KHÔNG tự chen câu xin SĐT trên trang này.
+    nguCanh: function () {
+      var v = window.alnDuToanLanTinh || {};
+      var pa = Array.isArray(v.pa) ? v.pa : [];
+      return { trang: 'du-toan-nha', so_lan_tinh: Number(v.so) || 0, pa_1: pa[0] || '', pa_2: pa[1] || '' };
+    },
   };
 
   // Câu có đủ ngang × dài → điền luôn (dùng cả khi MyMy đang chờ 1 con số:

@@ -319,6 +319,12 @@ if (!document.getElementById('mymy-btn')) {
 
   /* Dò SĐT ở bất kỳ đâu trong câu — cùng logic với index.html, ghi vào
      Bảng liên hệ hợp nhất (contacts/) nếu tìm thấy. */
+  // Ngữ cảnh riêng của trang (window.ALN_MYMY_TRANG.nguCanh) — null nếu trang không có.
+  function nguCanhTrang(){
+    const trang = window.ALN_MYMY_TRANG;
+    if (!trang || typeof trang.nguCanh !== 'function') return null;
+    try { return trang.nguCanh() || null; } catch (e) { console.error('MyMy nguCanh lỗi:', e); return null; }
+  }
   function extractPhone(text){
     const candidates = text.match(/(?:\+?84|0)[\d\s.\-]{7,13}/g);
     if (!candidates) return null;
@@ -389,7 +395,9 @@ if (!document.getElementById('mymy-btn')) {
       addBot(mmHtml(res.reply || '')); // escape rồi mới định dạng (**đậm**, xuống dòng)
       S.history.push({ role: 'assistant', content: res.reply || '' });
       renderSuggestion(res.suggestion);
-      if (S.userTurns >= 3 && !S.askedPhone) {
+      // Trang có ngữ cảnh riêng (nguCanh) để máy chủ tự quyết lúc xin liên hệ —
+      // không chen câu xin SĐT cố định, tránh xin 2 lần.
+      if (S.userTurns >= 3 && !S.askedPhone && !nguCanhTrang()) {
         S.askedPhone = true;
         setTimeout(() => addBot('Để đội ngũ ALN liên hệ tư vấn kỹ hơn, ' + S.addr + ' để lại SĐT giúp em nha?'), 900);
       }
@@ -492,7 +500,7 @@ if (!document.getElementById('mymy-btn')) {
         const res = await withTimeout(
           fnAlnChat({
             messages: history, agentName: 'MyMy', toUser: S.addr,
-            userName: null, role: null, pageContext,
+            userName: null, role: null, pageContext, nguCanhTrang: nguCanhTrang(),
           }),
           20000,
           'Hết thời gian chờ phản hồi từ MyMy'
@@ -500,7 +508,10 @@ if (!document.getElementById('mymy-btn')) {
         return res.data || {};
       };
       upsertContact = (phone) => {
-        damBaoPhien().then(() => fnUpsertContact({ phone, name: null, loai_lien_he: 'khach_hang', nguon: 'mymy_chat', chi_tiet_nguon: 'MyMy chat — ' + pageContext })).catch((e) => console.warn('upsertContact:', e.message));
+        // Trang có ngữ cảnh: ghi kèm phương án gần nhất để KTS gọi lại không phải hỏi lại kích thước.
+        const nc = nguCanhTrang();
+        const chiTiet = 'MyMy chat — ' + pageContext + (nc && nc.pa_1 ? ' · ' + nc.pa_1 : '');
+        damBaoPhien().then(() => fnUpsertContact({ phone, name: null, loai_lien_he: 'khach_hang', nguon: 'mymy_chat', chi_tiet_nguon: chiTiet.slice(0, 200), kenh_lead: nc && nc.trang === 'du-toan-nha' ? 'mymy_du_toan' : 'mymy_chat' })).catch((e) => console.warn('upsertContact:', e.message));
       };
     } catch (e) {
       console.error('MyMy widget init lỗi:', e);
