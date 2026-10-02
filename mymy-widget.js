@@ -79,6 +79,7 @@ if (!document.getElementById('mymy-btn')) {
 #mymy-win.mm-chu-lon .mm-qbtn.mm-nut-lon{font-size:15px;padding:10px 15px}
 #mymy-win.mm-chu-lon #mymy-input{font-size:16px}
 #mymy-win.mm-chu-lon #mymy-msgs{max-height:min(460px,56vh)}
+@media(min-width:481px){#mymy-win.mm-chu-lon{max-height:min(560px,calc(100vh - 120px))}}
 .mm-qbtn{padding:6px 12px;border-radius:99px;font-size:11px;font-weight:700;letter-spacing:.01em;border:1px solid rgba(255,255,255,.22);color:#efe9dc;text-shadow:0 1px 3px rgba(0,0,0,.6);background:rgba(0,0,0,.44);cursor:pointer}
 .mm-qbtn:hover{background:rgba(224,170,62,.22);border-color:rgba(224,170,62,.55);color:#fff}
 #mymy-input-row{padding:10px 12px;border-top:1px solid rgba(255,255,255,.18);display:flex;gap:8px;align-items:center}

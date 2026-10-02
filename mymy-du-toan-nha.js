@@ -605,7 +605,8 @@
   /* ── MyMy tự chào và hỏi luôn (Nam 30/09/2026: "MyMy nên chào và chủ động hỏi
         để điền thông tin cho khách") ──
      Sau TU_CHAO_SAU_MS, nếu khách chưa gõ ô nào, không đang ở trong ô nhập và
-     chưa mở chat → mở khung chat, chào, hỏi ngay câu 1/5, kèm nút "Để tôi tự điền".
+     chưa mở chat → mở khung chat, chào, hỏi ngay câu 1/5, kèm nút "Để lại số cho KTS gọi"
+     và "Để tôi tự điền".
      1 lần mỗi phiên trình duyệt (bấm "tự điền" hay × cũng không hỏi lại trong phiên).
      Chỉ chạy khi widget đúng bản có window.alnMyMyMo — bản cũ còn trong bộ nhớ
      đệm thì bỏ qua, không mở lời chào cũ. Không tính là khách mở chat (GA4). */
@@ -631,7 +632,13 @@
     ghiDaTuChao();
     ga('aln_mymy_huong_dan', { buoc: 'tu_chao' });
     dl = {};
-    choMo = function () { hoiNgang([{ nhan: 'Để tôi tự điền', lam: tuDienThoi, khongNhacLai: false }]); };
+    // Nam 02/10/2026: đa số khách chỉ thấy luồng tự chào này → để sẵn nút để lại số.
+    choMo = function () {
+      hoiNgang([
+        { nhan: NUT_DE_LAI_SO, lam: moiDeLaiSo },
+        { nhan: 'Để tôi tự điền', lam: tuDienThoi, khongNhacLai: false },
+      ]);
+    };
     window.alnMyMyMo(true);
   }, TU_CHAO_SAU_MS);
 
