@@ -614,7 +614,8 @@
      Bấm → mở chat, câu trong bong bóng là lời mở đầu (ghi vào lịch sử gửi AI để AI
      biết đang nói về phương án nào — nguCanh đã kèm pa_1/pa_2).
      1 lần mỗi phiên trình duyệt; bấm × thì không hiện lại. Không che ô tổng tiền
-     (#total, thanh .dock): đè lên thì tạm ẩn, hết đè mới hiện lại.
+     (#total, thanh .dock) và cột số tiền của bảng kết quả (#out .am, td.v): màn rộng
+     thì dời sang trái tránh cột tiền; vẫn đè thì tạm ẩn, hết đè mới hiện lại.
      GA4 aln_mymy_bong_bong {buoc: hien|bam|tat, ly_do: so_lan_tinh|o_lai_45s}. */
   var KEY_BB = 'aln_mymy_dt_bong_bong';
   var BB_GIAY = 45;
@@ -650,6 +651,15 @@
     if (!r.width || !r.height) return false;
     return q.left < r.right && q.right > r.left && q.top < r.bottom && q.bottom > r.top;
   }
+  // Ô số tiền trong bảng kết quả đang nằm dưới vùng q (cột tiền từng nhóm + bảng chi tiết).
+  function soTienDangDe(q) {
+    var ds = document.querySelectorAll('#out .am, #out td.v');
+    var kq = [];
+    for (var i = 0; i < ds.length; i++) {
+      if (deLen(q, ds[i])) kq.push(ds[i].getBoundingClientRect());
+    }
+    return kq;
+  }
   function datViTriBB() {
     if (!bbEl) return;
     var nut = $('mymy-btn');
@@ -661,7 +671,20 @@
     bbEl.style.visibility = 'hidden';
     bbEl.style.display = 'block';
     var q = bbEl.getBoundingClientRect();
-    var che = deLen(q, $('total')) || deLen(q, document.querySelector('.dock'));
+    // Màn rộng (bảng kết quả là cột bên phải, 02/10/2026): không đè cột số tiền —
+    // dời bong bóng sang trái cho mép phải nằm trước cột tiền đang bị đè.
+    if (window.innerWidth >= 980) {
+      var tien = soTienDangDe(q);
+      if (tien.length) {
+        var trai = Math.min.apply(null, tien.map(function (r) { return r.left; }));
+        var phai = trai - 10;
+        if (phai - 180 < 8) { bbEl.style.visibility = 'hidden'; return; }
+        bbEl.style.right = (window.innerWidth - phai) + 'px';
+        bbEl.style.maxWidth = Math.min(300, phai - 8) + 'px';
+        q = bbEl.getBoundingClientRect();
+      }
+    }
+    var che = deLen(q, $('total')) || deLen(q, document.querySelector('.dock')) || (window.innerWidth >= 980 && soTienDangDe(q).length > 0);
     bbEl.style.visibility = che ? 'hidden' : 'visible';
     if (!che && !bbDaGhi) {
       bbDaGhi = true;
