@@ -110,6 +110,9 @@ input[aria-invalid="true"]{border-color:var(--warn)}
 .areas span{font-size:12px;color:var(--muted)}
 .note{margin-top:12px;font-size:13.5px;border-left:3px solid var(--gold);background:var(--gold-soft);padding:9px 12px;border-radius:0 8px 8px 0;color:var(--sub)}
 .note.warn{color:var(--warn)}
+/* Đang chờ máy chủ tính (02/10/2026) — mờ kết quả cũ, không giật trang */
+body.dang-tinh #out{opacity:.55;transition:opacity .15s}
+body.dang-tinh #dockT{color:#fff;opacity:.8}
 table{width:100%;border-collapse:collapse}
 .pt td{padding:6px 0;border-bottom:1px solid var(--line);vertical-align:middle;font-size:14px}
 .pt td:nth-child(2){color:var(--muted);font-size:12.5px;width:52px;text-align:center}
@@ -241,7 +244,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
          type="number" chuẩn HTML5 từ chối dấu phẩy thập phân kiểu VN, "4,5"
          gõ vào sẽ bị trình duyệt âm thầm làm rỗng). Founder chốt 21/09/2026
          (6) mở rộng sang 6 field kích thước + móng. Parse bằng num() dùng
-         chung (du-toan-nha-calc.js) qua capNhatLoiKichThuoc() bên dưới —
+         chung (du-toan-nha-ui.js) qua capNhatLoiKichThuoc() bên dưới —
          rỗng/không hợp lệ hiện lỗi NGAY dưới ô (div.field-err), KHÔNG để
          NaN lan vào kết quả hiển thị (xem gate đầu run()). -->
     <div><label for="w1">Rộng mặt tiền (m)</label><input id="w1" type="text" inputmode="decimal" autocomplete="off"><div class="field-err" id="w1Err" hidden></div></div>
@@ -273,7 +276,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       thêm 21/09/2026 (2), thay cho việc chặn hẳn nhà 1 tầng trước đây). Mái
       Thái kèo thép gác trên giằng tường + cột, KHÔNG có sàn mái BTCT — tính
       riêng ngoài bảng vật tư nhà mẫu, xem computeBietThuVuonMaiThai() trong
-      du-toan-nha-calc.js. <details> = đúng ý "mở chi tiết được" Founder yêu
+      du-toan-nha-ui.js. <details> = đúng ý "mở chi tiết được" Founder yêu
       cầu (xem breakdown diện tích/hệ số dốc trong khối vừa tính). -->
  <details class="sec card" id="secMaiThai" hidden>
   <summary><span class="st"><span class="sn">M</span>Mái Thái (biệt thự vườn 1 tầng)</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary>
@@ -283,7 +286,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- type="text" (KHÔNG phải "number") — sự cố production PR #219: input
          type="number" chuẩn HTML5 từ chối dấu PHẨY thập phân kiểu Việt Nam
          (vd gõ "0,8"), .value âm thầm trả về "" thay vì báo lỗi. Parse bằng
-         num() dùng chung trong du-toan-nha-calc.js (đọc được cả "0,8" lẫn
+         num() dùng chung trong du-toan-nha-ui.js (đọc được cả "0,8" lẫn
          "0.8"/"650.000") thay vì để trình duyệt tự validate. -->
     <div><label for="dua">Độ đua mái (m)</label><input id="dua" type="text" inputmode="decimal" autocomplete="off"></div>
     <div><label for="doc_mai">Độ dốc mái (độ)</label><input id="doc_mai" type="text" inputmode="decimal" autocomplete="off"></div>
@@ -332,6 +335,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <aside class="res" id="res">
  <div class="card">
   <div id="blocked" class="note warn" hidden></div>
+  <!-- Lỗi từ máy chủ tính (giá nhân công để trống, quá nhiều lượt…) — giữ nguyên
+       kết quả cũ trên màn hình, chỉ nhắc; khác #blocked (chặn hẳn). -->
+  <div id="tinhLoi" class="note warn" hidden></div>
   <!-- Bản doanh nghiệp (?dn=1): trả tiền trước, xem kết quả sau (Nam chốt 01/10/2026).
        Che #out tới khi báo giá đã thanh toán; số tiền bị xoá khỏi màn hình sau mỗi lần tính. -->
   <div id="dnChe">
@@ -445,14 +451,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </div>
 <div class="dock" data-mymy-tranh><span>Ước tính: <b id="dockT">—</b></span><a href="#tuVan">Nhờ KTS xem</a></div>
 
-<!-- Dữ liệu 2 nhà mẫu + hàm tính — module dùng chung với Cloud Function
-     saveEstimateToHouse (functions/saveEstimateToHouse.js). Nạp TRƯỚC script
-     chính bên dưới (đọc window.ALN_DUTOAN_DATA/ALN_DUTOAN_CALC ngay khi chạy). -->
-<script src="du-toan-nha-data.js"></script>
-<script src="du-toan-nha-calc.js"></script>
+<!-- Phần tính CÔNG KHAI (diện tích, chọn nhà mẫu, luật ngoài vùng, parse số)
+     — du-toan-nha-ui.js, bản sao trong functions/du-toan-nha-shared/ (CI chặn
+     lệch). Khối lượng/hao phí nhà mẫu + công thức ra tiền KHÔNG còn nạp vào
+     trang từ 02/10/2026: trang gọi Cloud Function tinhDuToanNha và nhận về
+     đúng các dòng đã ra tiền (xem goiTinhTrenMayChu bên dưới). -->
+<script src="du-toan-nha-ui.js?v=1"></script>
 <script>
-const {pickModel,computeAreas,computeEstimate,num,fmt,kiemTraNgoaiVung,MAI_LOAI,MAI_LOAI_MAC_DINH,ghiChuMai,computeBietThuVuonMaiThai,MAI_THAI_MAC_DINH,TEN_MUC_SAN_MAI_BTCT_MR_THI,MONG_MAC_DINH_BIET_THU_VUON,MONG_MAC_DINH_NHA_PHO}=window.ALN_DUTOAN_CALC;
-const {DATA,NAMES,GROUPS}=window.ALN_DUTOAN_DATA;
+const {pickModel,computeAreas,num,fmt,kiemTraNgoaiVung,MAI_LOAI,MAI_LOAI_MAC_DINH,ghiChuMai,MAI_THAI_MAC_DINH,MONG_MAC_DINH_BIET_THU_VUON,MONG_MAC_DINH_NHA_PHO}=window.ALN_DUTOAN_UI;
+// Bản doanh nghiệp chưa thanh toán: che số ngay từ đầu (module ?dn=1 bên dưới
+// bỏ che khi đã trả/Founder) — và KHÔNG gọi máy chủ tính khi đang che, nên
+// số tiền không xuất hiện trong phản hồi mạng (trước 02/10/2026 số vẫn tính
+// trong trình duyệt, DevTools đọc được).
+if(new URLSearchParams(location.search).get('dn')==='1')document.body.classList.add('dn-che');
 const DEF={w1:5,w2:5,l1:20,l2:20,n:4,st:'0.7',tm:'0',ham:'0',sant:0,bc:0,mai:'',mai_loai:MAI_LOAI_MAC_DINH,mong:70,
  dua:MAI_THAI_MAC_DINH.dua,doc_mai:MAI_THAI_MAC_DINH.docDo,dong_gia_mai_thai:MAI_THAI_MAC_DINH.donGia,
  khoan:1900000,cong:550000,mep:250000,ql:23.8,vat:8,lm:'khoan'};
@@ -478,7 +489,6 @@ if(st.inp.mongBTV===undefined)st.inp.mongBTV=MONG_MAC_DINH_BIET_THU_VUON;
 if(st.inp.mongBTVTuySua===undefined)st.inp.mongBTVTuySua=false;
 const $=id=>document.getElementById(id);
 const ty=n=>n>=1e9?(n/1e9).toLocaleString('vi-VN',{maximumFractionDigits:2})+' tỷ':(n/1e6).toLocaleString('vi-VN',{maximumFractionDigits:0})+' triệu';
-const nm=m=>NAMES[m]||m;
 for(let i=1;i<=9;i++)$('n').insertAdjacentHTML('beforeend',`<option value="${i}">${i} sàn</option>`);
 Object.keys(MAI_LOAI).forEach(k=>$('mai_loai').insertAdjacentHTML('beforeend',`<option value="${eH(k)}">${eH(MAI_LOAI[k].label)} (${Math.round(MAI_LOAI[k].tyLe*100)}% quy đổi)</option>`));
 // "mong" KHÔNG nằm trong danh sách chung — có handler riêng bên dưới (phải
@@ -518,24 +528,71 @@ function capNhatGiaoDienBietThuVuon(isBTV){
  apDungMongTheoCheDo(isBTV);
 }
 document.querySelectorAll('input[name=lm]').forEach(r=>{r.checked=r.value===(st.inp.lm||'khoan');r.addEventListener('change',e=>{st.inp.lm=r.value;run(false,e.isTrusted)})});
-$('resetP').onclick=e=>{st.px={};drawPrices(cur());run(false,e.isTrusted)};
-$('moreT').onclick=()=>{showAllT=!showAllT;drawPrices(cur())};
+$('resetP').onclick=e=>{st.px={};drawPrices(drawnFor||cur());run(false,e.isTrusted)};
+$('moreT').onclick=()=>{showAllT=!showAllT;drawPrices(drawnFor||cur())};
 function cur(){return laBietThuVuon()?'thi':pickModel($('n').value,$('tm').value)}
-function price(m,S){return st.px[m]!=null&&st.px[m]!==''?num(st.px[m]):S.prices[m]}
-let drawnFor=null;
-function drawPrices(key,boQuaTen){
- const S=DATA[key];drawnFor=key+(boQuaTen?'|btv':'');
- const boQuaSet=boQuaTen&&boQuaTen.length?new Set(boQuaTen):null;
- const shareT={},shareH={};
- S.items.forEach(it=>{if(boQuaSet&&boQuaSet.has(it.n))return;for(const m in it.t)shareT[m]=(shareT[m]||0)+it.t[m]*S.prices[m];for(const m in it.h)shareH[m]=(shareH[m]||0)+it.h[m]*S.prices[m]});
- const row=(m)=>{const ch=st.px[m]!=null&&st.px[m]!==''&&num(st.px[m])!==S.prices[m];return `<tr class="${ch?'chg':''}"><td>${eH(nm(m))}</td><td>${eH(S.units[m]||'')}</td><td><input type="number" min="0" inputmode="numeric" data-m="${eH(m)}" value="${eH(price(m,S))}" aria-label="Giá ${eH(nm(m))}"></td></tr>`};
- const T=Object.keys(shareT).filter(m=>shareT[m]>0&&S.cls[m]!=='hoan_thien').sort((a,b)=>shareT[b]-shareT[a]);
- const H=Object.keys(shareH).filter(m=>shareH[m]>0&&S.cls[m]==='hoan_thien').sort((a,b)=>shareH[b]-shareH[a]);
+function price(m,giaMacDinh){return st.px[m]!=null&&st.px[m]!==''?num(st.px[m]):giaMacDinh}
+// Bảng giá vật tư (tên/đơn vị/giá mặc định, đã xếp theo tỷ trọng) do máy chủ
+// trả cùng kết quả — nhớ theo khoá nhà mẫu ('thi' | 'hoang' | 'thi|btv').
+let drawnFor=null; const bangGiaTheoKey={};
+function drawPrices(bgKey){
+ const bg=bangGiaTheoKey[bgKey]; if(!bg)return; drawnFor=bgKey;
+ const row=(d)=>{const ch=st.px[d.m]!=null&&st.px[d.m]!==''&&num(st.px[d.m])!==d.gia;return `<tr class="${ch?'chg':''}"><td>${eH(d.ten)}</td><td>${eH(d.dv||'')}</td><td><input type="number" min="0" inputmode="numeric" data-m="${eH(d.m)}" data-gia="${eH(d.gia)}" value="${eH(price(d.m,d.gia))}" aria-label="Giá ${eH(d.ten)}"></td></tr>`};
+ const T=bg.T,H=bg.H;
  const Tv=showAllT?T:T.slice(0,8);
  $('ptT').innerHTML=Tv.map(row).join('');$('ptH').innerHTML=H.map(row).join('');
  $('moreT').textContent=showAllT?'Thu gọn':`Xem thêm ${T.length-8} loại vật tư`;$('moreT').hidden=T.length<=8;
- document.querySelectorAll('.pt input').forEach(inp=>inp.addEventListener('input',e=>{st.px[inp.dataset.m]=inp.value;inp.closest('tr').classList.toggle('chg',num(inp.value)!==S.prices[inp.dataset.m]);run(true,e.isTrusted)}));
+ document.querySelectorAll('.pt input').forEach(inp=>inp.addEventListener('input',e=>{st.px[inp.dataset.m]=inp.value;inp.closest('tr').classList.toggle('chg',num(inp.value)!==num(inp.dataset.gia));run(true,e.isTrusted)}));
 }
+// ── Gọi máy chủ tính (02/10/2026) ──
+// Hàm gọi thật do module Firebase bên dưới đặt vào (window.__alnDatGoiTinh);
+// script này chạy trước module nên chờ qua promise. Debounce 350 ms khi khách
+// gõ (lượt đầu lúc tải trang không chờ); lượt trả về muộn hơn lượt mới bị bỏ
+// (seq); kết quả nhớ theo payload để gõ qua lại không gọi lại.
+let _datGoiTinh; const goiTinhSan=new Promise(r=>{_datGoiTinh=r});
+window.__alnDatGoiTinh=fn=>_datGoiTinh(fn);
+let tinhSeq=0,tinhTimer=null; const nhoKQ=new Map();
+// Lượt tính đầu tiên xong (vẽ được, bị chặn hay lỗi) — module Lưu/autosave chờ
+// cái này trước khi đọc window.__lastEstimate (tính trên máy chủ nên không còn
+// có sẵn ngay lúc tải trang). window.__alnDuToanVe đếm số lần vẽ (test dùng).
+let _duToanSanXong; window.alnDuToanSan=new Promise(r=>{_duToanSanXong=r}); window.__alnDuToanVe=0;
+function daXongLuotDau(){_duToanSanXong()}
+function baoDaVe(){window.__alnDuToanVe++;document.dispatchEvent(new CustomEvent('aln:dutoan-ve'));daXongLuotDau()}
+function datTrangThaiTinh(dang){document.body.classList.toggle('dang-tinh',dang);if(dang)$('dockT').textContent='Đang tính…'}
+function payloadTinh(){
+ const i=st.inp;
+ return {inputs:{w1:$('w1').value,w2:$('w2').value,l1:$('l1').value,l2:$('l2').value,n:$('n').value,st:$('st').value,tm:$('tm').value,ham:$('ham').value,sant:$('sant').value,bc:$('bc').value,mai:$('mai').value,mai_loai:$('mai_loai').value,mong:$('mong').value,dua:$('dua').value,doc_mai:$('doc_mai').value,dong_gia_mai_thai:$('dong_gia_mai_thai').value},
+  priceOverrides:{...st.px},
+  nhanCong:{cheDo:i.lm||'khoan',khoanDonGia:$('khoan').value,congDonGia:$('cong').value},
+  mepDonGia:$('mep').value,qlPct:$('ql').value,vatPct:$('vat').value};
+}
+function goiTinhTrenMayChu(payload,cho){
+ clearTimeout(tinhTimer); const seq=++tinhSeq;
+ return new Promise(resolve=>{tinhTimer=setTimeout(async()=>{
+  const k=JSON.stringify(payload); let res=nhoKQ.get(k),err=null;
+  if(!res){
+   datTrangThaiTinh(true);
+   try{const f=await goiTinhSan;res=await f(payload);
+    if(!res||!res.ketQua||!Array.isArray(res.ketQua.lines)||!res.bangGia)throw Object.assign(new Error('Máy chủ trả dữ liệu không đúng dạng.'),{code:'functions/internal'});
+    nhoKQ.set(k,res);if(nhoKQ.size>80)nhoKQ.delete(nhoKQ.keys().next().value)}
+   catch(e){err=e;res=null}
+   datTrangThaiTinh(false);
+  }
+  if(seq!==tinhSeq){resolve(null);return}
+  resolve({res,err});
+ },cho)});
+}
+function hienLoiTinh(err){
+ daXongLuotDau();
+ const code=String(err&&err.code||'');
+ let m=err&&err.message||'';
+ if(/unavailable|internal|deadline|network|fetch/i.test(code+m)&&!/resource-exhausted/.test(code))m='Chưa kết nối được máy chủ tính, anh/chị kiểm tra mạng rồi thử lại.';
+ $('tinhLoi').textContent=m||'Chưa tính được, anh/chị thử lại.';$('tinhLoi').hidden=false;
+ if($('dockT').textContent==='Đang tính…')$('dockT').textContent='—';
+ if(err)try{window.alnBaoLoiNeuCan&&/internal|unavailable/.test(code)&&window.alnBaoLoiNeuCan('tinhDuToanNha',err)}catch(e){}
+}
+function anLoiTinh(){$('tinhLoi').hidden=true}
+function dangChe(){return document.body.classList.contains('dn-che')}
 function areas(){
  const raw={w1:$('w1').value,w2:$('w2').value,l1:$('l1').value,l2:$('l2').value,n:$('n').value,
   st:$('st').value,sant:$('sant').value,bc:$('bc').value,mai:$('mai').value,mai_loai:$('mai_loai').value,mong:$('mong').value};
@@ -591,6 +648,11 @@ function scheduleTinh(userInitiated,eventData){
   ghiLanTinh();
  },1200);
 }
+// Lượt run() mới nhất đang chạy — các nút Lưu/Gửi chờ xong (window.alnDuToanCho)
+// rồi mới đọc window.__lastEstimate, kẻo khách gõ xong bấm Lưu ngay trong 350 ms
+// debounce thì gửi đi ước tính CŨ (phát hiện qua test E phone-auth-guard).
+let runMoiNhat=null;
+window.alnDuToanCho=async function(){while(runMoiNhat){await runMoiNhat.catch(()=>{})}};
 // Ngữ cảnh cho MyMy (02/10/2026): số lần khách tính + 2 phương án gần nhất, đếm
 // CÙNG nhịp với aln_du_toan_tinh (mỗi lần tính khác nhau do khách bấm/gõ). Giữ
 // trong phiên (sessionStorage) để tải lại trang không mất. mymy-du-toan-nha.js đọc.
@@ -608,6 +670,11 @@ function ghiLanTinh(){
 }
 window.alnDuToanLanTinh=docLanTinh();
 function run(skipPrices,userInitiated){
+ const p=Promise.resolve(runLoi(skipPrices,userInitiated));
+ runMoiNhat=p; p.finally(()=>{if(runMoiNhat===p)runMoiNhat=null});
+ return p;
+}
+function runLoi(skipPrices,userInitiated){
  clearTimeout(duToanTinhTimer);
  const isBTV=laBietThuVuon();
  capNhatGiaoDienBietThuVuon(isBTV);
@@ -622,6 +689,7 @@ function run(skipPrices,userInitiated){
   $('blocked').textContent='Vui lòng sửa các ô đang báo lỗi ở trên trước khi xem ước tính.';
   $('out').hidden=true;
   $('dockT').textContent='—';
+  daXongLuotDau();
   return;
  }
  if(isBTV)return runBietThuVuon(skipPrices,userInitiated);
@@ -637,23 +705,27 @@ function ghiDauPhanTho(result){
   localStorage.setItem('aln-phantho-ht',JSON.stringify({luc:Date.now(),tran:co(/^Trần thạch cao/),tbvs:co(/^Thiết bị vệ sinh/)}));
  }catch(e){}
 }
-function runThongThuong(skipPrices,userInitiated){
- const key=cur(),S=DATA[key];
+async function runThongThuong(skipPrices,userInitiated){
+ const key=cur();
  if(!skipPrices||drawnFor!==key)drawPrices(key);
  const a=areas();$('aTx').textContent=fmt(a.tx);$('aQd').textContent=fmt(a.qd);$('aKm').textContent=fmt(a.km);
  let block=kiemTraNgoaiVung(st.inp);
  if(!block&&a.qd<30)block='Nhập kích thước để xem ước tính.';
  $('blocked').hidden=!block;$('blocked').textContent=block;$('out').hidden=!!block;
- $('scope').textContent=`Đang dùng nhà mẫu: ${S.label}. Khối lượng từng hạng mục được bóc từ bản vẽ thật của nhà mẫu rồi quy theo diện tích nhà bạn.`;
  const ghiChu=block?null:ghiChuMai(st.inp.mai_loai);
  $('maiNote').hidden=!ghiChu;$('maiNote').textContent=ghiChu||'';
  const lm=st.inp.lm||'khoan';$('fKhoan').hidden=lm!=='khoan';$('fCong').hidden=lm!=='cong';
- save(); if(block){$('dockT').textContent='—';return}
- const result=computeEstimate({
-  modelKey:key,qd:a.qd,km:a.km,priceOverrides:st.px,
-  nhanCong:{cheDo:lm,khoanDonGia:$('khoan').value,congDonGia:$('cong').value},
-  mepDonGia:$('mep').value,qlPct:$('ql').value,vatPct:$('vat').value,
- },{DATA,GROUPS});
+ save(); if(block){$('dockT').textContent='—';anLoiTinh();daXongLuotDau();return}
+ // Bản DN đang che: không gọi máy chủ (số tiền không có trong phản hồi mạng),
+ // chỉ giữ inputs để "Lưu báo giá" (máy chủ tự tính lại khi lưu).
+ if(dangChe()){window.__lastEstimate={modelKey:key,nhaMauNhan:key,dienTich:{tx:a.tx,qd:a.qd,km:a.km},inputs:{...st.inp},priceOverrides:{...st.px},result:null};daXongLuotDau();return}
+ const kq=await goiTinhTrenMayChu(payloadTinh(),userInitiated?350:0);
+ if(!kq)return; // đã có lượt mới hơn
+ if(kq.err){hienLoiTinh(kq.err);return}
+ anLoiTinh();
+ const result=kq.res.ketQua; bangGiaTheoKey[kq.res.bangGiaKey]=kq.res.bangGia;
+ if(drawnFor!==kq.res.bangGiaKey)drawPrices(kq.res.bangGiaKey);
+ $('scope').textContent=`Đang dùng nhà mẫu: ${result.modelLabel}. Khối lượng từng hạng mục được bóc từ bản vẽ thật của nhà mẫu rồi quy theo diện tích nhà bạn.`;
  $('congHint').textContent=`Khoảng ${fmt(result.congDinhMuc)} công theo định mức nhà nước — thợ làm khoán thường nhanh hơn định mức`;
  $('total').textContent=ty(result.totalChuaVat);$('perM2').textContent=fmt(result.perM2ChuaVat);$('tot2').textContent=fmt(result.totalChuaVat);
  $('vatLine').textContent=`Sau VAT ${result.vatPct}%: ${ty(result.totalSauVat)}`;
@@ -662,7 +734,8 @@ function runThongThuong(skipPrices,userInitiated){
  draw($('rows'),result.lines,result.totalChuaVat);
  draw($('rowsH'),result.lineHoanThien,result.totalHoanThien);$('totH').textContent=fmt(result.totalHoanThien);
  ghiDauPhanTho(result);
- window.__lastEstimate={modelKey:key,nhaMauNhan:S.label,dienTich:{tx:a.tx,qd:a.qd,km:a.km},inputs:{...st.inp},priceOverrides:{...st.px},result};
+ window.__lastEstimate={modelKey:key,nhaMauNhan:result.modelLabel,dienTich:{tx:a.tx,qd:a.qd,km:a.km},inputs:{...st.inp},priceOverrides:{...st.px},result};
+ baoDaVe();
  // P1.5 (spec mục 5) — dataLayer thuần, KHÔNG kèm Pixel/CAPI (chưa có contact/
  // lead ở bước này). run() chạy lại mỗi lần gõ phím nên debounce 1.2s sau lần
  // gõ cuối mới đẩy 1 sự kiện, tránh làm loãng dataLayer.
@@ -672,9 +745,8 @@ function runThongThuong(skipPrices,userInitiated){
 // theo mẫu Mr Thi (LOẠI khối lượng sàn mái BTCT của mẫu qua boQuaTen), mái
 // tính riêng theo giá thị trường. Dùng chung computeBietThuVuonMaiThai() với
 // server (functions/saveEstimateToHouse.js) — xem du-toan-nha-calc.js.
-function runBietThuVuon(skipPrices,userInitiated){
- const key='thi';
- if(!skipPrices||drawnFor!=='thi|btv')drawPrices(key,TEN_MUC_SAN_MAI_BTCT_MR_THI);
+async function runBietThuVuon(skipPrices,userInitiated){
+ if(!skipPrices||drawnFor!=='thi|btv')drawPrices('thi|btv');
  let block=kiemTraNgoaiVung(st.inp); // vẫn chặn nếu lỡ chọn kèm tầng hầm
  $('blocked').hidden=!block;$('blocked').textContent=block;$('out').hidden=!!block;
  $('scope').textContent='Ước tính theo nhà mẫu nhà phố + khối mái tính theo giá thị trường; ALN chưa có nhà mẫu biệt thự vườn.';
@@ -684,16 +756,16 @@ function runBietThuVuon(skipPrices,userInitiated){
  if(block){
   $('aTx').textContent='—';$('aQd').textContent='—';$('aKm').textContent='—';
   $('maiDienTichNghieng').textContent='—';$('maiHeSoDoc').textContent='—';$('maiQdHienThi').textContent='—';
-  $('dockT').textContent='—';
+  $('dockT').textContent='—';anLoiTinh();daXongLuotDau();
   return;
  }
- const result=computeBietThuVuonMaiThai({
-  thanInputs:{w1:$('w1').value,w2:$('w2').value,l1:$('l1').value,l2:$('l2').value,sant:$('sant').value,bc:$('bc').value,mong:$('mong').value},
-  mai:{dua:$('dua').value,docDo:$('doc_mai').value,donGia:$('dong_gia_mai_thai').value},
-  priceOverrides:st.px,
-  nhanCong:{cheDo:lm,khoanDonGia:$('khoan').value,congDonGia:$('cong').value},
-  mepDonGia:$('mep').value,qlPct:$('ql').value,vatPct:$('vat').value,
- },{DATA,GROUPS});
+ if(dangChe()){window.__lastEstimate={modelKey:'thi_biet_thu_vuon_mai_thai',nhaMauNhan:'Biệt thự vườn 1 tầng mái Thái',dienTich:null,inputs:{...st.inp},priceOverrides:{...st.px},result:null};daXongLuotDau();return}
+ const kq=await goiTinhTrenMayChu(payloadTinh(),userInitiated?350:0);
+ if(!kq)return;
+ if(kq.err){hienLoiTinh(kq.err);return}
+ anLoiTinh();
+ const result=kq.res.ketQua; bangGiaTheoKey[kq.res.bangGiaKey]=kq.res.bangGia;
+ if(drawnFor!==kq.res.bangGiaKey)drawPrices(kq.res.bangGiaKey);
  $('aTx').textContent=fmt(result.tx);$('aQd').textContent=fmt(result.qd);$('aKm').textContent=fmt(result.km);
  $('maiDienTichNghieng').textContent=fmt(result.maiThai.dienTichNghieng);
  $('maiHeSoDoc').textContent=result.maiThai.heSoDoc.toLocaleString('vi-VN',{maximumFractionDigits:2});
@@ -714,6 +786,7 @@ function runBietThuVuon(skipPrices,userInitiated){
  draw($('rowsH'),result.lineHoanThien,result.totalHoanThien);$('totH').textContent=fmt(result.totalHoanThien);
  ghiDauPhanTho(result);
  window.__lastEstimate={modelKey:'thi_biet_thu_vuon_mai_thai',nhaMauNhan:'Biệt thự vườn 1 tầng mái Thái',dienTich:{tx:result.tx,qd:result.qd,km:result.km},inputs:{...st.inp},priceOverrides:{...st.px},result};
+ baoDaVe();
  scheduleTinh(userInitiated,{event:'aln_du_toan_tinh',aln_nha_mau:'thi_biet_thu_vuon_mai_thai',aln_so_san:1,aln_dien_tich_qd:Math.round(result.qd),aln_tong_chua_vat:result.totalChuaVat});
 }
 const IC='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>';
@@ -731,9 +804,9 @@ function draw(el,lines,total){
 // câu trong khung chat, MyMy đặt giá trị vào ĐÚNG các ô như khách tự gõ rồi tính
 // lại (userInitiated=true — khách chủ động nhờ tính nên vẫn đếm aln_du_toan_tinh).
 // Chỉ nhận id trong danh sách ô chung `ids`, không đụng giá vật tư/nhân công.
-window.alnDuToanDienGiup=function(gt){
+window.alnDuToanDienGiup=async function(gt){
  Object.keys(gt||{}).forEach(id=>{if(!ids.includes(id))return;$(id).value=String(gt[id]);st.inp[id]=$(id).value});
- run(false,true);
+ await run(false,true); // 02/10/2026: tính trên máy chủ — trả Promise, mymy-du-toan-nha.js chờ
  const ghiChu=$('blocked').hidden?'':$('blocked').textContent.trim();
  if($('out').hidden)return {tong:0,tongChu:'',moiM2:'',chan:ghiChu||'Chưa tính được.'};
  const chu=(!$('btvTong').hidden?$('btvTongCong'):$('total')).textContent||'';
@@ -754,6 +827,9 @@ import { app, auth, onAuthStateChanged } from './firebase-config.js';
 import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js';
 
 const functionsInst = getFunctions(app, 'asia-southeast1');
+// Hàm tính trên máy chủ cho script chính (02/10/2026) — xem goiTinhTrenMayChu.
+const callTinh = httpsCallable(functionsInst, 'tinhDuToanNha', { timeout: 20000 });
+if (typeof window.__alnDatGoiTinh === 'function') window.__alnDatGoiTinh(async (p) => (await callTinh(p)).data);
 const callSaveEstimate = httpsCallable(functionsInst, 'saveEstimateToHouse');
 const callKhChonKhungGio = httpsCallable(functionsInst, 'khChonKhungGio');
 
@@ -903,6 +979,9 @@ async function doSave() {
   // Nếu không chặn ở đây, bấm "Lưu" lúc đó sẽ âm thầm lưu ƯỚC TÍNH CŨ (lần
   // cuối còn hợp lệ) dù form đang hiển thị lỗi — đúng dạng "tính/lưu ra số
   // sai" mà yêu cầu này muốn tránh, chỉ khác chỗ xảy ra (lưu, không phải tính).
+  // 02/10/2026: ước tính tính trên máy chủ — lúc autosave (vừa quay lại từ OTP)
+  // có thể chưa về; chờ lượt tính đầu tiên (tối đa 15 giây) rồi mới đọc.
+  if (window.alnDuToanCho) await window.alnDuToanCho();
   const blockedEl = document.getElementById("blocked");
   if (blockedEl && !blockedEl.hidden) {
     showMsg("Vui lòng sửa các ô đang báo lỗi ở trên trước khi lưu.", "error");
@@ -1049,8 +1128,9 @@ if (Q.get('dn') === '1') {
 
   /* ── Trả tiền trước, xem kết quả sau (Nam chốt 01/10/2026) ──
      Che khung kết quả (#out) và xoá mọi số tiền khỏi màn hình sau MỖI lần tính,
-     tới khi báo giá đang mở đã thanh toán (hoặc Founder xem thử). Số liệu vẫn
-     được tính trong trình duyệt để lưu báo giá (máy chủ tính lại khi lưu). */
+     tới khi báo giá đang mở đã thanh toán (hoặc Founder xem thử). Từ 02/10/2026
+     khi đang che, script chính KHÔNG gọi máy chủ tính (không có số nào trong
+     phản hồi mạng); "Lưu báo giá" chỉ gửi inputs, máy chủ tự tính lại khi lưu. */
   let dnDaTra = false, dnFounder = false;
   const O_TIEN = ['total', 'perM2', 'tot2', 'totH', 'dockT', 'btvPhanTho', 'btvMaiThai', 'btvTongCong'];
   function xoaSoTien() {
@@ -1064,14 +1144,18 @@ if (Q.get('dn') === '1') {
     else if (typeof window.run === 'function') { try { window.run(true, false); } catch (e) {} }
   }
   // Bọc run(): hàm tính của công cụ nằm ở script thường (window.run); sau mỗi lần tính, xoá số tiền nếu còn che.
+  // run() trả Promise từ 02/10/2026 (tính trên máy chủ; khi đang che thì không
+  // gọi máy chủ) — xoá số sau khi vẽ xong, không chỉ ngay sau khi gọi.
   if (typeof window.run === 'function') {
     const runGoc = window.run;
     window.run = function () {
       const r = runGoc.apply(this, arguments);
-      if (document.body.classList.contains('dn-che')) xoaSoTien();
+      const xoa = () => { if (document.body.classList.contains('dn-che')) xoaSoTien(); };
+      xoa(); Promise.resolve(r).then(xoa, () => {});
       return r;
     };
   }
+  document.addEventListener('aln:dutoan-ve', () => { if (document.body.classList.contains('dn-che')) xoaSoTien(); });
   capNhatChe();
   // Giá mỗi file + Founder xem thử — cần đăng nhập; chưa đăng nhập thì giữ che, không hiện giá.
   (async () => {
@@ -1156,6 +1240,7 @@ if (Q.get('dn') === '1') {
   let dangLuu = false;
   async function luu(thanhMoi) {
     if (dangLuu) return;
+    if (window.alnDuToanCho) await window.alnDuToanCho();
     const blocked = $('blocked');
     if (blocked && !blocked.hidden) { baoMsg('Vui lòng sửa các ô đang báo lỗi ở trên trước khi lưu.', true); return; }
     const est = window.__lastEstimate;
@@ -1372,6 +1457,7 @@ f.form.addEventListener('submit', async (e) => {
   e.preventDefault();
   if (dangGui) return;
   xoaLoi();
+  if (window.alnDuToanCho) await window.alnDuToanCho();
   const est = window.__lastEstimate;
   const blocked = document.getElementById('blocked');
   if (!est || !est.result || (blocked && !blocked.hidden)) {
@@ -1441,8 +1527,8 @@ f.form.addEventListener('submit', async (e) => {
 
 <!-- Nút MyMy + bóng chat mời (mymy-moi.js tự nạp). Gắn sau mốc đo 7 ngày DT-T9-2026 (Nam chốt, 01/10/2026). Thanh .dock có data-mymy-tranh → nút tự nâng lên trên thanh trên điện thoại. -->
 <!-- ?v=: đổi số khi sửa MyMy để trình duyệt không dùng bản cũ trong bộ nhớ đệm (30/09/2026: khách vẫn thấy lời chào cũ sau khi đã deploy). -->
-<script src="mymy-du-toan-nha.js?v=6"></script>
-<script type="module" src="mymy-widget.js?v=6"></script>
+<script src="mymy-du-toan-nha.js?v=7"></script>
+<script type="module" src="mymy-widget.js?v=7"></script>
 <script src="aln-zalo-widget.js" defer></script>
 <!-- ALN-PHAP-NHAN --><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"><style id="alnpn-css">.alnpn,.alnpn *{box-sizing:border-box;margin:0;padding:0;border:0;font:inherit;letter-spacing:normal;text-transform:none;text-shadow:none;float:none;background:none;min-width:0}.alnpn{display:block;width:100%;clear:both;position:relative;z-index:0;background:#0b1428;border-top:2px solid #d4a017;color:#cbd5e1;font-family:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:15px;font-weight:400;line-height:1.5;text-align:left;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;padding:28px 20px 88px}.alnpn-in{max-width:1280px;margin:0 auto;display:grid;gap:22px}.alnpn-brand{display:flex;align-items:center;gap:14px}.alnpn-brand img{display:block;flex:none;width:44px;height:44px;border-radius:10px}.alnpn-ten{font-weight:700;font-size:17px;line-height:1.3;letter-spacing:.03em;color:#fff}.alnpn-sub{margin-top:2px;font-size:13px;line-height:1.4;color:#9fb0c8}.alnpn-muc dt{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;line-height:1.3;letter-spacing:.08em;text-transform:uppercase;color:#e0b43a;margin-bottom:6px}.alnpn-muc dt svg{display:block;flex:none;width:16px;height:16px;fill:none;stroke:#e0b43a;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.alnpn-muc dd{font-size:15px;font-weight:500;line-height:1.45;color:#f1f5f9}.alnpn-mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:600;letter-spacing:.02em}.alnpn a{color:#fff;text-decoration:none}.alnpn a:hover,.alnpn a:focus-visible{color:#e0b43a;outline:none}.alnpn-note{font-size:13px;font-weight:400;color:#9fb0c8;margin-left:8px;white-space:nowrap}@media (min-width:768px){.alnpn{padding:26px 28px}.alnpn-in{grid-template-columns:auto auto auto auto;justify-content:space-between;align-items:stretch;gap:0}.alnpn-brand{align-self:center}.alnpn-muc{padding:0 0 0 28px;margin-left:28px;border-left:1px solid rgba(224,180,58,.22)}}@media (min-width:768px) and (max-width:1099px){.alnpn-in{grid-template-columns:auto minmax(0,1fr) auto;justify-content:stretch;row-gap:20px}.alnpn-brand{grid-column:1/-1;align-self:start}.alnpn-muc:nth-child(2){border-left:0;margin-left:0;padding-left:0}}</style><section class="alnpn" aria-label="Thông tin doanh nghiệp"><div class="alnpn-in"><div class="alnpn-brand"><img src="/icon-192.png" alt="" width="44" height="44" loading="lazy"><div><div class="alnpn-ten">CÔNG TY TNHH ALN</div><div class="alnpn-sub">Đơn vị chủ quản website applamnha.vn</div></div></div><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M10 12h5M10 16h5"/></svg>Mã số thuế</dt><dd class="alnpn-mono">3502593013</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-6-5.3-6-11a6 6 0 1 1 12 0c0 5.7-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/></svg>Địa chỉ</dt><dd>Khu TTTM Sonadezi, 536 Trung Sơn, Ngãi Giao, TP. Hồ Chí Minh</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 5 5L14 13l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>Hotline</dt><dd><a class="alnpn-mono" href="tel:0909829696">0909 829 696</a><span class="alnpn-note">KTS Trần Long</span></dd></dl></div></section>
 </body>

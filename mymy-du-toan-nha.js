@@ -324,8 +324,20 @@
     if (dl.st !== undefined) gt.st = dl.st;
     if (dl.tm !== undefined) gt.tm = dl.tm;
     if (dl.ham !== undefined) gt.ham = dl.ham;
-    var kq = window.alnDuToanDienGiup(gt);
-    ga('aln_mymy_dien_giup', { buoc: 'xong', co_ket_qua: kq.tong ? 1 : 0 });
+    // 02/10/2026: bảng tính trên máy chủ — alnDuToanDienGiup trả Promise
+    // (bản cũ trả thẳng object; Promise.resolve bọc cả hai cho an toàn).
+    MM.bot('Dạ em đang tính, anh/chị chờ em vài giây ạ…');
+    Promise.resolve(window.alnDuToanDienGiup(gt)).then(function (kq) {
+      kq = kq || {};
+      ga('aln_mymy_dien_giup', { buoc: 'xong', co_ket_qua: kq.tong ? 1 : 0 });
+      docKetQuaDienGiup(kq);
+    }, function () {
+      ga('aln_mymy_dien_giup', { buoc: 'xong', co_ket_qua: 0 });
+      docKetQuaDienGiup({ tong: 0, chan: 'chưa kết nối được máy chủ tính' });
+    });
+  }
+
+  function docKetQuaDienGiup(kq) {
     if (!kq.tong) {
       MM.bot('Dạ em đã điền ' + moTaNha() + ', nhưng bảng chưa tính được: ' + (kq.chan || 'có ô cần sửa') + '\nAnh/chị bấm "Nhờ KTS xem giúp" để KTS tính trực tiếp cho mình nha.');
       MM.nut([
