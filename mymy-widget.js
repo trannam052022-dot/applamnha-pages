@@ -72,6 +72,8 @@ if (!document.getElementById('mymy-btn')) {
 #mymy-quick{padding:0 14px 10px;display:flex;flex-wrap:wrap;gap:6px}
 .mm-nut-hang{display:flex;flex-wrap:wrap;gap:7px;max-width:88%}
 .mm-qbtn.mm-nut-lon{font-size:14px;padding:9px 14px;font-weight:600}
+.mm-nut-ghichu{flex-basis:100%;font-size:12.8px;line-height:1.5;color:#d6cfc0;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+.mm-nut-ghichu a{color:#e0aa3e}
 /* Trang có hướng dẫn riêng (khách nhiều người lớn tuổi): chữ lớn hơn */
 #mymy-win.mm-chu-lon .mm-bubble{font-size:15px;line-height:1.55}
 #mymy-win.mm-chu-lon .mm-qbtn.mm-nut-lon{font-size:15px;padding:10px 15px}
@@ -201,8 +203,9 @@ if (!document.getElementById('mymy-btn')) {
     bot(text){ addBot(mmHtml(text)); },
     user(text){ addUser(text); },
     // Hàng nút lớn (dễ bấm cho người lớn tuổi). Bấm 1 nút: gỡ hàng nút, hiện
-    // lại chữ của nút như khách vừa nói, rồi chạy việc của nút.
-    nut(ds){
+    // lại chữ của nút như khách vừa nói, rồi chạy việc của nút. ghiChu (tuỳ chọn):
+    // dòng chữ nhỏ ngay phía trên các nút (vd câu đồng ý xử lý dữ liệu), qua mmHtml.
+    nut(ds, ghiChu){
       const row = document.createElement('div');
       row.className = 'mm-row bot';
       const av = document.createElement('div');
@@ -210,6 +213,12 @@ if (!document.getElementById('mymy-btn')) {
       av.innerHTML = '<i class="ph-duotone ph-headset"></i>';
       const bb = document.createElement('div');
       bb.className = 'mm-bubble mm-nut-hang';
+      if (ghiChu) {
+        const gc = document.createElement('div');
+        gc.className = 'mm-nut-ghichu';
+        gc.innerHTML = mmHtml(String(ghiChu));
+        bb.appendChild(gc);
+      }
       (ds || []).forEach((d) => {
         const b = document.createElement('button');
         b.type = 'button';
@@ -243,6 +252,15 @@ if (!document.getElementById('mymy-btn')) {
       document.getElementById('mymy-badge').style.display = 'flex';
     },
     hienNutChung(){ document.getElementById('mymy-quick').style.display = 'flex'; },
+    // SĐT trong câu khách gõ (cùng quy tắc widget dùng để ghi contacts), null nếu không có.
+    laySdt(text){ return extractPhone(String(text || '')); },
+    // Ghi 1 lượt vào lịch sử gửi AI — trang tự trả lời mà vẫn muốn AI biết chuyện đã xảy ra
+    // (vd khách đã để số + bấm đồng ý) để AI không xin lại.
+    ghiLichSu(role, content){
+      if ((role === 'user' || role === 'assistant') && content) S.history.push({ role, content: String(content).slice(0, 600) });
+    },
+    // Thêm 1 lần chạm vào contacts qua đúng upsertContact công khai (không đường ghi mới).
+    ghiLienHe(phone, chiTiet, kenhLead){ if (ghiLienHeChiTiet) ghiLienHeChiTiet(phone, chiTiet, kenhLead); },
     // Cuộn khung tin về đầu (lời chào) nếu từ lời chào tới cuối vừa khung; không vừa
     // thì giữ ở cuối để khách luôn thấy câu hỏi + nút đang chờ trả lời.
     hienTuDau(){
@@ -343,7 +361,7 @@ if (!document.getElementById('mymy-btn')) {
     addBot('<a class="mm-suggest" href="' + escUrl(suggestion.url) + '" target="_blank" rel="noopener">' + esc(suggestion.label) + ' →</a>');
   }
 
-  let callAlnChat = null, ensureAuth = null, upsertContact = null;
+  let callAlnChat = null, ensureAuth = null, upsertContact = null, ghiLienHeChiTiet = null;
 
   /* Khoá gửi trong lúc đang chờ phản hồi — chặn double-submit nếu người
      dùng bấm Enter/click gửi nhiều lần liên tiếp (mạng chậm, sốt ruột...). */
@@ -364,8 +382,15 @@ if (!document.getElementById('mymy-btn')) {
     input.value = '';
     addUser(text);
 
+    // SĐT trong câu: trang nào tự xử lý số (xuLySdt — vd du-toan-nha hỏi đồng ý
+    // trước, Nam chốt 02/10/2026: chưa đồng ý thì chưa lưu số) thì widget KHÔNG tự
+    // ghi contacts; trang khác giữ hành vi cũ (ghi contacts ngay).
     const phone = extractPhone(text);
-    if (phone && upsertContact) upsertContact(phone);
+    const trangSdt = window.ALN_MYMY_TRANG;
+    if (phone && trangSdt && typeof trangSdt.xuLySdt === 'function') {
+      API.boCho();
+      try { if (trangSdt.xuLySdt(text, API) === true) return; } catch (e) { console.error('MyMy xuLySdt lỗi:', e); }
+    } else if (phone && upsertContact) upsertContact(phone);
 
     // Trang tự trả lời trước (câu MyMy đang chờ, hoặc câu trang hiểu được như
     // "5x20 3 tầng") — không tốn lượt gọi AI, không vào lịch sử gửi AI.
@@ -512,6 +537,9 @@ if (!document.getElementById('mymy-btn')) {
         const nc = nguCanhTrang();
         const chiTiet = 'MyMy chat — ' + pageContext + (nc && nc.pa_1 ? ' · ' + nc.pa_1 : '');
         damBaoPhien().then(() => fnUpsertContact({ phone, name: null, loai_lien_he: 'khach_hang', nguon: 'mymy_chat', chi_tiet_nguon: chiTiet.slice(0, 200), kenh_lead: nc && nc.trang === 'du-toan-nha' ? 'mymy_du_toan' : 'mymy_chat' })).catch((e) => console.warn('upsertContact:', e.message));
+      };
+      ghiLienHeChiTiet = (phone, chiTiet, kenhLead) => {
+        damBaoPhien().then(() => fnUpsertContact({ phone, name: null, loai_lien_he: 'khach_hang', nguon: 'mymy_chat', chi_tiet_nguon: String(chiTiet || '').slice(0, 200), kenh_lead: kenhLead || 'mymy_chat' })).catch((e) => console.warn('upsertContact:', e.message));
       };
     } catch (e) {
       console.error('MyMy widget init lỗi:', e);

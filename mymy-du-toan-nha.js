@@ -379,6 +379,142 @@
     ]);
   }
 
+  /* ── SĐT trong chat → lead L0 khi khách bấm đồng ý (Nam chốt 02/10/2026) ──
+     CHƯA ĐỒNG Ý THÌ CHƯA LƯU SỐ (Nam chốt 02/10/2026 (4)): trang đặt xuLySdt nên
+     widget KHÔNG tự ghi contacts. Số chỉ nằm trong bộ nhớ của khung chat đang mở
+     (không localStorage/sessionStorage); lịch sử gửi AI thay số bằng "[số điện
+     thoại]". "Để sau"/không bấm → không contacts, không Telegram, chỉ GA4
+     aln_mymy_de_sau (không kèm số). Bấm nút → trang gọi submitDuToanLead
+     (window.alnDuToanGuiLeadMyMy, du-toan-nha.html) — cùng đường ghi lead + contacts,
+     kiểm SĐT, lead test, CAPI như form.
+     Câu đồng ý phía trên nút = ĐÚNG câu pháp lý của form (CONSENT_TEXTS.du_toan,
+     đọc từ consent-constants.js — bản sao của functions/consent_constants.js, test
+     functions/_test_tuVanPhanTho.js kiểm 2 bản giống nhau). Không có câu riêng cho chat. */
+  var CAU_DONG_Y = 'Đồng ý để KTS Trần Long liên hệ'; // chữ trên nút (hành động), không phải câu pháp lý
+  var CAU_DE_SAU = 'Dạ, khi nào cần KTS xem giúp thì anh/chị bấm nút này nhé.';
+  var BUOI = [
+    { ma: 'sang', nhan: 'Sáng (8–11h)' }, { ma: 'trua', nhan: 'Trưa (11–14h)' },
+    { ma: 'chieu', nhan: 'Chiều (14–17h)' }, { ma: 'toi', nhan: 'Tối (18–20h)' },
+  ];
+  // dongY: '' = chưa có số trong chat; 'chua' = đã gõ số, chưa bấm đồng ý (kể cả "Để sau");
+  // 'da' = đã bấm và lead đã gửi. Gửi kèm nguCanh để AI biết có được nói KTS sẽ gọi hay không.
+  var leadMyMy = { daGui: false, dangGui: false, dongY: '' };
+
+  // Câu pháp lý: nạp sẵn từ consent-constants.js; không nạp được thì lấy đúng câu
+  // đang hiện ở form trên trang (#tvDongYText — test kiểm giống hệt CONSENT_TEXTS.du_toan).
+  var cauPhapLy = '';
+  var napCauPhapLy = (function () {
+    var p;
+    try { p = import('./consent-constants.js'); } catch (e) { p = Promise.reject(e); }
+    return p.then(function (m) {
+      cauPhapLy = (m && m.CONSENT_TEXTS && m.CONSENT_TEXTS.du_toan) || '';
+    }).catch(function () {}).then(function () {
+      if (!cauPhapLy) {
+        var el = document.getElementById('tvDongYText');
+        cauPhapLy = el ? String(el.textContent || '').trim() : '';
+      }
+      return cauPhapLy;
+    });
+  })();
+
+  function ghiChuDongY() {
+    return cauPhapLy + ' Chính sách bảo mật: applamnha.vn/privacy.html';
+  }
+
+  // Tên khách tự xưng trong cùng câu ("tên Hoa 0909…", "tôi là Nguyễn Văn A") — không có thì để trống.
+  function docTen(text) {
+    var m = /(?:tên(?:\s+(?:tôi|em|mình|con))?(?:\s+là)?|tôi\s+là|em\s+là|mình\s+là|anh\s+là|chị\s+là)\s+([^\d,.;:!?\n]{2,40})/i.exec(String(text || ''));
+    if (!m) return '';
+    var ten = m[1].replace(/\s+(số|sđt|sdt|điện thoại|dt|đt)\b.*$/i, '').trim();
+    return (ten.match(/\p{L}/gu) || []).length >= 2 ? ten.slice(0, 40) : '';
+  }
+
+  // Nút đồng ý (+ "Để sau" khi deSau) kèm câu pháp lý phía trên. Thiếu câu pháp lý
+  // thì KHÔNG hiện nút đồng ý — chỉ mời dùng form có đủ câu đồng ý.
+  function hienNutDongY(sdt, ten, coDeSau) {
+    napCauPhapLy.then(function () {
+      if (leadMyMy.daGui) return;
+      if (!cauPhapLy) {
+        MM.bot('Dạ anh/chị bấm "Nhờ KTS xem giúp dự toán này" ở cuối bảng để gửi yêu cầu nhé.');
+        return;
+      }
+      var ds = [{ nhan: CAU_DONG_Y, lam: function () { guiLeadMyMy(sdt, ten); } }];
+      if (coDeSau) ds.push({ nhan: 'Để sau', lam: function () {
+        ga('aln_mymy_de_sau', {}); // không kèm số
+        MM.bot(CAU_DE_SAU);
+        MM.ghiLichSu('assistant', CAU_DE_SAU + ' (Khách CHƯA đồng ý để KTS liên hệ — không nói KTS sẽ gọi, không xin số lại.)');
+        hienNutDongY(sdt, ten, false); // nút đồng ý vẫn bấm lại được trong phiên
+      } });
+      MM.nut(ds, ghiChuDongY());
+    });
+  }
+
+  // Thay mọi số điện thoại trong câu bằng "[số điện thoại]" trước khi đưa vào lịch sử gửi AI.
+  function anSdt(text) {
+    return String(text || '').replace(/(?:\+?84|0)[\d\s.\-]{7,13}\d/g, '[số điện thoại]');
+  }
+
+  // Câu khách gõ có SĐT (widget gọi qua xuLySdt TRƯỚC khi ghi bất cứ đâu). Luôn trả
+  // true khi có số — số không bao giờ đi tiếp sang AI hay contacts từ đây.
+  function moiDongYNeuCoSdt(text) {
+    if (!MM || typeof MM.laySdt !== 'function') return false;
+    var sdt = MM.laySdt(text);
+    if (!sdt) return false;
+    MM.ghiLichSu('user', anSdt(text));
+    if (leadMyMy.daGui) {
+      MM.bot('Dạ em đã gửi yêu cầu rồi ạ, KTS Trần Long sẽ gọi số anh/chị đã đồng ý trước đó. Muốn đổi số thì anh/chị nhắn Zalo 0909 829 696 giúp em nhé.');
+      return true;
+    }
+    if (typeof window.alnDuToanGuiLeadMyMy !== 'function') {
+      MM.bot('Dạ anh/chị bấm "Nhờ KTS xem giúp dự toán này" ở cuối bảng để gửi yêu cầu nhé.');
+      return true;
+    }
+    var ten = docTen(text);
+    leadMyMy.dongY = 'chua';
+    ga('aln_mymy_lead', { buoc: 'moi_dong_y' });
+    MM.bot('Dạ, nếu anh/chị muốn KTS Trần Long liên hệ số …' + sdt.slice(-4) + ' thì bấm nút đồng ý dưới đây nhé. Chưa bấm thì ALN chưa lưu số này.');
+    hienNutDongY(sdt, ten, true);
+    return true;
+  }
+
+  function guiLeadMyMy(sdt, ten) {
+    if (leadMyMy.daGui || leadMyMy.dangGui) return;
+    leadMyMy.dangGui = true;
+    ga('aln_mymy_lead', { buoc: 'dong_y' });
+    window.alnDuToanGuiLeadMyMy({ phone: sdt, name: ten, dongY: true }).then(function (kq) {
+      leadMyMy.dangGui = false;
+      if (!kq || !kq.id) throw new Error('khong_co_ma_lead');
+      leadMyMy.daGui = true;
+      leadMyMy.dongY = 'da';
+      ga('aln_mymy_lead', { buoc: 'da_gui', trung: kq.dup ? 1 : 0 });
+      var cam = 'Dạ em cảm ơn anh/chị. KTS Trần Long sẽ gọi anh/chị trong 1–2 ngày làm việc, vào buổi anh/chị chọn ạ.';
+      MM.bot(cam);
+      MM.ghiLichSu('assistant', cam + ' (Khách đã để số và bấm đồng ý — không xin liên hệ nữa.)');
+      MM.nut(BUOI.map(function (b) {
+        return { nhan: b.nhan, lam: function () {
+          ga('aln_mymy_lead', { buoc: 'chon_buoi', buoi: b.ma });
+          // Buổi tiện nghe ghi thêm 1 lần chạm qua upsertContact có sẵn — không đường ghi mới.
+          MM.ghiLienHe(sdt, 'MyMy — buổi tiện nghe máy: ' + b.nhan, 'mymy_du_toan');
+          MM.bot('Dạ em đã ghi buổi ' + b.nhan.toLowerCase() + ' ạ.');
+        } };
+      }).concat([{ nhan: 'Lúc nào cũng được', lam: function () {
+        ga('aln_mymy_lead', { buoc: 'chon_buoi', buoi: 'bat_ky' });
+        MM.ghiLienHe(sdt, 'MyMy — buổi tiện nghe máy: lúc nào cũng được', 'mymy_du_toan');
+        MM.bot('Dạ em đã ghi ạ.');
+      } }]));
+    }).catch(function (err) {
+      leadMyMy.dangGui = false;
+      var code = (err && err.code) || '';
+      ga('aln_mymy_lead', { buoc: 'loi', ma_loi: String(code || 'khong_ro').slice(0, 60) });
+      if (/invalid-argument/.test(code) && err.message) MM.bot('Dạ ' + err.message);
+      else {
+        if (window.alnBaoLoiNeuCan) window.alnBaoLoiNeuCan('du-toan-nha mymy-lead', err);
+        MM.bot('Dạ em chưa gửi được, anh/chị bấm lại giúp em nhé.');
+        hienNutDongY(sdt, ten, false);
+      }
+    });
+  }
+
   window.ALN_MYMY_TRANG = {
     loiMoi: 'Không rành điền bảng? Em điền giúp anh/chị ạ.', // ngắn như câu mời chung — bóng chat dài dễ đè ô nhập
 
@@ -393,10 +529,18 @@
       api.hienTuDau();
     },
 
-    // Câu gõ tự do có kích thước → điền luôn; thiếu gì thì hỏi tiếp phần thiếu.
+    // Câu có SĐT → mời bấm đồng ý (lead L0 như form). Câu gõ tự do có kích
+    // thước → điền luôn; thiếu gì thì hỏi tiếp phần thiếu.
     xuLyTin: function (text, api) {
       MM = api;
+      if (moiDongYNeuCoSdt(text)) return true;
       return dienTuCau(text);
+    },
+
+    // Widget gọi hàm này cho câu có SĐT, TRƯỚC khi ghi contacts — trang tự hỏi đồng ý.
+    xuLySdt: function (text, api) {
+      MM = api;
+      return moiDongYNeuCoSdt(text);
     },
 
     // Ngữ cảnh gửi kèm mỗi câu hỏi AI (02/10/2026): số lần tính + 2 phương án gần
@@ -406,7 +550,7 @@
     nguCanh: function () {
       var v = window.alnDuToanLanTinh || {};
       var pa = Array.isArray(v.pa) ? v.pa : [];
-      return { trang: 'du-toan-nha', so_lan_tinh: Number(v.so) || 0, pa_1: pa[0] || '', pa_2: pa[1] || '' };
+      return { trang: 'du-toan-nha', so_lan_tinh: Number(v.so) || 0, pa_1: pa[0] || '', pa_2: pa[1] || '', dong_y_lien_he: leadMyMy.dongY };
     },
   };
 
