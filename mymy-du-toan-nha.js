@@ -358,10 +358,29 @@
   function nutSauKetQua() {
     MM.nut([
       { nhan: 'Nhờ KTS xem giúp (miễn phí)', lam: function () { MM.dong(); chiFormKTS(); } },
+      { nhan: NUT_DE_LAI_SO, lam: moiDeLaiSo },
       { nhan: 'Xem bảng chi tiết', lam: function () { MM.dong(); chayBuoc(2); } },
       { nhan: 'Tính lại nhà khác', lam: function () { batDauDienGiup(false); } },
       { nhan: 'Hỏi MyMy điều khác', lam: hoiKhac },
     ]);
+  }
+
+  /* Nút "Để lại số cho KTS gọi" (Nam 02/10/2026: hiếm ai tự gõ số vào chat) — MyMy
+     mời gõ số; câu có số đi qua xuLySdt như khi khách tự gõ (hỏi đồng ý, chưa lưu
+     số khi chưa bấm). Gõ chữ không có số → nhắc 1 lần rồi thôi chờ, không kẹt khách. */
+  var NUT_DE_LAI_SO = 'Để lại số cho KTS gọi';
+  function moiDeLaiSo() {
+    ga('aln_mymy_lead', { buoc: 'bam_de_lai_so' });
+    if (leadMyMy.daGui) {
+      MM.bot('Dạ em đã gửi yêu cầu rồi ạ, KTS Trần Long sẽ gọi số anh/chị đã đồng ý trước đó.');
+      return;
+    }
+    MM.bot('Dạ anh/chị gõ số điện thoại vào ô bên dưới giúp em nhé.');
+    MM.cho(function (text) {
+      if (moiDongYNeuCoSdt(text)) return true;
+      MM.bot('Dạ em chưa thấy số điện thoại trong tin nhắn. Anh/chị gõ lại số giúp em (VD: 0909 123 456) nhé.');
+      return true;
+    }, 'Số điện thoại, VD: 0909 123 456');
   }
 
   function hoiKhac() {
@@ -375,6 +394,7 @@
       { nhan: 'Điền giúp tôi', lam: function () { batDauDienGiup(false); } },
       { nhan: 'Chỉ tôi từng bước', lam: function () { MM.dong(); chayBuoc(0); } },
       { nhan: 'Nhờ KTS xem giúp', lam: function () { MM.dong(); chiFormKTS(); } },
+      { nhan: NUT_DE_LAI_SO, lam: moiDeLaiSo },
       { nhan: 'Hỏi điều khác', lam: hoiKhac },
     ]);
   }
@@ -506,8 +526,10 @@
       leadMyMy.dangGui = false;
       var code = (err && err.code) || '';
       ga('aln_mymy_lead', { buoc: 'loi', ma_loi: String(code || 'khong_ro').slice(0, 60) });
-      if (/invalid-argument/.test(code) && err.message) MM.bot('Dạ ' + err.message);
-      else {
+      if (/invalid-argument/.test(code) && err.message) {
+        MM.bot('Dạ ' + err.message);
+        hienNutDongY(sdt, ten, false); // không để khách kẹt: vẫn bấm lại được
+      } else {
         if (window.alnBaoLoiNeuCan) window.alnBaoLoiNeuCan('du-toan-nha mymy-lead', err);
         MM.bot('Dạ em chưa gửi được, anh/chị bấm lại giúp em nhé.');
         hienNutDongY(sdt, ten, false);

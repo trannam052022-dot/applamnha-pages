@@ -94,6 +94,16 @@ if (!document.getElementById('mymy-btn')) {
   style.textContent = CSS;
   document.head.appendChild(style);
 
+  /* Biểu tượng (nút, avatar, nút gửi) dùng Phosphor duotone. Trang nào chưa nạp
+     bộ này thì widget tự nạp — 02/10/2026 du-toan-nha.html thiếu, nút MyMy chỉ
+     còn vòng tròn vàng trống. */
+  if (!document.querySelector('link[href*="@phosphor-icons/web"][href*="/duotone/"]')) {
+    const ph = document.createElement('link');
+    ph.rel = 'stylesheet';
+    ph.href = 'https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/duotone/style.css';
+    document.head.appendChild(ph);
+  }
+
   const HTML = `
 <button id="mymy-btn" aria-label="Trò chuyện với MyMy">
   <i class="ph-duotone ph-chat-circle-dots"></i>
