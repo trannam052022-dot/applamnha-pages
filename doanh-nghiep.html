@@ -94,6 +94,21 @@ table.ds{width:100%;border-collapse:collapse;font-size:14px}
 input[type=number]{width:100%;font:inherit;font-size:15px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:#fff}
 textarea{width:100%;font:inherit;font-size:15px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:#fff;min-height:70px;resize:vertical}
 .boc-file{font-size:13px;color:var(--muted);margin-top:4px}
+/* Form gửi hồ sơ bóc bản vẽ (02/10/2026): mỗi ô ghi rõ là gì, dùng để làm gì — Nam: khách khó biết thao tác */
+.boc-form-h{font-size:15px;font-weight:600;color:var(--navy);margin:0 0 2px}
+.boc-form-p{font-size:13.5px;color:var(--muted);margin:0 0 12px;line-height:1.5}
+.boc-buoc{display:inline-block;min-width:22px;height:22px;line-height:22px;text-align:center;border-radius:99px;background:var(--navy);color:#fff;font-size:12px;font-weight:700;margin-right:6px}
+.boc-form label{color:var(--ink);font-size:14px}
+.boc-form label .bb{color:var(--err);font-weight:700}
+.boc-form label .tc{color:var(--muted);font-weight:500}
+.ggt{font-size:12.5px;color:var(--muted);margin-top:4px;line-height:1.45}
+.boc-drop{display:block;position:relative;border:2px dashed var(--navy);border-radius:8px;padding:14px;text-align:center;background:#fff;cursor:pointer}
+.boc-drop input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.boc-drop .bd1{font-weight:600;color:var(--navy);font-size:15px}
+.boc-drop .bd2{font-size:12.5px;color:var(--muted);margin-top:4px}
+.boc-drop.co{border-style:solid;border-color:var(--ok);background:#f2faf5}
+.boc-drop.co .bd1{color:var(--ok)}
+.boc-file:not(:empty){margin-top:6px;font-weight:600;color:var(--ok)}
 .tag.boc{background:#e8edf6;color:#2b4a7a}
 /* Khung chuyển khoản tay (01/10/2026) — hiện dưới danh sách khi bấm "Chuyển khoản & nhận file" */
 .ck-box{margin-top:12px;padding:14px 16px;border:1px solid var(--gold-hi);border-radius:10px;background:var(--gold-soft)}
@@ -192,12 +207,35 @@ textarea{width:100%;font:inherit;font-size:15px;padding:10px 12px;border:1px sol
       <p><strong>Giao hồ sơ:</strong> bảng khối lượng và dự toán có mã ALN trong 1–2 ngày làm việc. Khối lượng bóc từ bản vẽ do khách cung cấp, có thể sai số với thực tế 5–10%. Hồ sơ gửi lên được ALN lưu để phục vụ chỉnh sửa, đối chiếu khi khách cần, và được bảo mật, không chuyển cho bên khác.</p>
     </div>
     <div class="boc-gia" id="bocGia"></div>
-    <form id="fBoc" novalidate>
+    <form id="fBoc" class="boc-form" novalidate>
+      <p class="boc-form-h">Gửi hồ sơ mới</p>
+      <p class="boc-form-p">Điền 3 mục dưới rồi bấm "Gửi hồ sơ". Mỗi hồ sơ là một công trình; cần bóc công trình khác thì gửi hồ sơ khác. Phí tính theo diện tích anh/chị khai, hiện ngay bên nút gửi.</p>
       <div class="grid">
-        <div class="full"><label for="bTen">Tên công trình</label><input type="text" id="bTen" maxlength="120" placeholder="VD: Nhà phố anh Hoàng, Gò Vấp"></div>
-        <div><label for="bDt">Diện tích sàn xây dựng (m², không tính móng)</label><input type="number" id="bDt" min="20" max="5000" step="0.01" inputmode="decimal"></div>
-        <div><label for="bFile">Bản vẽ (PDF xuất từ CAD, tối đa 7 MB)</label><input type="file" id="bFile" accept="application/pdf,.pdf"><div class="boc-file" id="bFileTxt"></div></div>
-        <div class="full"><label for="bGhi">Ghi chú (không bắt buộc)</label><textarea id="bGhi" maxlength="500" placeholder="VD: có bảng thống kê thép ở trang cuối; móng cọc ép…"></textarea></div>
+        <div class="full">
+          <label for="bTen"><span class="boc-buoc">1</span>Tên công trình <span class="bb">*</span></label>
+          <input type="text" id="bTen" maxlength="120" placeholder="VD: Nhà phố anh Hoàng, Gò Vấp" autocomplete="off">
+          <div class="ggt">Tên để anh/chị và ALN gọi hồ sơ này — thường là tên khách + khu vực. Tên này sẽ in trên bảng dự toán.</div>
+        </div>
+        <div>
+          <label for="bDt"><span class="boc-buoc">2</span>Tổng diện tích sàn xây dựng <span class="bb">*</span></label>
+          <input type="number" id="bDt" min="20" max="5000" step="0.01" inputmode="decimal" placeholder="VD: 320">
+          <div class="ggt">Đơn vị m². Cộng diện tích sàn của mọi tầng (kể cả sân thượng, mái), <strong>không tính móng</strong>. Dùng để tính phí; ALN đối chiếu lại khi bóc.</div>
+        </div>
+        <div>
+          <label for="bFile"><span class="boc-buoc">3</span>File bản vẽ <span class="bb">*</span></label>
+          <label class="boc-drop" id="bDrop" for="bFile">
+            <input type="file" id="bFile" accept="application/pdf,.pdf">
+            <div class="bd1" id="bDropTxt">Bấm để chọn file PDF</div>
+            <div class="bd2">1 file PDF xuất từ CAD, tối đa 7 MB, gồm bản vẽ kiến trúc + kết cấu</div>
+          </label>
+          <div class="boc-file" id="bFileTxt"></div>
+          <div class="ggt">Nhiều file thì gộp thành 1 PDF trước khi gửi. Ảnh chụp/scan không bóc được.</div>
+        </div>
+        <div class="full">
+          <label for="bGhi">Ghi chú <span class="tc">(không bắt buộc)</span></label>
+          <textarea id="bGhi" maxlength="500" placeholder="VD: có bảng thống kê thép ở trang cuối; móng cọc ép; tầng 3 chưa có bản vẽ kết cấu…"></textarea>
+          <div class="ggt">Điều gì ALN nên biết khi đọc bản vẽ: trang nào có bảng thép, loại móng, phần nào thiếu bản vẽ.</div>
+        </div>
       </div>
       <div class="hang"><button class="btn btn-gold" type="submit" id="btnGuiBoc">Gửi hồ sơ</button><span class="gia" id="bocPhiTxt"></span></div>
       <p class="msg" id="bocMsg"></p>
@@ -299,21 +337,26 @@ function tinhPhiXem() {
 $('bDt').addEventListener('input', tinhPhiXem);
 $('bFile').addEventListener('change', async () => {
   const f = $('bFile').files && $('bFile').files[0];
-  FILE_BOC = null; $('bFileTxt').textContent = '';
+  FILE_BOC = null; bocDropReset();
   if (!f) return;
   if (f.size > 7 * 1024 * 1024) { msg($('bocMsg'), 'File quá lớn (tối đa 7 MB). Tách bộ bản vẽ thành file nhỏ hơn.', 'err'); $('bFile').value = ''; return; }
   const dau = new Uint8Array(await f.slice(0, 4).arrayBuffer());
   if (String.fromCharCode.apply(null, dau) !== '%PDF') { msg($('bocMsg'), 'Chỉ nhận file PDF xuất từ CAD.', 'err'); $('bFile').value = ''; return; }
   FILE_BOC = f;
-  $('bFileTxt').textContent = f.name + ' · ' + (f.size / 1024 / 1024).toFixed(2) + ' MB';
+  $('bFileTxt').textContent = '✓ Đã chọn: ' + f.name + ' · ' + (f.size / 1024 / 1024).toFixed(2) + ' MB';
+  $('bDrop').classList.add('co'); $('bDropTxt').textContent = 'Đổi file khác';
   msg($('bocMsg'), '');
 });
+function bocDropReset() { $('bDrop').classList.remove('co'); $('bDropTxt').textContent = 'Bấm để chọn file PDF'; $('bFileTxt').textContent = ''; }
 function docB64(f) {
   return new Promise((ok, loi) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(',')[1] || ''); r.onerror = loi; r.readAsDataURL(f); });
 }
 $('fBoc').addEventListener('submit', async (e) => {
   e.preventDefault();
-  if (!FILE_BOC) { msg($('bocMsg'), 'Chọn file PDF bản vẽ.', 'err'); return; }
+  if (!$('bTen').value.trim()) { msg($('bocMsg'), 'Mục 1: nhập tên công trình.', 'err'); $('bTen').focus(); return; }
+  const dtGui = Number($('bDt').value);
+  if (!(dtGui >= 20 && dtGui <= 5000)) { msg($('bocMsg'), 'Mục 2: nhập tổng diện tích sàn (20–5.000 m²).', 'err'); $('bDt').focus(); return; }
+  if (!FILE_BOC) { msg($('bocMsg'), 'Mục 3: chọn file PDF bản vẽ.', 'err'); $('bDrop').scrollIntoView({ block: 'center' }); return; }
   const b = $('btnGuiBoc'); b.disabled = true;
   msg($('bocMsg'), 'Đang gửi và kiểm tra file…');
   day('aln_dn_boc_gui_bam');
@@ -322,7 +365,7 @@ $('fBoc').addEventListener('submit', async (e) => {
     const r = await callBoc({ hanh_dong: 'gui', ten_cong_trinh: $('bTen').value, dien_tich_san: $('bDt').value, ghi_chu: $('bGhi').value, ten_file: FILE_BOC.name, duLieu });
     msg($('bocMsg'), 'Đã nhận hồ sơ "' + (r.data.don.ten_cong_trinh || '') + '". Phí ' + soVN(r.data.don.phi && r.data.don.phi.phi) + ' đ. ALN sẽ giao kết quả trong 1–2 ngày làm việc.', 'ok');
     day('aln_dn_boc_gui_ok');
-    $('fBoc').reset(); FILE_BOC = null; $('bFileTxt').textContent = ''; $('bocPhiTxt').textContent = '';
+    $('fBoc').reset(); FILE_BOC = null; bocDropReset(); $('bocPhiTxt').textContent = '';
     await taiDsBoc();
   } catch (err) {
     msg($('bocMsg'), loiText(err, 'Chưa gửi được. Vui lòng thử lại.'), 'err');
