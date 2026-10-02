@@ -539,12 +539,15 @@
 
   window.ALN_MYMY_TRANG = {
     loiMoi: 'Không rành điền bảng? Em điền giúp anh/chị ạ.', // ngắn như câu mời chung — bóng chat dài dễ đè ô nhập
+    khongMoiChung: true, // 02/10/2026: trang này chỉ mời bằng bong bóng theo phương án, tắt bóng chat mời chung (mymy-moi.js)
 
     moDau: function (api) {
       MM = api;
       ga('aln_mymy_huong_dan', { buoc: 'mo' });
       // Lời chào ngắn (2 dòng) để lời chào + câu hỏi + nút vừa khung chat, không bị cuộn mất.
       // Gợi ý gõ tự do "5x20, 1 trệt 2 lầu" nằm ở ô nhập, không chiếm chỗ lời chào.
+      // Mở từ bong bóng mời (bấm vào câu hỏi về phương án): câu đó là lời mở đầu.
+      if (choBB) { var bb = choBB; choBB = null; bb(api); api.hienTuDau(); return; }
       api.bot('Dạ em chào anh/chị, em là MyMy của ALN. Em **điền giúp bảng dự toán** nhé!');
       if (choMo) { var f = choMo; choMo = null; f(); } // mở từ nút trên trang: vào thẳng câu hỏi
       else menuChinh();
@@ -602,53 +605,169 @@
     return true;
   }
 
-  /* ── MyMy tự chào và hỏi luôn (Nam 30/09/2026: "MyMy nên chào và chủ động hỏi
-        để điền thông tin cho khách") ──
-     Sau TU_CHAO_SAU_MS, nếu khách chưa gõ ô nào, không đang ở trong ô nhập và
-     chưa mở chat → mở khung chat, chào, hỏi ngay câu 1/5, kèm nút "Để lại số cho KTS gọi"
-     và "Để tôi tự điền".
-     1 lần mỗi phiên trình duyệt (bấm "tự điền" hay × cũng không hỏi lại trong phiên).
-     Chỉ chạy khi widget đúng bản có window.alnMyMyMo — bản cũ còn trong bộ nhớ
-     đệm thì bỏ qua, không mở lời chào cũ. Không tính là khách mở chat (GA4). */
-  var TU_CHAO_SAU_MS = 5000;
-  var KEY_TU_CHAO = 'aln_mymy_dt_tu_chao';
-  function daTuChaoPhienNay() { try { return sessionStorage.getItem(KEY_TU_CHAO) === '1'; } catch (e) { return false; } }
-  function ghiDaTuChao() { try { sessionStorage.setItem(KEY_TU_CHAO, '1'); } catch (e) { /* bỏ qua */ } }
-  function tuDienThoi() {
-    MM.boCho();
-    var hang = document.querySelectorAll('#mymy-msgs .mm-nut-hang');
-    for (var i = 0; i < hang.length; i++) hang[i].closest('.mm-row').remove();
-    ga('aln_mymy_huong_dan', { buoc: 'tu_chao_tu_dien' });
-    MM.bot('Dạ, anh/chị cứ điền ạ. Cần giúp thì bấm nút MyMy ở góc dưới, em hỗ trợ ngay.');
-    setTimeout(function () { MM.dong(); }, 1600);
+  /* ── Bong bóng mời theo phương án (Nam 02/10/2026) ──
+     Không tự mở khung chat — chỉ hiện 1 câu cạnh nút MyMy, nhắc đúng phương án:
+     1. Kết quả dự toán đã đổi từ lần thứ 2 (so_lan_tinh >= 2, du-toan-nha.html phát
+        sự kiện aln:dutoan-lan-tinh mỗi lần ghi 1 lần tính), HOẶC
+     2. Khách ở phần kết quả (#out trong màn hình) đủ 45 giây mà chưa tự mở MyMy
+        
+     Bấm → mở chat, câu trong bong bóng là lời mở đầu (ghi vào lịch sử gửi AI để AI
+     biết đang nói về phương án nào — nguCanh đã kèm pa_1/pa_2).
+     1 lần mỗi phiên trình duyệt; bấm × thì không hiện lại. Không che ô tổng tiền
+     (#total, thanh .dock): đè lên thì tạm ẩn, hết đè mới hiện lại.
+     GA4 aln_mymy_bong_bong {buoc: hien|bam|tat, ly_do: so_lan_tinh|o_lai_45s}. */
+  var KEY_BB = 'aln_mymy_dt_bong_bong';
+  var BB_GIAY = 45;
+  var choBB = null;        // việc chạy trong moDau khi mở chat từ bong bóng
+  var bbEl = null, bbLyDo = '', bbDaGhi = false, bbXong = false;
+  var khachTuMo = false;   // khách tự bấm nút MyMy trong lượt xem này
+  function bbDaHienPhien() { try { return !!sessionStorage.getItem(KEY_BB); } catch (e) { return bbXong; } }
+  function bbGhiPhien(v) { try { sessionStorage.setItem(KEY_BB, v); } catch (e) { /* bỏ qua */ } }
+  function chatDangMo() { var w = $('mymy-win'); return !!(w && w.classList.contains('open')); }
+  function rutGonPA(pa) {
+    var t = String(pa || '').split(', ').slice(0, 2).join(', ');
+    return t ? t.charAt(0).toLowerCase() + t.slice(1) : '';
   }
-  setTimeout(function () {
-    if (daTuChaoPhienNay() || MM || daGo) return;
-    if (typeof window.alnMyMyMo !== 'function') return;
-    var win = $('mymy-win');
-    if (!win || win.classList.contains('open')) return;
-    var dang = document.activeElement;
-    if (dang && /^(INPUT|SELECT|TEXTAREA)$/.test(dang.tagName)) return; // đang tự điền
-    ghiDaTuChao();
-    ga('aln_mymy_huong_dan', { buoc: 'tu_chao' });
-    dl = {};
-    // Nam 02/10/2026: đa số khách chỉ thấy luồng tự chào này → để sẵn nút để lại số.
-    choMo = function () {
-      hoiNgang([
-        { nhan: NUT_DE_LAI_SO, lam: moiDeLaiSo },
-        { nhan: 'Để tôi tự điền', lam: tuDienThoi, khongNhacLai: false },
-      ]);
+  function cauBongBong() {
+    var v = window.alnDuToanLanTinh || {};
+    var pa = Array.isArray(v.pa) ? v.pa : [];
+    if (pa.length >= 2) return 'Anh/chị đang so 2 phương án, cần em giải thích chỗ chênh không ạ?';
+    var ten = rutGonPA(pa[0]);
+    if (!ten) { // khách chưa tự đổi ô nào: nhắc phương án đang hiện trên màn hình
+      var e = window.__lastEstimate, i = (e && e.result && e.inputs) || null;
+      var so = function (x) { return String(Math.round(Number(String(x).replace(',', '.')) * 100) / 100).replace('.', ','); };
+      if (i && Number(i.w1) > 0 && Number(i.l1) > 0) {
+        ten = 'lô ' + so(i.w1) + ' × ' + so(i.l1) + ' m' +
+          (e.modelKey === 'thi_biet_thu_vuon_mai_thai' ? ', biệt thự vườn 1 tầng mái Thái' : (Number(i.n) > 0 ? ', ' + Number(i.n) + ' sàn' : ''));
+      }
+    }
+    return ten ? 'Anh/chị đang xem phương án ' + ten + ', cần em giải thích các khoản không ạ?'
+      : 'Anh/chị cần em giải thích con số dự toán này không ạ?';
+  }
+  function deLen(q, el) {
+    if (!el) return false;
+    var r = el.getBoundingClientRect();
+    if (!r.width || !r.height) return false;
+    return q.left < r.right && q.right > r.left && q.top < r.bottom && q.bottom > r.top;
+  }
+  function datViTriBB() {
+    if (!bbEl) return;
+    var nut = $('mymy-btn');
+    if (!nut || chatDangMo()) { boBB(); return; }
+    var n = nut.getBoundingClientRect();
+    bbEl.style.right = Math.max(8, window.innerWidth - n.left + 10) + 'px';
+    bbEl.style.bottom = Math.max(8, window.innerHeight - n.bottom) + 'px';
+    bbEl.style.maxWidth = Math.max(160, Math.min(300, n.left - 22)) + 'px';
+    bbEl.style.visibility = 'hidden';
+    bbEl.style.display = 'block';
+    var q = bbEl.getBoundingClientRect();
+    var che = deLen(q, $('total')) || deLen(q, document.querySelector('.dock'));
+    bbEl.style.visibility = che ? 'hidden' : 'visible';
+    if (!che && !bbDaGhi) {
+      bbDaGhi = true;
+      bbGhiPhien('hien');
+      ga('aln_mymy_bong_bong', { buoc: 'hien', ly_do: bbLyDo });
+    }
+  }
+  function boBB() {
+    if (bbEl) { bbEl.remove(); bbEl = null; }
+    document.body.classList.remove('mm-bb-dang');
+    window.removeEventListener('scroll', datViTriBB);
+    window.removeEventListener('resize', datViTriBB);
+  }
+  function moTuBongBong(cau) {
+    ga('aln_mymy_bong_bong', { buoc: 'bam', ly_do: bbLyDo });
+    bbGhiPhien('bam');
+    boBB();
+    var lam = function (api) {
+      api.boCho();
+      var hang = document.querySelectorAll('#mymy-msgs .mm-nut-hang');
+      for (var i = 0; i < hang.length; i++) hang[i].closest('.mm-row').remove();
+      api.bot(cau);
+      api.ghiLichSu('assistant', cau);
     };
-    window.alnMyMyMo(true);
-  }, TU_CHAO_SAU_MS);
+    if (MM) { MM.mo(); lam(MM); return; }
+    choBB = lam;
+    nutMyMy();
+  }
+  function thuHienBB(lyDo) {
+    if (bbXong || bbEl || bbDaHienPhien()) return;
+    if (document.body.classList.contains('dn-che')) return;
+    var out = $('out');
+    if (!out || out.hidden || chatDangMo()) return;
+    if (!$('mymy-btn')) return;
+    bbXong = true;
+    bbLyDo = lyDo;
+    var cau = cauBongBong();
+    bbEl = document.createElement('div');
+    bbEl.className = 'mm-bb';
+    bbEl.setAttribute('role', 'button');
+    bbEl.setAttribute('tabindex', '0');
+    var chu = document.createElement('span');
+    chu.textContent = cau;
+    var x = document.createElement('button');
+    x.type = 'button';
+    x.className = 'mm-bb-x';
+    x.setAttribute('aria-label', 'Tắt lời mời');
+    x.textContent = '×';
+    x.addEventListener('click', function (e) {
+      e.stopPropagation();
+      ga('aln_mymy_bong_bong', { buoc: 'tat', ly_do: bbLyDo });
+      bbGhiPhien('tat');
+      boBB();
+    });
+    bbEl.appendChild(chu);
+    bbEl.appendChild(x);
+    bbEl.addEventListener('click', function () { moTuBongBong(cau); });
+    bbEl.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); moTuBongBong(cau); } });
+    document.body.appendChild(bbEl);
+    document.body.classList.add('mm-bb-dang'); // ẩn bóng chat mời chung (mymy-moi.js) cho khỏi chồng 2 bong bóng
+    window.addEventListener('scroll', datViTriBB, { passive: true });
+    window.addEventListener('resize', datViTriBB);
+    datViTriBB();
+    var henViTri = setInterval(function () { if (!bbEl) { clearInterval(henViTri); return; } datViTriBB(); }, 1000);
+  }
+  (function () {
+    var st = document.createElement('style');
+    st.textContent = '.mm-bb{position:fixed;z-index:79;display:none;box-sizing:border-box;background:#fff;color:#1a2634;' +
+      'border:1.5px solid rgba(152,105,10,.45);border-radius:14px;padding:10px 34px 10px 14px;font:500 15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;' +
+      'box-shadow:0 10px 28px rgba(10,18,36,.16);cursor:pointer}' +
+      '.mm-bb:hover{border-color:#98690a}' +
+      '.mm-bb-x{position:absolute;top:4px;right:4px;width:26px;height:26px;border:none;background:none;color:#5b6b7f;font-size:20px;line-height:1;cursor:pointer;border-radius:8px}' +
+      '.mm-bb-x:hover{background:#eef2f6;color:#1a2634}' +
+      'body.mm-bb-dang .mymy-moi{display:none!important}';
+    document.head.appendChild(st);
+  })();
+  document.addEventListener('aln:dutoan-lan-tinh', function (e) {
+    var so = (e && e.detail && Number(e.detail.so)) || Number((window.alnDuToanLanTinh || {}).so) || 0;
+    if (so >= 2) setTimeout(function () { thuHienBB('so_lan_tinh'); }, 600); // chờ kết quả mới vẽ xong
+  });
+  document.addEventListener('click', function (e) {
+    var t = e.target;
+    if (t && t.closest && t.closest('#mymy-btn')) khachTuMo = true;
+  }, true);
+  (function () {
+    var giay = 0;
+    var dem = setInterval(function () {
+      if (bbXong || bbDaHienPhien() || khachTuMo) { clearInterval(dem); return; }
+      if (document.hidden || chatDangMo()) return;
+      var out = $('out');
+      if (!out || out.hidden) return;
+      var r = out.getBoundingClientRect();
+      var trongManHinh = Math.min(r.bottom, window.innerHeight) - Math.max(r.top, 0);
+      if (trongManHinh < Math.min(160, window.innerHeight * 0.25)) return;
+      giay++;
+      if (giay >= BB_GIAY) { clearInterval(dem); thuHienBB('o_lai_45s'); }
+    }, 1000);
+  })();
 
-  /* ── Dấu hiệu sống trên trang (không phụ thuộc bóng chat mời — góc dưới
-        phải trang này luôn có nút/ô nhập nên bóng chat mời thường không hiện) ──
-     1. Gõ sai kích thước (ô báo lỗi) → MyMy hiện ngay dưới bảng, mời điền giúp.
-        Tối đa 1 lần mỗi lượt xem trang.
-     2. Đứng yên 40 giây, chưa gõ gì, chưa mở chat → dải "Để MyMy điền giúp"
-        nhấp nháy 3 lần (chỉ khi đang nằm trong màn hình). */
-  var daMoiKhiLoi = false, daNhayMoi = false, daGo = false;
+  /* MyMy tự mở khung chat sau 5 giây (30/09/2026) — ĐÃ TẮT 02/10/2026 (Nam):
+     khung chat chỉ mở khi khách bấm nút MyMy hoặc bấm bong bóng mời ở trên. */
+
+  /* ── Gõ sai kích thước (ô báo lỗi) → MyMy hiện ngay dưới bảng, mời điền giúp.
+        Tối đa 1 lần mỗi lượt xem trang. (Dải "Để MyMy điền giúp" nhấp nháy sau
+        40 giây đứng yên — ĐÃ BỎ 02/10/2026: dải là công cụ, không phải lời mời.) */
+  var daMoiKhiLoi = false;
   var O_KICH_THUOC = ['w1', 'w2', 'l1', 'l2', 'sant', 'bc', 'mong'];
   var henLoi = null;
   function kiemLoiKichThuoc() {
@@ -676,23 +795,10 @@
     if (!o) return;
     o.addEventListener('input', function (e) {
       if (!e.isTrusted) return; // MyMy tự điền thì không tính
-      daGo = true;
       clearTimeout(henLoi);
       henLoi = setTimeout(kiemLoiKichThuoc, 1500); // chờ khách gõ xong
     });
   });
-  setTimeout(function () {
-    if (daGo || daNhayMoi) return;
-    var win = $('mymy-win');
-    if (win && win.classList.contains('open')) return;
-    var dai = document.querySelector('.mm-moi');
-    if (!dai || dai.style.display === 'none') return;
-    var r = dai.getBoundingClientRect();
-    if (r.bottom <= 0 || r.top >= window.innerHeight) return;
-    daNhayMoi = true;
-    dai.classList.add('mm-chi');
-    setTimeout(function () { dai.classList.remove('mm-chi'); }, 3600);
-  }, 40000);
 
   // Trang cho nút bấm ngoài khung chat gọi MyMy: data-mymy-dien-giup
   document.addEventListener('click', function (e) {

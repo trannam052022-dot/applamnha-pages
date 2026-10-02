@@ -382,6 +382,9 @@
       setInterval(henNangNut, 1000); // thanh có thể hiện/ẩn khi trang đổi nội dung (vd mở bảng từng món)
     }
 
+    // Trang tự lo lời mời riêng (vd du-toan-nha: bong bóng theo phương án) → không
+    // hiện bóng chat mời chung. Vẫn giữ nâng nút + GA aln_mymy_mo ở trên.
+    if (window.ALN_MYMY_TRANG && window.ALN_MYMY_TRANG.khongMoiChung) { dung = true; return; }
     if (dung || ssDoc(KEY_DUNG) || daChatTruocDo()) { dung = true; return; }
     var daHien = soLanDaHien();
     if (daHien >= TOI_DA_PHIEN) return;
