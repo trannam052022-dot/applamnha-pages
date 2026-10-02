@@ -39,6 +39,55 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   "provider": { "@type": "Organization", "name": "App Làm Nhà", "url": "https://applamnha.vn/" }
 }
 </script>
+<!-- FAQPage: câu hỏi/đáp GIỐNG HỆT khối #gioiThieuDuToan cuối trang (nội dung lấy từ llms.txt). Sửa một bên thì sửa cả hai. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Bảng dự toán này lập theo căn cứ nào?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Khối lượng được bóc từ nhà mẫu cùng loại; đơn giá lập theo định mức Thông tư 38/2026/TT-BXD và đơn giá địa phương. Cụ thể: định mức nhà nước (Thông tư 38/2026/TT-BXD), đơn giá nhân công và ca máy theo quyết định của địa phương, cộng chi phí chung và thu nhập chịu thuế tính trước theo Thông tư 36/2026/TT-BXD."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Vì sao kết quả thường cao hơn báo giá của đội thợ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Vì lập theo định mức nhà nước và có tính chi phí quản lý, kết quả phản ánh mức giá của một đơn vị có bộ máy, thường cao hơn giá đội thợ nhận thầu khoảng 5–7%. Đây là chênh lệch thật giữa hai đối tượng, không phải sai số."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Diện tích thực xây khác diện tích quy đổi thế nào?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Diện tích thực xây là diện tích sàn vật lý, gồm ban công, không gồm móng. Diện tích quy đổi là diện tích dùng để tính đơn giá đ/m², quy đổi từng hạng mục theo hệ số (móng 70% diện tích trệt, sàn mái 50%, sân thượng không giàn 70%). Hai con số cùng đúng có thể chênh nhau trên 10% chỉ vì mẫu số khác nhau."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Bảng dự toán này sai số bao nhiêu?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Đây là dự toán sơ bộ, sai số ước tính ±15%."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Có dùng bảng dự toán này để ký hợp đồng thi công được không?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Không. Bảng dự toán này dùng để chủ nhà đối chiếu với báo giá nhà thầu, không dùng để ký hợp đồng thi công."
+      }
+    }
+  ]
+}
+</script>
 <link rel="icon" href="icon-192.png" type="image/png">
 <link rel="stylesheet" href="aln-tokens.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -84,6 +133,12 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
 h1{font-family:var(--head);font-weight:600;font-size:clamp(26px,4vw,36px);line-height:1.22;margin:6px 0 8px}
 .top p{margin:0;color:#c8cddb;max-width:720px}
 .wrap{max-width:1180px;margin:0 auto;padding:22px 16px 90px;display:grid;gap:20px}
+.gt{max-width:1180px;margin:-56px auto 0;padding:0 16px 96px;color:var(--sub);font-size:15px}
+.gt h2{font-family:var(--head);font-weight:600;color:var(--ink);font-size:22px;line-height:1.3;margin:0 0 10px}
+.gt h3{font-size:16px;color:var(--ink);margin:0 0 4px}
+.gt p{margin:0 0 12px;max-width:760px}
+.gt .gt-faq{margin-top:22px;display:grid;gap:14px;max-width:760px}
+.gt .gt-faq p{margin:0}
 @media(min-width:980px){.wrap{grid-template-columns:minmax(0,1fr) 440px;align-items:start}.res{position:sticky;top:16px}}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px}
 details.sec{padding:0 18px}
@@ -469,6 +524,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
  </div>
 </aside>
 </div>
+<!-- Khối chữ tĩnh cho Google/AI đọc không cần chạy JS (02/10/2026). Nội dung lấy
+     NGUYÊN Ý từ llms.txt — không thêm cam kết mới. KHÔNG đưa công thức/hệ số hao phí
+     lên đây (giữ quyết định PR #331). 5 câu hỏi khớp FAQPage trong <head>. -->
+<section class="gt" id="gioiThieuDuToan" aria-labelledby="gtTitle">
+ <h2 id="gtTitle">Cách ALN lập bảng dự toán này</h2>
+ <p>Khối lượng được bóc từ nhà mẫu cùng loại; đơn giá lập theo định mức Thông tư 38/2026/TT-BXD và đơn giá địa phương. ALN lập dự toán theo định mức nhà nước (Thông tư 38/2026/TT-BXD), đơn giá nhân công và ca máy theo quyết định của địa phương, cộng chi phí chung và thu nhập chịu thuế tính trước theo Thông tư 36/2026/TT-BXD.</p>
+ <p><b>Diện tích thực xây</b> là diện tích sàn vật lý, gồm ban công, không gồm móng. <b>Diện tích quy đổi</b> là diện tích dùng để tính đơn giá đ/m², quy đổi từng hạng mục theo hệ số (móng 70% diện tích trệt, sàn mái 50%, sân thượng không giàn 70%). Khi so đơn giá đ/m², cần xem con số đang tính trên diện tích nào.</p>
+ <p>Bảng dự toán này là dự toán sơ bộ, sai số ước tính ±15%, dùng để chủ nhà đối chiếu với báo giá nhà thầu. Không dùng để ký hợp đồng thi công.</p>
+ <h2 style="margin-top:22px">Câu hỏi thường gặp</h2>
+ <div class="gt-faq">
+  <div><h3>Bảng dự toán này lập theo căn cứ nào?</h3><p>Khối lượng được bóc từ nhà mẫu cùng loại; đơn giá lập theo định mức Thông tư 38/2026/TT-BXD và đơn giá địa phương. Cụ thể: định mức nhà nước (Thông tư 38/2026/TT-BXD), đơn giá nhân công và ca máy theo quyết định của địa phương, cộng chi phí chung và thu nhập chịu thuế tính trước theo Thông tư 36/2026/TT-BXD.</p></div>
+  <div><h3>Vì sao kết quả thường cao hơn báo giá của đội thợ?</h3><p>Vì lập theo định mức nhà nước và có tính chi phí quản lý, kết quả phản ánh mức giá của một đơn vị có bộ máy, thường cao hơn giá đội thợ nhận thầu khoảng 5–7%. Đây là chênh lệch thật giữa hai đối tượng, không phải sai số.</p></div>
+  <div><h3>Diện tích thực xây khác diện tích quy đổi thế nào?</h3><p>Diện tích thực xây là diện tích sàn vật lý, gồm ban công, không gồm móng. Diện tích quy đổi là diện tích dùng để tính đơn giá đ/m², quy đổi từng hạng mục theo hệ số (móng 70% diện tích trệt, sàn mái 50%, sân thượng không giàn 70%). Hai con số cùng đúng có thể chênh nhau trên 10% chỉ vì mẫu số khác nhau.</p></div>
+  <div><h3>Bảng dự toán này sai số bao nhiêu?</h3><p>Đây là dự toán sơ bộ, sai số ước tính ±15%.</p></div>
+  <div><h3>Có dùng bảng dự toán này để ký hợp đồng thi công được không?</h3><p>Không. Bảng dự toán này dùng để chủ nhà đối chiếu với báo giá nhà thầu, không dùng để ký hợp đồng thi công.</p></div>
+ </div>
+</section>
 <div class="dock" data-mymy-tranh><span>Ước tính: <b id="dockT">—</b></span><a href="#tuVan">Nhờ KTS xem</a></div>
 
 <!-- Phần tính CÔNG KHAI (diện tích, chọn nhà mẫu, luật ngoài vùng, parse số)
