@@ -556,6 +556,14 @@ const {pickModel,computeAreas,num,fmt,kiemTraNgoaiVung,MAI_LOAI,MAI_LOAI_MAC_DIN
 // số tiền không xuất hiện trong phản hồi mạng (trước 02/10/2026 số vẫn tính
 // trong trình duyệt, DevTools đọc được).
 if(new URLSearchParams(location.search).get('dn')==='1')document.body.classList.add('dn-che');
+// Trang hướng dẫn dẫn sang (?tu=<tên trang>, 02/10/2026): nhớ trong phiên (đi qua
+// trang OTP rồi quay lại ?autosave=1 vẫn còn), gửi kèm lead ở trường riêng
+// trangDan — máy chủ chỉ nhận tên trong functions/lib/trangDan.js, không đè utm.
+window.alnTrangDan=(function(){
+ var K='aln_trang_dan',v='';
+ try{var q=new URLSearchParams(location.search).get('tu')||'';if(/^[a-z0-9-]{1,80}$/.test(q)){v=q;sessionStorage.setItem(K,q);}}catch(e){}
+ return function(){if(v)return v;try{return sessionStorage.getItem(K)||'';}catch(e){return '';}};
+})();
 const DEF={w1:5,w2:5,l1:20,l2:20,n:4,st:'0.7',tm:'0',ham:'0',sant:0,bc:0,mai:'',mai_loai:MAI_LOAI_MAC_DINH,mong:70,
  dua:MAI_THAI_MAC_DINH.dua,doc_mai:MAI_THAI_MAC_DINH.docDo,dong_gia_mai_thai:MAI_THAI_MAC_DINH.donGia,
  khoan:1900000,cong:550000,mep:250000,ql:23.8,vat:8,lm:'khoan'};
@@ -1057,6 +1065,7 @@ function buildPayload() {
     // Kênh dẫn khách (aln-tracking.js) — server lưu vào house để báo cáo
     // "Kênh & Lead" của Founder biết lead đến từ đâu.
     attribution: layAttribution(),
+    trangDan: window.alnTrangDan ? window.alnTrangDan() : '',
   };
 }
 
@@ -1473,6 +1482,7 @@ window.alnDuToanGuiLeadMyMy = async function (o) {
     sourceUrl: location.origin + location.pathname,
     optout: window.ALN_INTERNAL === true,
     attribution: (() => { try { return window.alnAttr ? window.alnAttr.forLead() : null; } catch (err) { return null; } })(),
+    trangDan: window.alnTrangDan ? window.alnTrangDan() : '',
   });
   const d = (res && res.data) || {};
   const leadId = d.id || '';
@@ -1619,6 +1629,7 @@ f.form.addEventListener('submit', async (e) => {
       sourceUrl: location.origin + location.pathname,
       optout: window.ALN_INTERNAL === true,
       attribution: (() => { try { return window.alnAttr ? window.alnAttr.forLead() : null; } catch (err) { return null; } })(),
+      trangDan: window.alnTrangDan ? window.alnTrangDan() : '',
     });
     const leadId = (res && res.data && res.data.id) || '';
     const d = (res && res.data) || {};

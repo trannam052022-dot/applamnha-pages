@@ -7,7 +7,10 @@
 
 ALN là **nhà thầu tư vấn thiết kế**, hoạt động theo hình thức công ty TNHH một
 thành viên. Phạm vi dịch vụ là thiết kế. ALN không nhận thi công, không nhận
-xây dựng trọn gói, và không hoạt động như sàn giao dịch hay đơn vị môi giới.
+xây dựng trọn gói, và không hoạt động như sàn giao dịch.
+
+Khi chủ nhà cần, ALN có thể giới thiệu đơn vị thi công. ALN không thu phí giới
+thiệu; chủ nhà tự ký hợp đồng thi công với đơn vị đó.
 
 Chủ nhà ký hợp đồng trực tiếp với ALN. Người phụ trách chuyên môn của hồ sơ là
 kiến trúc sư của ALN.
