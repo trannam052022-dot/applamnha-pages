@@ -109,6 +109,16 @@ textarea{width:100%;font:inherit;font-size:15px;padding:10px 12px;border:1px sol
 .boc-drop.co{border-style:solid;border-color:var(--ok);background:#f2faf5}
 .boc-drop.co .bd1{color:var(--ok)}
 .boc-file:not(:empty){margin-top:6px;font-weight:600;color:var(--ok)}
+.boc-tn{margin-top:8px;border:1px solid var(--line);border-radius:6px;background:#fff;padding:0 10px}
+.boc-tn summary{cursor:pointer;font-size:13.5px;font-weight:600;color:var(--navy);padding:8px 0;list-style:none}
+.boc-tn summary::before{content:'+ ';}
+.boc-tn[open] summary::before{content:'− ';}
+.boc-tn-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding-bottom:8px}
+.boc-tn-grid label{font-size:12.5px;font-weight:600;color:var(--muted)}
+.boc-tn-grid input{width:100%;margin-top:3px;font:inherit;font-size:15px;padding:8px 10px;border:1px solid var(--line);border-radius:6px}
+.boc-tn-kq{font-size:12.5px;color:var(--muted);padding-bottom:10px;line-height:1.45}
+.boc-tn-kq b{font-family:var(--mono);color:var(--navy)}
+@media(max-width:520px){.boc-tn-grid{grid-template-columns:1fr}}
 .tag.boc{background:#e8edf6;color:#2b4a7a}
 /* Khung chuyển khoản tay (01/10/2026) — hiện dưới danh sách khi bấm "Chuyển khoản & nhận file" */
 .ck-box{margin-top:12px;padding:14px 16px;border:1px solid var(--gold-hi);border-radius:10px;background:var(--gold-soft)}
@@ -219,7 +229,16 @@ textarea{width:100%;font:inherit;font-size:15px;padding:10px 12px;border:1px sol
         <div>
           <label for="bDt"><span class="boc-buoc">2</span>Tổng diện tích sàn xây dựng <span class="bb">*</span></label>
           <input type="number" id="bDt" min="20" max="5000" step="0.01" inputmode="decimal" placeholder="VD: 320">
-          <div class="ggt">Đơn vị m². Cộng diện tích sàn của mọi tầng (kể cả sân thượng, mái), <strong>không tính móng</strong>. Dùng để tính phí; ALN đối chiếu lại khi bóc.</div>
+          <div class="ggt">Đơn vị m². Cộng diện tích sàn của mọi tầng (kể cả sân thượng, mái), <strong>không tính móng</strong>. Dùng để tính phí; ALN đối chiếu lại diện tích thật khi bóc bản vẽ, lệch thì phí tính theo số thật.</div>
+          <details class="boc-tn" id="bTinhNhanh">
+            <summary>Chưa biết số này? Tính nhanh giúp tôi</summary>
+            <div class="boc-tn-grid">
+              <label>Ngang lô (m)<input type="number" id="tnNgang" min="1" max="100" step="0.1" inputmode="decimal" placeholder="VD: 5"></label>
+              <label>Dài phần xây (m)<input type="number" id="tnDai" min="1" max="200" step="0.1" inputmode="decimal" placeholder="VD: 16"></label>
+              <label>Số sàn (kể cả mái, sân thượng)<input type="number" id="tnSan" min="1" max="30" step="1" inputmode="numeric" placeholder="VD: 4"></label>
+            </div>
+            <div class="boc-tn-kq" id="tnKq">Nhập đủ 3 số, trang tự nhân ra và điền vào ô trên (vẫn sửa tay được).</div>
+          </details>
         </div>
         <div>
           <label for="bFile"><span class="boc-buoc">3</span>File bản vẽ <span class="bb">*</span></label>
@@ -335,6 +354,20 @@ function tinhPhiXem() {
   el.textContent = 'Phí dự kiến: ' + soVN(phi) + ' đ';
 }
 $('bDt').addEventListener('input', tinhPhiXem);
+// Tính nhanh diện tích sàn (02/10/2026, Nam chọn cách A): ngang × dài × số sàn → điền vào #bDt, vẫn sửa tay được.
+function tinhNhanhDt() {
+  const ng = Number($('tnNgang').value), d = Number($('tnDai').value), san = Number($('tnSan').value);
+  const kq = $('tnKq');
+  if (!(ng > 0 && d > 0 && san >= 1)) { kq.textContent = 'Nhập đủ 3 số, trang tự nhân ra và điền vào ô trên (vẫn sửa tay được).'; return; }
+  const dt = Math.round(ng * d * san * 100) / 100;
+  kq.textContent = '';
+  kq.appendChild(document.createTextNode(ng + ' × ' + d + ' × ' + san + ' sàn = '));
+  const b = document.createElement('b'); b.textContent = dt.toLocaleString('vi-VN') + ' m²'; kq.appendChild(b);
+  kq.appendChild(document.createTextNode(' — đã điền vào ô Tổng diện tích sàn. Tầng nào xây không hết lô (sân thượng nhỏ, mái) thì sửa lại số cho sát.'));
+  $('bDt').value = dt;
+  tinhPhiXem();
+}
+['tnNgang', 'tnDai', 'tnSan'].forEach((id) => $(id).addEventListener('input', tinhNhanhDt));
 $('bFile').addEventListener('change', async () => {
   const f = $('bFile').files && $('bFile').files[0];
   FILE_BOC = null; bocDropReset();
