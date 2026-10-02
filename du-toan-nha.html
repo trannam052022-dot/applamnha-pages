@@ -189,9 +189,20 @@ body.che-do-dn .dan-dn{display:none}
    Không gian Nhà + link bóc khối lượng — Không gian Nhà là của chủ nhà (có hạn mức
    3 công trình), nhà thầu đi bản doanh nghiệp. Chỉ frontend, chọn lại "Nhà của tôi" là hiện lại. */
 body.nha-thau .luu-loi-ich,body.nha-thau #btnSaveHouse,body.nha-thau #btnSaveHouse + .hint,body.nha-thau #saveHouseMsg,body.nha-thau #retrySaveHouse,body.nha-thau #saveCallback,body.nha-thau a[href="/du-toan-chi-tiet.html#form"]{display:none!important}
-.tv .tv-nt{margin-top:10px;padding:11px 12px;border:1px solid var(--line2);border-radius:10px;background:#fff;font-size:14px;line-height:1.55;color:var(--sub)}
+.tv .tv-nt{margin-top:10px;padding:10px 12px;border:1px solid var(--line2);border-radius:10px;background:var(--card);font-size:14px;line-height:1.55;color:var(--sub)}
+.tv .tv-nt a,.tv .tv-nt b{color:var(--ink)}
+/* Khung bản doanh nghiệp luôn hiện (02/10/2026) — nền navy cố định, đọc được ở cả 2 chế độ màu */
+.dn-the{margin-top:18px;padding:16px;border-radius:12px;background:#111c33;color:#dce6f4;border:1px solid #2a3a5c}
+.dn-the .dn-the-nhan{font-size:12.8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#e8c877}
+.dn-the h3{font-family:var(--head);font-weight:600;font-size:18px;line-height:1.35;margin:4px 0 6px;color:#fff}
+.dn-the p{margin:0;font-size:14.5px;line-height:1.55;color:#bcc8dc}
+.dn-the .dn-the-nut{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.dn-the a{display:flex;align-items:center;justify-content:center;min-height:46px;padding:0 16px;border-radius:10px;font-weight:700;font-size:15.5px;text-decoration:none}
+.dn-the .dn-the-chinh{flex:1 1 200px;background:linear-gradient(135deg,#e0aa3e,#b8860b);color:#1a1400}
+.dn-the .dn-the-phu{flex:1 1 120px;border:1px solid #4a5d82;color:#dce6f4}
+body.che-do-dn .dn-the{display:none}
+@media print{.dn-the{display:none}}
 .tv .tv-nt b{color:var(--navy2)}
-.tv .tv-nt a.tv-go{margin-top:10px;text-align:center;text-decoration:none;line-height:50px;min-height:0;padding:0 10px}
 /* Bản doanh nghiệp: trả tiền trước, xem kết quả sau — che toàn bộ số tiền tới khi báo giá đã thanh toán */
 /* Che kết quả nhưng GIỮ #dnPanel (form Lưu báo giá nằm trong #out) — lỗi 01/10/2026:
    bản đầu ẩn cả #out nên nhà thầu không thấy nút Lưu báo giá khi chưa trả. */
@@ -374,6 +385,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
    <div class="rows" id="rowsH"></div>
    <div class="tot"><span>Cộng vật tư hoàn thiện</span><span id="totH"></span></div>
    <div class="fine">Chưa gồm: ép cọc, thiết bị thang máy (hai phần này chủ nhà ký riêng), nội thất rời, chi phí thiết kế và xin phép.<br>Đây là ước tính theo nhà mẫu cùng loại, chưa phải dự toán chính thức cho công trình của bạn. Dự toán đúng cho nhà bạn phải bóc từ chính bản vẽ của bạn.</div>
+   <!-- Khung bản doanh nghiệp LUÔN hiện (Nam 02/10/2026): trước đó chỉ hiện khi chọn
+        "Công trình của khách" nên nhà thầu khó thấy. Form bên dưới vẫn mặc định "Nhà của tôi". -->
+   <aside class="dn-the" id="dnThe" aria-labelledby="dnTheTitle">
+    <div class="dn-the-nhan">Dành cho nhà thầu · đội thầu · KTS</div>
+    <h3 id="dnTheTitle">Lập báo giá cho khách, mang logo công ty anh/chị</h3>
+    <p>Lưu báo giá cho từng khách, xuất file mang logo và tên công ty của mình, không giới hạn số công trình, trả tiền theo từng file. Số vừa nhập ở trên được mang theo.</p>
+    <div class="dn-the-nut">
+     <a class="dn-the-chinh" href="du-toan-nha.html?dn=1" id="dnTheLink">Mở bản doanh nghiệp</a>
+     <a class="dn-the-phu" href="in-bao-gia-dn.html?mau=1" target="_blank" rel="noopener">Xem file mẫu</a>
+    </div>
+   </aside>
    <section class="tv" id="tuVan" aria-labelledby="tuVanTitle">
     <h3 id="tuVanTitle">Nhờ KTS xem giúp dự toán này</h3>
     <p class="tv-sub">KTS Trần Long trao đổi 10–15 phút về con số vừa tính và báo giá anh/chị đang có (nếu có). Miễn phí, không ràng buộc.</p>
@@ -390,9 +412,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="hint" id="tvDoiTuongHint">Đội thầu, nhà thầu, KTS lập cho khách của mình thì chọn "Công trình của khách".</div>
      </div>
      <div class="tv-nt" id="tvNhaThau" hidden>
-      <b>Bản dành cho doanh nghiệp</b> cho anh/chị lưu báo giá cho từng khách, xuất file mang logo và tên công ty của mình, không giới hạn số công trình, trả tiền theo từng file. Số vừa nhập ở trên được mang theo.
-      <a class="tv-go" href="du-toan-nha.html?dn=1" id="tvNhaThauLink">Mở bản doanh nghiệp</a>
-      <div class="hint" style="margin-top:8px"><a href="in-bao-gia-dn.html?mau=1" target="_blank" rel="noopener">Xem file mẫu</a> · Hoặc để lại liên hệ bên dưới, ALN gửi hướng dẫn qua Zalo.</div>
+      Lập báo giá cho khách thì dùng <a href="du-toan-nha.html?dn=1" id="tvNhaThauLink"><b>bản doanh nghiệp</b></a> (khung phía trên). Hoặc để lại liên hệ bên dưới, ALN gửi hướng dẫn qua Zalo.
      </div>
      <div class="tv-f"><label for="tvTen">Họ tên (để KTS xưng hô khi gọi)</label><input id="tvTen" type="text" autocomplete="name" maxlength="60" placeholder="VD: Anh Minh" required></div>
      <div class="tv-f"><label for="tvSdt">Số điện thoại</label><input id="tvSdt" type="tel" inputmode="tel" autocomplete="tel" maxlength="15" placeholder="VD: 0909 123 456" required></div>
