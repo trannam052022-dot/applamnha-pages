@@ -2221,6 +2221,17 @@ document.addEventListener('DOMContentLoaded', function() {
   </div>
 </div>
 
+<!-- Modal: chi tiết lead + đồng ý chuyển số cho thầu (Nam chốt 03/10/2026) -->
+<div id="ldctModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9001;align-items:center;justify-content:center">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;width:min(560px,92vw);max-height:80vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div id="ldctTitle" style="font-family:var(--mono);font-size:15px;font-weight:700;color:var(--text1)"></div>
+      <button onclick="document.getElementById('ldctModal').style.display='none'" style="background:none;border:none;color:var(--dim);font-size:20px;cursor:pointer">×</button>
+    </div>
+    <div id="ldctBody" style="display:flex;flex-direction:column;gap:8px"></div>
+  </div>
+</div>
+
 <!-- Modal: lịch sử chạm nguồn 1 liên hệ -->
 <div id="ctHistoryModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9000;align-items:center;justify-content:center">
   <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;width:min(560px,92vw);max-height:80vh;overflow-y:auto">
@@ -2228,6 +2239,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <div id="ctHistoryTitle" style="font-family:var(--mono);font-size:15px;font-weight:700;color:var(--text1)"></div>
       <button onclick="document.getElementById('ctHistoryModal').style.display='none'" style="background:none;border:none;color:var(--dim);font-size:20px;cursor:pointer">×</button>
     </div>
+    <button onclick="ctMoLeadDongY()" style="margin-bottom:12px;padding:6px 12px;background:var(--raised);border:1px solid var(--border);border-radius:6px;font-size:11.5px;font-weight:700;color:var(--text2);cursor:pointer;font-family:var(--sans)">🤝 Lead &amp; đồng ý chuyển số cho thầu</button>
     <div style="margin-bottom:12px">
       <label style="font-size:11px;color:var(--dim);display:block;margin-bottom:4px">Ghi chú</label>
       <textarea id="ctHistoryNote" rows="2" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--raised);color:var(--text1);font-family:var(--sans);font-size:12.5px;resize:vertical"></textarea>
@@ -8563,6 +8575,148 @@ window.saveCompanySettings = async function() {
 })();
 
 /* ══════════════════════════════════════════
+   ĐỒNG Ý CHUYỂN SỐ CHO THẦU (Nam chốt 03/10/2026) — ALN luôn gọi hỏi khách
+   trước khi chuyển số sang đơn vị thi công. Modal "Chi tiết lead" ghi lại lần
+   khách đồng ý (leads/{id}.dong_y_chuyen_thau: luc, nguoi_ghi, cach 'goi_dien',
+   don_vi) hoặc rút đồng ý (thêm rut_luc, không xoá bản cũ). Ghi qua callable
+   Founder-only founderDongYChuyenThau (functions/dongYChuyenThau.js) — leads/
+   chặn mọi client ghi. Cảnh báo đỏ khi lead đã gắn đơn vị (đội AI gợi ý cho lead
+   sửa vặt) mà chưa có đồng ý còn hiệu lực: chỉ cảnh báo, không chặn.
+   Mở từ: bảng AI Sửa Vặt (nút Chi tiết), Pipeline + Liên hệ (nút 🤝 Lead).
+══════════════════════════════════════════ */
+/* LDCT_VE_BAT_DAU — vẽ modal bằng DOM + textContent (dữ liệu khách nhập, không innerHTML).
+   Test: scripts/test-founder-dong-y-chuyen-thau.js (Chromium, chạy đúng 3 hàm này). */
+function ldctCanhBaoTho(d){
+  var ai = d && d.aiAnalysis;
+  var gan = !!(ai && !ai.spam && ai.doiSuggested && ai.doiSuggested.length);
+  var dy = d && d.dong_y_chuyen_thau;
+  return gan && !(dy && dy.luc && !dy.rut_luc);
+}
+function ldctVeDs(el, leads, dep){
+  el.textContent = '';
+  var dong = function(tag, css, text){ var x = document.createElement(tag); if(css) x.style.cssText = css; if(text !== undefined) x.textContent = text; return x; };
+  if(!leads || !leads.length){ el.appendChild(dong('div', 'color:var(--dim);font-size:12.5px', 'Không có lead nào trong mục leads cho số này.')); return; }
+  leads.forEach(function(l){
+    var o = dong('div', 'border:1px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px');
+    var tr = dong('div', '');
+    tr.appendChild(dong('div', 'font-size:13px;font-weight:700;color:var(--text1)', (l.loai_viec || l.source || l.kind || 'Lead') + (l.khu_vuc ? ' · ' + l.khu_vuc : '')));
+    tr.appendChild(dong('div', 'font-family:var(--mono);font-size:11px;color:var(--dim)', dep.fmtNgay(l.tao_luc) + ' · ' + l.id));
+    var tt = l.trang_thai || {};
+    if(tt.canh_bao) tr.appendChild(dong('div', 'font-size:11.5px;font-weight:700;color:#ef4444;margin-top:3px', '⚠ Đã gắn đơn vị thi công nhưng chưa ghi khách đồng ý chuyển số'));
+    else if(tt.hieu_luc) tr.appendChild(dong('div', 'font-size:11.5px;color:var(--green);margin-top:3px', '✓ Khách đã đồng ý chuyển số'));
+    o.appendChild(tr);
+    var bt = dong('button', 'padding:6px 11px;border-radius:6px;border:1px solid var(--gold-bd);background:var(--gold-bg);color:var(--gold);font-weight:700;font-size:11.5px;cursor:pointer;font-family:var(--sans);white-space:nowrap', 'Chi tiết');
+    bt.type = 'button';
+    bt.addEventListener('click', function(){ dep.onMo(l.id); });
+    o.appendChild(bt);
+    el.appendChild(o);
+  });
+}
+function ldctVe(el, l, dep){
+  el.textContent = '';
+  var dong = function(tag, css, text){ var x = document.createElement(tag); if(css) x.style.cssText = css; if(text !== undefined) x.textContent = text; return x; };
+  var hang = function(nhan, gt){ var d = dong('div', 'font-size:12.5px;color:var(--text2);line-height:1.7'); d.appendChild(dong('span', 'color:var(--dim)', nhan + ': ')); d.appendChild(dong('span', '', gt || '—')); return d; };
+  var ten = function(uid){ return uid === dep.founderUid ? 'Founder' : (uid || '—'); };
+  el.appendChild(hang('Khách', (l.name || '—') + ' · ' + (l.phone || '—')));
+  el.appendChild(hang('Nguồn', [l.source, l.kind].filter(Boolean).join(' · ')));
+  el.appendChild(hang('Việc / khu vực', [l.loai_viec, l.khu_vuc].filter(Boolean).join(' · ')));
+  el.appendChild(hang('Gửi lúc', dep.fmtNgay(l.tao_luc)));
+  if(l.doi_goi_y && l.doi_goi_y.length) el.appendChild(hang('Đơn vị đã gắn (AI gợi ý)', l.doi_goi_y.map(function(s){ return s.uid; }).join(', ')));
+  var tt = l.trang_thai || {};
+  if(tt.canh_bao){
+    var cb = dong('div', 'margin:12px 0;padding:10px 12px;border-radius:10px;border:1.5px solid #ef4444;background:rgba(239,68,68,.1);color:#ef4444;font-size:12.5px;font-weight:700');
+    cb.setAttribute('data-ldct-canh-bao', '1');
+    cb.textContent = '⚠ Lead đã gắn đơn vị thi công nhưng chưa có ghi nhận khách đồng ý chuyển số. Gọi hỏi khách trước khi chuyển số cho thầu.';
+    el.appendChild(cb);
+  }
+  var hop = dong('div', 'margin-top:12px;padding:12px 14px;background:var(--raised);border:1px solid var(--border);border-radius:10px');
+  hop.appendChild(dong('div', 'font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:6px', 'Đồng ý chuyển số cho thầu'));
+  var dy = l.dong_y;
+  if(tt.hieu_luc && dy){
+    hop.appendChild(dong('div', 'font-size:12.5px;color:var(--green);font-weight:700', '✓ Khách đồng ý (gọi điện) lúc ' + dep.fmtNgay(dy.luc) + ' · ghi bởi ' + ten(dy.nguoi_ghi)));
+    hop.appendChild(dong('div', 'font-size:12.5px;color:var(--text2)', 'Đơn vị: ' + (dy.don_vi || '(chưa ghi tên)')));
+  } else if(tt.da_rut && dy){
+    hop.appendChild(dong('div', 'font-size:12.5px;color:#f97316;font-weight:700', 'Khách đã rút đồng ý lúc ' + dep.fmtNgay(dy.rut_luc)));
+  } else {
+    hop.appendChild(dong('div', 'font-size:12.5px;color:var(--dim)', 'Chưa ghi nhận khách đồng ý.'));
+  }
+  var nut = dong('div', 'display:flex;gap:8px;flex-wrap:wrap;margin-top:10px');
+  var b1 = dong('button', 'padding:7px 13px;border-radius:7px;border:1px solid rgba(21,128,61,.35);background:rgba(21,128,61,.1);color:var(--green);font-weight:700;font-size:12px;cursor:pointer;font-family:var(--sans)', 'Khách đồng ý chuyển số cho thầu');
+  b1.type = 'button'; b1.setAttribute('data-ldct', 'dong-y');
+  b1.addEventListener('click', function(){ dep.onDongY(l.id); });
+  nut.appendChild(b1);
+  if(tt.hieu_luc){
+    var b2 = dong('button', 'padding:7px 13px;border-radius:7px;border:1px solid rgba(249,115,22,.4);background:rgba(249,115,22,.08);color:#f97316;font-weight:700;font-size:12px;cursor:pointer;font-family:var(--sans)', 'Khách rút đồng ý');
+    b2.type = 'button'; b2.setAttribute('data-ldct', 'rut');
+    b2.addEventListener('click', function(){ dep.onRut(l.id); });
+    nut.appendChild(b2);
+  }
+  hop.appendChild(nut);
+  if(l.lich_su && l.lich_su.length){
+    hop.appendChild(dong('div', 'font-size:11px;color:var(--dim);margin:10px 0 4px', 'Lịch sử (không xoá):'));
+    l.lich_su.slice().reverse().forEach(function(h){
+      var t = h.loai === 'rut' ? 'Rút đồng ý' : ('Đồng ý' + (h.don_vi ? ' · ' + h.don_vi : ''));
+      hop.appendChild(dong('div', 'font-size:12px;color:var(--text2);border-left:2px solid var(--border);padding-left:8px;margin-bottom:4px', dep.fmtNgay(h.luc) + ' — ' + t + ' · ' + ten(h.nguoi_ghi)));
+    });
+  }
+  el.appendChild(hop);
+}
+/* LDCT_VE_KET_THUC */
+(function(){
+  var FOUNDER_UID_LDCT = 'h4kEguPEyMcwJwl89stc0Q6j2si2';
+  var LDCT_SDT = null;
+  async function ldctFn(data){
+    var mod = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js');
+    var fn = mod.httpsCallable(mod.getFunctions(app, 'asia-southeast1'), 'founderDongYChuyenThau');
+    return (await fn(data)).data;
+  }
+  function fmt(ms){ if(!ms) return '—'; try { return new Date(ms).toLocaleString('vi-VN'); } catch(e){ return '—'; } }
+  function hop(){ return document.getElementById('ldctBody'); }
+  function mo(tieuDe){
+    document.getElementById('ldctTitle').textContent = tieuDe;
+    document.getElementById('ldctModal').style.display = 'flex';
+    hop().textContent = 'Đang tải…';
+  }
+  var DEP = {
+    founderUid: FOUNDER_UID_LDCT, fmtNgay: fmt,
+    onMo: function(id){ window.ldctMo(id); },
+    onDongY: async function(id){
+      var dv = prompt('Đã gọi hỏi và khách đồng ý chuyển số cho đơn vị thi công.\nTên đơn vị thi công (không bắt buộc):', '');
+      if(dv === null) return;
+      try { var r = await ldctFn({ hanh_dong: 'ghi', id: id, don_vi: dv }); if(r.trung) toast('Đã có ghi nhận đồng ý cho đơn vị này', 'info'); veLead(r.lead); window.ldctSauGhi && window.ldctSauGhi(r.lead); }
+      catch(e){ alert('Lỗi ghi đồng ý: ' + (e.message || e)); }
+    },
+    onRut: async function(id){
+      if(!confirm('Ghi nhận khách RÚT đồng ý chuyển số? Bản ghi đồng ý cũ vẫn được giữ.')) return;
+      try { var r = await ldctFn({ hanh_dong: 'rut', id: id }); veLead(r.lead); window.ldctSauGhi && window.ldctSauGhi(r.lead); }
+      catch(e){ alert('Lỗi ghi rút đồng ý: ' + (e.message || e)); }
+    },
+  };
+  function veLead(l){
+    var el = hop(); ldctVe(el, l, DEP);
+    if(LDCT_SDT){
+      var lai = document.createElement('button');
+      lai.type = 'button'; lai.textContent = '← Các lead khác của số này';
+      lai.style.cssText = 'margin-top:12px;background:none;border:none;color:var(--blue);cursor:pointer;font-size:12px;font-family:var(--sans);padding:0';
+      lai.addEventListener('click', function(){ window.ldctMoTheoSdt(LDCT_SDT.sdt, LDCT_SDT.ten); });
+      el.appendChild(lai);
+    }
+  }
+  window.ldctMo = async function(id){
+    mo('Chi tiết lead');
+    try { veLead((await ldctFn({ hanh_dong: 'mo', id: id })).lead); }
+    catch(e){ hop().textContent = 'Lỗi tải lead: ' + (e.message || e); }
+  };
+  window.ldctMoTheoSdt = async function(sdt, ten){
+    LDCT_SDT = { sdt: sdt, ten: ten };
+    mo('Lead của ' + (ten || '—') + ' · ' + (sdt || ''));
+    try { ldctVeDs(hop(), (await ldctFn({ hanh_dong: 'ds_theo_sdt', sdt: sdt })).leads, DEP); }
+    catch(e){ hop().textContent = 'Lỗi tải danh sách lead: ' + (e.message || e); }
+  };
+  window.ldctMoTuSuaVat = function(id){ LDCT_SDT = null; window.ldctMo(id); };
+})();
+
+/* ══════════════════════════════════════════
    AI SỬA VẶT — lớp AI 3 tầng kênh sửa vặt (functions/suaVatAI.js, NHÁP 27/07/2026)
    Lead gốc (leads/, kind sua_vat): đọc THẲNG qua getDocs — leads/{id} đã có
    rule `allow read: if isFounder()` từ trước, không cần Cloud Function riêng.
@@ -8613,6 +8767,9 @@ window.saveCompanySettings = async function() {
       var zaloBtn = ai && ai.zaloDraft && !isSpam
         ? '<button onclick="svCopyZalo('+eJ(it._id)+', this)" style="padding:6px 10px;border-radius:6px;border:1px solid var(--gold-bd);background:var(--gold-bg);color:var(--gold);font-weight:700;font-size:11px;cursor:pointer;font-family:var(--sans);white-space:nowrap"><i class="ph-duotone ph-copy"></i> Sao chép tin</button>'
         : '<span style="color:var(--dim);font-size:11.5px">—</span>';
+      // Đồng ý chuyển số cho thầu (Nam chốt 03/10/2026): chỉ cảnh báo, không chặn nút chép tin.
+      zaloBtn += (ldctCanhBaoTho(it) ? '<div data-sv-canh-bao="1" style="margin-top:5px;font-size:11px;font-weight:700;color:#ef4444;max-width:190px">⚠ Chưa ghi khách đồng ý chuyển số — gọi hỏi trước</div>' : '')
+        + '<button onclick="ldctMoTuSuaVat('+eJ(it._id)+')" style="margin-top:5px;padding:5px 9px;border-radius:6px;border:1px solid var(--border);background:var(--raised);color:var(--text2);font-weight:700;font-size:11px;cursor:pointer;font-family:var(--sans);white-space:nowrap">Chi tiết · đồng ý</button>';
       return '<tr style="border-bottom:1px solid var(--border)'+eH((isSpam?';opacity:.6':''))+'">'
         +'<td style="padding:10px 11px"><div style="font-weight:700;font-size:13px;color:var(--text1)">'+eH((it.name||'—'))+'</div><a href="tel:'+eH((it.phone||''))+'" style="font-family:var(--mono);font-size:12px;color:var(--blue);text-decoration:none">'+eH((it.phone||'—'))+'</a></td>'
         +'<td style="padding:10px 11px;font-size:12.5px;color:var(--text2)">'+eH((it.loaiViecLabel||it.loaiViec||'—'))+'<div style="color:var(--dim);font-size:11px">'+eH((it.khuVuc||''))+'</div></td>'
@@ -8623,6 +8780,13 @@ window.saveCompanySettings = async function() {
       +'</tr>';
     }).join('');
   }
+
+  window.ldctSauGhi = function(l){
+    var it = SV_LEADS.filter(function(x){ return x._id === l.id; })[0];
+    if(!it) return;
+    it.dong_y_chuyen_thau = l.dong_y ? { luc: l.dong_y.luc, rut_luc: l.dong_y.rut_luc } : null;
+    svRenderLeads();
+  };
 
   function svRenderNurture(){
     var body = document.getElementById('designNurtureBody');
@@ -8998,6 +9162,10 @@ window.saveCompanySettings = async function() {
   /* CT_VE_DONG_THOI_GIAN_KET_THUC */
 
   var CT_HISTORY_ID = null;
+  window.ctMoLeadDongY = function(){
+    var it = CT_ITEMS.filter(function(x){ return x.id === CT_HISTORY_ID; })[0];
+    if(it && it.phone_normalized) window.ldctMoTheoSdt(it.phone_normalized, it.name || '');
+  };
   window.ctViewHistory = function(id){
     var it = CT_ITEMS.filter(function(x){ return x.id === id; })[0];
     if(!it) return;
@@ -9446,6 +9614,7 @@ window.saveCompanySettings = async function() {
         + '<td style="padding:10px 11px;font-family:var(--mono);font-size:11.5px;color:var(--dim);white-space:nowrap">'+eH(pplFmtDate(it.updated_at))+'</td>'
         + '<td style="padding:10px 11px;text-align:center;white-space:nowrap">'
           + (PPL_VIEW === 'khach_hang' ? '<button onclick="bgkMo('+eJ(it.id)+')" title="Brief chuẩn bị buổi gặp" style="'+eH(PPL_GOI_BTN_CSS)+'">📝 Brief</button>' : '')
+          + (it.phone_normalized ? '<button onclick="ldctMoTheoSdt('+eJ(it.phone_normalized)+', '+eJ(it.name||'')+')" title="Lead của khách + đồng ý chuyển số cho thầu" style="'+eH(PPL_GOI_BTN_CSS)+'">🤝 Lead</button>' : '')
           + '<button onclick="pplDeleteContact('+eJ(it.id)+')" title="Xóa liên hệ" style="border:0;background:none;color:#f97316;cursor:pointer;font-size:15px;padding:5px 8px;border-radius:6px"><i class="ph ph-x"></i></button>'
         + '</td>'
       + '</tr>';
