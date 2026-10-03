@@ -703,6 +703,41 @@ window.dtState = state;
 window.dtBudgetBucket = dtBudgetBucket;
 window.dtTinhTen = dtTinhTen;
 </script>
+<!-- Đo hành vi ẩn danh lớp A (spec 03/10/2026) — CHỈ trang chính /du-toan/ (spec
+     chỉ nêu trang chính; 26 trang tỉnh là quyết định riêng). Chỉ gửi nhãn khoảng
+     (alnBucket), không số thật/PII; tự tắt ở ?internal=1. -->
+<script src="../aln-bucket.js?v=1"></script>
+<script src="../aln-dt-su-kien.js?v=1"></script>
+<script>
+(function () {
+  var S = window.alnDtSuKien;
+  if (!S) return;
+  S.batDau('du-toan');
+  /* aln_dt_step: wizard 5 bước — khách chuyển TỚI bước sau thì bước hiện tại
+     coi là hoàn tất. dtGoStep là hàm toàn cục, bọc lại để bắt mọi đường chuyển
+     bước (bấm lựa chọn tự sang bước, nút "Tiếp"). Bước 5 hoàn tất khi bấm
+     "Xem kết quả" hợp lệ. Lượt chọn sẵn từ ?loai= lúc tải không tính. */
+  var goc = window.dtGoStep;
+  if (typeof goc === 'function') {
+    window.dtGoStep = function (n) {
+      var tu = window.currentStep;
+      if (Number(n) === tu + 1) S.buoc(tu, { so_tang: window.state && window.state.tang, loai_lo: 'chua_chon' });
+      return goc.apply(this, arguments);
+    };
+  }
+  var nut = document.getElementById('dtCalcBtn');
+  if (nut) nut.addEventListener('click', function () {
+    var kq = document.getElementById('dtResult');
+    var st = window.state || {};
+    if (!kq || !kq.classList.contains('show') || !window.lastResult) return;
+    S.buoc(5, { so_tang: st.tang, loai_lo: 'chua_chon' });
+    S.ketQua({ dien_tich: st.dienTich, so_tang: st.tang, tong_tien: window.lastResult.giua, tinh: st.tinh, loai_lo: 'chua_chon' },
+      document.querySelector('#dtResult .dt-restart'));
+  });
+  var form = document.getElementById('dtLeadForm');
+  if (form) form.addEventListener('focusin', function () { S.formStart(); });
+})();
+</script>
 <script type="module" src="../mymy-widget.js"></script>
 <script src="../aln-zalo-widget.js" defer></script>
 

@@ -119,6 +119,10 @@ fbq('track', 'PageView');
 src="https://www.facebook.com/tr?id=1656666692225878&ev=PageView&noscript=1"/></noscript>
 <!-- End Meta Pixel -->
 <script src="aln-tracking.js"></script>
+<!-- Đo hành vi ẩn danh lớp A (spec 03/10/2026): 7 sự kiện aln_dt_* + aln_form_start,
+     chỉ gửi nhãn khoảng (alnBucket), không số thật/PII. Tự tắt ở ?internal=1 và ?dn=1. -->
+<script src="aln-bucket.js?v=1"></script>
+<script src="aln-dt-su-kien.js?v=1"></script>
 
 <style>
 :root{--bg:#f6f4ef;--card:#ffffff;--ink:#141a2b;--sub:#4a5268;--muted:#7a8196;--line:#e3dfd4;--line2:#c9c0aa;--navy:#0a1224;--navy2:#111c33;--gold:#b8860b;--gold-soft:rgba(184,134,11,.10);--warn:#8a5e08;--focus:#b8860b;
@@ -958,6 +962,7 @@ async function runThongThuong(skipPrices,userInitiated){
  ghiDauPhanTho(result);
  window.__lastEstimate={modelKey:key,nhaMauNhan:result.modelLabel,dienTich:{tx:a.tx,qd:a.qd,km:a.km},inputs:{...st.inp},priceOverrides:{...st.px},donGiaHangMuc:{...st.dg},result};
  baoDaVe();
+ doKetQua(userInitiated,a.qd,num($('n').value),result.totalChuaVat);
  // P1.5 (spec mục 5) — dataLayer thuần, KHÔNG kèm Pixel/CAPI (chưa có contact/
  // lead ở bước này). run() chạy lại mỗi lần gõ phím nên debounce 1.2s sau lần
  // gõ cuối mới đẩy 1 sự kiện, tránh làm loãng dataLayer.
@@ -1010,7 +1015,16 @@ async function runBietThuVuon(skipPrices,userInitiated){
  ghiDauPhanTho(result);
  window.__lastEstimate={modelKey:'thi_biet_thu_vuon_mai_thai',nhaMauNhan:'Biệt thự vườn 1 tầng mái Thái',dienTich:{tx:result.tx,qd:result.qd,km:result.km},inputs:{...st.inp},priceOverrides:{...st.px},donGiaHangMuc:{...st.dg},result};
  baoDaVe();
+ doKetQua(userInitiated,result.qd,1,result.totalChuaVat);
  scheduleTinh(userInitiated,{event:'aln_du_toan_tinh',aln_nha_mau:'thi_biet_thu_vuon_mai_thai',aln_so_san:1,aln_dien_tich_qd:Math.round(result.qd),aln_tong_chua_vat:result.totalChuaVat});
+}
+// Đo hành vi ẩn danh lớp A (spec 03/10/2026). Trang tự tính ví dụ mặc định
+// (5×20 m, 4 sàn) ngay lúc tải — kết quả đó KHÔNG tính là khách "đã xem kết quả".
+// aln_dt_result_view chỉ bắn ở lượt tính đầu do khách tự nhập/đổi (userInitiated),
+// khi máy chủ đã trả và bảng đã vẽ. Số thật quy về khoảng trong aln-dt-su-kien.js.
+function doKetQua(userInitiated,qd,soTang,tong){
+ if(!userInitiated||!window.alnDtSuKien)return;
+ try{window.alnDtSuKien.ketQua({dien_tich:qd,so_tang:soTang,tong_tien:tong,tinh:'',loai_lo:'chua_chon'},document.querySelector('#out .fine'))}catch(e){}
 }
 const IC='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>';
 function draw(el,lines,total){
@@ -1029,6 +1043,7 @@ function draw(el,lines,total){
 // Chỉ nhận id trong danh sách ô chung `ids`, không đụng giá vật tư/nhân công.
 window.alnDuToanDienGiup=async function(gt){
  Object.keys(gt||{}).forEach(id=>{if(!ids.includes(id))return;$(id).value=String(gt[id]);st.inp[id]=$(id).value});
+ doBuoc(1); // MyMy điền xong nhóm Kích thước & quy mô thay khách
  await run(false,true); // 02/10/2026: tính trên máy chủ — trả Promise, mymy-du-toan-nha.js chờ
  const ghiChu=$('blocked').hidden?'':$('blocked').textContent.trim();
  if($('out').hidden)return {tong:0,tongChu:'',moiM2:'',chan:ghiChu||'Chưa tính được.'};
@@ -1036,6 +1051,31 @@ window.alnDuToanDienGiup=async function(gt){
  const so=Number(chu.replace(/[^\d]/g,''))||0;
  return {tong:so,tongChu:so?ty(so):'',moiM2:$('perM2').textContent.trim(),chan:'',ghiChu:ghiChu};
 };
+// aln_dt_step (lớp A): trang là MỘT form dài, nên "bước" = nhóm ô (spec mục
+// "Xác minh trước khi code"): 1 = Kích thước & quy mô (gồm Mái Thái), 2 = Giá vật
+// tư, 3 = Nhân công & chi phí nhà thầu. Bắn khi khách chốt thay đổi đầu tiên
+// (sự kiện change) ở nhóm đó — một lần mỗi bước mỗi lần tải. Mục 2b chỉ có ở ?dn=1.
+function doBuoc(n){
+ if(!window.alnDtSuKien)return;
+ try{window.alnDtSuKien.buoc(n,{so_tang:num($('n').value),loai_lo:'chua_chon'})}catch(e){}
+}
+(function(){
+ if(!window.alnDtSuKien)return;
+ window.alnDtSuKien.batDau('du-toan-nha');
+ const BUOC={'1':1,'M':1,'2':2,'3':3};
+ const nhom=el=>{const sec=el&&el.closest&&el.closest('details.sec');const sn=sec&&sec.querySelector('.sn');return sn?BUOC[sn.textContent.trim()]:undefined};
+ const main=document.querySelector('.wrap main');
+ if(main){
+  main.addEventListener('change',ev=>{const b=nhom(ev.target);if(b)doBuoc(b)});
+  main.addEventListener('click',ev=>{if(ev.target&&ev.target.id==='resetP')doBuoc(2)});
+ }
+ // aln_dt_b2b_click: dòng dẫn sang bản doanh nghiệp (đầu trang, khung #dnThe, màn xác nhận nhà thầu).
+ document.addEventListener('click',ev=>{
+  const a=ev.target&&ev.target.closest&&ev.target.closest('a[href]');if(!a)return;
+  const h=a.getAttribute('href')||'';
+  if(/(^|\/)doanh-nghiep\.html|du-toan-nha\.html\?(.*&)?dn=1/.test(h))window.alnDtSuKien.b2b();
+ },true);
+})();
 run();
 </script>
 
@@ -1250,6 +1290,8 @@ async function doSave() {
     window.alnBaoLoiNeuCan && window.alnBaoLoiNeuCan("du-toan-nha luu", err);
     // Đo luồng lưu (30/09/2026): chỉ mã lỗi, không dữ liệu khách.
     try { window.dataLayer = window.dataLayer || []; window.dataLayer.push({ event: "aln_luu_loi", ma_loi: String(code || "khong_ro").slice(0, 60) }); } catch (e) {}
+    // Lớp A: chạm hạn mức 3 công trình/12 tháng (functions/lib/hanMucChuNha.js → details.han_muc).
+    try { if (err && err.details && err.details.han_muc === true && window.alnDtSuKien) window.alnDtSuKien.gioiHan(); } catch (e) {}
     // Lỗi máy chủ đã TỪ CHỐI hẳn (sai dữ liệu / thao tác cũ không khớp) thì bỏ
     // thao tác đang nhớ trong sessionStorage — nếu giữ, bấm "Thử lại" hay sửa
     // số rồi lưu lại vẫn gửi y nguyên gói cũ và kẹt lỗi mãi trong tab này.
@@ -1673,6 +1715,8 @@ f.form.addEventListener('focusin', () => {
   if (daBatDau) return;
   daBatDau = true;
   day('aln_tuvan_bat_dau');
+  // Lớp A (spec 03/10/2026): aln_form_start kèm vi_tri, cùng lúc với aln_tuvan_bat_dau (giữ nguyên).
+  try { if (window.alnDtSuKien) window.alnDtSuKien.formStart(); } catch (e) {}
 });
 
 function baoLoi(text, o) {
@@ -1783,6 +1827,7 @@ f.form.addEventListener('submit', async (e) => {
     /* Nhà thầu hoặc vượt hạn mức: KHÔNG bắn Lead (quảng cáo đang tối ưu Lead cho chủ
        nhà) — bắn sự kiện riêng NhaThauLead, cùng eventID với CAPI (onLeadCreated). */
     const nhanh = dt === 'nha_thau' ? 'nha_thau' : (d.han_muc_vuot ? 'han_muc' : '');
+    try { if (d.han_muc_vuot && window.alnDtSuKien) window.alnDtSuKien.gioiHan(); } catch (e) {}
     try {
       if (window.fbq && leadId && !nhanh) window.fbq('track', 'Lead',
         { value: 100000, currency: 'VND', content_name: 'du-toan-nha-tu-van', content_category: 'du-toan-nha' },
