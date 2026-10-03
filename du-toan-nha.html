@@ -180,6 +180,8 @@ body.che-do-dn #secDonGia{display:block}
 .pt tr.nh td{padding:12px 0 4px;border-bottom:0;font-family:var(--head);font-weight:500;font-size:14px;color:var(--sub)}
 .pt td.dg-aln{color:var(--muted);font-size:12.5px;text-align:right;white-space:nowrap;width:96px;padding-right:8px}
 .pt tr.chg td.dg-aln{text-decoration:line-through}
+.pt td.dg-aln.vung{color:var(--navy2);font-weight:600}
+#ptDGVung{margin:0 0 10px;font-size:13.5px}
 .pt input::placeholder{color:var(--muted)}
 @media(max-width:600px){#ptDG td:nth-child(2){width:38px;font-size:11.5px}#ptDG td.dg-aln{width:auto;font-size:11.5px;padding-right:6px}#ptDG td:last-child{width:100px}#ptDG input{padding:6px 6px;font-size:13px}}
 .sub{font-family:var(--head);font-weight:500;font-size:15px;margin:16px 0 4px;color:var(--sub)}
@@ -396,6 +398,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <summary><span class="st"><span class="sn">2b</span>Đơn giá vật tư từng hạng mục</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></summary>
   <div class="body">
    <div class="hint">Cột trái là đơn giá ALN tính từ giá vật tư ở mục 2 (chỉ phần vật tư — nhân công, điện nước, máy và quản lý tính riêng ở mục 3). Anh/chị có giá khác thì nhập vào ô bên phải, ALN dùng đúng số đó cho hạng mục ấy; để trống là dùng đơn giá ALN. Đơn giá anh/chị nhập được lưu lại cho các báo giá sau.</div>
+   <!-- Bảng tỉnh của ALN (03/10/2026): chọn tỉnh ở khung Lưu báo giá → đơn giá ALN đổi theo tỉnh nếu ALN đã có bảng -->
+   <div class="note" id="ptDGVung" hidden></div>
    <table class="pt" id="ptDG"></table>
    <div class="hint" id="ptDGTrong" hidden>Nhập kích thước công trình ở mục 1 để hiện bảng đơn giá theo nhà mẫu phù hợp.</div>
    <button class="btn" id="resetDG" type="button" style="margin-top:12px">Trả về đơn giá ALN</button>
@@ -687,7 +691,7 @@ function drawDonGia(list,veLai){
  const tenMoi=bangDonGiaHienTai.map(d=>d.ten).join('\n');
  if(!veLai&&tenMoi===ptDGTen&&tb.querySelector('input')){
   const theoTen={};bangDonGiaHienTai.forEach(d=>{theoTen[d.ten]=d});
-  tb.querySelectorAll('tr[data-ten]').forEach(tr=>{const d=theoTen[tr.dataset.ten];if(!d)return;const s=fmt(Math.round(d.gia));tr.querySelector('.dg-aln').textContent=s;tr.querySelector('input').placeholder=s});
+  tb.querySelectorAll('tr[data-ten]').forEach(tr=>{const d=theoTen[tr.dataset.ten];if(!d)return;const s=fmt(Math.round(d.gia));const c=tr.querySelector('.dg-aln');c.textContent=s;c.title=d.vung?'Đơn giá ALN theo bảng tỉnh':'Đơn giá ALN (khu vực TP.HCM – Đồng Nai)';c.classList.toggle('vung',!!d.vung);tr.querySelector('input').placeholder=s});
   return;
  }
  ptDGTen=tenMoi;
@@ -695,7 +699,7 @@ function drawDonGia(list,veLai){
  bangDonGiaHienTai.forEach(d=>{
   if(d.nhom!==nhomTruoc){nhomTruoc=d.nhom;html+=`<tr class="nh"><td colspan="4">${eH(d.nhom)}</td></tr>`}
   const v=st.dg[d.ten],co=v!=null&&v!=='';
-  html+=`<tr class="${co?'chg':''}" data-ten="${eH(d.ten)}"><td>${eH(d.ten)}</td><td>${eH(d.dv||'')}</td><td class="dg-aln" title="Đơn giá ALN">${eH(fmt(Math.round(d.gia)))}</td><td><input type="number" min="0" inputmode="numeric" data-ten="${eH(d.ten)}" value="${co?eH(v):''}" placeholder="${eH(fmt(Math.round(d.gia)))}" aria-label="Đơn giá của bạn cho ${eH(d.ten)}"></td></tr>`;
+  html+=`<tr class="${co?'chg':''}" data-ten="${eH(d.ten)}"><td>${eH(d.ten)}</td><td>${eH(d.dv||'')}</td><td class="dg-aln${d.vung?' vung':''}" title="${d.vung?'Đơn giá ALN theo bảng tỉnh':'Đơn giá ALN (khu vực TP.HCM – Đồng Nai)'}">${eH(fmt(Math.round(d.gia)))}</td><td><input type="number" min="0" inputmode="numeric" data-ten="${eH(d.ten)}" value="${co?eH(v):''}" placeholder="${eH(fmt(Math.round(d.gia)))}" aria-label="Đơn giá của bạn cho ${eH(d.ten)}"></td></tr>`;
  });
  tb.innerHTML=html;
  tb.querySelectorAll('input').forEach(inp=>inp.addEventListener('input',e=>{
@@ -732,12 +736,31 @@ function payloadTinh(){
  return {inputs:{w1:$('w1').value,w2:$('w2').value,l1:$('l1').value,l2:$('l2').value,n:$('n').value,st:$('st').value,tm:$('tm').value,ham:$('ham').value,sant:$('sant').value,bc:$('bc').value,mai:$('mai').value,mai_loai:$('mai_loai').value,mong:$('mong').value,dua:$('dua').value,doc_mai:$('doc_mai').value,dong_gia_mai_thai:$('dong_gia_mai_thai').value},
   priceOverrides:{...st.px},
   donGiaHangMuc:{...st.dg},
+  tinh:tinhDaChon(),
   nhanCong:{cheDo:i.lm||'khoan',khoanDonGia:$('khoan').value,congDonGia:$('cong').value},
   mepDonGia:$('mep').value,qlPct:$('ql').value,vatPct:$('vat').value};
 }
 // Bản DN đang che (chưa thanh toán): chỉ xin bảng giá vật tư + đơn giá hạng mục,
 // máy chủ không tính tiền (lib.bangGiaChoTrang) — phản hồi không có khối lượng/tổng.
-function payloadBangGia(){const p=payloadTinh();return {chiBangGia:true,inputs:p.inputs,priceOverrides:p.priceOverrides}}
+function payloadBangGia(){const p=payloadTinh();return {chiBangGia:true,inputs:p.inputs,priceOverrides:p.priceOverrides,tinh:p.tinh}}
+// Tỉnh công trình (ô #dnTinhCt ở khung Lưu báo giá, chỉ bản DN) — máy chủ tra bảng đơn giá
+// tỉnh của ALN; trang chủ nhà không có ô này → null.
+function tinhDaChon(){const e=$('dnTinhCt');return e&&e.value?e.value:null}
+// Chú thích vùng ở mục 2b + gợi ý giá khoán nhân công theo tỉnh (không tự đè ô mục 3 — bấm mới áp).
+function veVung(v){
+ const el=$('ptDGVung');if(!el)return;
+ el.textContent='';el.hidden=true;
+ if(!v||!v.tinh)return;
+ el.hidden=false;
+ if(!v.co_bang){el.textContent=`${v.tinh}: ALN chưa có bảng đơn giá riêng cho tỉnh này — cột đơn giá ALN đang là giá khu vực TP.HCM – Đồng Nai. Anh/chị nhập giá tại địa phương vào ô bên phải.`;return}
+ el.textContent=`Đơn giá ALN đang theo bảng ${v.tinh} (${v.so_hang_muc} hạng mục ALN đã cập nhật; hạng mục còn lại là giá khu vực TP.HCM – Đồng Nai). `;
+ if(v.nhan_cong_khoan&&num($('khoan').value)!==v.nhan_cong_khoan){
+  const b=document.createElement('button');b.type='button';b.className='btn link';b.style.padding='0';
+  b.textContent=`Giá khoán nhân công ALN cho ${v.tinh}: ${fmt(v.nhan_cong_khoan)} đ/m² — bấm để áp vào mục 3`;
+  b.onclick=e=>{$('khoan').value=v.nhan_cong_khoan;st.inp.khoan=String(v.nhan_cong_khoan);run(true,e.isTrusted)};
+  el.appendChild(b);
+ }
+}
 function goiTinhTrenMayChu(payload,cho){
  clearTimeout(tinhTimer); const seq=++tinhSeq;
  return new Promise(resolve=>{tinhTimer=setTimeout(async()=>{
@@ -775,7 +798,7 @@ async function xinBangGiaKhiChe(userInitiated){
  anLoiTinh();
  bangGiaTheoKey[kq.res.bangGiaKey]=kq.res.bangGia;
  if(drawnFor!==kq.res.bangGiaKey)drawPrices(kq.res.bangGiaKey);
- drawDonGia(kq.res.bangDonGia);
+ drawDonGia(kq.res.bangDonGia);veVung(kq.res.vung);
 }
 function areas(){
  const raw={w1:$('w1').value,w2:$('w2').value,l1:$('l1').value,l2:$('l2').value,n:$('n').value,
@@ -914,7 +937,7 @@ async function runThongThuong(skipPrices,userInitiated){
  anLoiTinh();
  const result=kq.res.ketQua; bangGiaTheoKey[kq.res.bangGiaKey]=kq.res.bangGia;
  if(drawnFor!==kq.res.bangGiaKey)drawPrices(kq.res.bangGiaKey);
- drawDonGia(kq.res.bangDonGia);
+ drawDonGia(kq.res.bangDonGia);veVung(kq.res.vung);
  $('scope').textContent=`Đang dùng nhà mẫu: ${result.modelLabel}. Khối lượng từng hạng mục được bóc từ bản vẽ thật của nhà mẫu rồi quy theo diện tích nhà bạn.`;
  $('congHint').textContent=`Khoảng ${fmt(result.congDinhMuc)} công theo định mức nhà nước — thợ làm khoán thường nhanh hơn định mức`;
  $('total').textContent=ty(result.totalChuaVat);$('perM2').textContent=fmt(result.perM2ChuaVat);$('tot2').textContent=fmt(result.totalChuaVat);
@@ -956,7 +979,7 @@ async function runBietThuVuon(skipPrices,userInitiated){
  anLoiTinh();
  const result=kq.res.ketQua; bangGiaTheoKey[kq.res.bangGiaKey]=kq.res.bangGia;
  if(drawnFor!==kq.res.bangGiaKey)drawPrices(kq.res.bangGiaKey);
- drawDonGia(kq.res.bangDonGia);
+ drawDonGia(kq.res.bangDonGia);veVung(kq.res.vung);
  $('aTx').textContent=fmt(result.tx);$('aQd').textContent=fmt(result.qd);$('aKm').textContent=fmt(result.km);
  $('maiDienTichNghieng').textContent=fmt(result.maiThai.dienTichNghieng);
  $('maiHeSoDoc').textContent=result.maiThai.heSoDoc.toLocaleString('vi-VN',{maximumFractionDigits:2});
@@ -1315,7 +1338,9 @@ if (Q.get('dn') === '1') {
     'Quảng Trị', 'Quảng Ngãi', 'Gia Lai', 'Khánh Hoà', 'Lâm Đồng', 'Đắk Lắk',
     'Đồng Nai', 'Tây Ninh', 'Vĩnh Long', 'Đồng Tháp', 'An Giang', 'Cà Mau'];
   TINH_34.forEach((t) => { const o = document.createElement('option'); o.value = t; o.textContent = t; tinhEl.appendChild(o); });
-  const datTinh = (t) => { tinhEl.value = TINH_34.includes(t) ? t : ''; };
+  const datTinh = (t) => { const cu = tinhEl.value; tinhEl.value = TINH_34.includes(t) ? t : ''; if (tinhEl.value !== cu && typeof window.run === 'function') window.run(true, false); };
+  // Đổi tỉnh → máy chủ tra bảng đơn giá tỉnh của ALN (03/10/2026) → tính lại / xin lại bảng giá.
+  tinhEl.addEventListener('change', () => { if (typeof window.run === 'function') window.run(true, true); });
   const dock = document.querySelector('.dock a[href="#tuVan"]');
   if (dock) { dock.setAttribute('href', '#dnPanel'); dock.textContent = 'Lưu báo giá'; }
   panel.hidden = false;

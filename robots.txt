@@ -1,6 +1,7 @@
 User-agent: *
 Allow: /
 Disallow: /founder_panel.html
+Disallow: /founder-don-gia-tinh.html
 Disallow: /founder_forum.html
 Disallow: /kts_dashboard.html
 Disallow: /designer_dashboard.html

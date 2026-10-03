@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<script src="aln-esc.js"></script>
+<script src="error-monitor.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>ALN — Đơn giá theo tỉnh (bản doanh nghiệp)</title>
+<!--
+  Bảng ĐƠN GIÁ THEO TỈNH cho bản doanh nghiệp (Nam chốt 03/10/2026) — CHỈ Founder.
+  Nhà thầu chọn tỉnh trên du-toan-nha.html?dn=1 → ALN có bảng cho tỉnh đó thì đơn giá
+  ALN của từng hạng mục (+ giá khoán nhân công) đổi theo; chưa có thì giữ giá gốc
+  (TP.HCM – Đồng Nai); nhà thầu vẫn sửa từng hạng mục đè lên.
+  - Dữ liệu qua founderDnCaiDat {don_gia_tinh_doc | don_gia_tinh_luu} (server kiểm UID Founder).
+  - Cột "Nhà thầu đã nhập": thống kê giá nhà thầu tự nhập cho tỉnh này (trung vị, số lượt,
+    đã trả) — bấm "←" để lấy số đó vào ô giá tỉnh. Đây là cách ALN điền bảng từ dữ liệu thật.
+  - Lưu ở settings/dnDonGiaTinh (một doc, chỉ Admin SDK). Để trống ô = hạng mục đó dùng giá gốc.
+  - Không ghép dữ liệu vào innerHTML — mọi giá trị qua textContent/value.
+-->
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0f1a30;--gold:#b88a12;--gold-soft:#f5ecd6;--ink:#1c2233;--muted:#5d6577;--line:#d9dbe1;--paper:#fff;--fill:#f6f7f9;--ok:#1f7a4d;--err:#b3261e;--navy2:#1f3a6b;
+ --display:'Oswald','Arial Narrow',Arial,sans-serif;--sans:'Be Vietnam Pro',system-ui,sans-serif;--mono:'IBM Plex Mono',Consolas,monospace}
+html{font-size:15px}*{box-sizing:border-box}body{margin:0;font-family:var(--sans);color:var(--ink);background:var(--fill)}
+header{background:var(--navy);color:#fff;padding:16px 20px}header h1{font-family:var(--display);font-weight:600;font-size:22px;margin:0}header p{margin:4px 0 0;font-size:13px;opacity:.85}
+main{max-width:1180px;margin:0 auto;padding:16px 20px 60px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:end}
+label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:4px}
+select,input[type=text],input[type=number]{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff}
+input[type=number]{font-family:var(--mono);text-align:right;width:130px}
+.btn{font:inherit;cursor:pointer;border-radius:9px;padding:9px 14px;border:1px solid var(--line);background:#fff;color:var(--ink)}
+.btn.chinh{background:var(--navy);color:#fff;border-color:var(--navy)}.btn.nguy{color:var(--err)}
+.btn.link{border:0;padding:2px 6px;color:var(--gold);font-weight:600;background:transparent}
+table{width:100%;border-collapse:collapse;font-size:13.5px}th,td{padding:7px 6px;border-bottom:1px solid var(--line);vertical-align:middle}th{text-align:left;font-size:12px;color:var(--muted);font-weight:600}
+td.so,th.so{text-align:right;font-family:var(--mono);white-space:nowrap}tr.nh td{padding-top:14px;font-family:var(--display);font-size:14px;color:var(--muted);border-bottom:0}
+tr.co input{border-color:var(--gold);background:var(--gold-soft)}
+.tk{font-size:12px;color:var(--muted)}.tk b{color:var(--ink)}
+.msg{font-size:13.5px;margin-top:8px}.msg.err{color:var(--err)}.msg.ok{color:var(--ok)}
+.state{padding:40px;text-align:center;color:var(--muted)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.chip{font-size:12px;background:var(--gold-soft);border-radius:999px;padding:2px 10px}
+.tabs{display:flex;gap:8px;margin:10px 0}.tabs button{font:inherit;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:#fff;cursor:pointer}.tabs button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+@media(max-width:700px){th.an,td.an{display:none}}
+</style>
+</head>
+<body>
+<header><h1>Đơn giá theo tỉnh — bản doanh nghiệp</h1><p>Nhà thầu chọn tỉnh → đơn giá ALN đổi theo bảng này. Tỉnh chưa có bảng dùng giá gốc TP.HCM – Đồng Nai. Chỉ Founder.</p></header>
+<main>
+<div class="state" id="stLogin" hidden><p>Trang này chỉ dành cho Founder.</p><p><a href="login.html">Đăng nhập Founder</a> rồi mở lại.</p></div>
+<div class="state" id="stLoading">Đang tải…</div>
+<div id="stMain" hidden>
+ <div class="card">
+  <div class="row">
+   <div><label for="tinh">Tỉnh/thành</label><select id="tinh"></select></div>
+   <div><label for="nc">Giá khoán nhân công ALN cho tỉnh (đ/m² quy đổi, để trống = không gợi ý)</label><input id="nc" type="number" min="0" step="10000" style="width:170px"></div>
+   <div><label for="ghiChu">Ghi chú nội bộ (nguồn giá, ngày khảo sát)</label><input id="ghiChu" type="text" maxlength="300" style="width:320px"></div>
+  </div>
+  <div class="chips" id="chips"></div>
+  <p class="tk" id="tomTat"></p>
+  <div class="tabs"><button type="button" id="tabThi" class="on">Nhà ≤5 tầng (mẫu Mr Thi)</button><button type="button" id="tabHoang">Nhà 6–8 tầng, thang máy (mẫu A Hoàng)</button></div>
+  <table>
+   <thead><tr><th>Hạng mục</th><th class="an">ĐV</th><th class="so">Giá gốc ALN</th><th class="so an">Nhà thầu đã nhập (trung vị · lượt · đã trả)</th><th class="so">Giá tỉnh (đ/đơn vị)</th></tr></thead>
+   <tbody id="bang"></tbody>
+  </table>
+  <div class="row" style="margin-top:14px">
+   <button type="button" class="btn chinh" id="luu">Lưu bảng tỉnh</button>
+   <button type="button" class="btn" id="layTatCa">Lấy toàn bộ trung vị nhà thầu (chỉ hạng mục đã có ≥ 3 lượt)</button>
+   <button type="button" class="btn" id="xoaO">Xoá hết ô giá tỉnh</button>
+   <button type="button" class="btn nguy" id="xoaBang">Xoá bảng tỉnh này</button>
+  </div>
+  <div class="msg" id="msg" role="status"></div>
+ </div>
+</div>
+</main>
+<script type="module">
+import { app, auth, onAuthStateChanged } from './firebase-config.js';
+import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js';
+const FOUNDER_UID = 'h4kEguPEyMcwJwl89stc0Q6j2si2';
+const goi = httpsCallable(getFunctions(app, 'asia-southeast1'), 'founderDnCaiDat', { timeout: 40000 });
+const $ = (id) => document.getElementById(id);
+const fmt = (n) => n == null ? '' : Math.round(Number(n)).toLocaleString('vi-VN');
+let data = null, model = 'thi', giaTinh = {}; // giaTinh: {tên: số} đang soạn (chung cả 2 nhà mẫu — tên hạng mục là khoá)
+function hien(s) { $('stLogin').hidden = s !== 'login'; $('stLoading').hidden = s !== 'loading'; $('stMain').hidden = s !== 'main'; }
+function td(text, cls) { const c = document.createElement('td'); if (cls) c.className = cls; c.textContent = text == null ? '' : String(text); return c; }
+function baoMsg(t, loai) { const m = $('msg'); m.textContent = t; m.className = 'msg' + (loai ? ' ' + loai : ''); }
+
+function veBang() {
+  const tb = $('bang'); tb.textContent = '';
+  const ds = (data.goc && data.goc[model]) || [];
+  const tk = {}; (data.thong_ke || []).forEach((x) => { tk[x.ten] = x; });
+  let nhom = null;
+  ds.forEach((d) => {
+    if (d.nhom !== nhom) { nhom = d.nhom; const tr = document.createElement('tr'); tr.className = 'nh'; const c = td(nhom); c.colSpan = 5; tr.appendChild(c); tb.appendChild(tr); }
+    const tr = document.createElement('tr'); tr.dataset.ten = d.ten;
+    tr.appendChild(td(d.ten));
+    tr.appendChild(td(d.dv || '', 'an'));
+    tr.appendChild(td(fmt(d.gia_goc), 'so'));
+    const t = tk[d.ten];
+    const cTk = td('', 'so an');
+    if (t) {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'btn link'; b.title = 'Lấy trung vị này vào ô giá tỉnh';
+      b.textContent = '← ' + fmt(t.trung_vi) + ' · ' + t.so_luot + ' lượt · ' + t.so_da_tra + ' đã trả' + (t.min !== t.max ? ' (' + fmt(t.min) + '–' + fmt(t.max) + ')' : '');
+      b.addEventListener('click', () => { datGia(d.ten, t.trung_vi); });
+      cTk.appendChild(b);
+    } else cTk.textContent = '—';
+    tr.appendChild(cTk);
+    const cIn = td('', 'so'); const inp = document.createElement('input'); inp.type = 'number'; inp.min = '0'; inp.step = '1000'; inp.placeholder = fmt(d.gia_goc);
+    if (giaTinh[d.ten] != null) inp.value = giaTinh[d.ten];
+    inp.addEventListener('input', () => { const v = inp.value.trim(); if (v === '') delete giaTinh[d.ten]; else giaTinh[d.ten] = v; tr.classList.toggle('co', v !== ''); });
+    cIn.appendChild(inp); tr.appendChild(cIn);
+    tr.classList.toggle('co', giaTinh[d.ten] != null);
+    tb.appendChild(tr);
+  });
+}
+function datGia(ten, gia) { giaTinh[ten] = String(Math.round(gia)); veBang(); }
+function veTomTat() {
+  const b = data.bang;
+  $('nc').value = b && b.nhan_cong_khoan ? b.nhan_cong_khoan : '';
+  $('ghiChu').value = (b && b.ghi_chu) || '';
+  const so = b ? Object.keys(b.hang_muc || {}).length : 0;
+  $('tomTat').textContent = (b ? `Bảng ${data.tinh}: ${so} hạng mục có giá tỉnh` + (b.cap_nhat_luc_ms ? ', cập nhật ' + new Date(b.cap_nhat_luc_ms).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : '') : `${data.tinh}: chưa có bảng — nhà thầu đang thấy giá gốc`) +
+    ` · ${data.so_bao_gia} báo giá nhà thầu ở tỉnh này, ${(data.thong_ke || []).length} hạng mục có giá tự nhập.`;
+  const ch = $('chips'); ch.textContent = '';
+  (data.tinh_co_bang || []).forEach((t) => { const s = document.createElement('span'); s.className = 'chip'; s.textContent = t; ch.appendChild(s); });
+  if (!(data.tinh_co_bang || []).length) { const s = document.createElement('span'); s.className = 'tk'; s.textContent = 'Chưa tỉnh nào có bảng.'; ch.appendChild(s); }
+}
+async function tai(tinh) {
+  hien('loading'); baoMsg('');
+  try {
+    data = (await goi({ hanh_dong: 'don_gia_tinh_doc', tinh })).data || {};
+    giaTinh = Object.assign({}, (data.bang && data.bang.hang_muc) || {});
+    const sel = $('tinh');
+    if (!sel.options.length) (data.tinh_34 || []).forEach((t) => { const o = document.createElement('option'); o.value = t; o.textContent = t; sel.appendChild(o); });
+    sel.value = data.tinh;
+    veTomTat(); veBang(); hien('main');
+  } catch (e) { hien('main'); baoMsg('Lỗi tải: ' + (e.message || e), 'err'); }
+}
+async function luu(xoa) {
+  const tinh = $('tinh').value;
+  if (xoa && !confirm(`Xoá bảng đơn giá của ${tinh}? Nhà thầu chọn tỉnh này sẽ thấy giá gốc.`)) return;
+  baoMsg('Đang lưu…');
+  try {
+    const d = xoa ? { hanh_dong: 'don_gia_tinh_luu', tinh, xoa: true } : { hanh_dong: 'don_gia_tinh_luu', tinh, hang_muc: giaTinh, nhan_cong_khoan: $('nc').value, ghi_chu: $('ghiChu').value };
+    const r = (await goi(d)).data || {};
+    baoMsg(xoa ? `Đã xoá bảng ${tinh}.` : `Đã lưu bảng ${tinh}: ${r.so_hang_muc} hạng mục` + (r.nhan_cong_khoan ? `, khoán nhân công ${fmt(r.nhan_cong_khoan)} đ/m²` : '') + '. Nhà thầu chọn tỉnh này thấy giá mới ngay (tối đa 2 phút nếu máy chủ đang cache).', 'ok');
+    await tai(tinh);
+    baoMsg(xoa ? `Đã xoá bảng ${tinh}.` : `Đã lưu bảng ${tinh}.`, 'ok');
+  } catch (e) { baoMsg('Lỗi lưu: ' + (e.message || e), 'err'); }
+}
+$('tinh').addEventListener('change', () => tai($('tinh').value));
+$('tabThi').addEventListener('click', () => { model = 'thi'; $('tabThi').classList.add('on'); $('tabHoang').classList.remove('on'); veBang(); });
+$('tabHoang').addEventListener('click', () => { model = 'hoang'; $('tabHoang').classList.add('on'); $('tabThi').classList.remove('on'); veBang(); });
+$('luu').addEventListener('click', () => luu(false));
+$('xoaBang').addEventListener('click', () => luu(true));
+$('xoaO').addEventListener('click', () => { giaTinh = {}; veBang(); });
+$('layTatCa').addEventListener('click', () => { (data.thong_ke || []).forEach((t) => { if (t.so_luot >= 3) giaTinh[t.ten] = String(t.trung_vi); }); veBang(); baoMsg('Đã điền trung vị nhà thầu cho hạng mục có ≥ 3 lượt — xem lại rồi bấm Lưu.'); });
+onAuthStateChanged(auth, (user) => {
+  if (!user || user.uid !== FOUNDER_UID) { hien('login'); return; }
+  const q = new URLSearchParams(location.search).get('tinh');
+  tai(q || 'Đồng Nai');
+});
+</script>
+</body>
+</html>
