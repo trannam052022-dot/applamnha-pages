@@ -32,7 +32,27 @@
     nguonVao = w.alnBucket ? w.alnBucket('nguon', { search: location.search, referrer: document.referrer }) : 'khac';
   } catch (e) { nguonVao = 'khac'; }
 
-  function gui(ten, thamSo) {
+  // eventID riêng mỗi sự kiện của lần tải trang: Pixel bắn lúc chưa đồng ý Quảng
+  // cáo (fbq consent revoke, PR 3) được bắn lại CÙNG eventID khi khách bấm Đồng ý,
+  // để không mất R1/R2 dù Meta bỏ hay giữ sự kiện lúc revoke (cùng eventID → Meta gộp).
+  // Bộ đệm CHỈ nằm trong biến JS của trang đang mở (Nam chốt 03/10/2026): không
+  // localStorage, không cookie. Khách bấm Từ chối (hoặc lưu Tuỳ chỉnh tắt Quảng cáo)
+  // → bỏ ngay và thôi đệm; rời trang → mất theo trang.
+  var phien = Math.random().toString(36).slice(2, 10);
+  var choPixel = [];
+  var thoiDem = false;
+  function daDongYQc() { return !w.alnConsent || w.alnConsent.qc() === true; }
+  try {
+    document.addEventListener('aln:consent', function (e) {
+      if (!e.detail) return;
+      if (e.detail.quang_cao !== true) { choPixel = []; thoiDem = true; return; }
+      if (!e.detail.moi_bat_qc) return;
+      var ds = choPixel; choPixel = [];
+      for (var i = 0; i < ds.length; i++) { try { w.fbq('trackCustom', ds[i][0], ds[i][1], { eventID: ds[i][2] }); } catch (er) {} }
+    });
+  } catch (e) {}
+
+  function gui(ten, thamSo, khoa) {
     if (tatDo) return;
     var p = {};
     for (var k in thamSo) if (thamSo.hasOwnProperty(k) && thamSo[k] !== null && thamSo[k] !== undefined && thamSo[k] !== '') p[k] = thamSo[k];
@@ -42,13 +62,15 @@
       for (var k2 in p) if (p.hasOwnProperty(k2)) d[k2] = p[k2];
       w.dataLayer.push(d);
     } catch (e) {}
-    try { if (typeof w.fbq === 'function') w.fbq('trackCustom', ten, p); } catch (e) {}
+    var id = 'dt-' + phien + '-' + (khoa || ten);
+    if (!daDongYQc() && !thoiDem) choPixel.push([ten, p, id]);
+    try { if (typeof w.fbq === 'function') w.fbq('trackCustom', ten, p, { eventID: id }); } catch (e) {}
   }
 
   function motLan(khoa, ten, thamSo) {
     if (daBan[khoa]) return false;
     daBan[khoa] = true;
-    gui(ten, thamSo);
+    gui(ten, thamSo, khoa);
     return true;
   }
 
@@ -104,7 +126,11 @@
         tinh: w.alnBucket('tinh', thamSo.tinh),
         loai_lo: w.alnBucket('loai_lo', thamSo.loai_lo)
       });
-      if (ok) theoDoiEngaged(phanCuoi);
+      if (ok) {
+        theoDoiEngaged(phanCuoi);
+        // Thông báo cookie trang dự toán hiện 3 giây sau khi kết quả đã hiện (aln-consent.js).
+        try { if (w.alnConsent) w.alnConsent.sauKetQua(); } catch (e) {}
+      }
       return ok;
     },
     daCoKetQua: function () { return !!daBan.result; },

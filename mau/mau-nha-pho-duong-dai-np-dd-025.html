@@ -4,6 +4,7 @@
 <!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM (xem scripts/aln-optout.js) -->
 <script src="../scripts/aln-optout.js"></script>
 <!-- Google Tag Manager -->
+<script src="/aln-consent.js?v=2"></script>
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
@@ -104,6 +105,7 @@ t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
 fbq('set', 'autoConfig', false, '1656666692225878');
+fbq('consent', window.ALN_QC===true?'grant':'revoke');
 fbq('init', '1656666692225878');
 fbq('track', 'PageView');
 </script>

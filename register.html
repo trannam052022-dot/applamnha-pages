@@ -5,6 +5,7 @@
 <script src="aln-esc.js"></script>
 <script src="scripts/aln-optout.js"></script>
 <!-- Google Tag Manager -->
+<script src="/aln-consent.js?v=2"></script>
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
@@ -33,6 +34,7 @@ t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
 fbq('set', 'autoConfig', false, '1656666692225878');
+fbq('consent', window.ALN_QC===true?'grant':'revoke');
 fbq('init', '1656666692225878');
 fbq('track', 'PageView');
 </script>
@@ -631,12 +633,14 @@ async function doRegister(){
          field này để bắn CAPI CompleteRegistration server-side, dedup với
          Pixel client bên dưới qua event_id 'cnreg-'+uid. */
       var utm = window.alnGetUtm ? window.alnGetUtm() : {};
-      var fbp = window.alnGetFbp ? window.alnGetFbp() : '';
-      var fbc = window.alnGetFbc ? window.alnGetFbc() : '';
+      // fbp/fbc chỉ ghi khi đã đồng ý cookie Quảng cáo (PR 3 — điều kiện CAPI)
+      var coQc = window.ALN_QC === true;
+      var fbp = coQc && window.alnGetFbp ? window.alnGetFbp() : '';
+      var fbc = coQc && window.alnGetFbc ? window.alnGetFbc() : '';
       await fb.setDoc(uref, {
         username: phone, name: name, phone: phone, role: 'cn', email: email,
         status: 'active', plan: 'free', credits: {}, kts_ref: ktsRef, referredByNcc: nccRef, referredByCtv: ctvRef,
-        utm: utm, fbp: fbp, fbc: fbc, sourceUrl: location.origin + location.pathname,
+        utm: utm, cookieQuangCao: coQc, fbp: fbp, fbc: fbc, sourceUrl: location.origin + location.pathname,
         createdAt: fb.serverTimestamp(),
       });
       try {

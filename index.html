@@ -5,6 +5,7 @@
 <script src="aln-esc.js"></script>
 <script src="scripts/aln-optout.js"></script>
 <!-- Google Tag Manager -->
+<script src="/aln-consent.js?v=2"></script>
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
@@ -442,6 +443,9 @@ footer{border-top:1px solid var(--border);padding:44px 0 28px}
 .field label{display:block;font-family:var(--syne);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:9px}
 .field select,.field input{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:14px 15px;font-family:var(--sans);font-size:var(--text-md);color:var(--text);outline:none;transition:border-color .2s,box-shadow .2s}
 .field select:focus,.field input:focus{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-bg)}
+.lead-qc{display:flex;gap:10px;align-items:flex-start;margin:0 0 18px;font-size:var(--text-sm);line-height:1.5;color:var(--sub);cursor:pointer;text-align:left}
+.lead-qc input{width:20px;height:20px;flex:none;margin:2px 0 0;accent-color:var(--gold)}
+.lead-qc i{font-style:normal;color:var(--muted)}
 .est-result{margin-top:26px;padding-top:24px;border-top:1px solid var(--border);display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;position:relative}
 .est-result .lbl{font-size:var(--text-md);color:var(--sub)}
 .est-result .val{font-family:var(--mono);font-weight:700;font-size:32px;color:var(--gold);letter-spacing:-.01em}
@@ -645,6 +649,7 @@ t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
 fbq('set', 'autoConfig', false, '1656666692225878');
+fbq('consent', window.ALN_QC===true?'grant':'revoke');
 fbq('init', '1656666692225878');
 fbq('track', 'PageView');
 </script>
@@ -946,10 +951,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <label>Họ và tên</label>
           <input type="text" id="leadName" placeholder="Nguyễn Văn A">
         </div>
-        <div class="field" style="margin-bottom:18px">
+        <div class="field" style="margin-bottom:14px">
           <label>Số điện thoại</label>
           <input type="tel" id="leadPhone" placeholder="09xxxxxxxx" inputmode="numeric" onkeydown="if(event.key==='Enter'){leadSubmit();}">
         </div>
+        <!-- Ô Đo quảng cáo (Nam chốt 03/10/2026) — câu GIỐNG HỆT CONSENT_TEXTS.quang_cao
+             (functions/consent_constants.js), không tick sẵn. Điều kiện CAPI: tick HOẶC cookie Quảng cáo. -->
+        <label class="lead-qc" for="leadQc"><input id="leadQc" type="checkbox"><span><span id="leadQcText">Cho phép ALN gửi SĐT đã mã hoá cho Facebook để ALN biết quảng cáo nào hiệu quả, bớt chi quảng cáo sai chỗ.</span> <i>Không bắt buộc.</i></span></label>
         <div class="est-cta">
           <button class="btn btn-gold" id="leadBtn" onclick="leadSubmit()"><i class="ph-duotone ph-phone-call"></i> Gửi thông tin, ALN gọi lại</button>
         </div>
@@ -2237,8 +2245,11 @@ window.leadSubmit = async function(){
     const utm = window.alnGetUtm ? window.alnGetUtm() : {};
     const res = await callSubmitHomeLead({
       name, phone, utm,
-      fbp: window.alnGetFbp ? window.alnGetFbp() : '',
-      fbc: window.alnGetFbc ? window.alnGetFbc() : '',
+      // fbp/fbc chỉ gửi khi đã đồng ý cookie Quảng cáo (PR 3 — điều kiện CAPI)
+      cookieQc: window.ALN_QC === true,
+      dongYQuangCao: !!(document.getElementById('leadQc') && document.getElementById('leadQc').checked),
+      fbp: window.ALN_QC === true && window.alnGetFbp ? window.alnGetFbp() : '',
+      fbc: window.ALN_QC === true && window.alnGetFbc ? window.alnGetFbc() : '',
       sourceUrl: location.origin + location.pathname,
       attribution: (() => { try { return window.alnAttr ? window.alnAttr.forLead() : null; } catch (e) { return null; } })(),
     });

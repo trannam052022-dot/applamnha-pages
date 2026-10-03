@@ -4,6 +4,7 @@
 <!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM (xem scripts/aln-optout.js) -->
 <script src="../scripts/aln-optout.js"></script>
 <!-- Google Tag Manager -->
+<script src="/aln-consent.js?v=2"></script>
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
@@ -303,7 +304,8 @@ window.reserve = async function(){
       await setDoc(rref,{
         uid, name, phone, role, region, regionVi,
         status:'reserved', profileSubmitted:false, reminderCount:0,
-        reservedAt: serverTimestamp(), deadlineMs: deadline
+        reservedAt: serverTimestamp(), deadlineMs: deadline,
+        cookieQuangCao: window.ALN_QC === true // điều kiện CAPI (PR 3)
       });
     } else if(!rsnap.data().profileSubmitted){
       await setDoc(rref,{ ...rsnap.data(), name, phone, role, region, regionVi }, {merge:true});

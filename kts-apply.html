@@ -5,6 +5,7 @@
 <script src="aln-esc.js"></script>
 <script src="scripts/aln-optout.js"></script>
 <!-- Google Tag Manager -->
+<script src="/aln-consent.js?v=2"></script>
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
@@ -282,6 +283,7 @@ t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
 fbq('set', 'autoConfig', false, '1656666692225878');
+fbq('consent', window.ALN_QC===true?'grant':'revoke');
 fbq('init', '1656666692225878');
 fbq('track', 'PageView');
 fbq('track', 'ViewContent', { content_name: 'kts-apply', content_category: 'kts-funnel' });
@@ -1067,7 +1069,10 @@ window._doSubmit = async function() {
       avatarUrl: avatarUrl, cvUrl: cvUrl, certUrls: certUrls, driveUrl: driveUrl,
       username: uname,
       followedFanpage: document.getElementById('f_fanpage').checked,
-      utm: window.alnGetUtm(), fbp: window.alnGetFbp(), fbc: window.alnGetFbc(),
+      utm: window.alnGetUtm(),
+      // fbp/fbc chỉ gửi khi đã đồng ý cookie Quảng cáo (PR 3 — điều kiện CAPI)
+      cookieQc: window.ALN_QC === true,
+      fbp: window.ALN_QC === true ? window.alnGetFbp() : '', fbc: window.ALN_QC === true ? window.alnGetFbc() : '',
       sourceUrl: location.origin + location.pathname
     });
 

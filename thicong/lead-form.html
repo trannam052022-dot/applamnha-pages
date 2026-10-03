@@ -25,6 +25,7 @@
 <link rel="icon" href="../icon-192.png" type="image/png">
 <meta name="theme-color" content="#98690a">
 <!-- Google Analytics 4 (ALN — G-5CSL1TF0RC, dùng chung property với applamnha.vn) -->
+<script src="/aln-consent.js?v=2"></script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-5CSL1TF0RC"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -129,7 +130,7 @@
         <div class="tc-error" id="tcSubmitErr">Có lỗi khi gửi, vui lòng thử lại hoặc gọi 0909 82 9696.</div>
 
         <div class="tc-note">
-          Bằng việc gửi form, bạn đồng ý để ALN liên hệ tư vấn qua số điện thoại/Zalo đã cung cấp. ALN không chia sẻ thông tin liên hệ của bạn công khai hoặc cho bên thứ ba ngoài mục đích giới thiệu đơn vị thi công đối tác phù hợp.
+          Bằng việc gửi form, bạn đồng ý để ALN liên hệ tư vấn qua số điện thoại/Zalo đã cung cấp. ALN sẽ chuyển thông tin cho đơn vị thi công phù hợp sau khi gọi hỏi và được bạn đồng ý. ALN không bán thông tin của bạn và không nhắn tin quảng cáo.
         </div>
       </form>
 
@@ -205,6 +206,7 @@ form.addEventListener('submit', async function(e){
       utm: getUtmFromUrl(),
       sourceUrl: location.href,
       fbp: getCookie('_fbp'),
+      cookieQc: window.ALN_QC === true, // đồng ý cookie Quảng cáo (aln-consent.js) — điều kiện CAPI
       fbc: getFbc(),
     });
     form.style.display = 'none';

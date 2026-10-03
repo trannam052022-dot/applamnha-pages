@@ -20,6 +20,7 @@
 <meta name="twitter:card" content="summary_large_image">
 
 <!-- ===== Meta Pixel — HARDCODE, KHÔNG đặt trong GTM (giữ dedup với CAPI server-side) ===== -->
+<script src="/aln-consent.js?v=2"></script>
 <script>
 !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
 n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
@@ -27,6 +28,7 @@ n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
 t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
 document,'script','https://connect.facebook.net/en_US/fbevents.js');
 fbq('set', 'autoConfig', false, '1656666692225878');
+fbq('consent', window.ALN_QC===true?'grant':'revoke');
 fbq('init','1656666692225878');
 fbq('track','PageView');
 </script>
@@ -313,6 +315,9 @@ h2.sec{font-family:var(--display);font-weight:600;font-size:clamp(26px,3.7vw,38p
 .field input:focus,.field select:focus{outline:2px solid var(--gold);outline-offset:1px;border-color:transparent}
 .field select option{background:var(--navy-900)}
 .form-note{margin-top:12px;font-size:12.5px;color:rgba(255,255,255,.68)}
+.lead-qc{display:flex;gap:10px;align-items:flex-start;margin:0 0 16px;font-size:13.5px;line-height:1.5;color:rgba(255,255,255,.78);cursor:pointer}
+.lead-qc input{width:20px;height:20px;flex:none;margin:2px 0 0;accent-color:var(--gold)}
+.lead-qc i{font-style:normal;color:rgba(255,255,255,.6)}
 .alt{margin-top:26px;padding-top:22px;border-top:1px solid var(--line-dark);font-size:14px;color:rgba(255,255,255,.62)}
 .ok{display:none;padding:22px;border:1px solid var(--gold);background:var(--gold-soft);border-radius:3px}
 .ok h3{font-family:var(--display);font-size:18px;color:var(--gold);margin-bottom:7px}
@@ -663,8 +668,11 @@ footer{background:var(--navy-900);color:rgba(255,255,255,.66);padding:52px 0 34p
             <option value="tu-van">Tư vấn chung</option>
           </select>
         </div>
+        <!-- Ô Đo quảng cáo (Nam chốt 03/10/2026) — câu GIỐNG HỆT CONSENT_TEXTS.quang_cao
+             (functions/consent_constants.js), không tick sẵn. Điều kiện CAPI: tick HOẶC cookie Quảng cáo. -->
+        <label class="lead-qc" for="chuQc"><input id="chuQc" type="checkbox"><span><span id="chuQcText">Cho phép ALN gửi SĐT đã mã hoá cho Facebook để ALN biết quảng cáo nào hiệu quả, bớt chi quảng cáo sai chỗ.</span> <i>Không bắt buộc.</i></span></label>
         <button class="btn btn-gold" style="width:100%;justify-content:center" id="send" data-aln-cta="form-submit">Gửi thông tin — nhận tư vấn</button>
-        <p class="form-note">Thông tin chỉ dùng để KTS liên hệ tư vấn. Không chia sẻ cho bên thứ ba, không gửi tin quảng cáo.</p>
+        <p class="form-note">Thông tin chỉ dùng để KTS liên hệ tư vấn. ALN không bán thông tin của bạn và không nhắn tin quảng cáo.</p>
       </div>
       <div class="ok" id="ok">
         <h3>Đã nhận thông tin</h3>
@@ -828,8 +836,11 @@ btn.addEventListener('click', async function(){
       need: needEl.value || null,
       landingPage: 'chu-nha',
       utm: window.alnGetUtm ? window.alnGetUtm() : {},
-      fbp: window.alnGetFbp ? window.alnGetFbp() : '',
-      fbc: window.alnGetFbc ? window.alnGetFbc() : '',
+      // fbp/fbc chỉ gửi khi đã đồng ý cookie Quảng cáo (PR 3 — điều kiện CAPI)
+      cookieQc: window.ALN_QC === true,
+      dongYQuangCao: !!(document.getElementById('chuQc') && document.getElementById('chuQc').checked),
+      fbp: window.ALN_QC === true && window.alnGetFbp ? window.alnGetFbp() : '',
+      fbc: window.ALN_QC === true && window.alnGetFbc ? window.alnGetFbc() : '',
       sourceUrl: location.origin + location.pathname,
       khuVuc: kvEl.value.trim(),
       dienTich,

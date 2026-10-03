@@ -62,7 +62,10 @@
         });
       } catch (e) {}
     }
-    return { utm: utm, fbp: cookie('_fbp'), fbc: fbc, testEventCode: p.test_event_code || '' };
+    // Thông báo cookie (PR 3, 03/10/2026): fbp/fbc chỉ gửi khi khách đã đồng ý
+    // Quảng cáo (aln-consent.js đặt window.ALN_QC); cookieQc báo máy chủ trạng thái đó.
+    var qc = window.ALN_QC === true;
+    return { utm: utm, fbp: qc ? cookie('_fbp') : '', fbc: qc ? fbc : '', cookieQc: qc, testEventCode: p.test_event_code || '' };
   }
   var captured = params();
   try { localStorage.setItem(KEY, JSON.stringify({ ts: Date.now(), params: captured })); } catch (e) {}

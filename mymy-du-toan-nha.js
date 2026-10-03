@@ -438,7 +438,9 @@
   })();
 
   function ghiChuDongY() {
-    return cauPhapLy + ' Chính sách bảo mật: applamnha.vn/privacy.html';
+    // Câu quyền ngắn giống dưới mọi form (Nam chốt 03/10/2026, aln-consent.js CAU_QUYEN).
+    return cauPhapLy + ' (applamnha.vn/chinh-sach-quyen-rieng-tu) ' +
+      'Bạn có thể yêu cầu ngừng liên hệ hoặc xoá dữ liệu bất cứ lúc nào.';
   }
 
   // Tên khách tự xưng trong cùng câu ("tên Hoa 0909…", "tôi là Nguyễn Văn A") — không có thì để trống.

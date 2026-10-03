@@ -6,6 +6,7 @@
 <script src="scripts/aln-optout.js"></script>
 <script src="scripts/aln-estimate-funnel.js"></script>
 <!-- Google Tag Manager -->
+<script src="/aln-consent.js?v=2"></script>
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
@@ -112,6 +113,7 @@ t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
 fbq('set', 'autoConfig', false, '1656666692225878');
+fbq('consent', window.ALN_QC===true?'grant':'revoke');
 fbq('init', '1656666692225878');
 fbq('track', 'PageView');
 </script>
@@ -122,7 +124,7 @@ src="https://www.facebook.com/tr?id=1656666692225878&ev=PageView&noscript=1"/></
 <!-- Đo hành vi ẩn danh lớp A (spec 03/10/2026): 7 sự kiện aln_dt_* + aln_form_start,
      chỉ gửi nhãn khoảng (alnBucket), không số thật/PII. Tự tắt ở ?internal=1 và ?dn=1. -->
 <script src="aln-bucket.js?v=1"></script>
-<script src="aln-dt-su-kien.js?v=1"></script>
+<script src="aln-dt-su-kien.js?v=2"></script>
 
 <style>
 :root{--bg:#f6f4ef;--card:#ffffff;--ink:#141a2b;--sub:#4a5268;--muted:#7a8196;--line:#e3dfd4;--line2:#c9c0aa;--navy:#0a1224;--navy2:#111c33;--gold:#b8860b;--gold-soft:rgba(184,134,11,.10);--warn:#8a5e08;--focus:#b8860b;
@@ -235,6 +237,7 @@ body.che-do-dn #secDonGia{display:block}
 .tv .tv-dy{display:flex;gap:10px;align-items:flex-start;margin-top:12px;font-size:13.5px;color:var(--sub);line-height:1.5;cursor:pointer}
 .tv .tv-dy input{width:20px;height:20px;min-height:0;flex:none;margin-top:2px;accent-color:var(--navy2)}
 .tv .tv-dy a{color:inherit}
+.tv .tv-dy .tv-tuy{font-style:normal;color:var(--muted)}
 .tv .tv-go{display:block;width:100%;margin-top:14px;min-height:50px;border:0;border-radius:10px;background:var(--navy2);color:#fff;font:inherit;font-size:16.5px;font-weight:700;cursor:pointer}
 .tv .tv-go:disabled{opacity:.7;cursor:default}
 .tv .dn-goi-y{font-size:14px;color:var(--sub);margin:6px 0 0;line-height:1.5}
@@ -513,7 +516,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
      </div>
      <div class="tv-f" id="tvGioWrap"><label for="tvGio">Khung giờ tiện nghe máy</label><select id="tvGio"><option value="">Chọn khung giờ</option></select></div>
-     <label class="tv-dy" for="tvDongY"><input id="tvDongY" type="checkbox"><span><span id="tvDongYText">Tôi đồng ý để ALN lưu họ tên, số điện thoại và dự toán này để liên hệ tư vấn thiết kế theo yêu cầu của tôi, theo Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 và Nghị định 356/2025/NĐ-CP. Anh/chị có thể yêu cầu ngừng liên hệ và xoá dữ liệu bất cứ lúc nào qua Zalo/hotline 0909 829 696.</span> <a href="/privacy.html" target="_blank" rel="noopener">Chính sách bảo mật</a></span></label>
+     <!-- Hai ô đồng ý (PR 3 thông báo cookie, Nam chốt 03/10/2026): ô Liên hệ bắt buộc; ô Đo
+          quảng cáo KHÔNG bắt buộc, mặc định chưa tick — điều kiện gửi Lead qua CAPI
+          (functions/lib/dongYQuangCao.js). Câu trong 2 span phải giống hệt
+          CONSENT_TEXTS.du_toan / .quang_cao (functions/_test_tuVanPhanTho.js kiểm). -->
+     <label class="tv-dy" for="tvDongY"><input id="tvDongY" type="checkbox" aria-required="true"><span id="tvDongYText">Tôi đồng ý để ALN dùng họ tên và SĐT này để gọi/nhắn tư vấn về bảng dự toán, theo <a href="/chinh-sach-quyen-rieng-tu/" target="_blank" rel="noopener">Chính sách quyền riêng tư</a>.</span></label>
+     <label class="tv-dy" for="tvDongYQc"><input id="tvDongYQc" type="checkbox"><span><span id="tvDongYQcText">Cho phép ALN gửi SĐT đã mã hoá cho Facebook để ALN biết quảng cáo nào hiệu quả, bớt chi quảng cáo sai chỗ.</span> <i class="tv-tuy">Không bắt buộc.</i></span></label>
      <button class="tv-go" id="tvGui" type="submit">Gửi yêu cầu</button>
      <div class="tv-msg" id="tvMsg" role="status" aria-live="polite"></div>
     </form>
@@ -1636,7 +1644,7 @@ const f = {
   form: document.getElementById('tvForm'), ten: document.getElementById('tvTen'),
   sdt: document.getElementById('tvSdt'), thoiDiem: document.getElementById('tvThoiDiem'),
   gioWrap: document.getElementById('tvGioWrap'), gio: document.getElementById('tvGio'),
-  dongY: document.getElementById('tvDongY'), gui: document.getElementById('tvGui'),
+  dongY: document.getElementById('tvDongY'), dongYQc: document.getElementById('tvDongYQc'), gui: document.getElementById('tvGui'),
   msg: document.getElementById('tvMsg'), box: document.getElementById('tuVan'),
   diaChi: document.getElementById('tvDiaChi'), diaChiWrap: document.getElementById('tvDiaChiWrap'),
   nhaThau: document.getElementById('tvNhaThau'),
@@ -1667,7 +1675,7 @@ window.alnDuToanGuiLeadMyMy = async function (o) {
     tongMax: est && est.result ? est.result.totalChuaVat : null,
     tomTat: est && est.result ? tomTatDuToan(est) : null,
     pa_1: Array.isArray(v.pa) ? (v.pa[0] || '') : '',
-    utm: sig.utm || {}, fbp: sig.fbp || '', fbc,
+    utm: sig.utm || {}, fbp: sig.fbp || '', cookieQc: sig.cookieQc === true, fbc,
     sourceUrl: location.origin + location.pathname,
     optout: window.ALN_INTERNAL === true,
     attribution: (() => { try { return window.alnAttr ? window.alnAttr.forLead() : null; } catch (err) { return null; } })(),
@@ -1815,8 +1823,8 @@ f.form.addEventListener('submit', async (e) => {
       tang: Number(est.inputs && est.inputs.n) || null,
       tongMin: est.result.totalChuaVat, tongMax: est.result.totalChuaVat,
       tomTat: tomTatDuToan(est),
-      canGoi: goi, khungGio: gio || null, thoiDiemXay: f.thoiDiem.value, dongY: f.dongY.checked === true,
-      utm: sig.utm || {}, fbp: sig.fbp || '', fbc: sig.fbc || '',
+      canGoi: goi, khungGio: gio || null, thoiDiemXay: f.thoiDiem.value, dongY: f.dongY.checked === true, dongYQuangCao: !!(f.dongYQc && f.dongYQc.checked === true),
+      utm: sig.utm || {}, fbp: sig.fbp || '', cookieQc: sig.cookieQc === true, fbc: sig.fbc || '',
       sourceUrl: location.origin + location.pathname,
       optout: window.ALN_INTERNAL === true,
       attribution: (() => { try { return window.alnAttr ? window.alnAttr.forLead() : null; } catch (err) { return null; } })(),
@@ -1859,8 +1867,8 @@ f.form.addEventListener('submit', async (e) => {
 
 <!-- Nút MyMy + bóng chat mời (mymy-moi.js tự nạp). Gắn sau mốc đo 7 ngày DT-T9-2026 (Nam chốt, 01/10/2026). Thanh .dock có data-mymy-tranh → nút tự nâng lên trên thanh trên điện thoại. -->
 <!-- ?v=: đổi số khi sửa MyMy để trình duyệt không dùng bản cũ trong bộ nhớ đệm (30/09/2026: khách vẫn thấy lời chào cũ sau khi đã deploy). -->
-<script src="mymy-du-toan-nha.js?v=15"></script>
-<script type="module" src="mymy-widget.js?v=15"></script>
+<script src="mymy-du-toan-nha.js?v=17"></script>
+<script type="module" src="mymy-widget.js?v=17"></script>
 <script src="aln-zalo-widget.js" defer></script>
 <!-- ALN-PHAP-NHAN --><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"><style id="alnpn-css">.alnpn,.alnpn *{box-sizing:border-box;margin:0;padding:0;border:0;font:inherit;letter-spacing:normal;text-transform:none;text-shadow:none;float:none;background:none;min-width:0}.alnpn{display:block;width:100%;clear:both;position:relative;z-index:0;background:#0b1428;border-top:2px solid #d4a017;color:#cbd5e1;font-family:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:15px;font-weight:400;line-height:1.5;text-align:left;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;padding:28px 20px 88px}.alnpn-in{max-width:1280px;margin:0 auto;display:grid;gap:22px}.alnpn-brand{display:flex;align-items:center;gap:14px}.alnpn-brand img{display:block;flex:none;width:44px;height:44px;border-radius:10px}.alnpn-ten{font-weight:700;font-size:17px;line-height:1.3;letter-spacing:.03em;color:#fff}.alnpn-sub{margin-top:2px;font-size:13px;line-height:1.4;color:#9fb0c8}.alnpn-muc dt{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;line-height:1.3;letter-spacing:.08em;text-transform:uppercase;color:#e0b43a;margin-bottom:6px}.alnpn-muc dt svg{display:block;flex:none;width:16px;height:16px;fill:none;stroke:#e0b43a;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.alnpn-muc dd{font-size:15px;font-weight:500;line-height:1.45;color:#f1f5f9}.alnpn-mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:600;letter-spacing:.02em}.alnpn a{color:#fff;text-decoration:none}.alnpn a:hover,.alnpn a:focus-visible{color:#e0b43a;outline:none}.alnpn-note{font-size:13px;font-weight:400;color:#9fb0c8;margin-left:8px;white-space:nowrap}@media (min-width:768px){.alnpn{padding:26px 28px}.alnpn-in{grid-template-columns:auto auto auto auto;justify-content:space-between;align-items:stretch;gap:0}.alnpn-brand{align-self:center}.alnpn-muc{padding:0 0 0 28px;margin-left:28px;border-left:1px solid rgba(224,180,58,.22)}}@media (min-width:768px) and (max-width:1099px){.alnpn-in{grid-template-columns:auto minmax(0,1fr) auto;justify-content:stretch;row-gap:20px}.alnpn-brand{grid-column:1/-1;align-self:start}.alnpn-muc:nth-child(2){border-left:0;margin-left:0;padding-left:0}}</style><section class="alnpn" aria-label="Thông tin doanh nghiệp"><div class="alnpn-in"><div class="alnpn-brand"><img src="/icon-192.png" alt="" width="44" height="44" loading="lazy"><div><div class="alnpn-ten">CÔNG TY TNHH ALN</div><div class="alnpn-sub">Đơn vị chủ quản website applamnha.vn</div></div></div><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M10 12h5M10 16h5"/></svg>Mã số thuế</dt><dd class="alnpn-mono">3502593013</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-6-5.3-6-11a6 6 0 1 1 12 0c0 5.7-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/></svg>Địa chỉ</dt><dd>Khu TTTM Sonadezi, 536 Trung Sơn, Ngãi Giao, TP. Hồ Chí Minh</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 5 5L14 13l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>Hotline</dt><dd><a class="alnpn-mono" href="tel:0909829696">0909 829 696</a><span class="alnpn-note">KTS Trần Long</span></dd></dl></div></section>
 </body>

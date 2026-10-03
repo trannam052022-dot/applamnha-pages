@@ -8,9 +8,11 @@
  */
 export const CONSENT_VERSION = "2026-08-04";
 
-/* Phiên bản riêng theo từng câu — PHẢI giống functions/consent_constants.js. */
+/* Phiên bản riêng theo từng câu — PHẢI giống functions/consent_constants.js.
+   Mã "2026-10-03" (năm-tháng-ngày) = ngày 03/10/2026; xem giải thích ở bản máy chủ. */
 export const CONSENT_VERSIONS = {
-  du_toan: "2026-10-02",
+  du_toan: "2026-10-03",
+  quang_cao: "2026-10-03",
 };
 
 export const CONSENT_TEXTS = {
@@ -18,10 +20,12 @@ export const CONSENT_TEXTS = {
   /* Chat MyMy trên du-toan-nha.html hiện câu này phía trên nút đồng ý (02/10/2026).
      PHẢI giống hệt functions/consent_constants.js CONSENT_TEXTS.du_toan (câu máy chủ
      lưu làm bằng chứng) — functions/_test_tuVanPhanTho.js kiểm. */
-  du_toan: "Tôi đồng ý để ALN lưu họ tên, số điện thoại và dự toán này để liên hệ tư vấn thiết kế theo yêu cầu của tôi, theo Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 và Nghị định 356/2025/NĐ-CP. Anh/chị có thể yêu cầu ngừng liên hệ và xoá dữ liệu bất cứ lúc nào qua Zalo/hotline 0909 829 696.",
+  du_toan: "Tôi đồng ý để ALN dùng họ tên và SĐT này để gọi/nhắn tư vấn về bảng dự toán, theo Chính sách quyền riêng tư.",
+  quang_cao: "Cho phép ALN gửi SĐT đã mã hoá cho Facebook để ALN biết quảng cáo nào hiệu quả, bớt chi quảng cáo sai chỗ.",
 };
 
 export const CONSENT_PURPOSES = {
   ncc: "lien_he_bao_gia",
   du_toan: "lien_he_tu_van_du_toan",
+  quang_cao: "do_hieu_qua_quang_cao_meta",
 };
