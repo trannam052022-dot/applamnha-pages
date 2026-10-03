@@ -1350,6 +1350,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <button onclick="fpDnCaiDat()" title="Bản doanh nghiệp: giá mỗi file báo giá, mở/đóng bán, số liệu" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans)">🏢 Bản doanh nghiệp</button>
     <a href="founder-don-gia-tinh.html" target="_blank" rel="noopener" title="Bảng đơn giá theo tỉnh cho bản doanh nghiệp — nhà thầu chọn tỉnh thì đơn giá ALN đổi theo (03/10/2026)" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans);text-decoration:none;display:inline-block">🗺 Đơn giá theo tỉnh</a>
     <button onclick="fpDnChoThu()" title="Doanh nghiệp đã báo chuyển khoản tay, chờ Founder xác nhận đã nhận tiền để mở kết quả + xuất file" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans)">💳 DN chờ xác nhận CK</button>
+    <button onclick="fpDnTangFile()" title="Mở miễn phí 1 báo giá cho tài khoản doanh nghiệp mới (mỗi tài khoản 1 lần) — nhà thầu thấy file thật rồi mới trả cho file sau" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans)">🎁 Tặng file đầu</button>
     <button onclick="fpHanMucChuNha()" title="Hạn mức chủ nhà: mỗi SĐT tối đa 3 công trình/12 tháng — xem và mở thêm cho khách thật" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans)">🔓 Hạn mức chủ nhà</button>
     <button onclick="fpBocBanVe()" title="Thử nghiệm: AI đọc bộ bản vẽ kết cấu PDF, code tính khối lượng, so với A.Hoàng v67" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans)">🧪 Thử AI bóc bản vẽ</button>
     <button onclick="fpBocGia()" title="Dịch vụ Dự toán từ bản vẽ cho doanh nghiệp: giá 2026/2027, mở/đóng nhận hồ sơ" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans)">📐 Giá dự toán từ bản vẽ</button>
@@ -4633,6 +4634,34 @@ window.fpDnChoThu = async function() {
     if (!confirm('Xác nhận ĐÃ NHẬN ' + Number(c.so_tien || 0).toLocaleString('vi-VN') + ' đ từ ' + c.ten_cong_ty + ' (ND "' + c.noi_dung + '")?' + (c.mo_truoc ? '\n(Báo giá đã mở trước — bước này chốt đối chiếu, đếm vào doanh thu.)' : '\nSau bước này doanh nghiệp xem được số và xuất PDF.'))) return;
     r = (await fn({ hanh_dong: 'thu_tien', bao_gia_id: c.id })).data || {};
     toast(r.da_tra_truoc_do ? 'Báo giá này đã được xác nhận trước đó' : 'Đã xác nhận thu ' + Number(r.so_tien || 0).toLocaleString('vi-VN') + ' đ — ' + c.ten_cong_ty + (r.mo_truoc ? ' (đã đối chiếu xong)' : ' xuất file được ngay'), 'ok');
+  } catch(e) {
+    toast('Lỗi: ' + (e.message || e), 'err');
+  }
+};
+
+/* ── TẶNG FILE ĐẦU (03/10/2026) — mở miễn phí 1 báo giá/tài khoản DN, qua founderDnCaiDat 'ds_chua_tra' + 'tang_file'.
+   Chữ từ dữ liệu chỉ đưa vào prompt/alert (không dựng HTML). */
+window.fpDnTangFile = async function() {
+  try {
+    var { getFunctions, httpsCallable } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js');
+    var fn = httpsCallable(getFunctions(window.app, 'asia-southeast1'), 'founderDnCaiDat');
+    var r = (await fn({ hanh_dong: 'ds_chua_tra' })).data || {};
+    var ds = r.chua_tra || [];
+    if (!ds.length) { alert('Không có báo giá doanh nghiệp nào đang chưa thanh toán.'); return; }
+    var luc = function(ms) { return ms ? new Date(ms).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : '?'; };
+    var dong = ds.map(function(c, i) {
+      return (i + 1) + '. ' + (c.ten_cong_ty || '(chưa khai công ty)') + (c.sdt ? ' (' + c.sdt + ')' : '') + ' — khách ' + c.ten_khach + (c.tinh_ct ? ' — ' + c.tinh_ct : '') + ' — lưu ' + luc(c.sua_luc_ms || c.tao_luc_ms) + (c.da_tang ? ' [TÀI KHOẢN ĐÃ ĐƯỢC TẶNG]' : '') + (c.cho_thu_tay ? ' [đang báo CK]' : '');
+    }).join('\n');
+    var chon = prompt('Báo giá doanh nghiệp CHƯA thanh toán (mới nhất trước):\n\n' + dong + '\n\nNhập SỐ THỨ TỰ báo giá muốn TẶNG (mở miễn phí, xuất PDF được ngay). Mỗi tài khoản 1 lần; tài khoản đã tặng thì hỏi lại trước khi tặng thêm. Để trống nếu chỉ xem.', '');
+    if (chon === null || !chon.trim()) return;
+    var i2 = parseInt(chon.trim(), 10) - 1;
+    if (!(i2 >= 0 && i2 < ds.length)) { toast('Số thứ tự không hợp lệ', 'err'); return; }
+    var c = ds[i2];
+    var ep = false;
+    if (c.da_tang) { if (!confirm('Tài khoản ' + (c.ten_cong_ty || c.sdt) + ' ĐÃ được tặng file đầu rồi. Vẫn tặng thêm báo giá "' + c.ten_khach + '"?')) return; ep = true; }
+    else if (!confirm('Tặng miễn phí báo giá "' + c.ten_khach + '" cho ' + (c.ten_cong_ty || c.sdt) + '?\nDoanh nghiệp xem được số và xuất PDF ngay, không phải trả tiền file này.')) return;
+    r = (await fn({ hanh_dong: 'tang_file', bao_gia_id: c.id, ep: ep })).data || {};
+    toast(r.da_tra_truoc_do ? 'Báo giá này đã mở từ trước' : 'Đã tặng file cho ' + (c.ten_cong_ty || c.sdt) + (r.lan_tang > 1 ? ' (lần tặng thứ ' + r.lan_tang + ')' : ''), 'ok');
   } catch(e) {
     toast('Lỗi: ' + (e.message || e), 'err');
   }

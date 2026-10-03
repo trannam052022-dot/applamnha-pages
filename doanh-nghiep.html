@@ -460,9 +460,9 @@ function veKhungDaNhan(ds) {
   const moi = ds.filter((b) => b.da_thanh_toan && !b.cho_doi_chieu && b.tt_luc_ms && Date.now() - b.tt_luc_ms < 24 * 3600e3).sort((a, b) => b.tt_luc_ms - a.tt_luc_ms);
   if (!moi.length) { el.hidden = true; return; }
   const b = moi[0];
-  el.appendChild(document.createTextNode('✓ ALN đã nhận '));
-  const so = document.createElement('b'); so.textContent = b.tt_so_tien ? soVN(b.tt_so_tien) + ' đ' : 'thanh toán'; el.appendChild(so);
-  el.appendChild(document.createTextNode((b.phuong_thuc_tt === 'ck_tay' ? ' chuyển khoản' : '') + ' cho báo giá "' + b.ten_khach + '" lúc ' + gioNgayVN(b.tt_luc_ms) + '. Cảm ơn anh/chị — bảng kết quả và nút Xuất PDF của báo giá này đã mở.'));
+  el.appendChild(document.createTextNode(b.phuong_thuc_tt === 'tang' ? '🎁 ALN tặng anh/chị file này' : '✓ ALN đã nhận '));
+  if (b.phuong_thuc_tt !== 'tang') { const so = document.createElement('b'); so.textContent = b.tt_so_tien ? soVN(b.tt_so_tien) + ' đ' : 'thanh toán'; el.appendChild(so); }
+  el.appendChild(document.createTextNode((b.phuong_thuc_tt === 'ck_tay' ? ' chuyển khoản' : '') + (b.phuong_thuc_tt === 'tang' ? ' — báo giá "' + b.ten_khach + '" mở miễn phí lúc ' + gioNgayVN(b.tt_luc_ms) + '. Bảng kết quả và nút Xuất PDF đã mở; file sau tính phí như bảng giá.' : ' cho báo giá "' + b.ten_khach + '" lúc ' + gioNgayVN(b.tt_luc_ms) + '. Cảm ơn anh/chị — bảng kết quả và nút Xuất PDF của báo giá này đã mở.')));
   el.hidden = false;
 }
 function veDanhSach(ds) {
@@ -496,7 +496,9 @@ function veDanhSach(ds) {
     } else if (b.da_thanh_toan) {
       // Nói rõ ALN đã nhận bao nhiêu, lúc nào, bằng cách nào — "Đã thanh toán" trơn khách không yên tâm (Nam 01/10/2026).
       const xn = document.createElement('span'); xn.className = 'tag-ghi';
-      xn.textContent = 'ALN đã nhận ' + (b.tt_so_tien ? soVN(b.tt_so_tien) + ' đ' : 'thanh toán') + (b.phuong_thuc_tt === 'ck_tay' ? ' (chuyển khoản)' : b.phuong_thuc_tt === 'payos' ? ' (payOS)' : '') + (b.tt_luc_ms ? ' lúc ' + gioNgayVN(b.tt_luc_ms) : '') + '.';
+      xn.textContent = b.phuong_thuc_tt === 'tang'
+        ? 'ALN tặng file này (miễn phí)' + (b.tt_luc_ms ? ' lúc ' + gioNgayVN(b.tt_luc_ms) : '') + '.'
+        : 'ALN đã nhận ' + (b.tt_so_tien ? soVN(b.tt_so_tien) + ' đ' : 'thanh toán') + (b.phuong_thuc_tt === 'ck_tay' ? ' (chuyển khoản)' : b.phuong_thuc_tt === 'payos' ? ' (payOS)' : '') + (b.tt_luc_ms ? ' lúc ' + gioNgayVN(b.tt_luc_ms) : '') + '.';
       c5.appendChild(xn);
     }
     const sua = b.sua || {};

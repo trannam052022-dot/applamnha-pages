@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<script src="aln-esc.js"></script>
+<script src="error-monitor.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="index, follow">
+<title>Lập báo giá xây nhà phần thô cho nhà thầu — file PDF mang logo công ty | App Làm Nhà</title>
+<meta name="description" content="Công cụ lập báo giá phần thô nhà phố cho nhà thầu, đội thầu: bảng khối lượng + đơn giá theo hạng mục, sửa giá vật tư theo địa phương, xuất PDF mang tên và logo công ty anh/chị. Trả tiền theo từng file, xem file mẫu miễn phí.">
+<link rel="canonical" href="https://applamnha.vn/bao-gia-nha-thau.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Lập báo giá xây nhà phần thô cho nhà thầu — PDF mang logo công ty">
+<meta property="og:description" content="Nhập kích thước lô đất, chọn tỉnh, sửa đơn giá vật tư theo địa phương — ra bảng báo giá phần thô đầy đủ hạng mục, xuất PDF mang thương hiệu của anh/chị.">
+<meta property="og:url" content="https://applamnha.vn/bao-gia-nha-thau.html">
+<meta property="og:image" content="https://applamnha.vn/assets/demo/aln-demo-biet-thu-vuon.jpg">
+<!--
+  Trang giới thiệu CÔNG KHAI cho bản doanh nghiệp (03/10/2026, Nam duyệt chiến lược
+  0 đồng): doanh-nghiep.html là trang ứng dụng (chuyển sang OTP ngay khi chưa đăng
+  nhập) nên không để Google index được — trang này đứng trước, nói với nhà thầu
+  bằng ngôn ngữ của họ, rồi mới dẫn vào doanh-nghiep.html. Không gọi máy chủ, không
+  hiện giá cố định (giá mỗi file do Founder đặt trong settings/dnGia, hiện ở trang
+  ứng dụng). Giữ đúng định vị: ALN là nhà thầu tư vấn thiết kế, công cụ chỉ hỗ trợ
+  nhà thầu lập báo giá — nhà thầu chịu trách nhiệm với báo giá gửi khách của mình.
+-->
+<!-- Google Analytics 4 (ALN — G-5CSL1TF0RC) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-5CSL1TF0RC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-5CSL1TF0RC');
+</script>
+<!-- End GA4 -->
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+ {"@type":"WebApplication","name":"Công cụ lập báo giá phần thô cho nhà thầu — App Làm Nhà","url":"https://applamnha.vn/bao-gia-nha-thau.html","applicationCategory":"BusinessApplication","operatingSystem":"Web","description":"Lập báo giá xây nhà phần thô theo hạng mục cho nhà thầu, đội thầu; sửa đơn giá vật tư theo địa phương; xuất PDF mang logo công ty. Trả tiền theo từng file.","offers":{"@type":"Offer","priceCurrency":"VND","description":"Trả theo từng file báo giá; giá hiện tại xem trong trang ứng dụng sau khi đăng nhập."},"provider":{"@type":"Organization","name":"Công ty TNHH ALN","url":"https://applamnha.vn"}},
+ {"@type":"FAQPage","mainEntity":[
+  {"@type":"Question","name":"Báo giá lập bằng công cụ này gồm những gì?","acceptedAnswer":{"@type":"Answer","text":"Bảng khối lượng và thành tiền từng hạng mục phần thô (móng, khung bê tông cốt thép, xây tô, chống thấm, mái), bảng giá vật tư, phần nhân công và chi phí nhà thầu tách riêng, tổng trước và sau thuế GTGT. Mỗi hạng mục có mã ALN để khách tra lại."}},
+  {"@type":"Question","name":"Tôi làm ở tỉnh khác, giá vật tư khác TP.HCM thì sao?","acceptedAnswer":{"@type":"Answer","text":"Anh/chị chọn tỉnh của công trình; tỉnh nào ALN đã có bảng giá riêng thì đơn giá tự đổi theo. Ngoài ra anh/chị sửa được đơn giá vật tư của từng hạng mục theo giá cửa hàng tại địa phương, bộ giá đó được lưu lại cho các báo giá sau."}},
+  {"@type":"Question","name":"Phải trả tiền trước khi thấy kết quả không?","acceptedAnswer":{"@type":"Answer","text":"Anh/chị nhập, lưu và sửa báo giá miễn phí; bảng kết quả và file PDF mở sau khi thanh toán cho file đó. Có file mẫu để xem trước định dạng. Sau khi trả, anh/chị sửa lại miễn phí 3 lần trong 7 ngày."}},
+  {"@type":"Question","name":"ALN có nhận thi công không?","acceptedAnswer":{"@type":"Answer","text":"Không. ALN là nhà thầu tư vấn thiết kế, không nhận thi công. Công cụ này chỉ hỗ trợ nhà thầu lập báo giá; nhà thầu chịu trách nhiệm với báo giá gửi cho khách của mình."}}
+ ]}
+]}
+</script>
+<style>
+:root{
+  --navy:#0f1a30; --gold:#b88a12; --gold-hi:#d4a017; --gold-soft:#f5ecd6;
+  --ink:#1c2233; --muted:#5d6577; --line:#d9dbe1; --paper:#fff; --fill:#f6f7f9; --ok:#1f7a4a;
+  --display:'Oswald','Arial Narrow',Arial,sans-serif;
+  --body:'Be Vietnam Pro','Segoe UI',Arial,sans-serif;
+  --mono:'IBM Plex Mono','Courier New',monospace;
+}
+*{box-sizing:border-box}
+html{font-size:16px}
+body{margin:0;background:#eef0f3;color:var(--ink);font-family:var(--body);line-height:1.6;-webkit-text-size-adjust:100%}
+.bar{background:var(--navy);color:#fff;border-bottom:2px solid var(--gold-hi);padding:12px 16px}
+.bar-in{max-width:960px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.bar img{width:34px;height:34px;border-radius:5px}
+.bar b{font-family:var(--display);font-weight:600;letter-spacing:.08em;font-size:18px}
+.bar span{color:#a9b3c7;font-size:13px}
+.bar .sp{flex:1}
+.bar a{color:#d8dde8;font-size:13px}
+.wrap{max-width:960px;margin:0 auto;padding:16px 16px 60px}
+.hero{background:var(--navy);color:#fff;border-radius:10px;padding:28px 22px;margin:8px 0 18px}
+.hero h1{font-family:var(--display);font-weight:600;font-size:30px;line-height:1.2;margin:0 0 10px;color:#fff}
+.hero h1 em{color:var(--gold-hi);font-style:normal}
+.hero p{color:#d8dde8;margin:0 0 16px;max-width:680px}
+.btn{font:600 15px var(--body);border-radius:6px;padding:12px 18px;border:1px solid transparent;cursor:pointer;line-height:1.2;text-decoration:none;display:inline-block}
+.btn-gold{background:var(--gold-hi);color:#1a1405}
+.btn-ghost{background:transparent;color:#fff;border-color:#8a94a8}
+.nut-hang{display:flex;gap:10px;flex-wrap:wrap}
+h2{font-family:var(--display);font-weight:500;font-size:22px;letter-spacing:.03em;color:var(--navy);margin:26px 0 10px;text-transform:uppercase}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:18px;margin-bottom:14px}
+.loi{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.loi .card{margin:0}
+.loi h3{font-size:16px;margin:0 0 6px;color:var(--navy)}
+.loi p{margin:0;color:var(--muted);font-size:15px}
+ol.buoc{padding-left:22px;margin:0}
+ol.buoc li{margin-bottom:10px}
+.hoi h3{font-size:16px;margin:14px 0 4px;color:var(--navy)}
+.hoi p{margin:0;color:var(--muted)}
+.luu-y{background:var(--gold-soft);border:1px solid #e6d7a8;border-radius:8px;padding:14px 16px;font-size:15px}
+.cta-cuoi{text-align:center;padding:26px 16px;background:var(--paper);border:1px solid var(--line);border-radius:8px}
+footer.corp{margin-top:30px;font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+footer.corp b{color:var(--ink)}
+@media (max-width:640px){.hero h1{font-size:25px}.hero{padding:22px 16px}}
+</style>
+</head>
+<body>
+<div class="bar"><div class="bar-in">
+  <img src="icon-192.png" alt="Logo App Làm Nhà">
+  <b>APP LÀM NHÀ</b><span>Dành cho nhà thầu</span>
+  <span class="sp"></span>
+  <a href="/">Trang chủ</a>
+</div></div>
+
+<main class="wrap">
+  <section class="hero">
+    <h1>Lập báo giá xây nhà phần thô trong 10 phút — <em>file PDF mang logo công ty anh/chị</em></h1>
+    <p>Nhập kích thước lô đất và số tầng, chọn tỉnh của công trình, sửa đơn giá vật tư theo giá cửa hàng chỗ anh/chị. Công cụ ra bảng báo giá đầy đủ hạng mục, có mã tra cứu, xuất PDF gửi thẳng cho khách. Trả tiền theo từng file, không phí tháng.</p>
+    <div class="nut-hang">
+      <a class="btn btn-gold" href="doanh-nghiep.html">Bắt đầu lập báo giá</a>
+      <a class="btn btn-ghost" href="in-bao-gia-dn.html?mau=1" target="_blank" rel="noopener">Xem file mẫu</a>
+    </div>
+  </section>
+
+  <h2>Anh/chị nhận được gì</h2>
+  <div class="loi">
+    <div class="card"><h3>Bảng báo giá theo hạng mục</h3><p>Móng và phần ngầm, khung bê tông cốt thép, xây tô chống thấm, mái, vật tư hoàn thiện khách tự mua — mỗi dòng có khối lượng, đơn vị, đơn giá, thành tiền và mã ALN để khách tra lại.</p></div>
+    <div class="card"><h3>Đơn giá theo địa phương</h3><p>Chọn tỉnh của công trình; tỉnh đã có bảng giá riêng của ALN thì đơn giá tự đổi. Anh/chị sửa thêm đơn giá vật tư từng hạng mục theo giá thật tại chỗ — bộ giá được lưu cho các báo giá sau.</p></div>
+    <div class="card"><h3>PDF mang thương hiệu của anh/chị</h3><p>Tên công ty, mã số thuế (nếu có), địa chỉ, số điện thoại và logo in trên file. Thợ, đội thầu chưa có công ty vẫn lập báo giá theo thương hiệu riêng.</p></div>
+    <div class="card"><h3>Tách rõ phần nhân công và chi phí nhà thầu</h3><p>Nhân công khoán hoặc theo công, điện nước khoán, máy thi công, giàn giáo, quản lý và lợi nhuận nằm ở mục riêng — khách thấy tiền đi vào đâu, anh/chị dễ giải thích.</p></div>
+  </div>
+
+  <h2>Cách dùng</h2>
+  <div class="card">
+    <ol class="buoc">
+      <li><b>Đăng nhập bằng số điện thoại</b> (mã OTP) và khai hồ sơ công ty một lần: tên, địa chỉ, số điện thoại, logo.</li>
+      <li><b>Lập báo giá mới:</b> nhập kích thước lô, số tầng, sân thượng, thang máy, loại mái; chọn tỉnh; sửa giá vật tư nếu cần. Lưu lại với tên khách và địa chỉ công trình.</li>
+      <li><b>Thanh toán cho file đó</b> — bảng kết quả và nút Xuất PDF mở ngay. Sửa lại miễn phí 3 lần trong 7 ngày nếu khách đổi ý.</li>
+      <li><b>Gửi file cho khách.</b> Lần sau chỉ cần đổi kích thước, bộ giá của anh/chị đã có sẵn.</li>
+    </ol>
+  </div>
+
+  <div class="luu-y">
+    <b>Số liệu trong báo giá là gì?</b> Khối lượng được bóc từ nhà mẫu cùng loại và quy đổi theo kích thước anh/chị nhập; đơn giá lập theo định mức Thông tư 38/2026/TT-BXD và giá vật tư khảo sát thị trường, có ghi ngày. Đây là bảng báo giá sơ bộ để anh/chị làm việc với khách; khối lượng thi công thật phải bóc từ bản vẽ của công trình đó. Nhà thầu chịu trách nhiệm với báo giá gửi cho khách của mình.
+  </div>
+
+  <h2>Câu hỏi thường gặp</h2>
+  <div class="card hoi">
+    <h3>Phải trả tiền trước khi thấy kết quả không?</h3>
+    <p>Nhập, lưu và sửa báo giá miễn phí. Bảng kết quả và file PDF mở sau khi thanh toán cho file đó; giá mỗi file hiện trong trang ứng dụng. Muốn xem định dạng trước thì mở file mẫu ở trên.</p>
+    <h3>Tôi làm ở tỉnh khác, giá khác TP.HCM thì sao?</h3>
+    <p>Đơn giá gốc của ALN là khu vực TP.HCM – Đồng Nai. Chọn tỉnh của công trình: tỉnh đã có bảng riêng thì đơn giá tự đổi; tỉnh chưa có bảng thì anh/chị nhập giá địa phương vào từng hạng mục — chỉ nhập một lần, lần sau tự có.</p>
+    <h3>Có cần bản vẽ không?</h3>
+    <p>Không. Công cụ tính từ kích thước lô đất và số tầng, dùng cho giai đoạn báo giá sơ bộ. Khi có bản vẽ kết cấu dạng PDF, ALN có dịch vụ bóc khối lượng từ bản vẽ riêng — xem trong trang ứng dụng.</p>
+    <h3>ALN có nhận thi công không?</h3>
+    <p>Không. ALN là nhà thầu tư vấn thiết kế, không nhận thi công. Công cụ này chỉ hỗ trợ nhà thầu lập báo giá.</p>
+  </div>
+
+  <div class="cta-cuoi">
+    <p style="margin:0 0 12px;font-size:17px"><b>Lập báo giá đầu tiên cho khách của anh/chị</b></p>
+    <div class="nut-hang" style="justify-content:center">
+      <a class="btn btn-gold" href="doanh-nghiep.html">Bắt đầu lập báo giá</a>
+      <a class="btn" style="color:var(--navy);border-color:var(--navy)" href="in-bao-gia-dn.html?mau=1" target="_blank" rel="noopener">Xem file mẫu</a>
+    </div>
+    <p style="margin:12px 0 0;color:var(--muted);font-size:14px">Cần hỏi trước khi dùng? Zalo/hotline <b>0909 829 696</b> (KTS Trần Long).</p>
+  </div>
+
+  <footer class="corp">
+    <b>CÔNG TY TNHH ALN</b> — Đơn vị chủ quản website applamnha.vn · Mã số thuế 3502593013 · Khu TTTM Sonadezi, 536 Trung Sơn, Ngãi Giao, TP. Hồ Chí Minh · Hotline 0909 829 696
+  </footer>
+</main>
+</body>
+</html>
