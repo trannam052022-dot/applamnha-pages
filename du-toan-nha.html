@@ -747,9 +747,21 @@ let _duToanSanXong; window.alnDuToanSan=new Promise(r=>{_duToanSanXong=r}); wind
 function daXongLuotDau(){_duToanSanXong()}
 function baoDaVe(){window.__alnDuToanVe++;document.dispatchEvent(new CustomEvent('aln:dutoan-ve'));daXongLuotDau()}
 function datTrangThaiTinh(dang){document.body.classList.toggle('dang-tinh',dang);if(dang)$('dockT').textContent='Đang tính…'}
-function payloadTinh(){
+// Nhật ký ẩn danh lớp B (spec 03/10/2026): mã phiên ngẫu nhiên sinh MỚI mỗi lần tải
+// trang, chỉ giữ trong biến JS (không cookie, không localStorage) → không nối được
+// qua các lần ghé. Gửi kèm lượt tính do khách tự đổi số; ?internal=1 và ?dn=1 không gửi.
+const MA_PHIEN_AN_DANH=(()=>{try{const a=new Uint8Array(12);crypto.getRandomValues(a);return Array.from(a,b=>(b%36).toString(36)).join('')+Date.now().toString(36)}catch(e){return Math.random().toString(36).slice(2)+Date.now().toString(36)}})();
+window.alnAnDanh=function(){
+ if(window.ALN_INTERNAL||new URLSearchParams(location.search).get('dn')==='1')return null;
+ let nguon='khac';try{nguon=window.alnDtSuKien?window.alnDtSuKien.nguon():'khac'}catch(e){}
+ let cookie='chua_chon';try{cookie=window.alnConsent?window.alnConsent.trangThai():'chua_chon'}catch(e){}
+ return {ma_phien:MA_PHIEN_AN_DANH,nguon,cookie};
+};
+function payloadTinh(gauAnDanh){
  const i=st.inp;
- return {inputs:{w1:$('w1').value,w2:$('w2').value,l1:$('l1').value,l2:$('l2').value,n:$('n').value,st:$('st').value,tm:$('tm').value,ham:$('ham').value,sant:$('sant').value,bc:$('bc').value,mai:$('mai').value,mai_loai:$('mai_loai').value,mong:$('mong').value,dua:$('dua').value,doc_mai:$('doc_mai').value,dong_gia_mai_thai:$('dong_gia_mai_thai').value},
+ const an=gauAnDanh&&window.alnAnDanh?window.alnAnDanh():null;
+ if(an)window.__alnAnDanhDaTinh=true;
+ return {...(an?{anDanh:an}:{}),inputs:{w1:$('w1').value,w2:$('w2').value,l1:$('l1').value,l2:$('l2').value,n:$('n').value,st:$('st').value,tm:$('tm').value,ham:$('ham').value,sant:$('sant').value,bc:$('bc').value,mai:$('mai').value,mai_loai:$('mai_loai').value,mong:$('mong').value,dua:$('dua').value,doc_mai:$('doc_mai').value,dong_gia_mai_thai:$('dong_gia_mai_thai').value},
   priceOverrides:{...st.px},
   donGiaHangMuc:{...st.dg},
   tinh:tinhDaChon(),
@@ -759,7 +771,7 @@ function payloadTinh(){
 }
 // Bản DN đang che (chưa thanh toán): chỉ xin bảng giá vật tư + đơn giá hạng mục,
 // máy chủ không tính tiền (lib.bangGiaChoTrang) — phản hồi không có khối lượng/tổng.
-function payloadBangGia(){const p=payloadTinh();return {chiBangGia:true,inputs:p.inputs,priceOverrides:p.priceOverrides,tinh:p.tinh,thietBi:p.thietBi}}
+function payloadBangGia(){const p=payloadTinh(false);return {chiBangGia:true,inputs:p.inputs,priceOverrides:p.priceOverrides,tinh:p.tinh,thietBi:p.thietBi}}
 // Mã thiết bị (ngẫu nhiên, localStorage) gửi kèm khi có chọn tỉnh — máy chủ giới hạn số bảng tỉnh
 // một thiết bị xem được trước khi thanh toán (chống cào bảng giá tỉnh, 03/10/2026).
 function maThietBi(){try{let v=localStorage.getItem('aln_dn_tb');if(!v||!/^[A-Za-z0-9_-]{8,40}$/.test(v)){v=Array.from(crypto.getRandomValues(new Uint8Array(12)),b=>'abcdefghijklmnopqrstuvwxyz0123456789'[b%36]).join('');localStorage.setItem('aln_dn_tb',v)}return v}catch(e){return undefined}}
@@ -952,7 +964,7 @@ async function runThongThuong(skipPrices,userInitiated){
  // 03/10/2026: vẫn xin BẢNG GIÁ (vật tư + đơn giá hạng mục, không tiền) để nhà
  // thầu thấy và sửa đơn giá trước khi trả — xem xinBangGiaKhiChe().
  if(dangChe()){window.__lastEstimate={modelKey:key,nhaMauNhan:key,dienTich:{tx:a.tx,qd:a.qd,km:a.km},inputs:{...st.inp},priceOverrides:{...st.px},donGiaHangMuc:{...st.dg},result:null};await xinBangGiaKhiChe(userInitiated);daXongLuotDau();return}
- const kq=await goiTinhTrenMayChu(payloadTinh(),userInitiated?350:0);
+ const kq=await goiTinhTrenMayChu(payloadTinh(userInitiated),userInitiated?350:0);
  if(!kq)return; // đã có lượt mới hơn
  if(kq.err){hienLoiTinh(kq.err);return}
  anLoiTinh();
@@ -995,7 +1007,7 @@ async function runBietThuVuon(skipPrices,userInitiated){
   return;
  }
  if(dangChe()){window.__lastEstimate={modelKey:'thi_biet_thu_vuon_mai_thai',nhaMauNhan:'Biệt thự vườn 1 tầng mái Thái',dienTich:null,inputs:{...st.inp},priceOverrides:{...st.px},donGiaHangMuc:{...st.dg},result:null};await xinBangGiaKhiChe(userInitiated);daXongLuotDau();return}
- const kq=await goiTinhTrenMayChu(payloadTinh(),userInitiated?350:0);
+ const kq=await goiTinhTrenMayChu(payloadTinh(userInitiated),userInitiated?350:0);
  if(!kq)return;
  if(kq.err){hienLoiTinh(kq.err);return}
  anLoiTinh();
@@ -1101,6 +1113,15 @@ const functionsInst = getFunctions(app, 'asia-southeast1');
 // Hàm tính trên máy chủ cho script chính (02/10/2026) — xem goiTinhTrenMayChu.
 const callTinh = httpsCallable(functionsInst, 'tinhDuToanNha', { timeout: 20000 });
 if (typeof window.__alnDatGoiTinh === 'function') window.__alnDatGoiTinh(async (p) => (await callTinh(p)).data);
+// Nhật ký ẩn danh lớp B: khách chọn ở thông báo cookie sau khi đã tính → cập nhật trường
+// cookie của phiên (máy chủ chỉ sửa phiên đã có, không tạo mới). Lỗi bỏ qua.
+document.addEventListener('aln:consent', () => {
+  try {
+    const an = window.alnAnDanh && window.alnAnDanh();
+    if (!an || !window.__alnAnDanhDaTinh) return;
+    httpsCallable(functionsInst, 'ghiCookieAnDanh', { timeout: 10000 })({ anDanh: an }).catch(() => {});
+  } catch (e) {}
+});
 const callSaveEstimate = httpsCallable(functionsInst, 'saveEstimateToHouse');
 const callKhChonKhungGio = httpsCallable(functionsInst, 'khChonKhungGio');
 
@@ -1670,6 +1691,7 @@ window.alnDuToanGuiLeadMyMy = async function (o) {
   const res = await guiYeuCau({
     name: String((o && o.name) || '').trim(), phone: String((o && o.phone) || ''),
     kenh: 'mymy', loai: 'phan_tho', projectType: 'xay_moi', dongY: (o && o.dongY) === true,
+    anDanh: window.alnAnDanh ? window.alnAnDanh() : null,
     tang: est && est.inputs ? (Number(est.inputs.n) || null) : null,
     tongMin: est && est.result ? est.result.totalChuaVat : null,
     tongMax: est && est.result ? est.result.totalChuaVat : null,
@@ -1819,6 +1841,7 @@ f.form.addEventListener('submit', async (e) => {
     const res = await guiYeuCau({
       name: f.ten.value.trim(), phone: sdt,
       kenh: 'phantho', loai: 'phan_tho', projectType: 'xay_moi',
+      anDanh: window.alnAnDanh ? window.alnAnDanh() : null,
       doiTuong: dt, diaChiCt: dt === 'chu_nha' ? f.diaChi.value.trim() : '',
       tang: Number(est.inputs && est.inputs.n) || null,
       tongMin: est.result.totalChuaVat, tongMax: est.result.totalChuaVat,
