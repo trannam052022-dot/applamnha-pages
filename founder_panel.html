@@ -8577,7 +8577,8 @@ window.saveCompanySettings = async function() {
 /* ══════════════════════════════════════════
    ĐỒNG Ý CHUYỂN SỐ CHO THẦU (Nam chốt 03/10/2026) — ALN luôn gọi hỏi khách
    trước khi chuyển số sang đơn vị thi công. Modal "Chi tiết lead" ghi lại lần
-   khách đồng ý (leads/{id}.dong_y_chuyen_thau: luc, nguoi_ghi, cach 'goi_dien',
+   khách đồng ý (leads/{id} hoặc contacts/{id} khi số không có lead — khách bảng dự toán;
+   dong_y_chuyen_thau: luc, nguoi_ghi, cach 'goi_dien',
    don_vi) hoặc rút đồng ý (thêm rut_luc, không xoá bản cũ). Ghi qua callable
    Founder-only founderDongYChuyenThau (functions/dongYChuyenThau.js) — leads/
    chặn mọi client ghi. Cảnh báo đỏ khi lead đã gắn đơn vị (đội AI gợi ý cho lead
@@ -8592,24 +8593,48 @@ function ldctCanhBaoTho(d){
   var dy = d && d.dong_y_chuyen_thau;
   return gan && !(dy && dy.luc && !dy.rut_luc);
 }
-function ldctVeDs(el, leads, dep){
+function ldctVeDs(el, kq, dep){
   el.textContent = '';
   var dong = function(tag, css, text){ var x = document.createElement(tag); if(css) x.style.cssText = css; if(text !== undefined) x.textContent = text; return x; };
-  if(!leads || !leads.length){ el.appendChild(dong('div', 'color:var(--dim);font-size:12.5px', 'Không có lead nào trong mục leads cho số này.')); return; }
-  leads.forEach(function(l){
+  var leads = Array.isArray(kq) ? kq : ((kq && kq.leads) || []);
+  var contacts = Array.isArray(kq) ? [] : ((kq && kq.contacts) || []);
+  if(!leads.length && !contacts.length){
+    var tb = dong('div', 'padding:12px 14px;border:1px dashed var(--border);border-radius:10px;font-size:12.5px;color:var(--text2);line-height:1.6');
+    tb.setAttribute('data-ldct-rong', '1');
+    tb.appendChild(dong('div', 'font-weight:700;color:var(--text1);margin-bottom:4px', 'Không tìm thấy bản ghi nào cho số này.'));
+    tb.appendChild(dong('div', '', 'Số này không có trong mục leads và cũng không có liên hệ (contacts) nào. Kiểm tra lại số điện thoại, hoặc khách chưa để lại số qua form/bảng dự toán nên chưa thể ghi đồng ý chuyển số.'));
+    el.appendChild(tb);
+    return;
+  }
+  var the = function(l, tieuDe, phu){
     var o = dong('div', 'border:1px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px');
+    o.setAttribute('data-ldct-the', l.nguon_ghi || 'lead');
     var tr = dong('div', '');
-    tr.appendChild(dong('div', 'font-size:13px;font-weight:700;color:var(--text1)', (l.loai_viec || l.source || l.kind || 'Lead') + (l.khu_vuc ? ' · ' + l.khu_vuc : '')));
-    tr.appendChild(dong('div', 'font-family:var(--mono);font-size:11px;color:var(--dim)', dep.fmtNgay(l.tao_luc) + ' · ' + l.id));
+    tr.appendChild(dong('div', 'font-size:13px;font-weight:700;color:var(--text1)', tieuDe));
+    tr.appendChild(dong('div', 'font-family:var(--mono);font-size:11px;color:var(--dim)', phu));
     var tt = l.trang_thai || {};
     if(tt.canh_bao) tr.appendChild(dong('div', 'font-size:11.5px;font-weight:700;color:#ef4444;margin-top:3px', '⚠ Đã gắn đơn vị thi công nhưng chưa ghi khách đồng ý chuyển số'));
     else if(tt.hieu_luc) tr.appendChild(dong('div', 'font-size:11.5px;color:var(--green);margin-top:3px', '✓ Khách đã đồng ý chuyển số'));
+    else if(tt.da_rut) tr.appendChild(dong('div', 'font-size:11.5px;color:#f97316;margin-top:3px', 'Khách đã rút đồng ý'));
     o.appendChild(tr);
     var bt = dong('button', 'padding:6px 11px;border-radius:6px;border:1px solid var(--gold-bd);background:var(--gold-bg);color:var(--gold);font-weight:700;font-size:11.5px;cursor:pointer;font-family:var(--sans);white-space:nowrap', 'Chi tiết');
     bt.type = 'button';
-    bt.addEventListener('click', function(){ dep.onMo(l.id); });
+    bt.addEventListener('click', function(){ dep.onMo(l.id, l.nguon_ghi || 'lead'); });
     o.appendChild(bt);
     el.appendChild(o);
+  };
+  if(!leads.length){
+    var gc = dong('div', 'padding:9px 12px;border-radius:10px;background:var(--raised);border:1px solid var(--border);font-size:12px;color:var(--text2);line-height:1.6');
+    gc.setAttribute('data-ldct-khong-lead', '1');
+    gc.textContent = 'Số này không có bản ghi trong mục leads (thường là khách lưu dự toán ở bảng dự toán — Không gian Nhà). Đồng ý chuyển số được ghi theo liên hệ bên dưới.';
+    el.appendChild(gc);
+  }
+  contacts.forEach(function(c){
+    var ho = (c.so_house === null || c.so_house === undefined) ? '' : (' · ' + c.so_house + ' hồ sơ dự toán');
+    the(c, 'Liên hệ' + (c.nguon ? ' · ' + c.nguon : '') + ho, 'Ghi theo SĐT (contacts) · ' + c.id);
+  });
+  leads.forEach(function(l){
+    the(l, (l.loai_viec || l.source || l.kind || 'Lead') + (l.khu_vuc ? ' · ' + l.khu_vuc : ''), dep.fmtNgay(l.tao_luc) + ' · ' + l.id);
   });
 }
 function ldctVe(el, l, dep){
@@ -8617,10 +8642,20 @@ function ldctVe(el, l, dep){
   var dong = function(tag, css, text){ var x = document.createElement(tag); if(css) x.style.cssText = css; if(text !== undefined) x.textContent = text; return x; };
   var hang = function(nhan, gt){ var d = dong('div', 'font-size:12.5px;color:var(--text2);line-height:1.7'); d.appendChild(dong('span', 'color:var(--dim)', nhan + ': ')); d.appendChild(dong('span', '', gt || '—')); return d; };
   var ten = function(uid){ return uid === dep.founderUid ? 'Founder' : (uid || '—'); };
+  var laContact = l.nguon_ghi === 'contact';
+  var nguonGhi = laContact ? 'contact' : 'lead';
   el.appendChild(hang('Khách', (l.name || '—') + ' · ' + (l.phone || '—')));
-  el.appendChild(hang('Nguồn', [l.source, l.kind].filter(Boolean).join(' · ')));
-  el.appendChild(hang('Việc / khu vực', [l.loai_viec, l.khu_vuc].filter(Boolean).join(' · ')));
-  el.appendChild(hang('Gửi lúc', dep.fmtNgay(l.tao_luc)));
+  if(laContact){
+    el.appendChild(hang('Ghi theo', 'Liên hệ (contacts) — số này không có bản ghi trong mục leads'));
+    el.appendChild(hang('Nguồn', l.nguon));
+    if(l.nguon_cham && l.nguon_cham.length) el.appendChild(hang('Các kênh đã chạm', l.nguon_cham.join(', ')));
+    if(l.so_house !== null && l.so_house !== undefined) el.appendChild(hang('Hồ sơ dự toán (Không gian Nhà)', String(l.so_house)));
+    el.appendChild(hang('Tạo lúc', dep.fmtNgay(l.tao_luc)));
+  } else {
+    el.appendChild(hang('Nguồn', [l.source, l.kind].filter(Boolean).join(' · ')));
+    el.appendChild(hang('Việc / khu vực', [l.loai_viec, l.khu_vuc].filter(Boolean).join(' · ')));
+    el.appendChild(hang('Gửi lúc', dep.fmtNgay(l.tao_luc)));
+  }
   if(l.doi_goi_y && l.doi_goi_y.length) el.appendChild(hang('Đơn vị đã gắn (AI gợi ý)', l.doi_goi_y.map(function(s){ return s.uid; }).join(', ')));
   var tt = l.trang_thai || {};
   if(tt.canh_bao){
@@ -8643,12 +8678,12 @@ function ldctVe(el, l, dep){
   var nut = dong('div', 'display:flex;gap:8px;flex-wrap:wrap;margin-top:10px');
   var b1 = dong('button', 'padding:7px 13px;border-radius:7px;border:1px solid rgba(21,128,61,.35);background:rgba(21,128,61,.1);color:var(--green);font-weight:700;font-size:12px;cursor:pointer;font-family:var(--sans)', 'Khách đồng ý chuyển số cho thầu');
   b1.type = 'button'; b1.setAttribute('data-ldct', 'dong-y');
-  b1.addEventListener('click', function(){ dep.onDongY(l.id); });
+  b1.addEventListener('click', function(){ dep.onDongY(l.id, nguonGhi); });
   nut.appendChild(b1);
   if(tt.hieu_luc){
     var b2 = dong('button', 'padding:7px 13px;border-radius:7px;border:1px solid rgba(249,115,22,.4);background:rgba(249,115,22,.08);color:#f97316;font-weight:700;font-size:12px;cursor:pointer;font-family:var(--sans)', 'Khách rút đồng ý');
     b2.type = 'button'; b2.setAttribute('data-ldct', 'rut');
-    b2.addEventListener('click', function(){ dep.onRut(l.id); });
+    b2.addEventListener('click', function(){ dep.onRut(l.id, nguonGhi); });
     nut.appendChild(b2);
   }
   hop.appendChild(nut);
@@ -8679,16 +8714,16 @@ function ldctVe(el, l, dep){
   }
   var DEP = {
     founderUid: FOUNDER_UID_LDCT, fmtNgay: fmt,
-    onMo: function(id){ window.ldctMo(id); },
-    onDongY: async function(id){
+    onMo: function(id, nguon){ window.ldctMo(id, nguon); },
+    onDongY: async function(id, nguon){
       var dv = prompt('Đã gọi hỏi và khách đồng ý chuyển số cho đơn vị thi công.\nTên đơn vị thi công (không bắt buộc):', '');
       if(dv === null) return;
-      try { var r = await ldctFn({ hanh_dong: 'ghi', id: id, don_vi: dv }); if(r.trung) toast('Đã có ghi nhận đồng ý cho đơn vị này', 'info'); veLead(r.lead); window.ldctSauGhi && window.ldctSauGhi(r.lead); }
+      try { var r = await ldctFn({ hanh_dong: 'ghi', nguon: nguon || 'lead', id: id, don_vi: dv }); if(r.trung) toast('Đã có ghi nhận đồng ý cho đơn vị này', 'info'); veLead(r.lead); window.ldctSauGhi && window.ldctSauGhi(r.lead); }
       catch(e){ alert('Lỗi ghi đồng ý: ' + (e.message || e)); }
     },
-    onRut: async function(id){
+    onRut: async function(id, nguon){
       if(!confirm('Ghi nhận khách RÚT đồng ý chuyển số? Bản ghi đồng ý cũ vẫn được giữ.')) return;
-      try { var r = await ldctFn({ hanh_dong: 'rut', id: id }); veLead(r.lead); window.ldctSauGhi && window.ldctSauGhi(r.lead); }
+      try { var r = await ldctFn({ hanh_dong: 'rut', nguon: nguon || 'lead', id: id }); veLead(r.lead); window.ldctSauGhi && window.ldctSauGhi(r.lead); }
       catch(e){ alert('Lỗi ghi rút đồng ý: ' + (e.message || e)); }
     },
   };
@@ -8696,21 +8731,21 @@ function ldctVe(el, l, dep){
     var el = hop(); ldctVe(el, l, DEP);
     if(LDCT_SDT){
       var lai = document.createElement('button');
-      lai.type = 'button'; lai.textContent = '← Các lead khác của số này';
+      lai.type = 'button'; lai.textContent = '← Các bản ghi khác của số này';
       lai.style.cssText = 'margin-top:12px;background:none;border:none;color:var(--blue);cursor:pointer;font-size:12px;font-family:var(--sans);padding:0';
       lai.addEventListener('click', function(){ window.ldctMoTheoSdt(LDCT_SDT.sdt, LDCT_SDT.ten); });
       el.appendChild(lai);
     }
   }
-  window.ldctMo = async function(id){
-    mo('Chi tiết lead');
-    try { veLead((await ldctFn({ hanh_dong: 'mo', id: id })).lead); }
-    catch(e){ hop().textContent = 'Lỗi tải lead: ' + (e.message || e); }
+  window.ldctMo = async function(id, nguon){
+    mo(nguon === 'contact' ? 'Chi tiết liên hệ' : 'Chi tiết lead');
+    try { veLead((await ldctFn({ hanh_dong: 'mo', nguon: nguon || 'lead', id: id })).lead); }
+    catch(e){ hop().textContent = 'Lỗi tải ' + (nguon === 'contact' ? 'liên hệ' : 'lead') + ': ' + (e.message || e); }
   };
   window.ldctMoTheoSdt = async function(sdt, ten){
     LDCT_SDT = { sdt: sdt, ten: ten };
     mo('Lead của ' + (ten || '—') + ' · ' + (sdt || ''));
-    try { ldctVeDs(hop(), (await ldctFn({ hanh_dong: 'ds_theo_sdt', sdt: sdt })).leads, DEP); }
+    try { ldctVeDs(hop(), await ldctFn({ hanh_dong: 'ds_theo_sdt', sdt: sdt }), DEP); }
     catch(e){ hop().textContent = 'Lỗi tải danh sách lead: ' + (e.message || e); }
   };
   window.ldctMoTuSuaVat = function(id){ LDCT_SDT = null; window.ldctMo(id); };
@@ -8782,6 +8817,7 @@ function ldctVe(el, l, dep){
   }
 
   window.ldctSauGhi = function(l){
+    if(!l || l.nguon_ghi === 'contact') return;
     var it = SV_LEADS.filter(function(x){ return x._id === l.id; })[0];
     if(!it) return;
     it.dong_y_chuyen_thau = l.dong_y ? { luc: l.dong_y.luc, rut_luc: l.dong_y.rut_luc } : null;
