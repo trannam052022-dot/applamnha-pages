@@ -53,7 +53,7 @@ tr.co input{border-color:var(--gold);background:var(--gold-soft)}
  <div class="card">
   <div class="row">
    <div><label for="tinh">Tỉnh/thành</label><select id="tinh"></select></div>
-   <div><label for="nc">Giá khoán nhân công ALN cho tỉnh (đ/m² quy đổi, để trống = không gợi ý)</label><input id="nc" type="number" min="0" step="10000" style="width:170px"></div>
+   <div><label for="nc">Giá khoán nhân công ALN cho tỉnh (đ/m² quy đổi, để trống = không gợi ý)</label><input id="nc" type="text" inputmode="numeric" autocomplete="off" style="width:170px"></div>
    <div><label for="ghiChu">Ghi chú nội bộ (nguồn giá, ngày khảo sát)</label><input id="ghiChu" type="text" maxlength="300" style="width:320px"></div>
   </div>
   <div class="chips" id="chips"></div>
@@ -80,6 +80,10 @@ const FOUNDER_UID = 'h4kEguPEyMcwJwl89stc0Q6j2si2';
 const goi = httpsCallable(getFunctions(app, 'asia-southeast1'), 'founderDnCaiDat', { timeout: 40000 });
 const $ = (id) => document.getElementById(id);
 const fmt = (n) => n == null ? '' : Math.round(Number(n)).toLocaleString('vi-VN');
+// Ô tiền: gõ số thì tự chèn dấu chấm hàng nghìn cho dễ đọc (Nam 03/10/2026); giá trị gửi máy chủ là số thuần.
+const soThuan = (v) => String(v == null ? '' : v).replace(/\D/g, '');
+const fmtSo = (v) => { const d = soThuan(v); return d ? fmt(d) : ''; };
+function oTien(inp, onRaw) { inp.addEventListener('input', () => { const d = soThuan(inp.value); inp.value = fmtSo(d); onRaw(d); }); }
 let data = null, model = 'thi', giaTinh = {}; // giaTinh: {tên: số} đang soạn (chung cả 2 nhà mẫu — tên hạng mục là khoá)
 function hien(s) { $('stLogin').hidden = s !== 'login'; $('stLoading').hidden = s !== 'loading'; $('stMain').hidden = s !== 'main'; }
 function td(text, cls) { const c = document.createElement('td'); if (cls) c.className = cls; c.textContent = text == null ? '' : String(text); return c; }
@@ -105,9 +109,9 @@ function veBang() {
       cTk.appendChild(b);
     } else cTk.textContent = '—';
     tr.appendChild(cTk);
-    const cIn = td('', 'so'); const inp = document.createElement('input'); inp.type = 'number'; inp.min = '0'; inp.step = '1000'; inp.placeholder = fmt(d.gia_goc);
-    if (giaTinh[d.ten] != null) inp.value = giaTinh[d.ten];
-    inp.addEventListener('input', () => { const v = inp.value.trim(); if (v === '') delete giaTinh[d.ten]; else giaTinh[d.ten] = v; tr.classList.toggle('co', v !== ''); });
+    const cIn = td('', 'so'); const inp = document.createElement('input'); inp.type = 'text'; inp.inputMode = 'numeric'; inp.autocomplete = 'off'; inp.placeholder = fmt(d.gia_goc);
+    if (giaTinh[d.ten] != null) inp.value = fmtSo(giaTinh[d.ten]);
+    oTien(inp, (v) => { if (v === '') delete giaTinh[d.ten]; else giaTinh[d.ten] = v; tr.classList.toggle('co', v !== ''); });
     cIn.appendChild(inp); tr.appendChild(cIn);
     tr.classList.toggle('co', giaTinh[d.ten] != null);
     tb.appendChild(tr);
@@ -116,7 +120,7 @@ function veBang() {
 function datGia(ten, gia) { giaTinh[ten] = String(Math.round(gia)); veBang(); }
 function veTomTat() {
   const b = data.bang;
-  $('nc').value = b && b.nhan_cong_khoan ? b.nhan_cong_khoan : '';
+  $('nc').value = b && b.nhan_cong_khoan ? fmtSo(b.nhan_cong_khoan) : '';
   $('ghiChu').value = (b && b.ghi_chu) || '';
   const so = b ? Object.keys(b.hang_muc || {}).length : 0;
   $('tomTat').textContent = (b ? `Bảng ${data.tinh}: ${so} hạng mục có giá tỉnh` + (b.cap_nhat_luc_ms ? ', cập nhật ' + new Date(b.cap_nhat_luc_ms).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : '') : `${data.tinh}: chưa có bảng — nhà thầu đang thấy giá gốc`) +
@@ -141,7 +145,7 @@ async function luu(xoa) {
   if (xoa && !confirm(`Xoá bảng đơn giá của ${tinh}? Nhà thầu chọn tỉnh này sẽ thấy giá gốc.`)) return;
   baoMsg('Đang lưu…');
   try {
-    const d = xoa ? { hanh_dong: 'don_gia_tinh_luu', tinh, xoa: true } : { hanh_dong: 'don_gia_tinh_luu', tinh, hang_muc: giaTinh, nhan_cong_khoan: $('nc').value, ghi_chu: $('ghiChu').value };
+    const d = xoa ? { hanh_dong: 'don_gia_tinh_luu', tinh, xoa: true } : { hanh_dong: 'don_gia_tinh_luu', tinh, hang_muc: giaTinh, nhan_cong_khoan: soThuan($('nc').value), ghi_chu: $('ghiChu').value };
     const r = (await goi(d)).data || {};
     baoMsg(xoa ? `Đã xoá bảng ${tinh}.` : `Đã lưu bảng ${tinh}: ${r.so_hang_muc} hạng mục` + (r.nhan_cong_khoan ? `, khoán nhân công ${fmt(r.nhan_cong_khoan)} đ/m²` : '') + '. Nhà thầu chọn tỉnh này thấy giá mới ngay (tối đa 2 phút nếu máy chủ đang cache).', 'ok');
     await tai(tinh);
@@ -149,6 +153,7 @@ async function luu(xoa) {
   } catch (e) { baoMsg('Lỗi lưu: ' + (e.message || e), 'err'); }
 }
 $('tinh').addEventListener('change', () => tai($('tinh').value));
+oTien($('nc'), () => {});
 $('tabThi').addEventListener('click', () => { model = 'thi'; $('tabThi').classList.add('on'); $('tabHoang').classList.remove('on'); veBang(); });
 $('tabHoang').addEventListener('click', () => { model = 'hoang'; $('tabHoang').classList.add('on'); $('tabThi').classList.remove('on'); veBang(); });
 $('luu').addEventListener('click', () => luu(false));

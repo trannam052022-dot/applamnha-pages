@@ -664,17 +664,21 @@ $('resetP').onclick=e=>{st.px={};drawPrices(drawnFor||cur());run(false,e.isTrust
 $('moreT').onclick=()=>{showAllT=!showAllT;drawPrices(drawnFor||cur())};
 function cur(){return laBietThuVuon()?'thi':pickModel($('n').value,$('tm').value)}
 function price(m,giaMacDinh){return st.px[m]!=null&&st.px[m]!==''?num(st.px[m]):giaMacDinh}
+// Ô tiền ở bảng giá (mục 2, 2b): gõ số thì tự chèn dấu chấm hàng nghìn cho dễ đọc (Nam 03/10/2026).
+// Giá trị LƯU (st.px/st.dg) và gửi máy chủ luôn là số thuần — máy chủ đọc Number() nên không được có dấu.
+function soThuan(v){return String(v==null?'':v).replace(/\D/g,'')}
+function fmtSo(v){const d=soThuan(v);return d?fmt(Number(d)):''}
 // Bảng giá vật tư (tên/đơn vị/giá mặc định, đã xếp theo tỷ trọng) do máy chủ
 // trả cùng kết quả — nhớ theo khoá nhà mẫu ('thi' | 'hoang' | 'thi|btv').
 let drawnFor=null; const bangGiaTheoKey={};
 function drawPrices(bgKey){
  const bg=bangGiaTheoKey[bgKey]; if(!bg)return; drawnFor=bgKey;
- const row=(d)=>{const ch=st.px[d.m]!=null&&st.px[d.m]!==''&&num(st.px[d.m])!==d.gia;return `<tr class="${ch?'chg':''}"><td>${eH(d.ten)}</td><td>${eH(d.dv||'')}</td><td><input type="number" min="0" inputmode="numeric" data-m="${eH(d.m)}" data-gia="${eH(d.gia)}" value="${eH(price(d.m,d.gia))}" aria-label="Giá ${eH(d.ten)}"></td></tr>`};
+ const row=(d)=>{const ch=st.px[d.m]!=null&&st.px[d.m]!==''&&num(st.px[d.m])!==d.gia;return `<tr class="${ch?'chg':''}"><td>${eH(d.ten)}</td><td>${eH(d.dv||'')}</td><td><input type="text" inputmode="numeric" autocomplete="off" data-m="${eH(d.m)}" data-gia="${eH(d.gia)}" value="${eH(fmtSo(Math.round(price(d.m,d.gia))))}" aria-label="Giá ${eH(d.ten)}"></td></tr>`};
  const T=bg.T,H=bg.H;
  const Tv=showAllT?T:T.slice(0,8);
  $('ptT').innerHTML=Tv.map(row).join('');$('ptH').innerHTML=H.map(row).join('');
  $('moreT').textContent=showAllT?'Thu gọn':`Xem thêm ${T.length-8} loại vật tư`;$('moreT').hidden=T.length<=8;
- document.querySelectorAll('#ptT input,#ptH input').forEach(inp=>inp.addEventListener('input',e=>{st.px[inp.dataset.m]=inp.value;inp.closest('tr').classList.toggle('chg',num(inp.value)!==num(inp.dataset.gia));run(true,e.isTrusted)}));
+ document.querySelectorAll('#ptT input,#ptH input').forEach(inp=>inp.addEventListener('input',e=>{const d=soThuan(inp.value);inp.value=fmtSo(d);st.px[inp.dataset.m]=d;inp.closest('tr').classList.toggle('chg',d!==''&&num(d)!==num(inp.dataset.gia));run(true,e.isTrusted)}));
 }
 // ── Đơn giá vật tư từng hạng mục (bản DN, 03/10/2026) ──
 // Máy chủ trả [{nhom, ten, dv, gia}] (đơn giá ALN đã tính theo giá vật tư mục 2,
@@ -699,11 +703,11 @@ function drawDonGia(list,veLai){
  bangDonGiaHienTai.forEach(d=>{
   if(d.nhom!==nhomTruoc){nhomTruoc=d.nhom;html+=`<tr class="nh"><td colspan="4">${eH(d.nhom)}</td></tr>`}
   const v=st.dg[d.ten],co=v!=null&&v!=='';
-  html+=`<tr class="${co?'chg':''}" data-ten="${eH(d.ten)}"><td>${eH(d.ten)}</td><td>${eH(d.dv||'')}</td><td class="dg-aln${d.vung?' vung':''}" title="${d.vung?'Đơn giá ALN theo bảng tỉnh':'Đơn giá ALN (khu vực TP.HCM – Đồng Nai)'}">${eH(fmt(Math.round(d.gia)))}</td><td><input type="number" min="0" inputmode="numeric" data-ten="${eH(d.ten)}" value="${co?eH(v):''}" placeholder="${eH(fmt(Math.round(d.gia)))}" aria-label="Đơn giá của bạn cho ${eH(d.ten)}"></td></tr>`;
+  html+=`<tr class="${co?'chg':''}" data-ten="${eH(d.ten)}"><td>${eH(d.ten)}</td><td>${eH(d.dv||'')}</td><td class="dg-aln${d.vung?' vung':''}" title="${d.vung?'Đơn giá ALN theo bảng tỉnh':'Đơn giá ALN (khu vực TP.HCM – Đồng Nai)'}">${eH(fmt(Math.round(d.gia)))}</td><td><input type="text" inputmode="numeric" autocomplete="off" data-ten="${eH(d.ten)}" value="${co?eH(fmtSo(v)):''}" placeholder="${eH(fmt(Math.round(d.gia)))}" aria-label="Đơn giá của bạn cho ${eH(d.ten)}"></td></tr>`;
  });
  tb.innerHTML=html;
  tb.querySelectorAll('input').forEach(inp=>inp.addEventListener('input',e=>{
-  const ten=inp.dataset.ten,v=inp.value.trim();
+  const ten=inp.dataset.ten,v=soThuan(inp.value);inp.value=fmtSo(v);
   if(v==='')delete st.dg[ten];else st.dg[ten]=v;
   inp.closest('tr').classList.toggle('chg',v!=='');
   save();run(true,e.isTrusted);
@@ -713,7 +717,7 @@ $('resetDG').onclick=e=>{st.dg={};save();drawDonGia(bangDonGiaHienTai,true);run(
 // Cho module DN (nạp bộ giá đã lưu trên tài khoản / báo giá đang sửa) và test.
 window.alnDuToanDonGia={
  lay:()=>({...st.dg}),
- dat:(m)=>{st.dg={};Object.keys(m||{}).forEach(k=>{const v=m[k];if(v!=null&&v!=='')st.dg[k]=String(v)});save();drawDonGia(bangDonGiaHienTai,true);return run(true,false)},
+ dat:(m)=>{st.dg={};Object.keys(m||{}).forEach(k=>{const v=m[k];if(v!=null&&v!==''&&isFinite(num(v)))st.dg[k]=String(Math.round(num(v)))});save();drawDonGia(bangDonGiaHienTai,true);return run(true,false)},
  so:()=>Object.keys(st.dg).length,
 };
 // ── Gọi máy chủ tính (02/10/2026) ──
@@ -737,12 +741,16 @@ function payloadTinh(){
   priceOverrides:{...st.px},
   donGiaHangMuc:{...st.dg},
   tinh:tinhDaChon(),
+  thietBi:tinhDaChon()?maThietBi():undefined,
   nhanCong:{cheDo:i.lm||'khoan',khoanDonGia:$('khoan').value,congDonGia:$('cong').value},
   mepDonGia:$('mep').value,qlPct:$('ql').value,vatPct:$('vat').value};
 }
 // Bản DN đang che (chưa thanh toán): chỉ xin bảng giá vật tư + đơn giá hạng mục,
 // máy chủ không tính tiền (lib.bangGiaChoTrang) — phản hồi không có khối lượng/tổng.
-function payloadBangGia(){const p=payloadTinh();return {chiBangGia:true,inputs:p.inputs,priceOverrides:p.priceOverrides,tinh:p.tinh}}
+function payloadBangGia(){const p=payloadTinh();return {chiBangGia:true,inputs:p.inputs,priceOverrides:p.priceOverrides,tinh:p.tinh,thietBi:p.thietBi}}
+// Mã thiết bị (ngẫu nhiên, localStorage) gửi kèm khi có chọn tỉnh — máy chủ giới hạn số bảng tỉnh
+// một thiết bị xem được trước khi thanh toán (chống cào bảng giá tỉnh, 03/10/2026).
+function maThietBi(){try{let v=localStorage.getItem('aln_dn_tb');if(!v||!/^[A-Za-z0-9_-]{8,40}$/.test(v)){v=Array.from(crypto.getRandomValues(new Uint8Array(12)),b=>'abcdefghijklmnopqrstuvwxyz0123456789'[b%36]).join('');localStorage.setItem('aln_dn_tb',v)}return v}catch(e){return undefined}}
 // Tỉnh công trình (ô #dnTinhCt ở khung Lưu báo giá, chỉ bản DN) — máy chủ tra bảng đơn giá
 // tỉnh của ALN; trang chủ nhà không có ô này → null.
 function tinhDaChon(){const e=$('dnTinhCt');return e&&e.value?e.value:null}
@@ -752,6 +760,7 @@ function veVung(v){
  el.textContent='';el.hidden=true;
  if(!v||!v.tinh)return;
  el.hidden=false;
+ if(v.gioi_han){el.textContent=`${v.tinh}: thiết bị này hôm nay đã xem bảng đơn giá tỉnh ${(v.da_xem||[]).join(', ')}. Trước khi thanh toán, mỗi thiết bị chỉ xem được ${v.toi_da||1} bảng tỉnh/ngày — cột đơn giá ALN đang là giá khu vực TP.HCM – Đồng Nai; anh/chị vẫn nhập giá địa phương vào ô bên phải, hoặc lưu và thanh toán báo giá để dùng bảng tỉnh này.`;return}
  if(!v.co_bang){el.textContent=`${v.tinh}: ALN chưa có bảng đơn giá riêng cho tỉnh này — cột đơn giá ALN đang là giá khu vực TP.HCM – Đồng Nai. Anh/chị nhập giá tại địa phương vào ô bên phải.`;return}
  el.textContent=`Đơn giá ALN đang theo bảng ${v.tinh} (${v.so_hang_muc} hạng mục ALN đã cập nhật; hạng mục còn lại là giá khu vực TP.HCM – Đồng Nai). `;
  if(v.nhan_cong_khoan&&num($('khoan').value)!==v.nhan_cong_khoan){
