@@ -206,7 +206,7 @@ if (!document.getElementById('mymy-btn')) {
      Trang nào muốn MyMy hướng dẫn riêng (vd du-toan-nha.html: điền giúp kích
      thước, chỉ từng ô) thì nạp script đặt window.ALN_MYMY_TRANG TRƯỚC widget:
        { loiMoi: 'câu bóng chat mời',            (mymy-moi.js đọc)
-         moDau(api): lời chào + nút riêng, thay câu hỏi xưng hô,
+         moDau(api): lời chào + nút riêng, thay câu hỏi xưng hô (trả false = chào mặc định),
          xuLyTin(text, api): trả true nếu tự trả lời được, không gửi AI }
      Trang không đặt biến này giữ nguyên hành vi cũ. Chữ do trang đưa vào đi
      qua mmHtml/textContent — không có đường nào ghép HTML thô. */
@@ -290,7 +290,8 @@ if (!document.getElementById('mymy-btn')) {
       S.opened = true;
       const trang = window.ALN_MYMY_TRANG;
       if (trang && typeof trang.moDau === 'function') {
-        try { S.addr = 'anh/chị'; trang.moDau(API); return; } catch (e) { console.error('MyMy moDau lỗi:', e); }
+        // moDau trả false = trang không có lời mở đầu riêng lần này → chào như mặc định.
+        try { S.addr = 'anh/chị'; if (trang.moDau(API) !== false) return; S.addr = 'bạn'; } catch (e) { console.error('MyMy moDau lỗi:', e); }
       }
       addBot('Chào bạn! Em là MyMy của ALN. Cho em hỏi xưng hô là anh hay chị để em tiện trò chuyện ạ?');
       askGenderButtons();
@@ -494,8 +495,10 @@ if (!document.getElementById('mymy-btn')) {
       S.history.push({ role: 'assistant', content: res.reply || '' });
       renderSuggestion(res.suggestion);
       // Trang có ngữ cảnh riêng (nguCanh) để máy chủ tự quyết lúc xin liên hệ —
-      // không chen câu xin SĐT cố định, tránh xin 2 lần.
-      if (S.userTurns >= 3 && !S.askedPhone && !nguCanhTrang()) {
+      // không chen câu xin SĐT cố định, tránh xin 2 lần. Trang đặt xinSdtCoDinh
+      // (vd nội thất: ngữ cảnh chỉ để trả lời đúng chỗ vướng) thì giữ câu xin cố định.
+      const trangXin = window.ALN_MYMY_TRANG;
+      if (S.userTurns >= 3 && !S.askedPhone && (!nguCanhTrang() || (trangXin && trangXin.xinSdtCoDinh))) {
         S.askedPhone = true;
         setTimeout(() => addBot('Để đội ngũ ALN liên hệ tư vấn kỹ hơn, ' + S.addr + ' để lại SĐT giúp em nha?'), 900);
       }
