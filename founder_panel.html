@@ -1980,6 +1980,25 @@ document.addEventListener('DOMContentLoaded', function() {
   <div style="font-weight:700;color:var(--text1);margin:4px 0 4px">Đánh giá lead đủ điều kiện</div>
   <div style="font-size:12px;color:var(--sub);margin-bottom:8px;max-width:88ch">Đạt khi đủ cả 4: dịch vụ ALN làm được, khu vực phục vụ được, ngân sách phù hợp, thời điểm khách định làm phù hợp với lịch nhận việc. Một tiêu chí "Không" là không đạt.</div>
   <div style="overflow:auto;border:1px solid var(--border);border-radius:12px;background:var(--card);margin-bottom:28px"><table id="klBangDanhGia" style="width:100%;border-collapse:collapse;font-size:12.5px"></table></div>
+
+  <!-- Phễu ẩn danh trang dự toán (03/10/2026) — founderPheuAnDanh (functions/baoCaoAnDanh.js) -->
+  <div style="border-top:1px solid var(--border);padding-top:20px;margin-bottom:28px">
+    <div style="font-weight:700;color:var(--text1);margin:0 0 4px">Phễu ẩn danh trang dự toán (cả khách không để lại số)</div>
+    <div style="font-size:12px;color:var(--sub);margin-bottom:10px;max-width:88ch">Mỗi phiên = một lần mở <code>du-toan-nha.html</code> mà khách tự đổi số ít nhất một lần (ví dụ 5×20 m tự hiện lúc mở trang không tính). Chỉ có nhãn khoảng, không có số đo hay SĐT; dữ liệu tự xoá sau 90 ngày. Không gồm lượt tự test <code>?internal=1</code>. Khách bỏ đi TRƯỚC khi tính lần đầu không có ở đây — bước đó xem ở GA4, sự kiện <code>aln_dt_step</code>. Có từ 03/10/2026.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
+      <select id="adSoNgay" onchange="adTai()" style="padding:6px 10px;border:1px solid var(--border);border-radius:7px;background:var(--raised);color:var(--text1);font-size:12px">
+        <option value="7">7 ngày</option>
+        <option value="14" selected>14 ngày</option>
+        <option value="30">30 ngày</option>
+        <option value="90">90 ngày</option>
+      </select>
+      <button onclick="adTai()" style="padding:7px 14px;background:var(--raised);border:1px solid var(--border);border-radius:7px;font-size:12px;font-weight:600;color:var(--sub);cursor:pointer;font-family:var(--sans)"><i class="ph-duotone ph-arrow-clockwise"></i> Tải phễu</button>
+      <span id="adTrangThai" style="font-size:12.5px;color:var(--dim)">Chưa tải.</span>
+    </div>
+    <div id="adTongQuan" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:14px"></div>
+    <div id="adBang" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-bottom:14px"></div>
+    <div style="overflow:auto;border:1px solid var(--border);border-radius:12px;background:var(--card)"><table id="adTheoNgay" style="width:100%;border-collapse:collapse;font-size:12.5px"></table></div>
+  </div>
 </div>
 
 <div id="panelLeads" style="display:none;flex-direction:column;flex:1;overflow-y:auto;padding:24px 28px">
@@ -11609,6 +11628,7 @@ window.initKenhLeadPanel = async function () {
       + " · Dữ liệu nguồn: " + so(nk.attribution) + " lượt gửi đủ đầu/gần nhất, " + so(nk.utm) + " chỉ có UTM, " + so(nk.none) + " không có."
       + " Lượt lưu dự toán phần thô và form trang chủ chỉ ghi nguồn từ 27/09/2026.";
     window.klVe();
+    if (typeof window.adTai === "function" && $("adTrangThai").textContent === "Chưa tải.") window.adTai();
   } catch (e) {
     $("klTrangThai").innerHTML = '<span style="color:var(--red)">Lỗi tải: ' + esc(e.message || e) + "</span>";
   }
@@ -11635,6 +11655,59 @@ window.klLuuDanhGia = async function (i) {
     await goi("founderDanhGiaLead", data);
     await window.initKenhLeadPanel();
   } catch (e) { alert("Chưa lưu được: " + (e.message || e)); }
+};
+
+/* ── Phễu ẩn danh trang dự toán (03/10/2026) — founderPheuAnDanh ── */
+const AD_NHAN = {
+  lan_tinh: { "1": "1 lần", "2": "2 lần", "3-5": "3–5 lần", "6+": "6 lần trở lên" },
+  nguon: { meta_ads: "Quảng cáo Meta", google: "Google", zalo: "Zalo", truc_tiep: "Trực tiếp", khac: "Khác" },
+  cookie: { dong_y: "Đồng ý", tu_choi: "Từ chối", tuy_chinh: "Tuỳ chỉnh", chua_chon: "Chưa chọn" },
+  dien_tich: { "<100": "Dưới 100 m²", "100-200": "100–200 m²", "200-300": "200–300 m²", "300-500": "300–500 m²", ">500": "Trên 500 m²", khong_ro: "Không rõ" },
+  so_tang: { "1": "1 sàn", "2-3": "2–3 sàn", "4-5": "4–5 sàn", "6+": "6 sàn trở lên", khong_ro: "Không rõ" },
+  tong_tien: { "<1ty": "Dưới 1 tỷ", "1-2ty": "1–2 tỷ", "2-3ty": "2–3 tỷ", "3-5ty": "3–5 tỷ", ">5ty": "Trên 5 tỷ", khong_ro: "Không rõ" },
+};
+const AD_TIEU_DE = [["lan_tinh", "Số lần tính trong phiên"], ["nguon", "Nguồn vào trang"], ["dien_tich", "Diện tích quy đổi"], ["so_tang", "Số sàn"], ["tong_tien", "Tổng tiền tạm tính"], ["cookie", "Chọn ở thông báo cookie"]];
+const adPct = (a, b) => (b ? Math.round(a * 100 / b) + "%" : "—");
+
+function adBangNho(khoa, tieuDe, bang, tong) {
+  let h = '<div style="border:1px solid var(--border);border-radius:12px;background:var(--card);overflow:auto">'
+    + '<div style="padding:10px 12px 4px;font-weight:700;color:var(--text1);font-size:12.5px">' + eH(tieuDe) + "</div>"
+    + '<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr><th>Nhóm</th><th>Phiên</th><th>Để lại số</th><th>Tỷ lệ</th></tr></thead><tbody>';
+  Object.keys(AD_NHAN[khoa]).forEach((k) => {
+    const o = bang[k] || { phien: 0, lead: 0 };
+    if (!o.phien && (k === "khong_ro" || k === "khac")) return;
+    const rong = tong ? Math.round(o.phien * 100 / tong) : 0;
+    h += '<tr><td>' + eH(AD_NHAN[khoa][k])
+      + '<div style="height:4px;border-radius:2px;background:var(--gold);opacity:.55;margin-top:3px;width:' + rong + '%"></div></td>'
+      + '<td class="' + (o.phien ? "" : "kl-mo") + '">' + so(o.phien) + " <span class=\"kl-mo\">(" + adPct(o.phien, tong) + ")</span></td>"
+      + "<td>" + so(o.lead) + "</td><td>" + adPct(o.lead, o.phien) + "</td></tr>";
+  });
+  return h + "</tbody></table></div>";
+}
+
+window.adTai = async function () {
+  $("adTrangThai").textContent = "Đang tải…";
+  try {
+    const k = await goi("founderPheuAnDanh", { so_ngay: Number($("adSoNgay").value) || 14 });
+    const lai = k.so_phien - ((k.lan_tinh["1"] || {}).phien || 0);
+    $("adTrangThai").textContent = "Từ " + k.tu.split("-").reverse().join("/") + " đến " + k.den.split("-").reverse().join("/")
+      + " · cập nhật " + new Date(k.tao_luc).toLocaleString("vi-VN") + (k.cat_bot ? " · ĐÃ CẮT BỚT ở 20.000 phiên" : "");
+    $("adTongQuan").innerHTML =
+      the("Phiên đã tính", so(k.so_phien), so(k.so_lan_tinh) + " lần tính")
+      + the("Để lại số", adPct(k.so_co_lead, k.so_phien), so(k.so_co_lead) + " phiên")
+      + the("Tính từ 2 lần", adPct(lai, k.so_phien), so(lai) + " phiên — đang cân nhắc thật")
+      + the("Đồng ý cookie", adPct((k.cookie.dong_y || {}).phien || 0, k.so_da_chon_cookie), "trên " + so(k.so_da_chon_cookie) + " phiên đã chọn");
+    $("adBang").innerHTML = AD_TIEU_DE.map((x) => adBangNho(x[0], x[1], k[x[0]], k.so_phien)).join("");
+    const max = Math.max(1, ...k.theo_ngay.map((x) => x.phien));
+    let h = "<thead><tr><th>Ngày</th><th>Phiên</th><th>Để lại số</th><th style=\"width:45%\"></th></tr></thead><tbody>";
+    k.theo_ngay.slice().reverse().forEach((x) => {
+      h += "<tr><td>" + eH(x.ngay.split("-").reverse().join("/")) + '</td><td class="' + (x.phien ? "" : "kl-mo") + '">' + so(x.phien) + "</td><td>" + so(x.lead) + "</td>"
+        + '<td><div style="height:8px;border-radius:4px;background:var(--gold);opacity:.6;width:' + Math.round(x.phien * 100 / max) + '%"></div></td></tr>';
+    });
+    $("adTheoNgay").innerHTML = h + "</tbody>";
+  } catch (e) {
+    $("adTrangThai").textContent = "Lỗi tải: " + (e.message || e);
+  }
 };
 </script>
 
