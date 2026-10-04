@@ -312,9 +312,14 @@ tr.sum td{font-weight:800;background:var(--cream)}
 .bv-nut .chinh-nut{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff;border:none}
 .bv-nut .phu{background:var(--white);color:var(--gold)}
 .pc{margin-top:30px;scroll-margin-top:64px}
-/* Chọn phong cách (04/10/2026): 2 lượt phòng khách → bếp. Khung ảnh cùng tỉ lệ 4:3 để trang không nhảy khi ảnh tải. */
+/* Chọn phong cách (04/10/2026): mỗi phòng trong dữ liệu là 1 lượt. Khung ảnh cùng tỉ lệ 4:3 để trang không nhảy khi ảnh tải. */
 .pc-buoc{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;font-size:var(--text-md);font-weight:800;margin:4px 0 12px}
 .pc-buoc span{background:var(--gold-bg);color:var(--gold);border-radius:999px;padding:3px 12px;font-size:var(--text-sm)}
+.pc-tien{height:6px;border-radius:999px;background:var(--cream2);overflow:hidden;margin:-4px 0 14px}
+.pc-tien span{display:block;height:100%;width:0;background:var(--gold);border-radius:999px;transition:width .25s}
+.pc-bo-qua{display:block;width:100%;margin-top:12px;min-height:46px;padding:10px 18px;border:1.5px dashed var(--border2);border-radius:10px;background:var(--white);color:var(--text2);font:inherit;font-weight:700;font-size:var(--text-sm);cursor:pointer}
+@media(min-width:720px){.pc-bo-qua{width:auto}}
+@media(prefers-reduced-motion:reduce){.pc-tien span{transition:none}}
 .pc-luoi{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 @media(min-width:720px){.pc-luoi{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .pc-the{min-width:0;margin:0;background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column}
@@ -412,10 +417,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     <div class="pc" id="phong-cach" hidden>
       <h2>3. Anh/chị hợp phong cách nào?</h2>
-      <p class="hint">Bấm vào ảnh anh/chị thấy ưng nhất, lần lượt phòng khách rồi bếp. Phần này chỉ giúp KTS hiểu gu của anh/chị, không đổi khoảng giá ở trên.</p>
+      <p class="hint">Bấm vào ảnh anh/chị thấy ưng nhất, lần lượt từng phòng. Phòng nào chưa nghĩ tới thì bấm "Bỏ qua phòng này". Phần này chỉ giúp KTS hiểu gu của anh/chị, không đổi khoảng giá ở trên.</p>
       <div id="pc-chon-luot">
         <div class="pc-buoc" id="pc-buoc"></div>
+        <div class="pc-tien" id="pc-tien" role="progressbar" aria-label="Tiến trình chọn phong cách" aria-valuemin="1"><span></span></div>
         <div class="pc-luoi" id="pc-luoi"></div>
+        <button type="button" class="pc-bo-qua" id="pc-bo-qua">Bỏ qua phòng này</button>
       </div>
       <div class="pc-kq" id="pc-kq" hidden></div>
     </div>
@@ -1084,7 +1091,7 @@ document.getElementById('muc-all').addEventListener('click', (e) => {
   if (!k) return;
   MUC_CHUNG = k;
   MUC_DA_CHON = k; // ưu tiên ảnh phong cách cùng mức (khối "Chọn phong cách")
-  if (PC.buoc !== 'xong') pcVe();
+  if (!pcXong()) pcVe();
   document.querySelectorAll('#muc-all button').forEach((b) => b.classList.toggle('on', b.dataset.muc === k));
   DONG.forEach((d) => {
     if (d.them === 'khac') return; // món khác không có mức
@@ -1632,19 +1639,26 @@ document.getElementById('ds-phong').addEventListener('click', (e) => {
   henLuuLuaChon();
 });
 
-/* ── Chọn phong cách (04/10/2026, Nam duyệt 54 ảnh Unsplash) ──
-   Phần công khai, không cần OTP. 2 lượt: phòng khách rồi bếp; mỗi lượt 1 ảnh đại
-   diện mỗi phong cách (ảnh đầu danh sách; khách đã chọn mức giá ở "Áp một mức"
-   thì ưu tiên ảnh cùng mức), "Xem ảnh khác" đổi ảnh trong cùng phong cách.
+/* ── Chọn phong cách (04/10/2026, Nam duyệt ảnh Unsplash; bản v3 có 4 phòng) ──
+   Phần công khai, không cần OTP. Mỗi phòng trong mục `phong` của
+   data/anh-phong-cach-noi-that.json là 1 lượt, đúng thứ tự trong file; chỉ hiện
+   lượt khi phòng có ảnh của ít nhất 2 phong cách (nhóm "tre-em" không phải phong
+   cách nên bị bỏ). Mỗi lượt 1 ảnh đại diện mỗi phong cách (ảnh đầu danh sách;
+   khách đã chọn mức giá ở "Áp một mức" thì ưu tiên ảnh cùng mức), "Xem ảnh khác"
+   đổi ảnh trong cùng phong cách, "Bỏ qua phòng này" sang lượt sau.
    Chỉ gửi id ảnh lên máy chủ (submitDuToanLead / luuLuaChonNoiThat) — máy chủ
    tự tra phong cách (functions/lib/phongCachNoiThat.js). Không đổi khoảng giá.
    Dựng bằng DOM + textContent, URL qua alnUrl — không ghép dữ liệu vào innerHTML. */
-// Bản sao TEN_PHONG_CACH (functions/lib/phongCachNoiThat.js) — sửa cả hai.
-const TEN_PC = { 'hien-dai': 'Hiện đại', 'toi-gian': 'Tối giản', japandi: 'Japandi', indochine: 'Indochine', 'tan-co-dien': 'Tân cổ điển', 'sang-trong': 'Sang trọng' };
-const TEN_PHONG_PC = { khach: 'Phòng khách', bep: 'Bếp' };
+// Dự phòng khi file thiếu mục `phong_cach` — bản sao TEN_PHONG_CACH (functions/lib/phongCachNoiThat.js).
+const TEN_PC_MAC_DINH = { 'hien-dai': 'Hiện đại', 'toi-gian': 'Tối giản', japandi: 'Japandi', indochine: 'Indochine', 'tan-co-dien': 'Tân cổ điển', 'sang-trong': 'Sang trọng' };
+// Tên phòng trong câu kết quả — bản sao TEN_PHONG_CAU (functions/lib/phongCachNoiThat.js), sửa cả hai.
+const TEN_PHONG_CAU = { khach: 'phòng khách', bep: 'bếp', ngu: 'phòng ngủ', wc: 'WC' };
 const MUC_ANH = { co_ban: 'co-ban', kha: 'kha', cao_cap: 'cao-cap' };
-const PC = { anh: null, buoc: 'khach', chon: { khach: null, bep: null }, idx: {} };
+let TEN_PC = TEN_PC_MAC_DINH;
+const TEN_PHONG_PC = {}; // mã phòng → tên hiển thị trong file ("Bếp – ăn")
+const PC = { anh: null, luot: [], i: 0, chon: {}, idx: {} };
 let MUC_DA_CHON = null;
+function pcXong() { return PC.i >= PC.luot.length; }
 function pcDs(pc, ph) {
   const ds = ((PC.anh && PC.anh.anh[`${pc}|${ph}`]) || []).slice();
   const m = MUC_DA_CHON && MUC_ANH[MUC_DA_CHON];
@@ -1657,11 +1671,25 @@ function pcTim(id, ph) {
   }
   return null;
 }
+/* Dựng danh sách lượt từ dữ liệu: phòng theo thứ tự file, có ảnh của ≥ 2 phong cách. */
+function pcDungLuot(d) {
+  if (Array.isArray(d.phong_cach) && d.phong_cach.length) {
+    TEN_PC = {};
+    d.phong_cach.forEach((p) => { if (p && typeof p.ma === 'string' && typeof p.ten === 'string') TEN_PC[p.ma] = p.ten; });
+  }
+  const ds = Array.isArray(d.phong) ? d.phong : [{ ma: 'khach', ten: 'Phòng khách' }, { ma: 'bep', ten: 'Bếp' }];
+  PC.luot = [];
+  ds.forEach((p) => {
+    if (!p || typeof p.ma !== 'string' || PC.luot.includes(p.ma)) return;
+    TEN_PHONG_PC[p.ma] = typeof p.ten === 'string' ? p.ten : p.ma;
+    const soPc = Object.keys(TEN_PC).filter((pc) => pcDs(pc, p.ma).length).length;
+    if (soPc >= 2) PC.luot.push(p.ma);
+  });
+}
 /* id ảnh đã chọn để gửi máy chủ — null khi chưa chọn ảnh nào. */
 function pcGui() {
   const o = {};
-  if (PC.chon.khach) o.khach = PC.chon.khach;
-  if (PC.chon.bep) o.bep = PC.chon.bep;
+  PC.luot.forEach((ph) => { if (PC.chon[ph]) o[ph] = PC.chon[ph]; });
   return Object.keys(o).length ? o : null;
 }
 function pcAnh(a, alt) {
@@ -1697,7 +1725,7 @@ function pcTacGia() {
 function pcVe() {
   if (!PC.anh) return;
   PC_TAC_GIA.clear();
-  const xong = PC.buoc === 'xong';
+  const xong = pcXong();
   document.getElementById('pc-chon-luot').hidden = xong;
   const $kq = document.getElementById('pc-kq');
   $kq.hidden = !xong;
@@ -1705,11 +1733,17 @@ function pcVe() {
   pcTacGia();
 }
 function pcVeLuot() {
-  const ph = PC.buoc;
+  const ph = PC.luot[PC.i];
+  const ten = TEN_PHONG_PC[ph] || ph;
   const $b = document.getElementById('pc-buoc');
   $b.textContent = '';
-  $b.appendChild(pcChu(ph === 'khach' ? 'Lượt 1/2' : 'Lượt 2/2', ''));
-  $b.appendChild(document.createTextNode(ph === 'khach' ? 'Phòng khách: anh/chị thích ảnh nào nhất?' : 'Bếp: anh/chị thích ảnh nào nhất?'));
+  $b.appendChild(pcChu(`Phòng ${PC.i + 1}/${PC.luot.length}`, ''));
+  $b.appendChild(document.createTextNode(`${ten}: anh/chị thích ảnh nào nhất?`));
+  const $tien = document.getElementById('pc-tien');
+  $tien.setAttribute('aria-valuenow', String(PC.i + 1));
+  $tien.setAttribute('aria-valuemax', String(PC.luot.length));
+  $tien.setAttribute('aria-valuetext', `Phòng ${PC.i + 1}/${PC.luot.length}`);
+  $tien.firstElementChild.style.width = `${Math.round(((PC.i + 1) / PC.luot.length) * 100)}%`;
   const $l = document.getElementById('pc-luoi');
   $l.textContent = '';
   Object.keys(TEN_PC).forEach((pc) => {
@@ -1726,8 +1760,8 @@ function pcVeLuot() {
     nut.className = 'pc-chon';
     nut.dataset.pcChon = pc;
     nut.dataset.anh = a.id;
-    nut.setAttribute('aria-label', `Chọn phong cách ${TEN_PC[pc]} cho ${TEN_PHONG_PC[ph].toLowerCase()}`);
-    nut.appendChild(pcAnh(a, `${TEN_PHONG_PC[ph]} phong cách ${TEN_PC[pc]}`));
+    nut.setAttribute('aria-label', `Chọn phong cách ${TEN_PC[pc]} cho ${ten.toLowerCase()}`);
+    nut.appendChild(pcAnh(a, `${ten} phong cách ${TEN_PC[pc]}`));
     nut.appendChild(pcChu('Ảnh minh hoạ phong cách', 'pc-chu'));
     nut.appendChild(pcChu(TEN_PC[pc], 'pc-ten'));
     the.appendChild(nut);
@@ -1742,50 +1776,57 @@ function pcVeLuot() {
     $l.appendChild(the);
   });
 }
+/* Câu kết quả — cùng quy tắc tenPhongCach/cumPhongCach trong functions/lib/phongCachNoiThat.js
+   (Nam chốt 04/10/2026): mọi phòng đã chọn cùng phong cách → "hợp phong cách X";
+   có phòng khác → "thích phòng khách X, bếp Y, phòng ngủ Z, WC W". Phòng bỏ qua không nhắc. */
+function pcCau(ds) {
+  if (!ds.length) return 'Anh/chị đã bỏ qua tất cả các phòng';
+  if (ds.every((x) => x.pc === ds[0].pc)) return `Anh/chị hợp phong cách ${TEN_PC[ds[0].pc]}`;
+  return 'Anh/chị thích ' + ds.map((x) => `${TEN_PHONG_CAU[x.ph] || (TEN_PHONG_PC[x.ph] || x.ph).toLowerCase()} ${TEN_PC[x.pc]}`).join(', ');
+}
 function pcVeKetQua($kq) {
   $kq.textContent = '';
-  // Giống nhau (hoặc 1 phòng): "hợp phong cách X"; khác nhau: "thích phòng khách X, bếp Y"
-  // (Nam chốt 04/10/2026 — cùng quy tắc tenPhongCach trong functions/lib/phongCachNoiThat.js).
-  const tk = PC.chon.khach && pcTim(PC.chon.khach, 'khach');
-  const tb = PC.chon.bep && pcTim(PC.chon.bep, 'bep');
-  const cau = tk && tb && tk.pc !== tb.pc
-    ? `Anh/chị thích phòng khách ${TEN_PC[tk.pc]}, bếp ${TEN_PC[tb.pc]}`
-    : `Anh/chị hợp phong cách ${TEN_PC[(tk || tb || {}).pc] || ''}`;
+  const ds = [];
+  PC.luot.forEach((ph) => {
+    const t = PC.chon[ph] && pcTim(PC.chon[ph], ph);
+    if (t) ds.push({ ph, pc: t.pc, a: t.a });
+  });
   const dau = document.createElement('div');
   dau.className = 'pc-kq-dau';
   const ic = document.createElement('i');
   ic.className = 'ph-duotone ph-sparkle';
   dau.appendChild(ic);
-  dau.appendChild(pcChu(cau, 'pc-kq-tieu-de'));
+  dau.appendChild(pcChu(pcCau(ds), 'pc-kq-tieu-de'));
   $kq.appendChild(dau);
-  const phu = document.createElement('p');
-  phu.className = 'pc-kq-phu';
-  phu.textContent = 'Hai ảnh anh/chị đã chọn:';
-  $kq.appendChild(phu);
-  const luoi = document.createElement('div');
-  luoi.className = 'pc-kq-anh';
-  ['khach', 'bep'].forEach((ph) => {
-    const t = PC.chon[ph] && pcTim(PC.chon[ph], ph);
-    if (!t) return;
-    PC_TAC_GIA.set(t.a.id, t.a);
-    const f = document.createElement('figure');
-    f.appendChild(pcAnh(t.a, `${TEN_PHONG_PC[ph]} phong cách ${TEN_PC[t.pc]}`));
-    const cap = document.createElement('figcaption');
-    const b = document.createElement('b');
-    b.textContent = `${TEN_PHONG_PC[ph]} · ${TEN_PC[t.pc]}`;
-    cap.appendChild(b);
-    cap.appendChild(pcChu('Ảnh minh hoạ phong cách', 'small'));
-    f.appendChild(cap);
-    luoi.appendChild(f);
-  });
-  $kq.appendChild(luoi);
-  const tt = document.createElement('p');
-  tt.className = 'pc-tt';
-  tt.id = 'pc-tt';
-  tt.textContent = LEAD_ID
-    ? 'Phong cách này được lưu cùng lựa chọn nội thất của anh/chị.'
-    : 'Khi anh/chị để lại số điện thoại ở bước 4, phong cách này được gửi kèm để KTS ALN tư vấn đúng gu.';
-  $kq.appendChild(tt);
+  if (ds.length) {
+    const phu = document.createElement('p');
+    phu.className = 'pc-kq-phu';
+    phu.textContent = 'Ảnh anh/chị đã chọn:';
+    $kq.appendChild(phu);
+    const luoi = document.createElement('div');
+    luoi.className = 'pc-kq-anh';
+    ds.forEach((t) => {
+      PC_TAC_GIA.set(t.a.id, t.a);
+      const ten = TEN_PHONG_PC[t.ph] || t.ph;
+      const f = document.createElement('figure');
+      f.appendChild(pcAnh(t.a, `${ten} phong cách ${TEN_PC[t.pc]}`));
+      const cap = document.createElement('figcaption');
+      const b = document.createElement('b');
+      b.textContent = `${ten} · ${TEN_PC[t.pc]}`;
+      cap.appendChild(b);
+      cap.appendChild(pcChu('Ảnh minh hoạ phong cách', 'small'));
+      f.appendChild(cap);
+      luoi.appendChild(f);
+    });
+    $kq.appendChild(luoi);
+    const tt = document.createElement('p');
+    tt.className = 'pc-tt';
+    tt.id = 'pc-tt';
+    tt.textContent = LEAD_ID
+      ? 'Phong cách này được lưu cùng lựa chọn nội thất của anh/chị.'
+      : 'Khi anh/chị để lại số điện thoại ở bước 4, phong cách này được gửi kèm để KTS ALN tư vấn đúng gu.';
+    $kq.appendChild(tt);
+  }
   const lai = document.createElement('button');
   lai.type = 'button';
   lai.className = 'pc-lai';
@@ -1794,27 +1835,44 @@ function pcVeKetQua($kq) {
   $kq.appendChild(lai);
 }
 function pcLuuPhien() {
-  try { sessionStorage.setItem('aln_noithat_phong_cach', JSON.stringify(PC.chon)); } catch (e) {}
+  try { sessionStorage.setItem('aln_noithat_phong_cach', JSON.stringify({ chon: PC.chon, i: PC.i })); } catch (e) {}
 }
 function pcHien() {
-  if (!PC.anh) return;
+  if (!PC.anh || !PC.luot.length) return;
   document.getElementById('phong-cach').hidden = false;
   pcVe();
+}
+/* Sang lượt sau (sau khi chọn ảnh hoặc bỏ qua). */
+function pcSangLuot() {
+  PC.i += 1;
+  pcLuuPhien();
+  pcVe();
+  document.getElementById('phong-cach').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // Đã để lại số và đã mở bảng: lưu phong cách vào lần chạm (luuLuaChonNoiThat, gom 4 giây).
+  if (pcXong() && pcGui() && LEAD_ID && BANG && !XEM_FOUNDER) henLuuLuaChon();
 }
 document.getElementById('phong-cach').addEventListener('click', (e) => {
   const $t = e.target.closest('button');
   if (!$t) return;
   if ($t.id === 'pc-lai') {
-    PC.chon = { khach: null, bep: null };
-    PC.buoc = 'khach';
+    PC.chon = {};
+    PC.i = 0;
     pcLuuPhien();
     pcVe();
     pcGa('chon_lai');
     document.getElementById('phong-cach').scrollIntoView({ behavior: 'smooth', block: 'start' });
     return;
   }
+  if (pcXong()) return;
+  const ph = PC.luot[PC.i];
+  if ($t.id === 'pc-bo-qua') {
+    PC.chon[ph] = null;
+    pcGa('bo_qua', ph);
+    pcSangLuot();
+    return;
+  }
   if ($t.dataset.pcKhac) {
-    const khoa = `${$t.dataset.pcKhac}|${PC.buoc}`;
+    const khoa = `${$t.dataset.pcKhac}|${ph}`;
     PC.idx[khoa] = (PC.idx[khoa] || 0) + 1;
     pcVe();
     pcGa('xem_anh_khac', $t.dataset.pcKhac);
@@ -1823,15 +1881,9 @@ document.getElementById('phong-cach').addEventListener('click', (e) => {
     return;
   }
   if ($t.dataset.pcChon) {
-    const ph = PC.buoc;
     PC.chon[ph] = $t.dataset.anh;
     pcGa(ph, $t.dataset.pcChon);
-    PC.buoc = ph === 'khach' ? 'bep' : 'xong';
-    pcLuuPhien();
-    pcVe();
-    document.getElementById('phong-cach').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    // Đã để lại số và đã mở bảng: lưu phong cách vào lần chạm (luuLuaChonNoiThat, gom 4 giây).
-    if (PC.buoc === 'xong' && LEAD_ID && BANG && !XEM_FOUNDER) henLuuLuaChon();
+    pcSangLuot();
   }
 });
 fetch('data/anh-phong-cach-noi-that.json')
@@ -1839,13 +1891,18 @@ fetch('data/anh-phong-cach-noi-that.json')
   .then((d) => {
     if (!d || !d.anh) return;
     PC.anh = d;
+    pcDungLuot(d);
     // Lựa chọn trong phiên (vd tải lại trang): chỉ nhận id còn có trong dữ liệu.
+    // Bản cũ lưu thẳng { khach, bep }; bản mới { chon, i }.
     let cu = null;
     try { cu = JSON.parse(sessionStorage.getItem('aln_noithat_phong_cach') || 'null'); } catch (e) {}
     if (cu && typeof cu === 'object') {
-      ['khach', 'bep'].forEach((ph) => { if (typeof cu[ph] === 'string' && pcTim(cu[ph], ph)) PC.chon[ph] = cu[ph]; });
-      PC.buoc = PC.chon.khach ? (PC.chon.bep ? 'xong' : 'bep') : 'khach';
-      if (!PC.chon.khach) PC.chon.bep = null;
+      const chon = cu.chon && typeof cu.chon === 'object' ? cu.chon : cu;
+      PC.luot.forEach((ph) => { if (typeof chon[ph] === 'string' && pcTim(chon[ph], ph)) PC.chon[ph] = chon[ph]; });
+      if (Number.isInteger(cu.i) && cu.i >= 0) PC.i = Math.min(cu.i, PC.luot.length);
+      else { PC.i = 0; while (PC.i < PC.luot.length && PC.chon[PC.luot[PC.i]]) PC.i += 1; }
+      // Phòng sau lượt hiện tại chưa được hỏi — không giữ ảnh của chúng.
+      PC.luot.forEach((ph, k) => { if (k >= PC.i) delete PC.chon[ph]; });
     }
     if (KQ) pcHien();
   })
