@@ -372,7 +372,69 @@ if (!document.getElementById('mymy-btn')) {
     addBot('<a class="mm-suggest" href="' + escUrl(suggestion.url) + '" target="_blank" rel="noopener">' + esc(suggestion.label) + ' →</a>');
   }
 
-  let callAlnChat = null, ensureAuth = null, upsertContact = null, ghiLienHeChiTiet = null;
+  let callAlnChat = null, ensureAuth = null, ghiLienHeChiTiet = null, ghiDongY = null;
+
+  /* ── Chưa đồng ý thì chưa lưu số — MỌI trang không có luồng riêng (03/10/2026) ──
+     Trang chủ (widget riêng ở index.html, cùng quy tắc), nội thất, /du-toan/, kho mẫu,
+     diễn đàn, du-toan-nha.html?dn=1. Khách gõ SĐT → số chỉ nằm trong bộ nhớ khung
+     chat đang mở; câu có số KHÔNG gửi AI; hiện câu đồng ý (CONSENT_TEXTS.mymy_chat,
+     đọc từ consent-constants.js — bản máy chủ lưu làm bằng chứng) + nút đồng ý / Để sau.
+     Chỉ khi bấm đồng ý mới gọi upsertContact (kèm dong_y: 'mymy_chat'). Thiếu câu đồng
+     ý (nạp lỗi) thì KHÔNG hiện nút, mời nhắn Zalo. Trang có xuLySdt riêng (du-toan-nha)
+     giữ luồng riêng của trang. */
+  const DY = { sdt: null, daGui: false, dangGui: false, cau: null };
+  const napCauDongY = import(new URL('consent-constants.js', import.meta.url).href)
+    .then((m) => { DY.cau = (m && m.CONSENT_TEXTS && m.CONSENT_TEXTS.mymy_chat) || null; })
+    .catch((e) => console.warn('MyMy: chưa nạp được câu đồng ý', e && e.message));
+  const CAU_NUT_DONG_Y = 'Đồng ý để KTS của ALN liên hệ';
+  const CAU_DE_SAU_CHUNG = 'Dạ, khi nào cần KTS của ALN liên hệ thì anh/chị bấm nút này nhé.';
+  function anSdtChung(text) { return String(text || '').replace(/(?:\+?84|0)[\d\s.\-]{7,13}\d/g, '[số điện thoại]'); }
+  function gaMy(ev, p) { try { window.dataLayer = window.dataLayer || []; window.dataLayer.push(Object.assign({ event: ev }, p || {})); } catch (e) {} }
+  function hienNutDongYChung(coDeSau) {
+    napCauDongY.then(() => {
+      if (DY.daGui || !DY.sdt) return;
+      if (!DY.cau) { API.bot('Dạ anh/chị nhắn Zalo 0909 829 696 để KTS của ALN liên hệ nhé.'); return; }
+      const ds = [{ nhan: CAU_NUT_DONG_Y, lam: guiDongYChung }];
+      if (coDeSau) ds.push({ nhan: 'Để sau', lam: () => {
+        gaMy('aln_mymy_de_sau'); // không kèm số
+        API.bot(CAU_DE_SAU_CHUNG);
+        S.history.push({ role: 'assistant', content: CAU_DE_SAU_CHUNG + ' (Khách CHƯA đồng ý để ALN liên hệ — không nói KTS sẽ gọi, không xin số lại.)' });
+        hienNutDongYChung(false); // vẫn bấm lại được trong phiên
+      } });
+      API.nut(ds, DY.cau + ' (applamnha.vn/chinh-sach-quyen-rieng-tu) Bạn có thể yêu cầu ngừng liên hệ hoặc xoá dữ liệu bất cứ lúc nào.');
+    });
+  }
+  function moiDongYChung(text, sdt) {
+    S.history.push({ role: 'user', content: anSdtChung(text) });
+    if (DY.daGui) {
+      API.bot('Dạ em đã ghi nhận số anh/chị đồng ý trước đó rồi ạ. Muốn đổi số thì anh/chị nhắn Zalo 0909 829 696 giúp em nhé.');
+      return;
+    }
+    DY.sdt = sdt;
+    gaMy('aln_mymy_lead', { buoc: 'moi_dong_y', kenh: 'mymy_chat' });
+    API.bot('Dạ, nếu anh/chị muốn KTS của ALN liên hệ số …' + sdt.slice(-4) + ' thì bấm nút đồng ý dưới đây nhé. Chưa bấm thì ALN chưa lưu số này.');
+    hienNutDongYChung(true);
+  }
+  function guiDongYChung() {
+    if (DY.daGui || DY.dangGui || !DY.sdt) return;
+    if (!ghiDongY) { API.bot('Dạ hệ thống đang khởi động, anh/chị bấm lại giúp em sau vài giây nhé.'); hienNutDongYChung(false); return; }
+    DY.dangGui = true;
+    gaMy('aln_mymy_lead', { buoc: 'dong_y', kenh: 'mymy_chat' });
+    ghiDongY(DY.sdt).then(() => {
+      DY.dangGui = false; DY.daGui = true;
+      gaMy('aln_mymy_lead', { buoc: 'da_gui', kenh: 'mymy_chat' });
+      const cam = 'Dạ em cảm ơn anh/chị. KTS của ALN sẽ liên hệ anh/chị trong 1–2 ngày làm việc ạ.';
+      API.bot(cam);
+      S.history.push({ role: 'assistant', content: cam + ' (Khách đã để số và bấm đồng ý — không xin liên hệ nữa.)' });
+      S.askedPhone = true;
+    }).catch((err) => {
+      DY.dangGui = false;
+      gaMy('aln_mymy_lead', { buoc: 'loi', kenh: 'mymy_chat', ma_loi: String((err && err.code) || 'khong_ro').slice(0, 60) });
+      if (window.alnBaoLoiNeuCan) window.alnBaoLoiNeuCan('mymy-widget dong-y', err);
+      API.bot('Dạ em chưa gửi được, anh/chị bấm lại giúp em nhé.');
+      hienNutDongYChung(false);
+    });
+  }
 
   /* Khoá gửi trong lúc đang chờ phản hồi — chặn double-submit nếu người
      dùng bấm Enter/click gửi nhiều lần liên tiếp (mạng chậm, sốt ruột...). */
@@ -401,7 +463,7 @@ if (!document.getElementById('mymy-btn')) {
     if (phone && trangSdt && typeof trangSdt.xuLySdt === 'function') {
       API.boCho();
       try { if (trangSdt.xuLySdt(text, API) === true) return; } catch (e) { console.error('MyMy xuLySdt lỗi:', e); }
-    } else if (phone && upsertContact) upsertContact(phone);
+    } else if (phone) { API.boCho(); moiDongYChung(text, phone); return; }
 
     // Trang tự trả lời trước (câu MyMy đang chờ, hoặc câu trang hiểu được như
     // "5x20 3 tầng") — không tốn lượt gọi AI, không vào lịch sử gửi AI.
@@ -543,11 +605,12 @@ if (!document.getElementById('mymy-btn')) {
         );
         return res.data || {};
       };
-      upsertContact = (phone) => {
-        // Trang có ngữ cảnh: ghi kèm phương án gần nhất để KTS gọi lại không phải hỏi lại kích thước.
+      // Chỉ gọi sau khi khách bấm nút đồng ý (moiDongYChung) — máy chủ lưu câu/phiên bản
+      // đồng ý theo khoá 'mymy_chat' lên lần chạm (functions/contacts.js DONG_Y_CHO_PHEP).
+      ghiDongY = (phone) => {
         const nc = nguCanhTrang();
         const chiTiet = 'MyMy chat — ' + pageContext + (nc && nc.pa_1 ? ' · ' + nc.pa_1 : '');
-        damBaoPhien().then(() => fnUpsertContact({ phone, name: null, loai_lien_he: 'khach_hang', nguon: 'mymy_chat', chi_tiet_nguon: chiTiet.slice(0, 200), kenh_lead: nc && nc.trang === 'du-toan-nha' ? 'mymy_du_toan' : 'mymy_chat' })).catch((e) => console.warn('upsertContact:', e.message));
+        return damBaoPhien().then(() => fnUpsertContact({ phone, name: null, loai_lien_he: 'khach_hang', nguon: 'mymy_chat', chi_tiet_nguon: chiTiet.slice(0, 200), kenh_lead: 'mymy_chat', dong_y: 'mymy_chat' }));
       };
       ghiLienHeChiTiet = (phone, chiTiet, kenhLead) => {
         damBaoPhien().then(() => fnUpsertContact({ phone, name: null, loai_lien_he: 'khach_hang', nguon: 'mymy_chat', chi_tiet_nguon: String(chiTiet || '').slice(0, 200), kenh_lead: kenhLead || 'mymy_chat' })).catch((e) => console.warn('upsertContact:', e.message));

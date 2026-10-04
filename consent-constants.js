@@ -13,6 +13,7 @@ export const CONSENT_VERSION = "2026-08-04";
 export const CONSENT_VERSIONS = {
   du_toan: "2026-10-03",
   quang_cao: "2026-10-03",
+  mymy_chat: "2026-10-03",
 };
 
 export const CONSENT_TEXTS = {
@@ -22,10 +23,14 @@ export const CONSENT_TEXTS = {
      lưu làm bằng chứng) — functions/_test_tuVanPhanTho.js kiểm. */
   du_toan: "Tôi đồng ý để ALN dùng họ tên và SĐT này để gọi/nhắn tư vấn về bảng dự toán, theo Chính sách quyền riêng tư.",
   quang_cao: "Cho phép ALN gửi SĐT đã mã hoá cho Facebook để ALN biết quảng cáo nào hiệu quả, bớt chi quảng cáo sai chỗ.",
+  /* Nút đồng ý trong chat MyMy ở trang không có luồng riêng (mymy-widget.js, index.html).
+     PHẢI giống hệt functions/consent_constants.js CONSENT_TEXTS.mymy_chat. */
+  mymy_chat: "Tôi đồng ý để ALN dùng SĐT này để gọi/nhắn tư vấn về nội dung tôi vừa hỏi MyMy, theo Chính sách quyền riêng tư.",
 };
 
 export const CONSENT_PURPOSES = {
   ncc: "lien_he_bao_gia",
   du_toan: "lien_he_tu_van_du_toan",
   quang_cao: "do_hieu_qua_quang_cao_meta",
+  mymy_chat: "lien_he_tu_van_mymy",
 };

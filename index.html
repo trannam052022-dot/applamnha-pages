@@ -1784,21 +1784,20 @@ function mymySendClick(){
   mymyMarkChatted();
   input.value = '';
   mymyAddUser(text);
+  // Chưa đồng ý thì chưa lưu số (03/10/2026, cùng quy tắc mymy-widget.js): câu có
+  // SĐT không gửi AI, số chỉ nằm trong bộ nhớ trang; hỏi đồng ý bằng nút
+  // (window.mymyMoiDongY ở khối module dưới). Chỉ bấm đồng ý mới ghi contacts.
+  var _foundPhone = mymyExtractPhone(text);
+  if(_foundPhone){
+    window.MYMY_HISTORY.push({ role: 'user', content: text.replace(/(?:\+?84|0)[\d\s.\-]{7,13}\d/g, '[số điện thoại]') });
+    if(window.mymyMoiDongY){ window.mymyMoiDongY(_foundPhone); }
+    else { mymyAddBot('Dạ anh/chị nhắn Zalo 0909 829 696 để KTS của ALN liên hệ nhé.'); }
+    return;
+  }
+
   window.MYMY_HISTORY.push({ role: 'user', content: text });
   window.MYMY_USER_TURNS = window.MYMY_USER_TURNS + 1;
 
-  // Ghi nhận SĐT ngay khi phát hiện trong tin nhắn — bất kể đây là số trần
-  // hay lồng trong câu, bất kể đã hỏi xin SĐT hay chưa (khách tự nguyện cho).
-  var _foundPhone = mymyExtractPhone(text);
-  if(_foundPhone && window.mymyUpsertContact){ window.mymyUpsertContact(_foundPhone); }
-
-  // Chế độ công khai: chỉ tư vấn sơ bộ + xin SĐT, không chốt giá, không ghi DB trực tiếp
-  if(text.match(/^[0-9 .+-]{8,14}$/) && window.MYMY_ASKED_PHONE){
-    mymyAddBot('Dạ em ghi nhận SĐT ' + text + ' rồi ạ. Đội ngũ ALN sẽ liên hệ lại trong giờ hành chính nha!');
-    try { if(window.fbq) fbq('track', 'Lead', { value: 100000, currency: 'VND', content_name: 'MyMy - Để lại SĐT' }); } catch(e){}
-    try { if(window.gtag) gtag('event', 'generate_lead', { method: 'MyMy chat' }); } catch(e){}
-    return;
-  }
 
   mymyShowTyping();
   window.mymySend(text, window.MYMY_HISTORY).then(function(reply){
@@ -2178,14 +2177,68 @@ window.logMauNhaLead = async function(ma, ctvPhone) {
 /* MyMy bắt được SĐT gõ trong chat công khai — trước đây chỉ bắn Pixel/GA,
    KHÔNG lưu ở đâu cả (rò rỉ lead). Ghi vào Bảng liên hệ hợp nhất (contacts/),
    xem functions/contacts.js. Không chặn luồng chat nếu lỗi. */
-window.mymyUpsertContact = async function(phone) {
-  try {
-    await callUpsertContact({
-      phone: phone, name: null,
-      loai_lien_he: 'khach_hang', nguon: 'mymy_chat',
-      chi_tiet_nguon: 'MyMy chat trang chủ',
+/* Chỉ gọi sau khi khách bấm nút đồng ý (03/10/2026) — máy chủ lưu câu/phiên bản
+   đồng ý theo khoá 'mymy_chat' (functions/contacts.js DONG_Y_CHO_PHEP). */
+let CAU_DY_MYMY = null;
+const napCauDyMyMy = import('./consent-constants.js')
+  .then((m) => { CAU_DY_MYMY = (m && m.CONSENT_TEXTS && m.CONSENT_TEXTS.mymy_chat) || null; })
+  .catch((e) => console.warn('MyMy: chưa nạp được câu đồng ý', e && e.message));
+const DY_MYMY = { sdt: null, daGui: false, dangGui: false };
+function dyGa(ev, p) { try { window.dataLayer = window.dataLayer || []; window.dataLayer.push(Object.assign({ event: ev }, p || {})); } catch (e) {} }
+function dyNut(coDeSau) {
+  napCauDyMyMy.then(() => {
+    if (DY_MYMY.daGui || !DY_MYMY.sdt) return;
+    if (!CAU_DY_MYMY) { window.mymyAddBot('Dạ anh/chị nhắn Zalo 0909 829 696 để KTS của ALN liên hệ nhé.'); return; }
+    const box = document.getElementById('mymy-msgs');
+    const row = document.createElement('div');
+    row.className = 'mm-row bot';
+    const av = document.createElement('div'); av.className = 'mm-avatar-sm'; av.innerHTML = '<i class="ph ph-headset"></i>';
+    const bb = document.createElement('div'); bb.className = 'mm-bubble'; bb.style.display = 'flex'; bb.style.flexWrap = 'wrap'; bb.style.gap = '8px';
+    const gc = document.createElement('div');
+    gc.style.cssText = 'flex-basis:100%;font-size:12.8px;line-height:1.5;opacity:.9';
+    gc.innerHTML = alnMyMyHtml(CAU_DY_MYMY + ' (applamnha.vn/chinh-sach-quyen-rieng-tu) Bạn có thể yêu cầu ngừng liên hệ hoặc xoá dữ liệu bất cứ lúc nào.');
+    bb.appendChild(gc);
+    const nut = (nhan, lam) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'mm-qbtn'; b.style.padding = '9px 14px'; b.style.fontWeight = '600'; b.textContent = nhan; b.addEventListener('click', () => { row.remove(); window.mymyAddUser(nhan); lam(); }); bb.appendChild(b); };
+    nut('Đồng ý để KTS của ALN liên hệ', dyGui);
+    if (coDeSau) nut('Để sau', () => {
+      dyGa('aln_mymy_de_sau');
+      const c = 'Dạ, khi nào cần KTS của ALN liên hệ thì anh/chị bấm nút này nhé.';
+      window.mymyAddBot(c);
+      window.MYMY_HISTORY.push({ role: 'assistant', content: c + ' (Khách CHƯA đồng ý để ALN liên hệ — không nói KTS sẽ gọi, không xin số lại.)' });
+      dyNut(false);
     });
-  } catch (e) { console.warn('upsertContact:', e.message); }
+    row.appendChild(av); row.appendChild(bb); box.appendChild(row); box.scrollTop = box.scrollHeight;
+  });
+}
+async function dyGui() {
+  if (DY_MYMY.daGui || DY_MYMY.dangGui || !DY_MYMY.sdt) return;
+  DY_MYMY.dangGui = true;
+  dyGa('aln_mymy_lead', { buoc: 'dong_y', kenh: 'mymy_chat' });
+  try {
+    await auth.authStateReady();
+    if (!auth.currentUser) await signInAnonymously(auth);
+    await callUpsertContact({ phone: DY_MYMY.sdt, name: null, loai_lien_he: 'khach_hang', nguon: 'mymy_chat', chi_tiet_nguon: 'MyMy chat trang chủ', kenh_lead: 'mymy_chat', dong_y: 'mymy_chat' });
+    DY_MYMY.dangGui = false; DY_MYMY.daGui = true; window.MYMY_ASKED_PHONE = true;
+    dyGa('aln_mymy_lead', { buoc: 'da_gui', kenh: 'mymy_chat' });
+    const cam = 'Dạ em cảm ơn anh/chị. KTS của ALN sẽ liên hệ anh/chị trong 1–2 ngày làm việc ạ.';
+    window.mymyAddBot(cam);
+    window.MYMY_HISTORY.push({ role: 'assistant', content: cam + ' (Khách đã để số và bấm đồng ý — không xin liên hệ nữa.)' });
+    try { if (window.fbq) fbq('track', 'Lead', { value: 100000, currency: 'VND', content_name: 'MyMy - Để lại SĐT' }); } catch (e) {}
+    try { if (window.gtag) gtag('event', 'generate_lead', { method: 'MyMy chat' }); } catch (e) {}
+  } catch (e) {
+    DY_MYMY.dangGui = false;
+    dyGa('aln_mymy_lead', { buoc: 'loi', kenh: 'mymy_chat', ma_loi: String((e && e.code) || 'khong_ro').slice(0, 60) });
+    if (window.alnBaoLoiNeuCan) window.alnBaoLoiNeuCan('index mymy dong-y', e);
+    window.mymyAddBot('Dạ em chưa gửi được, anh/chị bấm lại giúp em nhé.');
+    dyNut(false);
+  }
+}
+window.mymyMoiDongY = function (sdt) {
+  if (DY_MYMY.daGui) { window.mymyAddBot('Dạ em đã ghi nhận số anh/chị đồng ý trước đó rồi ạ. Muốn đổi số thì anh/chị nhắn Zalo 0909 829 696 giúp em nhé.'); return; }
+  DY_MYMY.sdt = sdt;
+  dyGa('aln_mymy_lead', { buoc: 'moi_dong_y', kenh: 'mymy_chat' });
+  window.mymyAddBot('Dạ, nếu anh/chị muốn KTS của ALN liên hệ số …' + sdt.slice(-4) + ' thì bấm nút đồng ý dưới đây nhé. Chưa bấm thì ALN chưa lưu số này.');
+  dyNut(true);
 };
 
 let authReady = false;
