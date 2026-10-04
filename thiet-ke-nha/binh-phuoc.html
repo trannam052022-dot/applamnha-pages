@@ -36,7 +36,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   "url": "https://applamnha.vn/thiet-ke-nha/binh-phuoc.html",
   "image": "https://applamnha.vn/icon-512.png",
   "telephone": "+84909829696",
-  "areaServed": "Bình Phước",
+  "areaServed": {
+    "@type": "Place",
+    "name": "Bình Phước",
+    "containedInPlace": {
+      "@type": "AdministrativeArea",
+      "name": "tỉnh Đồng Nai"
+    }
+  },
   "priceRange": "$$",
   "parentOrganization": {
     "@type": "Organization",
@@ -127,6 +134,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="tk-body">
       <div class="cn-prose">
         <p>Nhà kết hợp vườn rẫy hoặc homestay ở Bình Phước là dạng công trình đòi hỏi tư duy khác nhà ở đơn thuần: phải tính luồng di chuyển giữa khu ở và khu sản xuất, khu đón khách, kho chứa nông sản — những thứ không có trong mẫu nhà phố. Kiến trúc sư trong mạng lưới ALN quen với dạng yêu cầu này và tư vấn bố cục theo cách chủ nhà thực sự sử dụng mảnh đất. Với các lô đồi thoải, khảo sát cao độ và giải pháp chống sạt trượt được đưa vào phương án ngay từ đầu. Bộ hồ sơ có chữ ký người đủ điều kiện hành nghề, đủ nộp xin phép. ALN là nhà thầu tư vấn thiết kế, hợp đồng trực tiếp, thanh toán theo Quy trình 4 bước đảm bảo.</p>
+        <p>Theo Nghị quyết số 202/2025/QH15 của Quốc hội, toàn bộ diện tích tự nhiên và dân số của tỉnh Bình Phước và tỉnh Đồng Nai được sắp xếp thành tỉnh mới có tên gọi là tỉnh Đồng Nai; từ ngày 01/07/2025, khu vực Bình Phước thuộc tỉnh Đồng Nai. Giấy phép xây dựng nhà ở riêng lẻ do UBND cấp xã, phường nơi có đất cấp.</p>
       </div>
 
       <div class="tk-steps">
@@ -287,6 +295,7 @@ form.addEventListener('submit', async (e) => {
       utm: getUtmFromUrl(),
       sourceUrl: location.href,
       fbp: getCookie('_fbp'),
+      cookieQc: window.ALN_QC === true, // đồng ý cookie Quảng cáo (aln-consent.js) — điều kiện CAPI
       fbc: getFbc(),
     });
     const leadId = (res && res.data && res.data.id) || '';

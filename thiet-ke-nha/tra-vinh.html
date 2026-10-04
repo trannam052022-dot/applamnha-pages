@@ -36,7 +36,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   "url": "https://applamnha.vn/thiet-ke-nha/tra-vinh.html",
   "image": "https://applamnha.vn/icon-512.png",
   "telephone": "+84909829696",
-  "areaServed": "Trà Vinh",
+  "areaServed": {
+    "@type": "Place",
+    "name": "Trà Vinh",
+    "containedInPlace": {
+      "@type": "AdministrativeArea",
+      "name": "tỉnh Vĩnh Long"
+    }
+  },
   "priceRange": "$$",
   "parentOrganization": {
     "@type": "Organization",
@@ -127,6 +134,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="tk-body">
       <div class="cn-prose">
         <p>Bài toán khó nhất khi thiết kế nhà ở Trà Vinh không nằm ở thẩm mỹ mà ở việc chọn đúng giải pháp móng và vật liệu cho một vùng vừa nền yếu vừa nhiễm mặn — chọn sai thì nhà nứt lún hoặc rỉ thép sau vài năm, lúc đó sửa tốn hơn nhiều lần khoản tiết kiệm ban đầu. Kiến trúc sư trong mạng lưới ALN quen chỉ định vật liệu chịu mặn và phương án móng phù hợp với từng khu, thay vì áp một bản vẽ mẫu chung cho mọi công trình. Nhiều chủ nhà ở đây có người thân đi làm xa đứng ra lo việc xây cất, nên Phòng Hội Kiến trực tuyến của ALN giúp cả gia đình cùng xem và duyệt phương án dù không có mặt tại chỗ. ALN là nhà thầu tư vấn thiết kế, ký hợp đồng trực tiếp, thanh toán theo Quy trình 4 bước đảm bảo C1–C4.</p>
+        <p>Theo Nghị quyết số 202/2025/QH15 của Quốc hội, toàn bộ diện tích tự nhiên và dân số của tỉnh Bến Tre, tỉnh Trà Vinh và tỉnh Vĩnh Long được sắp xếp thành tỉnh mới có tên gọi là tỉnh Vĩnh Long; từ ngày 01/07/2025, khu vực Trà Vinh thuộc tỉnh Vĩnh Long. Giấy phép xây dựng nhà ở riêng lẻ do UBND cấp xã, phường nơi có đất cấp.</p>
       </div>
 
       <div class="tk-steps">
@@ -287,6 +295,7 @@ form.addEventListener('submit', async (e) => {
       utm: getUtmFromUrl(),
       sourceUrl: location.href,
       fbp: getCookie('_fbp'),
+      cookieQc: window.ALN_QC === true, // đồng ý cookie Quảng cáo (aln-consent.js) — điều kiện CAPI
       fbc: getFbc(),
     });
     const leadId = (res && res.data && res.data.id) || '';

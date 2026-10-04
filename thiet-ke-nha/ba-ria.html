@@ -36,7 +36,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   "url": "https://applamnha.vn/thiet-ke-nha/ba-ria.html",
   "image": "https://applamnha.vn/icon-512.png",
   "telephone": "+84909829696",
-  "areaServed": "Bà Rịa",
+  "areaServed": {
+    "@type": "Place",
+    "name": "Bà Rịa",
+    "containedInPlace": {
+      "@type": "AdministrativeArea",
+      "name": "Thành phố Hồ Chí Minh"
+    }
+  },
   "priceRange": "$$",
   "parentOrganization": {
     "@type": "Organization",
@@ -127,6 +134,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="tk-body">
       <div class="cn-prose">
         <p>Với quỹ đất còn rộng và nhiều khu quy hoạch mới, chủ nhà tại Bà Rịa thường có nhiều lựa chọn về bố cục — nhà vườn, nhà cấp 4 sân rộng hay nhà phố nhiều tầng — nhưng cũng dễ lúng túng khi hồ sơ thiết kế phải khớp với quy hoạch 1/500 hoặc chỉ giới mới ban hành. Kiến trúc sư trong mạng lưới ALN phục vụ khu vực Bà Rịa nắm được quy định cấp phép cập nhật tại từng phường, giúp bản vẽ khớp thực tế ngay từ đầu thay vì phải chỉnh sửa nhiều lần khi nộp hồ sơ. Toàn bộ quá trình từ đặt cọc, ký hợp đồng đến nghiệm thu từng chặng đều đi qua Quy trình 4 bước đảm bảo của ALN — nhà thầu tư vấn thiết kế, hợp đồng trực tiếp, kiến trúc sư xác thực chứng chỉ hành nghề, chủ nhà chỉ thanh toán khi hạng mục hoàn thành đúng cam kết.</p>
+        <p>Theo Nghị quyết số 202/2025/QH15 của Quốc hội, toàn bộ diện tích tự nhiên và dân số của Thành phố Hồ Chí Minh, tỉnh Bà Rịa – Vũng Tàu và tỉnh Bình Dương được sắp xếp thành thành phố mới có tên gọi là Thành phố Hồ Chí Minh; từ ngày 01/07/2025, khu vực Bà Rịa thuộc Thành phố Hồ Chí Minh. Giấy phép xây dựng nhà ở riêng lẻ do UBND cấp xã, phường nơi có đất cấp.</p>
       </div>
 
       <div class="tk-steps">
@@ -287,6 +295,7 @@ form.addEventListener('submit', async (e) => {
       utm: getUtmFromUrl(),
       sourceUrl: location.href,
       fbp: getCookie('_fbp'),
+      cookieQc: window.ALN_QC === true, // đồng ý cookie Quảng cáo (aln-consent.js) — điều kiện CAPI
       fbc: getFbc(),
     });
     const leadId = (res && res.data && res.data.id) || '';

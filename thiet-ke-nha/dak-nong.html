@@ -36,7 +36,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   "url": "https://applamnha.vn/thiet-ke-nha/dak-nong.html",
   "image": "https://applamnha.vn/icon-512.png",
   "telephone": "+84909829696",
-  "areaServed": "Đắk Nông",
+  "areaServed": {
+    "@type": "Place",
+    "name": "Đắk Nông",
+    "containedInPlace": {
+      "@type": "AdministrativeArea",
+      "name": "tỉnh Lâm Đồng"
+    }
+  },
   "priceRange": "$$",
   "parentOrganization": {
     "@type": "Organization",
@@ -127,6 +134,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="tk-body">
       <div class="cn-prose">
         <p>Ở Đắk Nông, phần tốn kém và rủi ro nhất của một ngôi nhà thường nằm ngoài ngôi nhà — là tường chắn, taluy và hệ thoát nước quanh nó. Một phương án chỉ vẽ đẹp phần kiến trúc mà bỏ qua các hạng mục này sẽ khiến chủ nhà bất ngờ về chi phí thật khi bắt đầu thi công. Kiến trúc sư trong mạng lưới ALN tính các hạng mục xử lý nền và chống sạt trượt vào ngay từ phương án đầu, để con số đưa ra là con số dùng được. Chống thấm phần tiếp đất cũng được chỉ định rõ trong hồ sơ kỹ thuật. ALN là nhà thầu tư vấn thiết kế, ký hợp đồng trực tiếp với chủ nhà, thanh toán chia theo Quy trình 4 bước đảm bảo C1–C4.</p>
+        <p>Theo Nghị quyết số 202/2025/QH15 của Quốc hội, toàn bộ diện tích tự nhiên và dân số của tỉnh Đắk Nông, tỉnh Bình Thuận và tỉnh Lâm Đồng được sắp xếp thành tỉnh mới có tên gọi là tỉnh Lâm Đồng; từ ngày 01/07/2025, khu vực Đắk Nông thuộc tỉnh Lâm Đồng. Giấy phép xây dựng nhà ở riêng lẻ do UBND cấp xã, phường nơi có đất cấp.</p>
       </div>
 
       <div class="tk-steps">
@@ -287,6 +295,7 @@ form.addEventListener('submit', async (e) => {
       utm: getUtmFromUrl(),
       sourceUrl: location.href,
       fbp: getCookie('_fbp'),
+      cookieQc: window.ALN_QC === true, // đồng ý cookie Quảng cáo (aln-consent.js) — điều kiện CAPI
       fbc: getFbc(),
     });
     const leadId = (res && res.data && res.data.id) || '';

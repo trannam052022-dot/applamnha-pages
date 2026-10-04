@@ -36,7 +36,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   "url": "https://applamnha.vn/thiet-ke-nha/hau-giang.html",
   "image": "https://applamnha.vn/icon-512.png",
   "telephone": "+84909829696",
-  "areaServed": "Hậu Giang",
+  "areaServed": {
+    "@type": "Place",
+    "name": "Hậu Giang",
+    "containedInPlace": {
+      "@type": "AdministrativeArea",
+      "name": "thành phố Cần Thơ"
+    }
+  },
   "priceRange": "$$",
   "parentOrganization": {
     "@type": "Organization",
@@ -127,6 +134,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="tk-body">
       <div class="cn-prose">
         <p>Đất phèn ăn mòn bê tông móng là rủi ro rất dễ bị bỏ qua khi thiết kế nhà ở Hậu Giang, vì hư hỏng nằm dưới đất và chỉ lộ ra sau nhiều năm — lúc phát hiện thì việc xử lý tốn kém hơn hẳn. Kiến trúc sư trong mạng lưới ALN chỉ định rõ loại bê tông và giải pháp chống thấm phần ngầm ngay trong hồ sơ kỹ thuật, để đội thi công có căn cứ làm đúng và chủ nhà có căn cứ kiểm tra. Bộ hồ sơ bàn giao gồm đủ kiến trúc, kết cấu, điện nước và bản vẽ đủ điều kiện xin phép xây dựng. ALN ký hợp đồng thiết kế trực tiếp với chủ nhà, thanh toán theo Quy trình 4 bước đảm bảo C1–C4 thay vì ứng trước cho cá nhân.</p>
+        <p>Theo Nghị quyết số 202/2025/QH15 của Quốc hội, toàn bộ diện tích tự nhiên và dân số của thành phố Cần Thơ, tỉnh Sóc Trăng và tỉnh Hậu Giang được sắp xếp thành thành phố mới có tên gọi là thành phố Cần Thơ; từ ngày 01/07/2025, khu vực Hậu Giang thuộc thành phố Cần Thơ. Giấy phép xây dựng nhà ở riêng lẻ do UBND cấp xã, phường nơi có đất cấp.</p>
       </div>
 
       <div class="tk-steps">
@@ -287,6 +295,7 @@ form.addEventListener('submit', async (e) => {
       utm: getUtmFromUrl(),
       sourceUrl: location.href,
       fbp: getCookie('_fbp'),
+      cookieQc: window.ALN_QC === true, // đồng ý cookie Quảng cáo (aln-consent.js) — điều kiện CAPI
       fbc: getFbc(),
     });
     const leadId = (res && res.data && res.data.id) || '';

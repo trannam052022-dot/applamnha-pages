@@ -36,7 +36,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   "url": "https://applamnha.vn/thiet-ke-nha/bien-hoa.html",
   "image": "https://applamnha.vn/icon-512.png",
   "telephone": "+84909829696",
-  "areaServed": "Biên Hòa",
+  "areaServed": {
+    "@type": "Place",
+    "name": "Biên Hòa",
+    "containedInPlace": {
+      "@type": "AdministrativeArea",
+      "name": "tỉnh Đồng Nai"
+    }
+  },
   "priceRange": "$$",
   "parentOrganization": {
     "@type": "Organization",
@@ -127,6 +134,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="tk-body">
       <div class="cn-prose">
         <p>Nhiều chủ nhà ở Biên Hòa xây nhà vừa để ở vừa cho thuê trọ công nhân, nên bài toán thiết kế không chỉ là thẩm mỹ mà còn phải tối ưu công năng và chi phí vận hành lâu dài — đây là dạng yêu cầu mà không phải kiến trúc sư nào cũng quen xử lý. Mạng lưới ALN tại Biên Hòa có kiến trúc sư từng làm nhiều dự án nhà cho thuê kết hợp nhà ở, hiểu rõ bài toán tối ưu số phòng, lối đi chung và chi phí xây dựng. Vì khu vực đang trong giai đoạn quy hoạch lại nhiều nơi, kiến trúc sư ALN cũng hỗ trợ kiểm tra quy hoạch treo trước khi thiết kế — tránh trường hợp chủ nhà bỏ chi phí vẽ xong mới phát hiện đất vướng quy hoạch. Toàn bộ hợp đồng và thanh toán đi qua Quy trình 4 bước đảm bảo — ALN là nhà thầu tư vấn thiết kế, hợp đồng trực tiếp, thanh toán theo từng chặng.</p>
+        <p>Từ ngày 01/07/2025, chính quyền địa phương tổ chức theo hai cấp (tỉnh và xã, phường); khu vực Biên Hòa, trước đây là thành phố Biên Hòa, nay gồm các phường thuộc tỉnh Đồng Nai. Giấy phép xây dựng nhà ở riêng lẻ do UBND cấp xã, phường nơi có đất cấp.</p>
       </div>
 
       <div class="tk-steps">
@@ -287,6 +295,7 @@ form.addEventListener('submit', async (e) => {
       utm: getUtmFromUrl(),
       sourceUrl: location.href,
       fbp: getCookie('_fbp'),
+      cookieQc: window.ALN_QC === true, // đồng ý cookie Quảng cáo (aln-consent.js) — điều kiện CAPI
       fbc: getFbc(),
     });
     const leadId = (res && res.data && res.data.id) || '';

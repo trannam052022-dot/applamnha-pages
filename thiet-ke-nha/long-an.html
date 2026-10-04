@@ -36,7 +36,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   "url": "https://applamnha.vn/thiet-ke-nha/long-an.html",
   "image": "https://applamnha.vn/icon-512.png",
   "telephone": "+84909829696",
-  "areaServed": "Long An",
+  "areaServed": {
+    "@type": "Place",
+    "name": "Long An",
+    "containedInPlace": {
+      "@type": "AdministrativeArea",
+      "name": "tỉnh Tây Ninh"
+    }
+  },
   "priceRange": "$$",
   "parentOrganization": {
     "@type": "Organization",
@@ -127,6 +134,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="tk-body">
       <div class="cn-prose">
         <p>Nhiều người mua đất ở Đức Hòa, Bến Lức, Cần Giuộc vì giá mềm hơn TP.HCM mà không lường trước chi phí xử lý nền đất phèn — khoản chênh lệch tiết kiệm được khi mua đất có thể bị phần móng ăn mất phần lớn. Kiến trúc sư trong mạng lưới ALN đưa yêu cầu khảo sát địa chất vào ngay từ đầu và tính phần móng thực tế vào phương án, để chủ nhà biết tổng ngân sách thật trước khi cam kết. Với các lô rộng ở phía Tây tỉnh, phương án nhà vườn hoặc nhà cấp 4 sân rộng cũng được cân nhắc thay vì mặc định nhà phố. ALN là nhà thầu tư vấn thiết kế, hợp đồng trực tiếp, thanh toán theo Quy trình 4 bước đảm bảo C1–C4.</p>
+        <p>Theo Nghị quyết số 202/2025/QH15 của Quốc hội, toàn bộ diện tích tự nhiên và dân số của tỉnh Long An và tỉnh Tây Ninh được sắp xếp thành tỉnh mới có tên gọi là tỉnh Tây Ninh; từ ngày 01/07/2025, khu vực Long An thuộc tỉnh Tây Ninh. Giấy phép xây dựng nhà ở riêng lẻ do UBND cấp xã, phường nơi có đất cấp.</p>
       </div>
 
       <div class="tk-steps">
@@ -287,6 +295,7 @@ form.addEventListener('submit', async (e) => {
       utm: getUtmFromUrl(),
       sourceUrl: location.href,
       fbp: getCookie('_fbp'),
+      cookieQc: window.ALN_QC === true, // đồng ý cookie Quảng cáo (aln-consent.js) — điều kiện CAPI
       fbc: getFbc(),
     });
     const leadId = (res && res.data && res.data.id) || '';

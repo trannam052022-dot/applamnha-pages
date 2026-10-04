@@ -36,7 +36,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   "url": "https://applamnha.vn/thiet-ke-nha/binh-duong.html",
   "image": "https://applamnha.vn/icon-512.png",
   "telephone": "+84909829696",
-  "areaServed": "Bình Dương",
+  "areaServed": {
+    "@type": "Place",
+    "name": "Bình Dương",
+    "containedInPlace": {
+      "@type": "AdministrativeArea",
+      "name": "Thành phố Hồ Chí Minh"
+    }
+  },
   "priceRange": "$$",
   "parentOrganization": {
     "@type": "Organization",
@@ -127,6 +134,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="tk-body">
       <div class="cn-prose">
         <p>Phần lớn khu dân cư mới ở Bình Dương (Thuận An, Dĩ An, Thủ Dầu Một) đi theo quy hoạch chi tiết 1/500 riêng của từng dự án, nên bản vẽ thiết kế nhà cần khớp chính xác với quy định của từng khu — sai lệch dù nhỏ cũng có thể khiến hồ sơ xin phép bị trả lại. Kiến trúc sư trong mạng lưới ALN tại Bình Dương quen làm việc với quy hoạch 1/500 của các khu dân cư mới, giúp rút ngắn thời gian duyệt hồ sơ. Với nhu cầu nhà trọ cho công nhân phổ biến tại đây, kiến trúc sư ALN cũng tư vấn được phương án tối ưu số phòng cho thuê kết hợp nhà ở chính chủ. ALN là nhà thầu tư vấn thiết kế, hợp đồng trực tiếp và thanh toán theo Quy trình 4 bước đảm bảo C1–C4, kiến trúc sư chỉ nhận tiền khi bàn giao đúng hạng mục đã cam kết.</p>
+        <p>Theo Nghị quyết số 202/2025/QH15 của Quốc hội, toàn bộ diện tích tự nhiên và dân số của Thành phố Hồ Chí Minh, tỉnh Bà Rịa – Vũng Tàu và tỉnh Bình Dương được sắp xếp thành thành phố mới có tên gọi là Thành phố Hồ Chí Minh; từ ngày 01/07/2025, khu vực Bình Dương thuộc Thành phố Hồ Chí Minh. Giấy phép xây dựng nhà ở riêng lẻ do UBND cấp xã, phường nơi có đất cấp.</p>
       </div>
 
       <div class="tk-steps">
@@ -287,6 +295,7 @@ form.addEventListener('submit', async (e) => {
       utm: getUtmFromUrl(),
       sourceUrl: location.href,
       fbp: getCookie('_fbp'),
+      cookieQc: window.ALN_QC === true, // đồng ý cookie Quảng cáo (aln-consent.js) — điều kiện CAPI
       fbc: getFbc(),
     });
     const leadId = (res && res.data && res.data.id) || '';

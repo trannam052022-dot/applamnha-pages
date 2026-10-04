@@ -36,7 +36,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   "url": "https://applamnha.vn/thiet-ke-nha/ben-tre.html",
   "image": "https://applamnha.vn/icon-512.png",
   "telephone": "+84909829696",
-  "areaServed": "Bến Tre",
+  "areaServed": {
+    "@type": "Place",
+    "name": "Bến Tre",
+    "containedInPlace": {
+      "@type": "AdministrativeArea",
+      "name": "tỉnh Vĩnh Long"
+    }
+  },
   "priceRange": "$$",
   "parentOrganization": {
     "@type": "Organization",
@@ -127,6 +134,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="tk-body">
       <div class="cn-prose">
         <p>Ở vùng cù lao như Bến Tre, việc bảo đảm nguồn nước ngọt trộn bê tông và chỉ định đúng vật liệu chống ăn mòn là thứ quyết định nhà bền hay không — nhưng lại là phần chủ nhà khó tự kiểm tra nhất khi đội thi công triển khai. Kiến trúc sư trong mạng lưới ALN ghi rõ các yêu cầu này thành chỉ định kỹ thuật trong hồ sơ, biến chúng thành căn cứ nghiệm thu thay vì lời dặn miệng. Với các lô ven rạch, phương án được lên sau khi đã xác định cao độ và hành lang bờ. ALN là nhà thầu tư vấn thiết kế, ký hợp đồng trực tiếp với chủ nhà và thanh toán theo Quy trình 4 bước đảm bảo, mỗi chặng duyệt xong mới chuyển tiếp.</p>
+        <p>Theo Nghị quyết số 202/2025/QH15 của Quốc hội, toàn bộ diện tích tự nhiên và dân số của tỉnh Bến Tre, tỉnh Trà Vinh và tỉnh Vĩnh Long được sắp xếp thành tỉnh mới có tên gọi là tỉnh Vĩnh Long; từ ngày 01/07/2025, khu vực Bến Tre thuộc tỉnh Vĩnh Long. Giấy phép xây dựng nhà ở riêng lẻ do UBND cấp xã, phường nơi có đất cấp.</p>
       </div>
 
       <div class="tk-steps">
@@ -287,6 +295,7 @@ form.addEventListener('submit', async (e) => {
       utm: getUtmFromUrl(),
       sourceUrl: location.href,
       fbp: getCookie('_fbp'),
+      cookieQc: window.ALN_QC === true, // đồng ý cookie Quảng cáo (aln-consent.js) — điều kiện CAPI
       fbc: getFbc(),
     });
     const leadId = (res && res.data && res.data.id) || '';

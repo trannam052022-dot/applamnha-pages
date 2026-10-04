@@ -36,7 +36,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   "url": "https://applamnha.vn/thiet-ke-nha/kon-tum.html",
   "image": "https://applamnha.vn/icon-512.png",
   "telephone": "+84909829696",
-  "areaServed": "Kon Tum",
+  "areaServed": {
+    "@type": "Place",
+    "name": "Kon Tum",
+    "containedInPlace": {
+      "@type": "AdministrativeArea",
+      "name": "tỉnh Quảng Ngãi"
+    }
+  },
   "priceRange": "$$",
   "parentOrganization": {
     "@type": "Organization",
@@ -127,6 +134,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="tk-body">
       <div class="cn-prose">
         <p>Chênh lệch giữa một lô đất bằng phẳng ở thành phố Kon Tum và một lô đồi dốc ở huyện xa là rất lớn — cả về giải pháp kỹ thuật lẫn chi phí vận chuyển vật tư, nên tư vấn thiết kế ở đây phải bắt đầu từ vị trí cụ thể chứ không từ mẫu nhà. Kiến trúc sư trong mạng lưới ALN khảo sát điều kiện thực tế của lô đất trước, sau đó mới đề xuất phương án và ước tính chi phí, kể cả phần logistics vật tư nếu công trình ở xa trung tâm. Yêu cầu chống thấm và thoát nước mái, sân được ghi rõ trong hồ sơ. ALN ký hợp đồng thiết kế trực tiếp, thanh toán theo Quy trình 4 bước đảm bảo C1–C4.</p>
+        <p>Theo Nghị quyết số 202/2025/QH15 của Quốc hội, toàn bộ diện tích tự nhiên và dân số của tỉnh Kon Tum và tỉnh Quảng Ngãi được sắp xếp thành tỉnh mới có tên gọi là tỉnh Quảng Ngãi; từ ngày 01/07/2025, khu vực Kon Tum thuộc tỉnh Quảng Ngãi. Giấy phép xây dựng nhà ở riêng lẻ do UBND cấp xã, phường nơi có đất cấp.</p>
       </div>
 
       <div class="tk-steps">
@@ -287,6 +295,7 @@ form.addEventListener('submit', async (e) => {
       utm: getUtmFromUrl(),
       sourceUrl: location.href,
       fbp: getCookie('_fbp'),
+      cookieQc: window.ALN_QC === true, // đồng ý cookie Quảng cáo (aln-consent.js) — điều kiện CAPI
       fbc: getFbc(),
     });
     const leadId = (res && res.data && res.data.id) || '';
