@@ -1333,9 +1333,11 @@ async function doSave() {
     // kiểu "contact_phone_index/...", Phone Auth, mã thao tác) KHÔNG được lộ
     // ra màn hình khách — thay bằng lời mời liên hệ Zalo.
     const raw = (err && err.message) || '';
-    const kyThuat = !raw || /^internal$/i.test(raw) || /[a-z]+_[a-z_]+\/|contacts\/|Phone Auth|thao tác lưu/i.test(raw);
+    // Lỗi không phải câu máy chủ (mạng rớt, SDK ném lỗi thường, hết giờ chờ) → câu chung "Chưa lưu được — thử lại", không lộ tiếng Anh kỹ thuật.
+    const khongPhaiMayChu = !/^functions\//.test(code) || /unavailable|deadline-exceeded/.test(code);
+    const kyThuat = khongPhaiMayChu || !raw || /^internal$/i.test(raw) || /[a-z]+_[a-z_]+\/|contacts\/|Phone Auth|thao tác lưu/i.test(raw);
     const lyDo = kyThuat
-      ? (code === 'functions/internal' || !raw ? '' : 'hệ thống gặp lỗi khi lưu hồ sơ của anh/chị. Anh/chị nhắn Zalo ALN để được hỗ trợ ngay.')
+      ? (khongPhaiMayChu || code === 'functions/internal' || !raw ? '' : 'hệ thống gặp lỗi khi lưu hồ sơ của anh/chị. Anh/chị nhắn Zalo ALN để được hỗ trợ ngay.')
       : raw;
     showRetry(lyDo);
   } finally {
