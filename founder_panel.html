@@ -10137,7 +10137,7 @@ function ldctVe(el, l, dep){
       var postFn = mod.httpsCallable(fns, 'postToFacebook');
       var res = await postFn({ message: text, imageUrl: imgUrl || undefined });
       if(res.data && res.data.ok){
-        alert('✓ Đã đăng lên Trang App Làm Nhà!');
+        alert('✓ Đã gửi — bài lên Trang App Làm Nhà sau khoảng 3 phút (qua Buffer).');
         if(imgEl){ imgEl.value=''; mktImgPreview(); }
       }
       else throw new Error('Không đăng được');
@@ -10344,7 +10344,7 @@ function ldctVe(el, l, dep){
       var postFn = mod.httpsCallable(fns, 'postToFacebook');
       var res = await postFn({ message: it.content, draftId: id, imageUrl: it.imageUrl || undefined });
       if(res.data && res.data.ok){
-        alert('✓ Đã đăng lên Trang App Làm Nhà!');
+        alert('✓ Đã gửi — bài lên Trang App Làm Nhà sau khoảng 3 phút (qua Buffer).');
         MD_ITEMS = MD_ITEMS.filter(function(x){ return x._id !== id; });
         mdRender();
       } else {
