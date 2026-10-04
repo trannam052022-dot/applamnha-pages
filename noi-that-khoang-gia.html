@@ -1744,14 +1744,19 @@ function pcVeLuot() {
 }
 function pcVeKetQua($kq) {
   $kq.textContent = '';
-  const ten = [];
-  ['khach', 'bep'].forEach((ph) => { const t = PC.chon[ph] && pcTim(PC.chon[ph], ph); if (t && !ten.includes(TEN_PC[t.pc])) ten.push(TEN_PC[t.pc]); });
+  // Giống nhau (hoặc 1 phòng): "hợp phong cách X"; khác nhau: "thích phòng khách X, bếp Y"
+  // (Nam chốt 04/10/2026 — cùng quy tắc tenPhongCach trong functions/lib/phongCachNoiThat.js).
+  const tk = PC.chon.khach && pcTim(PC.chon.khach, 'khach');
+  const tb = PC.chon.bep && pcTim(PC.chon.bep, 'bep');
+  const cau = tk && tb && tk.pc !== tb.pc
+    ? `Anh/chị thích phòng khách ${TEN_PC[tk.pc]}, bếp ${TEN_PC[tb.pc]}`
+    : `Anh/chị hợp phong cách ${TEN_PC[(tk || tb || {}).pc] || ''}`;
   const dau = document.createElement('div');
   dau.className = 'pc-kq-dau';
   const ic = document.createElement('i');
   ic.className = 'ph-duotone ph-sparkle';
   dau.appendChild(ic);
-  dau.appendChild(pcChu(`Anh/chị hợp phong cách ${ten.join(' kết hợp ')}`, 'pc-kq-tieu-de'));
+  dau.appendChild(pcChu(cau, 'pc-kq-tieu-de'));
   $kq.appendChild(dau);
   const phu = document.createElement('p');
   phu.className = 'pc-kq-phu';
