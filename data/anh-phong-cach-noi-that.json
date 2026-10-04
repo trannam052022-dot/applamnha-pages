@@ -1,0 +1,409 @@
+{
+ "phien_ban": "v1-2026-10-04",
+ "nguon": "Unsplash License (mien phi, dung thuong mai, khong bat buoc ghi ten)",
+ "duyet_boi": "KTS Tran Long",
+ "anh": {
+  "hien-dai|khach": [
+   {
+    "id": "c0JoR_-2x3E",
+    "src": "https://images.unsplash.com/photo-1631679706909-1844bbd07221",
+    "tac_gia": "Spacejoy",
+    "trang": "https://unsplash.com/photos/c0JoR_-2x3E",
+    "muc": "co-ban"
+   },
+   {
+    "id": "WgkA3CSFrjc",
+    "src": "https://images.unsplash.com/photo-1598928506311-c55ded91a20c",
+    "tac_gia": "Lotus Design N Print",
+    "trang": "https://unsplash.com/photos/WgkA3CSFrjc",
+    "muc": "kha"
+   },
+   {
+    "id": "4_jQL4JCS98",
+    "src": "https://images.unsplash.com/photo-1600210492493-0946911123ea",
+    "tac_gia": "Collov Home Design",
+    "trang": "https://unsplash.com/photos/4_jQL4JCS98",
+    "muc": "kha"
+   },
+   {
+    "id": "0sDzRgrN_pI",
+    "src": "https://images.unsplash.com/photo-1600121848594-d8644e57abab",
+    "tac_gia": "Lotus Design N Print",
+    "trang": "https://unsplash.com/photos/0sDzRgrN_pI",
+    "muc": "kha"
+   },
+   {
+    "id": "vIbxvHj9m9g",
+    "src": "https://images.unsplash.com/photo-1724582586529-62622e50c0b3",
+    "tac_gia": "Prydumano Design",
+    "trang": "https://unsplash.com/photos/vIbxvHj9m9g",
+    "muc": "co-ban"
+   },
+   {
+    "id": "g_5UyVBIX_k",
+    "src": "https://images.unsplash.com/photo-1705321963943-de94bb3f0dd3",
+    "tac_gia": "Pipcke",
+    "trang": "https://unsplash.com/photos/g_5UyVBIX_k",
+    "muc": "co-ban"
+   }
+  ],
+  "hien-dai|bep": [
+   {
+    "id": "MP0bgaS_d1c",
+    "src": "https://images.unsplash.com/photo-1484154218962-a197022b5858",
+    "tac_gia": "Naomi Hébert",
+    "trang": "https://unsplash.com/photos/MP0bgaS_d1c",
+    "muc": "kha"
+   },
+   {
+    "id": "G7sE2S4Lab4",
+    "src": "https://images.unsplash.com/photo-1507089947368-19c1da9775ae",
+    "tac_gia": "Aaron Huber",
+    "trang": "https://unsplash.com/photos/G7sE2S4Lab4",
+    "muc": "cao-cap"
+   },
+   {
+    "id": "GliaHAJ3_5A",
+    "src": "https://images.unsplash.com/photo-1556911220-bff31c812dba",
+    "tac_gia": "Jason Briscoe",
+    "trang": "https://unsplash.com/photos/GliaHAJ3_5A",
+    "muc": "kha"
+   },
+   {
+    "id": "vqMQN9zImG4",
+    "src": "https://images.unsplash.com/photo-1632583824020-937ae9564495",
+    "tac_gia": "Kam Idris",
+    "trang": "https://unsplash.com/photos/vqMQN9zImG4",
+    "muc": "kha"
+   },
+   {
+    "id": "oCw5_evbWyI",
+    "src": "https://images.unsplash.com/photo-1588854337236-6889d631faa8",
+    "tac_gia": "Lotus Design N Print",
+    "trang": "https://unsplash.com/photos/oCw5_evbWyI",
+    "muc": "kha"
+   },
+   {
+    "id": "UDDULE_eIBY",
+    "src": "https://images.unsplash.com/photo-1588854337221-4cf9fa96059c",
+    "tac_gia": "Lotus Design N Print",
+    "trang": "https://unsplash.com/photos/UDDULE_eIBY",
+    "muc": "kha"
+   },
+   {
+    "id": "RwXneIyqxAw",
+    "src": "https://images.unsplash.com/photo-1602028915047-37269d1a73f7",
+    "tac_gia": "Lotus Design N Print",
+    "trang": "https://unsplash.com/photos/RwXneIyqxAw",
+    "muc": "kha"
+   }
+  ],
+  "toi-gian|khach": [
+   {
+    "id": "wRzBarqn3hs",
+    "src": "https://images.unsplash.com/photo-1593696140826-c58b021acf8b",
+    "tac_gia": "Lotus Design N Print",
+    "trang": "https://unsplash.com/photos/wRzBarqn3hs",
+    "muc": "co-ban"
+   },
+   {
+    "id": "Kh4tedFdHz4",
+    "src": "https://images.unsplash.com/photo-1631510390389-c1e4fb20ff31",
+    "tac_gia": "Spacejoy",
+    "trang": "https://unsplash.com/photos/Kh4tedFdHz4",
+    "muc": "kha"
+   },
+   {
+    "id": "Wkqs3XD8JPk",
+    "src": "https://images.unsplash.com/photo-1759238136818-7b00ec9e782a",
+    "tac_gia": "Franco Debartolo",
+    "trang": "https://unsplash.com/photos/Wkqs3XD8JPk",
+    "muc": "kha"
+   },
+   {
+    "id": "CCQi3pV95k0",
+    "src": "https://images.unsplash.com/photo-1762544968153-b9b47435fefd",
+    "tac_gia": "Clay Banks",
+    "trang": "https://unsplash.com/photos/CCQi3pV95k0",
+    "muc": "kha"
+   },
+   {
+    "id": "-jk2BBoQxSk",
+    "src": "https://images.unsplash.com/photo-1745429523617-0d837856ca35",
+    "tac_gia": "POOJAN THANEKAR",
+    "trang": "https://unsplash.com/photos/-jk2BBoQxSk",
+    "muc": "co-ban"
+   },
+   {
+    "id": "ugIfsN9l_q4",
+    "src": "https://images.unsplash.com/photo-1758957701419-2c6e266f7988",
+    "tac_gia": "Aalo Lens",
+    "trang": "https://unsplash.com/photos/ugIfsN9l_q4",
+    "muc": "cao-cap"
+   }
+  ],
+  "toi-gian|bep": [
+   {
+    "id": "gijwI4X-7ig",
+    "src": "https://images.unsplash.com/photo-1610276173132-c47d148ab626",
+    "tac_gia": "Simona Sergi",
+    "trang": "https://unsplash.com/photos/gijwI4X-7ig",
+    "muc": "kha"
+   },
+   {
+    "id": "MI_BQq-X-8E",
+    "src": "https://images.unsplash.com/photo-1593136573819-c3b57b8caf29",
+    "tac_gia": "Lotus Design N Print",
+    "trang": "https://unsplash.com/photos/MI_BQq-X-8E",
+    "muc": "kha"
+   },
+   {
+    "id": "dJcuvOoXJ30",
+    "src": "https://images.unsplash.com/photo-1669046222569-a7672da06e12",
+    "tac_gia": "Lotus Design N Print",
+    "trang": "https://unsplash.com/photos/dJcuvOoXJ30",
+    "muc": "kha"
+   },
+   {
+    "id": "iUjIiP0sMTs",
+    "src": "https://images.unsplash.com/photo-1668026694348-b73c5eb5e299",
+    "tac_gia": "Lotus Design N Print",
+    "trang": "https://unsplash.com/photos/iUjIiP0sMTs",
+    "muc": "kha"
+   },
+   {
+    "id": "aSsDDa65fbs",
+    "src": "https://images.unsplash.com/photo-1774612673121-7da610a4e1aa",
+    "tac_gia": "Clay Banks",
+    "trang": "https://unsplash.com/photos/aSsDDa65fbs",
+    "muc": "kha"
+   },
+   {
+    "id": "dFYd6fXY5Tc",
+    "src": "https://images.unsplash.com/photo-1704428381341-ed1399e47f5c",
+    "tac_gia": "Suzanne Rushton",
+    "trang": "https://unsplash.com/photos/dFYd6fXY5Tc",
+    "muc": "kha"
+   },
+   {
+    "id": "MSsr73R8it8",
+    "src": "https://images.unsplash.com/photo-1704428381387-3b457403131d",
+    "tac_gia": "Suzanne Rushton",
+    "trang": "https://unsplash.com/photos/MSsr73R8it8",
+    "muc": "kha"
+   },
+   {
+    "id": "j6MCxix3o2c",
+    "src": "https://images.unsplash.com/photo-1778272618522-665a8af7382e",
+    "tac_gia": "krishna kumar c",
+    "trang": "https://unsplash.com/photos/j6MCxix3o2c",
+    "muc": "kha"
+   }
+  ],
+  "japandi|khach": [
+   {
+    "id": "2cfj0Y5ch00",
+    "src": "https://images.unsplash.com/photo-1772797583328-f83bc3f94f80",
+    "tac_gia": "Puscas Adryan",
+    "trang": "https://unsplash.com/photos/2cfj0Y5ch00",
+    "muc": "kha"
+   }
+  ],
+  "japandi|bep": [
+   {
+    "id": "C-bUN_XxD-I",
+    "src": "https://images.unsplash.com/photo-1676088933950-bae87cf34fee",
+    "tac_gia": "Don Kaveen",
+    "trang": "https://unsplash.com/photos/C-bUN_XxD-I",
+    "muc": "kha"
+   }
+  ],
+  "indochine|khach": [
+   {
+    "id": "M4R9RaGDUlY",
+    "src": "https://images.unsplash.com/photo-1674532076630-cf1f4f730a73",
+    "tac_gia": "Gemali Martinez",
+    "trang": "https://unsplash.com/photos/M4R9RaGDUlY",
+    "muc": "kha"
+   },
+   {
+    "id": "zZUvDl5Ez7w",
+    "src": "https://images.unsplash.com/photo-1747336754868-82d5bef02448",
+    "tac_gia": "Luis J. Corniel",
+    "trang": "https://unsplash.com/photos/zZUvDl5Ez7w",
+    "muc": "kha"
+   },
+   {
+    "id": "aWCI45XDEDY",
+    "src": "https://images.unsplash.com/photo-1721613886533-8ee3919311a3",
+    "tac_gia": "Lisa Anna",
+    "trang": "https://unsplash.com/photos/aWCI45XDEDY",
+    "muc": "kha"
+   },
+   {
+    "id": "fRyalyQbHqA",
+    "src": "https://images.unsplash.com/photo-1747336754900-1b9edb05b002",
+    "tac_gia": "Luis J. Corniel",
+    "trang": "https://unsplash.com/photos/fRyalyQbHqA",
+    "muc": "kha"
+   }
+  ],
+  "indochine|bep": [
+   {
+    "id": "gIwvg6FI5IA",
+    "src": "https://images.unsplash.com/photo-1613685303322-269e3144fc64",
+    "tac_gia": "Collov Home Design",
+    "trang": "https://unsplash.com/photos/gIwvg6FI5IA",
+    "muc": "cao-cap"
+   },
+   {
+    "id": "_yynzKwlZOw",
+    "src": "https://images.unsplash.com/photo-1721222203546-eda8036736cd",
+    "tac_gia": "Sanju Pandita",
+    "trang": "https://unsplash.com/photos/_yynzKwlZOw",
+    "muc": "cao-cap"
+   },
+   {
+    "id": "8R_eeyi5bFg",
+    "src": "https://images.unsplash.com/photo-1747336754979-cb1078ce73f5",
+    "tac_gia": "Luis J. Corniel",
+    "trang": "https://unsplash.com/photos/8R_eeyi5bFg",
+    "muc": "kha"
+   },
+   {
+    "id": "cmuuvD2osWs",
+    "src": "https://images.unsplash.com/photo-1764080582659-652c0000ff1d",
+    "tac_gia": "POOJAN THANEKAR",
+    "trang": "https://unsplash.com/photos/cmuuvD2osWs",
+    "muc": "kha"
+   }
+  ],
+  "tan-co-dien|khach": [
+   {
+    "id": "nhzhEZvhZ1M",
+    "src": "https://images.unsplash.com/photo-1648881806148-e5c51179c826",
+    "tac_gia": "Ali Moradi",
+    "trang": "https://unsplash.com/photos/nhzhEZvhZ1M",
+    "muc": "cao-cap"
+   },
+   {
+    "id": "VV1m-BjXs9c",
+    "src": "https://images.unsplash.com/photo-1781795449353-233da5e767b6",
+    "tac_gia": "Maverick Frame",
+    "trang": "https://unsplash.com/photos/VV1m-BjXs9c",
+    "muc": "cao-cap"
+   },
+   {
+    "id": "9okINQ6jD24",
+    "src": "https://images.unsplash.com/photo-1776482128172-dd265ad0cb49",
+    "tac_gia": "Franco Debartolo",
+    "trang": "https://unsplash.com/photos/9okINQ6jD24",
+    "muc": "cao-cap"
+   }
+  ],
+  "tan-co-dien|bep": [
+   {
+    "id": "79KJhy20WhA",
+    "src": "https://images.unsplash.com/photo-1608235342400-27081ba47a75",
+    "tac_gia": "Collov Home Design",
+    "trang": "https://unsplash.com/photos/79KJhy20WhA",
+    "muc": "kha"
+   },
+   {
+    "id": "T28LLOIuJj4",
+    "src": "https://images.unsplash.com/photo-1683629357963-adf2b1fa9ad9",
+    "tac_gia": "Brian Zajac",
+    "trang": "https://unsplash.com/photos/T28LLOIuJj4",
+    "muc": "kha"
+   },
+   {
+    "id": "ynVu56fpbN8",
+    "src": "https://images.unsplash.com/photo-1683629357935-f3f4777ddf41",
+    "tac_gia": "Brian Zajac",
+    "trang": "https://unsplash.com/photos/ynVu56fpbN8",
+    "muc": "kha"
+   },
+   {
+    "id": "-e-i5KkN1sM",
+    "src": "https://images.unsplash.com/photo-1640723154318-6b636181c81b",
+    "tac_gia": "Sufyan",
+    "trang": "https://unsplash.com/photos/-e-i5KkN1sM",
+    "muc": "kha"
+   },
+   {
+    "id": "gYsjkPCsCfU",
+    "src": "https://images.unsplash.com/photo-1722942625910-809539b20865",
+    "tac_gia": "Lisa Anna",
+    "trang": "https://unsplash.com/photos/gYsjkPCsCfU",
+    "muc": "kha"
+   },
+   {
+    "id": "ilbLEHMhxMA",
+    "src": "https://images.unsplash.com/photo-1769326541248-5e09a8ace25b",
+    "tac_gia": "Puscas Adryan",
+    "trang": "https://unsplash.com/photos/ilbLEHMhxMA",
+    "muc": "kha"
+   }
+  ],
+  "sang-trong|khach": [
+   {
+    "id": "JheggqJ6Lxc",
+    "src": "https://images.unsplash.com/photo-1721222203415-69033eaf3bd1",
+    "tac_gia": "Sanju Pandita",
+    "trang": "https://unsplash.com/photos/JheggqJ6Lxc",
+    "muc": "cao-cap"
+   },
+   {
+    "id": "LqGf5UvHCZ8",
+    "src": "https://images.unsplash.com/photo-1757924461488-ef9ad0670978",
+    "tac_gia": "Aalo Lens",
+    "trang": "https://unsplash.com/photos/LqGf5UvHCZ8",
+    "muc": "cao-cap"
+   },
+   {
+    "id": "jkwKXLxTY_4",
+    "src": "https://images.unsplash.com/photo-1758448755778-90ebf4d0f1e7",
+    "tac_gia": "Aalo Lens",
+    "trang": "https://unsplash.com/photos/jkwKXLxTY_4",
+    "muc": "cao-cap"
+   },
+   {
+    "id": "gQwmhH2PRqY",
+    "src": "https://images.unsplash.com/photo-1782939355626-8df602c595fb",
+    "tac_gia": "AZIZ KOURI",
+    "trang": "https://unsplash.com/photos/gQwmhH2PRqY",
+    "muc": "cao-cap"
+   },
+   {
+    "id": "2us2J2mY7f0",
+    "src": "https://images.unsplash.com/photo-1780257562963-3389a4105371",
+    "tac_gia": "POOJAN THANEKAR",
+    "trang": "https://unsplash.com/photos/2us2J2mY7f0",
+    "muc": "cao-cap"
+   }
+  ],
+  "sang-trong|bep": [
+   {
+    "id": "70U9U4UG_bY",
+    "src": "https://images.unsplash.com/photo-1633119713175-c53c29479984",
+    "tac_gia": "Emmanuel Ikwuegbu",
+    "trang": "https://unsplash.com/photos/70U9U4UG_bY",
+    "muc": "kha"
+   },
+   {
+    "id": "1jy1WNfqHos",
+    "src": "https://images.unsplash.com/photo-1671197244266-73129c97c096",
+    "tac_gia": "Medea Dzagnidze",
+    "trang": "https://unsplash.com/photos/1jy1WNfqHos",
+    "muc": "kha"
+   },
+   {
+    "id": "UlIj_qKpgCw",
+    "src": "https://images.unsplash.com/photo-1758448755927-e5c5ae14790c",
+    "tac_gia": "Aalo Lens",
+    "trang": "https://unsplash.com/photos/UlIj_qKpgCw",
+    "muc": "kha"
+   }
+  ]
+ }
+}
