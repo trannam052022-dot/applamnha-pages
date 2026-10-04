@@ -1333,11 +1333,12 @@ async function doSave() {
     // kiểu "contact_phone_index/...", Phone Auth, mã thao tác) KHÔNG được lộ
     // ra màn hình khách — thay bằng lời mời liên hệ Zalo.
     const raw = (err && err.message) || '';
-    // Lỗi không phải câu máy chủ (mạng rớt, SDK ném lỗi thường, hết giờ chờ) → câu chung "Chưa lưu được — thử lại", không lộ tiếng Anh kỹ thuật.
-    const khongPhaiMayChu = !/^functions\//.test(code) || /unavailable|deadline-exceeded/.test(code);
-    const kyThuat = khongPhaiMayChu || !raw || /^internal$/i.test(raw) || /[a-z]+_[a-z_]+\/|contacts\/|Phone Auth|thao tác lưu/i.test(raw);
-    const lyDo = kyThuat
-      ? (khongPhaiMayChu || code === 'functions/internal' || !raw ? '' : 'hệ thống gặp lỗi khi lưu hồ sơ của anh/chị. Anh/chị nhắn Zalo ALN để được hỗ trợ ngay.')
+    const kyThuat = !raw || /^internal$/i.test(raw) || /[a-z]+_[a-z_]+\/|contacts\/|Phone Auth|thao tác lưu/i.test(raw);
+    // Lỗi mạng / trình duyệt / SDK (không phải mã máy chủ functions/*, hoặc unavailable/deadline-exceeded/cancelled/unknown):
+    // câu gốc là tiếng Anh ("Failed to fetch"…) → chỉ hiện "Chưa lưu được — thử lại".
+    const loiMang = !/^functions\//.test(code) || /unavailable|deadline-exceeded|cancelled|^functions\/unknown$/.test(code);
+    const lyDo = loiMang ? '' : kyThuat
+      ? (code === 'functions/internal' || !raw ? '' : 'hệ thống gặp lỗi khi lưu hồ sơ của anh/chị. Anh/chị nhắn Zalo ALN để được hỗ trợ ngay.')
       : raw;
     showRetry(lyDo);
   } finally {
