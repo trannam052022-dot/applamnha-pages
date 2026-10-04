@@ -741,20 +741,26 @@ window._doSubmit = async function() {
       username: uname, name: name, role: 'designer',
       email: email || (uname + '@aln.vn'), status: 'pending', plan: 'free', credits: {}, createdAt: serverTimestamp()
     });
+    /* Nguồn vào (aln-tracking.js alnAttr.choDangKy, 04/10/2026) — ghi kèm hồ sơ để Founder biết đến từ đâu */
+    var nv = null;
+    try { nv = window.alnAttr && window.alnAttr.choDangKy ? window.alnAttr.choDangKy() : null; } catch (e) {}
     await setDoc(doc(db, 'designerApplications', uid), {
       uid: uid, name: name, phone: phone, email: email || '',
       years: years, styles: styles, bio: bio,
       avatarUrl: avatarUrl, cvUrl: cvUrl, certUrls: certUrls,
       username: uname, status: 'pending',
       followedFanpage: document.getElementById('f_fanpage').checked,
+      attribution: nv ? nv.attribution : null, sourceUrl: nv ? nv.sourceUrl : '', trangTruoc: nv ? nv.trangTruoc : '',
       submittedAt: serverTimestamp()
     });
 
     try {
       await callUpsertContact({
         phone: phone, name: name,
-        loai_lien_he: 'designer_ung_tuyen', nguon: 'website',
-        chi_tiet_nguon: 'Đăng ký Designer Nội thất qua designer-apply.html',
+        loai_lien_he: 'designer_ung_tuyen', nguon: nv ? nv.nguon : 'website',
+        campaign_tag: nv ? nv.campaign_tag : null,
+        utm: nv ? nv.utm : null,
+        chi_tiet_nguon: 'Đăng ký Designer Nội thất qua designer-apply.html' + (nv && nv.moTa ? ' · ' + nv.moTa : ''),
       });
     } catch (e) { console.warn('upsertContact:', e.message); }
 

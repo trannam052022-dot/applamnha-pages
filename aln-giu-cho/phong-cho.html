@@ -749,6 +749,9 @@ function adMeta(){
     cookieQuangCao: window.ALN_QC === true,
     fbp: window.ALN_QC === true && window.alnGetFbp ? window.alnGetFbp() : '',
     fbc: window.ALN_QC === true && window.alnGetFbc ? window.alnGetFbc() : '',
+    // Chuỗi trình duyệt cho CAPI client_user_agent (doc ghi thẳng từ client nên
+    // máy chủ không đọc được header) — chỉ ghi khi đã đồng ý Quảng cáo, như fbp/fbc.
+    ua: window.ALN_QC === true ? String(navigator.userAgent || '').slice(0, 400) : '',
     sourceUrl: location.origin + location.pathname
   };
 }
@@ -770,7 +773,11 @@ function fireLeadPixel(uid, role){
   }catch(e){}
 }
 
-/* InitiateCheckout — bắt đầu điền form giữ chỗ (tier 1), fire 1 lần khi focus field đầu tiên */
+/* Bắt đầu điền form giữ chỗ (tier 1), bắn 1 lần khi focus ô đầu tiên.
+   Meta: sự kiện tuỳ chỉnh 'aln_giu_cho_start' (04/10/2026, gộp từ PR #112) thay cho
+   InitiateCheckout — đó là sự kiện chuẩn TMĐT, Meta dùng để tối ưu quảng cáo, không
+   nên gắn cho hành vi "chạm 1 ô". Không dùng tên 'aln_form_start' vì tên đó là của
+   form dự toán chủ nhà (tệp đối tượng R1–R3); người giữ chỗ là KTS/DN. */
 (function(){
   var fired = false;
   var el = document.getElementById('r_name');
@@ -778,7 +785,7 @@ function fireLeadPixel(uid, role){
   el.addEventListener('focus', function(){
     if (fired) return;
     fired = true;
-    try{ if (window.fbq) fbq('track','InitiateCheckout',{ content_name:'giu-cho-form' }); }catch(e){}
+    try{ if (window.fbq) fbq('trackCustom','aln_giu_cho_start',{ form:'giu-cho' }); }catch(e){}
     try{
       window.dataLayer = window.dataLayer || [];
       dataLayer.push({ event: 'aln_form_start', aln_funnel_tier: 1, aln_source_page: 'giu_cho' });

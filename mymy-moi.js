@@ -393,7 +393,8 @@
     // chọn → theo dõi con trực tiếp của body, nâng/hạ nút ngay khi thanh xuất hiện/biến mất.
     if (window.MutationObserver && document.body) {
       new MutationObserver(function () {
-        if (document.getElementById('alnCk') || daBatNang) batNangNut();
+        // Thanh Zalo (aln-zalo-widget.js) cũng gắn vào body lúc 'load' với data-mymy-tranh.
+        if (daBatNang || document.querySelector(SEL_TRANH)) batNangNut();
       }).observe(document.body, { childList: true });
     }
 

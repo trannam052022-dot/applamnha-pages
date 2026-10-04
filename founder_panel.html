@@ -5459,6 +5459,26 @@ function renderPending(){
   var ROLE_COLOR = {kts:'var(--amber)', dn:'var(--blue)', cn:'var(--green)', designer:'var(--purple)', ks:'var(--gold)', ktv:'var(--cyan)', ncc:'var(--green)'};
   var ROLE_LABEL = {kts:'Kiến trúc sư', dn:'Doanh nghiệp', cn:'Chủ nhà', designer:'Designer NT', ks:'KS Vùng', ktv:'KTV', ncc:'Nhà cung cấp'};
   var ROLE_ICON  = {kts:'ph-pencil-ruler', dn:'ph-buildings', cn:'ph-house-line', designer:'ph-paint-brush-household', ks:'ph-map-pin-area', ktv:'ph-ruler', ncc:'ph-package'};
+  /* "Vào từ" (04/10/2026, gộp từ PR #167): hồ sơ ghi attribution (ks/dn/designer, aln-tracking.js
+     choDangKy) hoặc utm kiểu cũ (kts-apply). Hồ sơ cũ không có dữ liệu → không hiện dòng. */
+  function _pendingSource(app){
+    var at = app.attribution || null;
+    var lt = at ? (at.last_touch || at.first_touch) : null;
+    var bits = [];
+    if (lt && lt.kenh && lt.kenh !== 'direct') {
+      bits.push(lt.kenh);
+      if (lt.source) bits.push(lt.source);
+      if (lt.campaign) bits.push(lt.campaign);
+    } else if (app.utm && (app.utm.source || app.utm.medium || app.utm.campaign)) {
+      if (app.utm.source) bits.push(app.utm.source);
+      if (app.utm.medium) bits.push(app.utm.medium);
+      if (app.utm.campaign) bits.push(app.utm.campaign);
+    } else if (at || app.utm || app.sourceUrl) {
+      bits.push('trực tiếp (gõ link / đã lưu)');
+    }
+    if (app.trangTruoc) bits.push('trang trước ' + app.trangTruoc);
+    return bits.length ? bits.join(' · ') : '';
+  }
   list.innerHTML = users.map(function(u){
     var app = u.app || {};
     var ts  = u.createdAt ? (u.createdAt.toDate ? u.createdAt.toDate().toLocaleDateString('vi-VN') : u.createdAt) : '—';
@@ -5476,6 +5496,7 @@ function renderPending(){
           +(app.email ? '<span style="font-size:10px;color:var(--sub)">'+eH(app.email)+'</span>' : '')
           +'<span style="font-size:10px;color:var(--dim);margin-left:auto">'+eH(ts)+'</span>'
         +'</div>'
+        +(_pendingSource(app) ? '<div style="margin-top:5px;font-size:10px;color:var(--sub)"><i class="ph-duotone ph-map-pin-line" style="margin-right:3px"></i>Vào từ: <strong style="color:var(--text2)">'+eH(_pendingSource(app))+'</strong></div>' : '')
       +'</div>'
     +'</div>';
     var details = '';

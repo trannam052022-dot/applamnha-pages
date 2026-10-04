@@ -722,6 +722,30 @@ footer{background:var(--navy-900);color:rgba(255,255,255,.66);padding:52px 0 34p
 </div>
 
 <script>
+/* Bấm link #tuvan trên điện thoại: cuộn sao cho nút "Gửi thông tin" (#send) nằm ngay
+   trên thanh .sticky đáy (04/10/2026, gộp từ PR #112). Neo thẳng vào đầu mục thì nút
+   rơi xuống dưới thanh (đo 360–430px). Desktop (.sticky ẩn) giữ hành vi neo mặc định. */
+(function(){
+  function cuonToiForm(e){
+    var sec = document.getElementById('tuvan');
+    var btn = document.getElementById('send');
+    var st = document.querySelector('.sticky');
+    if (!sec || !btn || !st || getComputedStyle(st).display === 'none') return;
+    e.preventDefault();
+    var secTop = sec.getBoundingClientRect().top + window.scrollY;
+    var btnDay = btn.getBoundingClientRect().bottom + window.scrollY;
+    var vung = window.innerHeight - st.getBoundingClientRect().height - 16;
+    var dich = Math.max(secTop, btnDay - vung);
+    var giamDong = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: dich, behavior: giamDong ? 'auto' : 'smooth' });
+    try { history.replaceState(null, '', '#tuvan'); } catch (x) {}
+  }
+  var ds = document.querySelectorAll('a[href="#tuvan"]');
+  for (var i = 0; i < ds.length; i++) ds[i].addEventListener('click', cuonToiForm);
+})();
+</script>
+
+<script>
 /* =====================================================================
    BẢNG SỐ — TOÀN BỘ SỐ LIỆU TẬP TRUNG Ở ĐÂY.
    Đơn vị: triệu đồng / m² sàn.

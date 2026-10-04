@@ -22,14 +22,35 @@
   var ZALO_NUMBER = '0909829696';
   var ZALO_URL = 'https://zalo.me/' + ZALO_NUMBER;
 
-  function computeLift(){
-    // Trang có sẵn widget nổi khác chiếm góc dưới màn hình (mymy-widget.js
-    // luôn hiện cả mobile, aln-suggest-widget.js góc dưới-trái, ncc-network-
-    // badge.js giữa-phải nhưng đủ cao để có thể lấn xuống trên màn nhỏ) →
-    // đẩy sticky bar lên một chút để không đè lên nhau.
-    return !!(document.getElementById('mymy-btn') ||
-      document.querySelector('.aln-sw-chip') ||
-      document.getElementById('alnNccNetworkBadge'));
+  /* Vị trí thanh dưới đáy trên điện thoại (sửa 04/10/2026 — đo thật: bản cũ nâng
+     cứng 70px khi có nút MyMy vẫn đè nút 14px, và đè 47px ở du-toan-nha.html vì nút
+     MyMy ở đó đã tự nâng lên trên thanh .dock):
+     - Đứng NGAY TRÊN thanh cố định riêng của trang (phần tử có data-mymy-tranh,
+       vd .dock của du-toan-nha) thay vì đè lên nó.
+     - Thanh Zalo tự gắn data-mymy-tranh → mymy-moi.js nâng nút MyMy + khung chat
+       lên trên thanh Zalo (không cần đoán chiều cao nút MyMy ở đây nữa).
+     - Chip gợi ý (aln-suggest-widget.js, góc dưới-trái) / huy hiệu NCC không có cơ
+       chế tự né → giữ cách cũ: nâng thêm 70px khi trang có chúng. */
+  function chieuCaoThanhTrang(sticky){
+    var ds = document.querySelectorAll('[data-mymy-tranh]');
+    var H = window.innerHeight, W = window.innerWidth, cao = 0;
+    for (var i = 0; i < ds.length; i++) {
+      if (ds[i] === sticky) continue;
+      var q = ds[i].getBoundingClientRect();
+      if (!q.width || !q.height || q.width < W * 0.6 || q.bottom < H - 4) continue;
+      if (getComputedStyle(ds[i]).position !== 'fixed') continue;
+      cao = Math.max(cao, Math.ceil(H - q.top));
+    }
+    return cao;
+  }
+  function coWidgetKhongTuNe(){
+    return !!(document.querySelector('.aln-sw-chip') || document.getElementById('alnNccNetworkBadge'));
+  }
+  function datViTri(sticky){
+    if (getComputedStyle(sticky).display === 'none') { sticky.style.bottom = ''; return; }
+    var b = chieuCaoThanhTrang(sticky) + (coWidgetKhongTuNe() ? 70 : 0);
+    var moi = b ? b + 'px' : '';
+    if (sticky.style.bottom !== moi) sticky.style.bottom = moi;
   }
 
   function mount(){
@@ -49,7 +70,6 @@
           'background:#0068ff;color:#fff;text-decoration:none;align-items:center;justify-content:center;gap:8px;' +
           'padding:13px 10px;font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,"Inter",sans-serif;' +
           'font-size:14px;font-weight:700;box-shadow:0 -4px 16px rgba(0,0,0,.18)}' +
-        '.aln-zalo-sticky.aln-zalo-lift{bottom:70px}' +
         '.aln-zalo-sticky svg{width:18px;height:18px;flex-shrink:0}' +
       '}';
     document.head.appendChild(style);
@@ -70,7 +90,8 @@
     document.body.appendChild(top);
 
     var sticky = document.createElement('a');
-    sticky.className = 'aln-zalo-sticky' + (computeLift() ? ' aln-zalo-lift' : '');
+    sticky.className = 'aln-zalo-sticky';
+    sticky.setAttribute('data-mymy-tranh', '');
     sticky.href = ZALO_URL;
     sticky.target = '_blank';
     sticky.rel = 'noopener';
@@ -78,6 +99,12 @@
     sticky.setAttribute('aria-label', 'Chat Zalo tư vấn');
     sticky.innerHTML = iconSvg + '<span>Chat Zalo tư vấn</span>';
     document.body.appendChild(sticky);
+    datViTri(sticky);
+    var hen = null;
+    function henDat(){ if (!hen) hen = setTimeout(function(){ hen = null; datViTri(sticky); }, 80); }
+    window.addEventListener('resize', henDat);
+    window.addEventListener('scroll', henDat, { passive: true });
+    setInterval(henDat, 1000); // thanh của trang có thể hiện/ẩn khi đổi nội dung
   }
 
   if (document.readyState === 'complete') mount();

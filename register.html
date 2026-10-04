@@ -640,7 +640,7 @@ async function doRegister(){
       await fb.setDoc(uref, {
         username: phone, name: name, phone: phone, role: 'cn', email: email,
         status: 'active', plan: 'free', credits: {}, kts_ref: ktsRef, referredByNcc: nccRef, referredByCtv: ctvRef,
-        utm: utm, cookieQuangCao: coQc, fbp: fbp, fbc: fbc, sourceUrl: location.origin + location.pathname,
+        utm: utm, cookieQuangCao: coQc, fbp: fbp, fbc: fbc, ua: coQc ? String(navigator.userAgent || '').slice(0, 400) : '', sourceUrl: location.origin + location.pathname,
         createdAt: fb.serverTimestamp(),
       });
       try {

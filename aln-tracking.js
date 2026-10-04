@@ -343,6 +343,36 @@
         aln_test: this.isTest()
       };
     },
+    /* Nguồn vào cho form đăng ký đối tác (ks-apply / dn-studio / designer-apply,
+       04/10/2026 — gộp từ PR #167). Trước đó 3 form này ghi cứng nguon:'website'
+       nên Founder không biết hồ sơ đến từ Fanpage, quảng cáo hay trang nào.
+       Không PII: chỉ kênh/nguồn/chiến dịch + đường dẫn trang trước (cùng site). */
+    choDangKy: function(){
+      var a = this.forLead();
+      var lt = a.last_touch || a.first_touch || null;
+      var truoc = '';
+      try {
+        var h = hostOf(document.referrer || '');
+        if (h && SELF_RE.test(h)) truoc = cut(document.referrer.replace(/^[a-z]+:\/\/[^\/]+/i, '').split(/[?#]/)[0], 200) || '/';
+        else if (h) truoc = h;
+      } catch (e) {}
+      var coNguon = lt && lt.kenh && lt.kenh !== 'direct';
+      var utm = {};
+      if (lt && lt.source && coNguon) utm.source = cut(lt.source, 120);
+      if (lt && lt.medium && coNguon) utm.medium = cut(lt.medium, 120);
+      if (lt && lt.campaign) utm.campaign = cut(lt.campaign, 120);
+      var moTa = coNguon ? ('kênh ' + lt.kenh + (lt.source ? ' · ' + lt.source : '') + (lt.landing ? ' · vào ở ' + lt.landing : '')) : '';
+      if (truoc) moTa += (moTa ? ' · ' : '') + 'trang trước ' + truoc;
+      return {
+        attribution: a,
+        sourceUrl: location.origin + location.pathname,
+        trangTruoc: truoc,
+        nguon: coNguon ? cut(lt.source || lt.kenh, 60) : 'website',
+        campaign_tag: (lt && lt.campaign) ? cut(lt.campaign, 120) : null,
+        utm: utm,
+        moTa: cut(moTa, 240)
+      };
+    },
     _classify: classify
   };
 })();
