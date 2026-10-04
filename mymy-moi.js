@@ -355,11 +355,15 @@
     /* ── Nâng nút MyMy (và khung chat) lên trên thanh trang tự đánh dấu data-mymy-tranh
        (vd thanh tổng tiền có "Lưu lựa chọn"/"Gọi KTS" ở trang nội thất) khi thanh đó
        đang nằm dưới nút. Chỉ áp cho phần tử có đánh dấu — không đổi vị trí nút ở trang khác. ── */
+    // Thanh thông báo cookie (#alnCk, aln-consent.js) cũng là thanh phải tránh: nó dính
+    // đáy màn hình, rộng hết trang, và hiện SAU khi trang tải (03/10/2026 — nút MyMy
+    // đè mép thanh, trên điện thoại che nút "Tuỳ chỉnh").
+    var SEL_TRANH = '[data-mymy-tranh], #alnCk';
     var nutNang = 0;
     var henNang = null;
     function nangNut() {
       henNang = null;
-      var ds = document.querySelectorAll('[data-mymy-tranh]');
+      var ds = document.querySelectorAll(SEL_TRANH);
       var cu = nutNang;
       nut.style.bottom = '';
       var r = nut.getBoundingClientRect();
@@ -375,11 +379,22 @@
       if (bong && nutNang !== cu) kiemKhiDangHien();
     }
     function henNangNut() { if (!henNang) henNang = setTimeout(nangNut, 80); }
-    if (document.querySelector('[data-mymy-tranh]')) {
+    var daBatNang = false;
+    function batNangNut() {
+      if (daBatNang) { henNangNut(); return; }
+      daBatNang = true;
       nangNut();
       window.addEventListener('scroll', henNangNut, { passive: true });
       window.addEventListener('resize', henNangNut);
       setInterval(henNangNut, 1000); // thanh có thể hiện/ẩn khi trang đổi nội dung (vd mở bảng từng món)
+    }
+    if (document.querySelector(SEL_TRANH)) batNangNut();
+    // Thanh cookie gắn vào <body> muộn (sau kết quả / cuộn / 30 giây) và gỡ khi khách
+    // chọn → theo dõi con trực tiếp của body, nâng/hạ nút ngay khi thanh xuất hiện/biến mất.
+    if (window.MutationObserver && document.body) {
+      new MutationObserver(function () {
+        if (document.getElementById('alnCk') || daBatNang) batNangNut();
+      }).observe(document.body, { childList: true });
     }
 
     // Trang tự lo lời mời riêng (vd du-toan-nha: bong bóng theo phương án) → không
