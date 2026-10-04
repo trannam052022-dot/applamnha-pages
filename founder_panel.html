@@ -2080,6 +2080,11 @@ document.addEventListener('DOMContentLoaded', function() {
   <div style="font-size:13px;color:var(--sub);margin-bottom:18px;max-width:80ch">Gộp SĐT từ nhập tay + KTS/CTV ứng tuyển + diễn đàn — lọc trùng xuyên nguồn theo số điện thoại. Click 1 dòng để xem toàn bộ lịch sử chạm nguồn.</div>
 
   <div id="ctTestWarn"></div>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
+    <button onclick="fpKiemChiMuc()" title="Chỉ đọc: tìm SĐT bị kẹt vì chỉ mục contact_phone_index trỏ tới liên hệ đã bị xoá (khách lưu sẽ bị lỗi)" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans)">🩺 Kiểm chỉ mục SĐT</button>
+    <span style="font-size:11px;color:var(--dim)">Tìm số khách không lưu được vì chỉ mục lệch. Chỉ đọc, không sửa gì.</span>
+  </div>
+  <div id="ctChiMucBox"></div>
   <div id="ctStatsRow" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px"></div>
   <div id="ctTrendRow" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:18px"></div>
 
@@ -4728,6 +4733,55 @@ window.fpHanMucChuNha = async function() {
     toast('Đã mở thêm cho ' + r.sdt + ' (bỏ ' + r.da_xoa + ' công trình) — còn ' + r.con_lai + '/' + r.toi_da + ' lượt', 'ok');
   } catch(e) {
     toast('Lỗi: ' + (e.message || e), 'err');
+  }
+};
+
+/* ── KIỂM CHỈ MỤC SĐT (04/10/2026) — founderKiemChiMuc, CHỈ ĐỌC ──
+   SĐT có contact_phone_index trỏ tới liên hệ đã xoá thì upsertContact báo 400, khách không lưu được.
+   Mọi chữ từ dữ liệu gán bằng textContent. */
+window.fpKiemChiMuc = async function() {
+  var box = document.getElementById('ctChiMucBox');
+  if (!box) return;
+  var mk = function(tag, css, text) { var e = document.createElement(tag); if (css) e.style.cssText = css; if (text != null) e.textContent = String(text); return e; };
+  box.replaceChildren(mk('div', 'font-size:12px;color:var(--sub);margin-bottom:12px', 'Đang kiểm…'));
+  try {
+    var { getFunctions, httpsCallable } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js');
+    var fn = httpsCallable(getFunctions(window.app, 'asia-southeast1'), 'founderKiemChiMuc', { timeout: 120000 });
+    var r = (await fn({})).data || {};
+    var t = r.tong || {}, n = r.nhom || {}, cs = r.cach_sua || {};
+    var khung = mk('div', 'background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:16px');
+    khung.appendChild(mk('div', 'font-size:13px;font-weight:700;color:' + (t.can_sua ? 'var(--c-red)' : 'var(--c-green)') + ';margin-bottom:6px',
+      t.can_sua ? ('Có ' + t.can_sua + ' số cần sửa tay') : 'Không có số nào bị kẹt'));
+    khung.appendChild(mk('div', 'font-size:11px;color:var(--dim);margin-bottom:10px',
+      'Đã đọc ' + t.chi_muc + ' chỉ mục và ' + t.lien_he + ' liên hệ · ' + new Date(r.luc_ms || Date.now()).toLocaleString('vi-VN')));
+    var NHOM = [
+      ['ket', 'Bị kẹt — chỉ mục trỏ tới liên hệ đã xoá (khách gặp lỗi 400)', true],
+      ['ung_vien_mat', 'Chờ xem lại nhưng ứng viên đầu không còn (khách gặp lỗi)', true],
+      ['hong', 'Chỉ mục hỏng — không có contact_id', true],
+      ['lech_sdt', 'Chỉ mục trỏ tới liên hệ mang số khác', false],
+      ['cho_xem_lai', 'Số có nhiều liên hệ trùng, chờ chọn bản chính', false],
+      ['thieu_chi_muc', 'Liên hệ chưa có chỉ mục (lần lưu sau sẽ tạo trùng)', false]
+    ];
+    NHOM.forEach(function(g) {
+      var ds = n[g[0]] || [];
+      if (!ds.length) return;
+      var muc = mk('div', 'margin-top:10px;padding-top:10px;border-top:1px solid var(--border)');
+      muc.appendChild(mk('div', 'font-size:12px;font-weight:700;color:' + (g[2] ? 'var(--c-red)' : 'var(--c-amber)'), g[1] + ' (' + ds.length + ')'));
+      muc.appendChild(mk('div', 'font-size:11px;color:var(--sub);margin:3px 0 6px', 'Cách sửa: ' + (cs[g[0]] || '')));
+      ds.slice(0, 100).forEach(function(x) {
+        var dong = x.sdt;
+        if (x.contact_id) dong += ' → contacts/' + x.contact_id;
+        if (x.sdt_cua_lien_he) dong += ' (liên hệ mang số ' + x.sdt_cua_lien_he + ')';
+        if (x.ung_vien) dong += ' · ứng viên: ' + (x.ung_vien.join(', ') || 'trống') + (x.ung_vien_mat && x.ung_vien_mat.length ? ' · đã mất: ' + x.ung_vien_mat.join(', ') : '');
+        if (x.co_chi_muc_khac) dong += ' · số này đang có chỉ mục trỏ chỗ khác';
+        muc.appendChild(mk('div', 'font-family:var(--mono);font-size:11px;color:var(--text2);padding:1px 0', dong));
+      });
+      if (ds.length > 100) muc.appendChild(mk('div', 'font-size:11px;color:var(--dim)', '… còn ' + (ds.length - 100) + ' số'));
+      khung.appendChild(muc);
+    });
+    box.replaceChildren(khung);
+  } catch(e) {
+    box.replaceChildren(mk('div', 'font-size:12px;color:var(--c-red);margin-bottom:12px', 'Lỗi: ' + (e.message || e)));
   }
 };
 
