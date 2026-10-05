@@ -192,7 +192,10 @@ table.t{width:100%;table-layout:fixed;border-collapse:collapse;font-size:13.5px;
   .sheet.la-du-thao .du-thao{display:block;position:fixed;top:45%;left:0;right:0;border:0;transform:rotate(-24deg);text-align:center;font:700 92px var(--display);letter-spacing:.2em;color:rgba(179,38,30,.09);padding:0;z-index:0;pointer-events:none}
   /* Trang ký: mục cuối + chữ ký + bảng công ty nằm sát chân trang cuối */
   /* 05/10/2026: bỏ ép sang trang mới + cao cả trang (để lại khoảng trống lớn khi in); giữ Điều 10 + chữ ký + bảng công ty liền một mảnh */
-  .trang-ky{break-inside:avoid}
+  /* 05/10/2026 (2): Điều 10 chảy tiếp ngay sau Điều 9; chỉ giữ chữ ký + bảng công ty liền nhau — giữ cả khối liền thì vẫn bỏ trống cuối trang trước */
+  .trang-ky{break-inside:auto}
+  .trang-ky .keep{break-after:avoid}
+  .chan-ky{break-inside:avoid;break-before:avoid}
 }
 </style>
 </head>
