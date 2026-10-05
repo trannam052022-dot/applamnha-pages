@@ -476,6 +476,11 @@ function productsHtml(){
           + '<input type="number" min="0" placeholder="Giá (đ)" value="' + eH(p.price != null ? p.price : '') + '" oninput="setProductField(' + i + ',\'price\',this.value)">'
           + '<input type="text" placeholder="ĐVT" value="' + escH(p.unit || '') + '" oninput="setProductField(' + i + ',\'unit\',this.value)">'
         + '</div>'
+        + '<details class="price-ct"' + ((p.chiTiet || '').trim() ? ' open' : '') + '>'
+          + '<summary><i class="ph-duotone ph-list-bullets"></i>Chi tiết (khách bấm vào sản phẩm sẽ thấy)</summary>'
+          + '<textarea maxlength="' + PRICE_CT_MAX + '" rows="5" placeholder="# Thông số&#10;Kích thước: …&#10;# Giá đã gồm&#10;- …" oninput="setProductField(' + i + ',\'chiTiet\',this.value)">' + escH(p.chiTiet || '') + '</textarea>'
+          + '<div class="price-ct-help">Cùng cách ghi như chi tiết bảng giá: <b>#</b> tiêu đề · <b>-</b> gạch đầu dòng · <b>Nhãn: nội dung</b>.</div>'
+        + '</details>'
         + '<button class="prod-del" onclick="removeProduct(' + i + ')"><i class="ph-duotone ph-trash"></i> Xoá</button>'
       + '</div>'
     + '</div>';
@@ -866,7 +871,12 @@ window.saveAll = async function(){
     const products = (DATA.products || [])
       .filter(function(p){ return p && (p.name || '').trim(); })
       .slice(0, MAX_PRODUCTS)
-      .map(function(p){ return { name: (p.name||'').trim().slice(0,120), price: (p.price != null && !isNaN(p.price)) ? Number(p.price) : null, unit: (p.unit||'').trim().slice(0,20), imageUrl: p.imageUrl || '' }; });
+      .map(function(p){
+        var o = { name: (p.name||'').trim().slice(0,120), price: (p.price != null && !isNaN(p.price)) ? Number(p.price) : null, unit: (p.unit||'').trim().slice(0,20), imageUrl: p.imageUrl || '' };
+        var ct = (p.chiTiet || '').trim().slice(0, PRICE_CT_MAX);
+        if (ct) o.chiTiet = ct;
+        return o;
+      });
 
     await updateDoc(doc(db, 'nccApplications', UID), {
       intro: intro,
