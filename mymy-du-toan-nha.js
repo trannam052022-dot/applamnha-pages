@@ -180,7 +180,7 @@
       var the = $('out');
       chiVao(o, the, true, [
         'Bước 3: Đây là con số ước tính, tự tính lại mỗi khi anh/chị sửa ô bên trái. Là giá nhà thầu nhận, chưa gồm thuế GTGT.',
-        'Bấm vào từng dòng bên dưới để xem tiền đi vào đâu. Phần "Giá vật tư" và "Nhân công" không rành thì cứ để nguyên.',
+        'Các dòng bên dưới cho biết tiền đi vào phần nào; chi tiết từng hạng mục xem được sau khi lưu vào Không gian Nhà. Phần "Giá vật tư" và "Nhân công" không rành thì cứ để nguyên.',
       ], [
         { nhan: 'Tiếp theo ›', lam: function () { chayBuoc(3); } },
         { nhan: 'Tắt hướng dẫn', phu: true, lam: goChi },

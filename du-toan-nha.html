@@ -124,10 +124,10 @@ src="https://www.facebook.com/tr?id=1656666692225878&ev=PageView&noscript=1"/></
 <!-- Đo hành vi ẩn danh lớp A (spec 03/10/2026): 7 sự kiện aln_dt_* + aln_form_start,
      chỉ gửi nhãn khoảng (alnBucket), không số thật/PII. Tự tắt ở ?internal=1 và ?dn=1. -->
 <script src="aln-bucket.js?v=1"></script>
-<script src="aln-dt-su-kien.js?v=2"></script>
+<script src="aln-dt-su-kien.js?v=3"></script>
 
 <style>
-:root{--bg:#f6f4ef;--card:#ffffff;--ink:#141a2b;--sub:#4a5268;--muted:#7a8196;--line:#e3dfd4;--line2:#c9c0aa;--navy:#0a1224;--navy2:#111c33;--gold:#b8860b;--gold-soft:rgba(184,134,11,.10);--warn:#8a5e08;--focus:#b8860b;
+:root{--bg:#f6f4ef;--card:#ffffff;--ink:#141a2b;--sub:#4a5268;--muted:#7a8196;--line:#e3dfd4;--line2:#c9c0aa;--navy:#0a1224;--navy2:#111c33;--gold:#b8860b;--gold-soft:rgba(184,134,11,.10);--warn:#8a5e08;--focus:#b8860b;--nut-vang:linear-gradient(135deg,#9a6b08,#6b4906);
 --head:'Oswald','Arial Narrow',Arial,sans-serif;--body:'Be Vietnam Pro',Arial,sans-serif;--mono:'IBM Plex Mono',ui-monospace,Menlo,monospace}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1120;--card:#121a2e;--ink:#eef0f5;--sub:#b5bccb;--muted:#8a93a8;--line:#24304a;--line2:#3d4f70;--gold:#d4a017;--gold-soft:rgba(212,160,23,.12);--warn:#e8c877}}
 :root[data-theme="dark"]{--bg:#0b1120;--card:#121a2e;--ink:#eef0f5;--sub:#b5bccb;--muted:#8a93a8;--line:#24304a;--line2:#3d4f70;--gold:#d4a017;--gold-soft:rgba(212,160,23,.12);--warn:#e8c877}
@@ -225,7 +225,6 @@ body.che-do-dn #secDonGia{display:block}
 .h2{font-family:var(--head);font-weight:500;font-size:17px;margin:22px 0 2px}
 .fine{font-size:12.5px;color:var(--muted);margin-top:14px;line-height:1.6}
 .cta{display:block;text-align:center;margin-top:16px;background:var(--navy2);color:#fff;text-decoration:none;border-radius:10px;padding:12px;font-weight:600}
-#btnSaveHouse{font-family:inherit;font-size:16px;font-weight:700}
 /* Form "Nhờ KTS xem giúp dự toán này" (30/09/2026) — nút chính ngay dưới kết quả;
    Lưu vào Không gian Nhà thành nút phụ (cần OTP). */
 .tv{margin-top:18px;padding:16px 14px;border:1.5px solid var(--gold);border-radius:12px;background:var(--gold-soft)}
@@ -245,13 +244,11 @@ body.che-do-dn #secDonGia{display:block}
 .tv .tv-msg.err{color:var(--warn);font-weight:500}
 .tv .tv-ok{font-size:15px;line-height:1.6}
 .tv .tv-ok b{font-family:var(--mono);font-weight:600;white-space:nowrap}
-.luu-loi-ich{margin:4px 0 10px;padding:12px 14px;border:1px solid var(--line2);border-radius:10px}
-.luu-tieu-de{font-weight:700;font-size:15px;color:var(--navy2);margin-bottom:6px}
 /* Bản doanh nghiệp (?dn=1, 30/09/2026): ẩn phần dành cho chủ nhà, hiện khung lưu báo giá. */
 .mm-moi{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 14px;padding:11px 14px;border:1px dashed var(--gold);border-radius:10px;background:var(--gold-soft);font-size:15px;color:var(--ink)}
-.mm-moi button{font:inherit;font-size:15px;font-weight:700;padding:8px 16px;border-radius:99px;border:0;cursor:pointer;background:linear-gradient(135deg,#e0aa3e,#98690a);color:#1a1400}
+.mm-moi button{font:inherit;font-size:15px;font-weight:700;padding:8px 16px;border-radius:99px;border:0;cursor:pointer;background:var(--nut-vang);color:#fff}
 body.che-do-dn .mm-moi{display:none!important}
-body.che-do-dn #tuVan,body.che-do-dn .luu-loi-ich,body.che-do-dn #btnSaveHouse,body.che-do-dn #btnSaveHouse + .hint,body.che-do-dn #saveHouseMsg,body.che-do-dn #retrySaveHouse,body.che-do-dn #saveCallback,body.che-do-dn a[href="/du-toan-chi-tiet.html#form"]{display:none!important}
+body.che-do-dn #tuVan,body.che-do-dn a[href="/du-toan-chi-tiet.html#form"]{display:none!important}
 .tv .tv-lk{display:block;margin-top:10px;text-align:center;color:var(--navy2);font-weight:600}
 /* Tách chủ nhà / nhà thầu (Nam chốt 01/10/2026) */
 .dan-dn{margin-top:10px!important;font-size:14px;color:#aeb6c8!important}
@@ -260,7 +257,7 @@ body.che-do-dn .dan-dn{display:none}
 /* Khách chọn "Công trình của khách" ở form Nhờ KTS xem (01/10/2026): ẩn cụm Lưu vào
    Không gian Nhà + link bóc khối lượng — Không gian Nhà là của chủ nhà (có hạn mức
    3 công trình), nhà thầu đi bản doanh nghiệp. Chỉ frontend, chọn lại "Nhà của tôi" là hiện lại. */
-body.nha-thau .luu-loi-ich,body.nha-thau #btnSaveHouse,body.nha-thau #btnSaveHouse + .hint,body.nha-thau #saveHouseMsg,body.nha-thau #retrySaveHouse,body.nha-thau #saveCallback,body.nha-thau a[href="/du-toan-chi-tiet.html#form"]{display:none!important}
+body.nha-thau a[href="/du-toan-chi-tiet.html#form"]{display:none!important}
 .tv .tv-nt{margin-top:10px;padding:10px 12px;border:1px solid var(--line2);border-radius:10px;background:var(--card);font-size:14px;line-height:1.55;color:var(--sub)}
 .tv .tv-nt a,.tv .tv-nt b{color:var(--ink)}
 /* Khung bản doanh nghiệp luôn hiện (02/10/2026) — nền navy cố định, đọc được ở cả 2 chế độ màu */
@@ -288,17 +285,54 @@ body.che-do-dn.dn-che #dnChe{display:block}
 #dnChe .gia{margin-top:10px;font-size:15px}
 #dnChe .gia b{font-family:var(--mono);font-size:19px;color:var(--navy2)}
 #dnChe .mo{font-size:13px;color:var(--sub);margin-top:8px}
-.luu-loi-ich ul{margin:0;padding-left:18px}
-.luu-loi-ich li{font-size:14px;line-height:1.5;margin:3px 0}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .luu-tieu-de{color:var(--ink)}}
-:root[data-theme="dark"] .luu-tieu-de{color:var(--ink)}
-#btnSaveHouse.phu{background:transparent;color:var(--navy2);border:1.5px solid var(--line2)!important;font-size:15px;font-weight:600}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) #btnSaveHouse.phu{color:var(--ink)}}
-:root[data-theme="dark"] #btnSaveHouse.phu{color:var(--ink)}
 .dock{position:fixed;left:0;right:0;bottom:0;background:var(--navy);color:#fff;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px;z-index:5}
 .dock b{font-family:var(--mono);font-weight:500;color:#e8c877}
 .dock a{color:#fff;font-size:14px}
 @media(min-width:980px){.dock{display:none}}
+/* ── Khoá chi tiết hạng mục (05/10/2026): trang công khai chỉ có dòng tổng; chi tiết
+   xem trong Không gian Nhà sau khi lưu bằng OTP. Nút lưu dùng CÙNG token nền với nút
+   "Để MyMy điền giúp" (--nut-vang), chữ trắng — điểm sáng nhất của nền #9a6b08 cho
+   tương phản 4,69:1 với chữ trắng (đã đậm token từ #e0aa3e→#98690a, cả hai nút đổi theo). */
+.the-khoa{margin:2px 0 4px;padding:12px;border:1px dashed var(--line2);border-radius:10px;background:var(--gold-soft);font-size:14px;line-height:1.55;color:var(--sub)}
+.the-khoa p{margin:0 0 10px}
+.the-khoa button{font:inherit;font-size:15px;font-weight:700;color:#fff;background:var(--nut-vang);border:0;border-radius:10px;min-height:44px;padding:8px 14px;width:100%;cursor:pointer}
+.luu-ct-wrap{margin-top:16px}
+.luu-ct{display:block;width:100%;border:0;border-radius:12px;padding:12px 14px;min-height:56px;background:var(--nut-vang);color:#fff;font:inherit;cursor:pointer;text-align:center}
+.luu-ct .l1{display:block;font-size:16.5px;font-weight:700;line-height:1.3}
+.luu-ct .l2{display:block;font-size:13px;font-weight:600;line-height:1.4;margin-top:2px;opacity:.95}
+.luu-ct:disabled{opacity:.75;cursor:default}
+#otpHop{margin-top:10px;padding:14px;border:1.5px solid var(--gold);border-radius:12px;background:var(--card);font-size:14.5px;line-height:1.5}
+#otpHop .oh-dau{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+#otpHop .oh-tieu{font-weight:700;font-size:15.5px;color:var(--ink)}
+#otpHop .oh-dong{all:unset;cursor:pointer;font-size:20px;line-height:1;padding:2px 6px;color:var(--muted)}
+#otpHop ul{margin:6px 0 10px;padding-left:18px}
+#otpHop li{margin:2px 0;font-size:14px;color:var(--sub)}
+#otpHop label.oh-nhan{font-size:13.5px;margin:8px 0 4px}
+#otpHop input[type=tel],#otpHop input.oh-ma{font-family:var(--body);font-size:17px;min-height:46px}
+#otpHop .oh-hang{display:flex;gap:8px;align-items:stretch}
+#otpHop .oh-hang input{flex:1;min-width:0}
+#otpHop .oh-go{border:0;border-radius:10px;background:var(--nut-vang);color:#fff;font:inherit;font-size:16px;font-weight:700;min-height:46px;padding:0 16px;cursor:pointer;white-space:nowrap}
+#otpHop .oh-go.rong{display:block;width:100%;margin-top:12px;min-height:48px}
+#otpHop .oh-go:disabled{opacity:.7;cursor:default}
+#otpHop .tv-dy{display:flex;gap:10px;align-items:flex-start;margin-top:10px;font-size:13.5px;color:var(--sub);line-height:1.5;cursor:pointer}
+#otpHop .tv-dy input{width:20px;height:20px;min-height:0;flex:none;margin-top:2px;accent-color:var(--navy2)}
+#otpHop .tv-tuy{font-style:normal;color:var(--muted)}
+#otpHop .oh-lk{display:flex;gap:16px;flex-wrap:wrap;margin-top:8px}
+#otpHop .oh-lk button{all:unset;cursor:pointer;color:var(--navy2);font-weight:600;font-size:14px;text-decoration:underline;text-underline-offset:2px}
+#otpHop .oh-lk button:disabled{color:var(--muted);cursor:default;text-decoration:none}
+#otpHop .oh-msg{margin-top:8px;font-size:14px;min-height:1.2em}
+#otpHop .oh-msg.err{color:var(--warn);font-weight:500}
+#otpHop .oh-msg a{color:var(--navy2);font-weight:700}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) #otpHop .oh-lk button,:root:not([data-theme="light"]) #otpHop .oh-msg a{color:#e8c877}}
+:root[data-theme="dark"] #otpHop .oh-lk button,:root[data-theme="dark"] #otpHop .oh-msg a{color:#e8c877}
+#recaptcha-dt{position:fixed;bottom:0;left:0}
+.dock .dock-t{font-size:13px;color:#c8cddb;white-space:nowrap}
+.dock .dock-nut{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.dock #dockLuu{border:0;border-radius:9px;background:var(--nut-vang);color:#fff;font:inherit;font-size:15px;font-weight:700;min-height:40px;padding:0 14px;cursor:pointer;white-space:nowrap}
+.dock #dockKts{font-size:12.5px;color:#c8cddb;text-decoration:underline;text-underline-offset:2px}
+body.che-do-dn #dockLuu,body.che-do-dn #luuCtWrap,body.che-do-dn .the-khoa{display:none!important}
+body.che-do-dn .dock #dockKts{font-size:14px;color:#fff}
+body.nha-thau #luuCtWrap,body.nha-thau #dockLuu{display:none!important}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -310,7 +344,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <div class="top"><div class="in">
   <div class="brand">ALN · APP LÀM NHÀ</div>
   <h1 id="tieuDeTrang">Dự toán xây nhà của bạn</h1>
-  <p id="moTaTrang">Nhập kích thước và giá vật tư ở nơi bạn ở. Bảng tính theo khối lượng bóc từ nhà mẫu cùng loại, chia từng phần để bạn biết tiền đi vào đâu — bấm vào từng phần để xem chi tiết.</p>
+  <p id="moTaTrang">Nhập kích thước và giá vật tư ở nơi bạn ở. Bảng tính theo khối lượng bóc từ nhà mẫu cùng loại, chia từng phần để bạn biết tiền đi vào đâu — lưu vào Không gian Nhà để xem chi tiết từng hạng mục.</p>
   <!-- Dòng dẫn nhỏ cho nhà thầu (Nam chốt 01/10/2026): trang vẫn nói với chủ nhà là chính, không chia đôi. -->
   <p class="dan-dn" id="danDn">Nhà thầu / đội thầu lập báo giá cho khách? <a href="doanh-nghiep.html">Bản dành cho doanh nghiệp →</a></p>
 </div></div>
@@ -473,6 +507,39 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
    <div class="h2">Phần bạn tự mua</div>
    <div class="rows" id="rowsH"></div>
    <div class="tot"><span>Cộng vật tư hoàn thiện</span><span id="totH"></span></div>
+   <!-- Khoá chi tiết hạng mục (05/10/2026): chi tiết từng hạng mục xem trong Không gian
+        Nhà sau khi lưu bằng OTP. Ba lối vào (nút này, thẻ khoá khi bấm ">", thanh dính
+        điện thoại) mở CÙNG hộp #otpHop; hộp đứng ở #otpNha, chuyển tới dưới thẻ khoá
+        khi vào từ thẻ khoá. -->
+   <div class="luu-ct-wrap" id="luuCtWrap">
+    <button class="luu-ct" id="btnSaveHouse" type="button"><span class="l1">Lưu và xem chi tiết trong Không gian Nhà</span><span class="l2">Miễn phí · xác nhận SĐT bằng mã OTP</span></button>
+    <div id="otpNha">
+     <div id="otpHop" hidden role="region" aria-labelledby="ohTieu">
+      <div class="oh-dau"><div class="oh-tieu" id="ohTieu">Lưu vào Không gian Nhà — miễn phí</div><button type="button" class="oh-dong" id="ohDong" aria-label="Đóng">×</button></div>
+      <div id="ohB1">
+       <ul>
+        <li>Xem khối lượng, đơn giá, thành tiền từng hạng mục</li>
+        <li>Giữ dự toán, quay lại sửa giá bất cứ lúc nào</li>
+        <li>Lưu nhiều phương án để so sánh</li>
+        <li>Gửi bản vẽ, báo giá để KTS xem giúp</li>
+       </ul>
+       <label class="oh-nhan" for="ohSdt">Số điện thoại nhận mã</label>
+       <input id="ohSdt" type="tel" inputmode="tel" autocomplete="tel" maxlength="15" placeholder="VD: 0909 123 456">
+       <!-- Ô "Đo quảng cáo" — CÙNG câu CONSENT_TEXTS.quang_cao với form dự toán (functions/_test_tuVanPhanTho.js kiểm). -->
+       <label class="tv-dy" for="ohDongYQc"><input id="ohDongYQc" type="checkbox"><span><span id="ohDongYQcText">Cho phép ALN gửi SĐT đã mã hoá cho Facebook để ALN biết quảng cáo nào hiệu quả, bớt chi quảng cáo sai chỗ.</span> <i class="tv-tuy">Không bắt buộc.</i></span></label>
+       <button type="button" class="oh-go rong" id="ohGui">Gửi mã xác nhận</button>
+      </div>
+      <div id="ohB2" hidden>
+       <label class="oh-nhan" for="ohMa">Nhập 6 số ALN vừa gửi qua SMS tới <b id="ohSdtHien"></b></label>
+       <div class="oh-hang"><input id="ohMa" class="oh-ma" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="6" placeholder="6 số"><button type="button" class="oh-go" id="ohXacNhan">Xác nhận</button></div>
+       <div class="oh-lk"><button type="button" id="ohGuiLai" disabled>Gửi lại mã</button><button type="button" id="ohDoiSo">Đổi số điện thoại</button></div>
+      </div>
+      <div class="oh-msg" id="saveHouseMsg" role="status" aria-live="polite" hidden></div>
+      <button class="btn" id="retrySaveHouse" type="button" style="margin-top:8px" hidden>Thử lại</button>
+     </div>
+    </div>
+    <div id="recaptcha-dt"></div>
+   </div>
    <div class="fine">Chưa gồm: ép cọc, thiết bị thang máy (hai phần này chủ nhà ký riêng), nội thất rời, chi phí thiết kế và xin phép.<br>Đây là ước tính theo nhà mẫu cùng loại, chưa phải dự toán chính thức cho công trình của bạn. Dự toán đúng cho nhà bạn phải bóc từ chính bản vẽ của bạn.</div>
    <!-- Khung bản doanh nghiệp LUÔN hiện (Nam 02/10/2026): trước đó chỉ hiện khi chọn
         "Công trình của khách" nên nhà thầu khó thấy. Form bên dưới vẫn mặc định "Nhà của tôi". -->
@@ -546,22 +613,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </form>
     <a class="tv-lk" href="doanh-nghiep.html">Về trang Doanh nghiệp</a>
    </section>
-   <!-- Lợi ích khi lưu — Nam duyệt câu chữ 30/09/2026. Chỉ ghi lợi ích ĐANG CÓ
-        (xuất file = in-du-toan.html, cần deploy functions:xuatDuToan trước khi merge). -->
-   <div class="luu-loi-ich">
-    <div class="luu-tieu-de">Lưu vào Không gian Nhà — miễn phí</div>
-    <ul>
-     <li>Giữ dự toán này, quay lại sửa bất cứ lúc nào, không mất khi đóng trình duyệt</li>
-     <li>Lưu nhiều phương án để so sánh (đổi số tầng, loại mái, giá vật tư)</li>
-     <li>Gửi bản vẽ hoặc báo giá nhà thầu để KTS xem giúp</li>
-     <li>Xuất file chi tiết để tự kiểm tra</li>
-    </ul>
-   </div>
-   <button class="cta phu" id="btnSaveHouse" type="button" style="cursor:pointer;width:100%">Lưu vào Không gian Nhà</button>
-   <div class="hint" style="margin-top:4px">Xác nhận số điện thoại bằng mã OTP để chỉ anh/chị mở được hồ sơ của mình.</div>
-   <div id="saveHouseMsg" class="hint" style="margin-top:8px" hidden></div>
-   <button class="btn" id="retrySaveHouse" type="button" style="margin-top:8px" hidden>Thử lại</button>
-   <div id="saveCallback" hidden></div>
    <a class="cta" href="/du-toan-chi-tiet.html#form" style="margin-top:10px;background:transparent;color:var(--navy2);border:1px solid var(--line)">Gửi bản vẽ để ALN bóc khối lượng thật</a>
   </div>
  </div>
@@ -584,7 +635,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div><h3>Có dùng bảng dự toán này để ký hợp đồng thi công được không?</h3><p>Không. Bảng dự toán này dùng để chủ nhà đối chiếu với báo giá nhà thầu, không dùng để ký hợp đồng thi công.</p></div>
  </div>
 </section>
-<div class="dock" data-mymy-tranh><span>Ước tính: <b id="dockT">—</b></span><a href="#tuVan">Nhờ KTS xem</a></div>
+<div class="dock" data-mymy-tranh><span class="dock-t">Ước tính: <b id="dockT">—</b></span><div class="dock-nut"><button type="button" id="dockLuu">Lưu &amp; xem chi tiết</button><a href="#tuVan" id="dockKts">hoặc nhờ KTS gọi</a></div></div>
 
 <!-- Phần tính CÔNG KHAI (diện tích, chọn nhà mẫu, luật ngoài vùng, parse số)
      — du-toan-nha-ui.js, bản sao trong functions/du-toan-nha-shared/ (CI chặn
@@ -611,6 +662,9 @@ const DEF={w1:5,w2:5,l1:20,l2:20,n:4,st:'0.7',tm:'0',ham:'0',sant:0,bc:0,mai:'',
  dua:MAI_THAI_MAC_DINH.dua,doc_mai:MAI_THAI_MAC_DINH.docDo,dong_gia_mai_thai:MAI_THAI_MAC_DINH.donGia,
  khoan:1900000,cong:550000,mep:250000,ql:23.8,vat:8,lm:'khoan'};
 const K='aln-dutoan-v1';
+// Bản doanh nghiệp: báo cho máy chủ biết để trả bảng đầy đủ (chỉ khi tài khoản Phone
+// Auth có hồ sơ doanh nghiệp — xem functions/tinhDuToanNha.js duocXemChiTiet).
+const LA_DN=new URLSearchParams(location.search).get('dn')==='1';
 let st=load(); let prices={}; let showAllT=false; const openRows=new Set();
 const tinhFingerprints=new Set();
 let duToanTinhTimer=null; // debounce aln_du_toan_tinh (P1.5) — run() gọi lại mỗi lần gõ phím, không đẩy dataLayer mỗi keystroke
@@ -761,7 +815,7 @@ function payloadTinh(gauAnDanh){
  const i=st.inp;
  const an=gauAnDanh&&window.alnAnDanh?window.alnAnDanh():null;
  if(an)window.__alnAnDanhDaTinh=true;
- return {...(an?{anDanh:an}:{}),inputs:{w1:$('w1').value,w2:$('w2').value,l1:$('l1').value,l2:$('l2').value,n:$('n').value,st:$('st').value,tm:$('tm').value,ham:$('ham').value,sant:$('sant').value,bc:$('bc').value,mai:$('mai').value,mai_loai:$('mai_loai').value,mong:$('mong').value,dua:$('dua').value,doc_mai:$('doc_mai').value,dong_gia_mai_thai:$('dong_gia_mai_thai').value},
+ return {...(an?{anDanh:an}:{}),...(LA_DN?{dn:true}:{}),inputs:{w1:$('w1').value,w2:$('w2').value,l1:$('l1').value,l2:$('l2').value,n:$('n').value,st:$('st').value,tm:$('tm').value,ham:$('ham').value,sant:$('sant').value,bc:$('bc').value,mai:$('mai').value,mai_loai:$('mai_loai').value,mong:$('mong').value,dua:$('dua').value,doc_mai:$('doc_mai').value,dong_gia_mai_thai:$('dong_gia_mai_thai').value},
   priceOverrides:{...st.px},
   donGiaHangMuc:{...st.dg},
   tinh:tinhDaChon(),
@@ -940,12 +994,14 @@ function runLoi(skipPrices,userInitiated){
 }
 // Ghi dấu cho trang nội thất (01/10/2026): phần vật tư tự mua có trần thạch cao /
 // thiết bị vệ sinh không, để noi-that-khoang-gia.html không tính trùng. Bản doanh nghiệp bỏ qua.
-function ghiDauPhanTho(result){
+// 05/10/2026: trang công khai không còn nhận tên hạng mục — máy chủ trả sẵn 2 cờ dauPhanTho.
+function ghiDauPhanTho(result,dau){
  try{
-  if(new URLSearchParams(location.search).get('dn')==='1')return;
-  const it=[];(result.lineHoanThien||[]).forEach(l=>(l.items||[]).forEach(r=>it.push(r)));
-  const co=re=>it.some(r=>re.test(r[0])&&r[3]>0);
-  localStorage.setItem('aln-phantho-ht',JSON.stringify({luc:Date.now(),tran:co(/^Trần thạch cao/),tbvs:co(/^Thiết bị vệ sinh/)}));
+  if(LA_DN)return;
+  let tran,tbvs;
+  if(dau&&typeof dau.tran==='boolean'){tran=dau.tran;tbvs=dau.tbvs}
+  else{const it=[];(result.lineHoanThien||[]).forEach(l=>(l.items||[]).forEach(r=>it.push(r)));const co=re=>it.some(r=>re.test(r[0])&&r[3]>0);tran=co(/^Trần thạch cao/);tbvs=co(/^Thiết bị vệ sinh/)}
+  localStorage.setItem('aln-phantho-ht',JSON.stringify({luc:Date.now(),tran:!!tran,tbvs:!!tbvs}));
  }catch(e){}
 }
 async function runThongThuong(skipPrices,userInitiated){
@@ -979,7 +1035,7 @@ async function runThongThuong(skipPrices,userInitiated){
  $('dockT').textContent=ty(result.totalChuaVat);
  draw($('rows'),result.lines,result.totalChuaVat);
  draw($('rowsH'),result.lineHoanThien,result.totalHoanThien);$('totH').textContent=fmt(result.totalHoanThien);
- ghiDauPhanTho(result);
+ ghiDauPhanTho(result,kq.res.dauPhanTho);
  window.__lastEstimate={modelKey:key,nhaMauNhan:result.modelLabel,dienTich:{tx:a.tx,qd:a.qd,km:a.km},inputs:{...st.inp},priceOverrides:{...st.px},donGiaHangMuc:{...st.dg},result};
  baoDaVe();
  doKetQua(userInitiated,a.qd,num($('n').value),result.totalChuaVat);
@@ -1032,7 +1088,7 @@ async function runBietThuVuon(skipPrices,userInitiated){
  $('dockT').textContent=ty(result.totalChuaVat);
  draw($('rows'),result.lines,result.totalChuaVat);
  draw($('rowsH'),result.lineHoanThien,result.totalHoanThien);$('totH').textContent=fmt(result.totalHoanThien);
- ghiDauPhanTho(result);
+ ghiDauPhanTho(result,kq.res.dauPhanTho);
  window.__lastEstimate={modelKey:'thi_biet_thu_vuon_mai_thai',nhaMauNhan:'Biệt thự vườn 1 tầng mái Thái',dienTich:{tx:result.tx,qd:result.qd,km:result.km},inputs:{...st.inp},priceOverrides:{...st.px},donGiaHangMuc:{...st.dg},result};
  baoDaVe();
  doKetQua(userInitiated,result.qd,1,result.totalChuaVat);
@@ -1047,15 +1103,32 @@ function doKetQua(userInitiated,qd,soTang,tong){
  try{window.alnDtSuKien.ketQua({dien_tich:qd,so_tang:soTang,tong_tien:tong,tinh:'',loai_lo:'chua_chon'},document.querySelector('#out .fine'))}catch(e){}
 }
 const IC='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>';
+// Khoá chi tiết hạng mục (05/10/2026): máy chủ chỉ trả dòng tổng + so_hang_muc cho
+// trang công khai. Bấm ">" mở THẺ KHOÁ (số N thật từ máy chủ + nút lưu); bản doanh
+// nghiệp đã trả tiền nhận x.items như cũ và mở bảng chi tiết.
 function draw(el,lines,total){
+ // Hộp OTP có thể đang nằm dưới một thẻ khoá trong el — đưa về chỗ cũ trước khi vẽ lại,
+ // vẽ xong gắn lại đúng thẻ (khách đang gõ SĐT/mã thì không mất hộp).
+ const hop=$('otpHop'),hopTrong=hop&&el.contains(hop);
+ if(hopTrong)$('otpNha').appendChild(hop);
  el.innerHTML=lines.map((x,i)=>{
   const id=el.id+':'+x.n,op=openRows.has(id);
-  const head=`<span class="nm">${x.items?IC:''}${eH(x.n)}</span><span class="am">${eH(fmt(x.v))}</span>${x.tag?`<span class="tag" style="grid-column:1/-1">${eH(x.tag)}</span>`:''}<span class="bar"><i style="width:${total?Math.max(1,x.v/total*100):0}%"></i></span>`;
-  if(!x.items)return `<div class="row"><div class="h">${head}</div></div>`;
-  const det=`<div class="det"><table>${x.items.sort((a,b)=>b[3]-a[3]).map(r=>`<tr><td>${eH(r[0])}</td><td class="q">${r[1].toLocaleString('vi-VN',{maximumFractionDigits:2})} ${eH(r[2]||'')}</td><td class="v">${eH(fmt(r[3]))}</td></tr>`).join('')}</table></div>`;
-  return `<div class="row${op?' open':''}"><button type="button" aria-expanded="${op}" data-id="${eH(id)}">${head}</button>${det}</div>`;
+  const coCt=!!x.items||x.so_hang_muc>0;
+  const head=`<span class="nm">${coCt?IC:''}${eH(x.n)}</span><span class="am">${eH(fmt(x.v))}</span>${x.tag?`<span class="tag" style="grid-column:1/-1">${eH(x.tag)}</span>`:''}<span class="bar"><i style="width:${total?Math.max(1,x.v/total*100):0}%"></i></span>`;
+  if(!coCt)return `<div class="row"><div class="h">${head}</div></div>`;
+  const det=x.items
+   ?`<div class="det"><table>${x.items.sort((a,b)=>b[3]-a[3]).map(r=>`<tr><td>${eH(r[0])}</td><td class="q">${r[1].toLocaleString('vi-VN',{maximumFractionDigits:2})} ${eH(r[2]||'')}</td><td class="v">${eH(fmt(r[3]))}</td></tr>`).join('')}</table></div>`
+   :`<div class="det"><div class="the-khoa" data-nhom="${eH(x.n)}"><p>Dòng này gồm ${eH(fmt(x.so_hang_muc))} hạng mục (khối lượng · đơn giá · thành tiền). Xem và sửa giá trong Không gian Nhà của bạn — xác thực SĐT một lần.</p><button type="button" class="the-khoa-nut" data-nhom="${eH(x.n)}">Lưu và xem chi tiết</button></div></div>`;
+  return `<div class="row${op?' open':''}"><button type="button" aria-expanded="${op}" data-id="${eH(id)}" data-nhom="${eH(x.n)}"${x.items?'':' data-khoa="1"'}>${head}</button>${det}</div>`;
  }).join('');
- el.querySelectorAll('button[data-id]').forEach(b=>b.onclick=()=>{const r=b.parentElement,o=!r.classList.contains('open');r.classList.toggle('open',o);b.setAttribute('aria-expanded',o);o?openRows.add(b.dataset.id):openRows.delete(b.dataset.id)});
+ el.querySelectorAll('button[data-id]').forEach(b=>b.onclick=()=>{const r=b.parentElement,o=!r.classList.contains('open');r.classList.toggle('open',o);b.setAttribute('aria-expanded',o);o?openRows.add(b.dataset.id):openRows.delete(b.dataset.id);
+  if(o&&b.dataset.khoa)try{window.alnDtSuKien&&window.alnDtSuKien.chiTiet(b.dataset.nhom)}catch(e){}});
+ // Nút trên thẻ khoá → hộp OTP chung (module Lưu bên dưới đặt window.alnLuuChiTiet).
+ el.querySelectorAll('.the-khoa-nut').forEach(b=>b.onclick=()=>{if(window.alnLuuChiTiet)window.alnLuuChiTiet.mo('the_khoa',b.dataset.nhom,b.closest('.the-khoa'))});
+ if(hopTrong&&!hop.hidden&&hop.dataset.nhom){
+  const the=Array.from(el.querySelectorAll('.the-khoa')).find(t=>t.dataset.nhom===hop.dataset.nhom);
+  if(the){the.closest('.row').classList.add('open');the.appendChild(hop)}
+ }
 }
 // MyMy điền giúp (mymy-du-toan-nha.js, 30/09/2026): khách lớn tuổi trả lời vài
 // câu trong khung chat, MyMy đặt giá trị vào ĐÚNG các ô như khách tự gõ rồi tính
@@ -1123,15 +1196,30 @@ document.addEventListener('aln:consent', () => {
   } catch (e) {}
 });
 const callSaveEstimate = httpsCallable(functionsInst, 'saveEstimateToHouse');
-const callKhChonKhungGio = httpsCallable(functionsInst, 'khChonKhungGio');
 
-const btn = document.getElementById('btnSaveHouse');
-const msg = document.getElementById('saveHouseMsg');
-const retryBtn = document.getElementById('retrySaveHouse');
+/* ── Lưu và xem chi tiết trong Không gian Nhà (05/10/2026) ──
+   Chi tiết từng hạng mục chỉ xem được trong Không gian Nhà; mở khoá = lưu dự toán.
+   Ba lối vào mở CÙNG hộp #otpHop ngay tại chỗ (không chuyển trang OTP như trước):
+     chan_bang  — nút #btnSaveHouse sau dòng "Cộng vật tư hoàn thiện"
+     the_khoa   — nút trên thẻ khoá khi bấm ">" (hộp chuyển tới dưới thẻ đó)
+     thanh_dinh — nút trên thanh dính điện thoại (cuộn tới chân bảng rồi mở hộp)
+   Vẫn MỘT luồng lưu: saveEstimateToHouse + Lead dedup như cũ (trackSavedLead).
+   Bộ đầu vào khách đang thấy được chụp lại TRƯỚC khi gửi OTP (bộ nhớ trang +
+   sessionStorage) và lưu đúng bộ đó sau khi xác thực — không bắt nhập lại. */
+const $ = (id) => document.getElementById(id);
+const btn = $('btnSaveHouse');
+const hop = $('otpHop');
+const msg = $('saveHouseMsg');
+const retryBtn = $('retrySaveHouse');
 let saveSucceeded = false;
 let pendingSaves = 0;
 let saveOperation = null;
 const firedLeads = new Set();
+// Lối vào của lần lưu đang làm: {viTri, nhom}; null khi lưu tự động (?autosave=1).
+let loiVao = null;
+let banChup = null; // bộ đầu vào chụp lúc gửi OTP
+let denKgn = ''; // houseId vừa lưu — chuyển sang Không gian Nhà
+const KEY_CHUP = 'aln_dt_luu_chup';
 function operationKey() { return 'aln_estimate_pending_' + auth.currentUser.uid; }
 function getSaveOperation(payload) {
   if (saveOperation) return saveOperation;
@@ -1142,6 +1230,8 @@ function getSaveOperation(payload) {
   }
   return saveOperation;
 }
+// Lead (Pixel) — MỘT điểm bắn duy nhất, chỉ khi máy chủ báo contact vừa tạo mới;
+// cùng eventID với CAPI để Meta gộp. Không đổi so với trước (content_name đã có).
 async function trackSavedLead(d) {
   const tracking = d.tracking || { eligible: d.contactCreated, eventId: 'lead-du-toan-' + d.houseId };
   if (!tracking.eligible) return;
@@ -1150,10 +1240,6 @@ async function trackSavedLead(d) {
     const key = 'aln_estimate_lead_' + id;
     if (firedLeads.has(id)) return;
     try { if (localStorage.getItem(key)) return; } catch (e) {}
-    // Synchronous enqueue + receipt; no await between them. Not a delivery ACK
-    // from GA4: ad blockers/browser termination can still prevent collection.
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({ event: 'aln_du_toan_luu', aln_house_id: d.houseId, event_id: id });
     firedLeads.add(id);
     try { localStorage.setItem(key, '1'); } catch (e) {}
     if (window.fbq) window.fbq('track', 'Lead', { value: 100000, currency: 'VND', content_name: 'du-toan-nha-luu' }, { eventID: id });
@@ -1161,41 +1247,29 @@ async function trackSavedLead(d) {
   if (navigator.locks) await navigator.locks.request('aln-lead-' + id, emit);
   else emit();
 }
-
-function showRetry(lyDo) {
-  if (saveSucceeded) return;
-  showMsg(lyDo ? 'Chưa lưu được: ' + lyDo : 'Chưa lưu được — thử lại', 'error');
-  retryBtn.hidden = false;
-  btn.disabled = false;
-  btn.textContent = 'Lưu vào Không gian Nhà';
+// aln_du_toan_luu = lưu thành công = mở khoá (05/10/2026): MỌI lần lưu thành công,
+// không còn chỉ lần tạo contact mới (Lead vẫn chỉ contact mới, ở trackSavedLead).
+function banDaLuu(d) {
+  try {
+    if (!window.alnDtSuKien) return;
+    const lv = loiVao || {};
+    const tracking = d.tracking || {};
+    window.alnDtSuKien.luu(tracking.operationId || d.versionId || d.houseId, {
+      vi_tri: lv.viTri || '',
+      nguon_luu: lv.viTri === 'the_khoa' ? 'unlock_detail' : 'nut_luu',
+      nhom: lv.viTri === 'the_khoa' ? String(lv.nhom || '').slice(0, 80) : '',
+      aln_house_id: d.houseId,
+      event_id: tracking.eventId || ('lead-du-toan-' + d.houseId),
+    });
+  } catch (e) {}
+}
+function urlKhongGianNha(houseId) {
+  const lv = loiVao || {};
+  let u = 'khong-gian-nha.html?h=' + encodeURIComponent(houseId);
+  if (lv.viTri === 'the_khoa' && lv.nhom) u += '&nhom=' + encodeURIComponent(lv.nhom);
+  return window.alnEstimateFunnel.preserve(u);
 }
 
-// Khối xác nhận "ai gọi, số nào, giờ nào" — hiện sau khi lưu thành công (cả
-// nhánh bấm Lưu trực tiếp lẫn nhánh OTP → ?autosave=1), NẰM DƯỚI nút Lưu,
-// không thay nút. Khung giờ ghi qua khChonKhungGio (houses/{id}), không bắn
-// thêm Lead/CAPI.
-function showCallback(houseId) {
-  const box = document.getElementById('saveCallback');
-  if (!box || !window.alnCallback) return;
-  window.alnCallback.mount(box, {
-    houseId: houseId,
-    viTri: 'sau_luu',
-    loginUrl: window.alnEstimateFunnel.preserve('dang-nhap-chu-nha.html'),
-    save: async (id, khungGio) => {
-      // SDK Functions tự bỏ header Authorization khi không lấy được token
-      // (không báo lỗi) → server 401. Chỉ gọi khi còn phiên Phone Auth; mất
-      // phiên (vd tab khác cùng trình duyệt đăng xuất) thì mời đăng nhập lại.
-      const user = await authDaSan();
-      if (!isPhoneAuthed(user)) throw { code: window.alnCallback.LOI_CAN_DANG_NHAP };
-      return callKhChonKhungGio({ houseId: id, khung_gio_goi: khungGio });
-    },
-  });
-  box.hidden = false;
-}
-
-// Trạng thái Auth HIỆN TẠI sau khi SDK khôi phục xong phiên lưu trên trình
-// duyệt (lần phát đầu của onAuthStateChanged) — tránh đọc auth.currentUser
-// lúc SDK chưa khởi tạo xong.
 function authDaSan() {
   return new Promise((resolve) => {
     let xong = false;
@@ -1208,24 +1282,32 @@ function authDaSan() {
     });
   });
 }
-
 function clearAutosaveFlag() {
   const url = new URL(window.location.href);
   if (url.searchParams.get('autosave') !== '1') return;
   url.searchParams.delete('autosave');
   history.replaceState(null, '', url.pathname + url.search + url.hash);
 }
-
 function showMsg(text, kind) {
   msg.hidden = false;
   msg.textContent = text;
-  msg.style.color = kind === 'error' ? 'var(--warn)' : (kind === 'ok' ? 'var(--gold)' : 'var(--muted)');
+  msg.className = 'oh-msg' + (kind === 'error' ? ' err' : '');
+}
+// Thông báo lỗi + một đường dẫn (gửi OTP lỗi → form Nhờ KTS; vượt hạn mức → bản DN).
+function showMsgKemLink(text, nhan, href, onClick) {
+  showMsg(text + ' ', 'error');
+  const a = document.createElement('a');
+  a.href = href; a.textContent = nhan;
+  if (onClick) a.addEventListener('click', onClick);
+  msg.appendChild(a);
+}
+function moiNhoKts(e) {
+  if (e) e.preventDefault();
+  dongHop();
+  const f = $('tuVan');
+  if (f) f.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-// window.__lastEstimate được script chính (classic <script> ở trên) ghi ở
-// cuối mỗi lần run() — module type="module" tự hoãn chạy tới sau khi toàn
-// bộ document (gồm script chính) đã thực thi xong, nên luôn có giá trị mới
-// nhất tại đây, không cần đợi thêm.
 function buildPayload() {
   const est = window.__lastEstimate;
   if (!est || !est.inputs) return null;
@@ -1235,9 +1317,7 @@ function buildPayload() {
       w1: inp.w1, w2: inp.w2, l1: inp.l1, l2: inp.l2, n: inp.n, st: inp.st,
       tm: inp.tm, ham: inp.ham, sant: inp.sant, bc: inp.bc, mai: inp.mai,
       mai_loai: inp.mai_loai, mong: inp.mong,
-      // Biệt thự vườn 1 tầng mái Thái (n===1, thêm 21/09/2026 (2)) — server
-      // CHỈ đọc 3 field này khi n===1 (xem functions/saveEstimateToHouse.js),
-      // gửi kèm luôn cho mọi trường hợp cho đơn giản, vô hại khi n!==1.
+      // Biệt thự vườn 1 tầng mái Thái — server CHỈ đọc 3 field này khi n===1.
       dua: inp.dua, doc_mai: inp.doc_mai, dong_gia_mai_thai: inp.dong_gia_mai_thai,
     },
     priceOverrides: est.priceOverrides || {},
@@ -1245,97 +1325,78 @@ function buildPayload() {
     mepDonGia: inp.mep,
     qlPct: inp.ql,
     vatPct: inp.vat,
-    // P1.5 (spec mục 5) — server dùng để bắn CAPI Lead 'aln_du_toan_luu' khi
-    // contact vừa tạo mới (xem functions/saveEstimateToHouse.js), cùng pattern
-    // submitHomeLead (functions/ktsFunnel.js).
+    // Tín hiệu CAPI (fbp/fbc chỉ khi cookie Quảng cáo bật — aln-estimate-funnel.js).
     ...window.alnEstimateFunnel.signals(),
     sourceUrl: location.origin + location.pathname,
-    // scripts/aln-optout.js đặt window.ALN_INTERNAL=true khi Founder/team tự
-    // test trang qua ?internal=1 — báo cho server để KHÔNG bắn CAPI Lead thật
-    // (functions/saveEstimateToHouse.js đọc field này, xem functions/capi.js).
     optout: window.ALN_INTERNAL === true,
-    // Kênh dẫn khách (aln-tracking.js) — server lưu vào house để báo cáo
-    // "Kênh & Lead" của Founder biết lead đến từ đâu.
     attribution: layAttribution(),
     trangDan: window.alnTrangDan ? window.alnTrangDan() : '',
   };
 }
-
 function layAttribution() {
   try { return window.alnAttr ? window.alnAttr.forLead() : null; } catch (e) { return null; }
 }
+// Ô "Đo quảng cáo" trong hộp: đọc lúc lưu (khách có thể tick sau khi gửi mã).
+function kemDongYQc(p) {
+  const o = $('ohDongYQc');
+  return { ...p, dongYQuangCao: !!(o && o.checked === true) };
+}
 
-async function doSave() {
+async function doSave(chup) {
   if (saveSucceeded) return;
-  // Founder chốt 21/09/2026 (6) — run() (script chính) trả về SỚM, KHÔNG cập
-  // nhật window.__lastEstimate, khi còn ô kích thước báo lỗi (#blocked hiện).
-  // Nếu không chặn ở đây, bấm "Lưu" lúc đó sẽ âm thầm lưu ƯỚC TÍNH CŨ (lần
-  // cuối còn hợp lệ) dù form đang hiển thị lỗi — đúng dạng "tính/lưu ra số
-  // sai" mà yêu cầu này muốn tránh, chỉ khác chỗ xảy ra (lưu, không phải tính).
-  // 02/10/2026: ước tính tính trên máy chủ — lúc autosave (vừa quay lại từ OTP)
-  // có thể chưa về; chờ lượt tính đầu tiên (tối đa 15 giây) rồi mới đọc.
-  if (window.alnDuToanCho) await window.alnDuToanCho();
-  const blockedEl = document.getElementById("blocked");
-  if (blockedEl && !blockedEl.hidden) {
+  if (!chup && window.alnDuToanCho) await window.alnDuToanCho();
+  const blockedEl = $("blocked");
+  if (!chup && blockedEl && !blockedEl.hidden) {
     showMsg("Vui lòng sửa các ô đang báo lỗi ở trên trước khi lưu.", "error");
     return;
   }
-  const payload = buildPayload();
-  if (!payload) { showMsg("Chưa có ước tính để lưu — nhập kích thước trước.", "error"); return; }
+  const goc = chup || buildPayload();
+  if (!goc) { showMsg("Chưa có ước tính để lưu — nhập kích thước trước.", "error"); return; }
+  const payload = kemDongYQc(goc);
   pendingSaves++;
   retryBtn.hidden = true;
   btn.disabled = true;
-  btn.textContent = "Đang lưu...";
   showMsg("Đang lưu vào Không gian Nhà...", "info");
-  // Callable không hỗ trợ hủy request. Cho phép thử lại khi mạng treo; server
-  // chống trùng nội dung và mọi response thành công chỉ xử lý UI/tracking 1 lần.
   const slowTimer = setTimeout(() => showRetry('mạng hoặc máy chủ đang chậm, anh/chị đợi thêm chút hoặc bấm Thử lại.'), 15000);
   try {
     const res = await callSaveEstimate(getSaveOperation(payload));
     const d = res.data || {};
-    // Every successful response may recover the same server-owned Lead,
-    // regardless of which concurrent response updated the UI first.
     if (d.ok) {
       await trackSavedLead(d);
-      try { sessionStorage.removeItem(operationKey()); } catch (e) {}
+      banDaLuu(d);
+      try { sessionStorage.removeItem(operationKey()); sessionStorage.removeItem(KEY_CHUP); } catch (e) {}
     }
     if (d.ok && !saveSucceeded) {
       saveSucceeded = true;
       clearAutosaveFlag();
       retryBtn.hidden = true;
-      showMsg(d.deduped ? "Đã lưu (giống lần lưu gần nhất, không tạo bản trùng)." : "Đã lưu vào Không gian Nhà.", "ok");
-      btn.textContent = "Đã lưu — Xem Không gian Nhà";
+      showMsg("Đã lưu. Đang mở Không gian Nhà…", "ok");
+      btn.querySelector('.l1').textContent = "Đã lưu — Xem Không gian Nhà";
       btn.disabled = false;
-      showCallback(d.houseId);
+      // Cho Pixel/dataLayer kịp gửi rồi mới chuyển trang.
+      denKgn = d.houseId;
+      setTimeout(() => { window.location.href = urlKhongGianNha(denKgn); }, 700);
       return;
     }
     if (!d.ok) showRetry();
   } catch (err) {
-    // Hiện đúng lý do máy chủ trả về (câu tiếng Việt viết sẵn cho khách trong
-    // functions/saveEstimateToHouse.js) thay vì "Chưa lưu được" chung chung —
-    // 26/09/2026 Founder gặp lỗi lưu mà không biết vì sao.
     const code = (err && err.code) || '';
     console.error("[du-toan-nha] saveEstimateToHouse failed", code, err && err.message);
     window.alnBaoLoiNeuCan && window.alnBaoLoiNeuCan("du-toan-nha luu", err);
-    // Đo luồng lưu (30/09/2026): chỉ mã lỗi, không dữ liệu khách.
     try { window.dataLayer = window.dataLayer || []; window.dataLayer.push({ event: "aln_luu_loi", ma_loi: String(code || "khong_ro").slice(0, 60) }); } catch (e) {}
-    // Lớp A: chạm hạn mức 3 công trình/12 tháng (functions/lib/hanMucChuNha.js → details.han_muc).
-    try { if (err && err.details && err.details.han_muc === true && window.alnDtSuKien) window.alnDtSuKien.gioiHan(); } catch (e) {}
-    // Lỗi máy chủ đã TỪ CHỐI hẳn (sai dữ liệu / thao tác cũ không khớp) thì bỏ
-    // thao tác đang nhớ trong sessionStorage — nếu giữ, bấm "Thử lại" hay sửa
-    // số rồi lưu lại vẫn gửi y nguyên gói cũ và kẹt lỗi mãi trong tab này.
-    // Lỗi mạng/quá tải thì GIỮ để thử lại đúng thao tác cũ (server chống trùng).
-    if (/invalid-argument|failed-precondition/.test(code)) {
+    if (/invalid-argument|failed-precondition|resource-exhausted/.test(code)) {
       saveOperation = null;
       try { sessionStorage.removeItem(operationKey()); } catch (e) {}
     }
-    // Chỉ hiện câu máy chủ viết cho khách. Câu kỹ thuật nội bộ (tên collection
-    // kiểu "contact_phone_index/...", Phone Auth, mã thao tác) KHÔNG được lộ
-    // ra màn hình khách — thay bằng lời mời liên hệ Zalo.
+    // Bảng thứ 4 khác lô đất trong 12 tháng (functions/lib/hanMucChuNha.js): mời bản doanh nghiệp.
+    if (err && err.details && err.details.han_muc === true) {
+      try { if (window.alnDtSuKien) window.alnDtSuKien.gioiHan(); } catch (e) {}
+      showMsgKemLink(err.message || 'Số điện thoại này đã lưu đủ 3 công trình trong 12 tháng.', 'Mở bản doanh nghiệp →', 'du-toan-nha.html?dn=1');
+      btn.disabled = false;
+      return;
+    }
     const raw = (err && err.message) || '';
     const kyThuat = !raw || /^internal$/i.test(raw) || /[a-z]+_[a-z_]+\/|contacts\/|Phone Auth|thao tác lưu/i.test(raw);
-    // Lỗi mạng / trình duyệt / SDK (không phải mã máy chủ functions/*, hoặc unavailable/deadline-exceeded/cancelled/unknown):
-    // câu gốc là tiếng Anh ("Failed to fetch"…) → chỉ hiện "Chưa lưu được — thử lại".
     const loiMang = !/^functions\//.test(code) || /unavailable|deadline-exceeded|cancelled|^functions\/unknown$/.test(code);
     const lyDo = loiMang ? '' : kyThuat
       ? (code === 'functions/internal' || !raw ? '' : 'hệ thống gặp lỗi khi lưu hồ sơ của anh/chị. Anh/chị nhắn Zalo ALN để được hỗ trợ ngay.')
@@ -1347,43 +1408,167 @@ async function doSave() {
     if (!saveSucceeded && pendingSaves === 0) btn.disabled = false;
   }
 }
-
-function goLogin() {
-  const next = window.alnEstimateFunnel.preserve('du-toan-nha.html?autosave=1');
-  window.location.href = window.alnEstimateFunnel.preserve('dang-nhap-chu-nha.html?next=' + encodeURIComponent(next.slice(1)));
+function showRetry(lyDo) {
+  if (saveSucceeded) return;
+  showMsg(lyDo ? 'Chưa lưu được: ' + lyDo : 'Chưa lưu được — thử lại', 'error');
+  retryBtn.hidden = false;
+  btn.disabled = false;
 }
 
-// Sự cố production 22/09/2026 (3): trước đây chỉ kiểm `auth.currentUser`
-// (truthy) rồi gọi thẳng saveEstimateToHouse — nhưng trình duyệt có thể đã
-// có phiên ẩn danh (signInAnonymously, vd MyMy ở trang khác cùng origin,
-// Firebase Auth persist qua localStorage nên phiên đó "còn sống" khi mở
-// trang này dù trang này không tự tạo ẩn danh). `saveEstimateToHouse.js`
-// (server) đòi `request.auth.token.phone_number` — phiên ẩn danh không có,
-// nên request bị từ chối "Tài khoản chưa xác thực qua số điện thoại", và
-// khách KHÔNG được chuyển sang OTP vì client tưởng đã đăng nhập. Sửa: chỉ
-// coi là đã đăng nhập khi user KHÔNG ẩn danh VÀ có phoneNumber — khớp đúng
-// điều kiện server đang kiểm.
+// Sự cố production 22/09/2026 (3): chỉ coi là đã đăng nhập khi user KHÔNG ẩn danh
+// VÀ có phoneNumber — khớp điều kiện saveEstimateToHouse kiểm phía máy chủ.
 function isPhoneAuthed(user) {
   return !!(user && !user.isAnonymous && user.phoneNumber);
 }
 
-btn.addEventListener("click", () => {
-  if (saveSucceeded) { window.location.href = window.alnEstimateFunnel.preserve("khong-gian-nha.html"); return; }
+/* ── Hộp OTP ── */
+const RATE_KEY = 'aln_kh_otp_rate'; // dùng chung với dang-nhap-chu-nha.html: 3 lần / 10 phút / số
+const RATE_WINDOW_MS = 10 * 60 * 1000;
+const RATE_MAX = 3;
+function docRate() { try { return JSON.parse(sessionStorage.getItem(RATE_KEY) || '{}'); } catch (e) { return {}; } }
+function kiemRate(so) {
+  const now = Date.now(); const m = docRate();
+  const ds = (m[so] || []).filter((t) => now - t < RATE_WINDOW_MS);
+  return ds.length >= RATE_MAX ? Math.max(RATE_WINDOW_MS - (now - ds[0]), 0) : 0;
+}
+function ghiRate(so) {
+  const now = Date.now(); const m = docRate();
+  m[so] = (m[so] || []).filter((t) => now - t < RATE_WINDOW_MS).concat(now);
+  try { sessionStorage.setItem(RATE_KEY, JSON.stringify(m)); } catch (e) {}
+}
+// Chuẩn hoá SĐT — cùng quy tắc normalizePhone() của functions/contacts.js (bản sao ở dang-nhap-chu-nha.html).
+function chuanSdt(raw) {
+  let p = String(raw || '').replace(/[\s.\-()]/g, '').replace(/^\+/, '');
+  if (p.startsWith('84') && p.length > 9) p = '0' + p.slice(2);
+  return /^0\d{8,10}$/.test(p) ? p : null;
+}
+const LOI_OTP = {
+  'auth/invalid-phone-number': 'Số điện thoại chưa đúng. Anh/chị nhập số Việt Nam, ví dụ 0901234567.',
+  'auth/too-many-requests': 'Số này đã thử quá nhiều lần trong thời gian ngắn. Anh/chị đợi vài phút rồi thử lại.',
+  'auth/quota-exceeded': 'Hệ thống đã gửi hết lượt SMS hôm nay.',
+  'auth/code-expired': 'Mã đã hết hạn. Anh/chị bấm "Gửi lại mã".',
+  'auth/invalid-verification-code': 'Mã chưa đúng. Anh/chị kiểm tra lại 6 số trong tin nhắn.',
+  'auth/network-request-failed': 'Mất kết nối mạng. Anh/chị kiểm tra Internet rồi thử lại.',
+  'auth/captcha-check-failed': 'Xác thực bảo mật trình duyệt chưa xong. Anh/chị bấm gửi mã lại.',
+};
+let xacNhan = null, verifier = null, dangGui = false, demNguoc = null;
+// Nạp 2 hàm Phone Auth lúc cần (cùng module firebase-config.js đã nạp, không tải lại):
+// import tĩnh mà thiếu export sẽ làm hỏng CẢ module này, kéo theo hàm tính trên máy chủ.
+async function phoneAuth() { return import('./firebase-config.js'); }
+async function ensureRecaptcha() {
+  if (!verifier) { const { RecaptchaVerifier } = await phoneAuth(); verifier = new RecaptchaVerifier(auth, 'recaptcha-dt', { size: 'invisible' }); }
+  return verifier;
+}
+function resetRecaptcha() {
+  try { verifier && verifier.clear(); } catch (e) {}
+  verifier = null;
+  const c = $('recaptcha-dt');
+  if (c) c.replaceWith(c.cloneNode(false));
+}
+function buocHop(n) { $('ohB1').hidden = n !== 1; $('ohB2').hidden = n !== 2; }
+function dongHop() { hop.hidden = true; hop.dataset.nhom = ''; }
+function demGuiLai(giay) {
+  clearInterval(demNguoc);
+  const b = $('ohGuiLai'); let con = giay;
+  const tick = () => {
+    if (con <= 0) { clearInterval(demNguoc); b.disabled = false; b.textContent = 'Gửi lại mã'; return; }
+    b.disabled = true; b.textContent = 'Gửi lại mã (' + con + 's)'; con--;
+  };
+  tick(); demNguoc = setInterval(tick, 1000);
+}
+async function guiMa() {
+  if (dangGui) return;
+  const so = chuanSdt($('ohSdt').value);
+  if (!so) { showMsg(LOI_OTP['auth/invalid-phone-number'], 'error'); return; }
+  const cho = kiemRate(so);
+  if (cho) { showMsgKemLink('Số này đã gửi mã 3 lần trong 10 phút, thử lại sau ' + Math.ceil(cho / 60000) + ' phút. Hoặc', 'nhờ KTS gọi lại (không cần mã)', '#tuVan', moiNhoKts); return; }
+  dangGui = true;
+  const g = $('ohGui'); g.disabled = true; $('ohGuiLai').disabled = true; g.textContent = 'Đang gửi…';
+  try {
+    // Chụp bộ đầu vào khách đang thấy TRƯỚC khi gửi OTP — sau khi xác thực lưu đúng bộ này.
+    if (window.alnDuToanCho) await window.alnDuToanCho();
+    banChup = buildPayload();
+    try { sessionStorage.setItem(KEY_CHUP, JSON.stringify({ payload: banChup, loiVao, luc: Date.now() })); } catch (e) {}
+    ghiRate(so);
+    const { signInWithPhoneNumber } = await phoneAuth();
+    xacNhan = await signInWithPhoneNumber(auth, '+84' + so.slice(1), await ensureRecaptcha());
+    try { window.alnDtSuKien && window.alnDtSuKien.otpGui((loiVao && loiVao.viTri) || 'chan_bang'); } catch (e) {}
+    $('ohSdtHien').textContent = so.replace(/^(\d{4})(\d{3})(\d+)$/, '$1 $2 $3');
+    buocHop(2);
+    msg.hidden = true;
+    $('ohMa').value = '';
+    $('ohMa').focus();
+    demGuiLai(60);
+  } catch (err) {
+    console.warn('[du-toan-nha] gửi mã thất bại');
+    window.alnBaoLoiNeuCan && window.alnBaoLoiNeuCan('du-toan-nha gui-ma', err);
+    const code = err && err.code;
+    // Nhà mạng/hết lượt/lỗi lạ: mời sang form "Nhờ KTS xem giúp" (không cần OTP).
+    showMsgKemLink((LOI_OTP[code] || 'Chưa gửi được mã xác nhận.') + ' Anh/chị có thể', 'nhờ KTS gọi lại (không cần mã)', '#tuVan', moiNhoKts);
+    $('ohGuiLai').disabled = false;
+  } finally {
+    resetRecaptcha();
+    dangGui = false;
+    g.disabled = false; g.textContent = 'Gửi mã xác nhận';
+  }
+}
+async function xacNhanMa() {
+  const ma = ($('ohMa').value || '').trim();
+  if (!/^\d{6}$/.test(ma)) { showMsg('Anh/chị nhập đủ 6 số trong mã.', 'error'); return; }
+  if (!xacNhan) { showMsg(LOI_OTP['auth/code-expired'], 'error'); return; }
+  const b = $('ohXacNhan'); b.disabled = true; b.textContent = 'Đang xác nhận…';
+  try {
+    await xacNhan.confirm(ma);
+    buocHop(0);
+    clearInterval(demNguoc);
+    await doSave(banChup);
+  } catch (err) {
+    if (err && /^auth\//.test(err.code || '')) {
+      showMsg(LOI_OTP[err.code] || 'Chưa xác nhận được mã. Anh/chị thử lại.', 'error');
+    }
+  } finally {
+    b.disabled = false; b.textContent = 'Xác nhận';
+  }
+}
+
+// Mở hộp tại chỗ. neo: thẻ khoá (the_khoa) — hộp chuyển tới ngay dưới thẻ đó.
+function moHop(viTri, nhom, neo) {
+  if (saveSucceeded) { window.location.href = urlKhongGianNha(denKgn); return; }
+  loiVao = { viTri, nhom: nhom || '' };
+  hop.dataset.nhom = viTri === 'the_khoa' ? (nhom || '') : '';
+  if (viTri === 'the_khoa' && neo) neo.appendChild(hop); else $('otpNha').appendChild(hop);
+  hop.hidden = false;
+  msg.hidden = true; retryBtn.hidden = true;
   const daDangNhap = isPhoneAuthed(auth.currentUser);
-  // Đo luồng lưu (30/09/2026): bấm Lưu → (chưa đăng nhập) sang OTP. Các bước
-  // OTP đo ở dang-nhap-chu-nha.html (aln_otp_*), luong = luu_du_toan.
   try { window.dataLayer = window.dataLayer || []; window.dataLayer.push({ event: "aln_luu_bam", da_dang_nhap: daDangNhap ? 1 : 0 }); } catch (e) {}
-  if (daDangNhap) doSave(); else goLogin();
+  if (daDangNhap) { buocHop(0); doSave(); return; }
+  buocHop(xacNhan ? 2 : 1);
+}
+window.alnLuuChiTiet = { mo: moHop, dong: dongHop };
+
+btn.addEventListener('click', () => moHop('chan_bang', '', null));
+$('dockLuu').addEventListener('click', () => {
+  btn.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  moHop('thanh_dinh', '', null);
+});
+$('ohDong').addEventListener('click', dongHop);
+$('ohGui').addEventListener('click', guiMa);
+$('ohGuiLai').addEventListener('click', guiMa);
+$('ohXacNhan').addEventListener('click', xacNhanMa);
+$('ohDoiSo').addEventListener('click', () => { xacNhan = null; clearInterval(demNguoc); msg.hidden = true; buocHop(1); });
+$('ohSdt').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); guiMa(); } });
+$('ohMa').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); xacNhanMa(); } });
+$('ohMa').addEventListener('input', (e) => {
+  e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
+  if (e.target.value.length === 6) xacNhanMa(); // mã tự điền từ SMS → xác nhận luôn
 });
 retryBtn.addEventListener('click', () => {
-  if (isPhoneAuthed(auth.currentUser)) doSave(); else goLogin();
+  if (isPhoneAuthed(auth.currentUser)) doSave(banChup); else { buocHop(1); msg.hidden = true; retryBtn.hidden = true; }
 });
 
-// Quay lại từ bước OTP (?autosave=1 do goLogin() gắn vào next=) — tự lưu
-// ngay khi xác nhận phiên đăng nhập đã sẵn sàng, không bắt bấm nút lần nữa.
-// CHỜ đúng phiên Phone Auth thật (isPhoneAuthed) — KHÔNG unsub/lưu sớm nếu
-// onAuthStateChanged tạm thời báo về phiên ẩn danh cũ trước khi phiên Phone
-// Auth mới kịp thay thế.
+// Quay lại từ dang-nhap-chu-nha.html (?autosave=1 — lối cũ, vẫn dùng ở nút "Lưu dự
+// toán bạn vừa tính" trong Không gian Nhà) hoặc còn thao tác lưu dở: tự lưu khi có
+// đúng phiên Phone Auth (không lưu với phiên ẩn danh).
 const params = new URLSearchParams(window.location.search);
 {
   const unsub = onAuthStateChanged(auth, (user) => {
@@ -1391,7 +1576,10 @@ const params = new URLSearchParams(window.location.search);
     unsub();
     let pending = false;
     try { pending = !!sessionStorage.getItem(operationKey()); } catch (e) {}
-    if (params.get("autosave") === "1" || pending) doSave();
+    if (params.get("autosave") === "1" || pending) {
+      $('otpNha').appendChild(hop); hop.hidden = false; buocHop(0);
+      doSave();
+    }
   });
 }
 </script>
@@ -1893,7 +2081,7 @@ f.form.addEventListener('submit', async (e) => {
 
 <!-- Nút MyMy + bóng chat mời (mymy-moi.js tự nạp). Gắn sau mốc đo 7 ngày DT-T9-2026 (Nam chốt, 01/10/2026). Thanh .dock có data-mymy-tranh → nút tự nâng lên trên thanh trên điện thoại. -->
 <!-- ?v=: đổi số khi sửa MyMy để trình duyệt không dùng bản cũ trong bộ nhớ đệm (30/09/2026: khách vẫn thấy lời chào cũ sau khi đã deploy). -->
-<script src="mymy-du-toan-nha.js?v=17"></script>
+<script src="mymy-du-toan-nha.js?v=18"></script>
 <script type="module" src="mymy-widget.js?v=20"></script>
 <script src="aln-zalo-widget.js" defer></script>
 <!-- ALN-PHAP-NHAN --><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"><style id="alnpn-css">.alnpn,.alnpn *{box-sizing:border-box;margin:0;padding:0;border:0;font:inherit;letter-spacing:normal;text-transform:none;text-shadow:none;float:none;background:none;min-width:0}.alnpn{display:block;width:100%;clear:both;position:relative;z-index:0;background:#0b1428;border-top:2px solid #d4a017;color:#cbd5e1;font-family:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:15px;font-weight:400;line-height:1.5;text-align:left;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;padding:28px 20px 88px}.alnpn-in{max-width:1280px;margin:0 auto;display:grid;gap:22px}.alnpn-brand{display:flex;align-items:center;gap:14px}.alnpn-brand img{display:block;flex:none;width:44px;height:44px;border-radius:10px}.alnpn-ten{font-weight:700;font-size:17px;line-height:1.3;letter-spacing:.03em;color:#fff}.alnpn-sub{margin-top:2px;font-size:13px;line-height:1.4;color:#9fb0c8}.alnpn-muc dt{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;line-height:1.3;letter-spacing:.08em;text-transform:uppercase;color:#e0b43a;margin-bottom:6px}.alnpn-muc dt svg{display:block;flex:none;width:16px;height:16px;fill:none;stroke:#e0b43a;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.alnpn-muc dd{font-size:15px;font-weight:500;line-height:1.45;color:#f1f5f9}.alnpn-mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:600;letter-spacing:.02em}.alnpn a{color:#fff;text-decoration:none}.alnpn a:hover,.alnpn a:focus-visible{color:#e0b43a;outline:none}.alnpn-note{font-size:13px;font-weight:400;color:#9fb0c8;margin-left:8px;white-space:nowrap}@media (min-width:768px){.alnpn{padding:26px 28px}.alnpn-in{grid-template-columns:auto auto auto auto;justify-content:space-between;align-items:stretch;gap:0}.alnpn-brand{align-self:center}.alnpn-muc{padding:0 0 0 28px;margin-left:28px;border-left:1px solid rgba(224,180,58,.22)}}@media (min-width:768px) and (max-width:1099px){.alnpn-in{grid-template-columns:auto minmax(0,1fr) auto;justify-content:stretch;row-gap:20px}.alnpn-brand{grid-column:1/-1;align-self:start}.alnpn-muc:nth-child(2){border-left:0;margin-left:0;padding-left:0}}</style><section class="alnpn" aria-label="Thông tin doanh nghiệp"><div class="alnpn-in"><div class="alnpn-brand"><img src="/icon-192.png" alt="" width="44" height="44" loading="lazy"><div><div class="alnpn-ten">CÔNG TY TNHH ALN</div><div class="alnpn-sub">Đơn vị chủ quản website applamnha.vn</div></div></div><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M10 12h5M10 16h5"/></svg>Mã số thuế</dt><dd class="alnpn-mono">3502593013</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-6-5.3-6-11a6 6 0 1 1 12 0c0 5.7-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/></svg>Địa chỉ</dt><dd>Khu TTTM Sonadezi 536 Trung Sơn, Ngãi Giao, TP. Hồ Chí Minh</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 5 5L14 13l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>Hotline</dt><dd><a class="alnpn-mono" href="tel:0909829696">0909 829 696</a><span class="alnpn-note">KTS Trần Long</span></dd></dl></div></section>

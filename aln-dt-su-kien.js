@@ -14,7 +14,8 @@
  *  - Mỗi sự kiện một lần mỗi lần tải trang; aln_dt_step một lần mỗi bước.
  *
  * API: window.alnDtSuKien.{batDau(trang), buoc(n, thamSo), ketQua(thamSo,
- *      phanCuoi), formStart(), b2b(), gioiHan()}. ES5.
+ *      phanCuoi), chiTiet(nhom), otpGui(viTri), luu(khoa, thamSo), formStart(),
+ *      b2b(), gioiHan()}. ES5.
  */
 (function () {
   'use strict';
@@ -134,6 +135,16 @@
       return ok;
     },
     daCoKetQua: function () { return !!daBan.result; },
+    // Khoá chi tiết hạng mục (05/10/2026). aln_dt_result_engaged GIỮ NGUYÊN nghĩa cũ
+    // (cuộn tới cuối bảng / ở lại ≥60 giây) — không đo bấm ">" — nên bấm ">" khi
+    // chưa mở khoá là sự kiện riêng aln_detail_click{nhom}, một lần mỗi nhóm.
+    chiTiet: function (nhom) { motLan('ct_' + nhom, 'aln_detail_click', { nhom: String(nhom || '').slice(0, 80) }); },
+    // Gửi OTP thành công ở hộp "Lưu và xem chi tiết" — một lần mỗi lối vào mỗi lần tải.
+    otpGui: function (viTri) { motLan('otp_' + viTri, 'aln_otp_sent', { vi_tri: viTri }); },
+    // Lưu thành công (= mở khoá). khoa: mã thao tác lưu để không bắn trùng khi máy
+    // chủ trả 2 phản hồi cho cùng một lần lưu. thamSo: vi_tri, nguon_luu, nhom,
+    // aln_house_id, event_id.
+    luu: function (khoa, thamSo) { motLan('luu_' + khoa, 'aln_du_toan_luu', thamSo || {}); },
     formStart: function () { motLan('form_start', 'aln_form_start', { vi_tri: 'duoi_ket_qua' }); },
     b2b: function () { motLan('b2b', 'aln_dt_b2b_click', {}); },
     gioiHan: function () { motLan('limit', 'aln_dt_limit_hit', {}); }

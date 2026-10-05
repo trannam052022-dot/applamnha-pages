@@ -339,6 +339,18 @@ a{color:inherit}
 .dt-det td{font-size:var(--text-sm);padding:.35rem 0;border-top:1px dashed var(--border-soft);color:var(--text-3);vertical-align:top}
 .dt-det td.q{font-family:var(--f-mono);color:var(--dim);white-space:nowrap;padding-right:.5rem;text-align:right}
 .dt-det td.v{font-family:var(--f-mono);text-align:right;white-space:nowrap;color:var(--text-2)}
+.dt-det td.dg{font-family:var(--f-mono);color:var(--dim);white-space:nowrap;padding-right:.5rem;text-align:right}
+@media(max-width:420px){.dt-det td.dg{display:none}}
+.dt-sua{margin-top:1rem;border:1px solid var(--border-soft);border-radius:var(--r-sm);padding:.8rem}
+.dt-sua summary{cursor:pointer;font-weight:600;color:var(--text-1);font-size:var(--text-sm)}
+.dt-sua table{width:100%;border-collapse:collapse;margin-top:.6rem}
+.dt-sua td{font-size:var(--text-sm);padding:.35rem 0;border-top:1px dashed var(--border-soft);color:var(--text-2);vertical-align:middle}
+.dt-sua td.dv{color:var(--dim);width:3.2rem;text-align:center}
+.dt-sua td:last-child{width:8.5rem}
+.dt-sua input{width:100%;box-sizing:border-box;font-family:var(--f-mono);font-size:var(--text-base);text-align:right;padding:.35rem .5rem;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text-1)}
+.dt-sua tr.chg input{border-color:var(--gold)}
+.dt-sua-msg{font-size:var(--text-sm);margin-top:.5rem;color:var(--text-3)}
+.dt-sua-msg.err{color:var(--red,#e5484d)}
 .dt-foot{display:flex;justify-content:space-between;padding:.7rem 0 .2rem;font-weight:600;font-size:var(--text-sm);color:var(--text-1)}
 .dt-foot span:last-child{font-family:var(--f-mono)}
 .dt-sub{font-family:var(--f-head);font-weight:500;font-size:var(--text-sm);color:var(--text-3);margin:1rem 0 .2rem}
@@ -518,6 +530,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="dt-sub">Phần bạn tự mua</div>
       <div class="dt-rows" id="dtRowsH"></div>
       <div class="dt-foot"><span>Cộng vật tư hoàn thiện</span><span id="dtTotH"></span></div>
+      <!-- Sửa giá vật tư (05/10/2026): lưu thành phiên bản dự toán mới qua
+           saveEstimateToHouse (máy chủ tính lại toàn bộ), tổng cập nhật theo snapshot. -->
+      <details class="dt-sua" id="dtSua">
+        <summary>Sửa giá vật tư theo nơi bạn mua</summary>
+        <div id="dtSuaBody"><p class="dt-sua-msg">Đang tải bảng giá…</p></div>
+        <button type="button" class="btn btn-gold" id="dtSuaLuu" style="margin-top:.7rem" hidden>Lưu giá mới</button>
+        <p class="dt-sua-msg" id="dtSuaMsg" role="status" aria-live="polite"></p>
+      </details>
       <a class="btn btn-gold dt-xuat" id="dtXuat" href="#">Xuất file chi tiết (PDF)</a>
       <p class="dt-xuat-hint">Bảng từng hạng mục có mã ALN, dùng để tự kiểm tra hoặc trao đổi với KTS.</p>
       <p class="dt-fine">Đây là ước tính theo nhà mẫu cùng loại, chưa phải dự toán chính thức cho công trình của bạn. Dự toán đúng cho nhà bạn phải bóc từ chính bản vẽ của bạn — gửi bản vẽ ở khối bên dưới để ALN bóc khối lượng thật.</p>
@@ -994,7 +1014,9 @@ function drawDuToanRows(el, lines, total) {
     const pct = total ? Math.max(1, (v / total) * 100) : 0;
     const head = `<span class="nm">${items.length ? DT_CHEVRON : ''}${esc(x.n)}</span><span class="am">${esc(fmtMoney(v))}</span>${x.tag ? `<span class="tag" style="grid-column:1/-1">${esc(x.tag)}</span>` : ''}<span class="bar"><i style="width:${pct}%"></i></span>`;
     if (!items.length) return `<div class="dt-row"><div class="h">${head}</div></div>`;
-    const det = `<div class="dt-det"><table>${items.slice().sort((a, b) => (Number(b.thanh_tien) || 0) - (Number(a.thanh_tien) || 0)).map((r) => `<tr><td>${esc(r.ten)}</td><td class="q">${Number(r.khoi_luong || 0).toLocaleString('vi-VN', { maximumFractionDigits: 2 })} ${esc(r.don_vi || '')}</td><td class="v">${esc(fmtMoney(r.thanh_tien))}</td></tr>`).join('')}</table></div>`;
+    // Khối lượng · đơn giá · thành tiền (05/10/2026). Bản lưu cũ không có don_gia → suy từ tiền ÷ khối lượng.
+    const donGia = (r) => { const d = Number(r.don_gia); if (Number.isFinite(d) && r.don_gia != null) return d; const kl = Number(r.khoi_luong); return kl > 0 ? Number(r.thanh_tien) / kl : null; };
+    const det = `<div class="dt-det"><table>${items.slice().sort((a, b) => (Number(b.thanh_tien) || 0) - (Number(a.thanh_tien) || 0)).map((r) => { const dg = donGia(r); return `<tr><td>${esc(r.ten)}</td><td class="q">${Number(r.khoi_luong || 0).toLocaleString('vi-VN', { maximumFractionDigits: 2 })} ${esc(r.don_vi || '')}</td><td class="dg">${dg != null && Number.isFinite(dg) ? esc(Math.round(dg).toLocaleString('vi-VN')) : ''}</td><td class="v">${esc(fmtMoney(r.thanh_tien))}</td></tr>`; }).join('')}</table></div>`;
     return `<div class="dt-row${open ? ' open' : ''}"><button type="button" aria-expanded="${open}" data-id="${esc(id)}">${head}</button>${det}</div>`;
   }).join('');
   el.querySelectorAll('button[data-id]').forEach((b) => {
@@ -1026,7 +1048,88 @@ function renderDuToanLatest(v) {
   // Xuất file chi tiết có mã ALN (in-du-toan.html, Nam chốt 30/09/2026)
   const xuat = document.getElementById('dtXuat');
   if (xuat && currentHouseId) xuat.href = 'in-du-toan.html?h=' + encodeURIComponent(currentHouseId);
+  moNhomTuDuToan();
+  veSuaGia(v);
 }
+
+/* Vừa lưu từ du-toan-nha.html (05/10/2026): ?h=<house>&nhom=<tên nhóm> — mở đúng nhóm
+   khách đã bấm ở thẻ khoá và cuộn tới đó; không có nhom thì cuộn tới đầu bảng dự toán.
+   Chỉ một lần mỗi lần tải trang. */
+let daMoNhom = false;
+function moNhomTuDuToan() {
+  if (daMoNhom || !THAM_SO.get('h')) return;
+  daMoNhom = true;
+  const nhom = THAM_SO.get('nhom') || '';
+  let dich = els.dtBlock;
+  if (nhom) {
+    for (const el of [els.dtRows, els.dtRowsH]) {
+      const b = Array.from(el.querySelectorAll('button[data-id]')).find((x) => x.dataset.id === el.id + ':' + nhom);
+      if (b) { if (!b.parentElement.classList.contains('open')) b.click(); dich = b.parentElement; break; }
+    }
+  }
+  setTimeout(() => dich.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120);
+}
+
+/* Sửa giá vật tư (05/10/2026): bảng tên/đơn vị/giá mặc định lấy từ tinhDuToanNha
+   (chiBangGia — chỉ bảng giá, không tiền); lưu = saveEstimateToHouse với đúng tham
+   số của phiên bản đang xem + giá mới → phiên bản mới, tổng cập nhật qua snapshot. */
+const callTinhDuToanNha = httpsCallable(functionsInst, 'tinhDuToanNha', { timeout: 20000 });
+const callSaveEstimate = httpsCallable(functionsInst, 'saveEstimateToHouse');
+let suaGia = { v: null, bang: null, khoa: '', moi: {} };
+function veSuaGia(v) {
+  const body = document.getElementById('dtSuaBody');
+  const nut = document.getElementById('dtSuaLuu');
+  if (!body || !v || !v.inputs) return;
+  const khoa = (v.phien_ban || '') + '|' + currentHouseId;
+  if (suaGia.khoa === khoa) return;
+  suaGia = { v, bang: null, khoa, moi: {} };
+  document.getElementById('dtSuaMsg').textContent = '';
+  if (XEM_FOUNDER) { body.innerHTML = '<p class="dt-sua-msg">Chế độ xem của Founder không sửa giá.</p>'; nut.hidden = true; return; }
+  body.innerHTML = '<p class="dt-sua-msg">Đang tải bảng giá…</p>';
+  nut.hidden = true;
+  callTinhDuToanNha({ chiBangGia: true, inputs: v.inputs, priceOverrides: v.gia_vat_tu_da_sua || {} }).then((res) => {
+    if (suaGia.khoa !== khoa) return;
+    const bg = (res.data && res.data.bangGia) || {};
+    const ds = [].concat(bg.T || [], bg.H || []);
+    suaGia.bang = ds;
+    const cu = v.gia_vat_tu_da_sua || {};
+    body.innerHTML = `<table>${ds.map((d) => { const g = cu[d.m] != null ? cu[d.m] : d.gia; return `<tr data-m="${esc(d.m)}"><td>${esc(d.ten)}</td><td class="dv">${esc(d.dv || '')}</td><td><input type="text" inputmode="numeric" autocomplete="off" data-m="${esc(d.m)}" data-gia="${esc(d.gia)}" value="${esc(Math.round(Number(g) || 0).toLocaleString('vi-VN'))}" aria-label="Giá ${esc(d.ten)}"></td></tr>`; }).join('')}</table>`;
+    body.querySelectorAll('input[data-m]').forEach((inp) => inp.addEventListener('input', () => {
+      const so = inp.value.replace(/\D/g, '');
+      inp.value = so ? Number(so).toLocaleString('vi-VN') : '';
+      suaGia.moi[inp.dataset.m] = so;
+      inp.closest('tr').classList.toggle('chg', so !== '' && Number(so) !== Number(inp.dataset.gia));
+    }));
+    nut.hidden = false;
+  }).catch(() => { if (suaGia.khoa === khoa) body.innerHTML = '<p class="dt-sua-msg err">Chưa tải được bảng giá, anh/chị thử tải lại trang.</p>'; });
+}
+document.getElementById('dtSuaLuu').addEventListener('click', async () => {
+  const v = suaGia.v; if (!v || XEM_FOUNDER) return;
+  const nut = document.getElementById('dtSuaLuu'), m = document.getElementById('dtSuaMsg');
+  const px = { ...(v.gia_vat_tu_da_sua || {}) };
+  for (const k of Object.keys(suaGia.moi)) { const so = suaGia.moi[k]; if (so === '') delete px[k]; else px[k] = Number(so); }
+  const nc = v.nhan_cong || {};
+  nut.disabled = true; m.className = 'dt-sua-msg'; m.textContent = 'Đang tính lại và lưu…';
+  try {
+    const res = await callSaveEstimate({
+      inputs: v.inputs, priceOverrides: px,
+      nhanCong: { cheDo: nc.cheDo || 'khoan', khoanDonGia: nc.khoanDonGia, congDonGia: nc.congDonGia },
+      // Bản lưu trước 05/10/2026 không có mep_don_gia → mặc định của công cụ (250.000 đ/m²).
+      mepDonGia: v.mep_don_gia != null ? v.mep_don_gia : 250000,
+      qlPct: v.ql_pct, vatPct: v.vat,
+      ...(window.alnEstimateFunnel ? window.alnEstimateFunnel.signals() : {}),
+      sourceUrl: location.origin + '/du-toan-nha.html',
+      optout: window.ALN_INTERNAL === true,
+      operationId: crypto.randomUUID(),
+    });
+    const d = res.data || {};
+    m.textContent = d.deduped ? 'Giá không đổi so với phiên bản hiện tại.' : 'Đã lưu phiên bản ' + d.phienBan + ' — tổng đã cập nhật ở trên.';
+  } catch (err) {
+    m.className = 'dt-sua-msg err';
+    const raw = (err && err.message) || '';
+    m.textContent = /^functions\/(invalid-argument|resource-exhausted|failed-precondition)$/.test(err && err.code) && raw ? raw : 'Chưa lưu được, anh/chị thử lại.';
+  } finally { nut.disabled = false; }
+});
 
 function renderDuToanOldList(oldVersions) {
   const has = Array.isArray(oldVersions) && oldVersions.length > 0;
@@ -1434,6 +1537,7 @@ function renderChoose(houses) {
 }
 
 let cachedHouses = [];
+const THAM_SO = new URLSearchParams(location.search);
 
 async function init() {
   showState('loading');
@@ -1450,7 +1554,12 @@ async function init() {
       return;
     }
     els.switchHouseLink.hidden = houses.length < 2;
-    if (houses.length === 1) {
+    // Vừa lưu từ du-toan-nha.html: mở đúng hồ sơ vừa lưu (chỉ khi house thuộc SĐT này).
+    const hMuon = THAM_SO.get('h');
+    const hDung = hMuon && houses.find((h) => h.id === hMuon);
+    if (hDung) {
+      loadHouse(hDung.id);
+    } else if (houses.length === 1) {
       loadHouse(houses[0].id);
     } else {
       renderChoose(houses);
