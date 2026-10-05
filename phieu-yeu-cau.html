@@ -197,6 +197,12 @@ ul.plain li{margin:2px 0}
 
 /* ── In / Lưu PDF ── */
 @page{size:A4;margin:0}
+.fx-khach{max-width:860px;margin:10px auto;padding:12px 14px;border:1px dashed #b07a10;border-radius:10px;background:#fff8e6;font-size:14px;color:#3a2a00}
+.fx-khach .fx-hang{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:flex-end;margin:8px 0}
+.fx-khach label{display:flex;flex-direction:column;gap:3px;font-size:13px;flex:1 1 180px}
+.fx-khach input{font:inherit;padding:7px 9px;border:1px solid #d8c08a;border-radius:6px;background:#fff;min-width:0}
+.fx-khach .fx-goi{color:#6b5310;font-size:13px}
+.fx-khach .fx-tt{display:block;margin-top:4px;font-weight:600}
 @media print{
   /* Giấy in: chữ xám nhạt + chữ < 8pt dễ mờ trên máy in văn phòng → đậm màu, nâng cỡ tối thiểu */
   :root{--muted:#343b4a;--line:#9ea4b0;--ink:#10151f}
@@ -234,6 +240,18 @@ ul.plain li{margin:2px 0}
   </div>
 </div>
 <p class="tip" id="tip" hidden>Điền những gì anh/chị đã biết, mục nào chưa rõ cứ để trống. Phiếu tự lưu nháp trên máy này; bấm <b>Lưu phiếu</b> để KTS xem trước buổi gặp. Trên điện thoại: bấm <b>Lưu &amp; tải PDF</b> rồi chọn <b>In</b> → <b>Lưu PDF</b> (hoặc Chia sẻ).</p>
+
+<div class="fx-khach no-print" id="fxKhach" hidden>
+  <b>Thông tin khách nói qua điện thoại</b> <span class="fx-goi">— chỉ Founder thấy ô này; để trống là dùng thông tin hệ thống.</span>
+  <div class="fx-hang">
+    <label>Họ tên <input id="fxTen" maxlength="80" placeholder="VD: Nguyễn Văn An"></label>
+    <label>Địa chỉ đất <input id="fxDiaChi" maxlength="200" placeholder="Số nhà, đường, phường/xã, tỉnh"></label>
+    <label>Diện tích sàn khách nói (m²) <input id="fxDt" inputmode="decimal" maxlength="12" placeholder="VD: 300"></label>
+    <button type="button" class="btn btn-gold" id="fxLuu">Lưu vào phiếu</button>
+  </div>
+  <span class="fx-goi">Diện tích này chỉ hiện ở dòng Quy mô cho khách dễ hình dung — phí thiết kế vẫn theo dự toán đã lưu.</span>
+  <span class="fx-tt" id="fxTrangThai" role="status"></span>
+</div>
 
 <div class="state" id="stLoading">Đang tải phiếu của anh/chị…</div>
 <div class="state" id="stError" hidden><p id="errText">Chưa tải được phiếu.</p><button type="button" class="btn btn-gold" id="btnRetry">Thử lại</button></div>
@@ -653,14 +671,51 @@ function veDienSan(sdt4, ds, phieu) {
   }
 }
 
+function quyMoTuDuToan(ds) {
+  return ds.so_tang + ' sàn' + (ds.dt_thuc_xay != null ? ' · diện tích xây dựng dự kiến ' + soLe(ds.dt_thuc_xay) + ' m²' : '');
+}
 function dienMacDinhOTrong(ds) {
   const o = (k) => sheet.querySelector('[data-k="' + k + '"]');
   if (!o('ho_ten').value && ds.ten_goi_y) o('ho_ten').value = ds.ten_goi_y;
+  if (!o('dia_chi_dat').value && ds.dia_chi_dat) o('dia_chi_dat').value = ds.dia_chi_dat;
   if (!o('kich_thuoc').value && ds.rong_truoc != null) {
     o('kich_thuoc').value = 'Mặt tiền ' + soLe(ds.rong_truoc) + ' m · mặt hậu ' + soLe(ds.rong_sau != null ? ds.rong_sau : ds.rong_truoc) + ' m · sâu ' + soLe(ds.sau_trai) + ' m';
   }
-  if (!o('quy_mo').value && ds.so_tang != null) {
-    o('quy_mo').value = ds.so_tang + ' sàn' + (ds.dt_thuc_xay != null ? ' · diện tích xây dựng dự kiến ' + soLe(ds.dt_thuc_xay) + ' m²' : '');
+  // Diện tích khách nói (Founder ghi, 05/10/2026): thay câu tự điền từ dự toán, kể cả
+  // khi nháp trên máy còn giữ câu cũ. Câu khách tự sửa thì không đụng.
+  const qm = o('quy_mo');
+  const tuDong = ds.so_tang != null ? quyMoTuDuToan(ds) : '';
+  if (ds.dt_khach_noi != null) {
+    if (!qm.value || qm.value === tuDong) {
+      qm.value = (ds.so_tang != null ? ds.so_tang + ' sàn · ' : '') + 'tổng diện tích sàn khoảng ' + soLe(ds.dt_khach_noi) + ' m² (theo chủ nhà cung cấp)';
+    }
+  } else if (!qm.value && tuDong) {
+    qm.value = tuDong;
+  }
+}
+
+/* ── Founder ghi thông tin khách nói qua điện thoại (05/10/2026). Chỉ hiện ở chế độ xem Founder, không in. ── */
+function veFounderKhach(gd) {
+  const box = $('fxKhach');
+  box.hidden = false;
+  gd = gd || {};
+  $('fxTen').value = gd.ho_ten || '';
+  $('fxDiaChi').value = gd.dia_chi_dat || '';
+  $('fxDt').value = gd.dt_khach_noi != null ? String(gd.dt_khach_noi) : '';
+}
+async function luuFounderKhach() {
+  const nut = $('fxLuu');
+  nut.disabled = true;
+  $('fxTrangThai').textContent = 'Đang lưu…';
+  try {
+    await callPhieu({ houseId, hanh_dong: 'dat_khach', thong_tin_khach: {
+      ho_ten: $('fxTen').value, dia_chi_dat: $('fxDiaChi').value, dt_khach_noi: $('fxDt').value,
+    } });
+    $('fxTrangThai').textContent = 'Đã lưu — đang tải lại phiếu…';
+    setTimeout(() => location.reload(), 400);
+  } catch (e) {
+    $('fxTrangThai').textContent = 'Chưa lưu được (' + (e && e.code ? e.code : 'lỗi mạng') + ').';
+    nut.disabled = false;
   }
 }
 
@@ -733,6 +788,7 @@ async function moPhieu() {
     hienState('sheet');
     $('btnLuu').disabled = false; $('btnPdf').disabled = false;
     if (XEM_FOUNDER) {
+      veFounderKhach(d.ghi_de);
       $('btnLuu').hidden = true;
       $('btnPdf').textContent = 'Tải PDF';
       nhapTrangThai(d.phieu ? 'Phiếu khách đã lưu ' + ngayVN(svMs) + ' (chỉ xem).' : 'Khách chưa lưu phiếu (chỉ xem).');
@@ -766,6 +822,7 @@ $('btnThemTang').addEventListener('click', () => { themDongTang({ ten: '' }); co
 $('btnLuu').addEventListener('click', luuLenHeThong);
 $('btnPdf').addEventListener('click', taiPdf);
 $('btnRetry').addEventListener('click', moPhieu);
+$('fxLuu').addEventListener('click', luuFounderKhach);
 
 async function batDau() {
   const q = new URLSearchParams(location.search).get('h') || '';
