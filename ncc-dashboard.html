@@ -279,6 +279,37 @@ import {
   auth, db, onAuthStateChanged, signOut, doc, getDoc, updateDoc, serverTimestamp,
   storage, storageRef, uploadBytes, getDownloadURL, onSnapshot
 } from './firebase-config.js';
+import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+// Đổi mật khẩu — dùng khi Founder tạo sẵn gian hàng và giao mật khẩu tạm
+// (scripts/tao-gian-hang-ncc.js). Xác thực lại bằng mật khẩu hiện tại trước.
+window.nccDoiMatKhau = async function(){
+  const cuEl = document.getElementById('fPwCu');
+  const moiEl = document.getElementById('fPwMoi');
+  const btn = document.getElementById('btnDoiMk');
+  const cu = cuEl ? cuEl.value : '';
+  const moi = moiEl ? moiEl.value : '';
+  const user = auth.currentUser;
+  if(!user || !user.email){ showToast('Phiên đăng nhập đã hết — đăng nhập lại rồi thử', true); return; }
+  if(!cu){ showToast('Nhập mật khẩu hiện tại', true); return; }
+  if(moi.length < 8){ showToast('Mật khẩu mới cần tối thiểu 8 ký tự', true); return; }
+  if(moi === cu){ showToast('Mật khẩu mới phải khác mật khẩu hiện tại', true); return; }
+  btn.disabled = true;
+  try {
+    await reauthenticateWithCredential(user, EmailAuthProvider.credential(user.email, cu));
+    await updatePassword(user, moi);
+    cuEl.value = ''; moiEl.value = '';
+    showToast('✅ Đã đổi mật khẩu. Lần sau đăng nhập bằng mật khẩu mới.');
+  } catch(e){
+    const c = e && e.code ? e.code : '';
+    if(c === 'auth/wrong-password' || c === 'auth/invalid-credential') showToast('Mật khẩu hiện tại chưa đúng', true);
+    else if(c === 'auth/weak-password') showToast('Mật khẩu mới quá yếu — thêm chữ và số', true);
+    else if(c === 'auth/too-many-requests') showToast('Thử sai nhiều lần — đợi vài phút rồi thử lại', true);
+    else showToast('Chưa đổi được mật khẩu — thử lại', true);
+  } finally {
+    btn.disabled = false;
+  }
+};
 
 const MAX_IMAGES = 12;
 const GALLERY_UI_MAX = 5; // giới hạn hiển thị/thêm mới trong bản đơn giản — MAX_IMAGES giữ nguyên làm trần an toàn khi lưu, tránh mất ảnh cũ của ai đã có >5 ảnh từ trước
@@ -655,6 +686,16 @@ function render(){
           + '<div class="accordion-sub-title"><i class="ph-duotone ph-video"></i>Video giới thiệu</div>'
           + '<div class="hint">Dán link video YouTube, TikTok hoặc Facebook của bạn (tối đa ' + MAX_VIDEOS + ' video). Lưu ý: video Facebook phải để chế độ <b>Công khai</b> mới phát được.</div>'
           + videosHtml()
+        + '</div>'
+
+        + '<div class="accordion-sub">'
+          + '<div class="accordion-sub-title"><i class="ph-duotone ph-lock-key"></i>Đổi mật khẩu</div>'
+          + '<div class="hint">Nếu ALN tạo sẵn tài khoản và gửi mật khẩu cho bạn, hãy đổi sang mật khẩu riêng. Tối thiểu 8 ký tự. Phần này không cần bấm "Lưu thay đổi".</div>'
+          + '<div class="field-row">'
+            + '<div class="field"><label for="fPwCu">Mật khẩu hiện tại</label><input type="password" id="fPwCu" autocomplete="current-password"></div>'
+            + '<div class="field"><label for="fPwMoi">Mật khẩu mới</label><input type="password" id="fPwMoi" autocomplete="new-password" minlength="8"></div>'
+          + '</div>'
+          + '<button type="button" class="btn btn-ghost btn-sm" id="btnDoiMk" style="margin-top:12px" onclick="nccDoiMatKhau()"><i class="ph-duotone ph-key"></i>Đổi mật khẩu</button>'
         + '</div>'
 
       + '</div>'
