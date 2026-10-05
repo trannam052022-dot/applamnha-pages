@@ -125,6 +125,7 @@ input::placeholder{color:var(--dim)}
 }
 .field input:focus{border-color:var(--gold-dim);box-shadow:0 0 0 3px var(--gold-bg)}
 .field-otp input{letter-spacing:.5em;text-align:center;padding-left:.9rem;font-size:var(--text-lg)}
+.field-otp input::placeholder{letter-spacing:normal;font-size:var(--text-base)}
 .field-hint{font-size:var(--text-sm);color:var(--text-3);margin-top:.45rem;line-height:1.65}
 
 .btn{
@@ -247,7 +248,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="field field-otp">
       <label for="otpInput">Mã xác nhận (6 số)</label>
       <div class="field-wrap">
-        <input id="otpInput" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="\d*" maxlength="6" placeholder="••••••">
+        <input id="otpInput" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="\d*" maxlength="6" placeholder="Nhập 6 số">
       </div>
     </div>
 

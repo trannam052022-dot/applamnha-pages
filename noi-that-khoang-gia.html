@@ -137,6 +137,7 @@ tr.sum td{font-weight:800;background:var(--cream)}
 .gate .btn{margin-top:4px}
 .otp{display:grid;grid-template-columns:minmax(0,1fr);min-width:0;gap:10px;border:1px solid var(--border);border-radius:12px;padding:12px;background:var(--cream)}
 .otp input{letter-spacing:.4em;text-align:center;font-size:var(--text-lg);font-weight:800}
+.otp input::placeholder{letter-spacing:normal;font-weight:400;font-size:var(--text-base)}
 .otp-lk{display:flex;gap:14px;flex-wrap:wrap;font-size:var(--text-sm)}
 .otp-lk button{background:none;border:none;padding:0;color:var(--gold);font-weight:700;font-family:inherit;font-size:inherit;cursor:pointer}
 .otp-lk button:disabled{color:var(--muted);cursor:default}
@@ -439,7 +440,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <button class="btn" type="submit" id="g-btn"><i class="ph-duotone ph-shield-check"></i> Gửi mã xác nhận</button>
         <div class="otp" id="g-otp" hidden>
           <div class="hint" style="margin:0">Nhập 6 số ALN vừa gửi qua SMS tới <b id="g-sdt-hien"></b></div>
-          <input id="g-ma" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="\d*" maxlength="6" placeholder="••••••">
+          <input id="g-ma" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="\d*" maxlength="6" placeholder="Nhập 6 số">
           <button class="btn" type="button" id="g-xn" style="margin-top:0"><i class="ph-duotone ph-lock-open"></i> Xác nhận và mở bảng</button>
           <div class="otp-lk"><button type="button" id="g-gui-lai" disabled>Gửi lại mã</button><button type="button" id="g-doi">Đổi số điện thoại</button></div>
         </div>
