@@ -87,8 +87,29 @@ a{color:var(--gold);text-decoration:none}
 .price-table th{text-align:left;font-family:var(--syne);font-size:var(--text-2xs);text-transform:uppercase;letter-spacing:.06em;color:var(--sub);padding:6px 8px;border-bottom:1.5px solid var(--border2)}
 .price-table td{padding:8px;border-bottom:1px solid var(--border)}
 .price-table tr:last-child td{border-bottom:none}
-.price-table td.num{text-align:right;font-family:var(--mono);color:var(--text)}
+.price-table td.num{text-align:right;font-family:var(--mono);color:var(--text);white-space:nowrap}
 .price-note{font-size:var(--text-xs);color:var(--sub);margin-top:4px}
+.price-hint{display:flex;align-items:center;gap:6px;font-size:var(--text-xs);color:var(--gold);font-weight:700;margin-bottom:8px}
+.price-table tr.pr-co-ct{cursor:pointer;transition:background .12s}
+.price-table tr.pr-co-ct:hover,.price-table tr.pr-co-ct:focus-visible{background:var(--cream2);outline:none}
+.price-table tr.pr-co-ct td:first-child{font-weight:700;color:var(--text)}
+.pr-caret{display:inline-block;margin-right:6px;color:var(--gold);transition:transform .18s;vertical-align:-2px}
+.price-table tr.pr-mo .pr-caret{transform:rotate(90deg)}
+.price-table tr.pr-mo td{border-bottom-color:transparent;background:var(--cream2)}
+.price-table tr.pr-ct-row>td{padding:0 8px 14px;background:var(--cream2)}
+.pr-ct{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.pr-ct-h{font-family:var(--syne);font-size:var(--text-xs);font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--gold);margin:14px 0 6px}
+.pr-ct-h:first-child{margin-top:0}
+.pr-ct-kv{display:grid;grid-template-columns:minmax(120px,34%) 1fr;gap:10px;padding:6px 0;border-bottom:1px dashed var(--border);font-size:var(--text-sm)}
+.pr-ct-kv b{color:var(--sub);font-weight:600}
+.pr-ct-kv span{color:var(--text)}
+.pr-ct ul{margin:2px 0 0;padding-left:18px;font-size:var(--text-sm);color:var(--text2)}
+.pr-ct li{padding:3px 0}
+.pr-ct p{margin:4px 0;font-size:var(--text-sm);color:var(--text2);line-height:1.6}
+.pr-ct-cta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.pr-ct-cta button{display:inline-flex;align-items:center;gap:6px;border:none;border-radius:99px;padding:9px 16px;font-weight:800;font-size:var(--text-sm);cursor:pointer;background:var(--gold);color:#fff}
+.pr-ct-cta button.pr-thu{background:transparent;color:var(--sub);border:1px solid var(--border2)}
+@media(max-width:560px){.pr-ct-kv{grid-template-columns:1fr;gap:2px}.pr-ct{padding:12px}}
 
 /* ── GALLERY ── */
 .gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
@@ -214,6 +235,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="sec" id="priceSec" style="display:none">
     <div class="sec-title"><i class="ph-duotone ph-tag"></i>Bảng giá tham khảo</div>
     <div class="price-updated" id="priceUpdated"></div>
+    <div class="price-hint" id="priceHint" hidden><i class="ph-duotone ph-hand-pointing"></i>Bấm vào từng dòng để xem chi tiết hạng mục</div>
     <div style="overflow-x:auto">
       <table class="price-table" id="priceTable"><thead><tr><th>Hạng mục</th><th>ĐVT</th><th style="text-align:right">Giá</th></tr></thead><tbody id="priceBody"></tbody></table>
     </div>
@@ -468,6 +490,106 @@ function showNotFound(){
   document.getElementById('notFoundState').style.display = 'block';
 }
 
+/* Bảng giá: dòng có chiTiet (chữ NCC tự nhập) bấm để mở chi tiết.
+   Định dạng chiTiet: "# Tiêu đề" = nhóm, "- ý" = gạch đầu dòng,
+   "Nhãn: nội dung" = hàng thông số, còn lại là đoạn văn. Dựng bằng DOM +
+   textContent — không ghép chữ NCC vào HTML. */
+function phanTichChiTiet(txt){
+  var khoi = [], ul = null;
+  String(txt || '').split(/\r?\n/).forEach(function(dong){
+    var t = dong.trim();
+    if (!t) { ul = null; return; }
+    if (/^#\s*/.test(t)) { ul = null; khoi.push({ loai: 'h', chu: t.replace(/^#+\s*/, '') }); return; }
+    if (/^[-•]\s+/.test(t)) {
+      if (!ul) { ul = { loai: 'ul', ds: [] }; khoi.push(ul); }
+      ul.ds.push(t.replace(/^[-•]\s+/, '')); return;
+    }
+    ul = null;
+    var i = t.indexOf(': ');
+    if (i > 0 && i <= 40) { khoi.push({ loai: 'kv', nhan: t.slice(0, i), giaTri: t.slice(i + 2) }); return; }
+    khoi.push({ loai: 'p', chu: t });
+  });
+  return khoi;
+}
+
+function taoEl(tag, cls, chu){
+  var e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (chu != null) e.textContent = chu;
+  return e;
+}
+
+function veChiTiet(p){
+  var hop = taoEl('div', 'pr-ct');
+  phanTichChiTiet(p.chiTiet).forEach(function(k){
+    if (k.loai === 'h') hop.appendChild(taoEl('div', 'pr-ct-h', k.chu));
+    else if (k.loai === 'kv') {
+      var r = taoEl('div', 'pr-ct-kv');
+      r.appendChild(taoEl('b', '', k.nhan));
+      r.appendChild(taoEl('span', '', k.giaTri));
+      hop.appendChild(r);
+    } else if (k.loai === 'ul') {
+      var ul = taoEl('ul');
+      k.ds.forEach(function(x){ ul.appendChild(taoEl('li', '', x)); });
+      hop.appendChild(ul);
+    } else hop.appendChild(taoEl('p', '', k.chu));
+  });
+  var cta = taoEl('div', 'pr-ct-cta');
+  var nutBg = taoEl('button', '');
+  nutBg.type = 'button';
+  nutBg.appendChild(taoEl('i', 'ph-duotone ph-paper-plane-tilt'));
+  nutBg.appendChild(document.createTextNode(' Yêu cầu báo giá hạng mục này'));
+  nutBg.addEventListener('click', function(ev){
+    ev.stopPropagation();
+    document.getElementById('btnQuote').click();
+    var qd = document.getElementById('qDesc');
+    if (qd && !qd.value.trim()) qd.value = ('Tôi cần báo giá: ' + (p.item || '')).slice(0, 500);
+  });
+  cta.appendChild(nutBg);
+  hop.appendChild(cta);
+  return hop;
+}
+
+function veBangGia(ds){
+  var body = document.getElementById('priceBody');
+  body.textContent = '';
+  var coCt = false;
+  ds.forEach(function(p, i){
+    if (!p) return;
+    var tr = taoEl('tr');
+    var td1 = taoEl('td');
+    var co = !!String(p.chiTiet || '').trim();
+    if (co) { coCt = true; var ic = taoEl('i', 'ph-duotone ph-caret-right pr-caret'); td1.appendChild(ic); }
+    td1.appendChild(document.createTextNode(p.item || ''));
+    tr.appendChild(td1);
+    tr.appendChild(taoEl('td', '', p.unit || ''));
+    tr.appendChild(taoEl('td', 'num', p.price != null ? fmtVnd(p.price) : '—'));
+    body.appendChild(tr);
+    if (!co) return;
+    tr.className = 'pr-co-ct';
+    tr.tabIndex = 0;
+    tr.setAttribute('role', 'button');
+    tr.setAttribute('aria-expanded', 'false');
+    var trCt = taoEl('tr', 'pr-ct-row');
+    trCt.hidden = true;
+    var tdCt = taoEl('td');
+    tdCt.colSpan = 3;
+    trCt.appendChild(tdCt);
+    body.appendChild(trCt);
+    function batTat(){
+      var mo = trCt.hidden;
+      if (mo && !tdCt.firstChild) tdCt.appendChild(veChiTiet(p));
+      trCt.hidden = !mo;
+      tr.classList.toggle('pr-mo', mo);
+      tr.setAttribute('aria-expanded', mo ? 'true' : 'false');
+      if (mo && window.gtag) window.gtag('event', 'ncc_price_detail', { ncc_uid: NCC_UID, dong: i });
+    }
+    tr.addEventListener('click', batTat);
+    tr.addEventListener('keydown', function(ev){ if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); batTat(); } });
+  });
+  document.getElementById('priceHint').hidden = !coCt;
+}
+
 function render(b){
   NCC = b;
   window.NCC = b;
@@ -524,9 +646,7 @@ function render(b){
   if (Array.isArray(b.priceList) && b.priceList.length) {
     document.getElementById('priceSec').style.display = 'block';
     document.getElementById('priceUpdated').textContent = b.priceUpdatedAt ? ('Cập nhật: ' + fmtDate(b.priceUpdatedAt)) : '';
-    document.getElementById('priceBody').innerHTML = b.priceList.map(function(p){
-      return '<tr><td>' + escH(p.item || '') + '</td><td>' + escH(p.unit || '') + '</td><td class="num">' + (p.price != null ? escH(fmtVnd(p.price)) : '—') + '</td></tr>';
-    }).join('');
+    veBangGia(b.priceList);
   }
 
   /* 3b) Sản phẩm nổi bật */

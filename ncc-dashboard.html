@@ -79,6 +79,11 @@ textarea:focus,input:focus{border-color:rgba(152,105,10,.4)}
 .pdf-row{display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:12px 14px}
 .pdf-row i{font-size:24px;color:var(--red);flex-shrink:0}
 .pdf-name{flex:1;font-size:12px;font-weight:600;color:var(--text2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.price-ct{margin-top:8px}
+.price-ct summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--gold,#98690a);display:inline-flex;align-items:center;gap:6px;list-style:none}
+.price-ct summary::-webkit-details-marker{display:none}
+.price-ct textarea{width:100%;margin-top:6px;padding:8px 10px;font-size:12px;line-height:1.55;font-family:inherit;border:1px solid var(--border,#dfe3ea);border-radius:8px;resize:vertical;box-sizing:border-box}
+.price-ct-help{font-size:11px;color:var(--sub,#64748b);margin-top:4px}
 .price-row{display:grid;grid-template-columns:1fr 90px 130px 34px;gap:8px;margin-bottom:8px;align-items:center}
 .price-row input{padding:8px 10px;font-size:12px}
 .price-del{width:30px;height:30px;border-radius:8px;background:rgba(220,38,38,.06);border:1px solid rgba(220,38,38,.22);color:var(--red);cursor:pointer;flex-shrink:0}
@@ -317,6 +322,7 @@ const MAX_IMG_MB = 8;
 const MAX_PDF_MB = 15;
 const MAX_VIDEOS = 5;
 const MAX_PRICE_ROWS = 30;
+const PRICE_CT_MAX = 3000;   // khớp kiemSpec trong scripts/tao-gian-hang-ncc.js
 const MAX_PRODUCTS = 60;
 
 let UID = null;
@@ -420,6 +426,11 @@ function priceRowsHtml(){
         + '<input type="number" min="0" placeholder="Giá (đ)" value="' + eH(p.price != null ? p.price : '') + '" oninput="setPriceField(' + i + ',\'price\',this.value)">'
         + '<button class="price-del" onclick="removePriceRow(' + i + ')" title="Xoá dòng"><i class="ph-duotone ph-trash"></i></button>'
       + '</div>'
+      + '<details class="price-ct"' + ((p.chiTiet || '').trim() ? ' open' : '') + '>'
+        + '<summary><i class="ph-duotone ph-list-bullets"></i>Chi tiết hạng mục (khách bấm vào dòng giá sẽ thấy)</summary>'
+        + '<textarea maxlength="' + PRICE_CT_MAX + '" rows="6" placeholder="# Thông số chính&#10;Tải trọng: 450 kg&#10;Kích thước: 1.600 × 1.500 mm&#10;# Giá đã gồm&#10;- Lắp đặt, kiểm định&#10;- Bảo hành 24 tháng" oninput="setPriceField(' + i + ',\'chiTiet\',this.value)">' + escH(p.chiTiet || '') + '</textarea>'
+        + '<div class="price-ct-help">Dòng bắt đầu bằng <b>#</b> là tiêu đề nhóm · <b>-</b> là gạch đầu dòng · <b>Nhãn: nội dung</b> là hàng thông số.</div>'
+      + '</details>'
     + '</div>';
   }).join('');
   return html;
@@ -647,8 +658,8 @@ function render(){
     + '</div>'
 
     + '<div class="main-card">'
-      + '<div class="main-card-head"><div class="main-card-icon"><i class="ph-duotone ph-tag"></i></div><div class="main-card-title">Giá nhân công tham khảo</div></div>'
-      + '<div class="main-card-desc">Ghi giá 2-3 hạng mục phổ biến nhất — khách xem sơ bộ, giá tham khảo có thể trao đổi thêm khi gặp trực tiếp.</div>'
+      + '<div class="main-card-head"><div class="main-card-icon"><i class="ph-duotone ph-tag"></i></div><div class="main-card-title">Bảng giá tham khảo</div></div>'
+      + '<div class="main-card-desc">Ghi giá các hạng mục chính — khách xem sơ bộ, giá tham khảo có thể trao đổi thêm khi gặp trực tiếp. Mở <b>Chi tiết hạng mục</b> dưới mỗi dòng để ghi thông số, phần đã gồm/chưa gồm — khách bấm vào dòng giá là thấy, đỡ phải hỏi lại.</div>'
       + '<div id="priceRows">' + priceRowsHtml() + '</div>'
       + '<button class="btn btn-ghost btn-sm" onclick="addPriceRow()"><i class="ph-duotone ph-plus"></i>Thêm dòng giá</button>'
     + '</div>'
@@ -846,7 +857,12 @@ window.saveAll = async function(){
     const priceList = (DATA.priceList || [])
       .filter(function(p){ return p && (p.item || '').trim(); })
       .slice(0, MAX_PRICE_ROWS)
-      .map(function(p){ return { item: (p.item||'').trim().slice(0,120), unit: (p.unit||'').trim().slice(0,20), price: (p.price != null && !isNaN(p.price)) ? Number(p.price) : null }; });
+      .map(function(p){
+        var o = { item: (p.item||'').trim().slice(0,120), unit: (p.unit||'').trim().slice(0,20), price: (p.price != null && !isNaN(p.price)) ? Number(p.price) : null };
+        var ct = (p.chiTiet || '').trim().slice(0, PRICE_CT_MAX);
+        if (ct) o.chiTiet = ct;
+        return o;
+      });
     const products = (DATA.products || [])
       .filter(function(p){ return p && (p.name || '').trim(); })
       .slice(0, MAX_PRODUCTS)
