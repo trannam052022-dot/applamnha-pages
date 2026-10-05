@@ -3,16 +3,19 @@
 
    Nam chốt 04/10/2026: MyMy KHÔNG tự mở khung chat. Chỉ hiện 1 bóng nhắc
    nhỏ cạnh nút MyMy, câu soạn sẵn (không gọi AI), ở 6 lúc:
-     kich_thuoc  dừng hơn 45 giây ở ô kích thước/diện tích phòng
-     phong_cach  đã xem khoảng giá, 30 giây sau chưa xuống mục phong cách
+     kich_thuoc  dừng lâu ở ô kích thước/diện tích phòng
+     phong_cach  đã xem khoảng giá, một lúc sau chưa xuống mục phong cách
      bo_qua      bỏ qua từ 2 phòng trở lên ở lượt chọn phong cách
-     otp         nhập sai mã OTP 2 lần, hoặc 60 giây sau khi gửi mã chưa nhập
+     otp         nhập sai mã OTP 2 lần, hoặc gửi mã xong một lúc chưa nhập
      roi_trang   sắp rời trang khi chưa để lại SĐT (máy tính: chuột ra khỏi
                  mép trên cửa sổ; điện thoại: vuốt kéo ngược lên thật nhanh) —
                  1 lần mỗi phiên
      quay_lai    khách quay lại trang (phiên mới): nhắc bước làm dở lần trước
-   Mỗi lần nhắc cách nhau ≥ 90 giây, tối đa 3 lần mỗi phiên (sessionStorage);
+   Mỗi lần nhắc cách nhau ≥ 60 giây, tối đa 3 lần mỗi phiên (sessionStorage);
    nút "Không cần" tắt nhắc tới hết phiên. Mỗi lý do nhắc tối đa 1 lần/phiên.
+   Thời gian: bảng CAU_HINH ngay dưới (04/10/2026 (2): a 20 giây, b 15, d 45, tự ẩn 45).
+   Bóng không che nút chính (KHONG_CHE) và thanh cookie. Bóng tự ẩn mà khách bấm nút
+   MyMy → mở bằng câu mở đầu của lời nhắc đó (GA4 mymy_nhac_bam qua_nut=1).
    Bấm bóng nhắc → mở MyMy, câu mở đầu đúng chỗ khách vướng; các câu hỏi sau
    đó gửi kèm ngữ cảnh (lý do, bước, phòng, khoảng giá, mức, phong cách —
    KHÔNG có SĐT/họ tên/mã OTP) cho alnChat (functions/lib/mymyPrompt.js
@@ -26,14 +29,36 @@
 (function () {
   'use strict';
 
-  var CACH_NHAU_MS = 90000;
-  var TOI_DA_PHIEN = 3;
-  var GIAY_KICH_THUOC = 45;
-  var GIAY_PHONG_CACH = 30;
-  var GIAY_OTP = 60;
-  var TRE_QUAY_LAI_MS = 4000;
-  var TU_AN_MS = 30000;
-  var O_TRANG_TOI_THIEU_MS = 10000; // chưa ở trang đủ 10 giây thì không coi là "sắp rời"
+  /* ── Cấu hình thời gian — sửa số ở đây (Nam chốt 04/10/2026: rút ngắn chờ) ──
+     ?thu_nhac=1 (Founder/KTS thử): mọi thời gian chờ còn 5 giây, bỏ giới hạn số lần nhắc,
+     một lý do nhắc lại được nhiều lần, không gửi GA4. Chạy được cả ở chế độ xem Founder. */
+  var CAU_HINH = {
+    giay_kich_thuoc: 20,        // (a) dừng ở ô diện tích/kích thước phòng
+    giay_phong_cach: 15,        // (b) đã có khoảng giá mà chưa xuống mục phong cách
+    giay_otp: 45,               // (d) gửi mã xong chưa nhập (SMS đôi khi tới chậm)
+    cach_nhau_ms: 60000,        // khoảng cách tối thiểu giữa 2 lần nhắc
+    tu_an_ms: 45000,            // bóng nhắc tự ẩn (người lớn tuổi đọc chậm)
+    toi_da_phien: 3,            // số lần nhắc tối đa mỗi phiên
+    tre_quay_lai_ms: 4000,      // (f) chờ sau khi vào trang
+    o_trang_toi_thieu_ms: 10000 // (e) chưa ở trang đủ lâu thì không coi là "sắp rời"
+  };
+  var THU_NHAC = false;
+  try { THU_NHAC = new URLSearchParams(location.search).get('thu_nhac') === '1'; } catch (e) { /* bỏ qua */ }
+  if (THU_NHAC) {
+    CAU_HINH.giay_kich_thuoc = 5; CAU_HINH.giay_phong_cach = 5; CAU_HINH.giay_otp = 5;
+    CAU_HINH.cach_nhau_ms = 5000; CAU_HINH.toi_da_phien = 999;
+    CAU_HINH.tre_quay_lai_ms = 5000; CAU_HINH.o_trang_toi_thieu_ms = 0;
+  }
+  var CACH_NHAU_MS = CAU_HINH.cach_nhau_ms;
+  var TOI_DA_PHIEN = CAU_HINH.toi_da_phien;
+  var GIAY_KICH_THUOC = CAU_HINH.giay_kich_thuoc;
+  var GIAY_PHONG_CACH = CAU_HINH.giay_phong_cach;
+  var GIAY_OTP = CAU_HINH.giay_otp;
+  var TRE_QUAY_LAI_MS = CAU_HINH.tre_quay_lai_ms;
+  var TU_AN_MS = CAU_HINH.tu_an_ms;
+  var O_TRANG_TOI_THIEU_MS = CAU_HINH.o_trang_toi_thieu_ms;
+  // Nút chính bóng nhắc không được che (đè thì dời lên/xuống). Thanh cookie cũng vậy.
+  var KHONG_CHE = ['#btn-tinh', '#g-btn', '#g-xn', '#g-gui-lai', '#g-doi', '#nut-luu', '#alnCk'];
   var KEY_NHAC = 'aln_nt_nhac';     // sessionStorage {dem, cuoi, tat, da:[ly_do]}
   var KEY_PHIEN = 'aln_nt_phien';   // sessionStorage — có rồi = không phải lượt quay lại
   var KEY_BUOC = 'aln_nt_buoc';     // localStorage {buoc, luc} — bước làm dở lần trước
@@ -68,7 +93,14 @@
   var $ = function (id) { return document.getElementById(id); };
   function ssDoc(k) { try { return JSON.parse(sessionStorage.getItem(k) || 'null'); } catch (e) { return null; } }
   function ssGhi(k, v) { try { sessionStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* bỏ qua */ } }
-  function ga(ten, lyDo) { try { if (typeof window.gtag === 'function') window.gtag('event', ten, { ly_do: lyDo }); } catch (e) { /* bỏ qua */ } }
+  function ga(ten, lyDo, them) {
+    if (THU_NHAC) return; // chế độ thử không làm bẩn số GA4
+    try {
+      var tham = { ly_do: lyDo };
+      if (them) Object.keys(them).forEach(function (k) { tham[k] = them[k]; });
+      if (typeof window.gtag === 'function') window.gtag('event', ten, tham);
+    } catch (e) { /* bỏ qua */ }
+  }
   function trangThai() {
     try { return (window.alnNoiThatTrangThai && window.alnNoiThatTrangThai()) || {}; } catch (e) { return {}; }
   }
@@ -86,21 +118,22 @@
   /* ── Bóng nhắc ── */
   var MM = null;        // API widget (có sau lần mở chat đầu)
   var choMo = null;     // việc chạy trong moDau khi mở chat lần đầu từ bóng nhắc
-  var bong = null, bongLyDo = '', henAn = null, henViTri = null;
+  var bong = null, bongLyDo = '', bongCau = '', henAn = null, henViTri = null;
   var lyDoBam = '';     // lý do của bóng nhắc khách đã bấm gần nhất (ngữ cảnh gửi AI)
-  var henLai = {};      // hẹn thử lại khi đang trong 90 giây chờ
+  var henLai = {};      // hẹn thử lại khi đang trong thời gian chờ giữa 2 lần nhắc
+  var nhacCho = null;   // bóng nhắc đã tự ẩn mà khách chưa bấm {lyDo, cau} — bấm nút MyMy thì mở đúng lời nhắc này
 
-  // Lý do bị chặn: 'tat' | 'du' | 'da' | 'cho' (còn trong 90 giây) | 'ban' (đang bận) | '' (được nhắc)
+  // Lý do bị chặn: 'tat' | 'du' | 'da' | 'cho' (còn trong thời gian chờ) | 'ban' (đang bận) | '' (được nhắc)
   function chan(lyDo) {
     var n = docNhac();
     if (n.tat) return 'tat';
     if (n.dem >= TOI_DA_PHIEN) return 'du';
-    if (n.da.indexOf(lyDo) >= 0) return 'da';
+    if (!THU_NHAC && n.da.indexOf(lyDo) >= 0) return 'da';
     if (bong || chatDangMo() || !$('mymy-btn')) return 'ban';
     if (n.cuoi && Date.now() - n.cuoi < CACH_NHAU_MS) return 'cho';
     return '';
   }
-  // kiem(): điều kiện còn đúng không (kiểm lại lúc hiện, kể cả khi thử lại sau 90 giây).
+  // kiem(): điều kiện còn đúng không (kiểm lại lúc hiện, kể cả khi thử lại sau thời gian chờ).
   function thuNhac(lyDo, cau, kiem, khongThuLai) {
     if (kiem && !kiem()) return;
     var c = chan(lyDo);
@@ -119,7 +152,7 @@
     var n = docNhac();
     n.dem += 1; n.cuoi = Date.now(); n.da.push(lyDo);
     ghiNhac(n);
-    bongLyDo = lyDo;
+    bongLyDo = lyDo; bongCau = cau;
     bong = document.createElement('div');
     bong.className = 'mm-nhac';
     bong.setAttribute('role', 'dialog');
@@ -137,6 +170,7 @@
     tat.addEventListener('click', function (e) {
       e.stopPropagation();
       var v = docNhac(); v.tat = true; ghiNhac(v);
+      nhacCho = null;
       Object.keys(henLai).forEach(function (k) { clearTimeout(henLai[k]); henLai[k] = null; });
       bo();
     });
@@ -147,7 +181,8 @@
     window.addEventListener('scroll', datViTri, { passive: true });
     window.addEventListener('resize', datViTri);
     henViTri = setInterval(datViTri, 1000);
-    henAn = setTimeout(bo, TU_AN_MS);
+    nhacCho = null;
+    henAn = setTimeout(function () { nhacCho = { lyDo: lyDo, cau: cau }; bo(); }, TU_AN_MS);
     ga('mymy_nhac_hien', lyDo);
   }
   function bo() {
@@ -175,11 +210,40 @@
       bong.style.maxWidth = '320px';
       bong.style.bottom = Math.max(8, window.innerHeight - n.bottom) + 'px';
     }
-    // Không che đúng chỗ khách đang làm (ô đang gõ, khung nhập mã OTP): đè thì dời lên đầu màn hình.
-    var q = bong.getBoundingClientRect();
-    if (deLen(q, oDangGo()) || (bongLyDo === 'otp' && deLen(q, $('g-otp')))) {
-      bong.style.bottom = 'auto';
-      bong.style.top = '64px'; // dưới thanh tiêu đề dính đầu trang
+    // Không che chỗ khách đang làm (ô đang gõ, khung nhập mã OTP), nút chính, thanh cookie:
+    // đè thì dời lên trên phần tử đó; không đủ chỗ thì xuống dưới; vẫn không được thì lên đầu màn hình.
+    neTranh();
+  }
+  function canTranh() {
+    var ds = [oDangGo()];
+    if (bongLyDo === 'otp') ds.push($('g-otp'));
+    KHONG_CHE.forEach(function (sel) { ds.push(document.querySelector(sel)); });
+    return ds;
+  }
+  function deBatKy(q, ds) {
+    for (var i = 0; i < ds.length; i++) if (deLen(q, ds[i])) return ds[i];
+    return null;
+  }
+  function neTranh() {
+    var ds = canTranh();
+    for (var lan = 0; lan < 8; lan++) {
+      var q = bong.getBoundingClientRect();
+      var el = deBatKy(q, ds);
+      if (!el) return;
+      var r = el.getBoundingClientRect();
+      var cao = q.height;
+      if (r.top - 8 - cao >= 8) {
+        // Đủ chỗ phía trên phần tử bị đè.
+        bong.style.top = 'auto';
+        bong.style.bottom = (window.innerHeight - r.top + 8) + 'px';
+      } else if (r.bottom + 8 + cao <= window.innerHeight - 8) {
+        bong.style.bottom = 'auto';
+        bong.style.top = (r.bottom + 8) + 'px';
+      } else {
+        bong.style.bottom = 'auto';
+        bong.style.top = '64px'; // dưới thanh tiêu đề dính đầu trang
+        return;
+      }
     }
   }
   function oDangGo() {
@@ -199,19 +263,41 @@
     var nut = $('mymy-btn');
     if (nut) nut.click();
   }
-  function bam(lyDo, cau) {
-    ga('mymy_nhac_bam', lyDo);
-    lyDoBam = lyDo;
-    bo();
+  function viecMoDau(lyDo, cau) {
     var moDau = MO_DAU[lyDo].replace('{buoc}', TEN_BUOC[buocLanTruoc] || 'tính chi phí nội thất');
-    moChat(function (api) {
+    return function (api) {
       api.boCho();
       api.ghiLichSu('assistant', cau);
       api.bot(moDau);
       api.ghiLichSu('assistant', moDau);
       api.hienTuDau();
-    });
+    };
   }
+  function bam(lyDo, cau) {
+    ga('mymy_nhac_bam', lyDo);
+    lyDoBam = lyDo;
+    nhacCho = null;
+    bo();
+    moChat(viecMoDau(lyDo, cau));
+  }
+  // Bóng nhắc đã tự ẩn (hoặc đang hiện) mà khách bấm nút MyMy (thường gặp với người đọc chậm): mở chat bằng
+  // câu mở đầu của lời nhắc gần nhất kèm ngữ cảnh, thay cho lời chào chung. Chạy ở pha capture,
+  // TRƯỚC khi widget mở khung chat.
+  document.addEventListener('click', function (e) {
+    var t = e.target;
+    if (!t || !t.closest || !t.closest('#mymy-btn')) return;
+    if (chatDangMo()) return;
+    // Bóng đang hiện mà khách bấm nút tròn thay vì bấm bóng: coi như bấm bóng.
+    var x = bong ? { lyDo: bongLyDo, cau: bongCau } : nhacCho;
+    if (!x) return;
+    nhacCho = null;
+    bo();
+    ga('mymy_nhac_bam', x.lyDo, { qua_nut: 1 });
+    lyDoBam = x.lyDo;
+    var fn = viecMoDau(x.lyDo, x.cau);
+    if (MM) setTimeout(function () { fn(MM); }, 0); // widget mở lại khung chat cũ, rồi mình thêm câu mở đầu
+    else choMo = fn;                                  // lần mở đầu: moDau của widget sẽ gọi
+  }, true);
 
   window.ALN_MYMY_TRANG = {
     khongMoiChung: true, // chỉ nhắc theo ngữ cảnh ở trên, tắt bóng chat mời chung (mymy-moi.js)
@@ -281,7 +367,7 @@
   document.addEventListener('input', function (e) { if (laOKichThuoc(e.target)) { daTuongTac = true; henLaiKichThuoc(e.target); } });
   document.addEventListener('focusout', function (e) { if (laOKichThuoc(e.target)) clearTimeout(henKichThuoc); });
 
-  /* (b) Đã xem khoảng giá, 30 giây sau chưa xuống mục phong cách */
+  /* (b) Đã xem khoảng giá, một lúc sau chưa xuống mục phong cách */
   var daThayPhongCach = false;
   var henPhongCach = null;
   function kiemThayPhongCach() {
