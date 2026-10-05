@@ -9739,7 +9739,7 @@ function ldctVe(el, l, dep){
         + '<td style="padding:10px 11px;font-size:12px">'+(PPL_VIEW === 'khach_hang' ? epKhungGioCell(PPL_KHUNG_GIO[it.id]) : '<span style="color:var(--dim)">—</span>')+'</td>'
         + '<td style="padding:10px 11px">'
           + '<select onchange="pplChangeStage('+eJ(it.id)+', this.value)" style="padding:6px 9px;border-radius:6px;border:1px solid var(--border);background:var(--raised);color:var(--text2);font-size:12px;font-family:var(--sans)">'+options+'</select>'
-          + (pplCoNutDaGoi(it) ? ' <span id="pplGoi_'+eH(it.id)+'"><button onclick="pplMoChonKetQua('+eJ(it.id)+')" style="'+eH(PPL_GOI_BTN_CSS)+'">📞 Đã gọi</button></span>' : '')
+          + (pplCoNutDaGoi(it) ? ' <span id="pplGoi_'+eH(it.id)+'">'+pplOGoi(it.id, it.phan_hoi_gan_nhat_ket_qua, it.phan_hoi_gan_nhat_luc)+'</span>' : '')
         + '</td>'
         + '<td style="padding:10px 11px;font-family:var(--mono);font-size:11.5px;color:var(--dim);white-space:nowrap">'+eH(pplFmtDate(it.updated_at))+'</td>'
         + '<td style="padding:10px 11px;text-align:center;white-space:nowrap">'
@@ -9759,6 +9759,20 @@ function ldctVe(el, l, dep){
   }
   var PPL_GOI_BTN_CSS = 'padding:5px 9px;border-radius:6px;border:1px solid var(--border);background:var(--raised);color:var(--text2);font-size:11.5px;font-weight:600;cursor:pointer;font-family:var(--sans);white-space:nowrap;margin-left:6px';
   var PPL_KET_QUA_LABEL = { da_noi_chuyen: 'Đã nói chuyện', khong_bat_may: 'Không bắt máy' };
+  // Ô cuộc gọi của 1 dòng (05/10/2026): đã có lần phản hồi (phan_hoi_gan_nhat_luc
+  // do segmentContacts trả về) thì hiện kết quả + giờ và nút "Gọi lại" — trước đó
+  // mở lại trang luôn hiện "📞 Đã gọi" như chưa gọi, dù cuộc gọi đã lưu.
+  // Máy chủ chưa trả phan_hoi_gan_nhat_ket_qua (bản cũ) → ghi "Đã phản hồi".
+  function pplTimItem(id){
+    for(var i = 0; i < PPL_ITEMS.length; i++){ if(PPL_ITEMS[i].id === id) return PPL_ITEMS[i]; }
+    return null;
+  }
+  function pplOGoi(id, ketQua, lucMs){
+    var nut = function(chu){ return '<button onclick="pplMoChonKetQua('+eJ(id)+')" style="' + eH(PPL_GOI_BTN_CSS) + '">' + chu + '</button>'; };
+    if(!lucMs) return nut('📞 Đã gọi');
+    var mau = ketQua === 'khong_bat_may' ? 'var(--amber,#d97706)' : 'var(--green)';
+    return '<span style="font-size:11.5px;color:' + mau + '">✓ ' + eH(PPL_KET_QUA_LABEL[ketQua] || 'Đã phản hồi') + ' · ' + eH(pplFmtDate(lucMs)) + '</span>' + nut('📞 Gọi lại');
+  }
 
   // Bấm "📞 Đã gọi" → chọn kết quả ngay tại ô, không mở modal.
   window.pplMoChonKetQua = function(id){
@@ -9770,7 +9784,9 @@ function ldctVe(el, l, dep){
   };
   window.pplHuyChonKetQua = function(id){
     var box = document.getElementById('pplGoi_' + id);
-    if(box) box.innerHTML = ' <button onclick="pplMoChonKetQua('+eJ(id)+')" style="' + eH(PPL_GOI_BTN_CSS) + '">📞 Đã gọi</button>';
+    if(!box) return;
+    var it = pplTimItem(id) || {};
+    box.innerHTML = pplOGoi(id, it.phan_hoi_gan_nhat_ket_qua, it.phan_hoi_gan_nhat_luc);
   };
   // Ghi qua callable ghiCuocGoiLead (không đổi giai_doan) — sửa tin alert Telegram
   // + cho đề xuất liên quan hết hạn do tpAlertContact tự làm phía server.
@@ -9779,7 +9795,9 @@ function ldctVe(el, l, dep){
     if(box) box.innerHTML = ' <span style="font-size:11.5px;color:var(--dim)">Đang ghi…</span>';
     try {
       var r = await pplCallFn('ghiCuocGoiLead', { id: id, ket_qua: ketQua });
-      if(box) box.innerHTML = ' <span style="font-size:11.5px;color:var(--green)">✓ ' + eH(PPL_KET_QUA_LABEL[ketQua]) + ' · ' + eH(pplFmtDate(r.luc)) + '</span>';
+      var it = pplTimItem(id);
+      if(it){ it.phan_hoi_gan_nhat_ket_qua = ketQua; it.phan_hoi_gan_nhat_luc = r.luc; }
+      if(box) box.innerHTML = pplOGoi(id, ketQua, r.luc);
     } catch(e) {
       alert('Lỗi ghi cuộc gọi: ' + (e.message||e));
       window.pplHuyChonKetQua(id);
