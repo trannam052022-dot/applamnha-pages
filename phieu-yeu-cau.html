@@ -225,8 +225,8 @@ ul.plain li{margin:2px 0}
   /* Trang ký riêng: mục XIII ở đầu trang cuối, bảng công ty sát chân trang
      (Nam chốt 29/09/2026); ghi chú + bảng công ty (.chan-ky) cùng xuống đáy. 268mm = 297 − lề trên 12 − lề dưới 14 − 3mm dư
      để không tràn sang trang mới. */
-  .trang-ky{break-before:page;min-height:268mm;display:flex;flex-direction:column}
-  .trang-ky .chan-ky{margin-top:auto}
+  /* 05/10/2026: bỏ ép sang trang mới + cao cả trang (để lại khoảng trống lớn khi in); giữ khối ký liền một mảnh */
+  .trang-ky{break-inside:avoid}
 }
 </style>
 </head>
@@ -420,7 +420,7 @@ ul.plain li{margin:2px 0}
   </div>
 </section>
 
-<section class="keep" id="secMoc">
+<section id="secMoc">
   <h2><span class="n">X.</span>Quy trình 4 bước và thanh toán</h2>
   <p class="hint">Bước trước <span class="xh">anh/chị</span> duyệt xong mới sang bước sau. Mỗi khoản chỉ thanh toán khi đến đúng mốc.</p>
   <table class="t">
@@ -429,7 +429,7 @@ ul.plain li{margin:2px 0}
   </table>
 </section>
 
-<section class="keep">
+<section>
   <h2><span class="n">XI.</span>Điều khoản cần thống nhất trước khi ký</h2>
   <p class="hint">Có thể để trống và cùng điền tại buổi gặp. Nội dung này ghi thẳng vào hợp đồng.</p>
   <table class="t rt"><tbody>
@@ -440,7 +440,7 @@ ul.plain li{margin:2px 0}
   </tbody></table>
 </section>
 
-<section class="keep">
+<section>
   <h2><span class="n">XII.</span>Câu hỏi thường gặp</h2>
   <div class="faq">
     <div><b>Trả tiền rồi phương án không vừa ý thì sao?</b><p>C1 chỉ 10% để lên mặt bằng. C2 trả khi <span class="xh">anh/chị</span> đã chốt mặt bằng, C3 trả khi đã chốt phối cảnh. <span class="Xh">Anh/chị</span> duyệt từng bước.</p></div>
