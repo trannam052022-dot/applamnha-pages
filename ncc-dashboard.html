@@ -84,6 +84,14 @@ textarea:focus,input:focus{border-color:rgba(152,105,10,.4)}
 .price-ct summary::-webkit-details-marker{display:none}
 .price-ct textarea{width:100%;margin-top:6px;padding:8px 10px;font-size:12px;line-height:1.55;font-family:inherit;border:1px solid var(--border,#dfe3ea);border-radius:8px;resize:vertical;box-sizing:border-box}
 .price-ct-help{font-size:11px;color:var(--sub,#64748b);margin-top:4px}
+.ab-ed-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:10px}
+.ab-ed{border:1px solid var(--border);border-radius:9px;overflow:hidden;background:var(--bg2)}
+.ab-ed-anh{position:relative}
+.ab-ed-anh img{width:100%;height:110px;object-fit:cover;display:block}
+.ab-ed input{padding:6px 8px;font-size:11px;margin:6px 6px 0;width:calc(100% - 12px);box-sizing:border-box}
+.ab-ed input:last-child{margin-bottom:6px}
+.ab-ed-them{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ab-ed-them input{flex:1;min-width:180px;padding:8px 10px;font-size:12px}
 .price-row{display:grid;grid-template-columns:1fr 90px 130px 34px;gap:8px;margin-bottom:8px;align-items:center}
 .price-row input{padding:8px 10px;font-size:12px}
 .price-del{width:30px;height:30px;border-radius:8px;background:rgba(220,38,38,.06);border:1px solid rgba(220,38,38,.22);color:var(--red);cursor:pointer;flex-shrink:0}
@@ -321,6 +329,7 @@ const GALLERY_UI_MAX = 5; // giới hạn hiển thị/thêm mới trong bản �
 const MAX_IMG_MB = 8;
 const MAX_PDF_MB = 15;
 const MAX_VIDEOS = 5;
+const ALBUM_MAX = 60;      // khớp ALBUM_MAX trong scripts/tao-gian-hang-ncc.js
 const MAX_PRICE_ROWS = 30;
 const PRICE_CT_MAX = 3000;   // khớp kiemSpec trong scripts/tao-gian-hang-ncc.js
 const MAX_PRODUCTS = 60;
@@ -548,6 +557,64 @@ async function onPickProductImg(ev){
   }
 }
 
+/* ── Thư viện hình ảnh (album theo nhóm) ── */
+function albumHtml(){
+  const ds = Array.isArray(DATA.album) ? DATA.album : [];
+  const nhoms = [];
+  ds.forEach(function(x){ const n = (x.nhom || '').trim(); if(n && nhoms.indexOf(n) === -1) nhoms.push(n); });
+  let html = '<datalist id="abNhomDs">' + nhoms.map(function(n){ return '<option value="' + escH(n) + '">'; }).join('') + '</datalist>'
+    + '<div class="ab-ed-grid">' + ds.map(function(x, i){
+    return '<div class="ab-ed">'
+      + '<div class="ab-ed-anh"><img src="' + eU(x.url) + '" alt="" loading="lazy">'
+        + '<button class="prod-img-del" onclick="removeAlbum(' + i + ')" title="Gỡ ảnh">✕</button></div>'
+      + '<input type="text" list="abNhomDs" maxlength="40" placeholder="Nhóm" value="' + escH(x.nhom || '') + '" oninput="setAlbumField(' + i + ',\'nhom\',this.value)">'
+      + '<input type="text" maxlength="120" placeholder="Chú thích ảnh" value="' + escH(x.cap || '') + '" oninput="setAlbumField(' + i + ',\'cap\',this.value)">'
+    + '</div>';
+  }).join('') + '</div>';
+  if(ds.length < ALBUM_MAX){
+    html += '<div class="ab-ed-them"><input type="text" id="abNhomMoi" list="abNhomDs" maxlength="40" placeholder="Nhóm cho ảnh mới (VD: Mẫu thang máy)" value="' + escH(nhoms[nhoms.length - 1] || '') + '">'
+      + '<button class="btn btn-ghost btn-sm" onclick="pickAlbum()"><i class="ph-duotone ph-plus"></i>Thêm ảnh (' + ds.length + '/' + ALBUM_MAX + ')</button></div>';
+  }
+  return html;
+}
+window.setAlbumField = function(i, key, val){
+  if(!DATA.album || !DATA.album[i]) return;
+  DATA.album[i][key] = val;
+  markDirty();
+};
+window.removeAlbum = function(i){
+  if(!DATA.album) return;
+  DATA.album.splice(i, 1);
+  markDirty();
+  render();
+};
+window.pickAlbum = function(){ document.getElementById('albumInput').click(); };
+async function onPickAlbum(ev){
+  const files = Array.from(ev.target.files || []);
+  ev.target.value = '';
+  if(!files.length) return;
+  if(!Array.isArray(DATA.album)) DATA.album = [];
+  const nhomEl = document.getElementById('abNhomMoi');
+  const nhom = ((nhomEl && nhomEl.value) || '').trim().slice(0, 40) || 'Hình ảnh';
+  let them = 0;
+  for(const f of files){
+    if(DATA.album.length >= ALBUM_MAX){ showToast('Tối đa ' + ALBUM_MAX + ' ảnh', true); break; }
+    if(!f.type.startsWith('image/')){ showToast('Bỏ qua file không phải ảnh: ' + f.name, true); continue; }
+    if(f.size > MAX_IMG_MB * 1024 * 1024){ showToast('Ảnh vượt ' + MAX_IMG_MB + 'MB: ' + f.name, true); continue; }
+    showToast('Đang tải ảnh ' + (them + 1) + '/' + files.length + '…');
+    try {
+      const ref = storageRef(storage, 'ncc-catalogs/' + UID + '/album/' + Date.now() + '-' + f.name);
+      await uploadBytes(ref, f, { contentType: f.type });
+      DATA.album.push({ url: await getDownloadURL(ref), cap: '', nhom: nhom });
+      them++;
+    } catch(e){
+      console.error(e);
+      showToast('Lỗi tải ảnh: ' + (e.message || e.code || e), true);
+    }
+  }
+  if(them){ markDirty(); render(); showToast('Đã thêm ' + them + ' ảnh — ghi chú thích rồi bấm "Lưu thay đổi"'); }
+}
+
 /* ── Thước đo hoàn thiện hồ sơ — nhắc NCC bổ sung nội dung để gian hàng
    trông chuyên nghiệp hơn (đúng vai trò "website thay thế" cho NCC chưa
    có trang riêng). Trọng số cộng dồn tối đa 100. ── */
@@ -704,6 +771,13 @@ function render(){
         + '</div>'
 
         + '<div class="accordion-sub">'
+          + '<div class="accordion-sub-title"><i class="ph-duotone ph-images"></i>Thư viện hình ảnh</div>'
+          + '<div class="hint">Ảnh mẫu đã lắp, thiết bị, linh kiện… xếp theo nhóm (VD: "Mẫu thang máy", "Thiết bị và linh kiện"). Khách xem theo từng nhóm và phóng to từng ảnh. Tối đa ' + ALBUM_MAX + ' ảnh.</div>'
+          + albumHtml()
+          + '<input type="file" id="albumInput" accept="image/*" multiple style="display:none">'
+        + '</div>'
+
+        + '<div class="accordion-sub">'
           + '<div class="accordion-sub-title"><i class="ph-duotone ph-book-open"></i>Catalog PDF</div>'
           + pdfHtml
           + '<input type="file" id="pdfInput" accept="application/pdf" style="display:none">'
@@ -744,6 +818,7 @@ function render(){
   document.getElementById('fAddress').addEventListener('input', markDirty);
   document.getElementById('imgInput').addEventListener('change', onPickImages);
   document.getElementById('prodImgInput').addEventListener('change', onPickProductImg);
+  document.getElementById('albumInput').addEventListener('change', onPickAlbum);
   const pdfIn = document.getElementById('pdfInput');
   if(pdfIn) pdfIn.addEventListener('change', onPickPdf);
   const logoIn = document.getElementById('logoInput');
@@ -878,6 +953,11 @@ window.saveAll = async function(){
         return o;
       });
 
+    const album = (DATA.album || [])
+      .filter(function(x){ return x && x.url; })
+      .slice(0, ALBUM_MAX)
+      .map(function(x){ return { url: x.url, cap: (x.cap || '').trim().slice(0, 120), nhom: ((x.nhom || '').trim() || 'Hình ảnh').slice(0, 40) }; });
+
     await updateDoc(doc(db, 'nccApplications', UID), {
       intro: intro,
       zalo: zalo,
@@ -891,11 +971,12 @@ window.saveAll = async function(){
       videos: (DATA.videos || []).filter(isValidVideoUrl).slice(0, MAX_VIDEOS),
       priceList: priceList,
       products: products,
+      album: album,
       priceUpdatedAt: serverTimestamp(),
       galleryUpdatedAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
-    DATA.intro = intro; DATA.zalo = zalo; DATA.website = website; DATA.address = address; DATA.backlinkConfirmed = backlinkConfirmed; DATA.priceList = priceList; DATA.products = products;
+    DATA.intro = intro; DATA.zalo = zalo; DATA.website = website; DATA.address = address; DATA.backlinkConfirmed = backlinkConfirmed; DATA.priceList = priceList; DATA.products = products; DATA.album = album;
     dirty = false;
     showToast('✅ Đã lưu gian hàng');
     render();

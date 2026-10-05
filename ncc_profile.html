@@ -126,6 +126,37 @@ a{color:var(--gold);text-decoration:none}
 .product-item-name{font-size:var(--text-xs);font-weight:700;color:var(--text);line-height:1.3;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;min-height:2.4em}
 .product-item-price{font-size:var(--text-sm);font-weight:800;color:var(--gold);margin-top:4px}
 .product-item-price span{font-weight:400;color:var(--sub);font-size:var(--text-2xs)}
+/* ── THƯ VIỆN ẢNH (album theo nhóm) ── */
+.ab-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.ab-head .sec-title{margin-bottom:0}
+.ab-dem{font-size:var(--text-xs);color:var(--sub);font-weight:600}
+.ab-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;scrollbar-width:none}
+.ab-tabs::-webkit-scrollbar{display:none}
+.ab-tab{flex:none;border:1px solid var(--border2);background:var(--white);color:var(--text2);border-radius:99px;padding:7px 14px;font-size:var(--text-xs);font-weight:700;cursor:pointer;font-family:inherit}
+.ab-tab span{opacity:.6;margin-left:4px}
+.ab-tab.on{background:var(--text);border-color:var(--text);color:#fff}
+.ab-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:720px){.ab-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:480px){.ab-grid{grid-template-columns:repeat(2,1fr);gap:8px}}
+.ab-o{position:relative;aspect-ratio:4/5;border-radius:10px;overflow:hidden;background:var(--cream2);cursor:zoom-in;border:none;padding:0;display:block;width:100%}
+.ab-o img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .35s ease}
+.ab-o:hover img,.ab-o:focus-visible img{transform:scale(1.05)}
+.ab-o.rong{background:#fff}
+.ab-o.rong img{object-fit:contain;padding:10px 8px 34px}
+.ab-o:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.ab-cap{position:absolute;left:0;right:0;bottom:0;padding:22px 9px 8px;background:linear-gradient(transparent,rgba(10,16,28,.82));color:#fff;font-size:var(--text-2xs);font-weight:700;line-height:1.3;text-align:left}
+.ab-them{margin-top:12px;width:100%;border:1px dashed var(--border2);background:transparent;border-radius:10px;padding:10px;font-weight:800;font-size:var(--text-sm);color:var(--gold);cursor:pointer;font-family:inherit}
+.ab-xem{display:none;position:fixed;inset:0;z-index:310;background:rgba(6,10,18,.94);flex-direction:column;align-items:center;justify-content:center;padding:56px 12px 20px}
+.ab-xem.open{display:flex}
+.ab-xem img{max-width:min(1100px,94vw);max-height:76vh;object-fit:contain;border-radius:8px;user-select:none}
+.ab-xem-cap{color:#fff;font-size:var(--text-sm);font-weight:600;margin-top:14px;text-align:center;max-width:720px}
+.ab-xem-dem{position:absolute;top:18px;left:18px;color:rgba(255,255,255,.75);font-size:var(--text-xs);font-family:var(--mono)}
+.ab-xem-nut{position:absolute;border:none;background:rgba(255,255,255,.14);color:#fff;width:46px;height:46px;border-radius:50%;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.ab-xem-nut:hover{background:rgba(255,255,255,.26)}
+.ab-truoc{left:14px;top:50%;transform:translateY(-50%)}
+.ab-sau{right:14px;top:50%;transform:translateY(-50%)}
+.ab-dong{top:12px;right:12px;width:40px;height:40px;font-size:17px}
+@media(max-width:560px){.ab-truoc,.ab-sau{top:auto;bottom:18px;transform:none}.ab-xem{padding-bottom:84px}}
 .product-item.sp-co-ct{cursor:pointer;transition:box-shadow .15s,transform .15s}
 .product-item.sp-co-ct:hover,.product-item.sp-co-ct:focus-visible{box-shadow:0 6px 18px rgba(15,25,40,.12);transform:translateY(-2px);outline:none}
 .product-item-more{display:inline-flex;align-items:center;gap:4px;margin-top:6px;font-size:var(--text-2xs);font-weight:800;color:var(--gold)}
@@ -261,6 +292,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="products-grid" id="productsGrid"></div>
   </div>
 
+  <!-- 3c) Thư viện hình ảnh (album theo nhóm) -->
+  <div class="sec" id="albumSec" style="display:none">
+    <div class="ab-head">
+      <div class="sec-title"><i class="ph-duotone ph-images"></i>Thư viện hình ảnh</div>
+      <div class="ab-dem" id="abDem"></div>
+    </div>
+    <div class="ab-tabs" id="abTabs" role="tablist"></div>
+    <div class="ab-grid" id="abGrid"></div>
+    <button type="button" class="ab-them" id="abThem" hidden></button>
+  </div>
+
   <!-- 4) Gallery sản phẩm -->
   <div class="sec" id="gallerySec" style="display:none">
     <div class="sec-title"><i class="ph-duotone ph-images-square"></i>Ảnh sản phẩm</div>
@@ -299,6 +341,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
   <button class="lightbox-close" onclick="event.stopPropagation();closeLightbox()">✕</button>
   <img id="lightboxImg" src="" alt="">
+</div>
+
+<!-- XEM ẢNH THƯ VIỆN -->
+<div class="ab-xem" id="abXem" role="dialog" aria-modal="true" aria-label="Xem ảnh">
+  <div class="ab-xem-dem" id="abXemDem"></div>
+  <button type="button" class="ab-xem-nut ab-dong" id="abDong" aria-label="Đóng">✕</button>
+  <button type="button" class="ab-xem-nut ab-truoc" id="abTruoc" aria-label="Ảnh trước">‹</button>
+  <img id="abXemAnh" alt="">
+  <div class="ab-xem-cap" id="abXemCap"></div>
+  <button type="button" class="ab-xem-nut ab-sau" id="abSau" aria-label="Ảnh sau">›</button>
 </div>
 
 <!-- CHI TIẾT SẢN PHẨM -->
@@ -676,6 +728,85 @@ function veSanPham(ds){
   });
 }
 
+/* Thư viện hình ảnh: album [{url, cap, nhom}] — tab theo nhóm, lưới ảnh,
+   khung xem lớn có trước/sau (phím mũi tên, vuốt). DOM + textContent. */
+var AB = { ds: [], loc: [], nhom: '', moRong: false, i: 0 };
+var AB_HIEN = 8;
+function veAlbum(ds){
+  AB.ds = ds;
+  var nhoms = [];
+  ds.forEach(function(x){ if (nhoms.indexOf(x.nhom) === -1) nhoms.push(x.nhom); });
+  document.getElementById('albumSec').style.display = 'block';
+  document.getElementById('abDem').textContent = ds.length + ' ảnh';
+  var tabs = document.getElementById('abTabs');
+  tabs.textContent = '';
+  var dsTab = nhoms.length > 1 ? [''].concat(nhoms) : [];
+  dsTab.forEach(function(n){
+    var t = taoEl('button', 'ab-tab' + (n === AB.nhom ? ' on' : ''), n || 'Tất cả');
+    t.type = 'button';
+    t.setAttribute('role', 'tab');
+    t.appendChild(taoEl('span', '', String(n ? ds.filter(function(x){ return x.nhom === n; }).length : ds.length)));
+    t.addEventListener('click', function(){ AB.nhom = n; AB.moRong = false; veAlbum(AB.ds); });
+    tabs.appendChild(t);
+  });
+  tabs.hidden = !dsTab.length;
+  AB.loc = AB.nhom ? ds.filter(function(x){ return x.nhom === AB.nhom; }) : ds;
+  var grid = document.getElementById('abGrid');
+  grid.textContent = '';
+  var soHien = AB.moRong ? AB.loc.length : Math.min(AB_HIEN, AB.loc.length);
+  AB.loc.slice(0, soHien).forEach(function(x, i){
+    var o = taoEl('button', 'ab-o');
+    o.type = 'button';
+    o.setAttribute('aria-label', x.cap || 'Xem ảnh');
+    var im = taoEl('img');
+    im.src = alnUrl(x.url); im.alt = x.cap || ''; im.loading = 'lazy';
+    // Ảnh ngang (bảng mẫu, linh kiện dài) không cắt — hiện trọn trên nền trắng.
+    im.addEventListener('load', function(){ if (im.naturalWidth > im.naturalHeight * 1.6) o.classList.add('rong'); });
+    o.appendChild(im);
+    if (x.cap) o.appendChild(taoEl('div', 'ab-cap', x.cap));
+    o.addEventListener('click', function(){ moAnh(i); });
+    grid.appendChild(o);
+  });
+  var them = document.getElementById('abThem');
+  them.hidden = soHien >= AB.loc.length;
+  them.textContent = 'Xem thêm ' + (AB.loc.length - soHien) + ' ảnh';
+}
+document.getElementById('abThem').addEventListener('click', function(){ AB.moRong = true; veAlbum(AB.ds); });
+function moAnh(i){
+  AB.i = (i + AB.loc.length) % AB.loc.length;
+  var x = AB.loc[AB.i];
+  var im = document.getElementById('abXemAnh');
+  im.src = alnUrl(x.url); im.alt = x.cap || '';
+  document.getElementById('abXemCap').textContent = x.cap || '';
+  document.getElementById('abXemDem').textContent = (AB.i + 1) + ' / ' + AB.loc.length + (x.nhom ? '  ·  ' + x.nhom : '');
+  var nhieu = AB.loc.length > 1;
+  document.getElementById('abTruoc').hidden = !nhieu;
+  document.getElementById('abSau').hidden = !nhieu;
+  var xem = document.getElementById('abXem');
+  if (!xem.classList.contains('open')) { xem.classList.add('open'); document.getElementById('abDong').focus(); }
+}
+function dongAnh(){ document.getElementById('abXem').classList.remove('open'); }
+document.getElementById('abDong').addEventListener('click', dongAnh);
+document.getElementById('abTruoc').addEventListener('click', function(){ moAnh(AB.i - 1); });
+document.getElementById('abSau').addEventListener('click', function(){ moAnh(AB.i + 1); });
+document.getElementById('abXem').addEventListener('click', function(ev){ if (ev.target === this) dongAnh(); });
+document.addEventListener('keydown', function(ev){
+  if (!document.getElementById('abXem').classList.contains('open')) return;
+  if (ev.key === 'Escape') dongAnh();
+  else if (ev.key === 'ArrowLeft') moAnh(AB.i - 1);
+  else if (ev.key === 'ArrowRight') moAnh(AB.i + 1);
+});
+(function(){
+  var x0 = null;
+  var xem = document.getElementById('abXem');
+  xem.addEventListener('touchstart', function(ev){ x0 = ev.touches[0].clientX; }, { passive: true });
+  xem.addEventListener('touchend', function(ev){
+    if (x0 == null) return;
+    var dx = ev.changedTouches[0].clientX - x0; x0 = null;
+    if (Math.abs(dx) > 50) moAnh(AB.i + (dx < 0 ? 1 : -1));
+  });
+})();
+
 function render(b){
   NCC = b;
   window.NCC = b;
@@ -739,6 +870,12 @@ function render(b){
   if (Array.isArray(b.products) && b.products.some(function(p){ return p && (p.name || '').trim(); })) {
     document.getElementById('productsSec').style.display = 'block';
     veSanPham(b.products.filter(function(p){ return p && (p.name || '').trim(); }));
+  }
+
+  /* 3c) Thư viện hình ảnh */
+  if (Array.isArray(b.album)) {
+    var ab = b.album.filter(function(x){ return x && x.url; }).map(function(x){ return { url: x.url, cap: String(x.cap || ''), nhom: String(x.nhom || 'Hình ảnh') }; });
+    if (ab.length) veAlbum(ab);
   }
 
   /* 4) Gallery */
