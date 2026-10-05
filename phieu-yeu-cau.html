@@ -227,9 +227,10 @@ ul.plain li{margin:2px 0}
      để không tràn sang trang mới. */
   /* 05/10/2026: bỏ ép sang trang mới + cao cả trang (để lại khoảng trống lớn khi in); giữ khối ký liền một mảnh */
   /* 05/10/2026 (2): mục XIII + ghi chú + bảng công ty chảy tiếp; chỉ giữ chữ ký với bảng công ty liền nhau — giữ cả khối liền thì vẫn bỏ trống cuối trang trước */
+  /* 05/10/2026 (3): mục XIII (chữ ký) dính với mục trước; bảng công ty chảy tiếp — giữ cả khối liền để trống lớn cuối trang */
   .trang-ky{break-inside:auto}
-  .trang-ky .keep{break-after:avoid}
-  .chan-ky{break-inside:avoid;break-before:avoid}
+  .trang-ky>.keep{break-before:avoid}
+  .chan-ky{break-inside:avoid}
 }
 </style>
 </head>

@@ -193,9 +193,11 @@ table.t{width:100%;table-layout:fixed;border-collapse:collapse;font-size:13.5px;
   /* Trang ký: mục cuối + chữ ký + bảng công ty nằm sát chân trang cuối */
   /* 05/10/2026: bỏ ép sang trang mới + cao cả trang (để lại khoảng trống lớn khi in); giữ Điều 10 + chữ ký + bảng công ty liền một mảnh */
   /* 05/10/2026 (2): Điều 10 chảy tiếp ngay sau Điều 9; chỉ giữ chữ ký + bảng công ty liền nhau — giữ cả khối liền thì vẫn bỏ trống cuối trang trước */
+  /* 05/10/2026 (3): chữ ký dính với phần xác nhận ngay trên nó (không đứng trơ một trang); bảng công ty và Phụ lục 01 chảy tiếp, không ép trang mới — mọi kiểu "giữ cả khối" đều để trống lớn cuối trang */
   .trang-ky{break-inside:auto}
-  .trang-ky .keep{break-after:avoid}
-  .chan-ky{break-inside:avoid;break-before:avoid}
+  .trang-ky .keep{break-before:avoid}
+  .chan-ky{break-inside:avoid}
+  .phu-luc{margin-top:28px}
 }
 </style>
 </head>
@@ -423,7 +425,7 @@ table.t{width:100%;table-layout:fixed;border-collapse:collapse;font-size:13.5px;
 </div>
 </div>
 
-<section class="dieu" style="break-before:page">
+<section class="dieu phu-luc">
   <h2><span class="n">Phụ lục 01.</span>Yêu cầu thiết kế của Bên A</h2>
   <p class="note" id="vPlNguon"></p>
   <div id="plCo">
