@@ -629,6 +629,17 @@ function render(){
     + '</div>'
 
     + '<div class="main-card">'
+      + '<div class="main-card-head"><div class="main-card-icon"><i class="ph-duotone ph-seal-check"></i></div><div class="main-card-title">Logo thương hiệu</div></div>'
+      + '<div class="main-card-desc">Logo hiện cạnh tên gian hàng trên trang công khai. Nên dùng ảnh vuông, nền trắng hoặc trong suốt (PNG), tối đa 2MB.</div>'
+      + '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">'
+        + (d.logoUrl ? '<img src="' + eU(d.logoUrl) + '" alt="Logo" style="width:72px;height:72px;object-fit:contain;background:#fff;border:1px solid var(--border);border-radius:10px;padding:4px">' : '<div style="width:72px;height:72px;border:1px dashed var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--muted)"><i class="ph-duotone ph-image"></i></div>')
+        + '<button class="btn btn-ghost btn-sm" onclick="document.getElementById(\'logoInput\').click()"><i class="ph-duotone ph-upload-simple"></i>' + (d.logoUrl ? 'Đổi logo' : 'Tải logo lên') + '</button>'
+        + (d.logoUrl ? '<button class="btn btn-ghost btn-sm" onclick="removeLogo()">Gỡ logo</button>' : '')
+      + '</div>'
+      + '<input type="file" id="logoInput" accept="image/png,image/jpeg,image/webp" style="display:none">'
+    + '</div>'
+
+    + '<div class="main-card">'
       + '<div class="main-card-head"><div class="main-card-icon"><i class="ph-duotone ph-images"></i></div><div class="main-card-title">Thêm ảnh công trình đã làm</div></div>'
       + '<div class="main-card-desc">Thêm tối đa <b>5 ảnh</b> công trình đẹp nhất — khách xem ảnh thật sẽ tin tưởng hơn nhiều. Ảnh đầu tiên dùng làm ảnh đại diện.</div>'
       + '<div class="gal-grid" id="galGrid">' + galHtml + '</div>'
@@ -719,6 +730,8 @@ function render(){
   document.getElementById('prodImgInput').addEventListener('change', onPickProductImg);
   const pdfIn = document.getElementById('pdfInput');
   if(pdfIn) pdfIn.addEventListener('change', onPickPdf);
+  const logoIn = document.getElementById('logoInput');
+  if(logoIn) logoIn.addEventListener('change', onPickLogo);
 
   if (window.renderAlnBricksCard) window.renderAlnBricksCard(USER_PROFILE && USER_PROFILE.alnBricks, USER_PROFILE && USER_PROFILE.alnDiamonds, USER_PROFILE && USER_PROFILE.referralPendingVnd);
 }
@@ -747,6 +760,33 @@ async function onPickImages(ev){
   }
   showToast('Ảnh đã thêm — bấm "Lưu thay đổi" để công bố');
 }
+
+async function onPickLogo(ev){
+  const f = (ev.target.files || [])[0];
+  ev.target.value = '';
+  if(!f) return;
+  if(!/^image\/(png|jpeg|webp)$/.test(f.type)){ showToast('Logo cần là ảnh PNG, JPG hoặc WEBP', true); return; }
+  if(f.size > 2 * 1024 * 1024){ showToast('Logo vượt 2MB', true); return; }
+  showToast('Đang tải logo lên…');
+  try {
+    const ref = storageRef(storage, 'ncc-catalogs/' + UID + '/logo-' + Date.now() + '.' + (f.type.split('/')[1] === 'jpeg' ? 'jpg' : f.type.split('/')[1]));
+    await uploadBytes(ref, f, { contentType: f.type });
+    DATA.logoUrl = await getDownloadURL(ref);
+    markDirty();
+    render();
+    showToast('Logo đã thêm — bấm "Lưu thay đổi" để công bố');
+  } catch(e){
+    console.error(e);
+    showToast('Lỗi tải logo: ' + (e.message || e.code || e), true);
+  }
+}
+
+window.removeLogo = function(){
+  if(!confirm('Gỡ logo khỏi gian hàng?')) return;
+  DATA.logoUrl = '';
+  markDirty();
+  render();
+};
 
 async function onPickPdf(ev){
   const f = (ev.target.files || [])[0];
@@ -821,6 +861,7 @@ window.saveAll = async function(){
       gallery: (DATA.gallery || []).slice(0, MAX_IMAGES),
       catalogPdfUrl: DATA.catalogPdfUrl || '',
       catalogPdfName: DATA.catalogPdfName || '',
+      logoUrl: DATA.logoUrl || '',
       videos: (DATA.videos || []).filter(isValidVideoUrl).slice(0, MAX_VIDEOS),
       priceList: priceList,
       products: products,

@@ -63,6 +63,8 @@ a{color:var(--gold);text-decoration:none}
 .badge-featured{background:var(--gold);color:#fff}
 .badge-verified{background:var(--green);color:#fff}
 .badge-projects{background:var(--gold-bg);border:1px solid rgba(152,105,10,.28);color:var(--gold)}
+.pro-title{display:flex;align-items:center;gap:14px}
+.pro-logo{width:64px;height:64px;flex:none;object-fit:contain;background:#fff;border:1px solid var(--border);border-radius:12px;padding:4px}
 .pro-name{font-family:var(--syne);font-size:var(--text-xl);font-weight:800;color:var(--text);line-height:1.25}
 .pro-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;font-size:var(--text-sm);color:var(--sub)}
 .pro-meta span{display:inline-flex;align-items:center;gap:5px}
@@ -194,7 +196,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="cover" id="cover"><i class="ph-duotone ph-storefront"></i></div>
   <div class="pro-header">
     <div class="badge-row" id="badgeRow"></div>
-    <div class="pro-name" id="proName"></div>
+    <div class="pro-title"><img class="pro-logo" id="proLogo" alt="" hidden><div class="pro-name" id="proName"></div></div>
     <div class="pro-meta">
       <span id="proAddress"><i class="ph-duotone ph-map-pin"></i></span>
       <span id="proCategory"><i class="ph-duotone ph-tag"></i></span>
@@ -487,6 +489,9 @@ function render(b){
 
   document.title = (b.name || 'Gian hàng') + ' — Danh sách Thiết bị - Vật tư ALN | App Làm Nhà';
   document.getElementById('proName').textContent = b.name || 'Gian hàng';
+  var logoEl = document.getElementById('proLogo');
+  if (b.logoUrl) { logoEl.src = alnUrl(b.logoUrl); logoEl.alt = 'Logo ' + (b.name || ''); logoEl.hidden = false; }
+  else { logoEl.hidden = true; }
   document.getElementById('proAddress').innerHTML = '<i class="ph-duotone ph-map-pin"></i> ' + escH(b.address || PROV_NAME[b.province] || b.province || '');
   document.getElementById('proCategory').innerHTML = '<i class="ph-duotone ph-tag"></i> ' + escH(CATS[b.category] || b.category || '');
   document.getElementById('proBio').textContent = b.intro || b.bio || '';
