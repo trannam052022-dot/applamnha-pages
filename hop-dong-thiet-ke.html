@@ -268,7 +268,7 @@ table.t{width:100%;table-layout:fixed;border-collapse:collapse;font-size:13.5px;
     <tr><td class="k">Tên doanh nghiệp</td><td><b data-v="ben_b.ten"></b> (<span data-v="ben_b.ten_tieng_anh"></span>)</td></tr>
     <tr><td class="k">Mã số thuế</td><td class="mono" data-v="ben_b.ma_so_thue"></td></tr>
     <tr><td class="k">Trụ sở</td><td data-v="ben_b.tru_so"></td></tr>
-    <tr><td class="k">Người đại diện</td><td><input class="f m" maxlength="80" aria-label="Người đại diện bên B" data-vin="ben_b.dai_dien"> Chức vụ: <input class="f m" maxlength="60" aria-label="Chức vụ" data-vin="ben_b.chuc_vu"></td></tr>
+    <tr><td class="k">Người đại diện</td><td><input class="f m" maxlength="80" aria-label="Người đại diện bên B" data-vin="ben_b.dai_dien"> <br>Chức vụ: <input class="f w" maxlength="140" aria-label="Chức vụ" data-vin="ben_b.chuc_vu"></td></tr>
     <tr><td class="k">Tài khoản nhận thanh toán</td><td>Số <input class="f m" maxlength="30" aria-label="Số tài khoản" data-vin="ben_b.tai_khoan"> tại <input class="f m" maxlength="80" aria-label="Ngân hàng" data-vin="ben_b.ngan_hang"><br><span class="note">Tài khoản đứng tên CÔNG TY TNHH ALN.</span></td></tr>
     <tr><td class="k">Điện thoại · Website</td><td><span class="mono" data-v="ben_b.dien_thoai"></span> · <span data-v="ben_b.website"></span></td></tr>
   </table>
@@ -406,7 +406,7 @@ table.t{width:100%;table-layout:fixed;border-collapse:collapse;font-size:13.5px;
 <div class="keep">
   <div class="sign" style="margin-top:22px">
     <div><b>Đại diện Bên A</b><span class="note">(Ký, ghi rõ họ tên; kèm người cùng đứng tên đất, nếu có)</span><div class="space"></div><span class="ten" data-v="ben_a.ten"></span></div>
-    <div><b>Đại diện Bên B</b><span class="note">(Ký, ghi rõ họ tên, đóng dấu)</span><div class="space"></div><span class="ten" id="vTenDaiDienB"></span></div>
+    <div><b>Đại diện Bên B</b><span class="note" id="vKyThayB" hidden></span><span class="note">(Ký, ghi rõ họ tên, đóng dấu)</span><div class="space"></div><span class="ten" id="vTenDaiDienB"></span></div>
   </div>
 </div>
 
@@ -499,7 +499,9 @@ function ve(d) {
     ? 'Phiếu thống nhất yêu cầu thiết kế mã ' + d.phu_luc.ma_phieu + ' do Bên A lập.'
     : 'Nhu cầu của Bên A và năng lực của Bên B.';
   $('vLienHeA').textContent = d.ben_a.lien_he ? ' (người liên hệ: ' + d.ben_a.lien_he + ')' : '';
-  $('vTenDaiDienB').textContent = (d.ben_b && d.ben_b.dai_dien) || '';
+  $('vTenDaiDienB').textContent = (d.ben_b && (d.ben_b.ten_ky || d.ben_b.dai_dien)) || '';
+  $('vKyThayB').textContent = (d.ben_b && d.ben_b.ky_thay) || '';
+  $('vKyThayB').hidden = !(d.ben_b && d.ben_b.ky_thay);
 
   const p = d.phi;
   $('khoiGia').hidden = !p;
