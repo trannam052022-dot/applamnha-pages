@@ -1984,7 +1984,7 @@ document.addEventListener('DOMContentLoaded', function() {
   <!-- Phễu ẩn danh trang dự toán (03/10/2026) — founderPheuAnDanh (functions/baoCaoAnDanh.js) -->
   <div style="border-top:1px solid var(--border);padding-top:20px;margin-bottom:28px">
     <div style="font-weight:700;color:var(--text1);margin:0 0 4px">Phễu ẩn danh trang dự toán (cả khách không để lại số)</div>
-    <div style="font-size:12px;color:var(--sub);margin-bottom:10px;max-width:88ch">Mỗi phiên = một lần mở <code>du-toan-nha.html</code> mà khách tự đổi số ít nhất một lần (ví dụ 5×20 m tự hiện lúc mở trang không tính). Chỉ có nhãn khoảng, không có số đo hay SĐT; dữ liệu tự xoá sau 90 ngày. Không gồm lượt tự test <code>?internal=1</code>. Khách bỏ đi TRƯỚC khi tính lần đầu không có ở đây — bước đó xem ở GA4, sự kiện <code>aln_dt_step</code>. Có từ 03/10/2026.</div>
+    <div style="font-size:12px;color:var(--sub);margin-bottom:10px;max-width:88ch">Mỗi phiên = một lần mở <code>du-toan-nha.html</code> mà khách tự đổi số ít nhất một lần (ví dụ 5×20 m tự hiện lúc mở trang không tính). Chỉ có nhãn khoảng, không có số đo hay SĐT; dữ liệu tự xoá sau 90 ngày. Không gồm lượt tự test <code>?internal=1</code>. Từ 06/10/2026 có thêm "Phễu theo bước": mở trang → tự đổi số → bấm Lưu → gửi mã OTP → nhập đúng mã → lưu xong, ghi phía máy chủ nên không phụ thuộc cookie. Các ô và bảng nhãn bên dưới vẫn chỉ tính phiên đã tự đổi số. Có từ 03/10/2026.</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
       <select id="adSoNgay" onchange="adTai()" style="padding:6px 10px;border:1px solid var(--border);border-radius:7px;background:var(--raised);color:var(--text1);font-size:12px">
         <option value="7">7 ngày</option>
@@ -1996,6 +1996,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <span id="adTrangThai" style="font-size:12.5px;color:var(--dim)">Chưa tải.</span>
     </div>
     <div id="adTongQuan" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:14px"></div>
+    <div id="adPheu" style="margin-bottom:14px"></div>
     <div id="adBang" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-bottom:14px"></div>
     <div style="overflow:auto;border:1px solid var(--border);border-radius:12px;background:var(--card)"><table id="adTheoNgay" style="width:100%;border-collapse:collapse;font-size:12.5px"></table></div>
   </div>
@@ -11778,6 +11779,33 @@ function adBangNho(khoa, tieuDe, bang, tong) {
   return h + "</tbody></table></div>";
 }
 
+// Phễu theo bước (06/10/2026, DEC-2026-023) — mỗi dòng = số phiên có bước đó.
+// Phiên trước khi bản mới chạy không có cờ mo_trang → đọc từ ngày tu_mo_trang.
+function adVePheu(k) {
+  const p = k.pheu || {};
+  if (!p.mo_trang) {
+    return '<div style="font-size:12.5px;color:var(--dim)">Phễu theo bước (mở trang → bấm Lưu → OTP → lưu xong): chưa có dữ liệu trong khoảng này — bắt đầu ghi từ khi bản 06/10/2026 chạy.</div>';
+  }
+  const goc = p.mo_trang;
+  const vt = k.vi_tri_luu || {};
+  const dong = [
+    ["Mở trang", p.mo_trang, ""],
+    ["Tự đổi số, xem kết quả", p.mo_trang - p.mo_khong_tinh, ""],
+    ["Bấm Lưu & xem chi tiết", p.bam_luu, "chân bảng " + so(vt.chan_bang || 0) + " · thẻ khoá " + so(vt.the_khoa || 0) + " · thanh dưới " + so(vt.thanh_dinh || 0)],
+    ["Gửi mã OTP thành công", p.otp_gui, p.otp_gui_loi ? so(p.otp_gui_loi) + " phiên gửi mã bị lỗi" : ""],
+    ["Nhập đúng mã OTP", p.otp_ok, ""],
+    ["Lưu xong vào Không gian Nhà", p.luu_xong, ""],
+    ["Gửi form Nhờ KTS xem (không OTP)", p.co_lead, "đi đường riêng, không qua các bước Lưu"],
+  ];
+  let h = '<div style="font-weight:700;color:var(--text1);font-size:12.5px;margin-bottom:6px">Phễu theo bước — từ ' + eH(String(k.tu_mo_trang || "").split("-").reverse().join("/")) + '</div>'
+    + '<div style="overflow:auto;border:1px solid var(--border);border-radius:12px;background:var(--card)"><table style="width:100%;border-collapse:collapse;font-size:12.5px"><thead><tr><th>Bước</th><th>Phiên</th><th>So với mở trang</th><th>Ghi chú</th></tr></thead><tbody>';
+  dong.forEach((d) => {
+    h += "<tr><td>" + eH(d[0]) + '<div style="height:4px;border-radius:2px;background:var(--gold);opacity:.55;margin-top:3px;width:' + Math.round((d[1] || 0) * 100 / goc) + '%"></div></td>'
+      + '<td class="' + (d[1] ? "" : "kl-mo") + '">' + so(d[1] || 0) + "</td><td>" + adPct(d[1] || 0, goc) + '</td><td class="kl-mo">' + eH(d[2]) + "</td></tr>";
+  });
+  return h + "</tbody></table></div>";
+}
+
 window.adTai = async function () {
   $("adTrangThai").textContent = "Đang tải…";
   try {
@@ -11790,6 +11818,7 @@ window.adTai = async function () {
       + the("Để lại số", adPct(k.so_co_lead, k.so_phien), so(k.so_co_lead) + " phiên")
       + the("Tính từ 2 lần", adPct(lai, k.so_phien), so(lai) + " phiên — đang cân nhắc thật")
       + the("Đồng ý cookie", adPct((k.cookie.dong_y || {}).phien || 0, k.so_da_chon_cookie), "trên " + so(k.so_da_chon_cookie) + " phiên đã chọn");
+    $("adPheu").innerHTML = adVePheu(k);
     $("adBang").innerHTML = AD_TIEU_DE.map((x) => adBangNho(x[0], x[1], k[x[0]], k.so_phien)).join("");
     const max = Math.max(1, ...k.theo_ngay.map((x) => x.phien));
     let h = "<thead><tr><th>Ngày</th><th>Phiên</th><th>Để lại số</th><th style=\"width:45%\"></th></tr></thead><tbody>";

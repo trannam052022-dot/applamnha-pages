@@ -1195,6 +1195,17 @@ document.addEventListener('aln:consent', () => {
     httpsCallable(functionsInst, 'ghiCookieAnDanh', { timeout: 10000 })({ anDanh: an }).catch(() => {});
   } catch (e) {}
 });
+// Các bước trong phiên (06/10/2026, DEC-2026-023): mở trang → bấm Lưu → gửi mã OTP
+// (hoặc gửi lỗi) → xác nhận mã → lưu xong. Máy chủ chỉ ghi cờ lên phiên ẩn danh
+// (không SĐT, không số đo). ?internal=1 và ?dn=1: alnAnDanh() trả null → không gửi.
+function ghiBuoc(buoc, viTri) {
+  try {
+    const an = window.alnAnDanh && window.alnAnDanh();
+    if (!an) return;
+    httpsCallable(functionsInst, 'ghiBuocAnDanh', { timeout: 10000 })({ anDanh: an, buoc, vi_tri: viTri || null }).catch(() => {});
+  } catch (e) {}
+}
+ghiBuoc('mo_trang');
 const callSaveEstimate = httpsCallable(functionsInst, 'saveEstimateToHouse');
 
 /* ── Lưu và xem chi tiết trong Không gian Nhà (05/10/2026) ──
@@ -1250,6 +1261,7 @@ async function trackSavedLead(d) {
 // aln_du_toan_luu = lưu thành công = mở khoá (05/10/2026): MỌI lần lưu thành công,
 // không còn chỉ lần tạo contact mới (Lead vẫn chỉ contact mới, ở trackSavedLead).
 function banDaLuu(d) {
+  ghiBuoc('luu_xong');
   try {
     if (!window.alnDtSuKien) return;
     const lv = loiVao || {};
@@ -1493,6 +1505,7 @@ async function guiMa() {
     const { signInWithPhoneNumber } = await phoneAuth();
     xacNhan = await signInWithPhoneNumber(auth, '+84' + so.slice(1), await ensureRecaptcha());
     try { window.alnDtSuKien && window.alnDtSuKien.otpGui((loiVao && loiVao.viTri) || 'chan_bang'); } catch (e) {}
+    ghiBuoc('otp_gui');
     $('ohSdtHien').textContent = so.replace(/^(\d{4})(\d{3})(\d+)$/, '$1 $2 $3');
     buocHop(2);
     msg.hidden = true;
@@ -1501,6 +1514,7 @@ async function guiMa() {
     demGuiLai(60);
   } catch (err) {
     console.warn('[du-toan-nha] gửi mã thất bại');
+    ghiBuoc('otp_gui_loi');
     window.alnBaoLoiNeuCan && window.alnBaoLoiNeuCan('du-toan-nha gui-ma', err);
     const code = err && err.code;
     // Nhà mạng/hết lượt/lỗi lạ: mời sang form "Nhờ KTS xem giúp" (không cần OTP).
@@ -1519,6 +1533,7 @@ async function xacNhanMa() {
   const b = $('ohXacNhan'); b.disabled = true; b.textContent = 'Đang xác nhận…';
   try {
     await xacNhan.confirm(ma);
+    ghiBuoc('otp_ok');
     buocHop(0);
     clearInterval(demNguoc);
     await doSave(banChup);
@@ -1539,6 +1554,7 @@ function moHop(viTri, nhom, neo) {
   if (viTri === 'the_khoa' && neo) neo.appendChild(hop); else $('otpNha').appendChild(hop);
   hop.hidden = false;
   msg.hidden = true; retryBtn.hidden = true;
+  ghiBuoc('bam_luu', viTri);
   const daDangNhap = isPhoneAuthed(auth.currentUser);
   try { window.dataLayer = window.dataLayer || []; window.dataLayer.push({ event: "aln_luu_bam", da_dang_nhap: daDangNhap ? 1 : 0 }); } catch (e) {}
   if (daDangNhap) { buocHop(0); doSave(); return; }
