@@ -854,7 +854,8 @@ async function moSauXacNhan(f) {
   });
   LEAD_ID = r.data && r.data.id;
   if (LEAD_ID) ntBao('lead');
-  baoLeadQuangCao(LEAD_ID);
+  // Số nội bộ/test (máy chủ trả la_test, 06/10/2026): không bắn Pixel Lead.
+  if (!(r.data && r.data.la_test)) baoLeadQuangCao(LEAD_ID);
   try { sessionStorage.setItem('aln_noithat_lead', LEAD_ID); } catch (e2) {}
   await moBang();
   const $t = document.getElementById('da-nhan');

@@ -1913,7 +1913,7 @@ window.alnDuToanGuiLeadMyMy = async function (o) {
   const d = (res && res.data) || {};
   const leadId = d.id || '';
   try {
-    if (window.fbq && leadId) window.fbq('track', 'Lead',
+    if (window.fbq && leadId && !d.la_test) window.fbq('track', 'Lead',
       { value: 100000, currency: 'VND', content_name: 'du-toan-nha-mymy', content_category: 'du-toan-nha' },
       { eventID: 'lead-' + leadId });
   } catch (err) {}
@@ -2067,10 +2067,10 @@ f.form.addEventListener('submit', async (e) => {
     const nhanh = dt === 'nha_thau' ? 'nha_thau' : (d.han_muc_vuot ? 'han_muc' : '');
     try { if (d.han_muc_vuot && window.alnDtSuKien) window.alnDtSuKien.gioiHan(); } catch (e) {}
     try {
-      if (window.fbq && leadId && !nhanh) window.fbq('track', 'Lead',
+      if (window.fbq && leadId && !nhanh && !d.la_test) window.fbq('track', 'Lead',
         { value: 100000, currency: 'VND', content_name: 'du-toan-nha-tu-van', content_category: 'du-toan-nha' },
         { eventID: 'lead-' + leadId });
-      if (window.fbq && leadId && nhanh && !d.dup) window.fbq('trackCustom', 'NhaThauLead',
+      if (window.fbq && leadId && nhanh && !d.dup && !d.la_test) window.fbq('trackCustom', 'NhaThauLead',
         { content_name: 'du-toan-nha-tu-van', content_category: 'du-toan-nha', ly_do: nhanh },
         { eventID: 'lead-' + leadId });
     } catch (err) {}
