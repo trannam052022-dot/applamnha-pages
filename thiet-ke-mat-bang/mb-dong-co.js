@@ -1220,6 +1220,19 @@
     khoangMin: 3.0
   };
 
+  // Công năng chủ nhà tự đổi cho từng khoang (trang /thiet-ke-mat-bang/, 07/10/2026).
+  // pnWc = phòng ngủ có WC riêng DO CHỦ NHÀ CHỌN → giữ WC riêng cả khi nhà ≥ 3 phòng ngủ (KTS chốt: "trừ khi chủ nhà yêu cầu thêm WC").
+  const VAI_DOI = { pnF: 'Phòng ngủ', pnWc: 'Phòng ngủ có WC riêng', khach: 'Phòng khách', sh: 'Phòng sinh hoạt chung', bep: 'Bếp + ăn', lv: 'Phòng làm việc' };
+  const VAI_DUY_NHAT = ['khach', 'sh', 'bep'];
+  const laPn = r => r === 'pnF' || r === 'pnR' || r === 'pnWc';
+  /** Khoang (tầng i, phía F/R) có cho chủ nhà đổi công năng không. */
+  function doiDuoc(p, phia) {
+    if (!p || p.lung || p.top) return false;
+    if (p.ground && phia === 'F') return false; // mặt tiền trệt theo lựa chọn kinh doanh / gara / phòng khách
+    const vai = phia === 'F' ? p.f : p.r;
+    return vai !== 'ongba' && vai !== 'void' && vai !== 'kd';
+  }
+
   const OPT_DEF = {
     kd: 'Kinh doanh tầng trệt', kd2: 'Kinh doanh thêm lầu 1', lung: 'Có lửng', tm: 'Thang máy', gara: 'Gara ô tô',
     ongba: 'PN ông bà tầng trệt', bepTren: 'Bếp ở tầng trên', sinhHoatCao: 'Khách + bếp ở tầng cao', gieng: 'Giếng trời', lat: 'Lật trái/phải', san: 'Sân trước 2,5 m'
@@ -1237,7 +1250,8 @@
     const yB = v.san ? Math.max(g.f, M.lo.san) : g.f; // mép nhà
     const Lt = yE - yB - M.core - (v.gieng ? M.gieng : 0);
     if (Lt < 2 * M.khoangMin - EPS) return { fail: 'không đủ sâu cho hai khoang' };
-    const Fd = Math.round(Lt * M.tiLeTruoc * 100) / 100, Rd = Lt - Fd;
+    const tl = typeof v.tl === 'number' && v.tl >= 0.2 && v.tl <= 0.8 ? v.tl : M.tiLeTruoc; // chủ nhà dời tường giữa khoang trước / sau
+    const Fd = Math.round(Lt * tl * 100) / 100, Rd = Lt - Fd;
     if (Rd < M.khoangMin - EPS || Fd < M.khoangMin - EPS) return { fail: 'khoang < 3 m' };
     const cw = cfg.doxe.o_to_thong_thuy_m;
     if (v.gara && (yB + Fd < cw.dai || B < cfg.doxe.cua_vao_o_to_rong_toi_thieu_m)) return { fail: 'không đủ chỗ ô tô' };
@@ -1261,11 +1275,27 @@
     if (sinhHoat && !v.sinhHoatCao) prog.push(sinhHoat, ...beds); else prog.push(...beds, ...(sinhHoat ? [sinhHoat] : []));
     if (top) prog.push(top);
     let li = 0; prog.forEach(p => { if (!p.ground && !p.lung && !p.top) p.name = `Lầu ${++li}`; });
+    // chủ nhà đổi công năng khoang: v.doi = { '<tầng>F' | '<tầng>R': vai }
+    if (v.doi && typeof v.doi === 'object') {
+      for (const k of Object.keys(v.doi)) {
+        const m = /^(\d{1,2})([FR])$/.exec(k), vai = v.doi[k];
+        if (!m || !VAI_DOI[vai]) return { fail: 'đổi phòng không hợp lệ' };
+        const p = prog[+m[1]];
+        if (!doiDuoc(p, m[2])) return { fail: 'khoang này không đổi được' };
+        if (m[2] === 'F') p.f = vai; else p.r = vai;
+      }
+      const dem = vai => prog.reduce((s, p) => s + (p.f === vai) + (p.r === vai), 0);
+      if (dem('bep') < 1) return { fail: 'nhà chưa có bếp' };
+      if (dem('bep') > 1) return { fail: 'hơn một bếp' };
+      if (dem('khach') < 1) return { fail: 'nhà chưa có phòng khách' };
+      if (dem('khach') > 1) return { fail: 'hơn một phòng khách' };
+      if (!prog.some(p => laPn(p.f) || laPn(p.r))) return { fail: 'nhà chưa có phòng ngủ' };
+    }
     // KTS chốt 03/10: cả nhà chỉ một không gian sinh hoạt (ngoài phòng khách)
     const nSh = prog.reduce((s, p) => s + (p.f === 'sh') + (p.r === 'sh'), 0);
     if (nSh > 1) return { fail: 'hơn một không gian sinh hoạt (KTS chốt 03/10)' };
     // KTS chốt 03/10: nhà ≥ 3 phòng ngủ → chỉ master có WC riêng, phòng khác dùng WC lõi
-    const nPN = prog.reduce((s, p) => s + (p.f === 'pnF') + (p.r === 'pnR'), 0);
+    const nPN = prog.reduce((s, p) => s + laPn(p.f) + laPn(p.r), 0);
     let masterLeft = nPN >= 3 && bB > 0 ? 1 : 99;
 
     // ---- hình học ----
@@ -1309,6 +1339,8 @@
     function bay(fl, role, y, d, side, p) {
       const n0 = fl.rooms.length;
       bay0(fl, role, y, d, side, p);
+      // đánh dấu khoang để trang chủ nhà biết phòng nào thuộc khoang nào (đổi công năng)
+      fl.rooms.slice(n0).forEach((q, i) => { q.bay = side; if (!i) q.bayChinh = true; });
       if (p.ground && side === 'F' && fl.rooms[n0]) fl.rooms[n0].entrance = true; // cửa chính ở mặt tiền tầng trệt
     }
     function bay0(fl, role, y, d, side, p) {
@@ -1321,12 +1353,13 @@
         case 'bepcho': fl.rooms.push(R(0, y, B, d, 'Bếp chờ / kho', 'bep')); break;
         case 'void': fl.rooms.push(R(0, y, B, d, 'Thông tầng', 'lw')); break;
         case 'pnF': fl.rooms.push(R(0, y, B, d, `PN ${++pn}`, 'pn', { sub: bB > 0 ? 'WC ở lõi' : 'WC chung' })); break;
-        case 'pnR': case 'ongba': {
-          const ob = role === 'ongba';
-          if (!ob && masterLeft <= 0) { fl.rooms.push(R(0, y, B, d, `PN ${++pn}`, 'pn', { sub: 'WC ở lõi' })); break; }
-          if (!ob && masterLeft !== 99) masterLeft--;
+        case 'lv': fl.rooms.push(R(0, y, B, d, 'Phòng làm việc', 'lv')); break;
+        case 'pnR': case 'pnWc': case 'ongba': {
+          const ob = role === 'ongba', yeuCau = role === 'pnWc';
+          if (!ob && !yeuCau && masterLeft <= 0) { fl.rooms.push(R(0, y, B, d, `PN ${++pn}`, 'pn', { sub: 'WC ở lõi' })); break; }
+          if (!ob && !yeuCau && masterLeft !== 99) masterLeft--;
           const wl = Math.min(M.wcSau.dai, d - 1.0), w0 = M.wcSau.rong;
-          fl.rooms.push(R(w0, y, B - w0, d, ob ? 'PN ông bà' : `PN ${++pn}${masterLeft === 0 ? ' (master)' : ''}`, ob ? 'ongba' : 'pn', { sub: ob ? 'cửa 900 · WC riêng' : 'khép kín' }));
+          fl.rooms.push(R(w0, y, B - w0, d, ob ? 'PN ông bà' : `PN ${++pn}${!yeuCau && masterLeft === 0 ? ' (master)' : ''}`, ob ? 'ongba' : 'pn', { sub: ob ? 'cửa 900 · WC riêng' : 'khép kín' }));
           fl.rooms.push(R(0, y + d - wl, w0, wl, 'WC', ob ? 'wc_ongba' : 'wc', { doorTo: ob ? 'ongba' : 'pn' }));
           fl.rooms.push(R(0, y, w0, d - wl, 'Tủ', 'kho', { doorTo: ob ? 'ongba' : 'pn' }));
           if (ob) obPlaced = true;
@@ -1380,6 +1413,7 @@
     P.ys = [0, yB, cy, cE, rB, yE, g.d].filter((x, i, a) => a.indexOf(x) === i);
     P.xs = xs.filter(x => x >= 0 && x <= B);
     P.pn = pn; P.obPlaced = obPlaced;
+    P.tl = tl; P.Fd = Fd; P.Rd = Rd; P.prog = prog.map(p => ({ name: p.name, f: p.f, r: p.r, ground: !!p.ground, lung: !!p.lung, top: !!p.top }));
     // footprint dùng cho kiểm tra: mép nhà ở yB
     g.f = yB; g.Db = yE - yB; g.fp = B * g.Db; g.san = yB;
     I.post(g, P);
@@ -1437,7 +1471,7 @@
 
   function goc() { return { kd: 1, kd2: 1, gara: 0, lung: 1, tm: 1, ongba: 0, bepTren: 1, sinhHoatCao: 1, gieng: 0, san: 1, lat: 0, n: 7 }; }
 
-  const api = { M, OPT_DEF, build, variants, match, goc };
+  const api = { M, OPT_DEF, VAI_DOI, VAI_DUY_NHAT, doiDuoc, build, variants, match, goc };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.ALNMau = api;
 })(typeof window !== 'undefined' ? window : globalThis);
 
