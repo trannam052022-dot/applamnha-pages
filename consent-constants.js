@@ -14,6 +14,7 @@ export const CONSENT_VERSIONS = {
   du_toan: "2026-10-03",
   quang_cao: "2026-10-03",
   mymy_chat: "2026-10-03",
+  mat_bang: "2026-10-07",
 };
 
 export const CONSENT_TEXTS = {
@@ -26,6 +27,9 @@ export const CONSENT_TEXTS = {
   /* Nút đồng ý trong chat MyMy ở trang không có luồng riêng (mymy-widget.js, index.html).
      PHẢI giống hệt functions/consent_constants.js CONSENT_TEXTS.mymy_chat. */
   mymy_chat: "Tôi đồng ý để ALN dùng SĐT này để gọi/nhắn tư vấn về nội dung tôi vừa hỏi MyMy, theo Chính sách quyền riêng tư.",
+  /* Form "Nhờ KTS chỉnh phương án này" ở /thiet-ke-mat-bang/ — PHẢI giống hệt
+     functions/consent_constants.js CONSENT_TEXTS.mat_bang (functions/_test_matBang.js kiểm). */
+  mat_bang: "Tôi đồng ý để ALN dùng họ tên, SĐT và phương án mặt bằng này để KTS gọi/nhắn tư vấn thiết kế, theo Chính sách quyền riêng tư.",
 };
 
 export const CONSENT_PURPOSES = {
@@ -33,4 +37,5 @@ export const CONSENT_PURPOSES = {
   du_toan: "lien_he_tu_van_du_toan",
   quang_cao: "do_hieu_qua_quang_cao_meta",
   mymy_chat: "lien_he_tu_van_mymy",
+  mat_bang: "lien_he_tu_van_mat_bang",
 };

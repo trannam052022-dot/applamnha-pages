@@ -2000,6 +2000,25 @@ document.addEventListener('DOMContentLoaded', function() {
     <div id="adBang" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-bottom:14px"></div>
     <div style="overflow:auto;border:1px solid var(--border);border-radius:12px;background:var(--card)"><table id="adTheoNgay" style="width:100%;border-collapse:collapse;font-size:12.5px"></table></div>
   </div>
+
+  <!-- Thiết kế mặt bằng — bản dùng thử (07/10/2026) — founderGopYMatBang (functions/matBang.js) -->
+  <div style="border-top:1px solid var(--border);padding-top:20px;margin-bottom:28px">
+    <div style="font-weight:700;color:var(--text1);margin:0 0 4px">Thiết kế mặt bằng (dùng thử) — góp ý của khách</div>
+    <div style="font-size:12px;color:var(--sub);margin-bottom:10px;max-width:88ch">Trang <a href="/thiet-ke-mat-bang/" target="_blank" rel="noopener" style="color:var(--gold)">/thiet-ke-mat-bang/</a>. Mỗi phiên = một lần mở trang (ẩn danh, không SĐT, tự xoá sau 90 ngày). Góp ý "hợp / chưa hợp" gửi theo từng phương án, không cần để số. Lead "Nhờ KTS chỉnh" vào tab Lead/Pipeline như form khác (nguồn <code>thiet-ke-mat-bang</code>). Không gồm lượt <code>?internal=1</code>.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
+      <select id="mbSoNgay" onchange="mbTai()" style="padding:6px 10px;border:1px solid var(--border);border-radius:7px;background:var(--raised);color:var(--text1);font-size:12px">
+        <option value="7">7 ngày</option>
+        <option value="14">14 ngày</option>
+        <option value="30" selected>30 ngày</option>
+        <option value="90">90 ngày</option>
+      </select>
+      <button onclick="mbTai()" style="padding:7px 14px;background:var(--raised);border:1px solid var(--border);border-radius:7px;font-size:12px;font-weight:600;color:var(--sub);cursor:pointer;font-family:var(--sans)"><i class="ph-duotone ph-arrow-clockwise"></i> Tải góp ý</button>
+      <span id="mbTrangThai" style="font-size:12.5px;color:var(--dim)">Chưa tải.</span>
+    </div>
+    <div id="mbTongQuan" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:14px"></div>
+    <div id="mbBang" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-bottom:14px"></div>
+    <div style="overflow:auto;border:1px solid var(--border);border-radius:12px;background:var(--card)"><table id="mbGhiChu" style="width:100%;border-collapse:collapse;font-size:12.5px"></table></div>
+  </div>
 </div>
 
 <div id="panelLeads" style="display:none;flex-direction:column;flex:1;overflow-y:auto;padding:24px 28px">
@@ -11829,6 +11848,42 @@ window.adTai = async function () {
     $("adTheoNgay").innerHTML = h + "</tbody>";
   } catch (e) {
     $("adTrangThai").textContent = "Lỗi tải: " + (e.message || e);
+  }
+};
+
+/* ── Thiết kế mặt bằng — góp ý khách (07/10/2026) — founderGopYMatBang ── */
+window.mbTai = async function () {
+  $("mbTrangThai").textContent = "Đang tải…";
+  try {
+    const k = await goi("founderGopYMatBang", { so_ngay: Number($("mbSoNgay").value) || 30 });
+    const ph = k.phien;
+    $("mbTrangThai").textContent = k.so_ngay + " ngày gần nhất · " + so(k.so_gop_y) + " góp ý";
+    $("mbTongQuan").innerHTML =
+      the("Phiên mở trang", so(ph.so), so(ph.co_tao) + " phiên bấm Vẽ (" + adPct(ph.co_tao, ph.so) + ")")
+      + the("Vẽ không ra phương án", so(ph.khong_ra), "phiên chỉ gặp lô không vừa mẫu")
+      + the("Xem ≥ 2 phương án", adPct(ph.xem_nhieu_pa, ph.co_tao), so(ph.xem_nhieu_pa) + " phiên · đảo bên " + so(ph.co_lat))
+      + the("Hợp / chưa hợp", so(k.hop) + " / " + so(k.chua_hop), "tỷ lệ hợp " + adPct(k.hop, k.hop + k.chua_hop))
+      + the("Nhờ KTS chỉnh", so(ph.co_lead), "mở form " + so(ph.mo_lead) + " · " + adPct(ph.co_lead, ph.co_tao) + " phiên đã vẽ");
+    const bang = (tieuDe, dong) => '<div style="border:1px solid var(--border);border-radius:12px;background:var(--card);overflow:auto">'
+      + '<div style="padding:10px 12px 4px;font-weight:700;color:var(--text1);font-size:12.5px">' + eH(tieuDe) + "</div>"
+      + '<table style="width:100%;border-collapse:collapse;font-size:12px"><tbody>' + dong + "</tbody></table></div>";
+    const lyDo = Object.keys(k.nhan_ly_do).map((x) => [x, k.ly_do[x] || 0]).sort((a, b) => b[1] - a[1]);
+    const maxLy = Math.max(1, ...lyDo.map((x) => x[1]));
+    const dongLy = lyDo.map((x) => "<tr><td>" + eH(k.nhan_ly_do[x[0]]) + '<div style="height:4px;border-radius:2px;background:var(--gold);opacity:.55;margin-top:3px;width:' + Math.round(x[1] * 100 / maxLy) + '%"></div></td><td class="' + (x[1] ? "" : "kl-mo") + '">' + so(x[1]) + "</td></tr>").join("");
+    const dongPa = [1, 2, 3].map((t) => { const o = k.theo_pa[t] || { hop: 0, chua_hop: 0 }; return "<tr><td>Phương án " + t + "</td><td>hợp " + so(o.hop) + "</td><td>chưa hợp " + so(o.chua_hop) + "</td></tr>"; }).join("");
+    const dongMt = Object.keys(k.theo_mat_tien).map((m) => { const o = k.theo_mat_tien[m]; return "<tr><td>Mặt tiền " + eH(m) + "</td><td>hợp " + so(o.hop) + "</td><td>chưa hợp " + so(o.chua_hop) + "</td></tr>"; }).join("") || '<tr><td class="kl-mo">Chưa có</td></tr>';
+    $("mbBang").innerHTML = bang("Lý do chưa hợp (xếp theo số lần)", dongLy) + bang("Theo thứ tự phương án", dongPa) + bang("Theo mặt tiền lô", dongMt);
+    let h = "<thead><tr><th>Lúc</th><th>Đánh giá</th><th>Lô</th><th>PA</th><th>Lý do</th><th>Khách ghi</th></tr></thead><tbody>";
+    if (!k.ghi_chu.length) h += '<tr><td colspan="6" class="kl-mo">Chưa có góp ý kèm ghi chú.</td></tr>';
+    k.ghi_chu.forEach((g) => {
+      const dv = g.dau_vao || {};
+      h += "<tr><td>" + eH(g.luc_ms ? new Date(g.luc_ms).toLocaleString("vi-VN") : "") + "</td><td>" + (g.danh_gia === "hop" ? "Hợp" : "Chưa hợp") + "</td><td>"
+        + eH((dv.mat_tien || "?") + " × " + (dv.sau || "?") + " m, " + (dv.so_tang || "?") + " tầng, " + (dv.so_pn || "?") + " PN") + "</td><td>" + eH(g.thu_tu || "") + "</td><td>"
+        + eH((g.ly_do || []).map((x) => k.nhan_ly_do[x] || x).join(", ")) + "</td><td>" + eH(g.ghi_chu) + "</td></tr>";
+    });
+    $("mbGhiChu").innerHTML = h + "</tbody>";
+  } catch (e) {
+    $("mbTrangThai").textContent = "Lỗi tải: " + (e.message || e);
   }
 };
 </script>
