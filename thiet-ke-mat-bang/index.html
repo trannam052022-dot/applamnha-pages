@@ -166,6 +166,52 @@ footer{border-top:1px solid var(--border);background:#fff;margin-top:40px;paddin
 footer .wrap{padding-bottom:0}
 footer nav{display:flex;flex-wrap:wrap;gap:8px 18px;margin-bottom:8px}
 footer a{color:var(--text2);text-decoration:none}
+/* tự chỉnh — nút to, chữ lớn cho người lớn tuổi */
+.ch-thanh{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px;padding:12px;border-radius:12px;background:#fffdf7;border:1.5px solid rgba(152,105,10,.3)}
+.ch-thanh .ch-dem{flex:1 1 220px;font-weight:700;color:var(--text2)}
+.nut-to{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:52px;padding:10px 18px;border-radius:12px;border:2px solid var(--border2);background:#fff;color:var(--text);font-weight:800;font-size:1.05rem}
+.nut-to:hover:not(:disabled){border-color:var(--gold)}
+.nut-to:disabled{opacity:.4;cursor:default}
+.ch-tb{margin-top:10px;padding:10px 14px;border-radius:10px;font-weight:700;font-size:1rem}
+.ch-tb:empty{display:none}
+.ok-tb{background:var(--green-bg);color:var(--green);border:1px solid #b7dfc3}
+.loi-tb{background:#fff4e5;color:#8a3c00;border:1px solid #f3c58a}
+.ds-phong li{align-items:center;flex-wrap:wrap}
+.ds-phong li .ten-phong{flex:1 1 90px}
+.ds-phong li.moi{background:#fff8e1}
+.nut-doi{min-height:44px;min-width:72px;padding:6px 16px;border-radius:10px;border:2px solid var(--gold);background:#fff;color:#7a5408;font-weight:800;font-size:1rem}
+.nut-doi[aria-expanded="true"]{background:var(--gold-bg)}
+.hop-chon{display:block!important;background:#fffdf7;border:2px solid var(--gold)!important;border-radius:12px;padding:12px!important;margin:6px 0 10px}
+.hop-chon-dau{font-weight:700;font-size:1rem;color:var(--text)}
+.luoi-chon{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+.nut-chon{min-height:56px;padding:8px 10px;border-radius:12px;border:2px solid var(--border2);background:#fff;font-weight:800;font-size:1rem;color:var(--text);line-height:1.3}
+.nut-chon:hover:not(:disabled){border-color:var(--gold);background:#fffdf7}
+.nut-chon:disabled{background:var(--cream2);color:var(--sub);cursor:default}
+.ch-khoi{margin-top:22px;border:2px solid rgba(152,105,10,.3)}
+.ch-muc{margin-top:18px;padding-top:16px;border-top:1px solid var(--border)}
+.ch-muc:first-of-type{border-top:0;padding-top:0}
+.ch-muc h4{font-size:1.05rem;font-weight:800}
+.ch-hang{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px}
+.ch-so{font-size:1.25rem;font-weight:800;min-width:90px;text-align:center}
+.luoi-ct{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;margin-top:10px}
+@media(min-width:640px){.luoi-ct{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.cong-tac{display:grid;grid-template-columns:1fr auto;gap:2px 10px;text-align:left;padding:12px 14px;border-radius:12px;border:2px solid var(--border2);background:#fff;color:var(--text);min-height:64px}
+.cong-tac b{font-size:1.05rem}
+.cong-tac .ct-mo{grid-column:1/-1;font-size:var(--text-sm);color:var(--sub);line-height:1.4}
+.ct-trang-thai{font-size:var(--text-sm);font-weight:800;padding:2px 10px;border-radius:999px;background:var(--cream2);color:var(--sub);align-self:start}
+.cong-tac[aria-pressed="true"]{border-color:var(--green);background:#f6fbf7}
+.cong-tac[aria-pressed="true"] .ct-trang-thai{background:var(--green);color:#fff}
+.kiem{list-style:none;margin-top:10px}
+.kiem li{padding:8px 0 8px 30px;position:relative;font-size:1rem;border-bottom:1px solid var(--border)}
+.kiem li::before{position:absolute;left:4px;top:8px;font-weight:800}
+.kiem-ok::before{content:"✓";color:var(--green)}
+.kiem-cb::before{content:"!";color:#b45309}
+.ch-toast{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:60;width:min(560px,calc(100% - 32px));display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:12px 14px;border-radius:14px;box-shadow:0 8px 30px rgba(10,18,36,.18);font-weight:700;font-size:1rem}
+.ch-toast span{flex:1 1 200px}
+.ch-toast button{min-height:44px;padding:6px 14px;border-radius:10px;border:1.5px solid currentColor;background:#fff;color:inherit;font-weight:800}
+svg.mb-plan .p-chon{cursor:pointer}
+svg.mb-plan .p-chon:hover{fill:#fff8e1}
+svg.mb-plan .p-moi{fill:#fff1c2}
 [hidden]{display:none!important}
 </style>
 <!-- Google Analytics 4 (ALN — G-5CSL1TF0RC, tách riêng khỏi property TK.HOUSE) -->
@@ -245,17 +291,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   <section id="mbKetQua" class="card" aria-labelledby="h-pa" hidden>
     <h2 id="h-pa">2. Ba phương án cho lô của anh/chị</h2>
-    <p class="hint">Bấm từng phương án để xem. Mỗi phương án chia tầng khác nhau một chút — chọn cái gần ý gia đình nhất.</p>
+    <p class="hint">Bấm từng phương án để xem. Chọn cái gần ý gia đình nhất rồi tự chỉnh như KTS: đổi phòng, dời tường, thêm bớt tầng.</p>
     <div class="pa-tabs" id="paTabs" role="group" aria-label="Chọn phương án"></div>
 
     <div style="margin-top:18px">
-      <div class="tang-dau" style="justify-content:flex-start;gap:12px;flex-wrap:wrap">
-        <h3 id="paTen" style="text-align:left;flex:none">Phương án 1</h3>
-        <button type="button" class="nut-nho" id="btnLat" aria-pressed="false">Đảo cầu thang sang bên kia</button>
-      </div>
+      <h3 id="paTen">Phương án 1</h3>
       <div class="chips" id="paNhan"></div>
       <p class="tom-tat" id="paTomTat"></p>
       <ul class="luu-y" id="paLuuY" hidden></ul>
+      <div class="ch-thanh" role="group" aria-label="Các lần chỉnh">
+        <span class="ch-dem" id="chDem">Chưa chỉnh gì — đây là phương án máy đề xuất.</span>
+        <button type="button" class="nut-to" id="chHoan" disabled>↶ Quay lại bước trước</button>
+        <button type="button" class="nut-to" id="chGoc" disabled>Về phương án ban đầu</button>
+      </div>
+      <p class="ch-tb" id="chTb" role="status" aria-live="polite"></p>
 
       <div class="tang-tabs" id="tangTabs" role="group" aria-label="Chọn tầng"></div>
       <div class="tang-khung">
@@ -275,8 +324,41 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
         <div>
           <h3>Các phòng ở tầng này</h3>
+          <p class="hint" id="tangPhongGoi"></p>
           <ul class="ds-phong" id="tangPhong"></ul>
         </div>
+      </div>
+    </div>
+
+    <div class="card ch-khoi" aria-labelledby="h-ch">
+      <h3 id="h-ch">Chỉnh cho cả nhà</h3>
+      <p class="hint">Mỗi lần bấm, máy vẽ lại và tự kiểm tra. Cách nào không hợp lý, máy giữ như cũ và nói lý do. Bấm nhầm thì dùng nút "Quay lại bước trước" ở trên.</p>
+      <div class="ch-muc">
+        <h4>Phòng phía trước và phía sau</h4>
+        <p id="chTuong" style="margin-top:6px"></p>
+        <div class="ch-hang">
+          <button type="button" class="nut-to" id="chTruocRong">Phòng phía trước rộng thêm</button>
+          <button type="button" class="nut-to" id="chSauRong">Phòng phía sau rộng thêm</button>
+        </div>
+        <p class="hint" style="margin-top:6px">Mỗi lần bấm dời bức tường giữa khoảng 20 cm.</p>
+      </div>
+      <div class="ch-muc">
+        <h4>Số tầng</h4>
+        <div class="ch-hang">
+          <button type="button" class="nut-to" id="chTangBot" aria-label="Bớt một tầng">− Bớt 1 tầng</button>
+          <span class="ch-so" id="chTang" aria-live="polite">4 tầng</span>
+          <button type="button" class="nut-to" id="chTangThem" aria-label="Thêm một tầng">+ Thêm 1 tầng</button>
+        </div>
+      </div>
+      <div class="ch-muc">
+        <h4>Thêm hoặc bỏ</h4>
+        <p class="hint" style="margin-top:4px">Bấm vào ô để thêm, bấm lần nữa để bỏ.</p>
+        <div class="luoi-ct" id="chBatTat"></div>
+        <div class="ch-hang"><button type="button" class="nut-to" id="btnLat">Đảo cầu thang sang bên kia</button></div>
+      </div>
+      <div class="ch-muc">
+        <h4>Máy tự kiểm tra phương án đang xem</h4>
+        <ul class="kiem" id="chKiem"></ul>
       </div>
     </div>
 
@@ -334,9 +416,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </footer>
 <!-- ALN-PHAP-NHAN --><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"><style id="alnpn-css">.alnpn,.alnpn *{box-sizing:border-box;margin:0;padding:0;border:0;font:inherit;letter-spacing:normal;text-transform:none;text-shadow:none;float:none;background:none;min-width:0}.alnpn{display:block;width:100%;clear:both;position:relative;z-index:0;background:#0b1428;border-top:2px solid #d4a017;color:#cbd5e1;font-family:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:15px;font-weight:400;line-height:1.5;text-align:left;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;padding:28px 20px 88px}.alnpn-in{max-width:1280px;margin:0 auto;display:grid;gap:22px}.alnpn-brand{display:flex;align-items:center;gap:14px}.alnpn-brand img{display:block;flex:none;width:44px;height:44px;border-radius:10px}.alnpn-ten{font-weight:700;font-size:17px;line-height:1.3;letter-spacing:.03em;color:#fff}.alnpn-sub{margin-top:2px;font-size:13px;line-height:1.4;color:#9fb0c8}.alnpn-muc dt{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;line-height:1.3;letter-spacing:.08em;text-transform:uppercase;color:#e0b43a;margin-bottom:6px}.alnpn-muc dt svg{display:block;flex:none;width:16px;height:16px;fill:none;stroke:#e0b43a;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.alnpn-muc dd{font-size:15px;font-weight:500;line-height:1.45;color:#f1f5f9}.alnpn-mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:600;letter-spacing:.02em}.alnpn a{color:#fff;text-decoration:none}.alnpn a:hover,.alnpn a:focus-visible{color:#e0b43a;outline:none}.alnpn-note{font-size:13px;font-weight:400;color:#9fb0c8;margin-left:8px;white-space:nowrap}@media (min-width:768px){.alnpn{padding:26px 28px}.alnpn-in{grid-template-columns:auto auto auto auto;justify-content:space-between;align-items:stretch;gap:0}.alnpn-brand{align-self:center}.alnpn-muc{padding:0 0 0 28px;margin-left:28px;border-left:1px solid rgba(224,180,58,.22)}}@media (min-width:768px) and (max-width:1099px){.alnpn-in{grid-template-columns:auto minmax(0,1fr) auto;justify-content:stretch;row-gap:20px}.alnpn-brand{grid-column:1/-1;align-self:start}.alnpn-muc:nth-child(2){border-left:0;margin-left:0;padding-left:0}}</style><section class="alnpn" aria-label="Thông tin doanh nghiệp"><div class="alnpn-in"><div class="alnpn-brand"><img src="/icon-192.png" alt="" width="44" height="44" loading="lazy"><div><div class="alnpn-ten">CÔNG TY TNHH ALN</div><div class="alnpn-sub">Đơn vị chủ quản website applamnha.vn</div></div></div><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M10 12h5M10 16h5"/></svg>Mã số thuế</dt><dd class="alnpn-mono">3502593013</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-6-5.3-6-11a6 6 0 1 1 12 0c0 5.7-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/></svg>Địa chỉ</dt><dd>Khu TTTM Sonadezi 536 Trung Sơn, Ngãi Giao, TP. Hồ Chí Minh</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 5 5L14 13l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>Hotline</dt><dd><a class="alnpn-mono" href="tel:0909829696">0909 829 696</a><span class="alnpn-note">KTS Trần Long</span></dd></dl></div></section>
 
-<script src="mb-cau-hinh.js?v=1"></script>
-<script src="mb-dong-co.js?v=1"></script>
-<script src="mb-trang.js?v=1"></script>
+<div class="ch-toast ok-tb" id="chToast" role="status" aria-live="polite" hidden>
+  <span id="chToastChu"></span>
+  <button type="button" id="chToastXem">Xem bản vẽ</button>
+  <button type="button" id="chToastDong" aria-label="Đóng thông báo">✕</button>
+</div>
+
+<script src="mb-cau-hinh.js?v=2"></script>
+<script src="mb-dong-co.js?v=2"></script>
+<script src="mb-trang.js?v=2"></script>
 <script type="module" src="mb-may.js?v=1"></script>
 </body>
 </html>

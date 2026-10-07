@@ -11862,7 +11862,8 @@ window.mbTai = async function () {
       the("Phiên mở trang", so(ph.so), so(ph.co_tao) + " phiên bấm Vẽ (" + adPct(ph.co_tao, ph.so) + ")")
       + the("Vẽ không ra phương án", so(ph.khong_ra), "phiên chỉ gặp lô không vừa mẫu")
       + the("Xem ≥ 2 phương án", adPct(ph.xem_nhieu_pa, ph.co_tao), so(ph.xem_nhieu_pa) + " phiên · đảo bên " + so(ph.co_lat))
-      + the("Hợp / chưa hợp", so(k.hop) + " / " + so(k.chua_hop), "tỷ lệ hợp " + adPct(k.hop, k.hop + k.chua_hop))
+      + the("Tự chỉnh phương án", adPct(ph.co_chinh, ph.co_tao), so(ph.co_chinh) + " phiên · " + so(ph.so_lan_chinh) + " lần chỉnh")
+      + the("Hợp / chưa hợp", so(k.hop) + " / " + so(k.chua_hop), "tỷ lệ hợp " + adPct(k.hop, k.hop + k.chua_hop) + " · đã tự chỉnh: hợp " + so((k.da_chinh || {}).hop) + ", chưa hợp " + so((k.da_chinh || {}).chua_hop))
       + the("Nhờ KTS chỉnh", so(ph.co_lead), "mở form " + so(ph.mo_lead) + " · " + adPct(ph.co_lead, ph.co_tao) + " phiên đã vẽ");
     const bang = (tieuDe, dong) => '<div style="border:1px solid var(--border);border-radius:12px;background:var(--card);overflow:auto">'
       + '<div style="padding:10px 12px 4px;font-weight:700;color:var(--text1);font-size:12.5px">' + eH(tieuDe) + "</div>"
@@ -11873,12 +11874,12 @@ window.mbTai = async function () {
     const dongPa = [1, 2, 3].map((t) => { const o = k.theo_pa[t] || { hop: 0, chua_hop: 0 }; return "<tr><td>Phương án " + t + "</td><td>hợp " + so(o.hop) + "</td><td>chưa hợp " + so(o.chua_hop) + "</td></tr>"; }).join("");
     const dongMt = Object.keys(k.theo_mat_tien).map((m) => { const o = k.theo_mat_tien[m]; return "<tr><td>Mặt tiền " + eH(m) + "</td><td>hợp " + so(o.hop) + "</td><td>chưa hợp " + so(o.chua_hop) + "</td></tr>"; }).join("") || '<tr><td class="kl-mo">Chưa có</td></tr>';
     $("mbBang").innerHTML = bang("Lý do chưa hợp (xếp theo số lần)", dongLy) + bang("Theo thứ tự phương án", dongPa) + bang("Theo mặt tiền lô", dongMt);
-    let h = "<thead><tr><th>Lúc</th><th>Đánh giá</th><th>Lô</th><th>PA</th><th>Lý do</th><th>Khách ghi</th></tr></thead><tbody>";
-    if (!k.ghi_chu.length) h += '<tr><td colspan="6" class="kl-mo">Chưa có góp ý kèm ghi chú.</td></tr>';
+    let h = "<thead><tr><th>Lúc</th><th>Đánh giá</th><th>Lô</th><th>PA</th><th>Tự chỉnh</th><th>Lý do</th><th>Khách ghi</th></tr></thead><tbody>";
+    if (!k.ghi_chu.length) h += '<tr><td colspan="7" class="kl-mo">Chưa có góp ý kèm ghi chú.</td></tr>';
     k.ghi_chu.forEach((g) => {
       const dv = g.dau_vao || {};
       h += "<tr><td>" + eH(g.luc_ms ? new Date(g.luc_ms).toLocaleString("vi-VN") : "") + "</td><td>" + (g.danh_gia === "hop" ? "Hợp" : "Chưa hợp") + "</td><td>"
-        + eH((dv.mat_tien || "?") + " × " + (dv.sau || "?") + " m, " + (dv.so_tang || "?") + " tầng, " + (dv.so_pn || "?") + " PN") + "</td><td>" + eH(g.thu_tu || "") + "</td><td>"
+        + eH((dv.mat_tien || "?") + " × " + (dv.sau || "?") + " m, " + (dv.so_tang || "?") + " tầng, " + (dv.so_pn || "?") + " PN") + "</td><td>" + eH(g.thu_tu || "") + "</td><td>" + eH(g.so_lan_chinh ? g.so_lan_chinh + " lần" : "—") + "</td><td>"
         + eH((g.ly_do || []).map((x) => k.nhan_ly_do[x] || x).join(", ")) + "</td><td>" + eH(g.ghi_chu) + "</td></tr>";
     });
     $("mbGhiChu").innerHTML = h + "</tbody>";
