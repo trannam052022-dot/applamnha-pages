@@ -320,6 +320,10 @@ body.che-do-dn.dn-che #dnChe{display:block}
 #otpHop .oh-lk{display:flex;gap:16px;flex-wrap:wrap;margin-top:8px}
 #otpHop .oh-lk button{all:unset;cursor:pointer;color:var(--navy2);font-weight:600;font-size:14px;text-decoration:underline;text-underline-offset:2px}
 #otpHop .oh-lk button:disabled{color:var(--muted);cursor:default;text-decoration:none}
+#otpHop .oh-thay{margin:12px 0 0;font-size:14px;color:var(--sub);text-align:center;line-height:1.5}
+#otpHop .oh-thay button{all:unset;cursor:pointer;color:var(--navy2);font-weight:700;text-decoration:underline;text-underline-offset:2px;padding:6px 0}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) #otpHop .oh-thay button{color:#e8c877}}
+:root[data-theme="dark"] #otpHop .oh-thay button{color:#e8c877}
 #otpHop .oh-msg{margin-top:8px;font-size:14px;min-height:1.2em}
 #otpHop .oh-msg.err{color:var(--warn);font-weight:500}
 #otpHop .oh-msg a{color:var(--navy2);font-weight:700}
@@ -528,6 +532,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
        <!-- Ô "Đo quảng cáo" — CÙNG câu CONSENT_TEXTS.quang_cao với form dự toán (functions/_test_tuVanPhanTho.js kiểm). -->
        <label class="tv-dy" for="ohDongYQc"><input id="ohDongYQc" type="checkbox"><span><span id="ohDongYQcText">Cho phép ALN gửi SĐT đã mã hoá cho Facebook để ALN biết quảng cáo nào hiệu quả, bớt chi quảng cáo sai chỗ.</span> <i class="tv-tuy">Không bắt buộc.</i></span></label>
        <button type="button" class="oh-go rong" id="ohGui">Gửi mã xác nhận</button>
+       <!-- 10/10/2026: phễu 06–10/10 có 7/8 khách bỏ ở hộp này mà không gửi mã. Lối không cần mã
+            trước đây chỉ hiện khi gửi mã lỗi, nay hiện sẵn. -->
+       <p class="oh-thay">Không muốn nhận mã? <button type="button" id="ohNhoKts">Nhờ KTS gọi lại, không cần mã</button></p>
       </div>
       <div id="ohB2" hidden>
        <label class="oh-nhan" for="ohMa">Nhập 6 số ALN vừa gửi qua SMS tới <b id="ohSdtHien"></b></label>
@@ -1569,6 +1576,10 @@ $('dockLuu').addEventListener('click', () => {
 });
 $('ohDong').addEventListener('click', dongHop);
 $('ohGui').addEventListener('click', guiMa);
+$('ohNhoKts').addEventListener('click', (e) => {
+  try { (window.dataLayer = window.dataLayer || []).push({ event: 'aln_otp_nho_kts', vi_tri: (loiVao && loiVao.viTri) || 'chan_bang' }); } catch (_) {}
+  moiNhoKts(e);
+});
 $('ohGuiLai').addEventListener('click', guiMa);
 $('ohXacNhan').addEventListener('click', xacNhanMa);
 $('ohDoiSo').addEventListener('click', () => { xacNhan = null; clearInterval(demNguoc); msg.hidden = true; buocHop(1); });
