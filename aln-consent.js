@@ -83,13 +83,15 @@
   /* ───────── Giao diện ───────── */
   var CSS = '' +
     '.aln-ck{--ck-bg:#fff;--ck-ink:#141a2b;--ck-sub:#4a5268;--ck-line:#e3dfd4;--ck-navy:#0a1224;--ck-gold:#b8860b;--ck-focus:#b8860b;' +
-    'position:fixed;left:0;right:0;bottom:0;z-index:2147483000;background:var(--ck-bg);color:var(--ck-ink);border-top:1px solid var(--ck-line);' +
-    'box-shadow:0 -6px 24px rgba(10,18,36,.12);font-family:"Be Vietnam Pro",Arial,sans-serif;font-size:16px;line-height:1.5;max-height:25vh;overflow:auto}' +
-    '.aln-ck-in{max-width:1180px;margin:0 auto;padding:12px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px}' +
-    '.aln-ck p{margin:0;flex:1 1 420px;color:var(--ck-sub)}.aln-ck p b{color:var(--ck-ink);font-weight:600}' +
+    // Thẻ nhỏ góc dưới trái (10/10/2026, Nam: thanh ngang toàn màn hình gây khó chịu như mọi trang khác).
+    'position:fixed;left:16px;bottom:16px;z-index:2147483000;width:min(380px,calc(100% - 32px));background:var(--ck-bg);color:var(--ck-ink);' +
+    'border:1px solid var(--ck-line);border-radius:14px;box-shadow:0 8px 28px rgba(10,18,36,.16);font-family:"Be Vietnam Pro",Arial,sans-serif;font-size:15px;line-height:1.5;max-height:40vh;overflow:auto}' +
+    '.aln-ck-in{padding:14px 16px;display:flex;flex-direction:column;gap:10px}' +
+    '.aln-ck p{margin:0;color:var(--ck-sub)}.aln-ck p b{color:var(--ck-ink);font-weight:600}' +
+    '@media (max-width:719px){.aln-ck{left:8px;bottom:8px;width:auto;right:8px;max-height:28vh;font-size:14px}.aln-ck-in{padding:10px 12px;gap:8px}.aln-ck .ck-chinh{min-width:96px}}' +
     '.aln-ck-nut{display:flex;flex-wrap:wrap;align-items:center;gap:8px}' +
     '.aln-ck button,.aln-ckd button{font:inherit;font-size:16px;cursor:pointer;border-radius:10px;min-height:44px}' +
-    '.aln-ck .ck-chinh{min-width:112px;padding:8px 16px;font-weight:600;background:var(--ck-navy);color:#fff;border:1.5px solid var(--ck-navy)}' +
+    '.aln-ck .ck-chinh{min-width:104px;padding:8px 16px;font-weight:600;background:var(--ck-navy);color:#fff;border:1.5px solid var(--ck-navy)}' +
     '.aln-ck .ck-lk,.aln-ckd .ck-lk{background:none;border:0;padding:8px 6px;color:var(--ck-ink);text-decoration:underline;text-underline-offset:3px}' +
     '.aln-ck button:focus-visible,.aln-ckd button:focus-visible,.aln-ckd a:focus-visible,.aln-ckd input:focus-visible+span,.aln-ck-cd:focus-visible{outline:3px solid var(--ck-focus);outline-offset:2px}' +
     '.aln-ckd-nen{position:fixed;inset:0;z-index:2147483001;background:rgba(10,18,36,.55);display:flex;align-items:center;justify-content:center;padding:16px}' +
@@ -137,8 +139,8 @@
     thanh = el('div', { 'class': 'aln-ck', role: 'region', 'aria-label': 'Thông báo cookie', id: 'alnCk' });
     var vao = el('div', { 'class': 'aln-ck-in' });
     var p = el('p');
-    p.appendChild(el('b', null, 'ALN dùng cookie để nhắc lại bảng dự toán của bạn trên Facebook khi bạn cần.'));
-    p.appendChild(d.createTextNode(' ALN không lưu số đo nhà hay SĐT của bạn qua cookie.'));
+    // Câu chữ Nam duyệt 10/10/2026.
+    p.appendChild(el('b', null, 'ALN sẽ nhắc lại bảng dự toán cho bạn trên Facebook.'));
     var nut = el('div', { 'class': 'aln-ck-nut' });
     var dy = el('button', { type: 'button', 'class': 'ck-chinh', 'data-ck': 'dong_y' }, 'Đồng ý');
     var tc = el('button', { type: 'button', 'class': 'ck-chinh', 'data-ck': 'tu_choi' }, 'Từ chối');
@@ -157,6 +159,8 @@
     t.hidden = false;
     // Đệm đáy trang bằng chiều cao thanh để thanh không che kết quả / form ở cuối trang.
     if (padCu !== null) return;
+    // Màn rộng: thẻ chỉ chiếm một góc, không đệm đáy trang.
+    try { if (w.matchMedia && !w.matchMedia('(max-width:719px)').matches) return; } catch (e) {}
     try {
       padCu = d.body.style.paddingBottom || '';
       var cao = t.getBoundingClientRect().height;
