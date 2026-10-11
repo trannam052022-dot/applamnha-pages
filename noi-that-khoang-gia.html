@@ -854,8 +854,10 @@ async function moSauXacNhan(f) {
   });
   LEAD_ID = r.data && r.data.id;
   if (LEAD_ID) ntBao('lead');
-  // Số nội bộ/test (máy chủ trả la_test, 06/10/2026): không bắn Pixel Lead.
-  if (!(r.data && r.data.la_test)) baoLeadQuangCao(LEAD_ID);
+  // Pixel Lead chỉ khi máy chủ cũng gửi CAPI (pixel_lead, 11/10/2026 — DEC-2026-024 đk 3):
+  // số nội bộ/test, ?internal=1 hoặc không tick "Đo quảng cáo" → không bắn.
+  // Form nội thất chưa có ô "Đo quảng cáo" nên hiện không bắn Lead.
+  if (r.data && r.data.pixel_lead === true) baoLeadQuangCao(LEAD_ID);
   try { sessionStorage.setItem('aln_noithat_lead', LEAD_ID); } catch (e2) {}
   await moBang();
   const $t = document.getElementById('da-nhan');
