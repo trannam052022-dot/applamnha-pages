@@ -343,7 +343,10 @@ form.addEventListener('submit', async (e) => {
     });
     const leadId = (res && res.data && res.data.id) || '';
     try {
-      if (window.fbq && leadId) window.fbq('track', 'Lead',
+      /* Lead cho Meta (11/10/2026): CHỈ khi máy chủ trả pixel_lead === true — cùng
+         quy tắc CAPI (tick "Đo quảng cáo", không số nội bộ, không ?internal=1).
+         Form này không có ô tick → máy chủ không trả pixel_lead → không bắn Lead. */
+      if (window.fbq && leadId && res.data.pixel_lead === true) window.fbq('track', 'Lead',
         { value: 100000, currency: 'VND', content_name: 'mau-MAU-0025', content_category: 'kho-mau' },
         { eventID: 'lead-' + leadId });
       window.dataLayer = window.dataLayer || [];

@@ -2224,7 +2224,9 @@ async function dyGui() {
     const cam = 'Dạ em cảm ơn anh/chị. KTS của ALN sẽ liên hệ anh/chị trong 1–2 ngày làm việc ạ.';
     window.mymyAddBot(cam);
     window.MYMY_HISTORY.push({ role: 'assistant', content: cam + ' (Khách đã để số và bấm đồng ý — không xin liên hệ nữa.)' });
-    try { if (window.fbq) fbq('track', 'Lead', { value: 100000, currency: 'VND', content_name: 'MyMy - Để lại SĐT' }); } catch (e) {}
+    /* MyMy KHÔNG phải sự kiện Lead cho Meta (11/10/2026 — chỉ form chủ nhà có tick
+       "Đo quảng cáo" mới là Lead). Vẫn đo bằng sự kiện tuỳ chỉnh riêng, không giá trị. */
+    try { if (window.fbq) fbq('trackCustom', 'MyMyDeLaiSo', { content_name: 'MyMy - Để lại SĐT' }); } catch (e) {}
     try { if (window.gtag) gtag('event', 'generate_lead', { method: 'MyMy chat' }); } catch (e) {}
   } catch (e) {
     DY_MYMY.dangGui = false;
@@ -2305,11 +2307,14 @@ window.leadSubmit = async function(){
       fbp: window.ALN_QC === true && window.alnGetFbp ? window.alnGetFbp() : '',
       fbc: window.ALN_QC === true && window.alnGetFbc ? window.alnGetFbc() : '',
       sourceUrl: location.origin + location.pathname,
+      optout: window.ALN_INTERNAL === true, // ?internal=1 → máy chủ không gửi CAPI
       attribution: (() => { try { return window.alnAttr ? window.alnAttr.forLead() : null; } catch (e) { return null; } })(),
     });
     const leadId = (res && res.data && res.data.id) || '';
     try {
-      if (window.fbq && leadId) fbq('track', 'Lead',
+      /* Lead cho Meta CHỈ khi máy chủ trả pixel_lead === true — cùng quy tắc CAPI
+         (onHomeLeadCreated): có tick "Đo quảng cáo", không số nội bộ, không ?internal=1. */
+      if (window.fbq && leadId && res.data.pixel_lead === true) fbq('track', 'Lead',
         { value: 100000, currency: 'VND', content_name: 'home-lead-form', content_category: 'cn-funnel' },
         { eventID: 'lead-' + leadId });
     } catch (e) {}

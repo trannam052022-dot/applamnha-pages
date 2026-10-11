@@ -755,12 +755,15 @@ function adMeta(){
     sourceUrl: location.origin + location.pathname
   };
 }
-/* Pixel Lead client — cùng eventID 'lead-'+uid với CAPI để Facebook dedup */
+/* Giữ chỗ ở Phòng chờ (KTS/DN/Designer, và chủ nhà tạo tài khoản) KHÔNG phải sự kiện
+   Lead (11/10/2026 — Lead chỉ dành cho form chủ nhà có tick "Đo quảng cáo"; tạo tài
+   khoản thuộc nhóm KHÔNG). Đo bằng sự kiện tuỳ chỉnh GiuCho, cùng eventID
+   'giucho-'+uid với CAPI (onKtsReservationCreated) để Facebook dedup. */
 function fireLeadPixel(uid, role){
   try{
-    if (window.fbq) fbq('track','Lead',
-      { value: 100000, currency: 'VND', content_name:'giu-cho-'+role, content_category:'kts-funnel' },
-      { eventID:'lead-'+uid });
+    if (window.fbq) fbq('trackCustom','GiuCho',
+      { content_name:'giu-cho-'+role, content_category:'kts-funnel' },
+      { eventID:'giucho-'+uid });
   }catch(e){}
   try{
     window.dataLayer = window.dataLayer || [];

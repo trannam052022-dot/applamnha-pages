@@ -835,9 +835,8 @@ function baoLeadQuangCao(leadId) {
   try {
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({ event: 'aln_lead_submit', form_name: 'noi-that', event_id: 'lead-' + leadId });
-    if (window.fbq) window.fbq('track', 'Lead',
-      { value: 100000, currency: 'VND', content_name: 'noi-that', content_category: 'noi-that-khoang-gia' },
-      { eventID: 'lead-' + leadId });
+    /* Nội thất KHÔNG bắn Lead cho Meta (11/10/2026 — không có ô "Đo quảng cáo",
+       onLeadCreated loại kenh_lead form_noi_that). Chỉ còn dataLayer cho GA4. */
     localStorage.setItem(khoa, '1');
   } catch (e) {}
 }

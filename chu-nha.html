@@ -871,6 +871,7 @@ btn.addEventListener('click', async function(){
       dienTich,
       loaiCt: loaiBtn ? loaiBtn.dataset.loai : null,
       mucHoanThien: mucBtn ? mucBtn.dataset.muc : null,
+      optout: window.ALN_INTERNAL === true, // ?internal=1 → máy chủ không gửi CAPI
       attribution: (() => { try { return window.alnAttr ? window.alnAttr.forLead() : null; } catch (e) { return null; } })(),
     });
     const leadId = (res && res.data && res.data.id) || '';
@@ -879,7 +880,9 @@ btn.addEventListener('click', async function(){
        (onHomeLeadCreated bắn event_id 'lead-'+id) để Facebook tự dedup,
        không đếm đôi — đúng mẫu chu-nha.html/aln-giu-cho/phong-cho.html. */
     try {
-      if (window.fbq && leadId) fbq('track', 'Lead',
+      /* Chỉ khi máy chủ trả pixel_lead === true (tick "Đo quảng cáo", không số nội bộ,
+         không ?internal=1) — cùng quy tắc CAPI onHomeLeadCreated, 11/10/2026. */
+      if (window.fbq && leadId && res.data.pixel_lead === true) fbq('track', 'Lead',
         { value: 100000, currency: 'VND', content_name: 'chu-nha', content_category: 'cn-funnel' },
         { eventID: 'lead-' + leadId });
     } catch (e) {}
