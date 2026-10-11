@@ -44,6 +44,9 @@
 
   var LOAI_LO = { kep_giua: 1, lo_goc: 1, chua_chon: 1 };
   var CHIEN_DICH_META = 'du-toan-t9-2026'; // utm_campaign của DT-T9-2026
+  // Mã chiến dịch quảng cáo dự toán (11/10/2026, DEC-2026-025): utm_campaign dạng
+  // DT-T<tháng>-<năm> (vd DT-T10-2026), không phân biệt hoa thường. Mã lạ → null.
+  var RE_CHIEN_DICH = /^dt-t(1[0-2]|[1-9])-(20\d{2})$/i;
 
   function soDuong(v) {
     var n = typeof v === 'number' ? v : Number(v);
@@ -101,11 +104,20 @@
     var s = vao.search || '';
     var host = hostCua(vao.referrer);
     var src = thamSo(s, 'utm_source');
-    if (thamSo(s, 'fbclid') || thamSo(s, 'utm_campaign') === CHIEN_DICH_META) return 'meta_ads';
+    if (thamSo(s, 'fbclid') || chienDich(vao)) return 'meta_ads';
     if (thamSo(s, 'gclid') || src === 'google' || /(^|\.)google\./.test(host)) return 'google';
     if (src === 'zalo' || /(^|\.)zalo\.(me|vn)$/.test(host) || /(^|\.)zaloapp\.com$/.test(host)) return 'zalo';
     if (!host && !src && !thamSo(s, 'utm_medium') && !thamSo(s, 'utm_campaign')) return 'truc_tiep';
     return 'khac';
+  }
+
+  // chien_dich: mã chiến dịch chuẩn hoá ('DT-T10-2026') từ utm_campaign, hoặc null.
+  // DT-T9-2026 chạy với utm_campaign=du-toan-t9-2026 nên quy về 'DT-T9-2026'.
+  function chienDich(vao) {
+    var c = thamSo((vao && vao.search) || '', 'utm_campaign');
+    if (c === CHIEN_DICH_META) return 'DT-T9-2026';
+    var m = RE_CHIEN_DICH.exec(c);
+    return m ? 'DT-T' + m[1] + '-' + m[2] : null;
   }
 
   function alnBucket(loai, giaTri) {
@@ -116,6 +128,7 @@
       case 'tinh': return tinh(giaTri);
       case 'loai_lo': return loaiLo(giaTri);
       case 'nguon': return nguon(giaTri);
+      case 'chien_dich': return chienDich(giaTri);
       default: return null;
     }
   }

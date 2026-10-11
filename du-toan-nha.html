@@ -127,7 +127,7 @@ src="https://www.facebook.com/tr?id=1656666692225878&ev=PageView&noscript=1"/></
 <script src="aln-tracking.js"></script>
 <!-- Đo hành vi ẩn danh lớp A (spec 03/10/2026): 7 sự kiện aln_dt_* + aln_form_start,
      chỉ gửi nhãn khoảng (alnBucket), không số thật/PII. Tự tắt ở ?internal=1 và ?dn=1. -->
-<script src="aln-bucket.js?v=1"></script>
+<script src="aln-bucket.js?v=2"></script>
 <script src="aln-dt-su-kien.js?v=3"></script>
 
 <style>
@@ -826,11 +826,15 @@ function datTrangThaiTinh(dang){document.body.classList.toggle('dang-tinh',dang)
 // trang, chỉ giữ trong biến JS (không cookie, không localStorage) → không nối được
 // qua các lần ghé. Gửi kèm lượt tính do khách tự đổi số; ?internal=1 và ?dn=1 không gửi.
 const MA_PHIEN_AN_DANH=(()=>{try{const a=new Uint8Array(12);crypto.getRandomValues(a);return Array.from(a,b=>(b%36).toString(36)).join('')+Date.now().toString(36)}catch(e){return Math.random().toString(36).slice(2)+Date.now().toString(36)}})();
+// Mã chiến dịch (11/10/2026, DEC-2026-025): đọc utm_campaign MỘT lần lúc tải trang
+// (aln-bucket.js chỉ nhận dạng DT-T<tháng>-<năm>, mã lạ → null) — để phễu máy chủ
+// tách được khách của từng đợt quảng cáo.
+const CHIEN_DICH_AN_DANH=(()=>{try{return window.alnBucket?window.alnBucket('chien_dich',{search:location.search}):null}catch(e){return null}})();
 window.alnAnDanh=function(){
  if(window.ALN_INTERNAL||new URLSearchParams(location.search).get('dn')==='1')return null;
  let nguon='khac';try{nguon=window.alnDtSuKien?window.alnDtSuKien.nguon():'khac'}catch(e){}
  let cookie='chua_chon';try{cookie=window.alnConsent?window.alnConsent.trangThai():'chua_chon'}catch(e){}
- return {ma_phien:MA_PHIEN_AN_DANH,nguon,cookie};
+ return {ma_phien:MA_PHIEN_AN_DANH,nguon,cookie,...(CHIEN_DICH_AN_DANH?{chien_dich:CHIEN_DICH_AN_DANH}:{})};
 };
 function payloadTinh(gauAnDanh){
  const i=st.inp;

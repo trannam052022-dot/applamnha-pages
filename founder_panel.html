@@ -1992,6 +1992,10 @@ document.addEventListener('DOMContentLoaded', function() {
         <option value="30">30 ngày</option>
         <option value="90">90 ngày</option>
       </select>
+      <select id="adChienDich" onchange="adTai()" title="Lọc phiên theo mã chiến dịch quảng cáo (utm_campaign), có từ 11/10/2026" style="padding:6px 10px;border:1px solid var(--border);border-radius:7px;background:var(--raised);color:var(--text1);font-size:12px">
+        <option value="tat_ca" selected>Mọi nguồn</option>
+        <option value="khong_co">Không có chiến dịch</option>
+      </select>
       <button onclick="adTai()" style="padding:7px 14px;background:var(--raised);border:1px solid var(--border);border-radius:7px;font-size:12px;font-weight:600;color:var(--sub);cursor:pointer;font-family:var(--sans)"><i class="ph-duotone ph-arrow-clockwise"></i> Tải phễu</button>
       <span id="adTrangThai" style="font-size:12.5px;color:var(--dim)">Chưa tải.</span>
     </div>
@@ -11834,7 +11838,7 @@ function adVePheu(k) {
     ["Mở hộp nhập SĐT", p.mo_hop || 0, (p.bam_luu || 0) > (p.mo_hop || 0) ? "còn lại đã đăng nhập sẵn hoặc trước bản 11/10/2026" : ""],
     ["Bấm \u201cGửi mã\u201d", p.bam_gui || 0, (p.mo_hop || 0) ? "bỏ ngang ở ô SĐT (mở hộp, không bấm gửi): " + so(Math.max(0, (p.mo_hop || 0) - (p.bam_gui || 0))) : ""],
     ["Gửi OTP lỗi", p.otp_gui_loi || 0, adLyDoOtp(k.ly_do_otp_loi)],
-    ["Gửi mã OTP thành công", p.otp_gui, ""],
+    ["Gửi mã OTP thành công", p.otp_gui, (p.bam_luu || 0) ? "trên bấm Lưu: " + adPct(p.otp_gui || 0, p.bam_luu) + " (DEC-2026-025: KILL nếu < 30% khi đủ 30 bấm Lưu; hiện " + so(p.bam_luu) + ")" : ""],
     ["Nhập đúng mã OTP", p.otp_ok, ""],
     ["Lưu xong vào Không gian Nhà", p.luu_xong, ""],
     ["Gửi form Nhờ KTS xem (không OTP)", p.co_lead, "đi đường riêng, không qua các bước Lưu"],
@@ -11848,10 +11852,28 @@ function adVePheu(k) {
   return h + "</tbody></table></div>";
 }
 
+// Ô lọc chiến dịch (11/10/2026, DEC-2026-025): dựng từ chien_dich_co máy chủ trả về
+// (số phiên mỗi mã trong khoảng ngày, trước khi lọc). Chỉ dùng value/textContent.
+function adDungChienDich(k) {
+  const sel = $("adChienDich");
+  const dang = k.chien_dich_loc || "tat_ca";
+  const co = k.chien_dich_co || {};
+  const tong = Object.keys(co).reduce((a, x) => a + (co[x] || 0), 0);
+  const ma = Object.keys(co).filter((x) => x !== "khong_co").sort();
+  if (dang !== "tat_ca" && dang !== "khong_co" && !ma.includes(dang)) ma.push(dang);
+  sel.textContent = "";
+  const them = (v, chu) => { const o = document.createElement("option"); o.value = v; o.textContent = chu; sel.appendChild(o); };
+  them("tat_ca", "Mọi nguồn (" + so(tong) + ")");
+  ma.forEach((x) => them(x, x + " (" + so(co[x] || 0) + ")"));
+  them("khong_co", "Không có chiến dịch (" + so(co.khong_co || 0) + ")");
+  sel.value = dang;
+}
+
 window.adTai = async function () {
   $("adTrangThai").textContent = "Đang tải…";
   try {
-    const k = await goi("founderPheuAnDanh", { so_ngay: Number($("adSoNgay").value) || 14 });
+    const k = await goi("founderPheuAnDanh", { so_ngay: Number($("adSoNgay").value) || 14, chien_dich: $("adChienDich").value || "tat_ca" });
+    adDungChienDich(k);
     const lai = k.so_phien - ((k.lan_tinh["1"] || {}).phien || 0);
     $("adTrangThai").textContent = "Từ " + k.tu.split("-").reverse().join("/") + " đến " + k.den.split("-").reverse().join("/")
       + " · cập nhật " + new Date(k.tao_luc).toLocaleString("vi-VN") + (k.cat_bot ? " · ĐÃ CẮT BỚT ở 20.000 phiên" : "");
