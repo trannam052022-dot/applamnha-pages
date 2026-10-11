@@ -13,15 +13,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <!-- End Google Tag Manager -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Thiết kế mặt bằng nhà phố — xem thử 3 phương án cho lô đất của bạn | ALN</title>
-<meta name="description" content="Nhập kích thước lô đất và nhu cầu gia đình, xem ngay 3 phương án mặt bằng từng tầng dựng từ một mặt bằng nhà phố thật do KTS của ALN thiết kế. Bản dùng thử.">
+<title>Thiết kế mặt bằng nhà phố, nhà vườn, biệt thự, villa — xem thử 3 phương án | ALN</title>
+<meta name="description" content="Chọn loại nhà (nhà phố, nhà vườn, biệt thự, villa), nhập kích thước lô và nhu cầu gia đình, xem ngay 3 phương án mặt bằng từng tầng. Bản dùng thử.">
 <!-- Bản dùng thử (07/10/2026): chưa cho Google lập chỉ mục tới khi Founder duyệt chất lượng phương án.
      Mở chỉ mục: đổi thành "index, follow" và thêm /thiet-ke-mat-bang/ vào STATIC_PAGES (tools/gen-sitemap.js). -->
 <meta name="robots" content="noindex, follow">
 <link rel="canonical" href="https://applamnha.vn/thiet-ke-mat-bang/">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://applamnha.vn/thiet-ke-mat-bang/">
-<meta property="og:title" content="Thiết kế mặt bằng nhà phố — xem thử 3 phương án cho lô đất của bạn">
+<meta property="og:title" content="Thiết kế mặt bằng nhà phố, nhà vườn, biệt thự, villa — xem thử 3 phương án">
 <meta property="og:description" content="Nhập kích thước lô và nhu cầu gia đình, xem ngay mặt bằng từng tầng. Bản dùng thử của ALN.">
 <meta property="og:site_name" content="App Làm Nhà">
 <meta property="og:locale" content="vi_VN">
@@ -138,6 +138,8 @@ svg.mb-plan *{vector-effect:non-scaling-stroke}
 .p-void{fill:var(--p-void)}
 .p-shaft{fill:var(--cream2);stroke:var(--p-ink);stroke-width:1px}
 .p-open{fill:none;stroke:var(--p-ink2);stroke-width:1px;stroke-dasharray:5 3}
+.p-vuon{fill:#eef5e6;stroke:#9bb98a;stroke-width:.6px}
+.p-ho{fill:#d3ebf6;stroke:#4f93bd;stroke-width:1.2px}
 .p-x{stroke:var(--p-accent);stroke-width:.8px;fill:none}
 .p-thin{stroke:var(--p-ink2);stroke-width:.7px;fill:none}
 .p-iw{fill:none;stroke:var(--p-ink);stroke-width:1.1px}
@@ -257,8 +259,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <header class="hero">
   <span class="eyebrow">Bản dùng thử</span>
-  <h1>Xem thử mặt bằng nhà phố cho lô đất của anh/chị</h1>
-  <p>Nhập kích thước lô và nhu cầu gia đình — máy vẽ 3 phương án chia tầng, chia phòng trong vài giây. Phương án dựng từ một mặt bằng nhà phố thật do KTS của ALN thiết kế, co giãn theo lô của anh/chị.</p>
+  <h1>Xem thử mặt bằng nhà phố, nhà vườn, biệt thự, villa cho lô đất của anh/chị</h1>
+  <p>Chọn loại nhà, nhập kích thước lô và nhu cầu gia đình — máy vẽ 3 phương án chia tầng, chia phòng trong vài giây. Nhà phố có mẫu dựng từ một mặt bằng thật do KTS của ALN thiết kế; các mẫu còn lại là bố cục điển hình tổng hợp từ nhiều mặt bằng nhà ở Việt Nam. Mọi mẫu co giãn theo lô của anh/chị.</p>
 </header>
 
 <main class="wrap">
@@ -267,9 +269,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <p class="hint">Số nào chưa chắc thì nhập gần đúng, sau này KTS đo lại.</p>
     <form id="mbForm" novalidate>
       <div class="form-grid">
+        <div class="f" style="grid-column:1/-1;max-width:420px"><label for="loai">Loại nhà</label>
+          <select id="loai"><option value="pho" selected>Nhà phố</option><option value="vuon">Nhà vườn (1 tầng, có sân vườn)</option><option value="biet_thu">Biệt thự</option><option value="villa">Villa có hồ bơi</option></select></div>
         <div class="f"><label for="mt">Mặt tiền (m)</label><input id="mt" type="text" inputmode="decimal" value="4,5" autocomplete="off"></div>
         <div class="f"><label for="sau">Chiều sâu lô (m)</label><input id="sau" type="text" inputmode="decimal" value="16" autocomplete="off"></div>
-        <div class="f"><label for="tang">Số tầng (kể cả sân thượng)</label>
+        <div class="f"><label for="tang" id="tangNhan">Số tầng (kể cả sân thượng)</label>
           <select id="tang"><option value="3">3 tầng</option><option value="4" selected>4 tầng</option><option value="5">5 tầng</option><option value="6">6 tầng</option><option value="7">7 tầng</option><option value="8">8 tầng</option></select></div>
         <div class="f"><label for="pn">Số phòng ngủ</label>
           <select id="pn"><option value="1">1 phòng</option><option value="2">2 phòng</option><option value="3" selected>3 phòng</option><option value="4">4 phòng</option><option value="5">5 phòng</option><option value="6">6 phòng</option></select></div>
@@ -277,11 +281,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <select id="duong"><option value="3.5">Hẻm nhỏ dưới 4 m</option><option value="5">Hẻm 4 – 6 m</option><option value="8" selected>Đường 6 – 12 m</option><option value="14">Đường trên 12 m</option></select></div>
       </div>
       <div class="chks">
-        <label class="chk"><input id="kd" type="checkbox"> Dùng tầng trệt để kinh doanh</label>
-        <label class="chk"><input id="tm" type="checkbox"> Có thang máy</label>
-        <label class="chk"><input id="oto" type="checkbox"> Để ô tô trong nhà</label>
+        <label class="chk" id="kdKhoi"><input id="kd" type="checkbox"> Dùng tầng trệt để kinh doanh</label>
+        <label class="chk" id="tmKhoi"><input id="tm" type="checkbox"> Có thang máy</label>
+        <label class="chk"><input id="oto" type="checkbox"> <span id="otoChu">Để ô tô trong nhà</span></label>
         <label class="chk"><input id="ongba" type="checkbox"> Ông bà ở phòng tầng trệt</label>
-        <label class="chk"><input id="hem" type="checkbox"> Phía sau nhà có hẻm hoặc khoảng trống</label>
+        <label class="chk" id="hemKhoi"><input id="hem" type="checkbox"> Phía sau nhà có hẻm hoặc khoảng trống</label>
       </div>
       <div class="row-btn"><button class="btn" id="btnTao" type="submit">Vẽ phương án</button></div>
       <p class="loi" id="mbLoi" role="status"></p>
@@ -333,7 +337,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="card ch-khoi" aria-labelledby="h-ch">
       <h3 id="h-ch">Chỉnh cho cả nhà</h3>
       <p class="hint">Mỗi lần bấm, máy vẽ lại và tự kiểm tra. Cách nào không hợp lý, máy giữ như cũ và nói lý do. Bấm nhầm thì dùng nút "Quay lại bước trước" ở trên.</p>
-      <div class="ch-muc">
+      <div class="ch-muc" id="chMucTuong">
         <h4>Phòng phía trước và phía sau</h4>
         <p id="chTuong" style="margin-top:6px"></p>
         <div class="ch-hang">
@@ -342,7 +346,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
         <p class="hint" style="margin-top:6px">Mỗi lần bấm dời bức tường giữa khoảng 20 cm.</p>
       </div>
-      <div class="ch-muc">
+      <div class="ch-muc" id="chMucTang">
         <h4>Số tầng</h4>
         <div class="ch-hang">
           <button type="button" class="nut-to" id="chTangBot" aria-label="Bớt một tầng">− Bớt 1 tầng</button>
@@ -422,9 +426,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <button type="button" id="chToastDong" aria-label="Đóng thông báo">✕</button>
 </div>
 
-<script src="mb-cau-hinh.js?v=2"></script>
-<script src="mb-dong-co.js?v=2"></script>
-<script src="mb-trang.js?v=2"></script>
+<script src="mb-cau-hinh.js?v=3"></script>
+<script src="mb-dong-co.js?v=3"></script>
+<script src="mb-trang.js?v=3"></script>
 <script type="module" src="mb-may.js?v=1"></script>
 </body>
 </html>
