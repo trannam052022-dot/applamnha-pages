@@ -1984,7 +1984,7 @@ document.addEventListener('DOMContentLoaded', function() {
   <!-- Phễu ẩn danh trang dự toán (03/10/2026) — founderPheuAnDanh (functions/baoCaoAnDanh.js) -->
   <div style="border-top:1px solid var(--border);padding-top:20px;margin-bottom:28px">
     <div style="font-weight:700;color:var(--text1);margin:0 0 4px">Phễu ẩn danh trang dự toán (cả khách không để lại số)</div>
-    <div style="font-size:12px;color:var(--sub);margin-bottom:10px;max-width:88ch">Mỗi phiên = một lần mở <code>du-toan-nha.html</code> mà khách tự đổi số ít nhất một lần (ví dụ 5×20 m tự hiện lúc mở trang không tính). Chỉ có nhãn khoảng, không có số đo hay SĐT; dữ liệu tự xoá sau 90 ngày. Không gồm lượt tự test <code>?internal=1</code>. Từ 06/10/2026 có thêm "Phễu theo bước": mở trang → tự đổi số → bấm Lưu → gửi mã OTP → nhập đúng mã → lưu xong, ghi phía máy chủ nên không phụ thuộc cookie. Các ô và bảng nhãn bên dưới vẫn chỉ tính phiên đã tự đổi số. Có từ 03/10/2026.</div>
+    <div style="font-size:12px;color:var(--sub);margin-bottom:10px;max-width:88ch">Mỗi phiên = một lần mở <code>du-toan-nha.html</code> mà khách tự đổi số ít nhất một lần (ví dụ 5×20 m tự hiện lúc mở trang không tính). Chỉ có nhãn khoảng, không có số đo hay SĐT; dữ liệu tự xoá sau 90 ngày. Không gồm lượt tự test <code>?internal=1</code>. Từ 06/10/2026 có thêm "Phễu theo bước": mở trang → tự đổi số → bấm Lưu → mở hộp nhập SĐT → bấm Gửi mã → gửi lỗi / gửi được mã → nhập đúng mã → lưu xong (mở hộp, bấm gửi và lý do lỗi có từ 11/10/2026), ghi phía máy chủ nên không phụ thuộc cookie. Các ô và bảng nhãn bên dưới vẫn chỉ tính phiên đã tự đổi số. Có từ 03/10/2026.</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
       <select id="adSoNgay" onchange="adTai()" style="padding:6px 10px;border:1px solid var(--border);border-radius:7px;background:var(--raised);color:var(--text1);font-size:12px">
         <option value="7">7 ngày</option>
@@ -11798,6 +11798,24 @@ function adBangNho(khoa, tieuDe, bang, tong) {
   return h + "</tbody></table></div>";
 }
 
+// Lý do gửi mã lỗi (11/10/2026) — mỗi lý do = số phiên gặp lý do đó.
+const AD_LY_DO_OTP = {
+  sdt_sai: "SĐT nhập sai dạng (chưa gửi)",
+  gioi_han_may: "quá 3 lần/10 phút trên máy",
+  so_khong_hop_le: "Firebase báo số không hợp lệ",
+  qua_nhieu_lan: "quá nhiều lần (Firebase chặn)",
+  het_luot_sms: "hết lượt SMS",
+  mang: "mất mạng",
+  xac_thuc_trinh_duyet: "xác thực trình duyệt (reCAPTCHA)",
+  het_gio: "chờ quá 30 giây",
+  khac: "khác / chưa rõ",
+};
+function adLyDoOtp(m) {
+  const o = m || {};
+  return Object.keys(AD_LY_DO_OTP).filter((x) => o[x] > 0)
+    .map((x) => AD_LY_DO_OTP[x] + " " + so(o[x])).join(" · ");
+}
+
 // Phễu theo bước (06/10/2026, DEC-2026-023) — mỗi dòng = số phiên có bước đó.
 // Phiên trước khi bản mới chạy không có cờ mo_trang → đọc từ ngày tu_mo_trang.
 function adVePheu(k) {
@@ -11811,7 +11829,12 @@ function adVePheu(k) {
     ["Mở trang", p.mo_trang, ""],
     ["Tự đổi số, xem kết quả", p.mo_trang - p.mo_khong_tinh, ""],
     ["Bấm Lưu & xem chi tiết", p.bam_luu, "chân bảng " + so(vt.chan_bang || 0) + " · thẻ khoá " + so(vt.the_khoa || 0) + " · thanh dưới " + so(vt.thanh_dinh || 0)],
-    ["Gửi mã OTP thành công", p.otp_gui, p.otp_gui_loi ? so(p.otp_gui_loi) + " phiên gửi mã bị lỗi" : ""],
+    // 11/10/2026: tách người bỏ ngang ở ô SĐT với người gửi mã bị lỗi.
+    // Mở hộp/Bấm gửi chỉ có từ bản 11/10/2026 — phiên cũ hơn không có hai cờ này.
+    ["Mở hộp nhập SĐT", p.mo_hop || 0, (p.bam_luu || 0) > (p.mo_hop || 0) ? "còn lại đã đăng nhập sẵn hoặc trước bản 11/10/2026" : ""],
+    ["Bấm \u201cGửi mã\u201d", p.bam_gui || 0, (p.mo_hop || 0) ? "bỏ ngang ở ô SĐT (mở hộp, không bấm gửi): " + so(Math.max(0, (p.mo_hop || 0) - (p.bam_gui || 0))) : ""],
+    ["Gửi OTP lỗi", p.otp_gui_loi || 0, adLyDoOtp(k.ly_do_otp_loi)],
+    ["Gửi mã OTP thành công", p.otp_gui, ""],
     ["Nhập đúng mã OTP", p.otp_ok, ""],
     ["Lưu xong vào Không gian Nhà", p.luu_xong, ""],
     ["Gửi form Nhờ KTS xem (không OTP)", p.co_lead, "đi đường riêng, không qua các bước Lưu"],

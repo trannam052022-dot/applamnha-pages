@@ -329,7 +329,17 @@ body.che-do-dn.dn-che #dnChe{display:block}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) #otpHop .oh-thay button{color:#e8c877}}
 :root[data-theme="dark"] #otpHop .oh-thay button{color:#e8c877}
 #otpHop .oh-msg{margin-top:8px;font-size:14px;min-height:1.2em}
-#otpHop .oh-msg.err{color:var(--warn);font-weight:500}
+/* 11/10/2026: lỗi hiện rõ bằng chữ — khung đỏ ngay dưới nút vừa bấm (showMsg dời phần tử). */
+#otpHop .oh-msg.err{color:#b42318;background:#fef3f2;border:1px solid #f3b8b2;border-radius:10px;padding:10px 12px;font-size:15px;font-weight:600;line-height:1.5}
+#otpHop .oh-msg .oh-ma-loi{display:block;margin-top:4px;font-size:12.5px;font-weight:400;color:var(--muted)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) #otpHop .oh-msg.err{color:#fda29b;background:rgba(180,35,24,.16);border-color:rgba(253,162,155,.35)}}
+:root[data-theme="dark"] #otpHop .oh-msg.err{color:#fda29b;background:rgba(180,35,24,.16);border-color:rgba(253,162,155,.35)}
+/* Hộp OTP đang mở: ẩn thanh dính đáy, thanh Zalo và nút MyMy trên điện thoại (trong trình
+   duyệt của app Facebook các thanh cố định nổi lên trên bàn phím, che ô nhập/nút gửi).
+   Đóng hộp là hiện lại. Ô nhập chừa mép khi tự cuộn. */
+body.oh-mo .dock{display:none!important}
+@media (max-width:979px){body.oh-mo .aln-zalo-sticky,body.oh-mo #mymy-btn,body.oh-mo #mymy-moi,body.oh-mo .mm-bb{display:none!important}}
+#otpHop input{scroll-margin:16px 0 120px}
 #otpHop .oh-msg a{color:var(--navy2);font-weight:700}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) #otpHop .oh-lk button,:root:not([data-theme="light"]) #otpHop .oh-msg a{color:#e8c877}}
 :root[data-theme="dark"] #otpHop .oh-lk button,:root[data-theme="dark"] #otpHop .oh-msg a{color:#e8c877}
@@ -532,7 +542,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <li>Gửi bản vẽ, báo giá để KTS xem giúp</li>
        </ul>
        <label class="oh-nhan" for="ohSdt">Số điện thoại nhận mã</label>
-       <input id="ohSdt" type="tel" inputmode="tel" autocomplete="tel" maxlength="15" placeholder="VD: 0909 123 456">
+       <input id="ohSdt" type="tel" inputmode="numeric" autocomplete="tel-national" enterkeyhint="send" maxlength="15" placeholder="VD: 0909 123 456">
        <!-- Ô "Đo quảng cáo" — CÙNG câu CONSENT_TEXTS.quang_cao với form dự toán (functions/_test_tuVanPhanTho.js kiểm). -->
        <label class="tv-dy" for="ohDongYQc"><input id="ohDongYQc" type="checkbox"><span><span id="ohDongYQcText">Cho phép ALN gửi SĐT đã mã hoá cho Facebook để ALN biết quảng cáo nào hiệu quả, bớt chi quảng cáo sai chỗ.</span> <i class="tv-tuy">Không bắt buộc.</i></span></label>
        <button type="button" class="oh-go rong" id="ohGui">Gửi mã xác nhận</button>
@@ -542,7 +552,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
       <div id="ohB2" hidden>
        <label class="oh-nhan" for="ohMa">Nhập 6 số ALN vừa gửi qua SMS tới <b id="ohSdtHien"></b></label>
-       <div class="oh-hang"><input id="ohMa" class="oh-ma" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="6" placeholder="6 số"><button type="button" class="oh-go" id="ohXacNhan">Xác nhận</button></div>
+       <div class="oh-hang"><input id="ohMa" class="oh-ma" type="text" inputmode="numeric" autocomplete="one-time-code" enterkeyhint="done" pattern="[0-9]*" maxlength="6" placeholder="6 số"><button type="button" class="oh-go" id="ohXacNhan">Xác nhận</button></div>
        <div class="oh-lk"><button type="button" id="ohGuiLai" disabled>Gửi lại mã</button><button type="button" id="ohDoiSo">Đổi số điện thoại</button></div>
       </div>
       <div class="oh-msg" id="saveHouseMsg" role="status" aria-live="polite" hidden></div>
@@ -1209,11 +1219,11 @@ document.addEventListener('aln:consent', () => {
 // Các bước trong phiên (06/10/2026, DEC-2026-023): mở trang → bấm Lưu → gửi mã OTP
 // (hoặc gửi lỗi) → xác nhận mã → lưu xong. Máy chủ chỉ ghi cờ lên phiên ẩn danh
 // (không SĐT, không số đo). ?internal=1 và ?dn=1: alnAnDanh() trả null → không gửi.
-function ghiBuoc(buoc, viTri) {
+function ghiBuoc(buoc, viTri, lyDo) {
   try {
     const an = window.alnAnDanh && window.alnAnDanh();
     if (!an) return;
-    httpsCallable(functionsInst, 'ghiBuocAnDanh', { timeout: 10000 })({ anDanh: an, buoc, vi_tri: viTri || null }).catch(() => {});
+    httpsCallable(functionsInst, 'ghiBuocAnDanh', { timeout: 10000 })({ anDanh: an, buoc, vi_tri: viTri || null, ly_do: lyDo || null }).catch(() => {});
   } catch (e) {}
 }
 ghiBuoc('mo_trang');
@@ -1242,12 +1252,22 @@ let loiVao = null;
 let banChup = null; // bộ đầu vào chụp lúc gửi OTP
 let denKgn = ''; // houseId vừa lưu — chuyển sang Không gian Nhà
 const KEY_CHUP = 'aln_dt_luu_chup';
+// Trình duyệt trong app (WebView Android cũ) có thể thiếu crypto.randomUUID — thiếu
+// thì lần lưu sau OTP văng lỗi và chỉ hiện "Chưa lưu được" mãi (11/10/2026).
+function maNgauNhien() {
+  try { if (crypto.randomUUID) return crypto.randomUUID(); } catch (e) {}
+  const b = new Uint8Array(16);
+  try { crypto.getRandomValues(b); } catch (e) { for (let i = 0; i < 16; i++) b[i] = Math.floor(Math.random() * 256); }
+  b[6] = (b[6] & 15) | 64; b[8] = (b[8] & 63) | 128;
+  const h = Array.from(b, (x) => x.toString(16).padStart(2, '0')).join('');
+  return h.slice(0, 8) + '-' + h.slice(8, 12) + '-' + h.slice(12, 16) + '-' + h.slice(16, 20) + '-' + h.slice(20);
+}
 function operationKey() { return 'aln_estimate_pending_' + auth.currentUser.uid; }
 function getSaveOperation(payload) {
   if (saveOperation) return saveOperation;
   try { saveOperation = JSON.parse(sessionStorage.getItem(operationKey()) || 'null'); } catch (e) {}
   if (!saveOperation) {
-    saveOperation = { ...payload, operationId: crypto.randomUUID() };
+    saveOperation = { ...payload, operationId: maNgauNhien() };
     try { sessionStorage.setItem(operationKey(), JSON.stringify(saveOperation)); } catch (e) {}
   }
   return saveOperation;
@@ -1311,18 +1331,44 @@ function clearAutosaveFlag() {
   url.searchParams.delete('autosave');
   history.replaceState(null, '', url.pathname + url.search + url.hash);
 }
-function showMsg(text, kind) {
+function showMsg(text, kind, maLoi) {
+  // Đặt thông báo ngay dưới nút vừa bấm (bước nhập SĐT: dưới "Gửi mã"), để không
+  // rơi xuống dưới dòng "Nhờ KTS" hay bị bàn phím che.
+  const b1 = $('ohB1');
+  if (b1 && !b1.hidden && !hop.hidden) $('ohGui').after(msg, retryBtn);
+  else if ($('ohB2')) $('ohB2').after(msg, retryBtn);
   msg.hidden = false;
   msg.textContent = text;
+  if (maLoi) { const c = document.createElement('span'); c.className = 'oh-ma-loi'; c.textContent = 'Mã lỗi: ' + maLoi; msg.appendChild(c); }
   msg.className = 'oh-msg' + (kind === 'error' ? ' err' : '');
+  if (!hop.hidden) setTimeout(() => hienTrongKhung(msg, msg), 30);
 }
 // Thông báo lỗi + một đường dẫn (gửi OTP lỗi → form Nhờ KTS; vượt hạn mức → bản DN).
-function showMsgKemLink(text, nhan, href, onClick) {
+function showMsgKemLink(text, nhan, href, onClick, maLoi) {
   showMsg(text + ' ', 'error');
   const a = document.createElement('a');
   a.href = href; a.textContent = nhan;
   if (onClick) a.addEventListener('click', onClick);
   msg.appendChild(a);
+  if (maLoi) { const c = document.createElement('span'); c.className = 'oh-ma-loi'; c.textContent = 'Mã lỗi: ' + maLoi; msg.appendChild(c); }
+}
+// Cuộn để đoạn từ phần tử `tren` tới `duoi` nằm trong phần màn hình còn thấy được
+// (trừ bàn phím) — dùng visualViewport, vì trong trình duyệt của app Facebook
+// scrollIntoView không tính phần bàn phím che. Không vừa thì ưu tiên mép trên.
+function hienTrongKhung(tren, duoi) {
+  try {
+    if (!tren) return;
+    const vv = window.visualViewport;
+    const dinh = (vv ? vv.offsetTop : 0) + 12;
+    const day = (vv ? vv.offsetTop + vv.height : window.innerHeight) - 12;
+    const a = tren.getBoundingClientRect().top;
+    const z = (duoi || tren).getBoundingClientRect().bottom;
+    let d = 0;
+    if (z - a > day - dinh) d = a - dinh;
+    else if (z > day) d = z - day;
+    else if (a < dinh) d = a - dinh;
+    if (Math.abs(d) > 2) window.scrollBy(0, d);
+  } catch (e) {}
 }
 function moiNhoKts(e) {
   if (e) e.preventDefault();
@@ -1472,8 +1518,28 @@ const LOI_OTP = {
   'auth/code-expired': 'Mã đã hết hạn. Anh/chị bấm "Gửi lại mã".',
   'auth/invalid-verification-code': 'Mã chưa đúng. Anh/chị kiểm tra lại 6 số trong tin nhắn.',
   'auth/network-request-failed': 'Mất kết nối mạng. Anh/chị kiểm tra Internet rồi thử lại.',
-  'auth/captcha-check-failed': 'Xác thực bảo mật trình duyệt chưa xong. Anh/chị bấm gửi mã lại.',
+  'auth/captcha-check-failed': 'Bước kiểm tra bảo mật của trình duyệt chưa xong. Anh/chị bấm gửi mã lại.',
+  'auth/missing-phone-number': 'Anh/chị chưa nhập số điện thoại.',
+  'auth/invalid-app-credential': 'Bước kiểm tra bảo mật của trình duyệt chưa xong. Anh/chị bấm gửi mã lại.',
+  'auth/missing-app-credential': 'Bước kiểm tra bảo mật của trình duyệt chưa xong. Anh/chị bấm gửi mã lại.',
+  'auth/web-storage-unsupported': 'Trình duyệt đang chặn lưu dữ liệu nên chưa gửi được mã.',
+  'auth/internal-error': 'Hệ thống gửi mã đang gặp sự cố.',
 };
+// Trình duyệt bên trong app Facebook/Instagram/Zalo — hay chặn bước kiểm tra bảo mật
+// (reCAPTCHA) hoặc treo không trả kết quả (11/10/2026: 9 phiên bấm Lưu, 5 từ thanh dính
+// điện thoại, chỉ 1 gửi được mã).
+const TRONG_APP = /FBAN|FBAV|FB_IAB|FBIOS|Instagram|Zalo/i.test(navigator.userAgent || '');
+const CAU_MO_TRINH_DUYET = TRONG_APP ? ' Nếu vẫn không được: bấm nút ⋯ ở góc trên → "Mở bằng trình duyệt", rồi lưu lại.' : '';
+const HET_GIO_GUI = 30000;
+function lyDoLoiGui(err) {
+  const c = String((err && err.code) || '');
+  if (/invalid-phone-number|missing-phone-number/.test(c)) return 'so_khong_hop_le';
+  if (/too-many-requests/.test(c)) return 'qua_nhieu_lan';
+  if (/quota-exceeded/.test(c)) return 'het_luot_sms';
+  if (/network-request-failed/.test(c)) return 'mang';
+  if (/captcha|app-credential|app-not-authorized/.test(c) || /recaptcha/i.test(String((err && err.message) || ''))) return 'xac_thuc_trinh_duyet';
+  return 'khac';
+}
 let xacNhan = null, verifier = null, dangGui = false, demNguoc = null;
 // Nạp 2 hàm Phone Auth lúc cần (cùng module firebase-config.js đã nạp, không tải lại):
 // import tĩnh mà thiếu export sẽ làm hỏng CẢ module này, kéo theo hàm tính trên máy chủ.
@@ -1489,7 +1555,8 @@ function resetRecaptcha() {
   if (c) c.replaceWith(c.cloneNode(false));
 }
 function buocHop(n) { $('ohB1').hidden = n !== 1; $('ohB2').hidden = n !== 2; }
-function dongHop() { hop.hidden = true; hop.dataset.nhom = ''; }
+function dongHop() { hop.hidden = true; hop.dataset.nhom = ''; document.body.classList.remove('oh-mo'); }
+function hienHop() { hop.hidden = false; document.body.classList.add('oh-mo'); }
 function demGuiLai(giay) {
   clearInterval(demNguoc);
   const b = $('ohGuiLai'); let con = giay;
@@ -1499,14 +1566,42 @@ function demGuiLai(giay) {
   };
   tick(); demNguoc = setInterval(tick, 1000);
 }
+let lanGui = 0; // mỗi lần bấm Gửi mã một số; kết quả của lần cũ (về muộn) bị bỏ qua
+function traNutGui() {
+  dangGui = false;
+  const g = $('ohGui'); g.disabled = false; g.textContent = 'Gửi mã xác nhận';
+  $('ohGuiLai').disabled = false;
+}
 async function guiMa() {
   if (dangGui) return;
+  ghiBuoc('bam_gui');
   const so = chuanSdt($('ohSdt').value);
-  if (!so) { showMsg(LOI_OTP['auth/invalid-phone-number'], 'error'); return; }
+  if (!so) {
+    ghiBuoc('otp_gui_loi', null, 'sdt_sai');
+    showMsg(String($('ohSdt').value || '').trim() ? LOI_OTP['auth/invalid-phone-number'] : 'Anh/chị nhập số điện thoại để nhận mã, ví dụ 0901234567.', 'error');
+    return;
+  }
   const cho = kiemRate(so);
-  if (cho) { showMsgKemLink('Số này đã gửi mã 3 lần trong 10 phút, thử lại sau ' + Math.ceil(cho / 60000) + ' phút. Hoặc', 'nhờ KTS gọi lại (không cần mã)', '#tuVan', moiNhoKts); return; }
+  if (cho) {
+    ghiBuoc('otp_gui_loi', null, 'gioi_han_may');
+    showMsgKemLink('Số này đã gửi mã 3 lần trong 10 phút, thử lại sau ' + Math.ceil(cho / 60000) + ' phút. Hoặc', 'nhờ KTS gọi lại (không cần mã)', '#tuVan', moiNhoKts);
+    return;
+  }
   dangGui = true;
-  const g = $('ohGui'); g.disabled = true; $('ohGuiLai').disabled = true; g.textContent = 'Đang gửi…';
+  const luot = ++lanGui;
+  const g = $('ohGui'); g.disabled = true; $('ohGuiLai').disabled = true; g.textContent = 'Đang gửi mã…';
+  // Đang gửi thì đóng bàn phím để bước kiểm tra bảo mật (nếu hiện) và thông báo không bị che.
+  try { document.activeElement && document.activeElement.blur(); } catch (e) {}
+  // Trình duyệt trong app có lúc treo ở bước kiểm tra bảo mật, không báo lỗi gì:
+  // quá HET_GIO_GUI thì báo bằng chữ và trả nút; mã về muộn vẫn nhận (xem dưới).
+  let hetGio = false;
+  const tHet = setTimeout(() => {
+    if (luot !== lanGui || !dangGui) return;
+    hetGio = true;
+    ghiBuoc('otp_gui_loi', null, 'het_gio');
+    traNutGui();
+    showMsgKemLink('Chờ quá lâu mà chưa gửi được mã. Anh/chị bấm "Gửi mã xác nhận" lần nữa.' + CAU_MO_TRINH_DUYET + ' Hoặc', 'nhờ KTS gọi lại (không cần mã)', '#tuVan', moiNhoKts, 'het-gio');
+  }, HET_GIO_GUI);
   try {
     // Chụp bộ đầu vào khách đang thấy TRƯỚC khi gửi OTP — sau khi xác thực lưu đúng bộ này.
     if (window.alnDuToanCho) await window.alnDuToanCho();
@@ -1514,27 +1609,37 @@ async function guiMa() {
     try { sessionStorage.setItem(KEY_CHUP, JSON.stringify({ payload: banChup, loiVao, luc: Date.now() })); } catch (e) {}
     ghiRate(so);
     const { signInWithPhoneNumber } = await phoneAuth();
-    xacNhan = await signInWithPhoneNumber(auth, '+84' + so.slice(1), await ensureRecaptcha());
+    const kq = await signInWithPhoneNumber(auth, '+84' + so.slice(1), await ensureRecaptcha());
+    clearTimeout(tHet);
+    if (luot !== lanGui) return; // khách đã bấm gửi lần khác
+    xacNhan = kq;
     try { window.alnDtSuKien && window.alnDtSuKien.otpGui((loiVao && loiVao.viTri) || 'chan_bang'); } catch (e) {}
     ghiBuoc('otp_gui');
     $('ohSdtHien').textContent = so.replace(/^(\d{4})(\d{3})(\d+)$/, '$1 $2 $3');
     buocHop(2);
-    msg.hidden = true;
+    msg.hidden = true; retryBtn.hidden = true;
     $('ohMa').value = '';
     $('ohMa').focus();
     demGuiLai(60);
   } catch (err) {
-    console.warn('[du-toan-nha] gửi mã thất bại');
-    ghiBuoc('otp_gui_loi');
+    clearTimeout(tHet);
+    if (luot !== lanGui) return;
+    const code = (err && err.code) || '';
+    console.warn('[du-toan-nha] gửi mã thất bại', code);
     window.alnBaoLoiNeuCan && window.alnBaoLoiNeuCan('du-toan-nha gui-ma', err);
-    const code = err && err.code;
+    if (hetGio) return; // đã báo "chờ quá lâu", không báo chồng
+    const lyDo = lyDoLoiGui(err);
+    ghiBuoc('otp_gui_loi', null, lyDo);
+    const cau = LOI_OTP[code] || 'Chưa gửi được mã xác nhận.';
+    const themApp = (lyDo === 'xac_thuc_trinh_duyet' || lyDo === 'khac') ? CAU_MO_TRINH_DUYET : '';
     // Nhà mạng/hết lượt/lỗi lạ: mời sang form "Nhờ KTS xem giúp" (không cần OTP).
-    showMsgKemLink((LOI_OTP[code] || 'Chưa gửi được mã xác nhận.') + ' Anh/chị có thể', 'nhờ KTS gọi lại (không cần mã)', '#tuVan', moiNhoKts);
-    $('ohGuiLai').disabled = false;
+    showMsgKemLink(cau + themApp + ' Anh/chị cũng có thể', 'nhờ KTS gọi lại (không cần mã)', '#tuVan', moiNhoKts,
+      LOI_OTP[code] ? '' : String(code || (err && err.message) || 'khong-ro').slice(0, 60));
   } finally {
-    resetRecaptcha();
-    dangGui = false;
-    g.disabled = false; g.textContent = 'Gửi mã xác nhận';
+    if (luot === lanGui) {
+      resetRecaptcha();
+      if (dangGui) traNutGui();
+    }
   }
 }
 async function xacNhanMa() {
@@ -1563,21 +1668,38 @@ function moHop(viTri, nhom, neo) {
   loiVao = { viTri, nhom: nhom || '' };
   hop.dataset.nhom = viTri === 'the_khoa' ? (nhom || '') : '';
   if (viTri === 'the_khoa' && neo) neo.appendChild(hop); else $('otpNha').appendChild(hop);
-  hop.hidden = false;
+  hienHop();
   msg.hidden = true; retryBtn.hidden = true;
   ghiBuoc('bam_luu', viTri);
   const daDangNhap = isPhoneAuthed(auth.currentUser);
   try { window.dataLayer = window.dataLayer || []; window.dataLayer.push({ event: "aln_luu_bam", da_dang_nhap: daDangNhap ? 1 : 0 }); } catch (e) {}
   if (daDangNhap) { buocHop(0); doSave(); return; }
   buocHop(xacNhan ? 2 : 1);
+  // 11/10/2026: tách "bỏ ngang ở ô SĐT" với "gửi mã lỗi" — hộp nhập SĐT đã hiện ra.
+  ghiBuoc('mo_hop');
+  // Kéo hộp vào giữa màn hình đến hết nút gửi (lối từ thanh dính: trước đây hộp mở
+  // ở chân bảng, nút gửi nằm dưới mép màn hình).
+  requestAnimationFrame(() => hienTrongKhung($('ohTieu'), xacNhan ? $('ohXacNhan') : $('ohGui')));
 }
 window.alnLuuChiTiet = { mo: moHop, dong: dongHop };
 
 btn.addEventListener('click', () => moHop('chan_bang', '', null));
-$('dockLuu').addEventListener('click', () => {
-  btn.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  moHop('thanh_dinh', '', null);
+$('dockLuu').addEventListener('click', () => moHop('thanh_dinh', '', null));
+// Bàn phím mở trong trình duyệt của app: giữ ô đang gõ + nút gửi trong phần còn thấy.
+function giuONhap() {
+  const b2 = !$('ohB2').hidden;
+  hienTrongKhung(b2 ? $('ohMa') : $('ohSdt'), b2 ? $('ohXacNhan') : $('ohGui'));
+}
+hop.addEventListener('focusin', (e) => {
+  if (!/^(ohSdt|ohMa)$/.test((e.target && e.target.id) || '')) return;
+  [80, 350, 700].forEach((ms) => setTimeout(giuONhap, ms));
 });
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', () => {
+    const a = document.activeElement;
+    if (!hop.hidden && a && /^(ohSdt|ohMa)$/.test(a.id || '')) giuONhap();
+  });
+}
 $('ohDong').addEventListener('click', dongHop);
 $('ohGui').addEventListener('click', guiMa);
 $('ohNhoKts').addEventListener('click', (e) => {
@@ -1608,7 +1730,7 @@ const params = new URLSearchParams(window.location.search);
     let pending = false;
     try { pending = !!sessionStorage.getItem(operationKey()); } catch (e) {}
     if (params.get("autosave") === "1" || pending) {
-      $('otpNha').appendChild(hop); hop.hidden = false; buocHop(0);
+      $('otpNha').appendChild(hop); hienHop(); buocHop(0);
       doSave();
     }
   });
