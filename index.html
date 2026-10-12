@@ -469,9 +469,11 @@ footer{border-top:1px solid var(--border);padding:44px 0 28px}
 .loban-presets{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:36px}
 .loban-preset{padding:8px 15px;border-radius:99px;border:1px solid var(--border2);background:var(--bg2);color:var(--text2);font-size:var(--text-sm);cursor:pointer;transition:all .2s;box-shadow:var(--shadow-sm)}
 .loban-preset:hover{border-color:var(--gold);color:var(--text);transform:translateY(-1px)}
-.loban-results{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
-@media(max-width:1100px){.loban-results{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:640px){.loban-results{grid-template-columns:1fr}}
+.loban-results{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media(max-width:900px){.loban-results{grid-template-columns:1fr}}
+.loban-results.co4{grid-template-columns:repeat(4,1fr);gap:18px}
+@media(max-width:1100px){.loban-results.co4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.loban-results.co4{grid-template-columns:1fr}}
 .lb-ten{font-family:var(--syne);font-weight:700;font-size:var(--text-xs);letter-spacing:.06em;color:var(--gold);text-transform:uppercase;margin-bottom:3px}
 .lb-sub{font-size:var(--text-sm);color:var(--text2);margin:-10px 0 16px}
 .lb-sub b{font-weight:700}
@@ -1266,7 +1268,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="sec-head">
       <div class="eyebrow"><span class="ln"></span>PHONG THỦY XÂY DỰNG<span class="ln"></span></div>
       <h2>Thước <em>Lỗ Ban</em> phong thủy</h2>
-      <p>Nhập kích thước để tra cung đẹp – xấu theo ba loại thước Lỗ Ban thông dụng trong xây dựng và thước Việt Cổ ALN.</p>
+      <p>Nhập kích thước để tra cung đẹp – xấu theo ba loại thước Lỗ Ban thông dụng trong xây dựng.</p>
     </div>
     <div class="loban-tool">
       <div class="loban-controls">
@@ -1875,22 +1877,18 @@ var LB_RULERS = [
       { n: 'Hưng', g: 1, m: 'Hưng thịnh, phát đạt.' },
       { n: 'Thất', g: 0, m: 'Thất thoát, mất mát.' },
       { n: 'Tài', g: 1, m: 'Tài lộc, phú quý.' }
-    ] },
-  /* Thước Việt Cổ ALN — theo bản vẽ THUOC.dxf của KTS Trần Long (12/10/2026):
-     chu kỳ 416 mm, 8 cung × 52 mm, mỗi cung 2 câu × 26 mm, 4 cung nhỏ × 13 mm.
-     Cung xấu = ô gạch chéo trong bản vẽ. Tên giữ đúng như bản vẽ. */
-  { ten: 'Việt Cổ ALN', size: '41.6 cm', cycle: 416, use: 'Môn quang',
-    cung: [
-      { n: 'Tài Lộc', g: 1, m: 'Nghinh tài phúc · Tấn điền danh.', sub: ['Sinh Vượng', 'Tấn Bảo', 'Đăng Khoa', 'Tài Chí'] },
-      { n: 'Trường Bệnh', g: 0, m: 'Thân khẩu thiệt · Tổn thê tử.', sub: ['Khẩu Thiệt', 'Bệnh Lâm', 'Tử Tuyệt', 'Tai Nguy'] },
-      { n: 'Sinh Ly', g: 0, m: 'Vong gia thất · Sinh kế bại.', sub: ['Thất Thoát', 'Ly Hương', 'Thoát Tài', 'Tử Biệt'] },
-      { n: 'Nghĩa Thuận', g: 1, m: 'Gia cát tăng · Tấn tài lộc.', sub: ['Phú Quý', 'Trương Ích', 'Hoạch Tài', 'Thuận Lợi'] },
-      { n: 'Quan Tước', g: 1, m: 'Sinh sản cát · Tấn nhân công.', sub: ['Đại Cát', 'Quý Tử', 'Lợi Ích', 'Thiên Định'] },
-      { n: 'Kiếp Đạo', g: 0, m: 'Động tác hung · Bần bạc bệnh.', sub: ['Quan Nghi', 'Thất Vận', 'Kiếp Tài', 'Họa Hại'] },
-      { n: 'Lục Hại', g: 0, m: 'Chung bất lợi · Quan tụng khiên.', sub: ['Cô Quả', 'Tốt Chấp', 'Quan Sự', 'Thoát Hao'] },
-      { n: 'Phúc Đức', g: 1, m: 'Công thành toại · Chiêu tài vật.', sub: ['Đãng Phúc', 'Lục Hạp', 'Thiên Khố', 'Âm Đức'] }
     ] }
 ];
+
+/* Thước riêng của Founder (Việt Cổ ALN) — dữ liệu chỉ máy chủ trả cho Founder,
+   không nằm trong trang. Module Firebase bên dưới gọi hàm này khi Founder đăng nhập. */
+window.lbThemThuocFounder = function(t){
+  if(!t || !t.cung || !t.cung.length || !(Number(t.cycle) > 0)){ return; }
+  for(var i = 0; i < LB_RULERS.length; i++){ if(LB_RULERS[i].ten === t.ten){ return; } }
+  LB_RULERS.push(t);
+  var box = document.getElementById('lbResults');
+  if(box){ box.classList.add('co4'); lbUpdate(); }
+};
 
 var LB_UNIT = 'mm';
 var LB_PRESETS = [
@@ -1957,7 +1955,7 @@ function lbUpdate(){
       var si = Math.floor((pos - idx * segLen) / subLen);
       if(si >= cung.sub.length){ si = cung.sub.length - 1; }
       if(si < 0){ si = 0; }
-      subHtml = '<div class="lb-sub">Cung nhỏ: <b>' + cung.sub[si] + '</b></div>';
+      subHtml = '<div class="lb-sub">Cung nhỏ: <b>' + eH(cung.sub[si]) + '</b></div>';
     }
     var segs = '';
     for(var s = 0; s < n; s++){
@@ -1965,13 +1963,13 @@ function lbUpdate(){
     }
     html += '<div class="lb-card ' + (good ? 'good' : 'bad') + '">' +
         '<div class="lb-card-top">' +
-          '<div>' + (R.ten ? '<div class="lb-ten">' + R.ten + '</div>' : '') + '<div class="lb-size">' + R.size + '</div><div class="lb-use">' + R.use + '</div></div>' +
+          '<div>' + (R.ten ? '<div class="lb-ten">' + eH(R.ten) + '</div>' : '') + '<div class="lb-size">' + eH(R.size) + '</div><div class="lb-use">' + eH(R.use) + '</div></div>' +
           '<div class="lb-badge ' + (good ? 'good' : 'bad') + '"><i class="ph ' + (good ? 'ph-check-circle' : 'ph-warning-circle') + '"></i>' + (good ? 'ĐẸP' : 'XẤU') + '</div>' +
         '</div>' +
-        '<div class="lb-cung">' + cung.n + '</div>' +
-        '<div class="lb-mean">' + cung.m + '</div>' + subHtml +
+        '<div class="lb-cung">' + eH(cung.n) + '</div>' +
+        '<div class="lb-mean">' + eH(cung.m) + '</div>' + subHtml +
         '<div class="lb-scale">' + segs + '<div class="lb-marker" style="left:' + markerPct.toFixed(1) + '%"></div></div>' +
-        '<div class="lb-pos">Vòng ' + cycleNo + ' · ' + Math.round(pos) + '/' + R.cycle + ' mm trong chu kỳ</div>' +
+        '<div class="lb-pos">Vòng ' + cycleNo + ' · ' + Math.round(pos) + '/' + Number(R.cycle) + ' mm trong chu kỳ</div>' +
       '</div>';
   }
   box.innerHTML = html;
@@ -2284,6 +2282,15 @@ auth.authStateReady().then(() => {
   }
 });
 onAuthStateChanged(auth, (u) => { authReady = !!u; });
+// Thước Việt Cổ ALN — chỉ Founder (đăng nhập tài khoản founder, không ẩn danh).
+let _lbFounderDaTai = false;
+onAuthStateChanged(auth, (u) => {
+  if (_lbFounderDaTai || !u || u.isAnonymous || u.uid !== 'h4kEguPEyMcwJwl89stc0Q6j2si2') return;
+  _lbFounderDaTai = true;
+  httpsCallable(functions, 'founderThuocVietCo')({})
+    .then((r) => { if (r && r.data && window.lbThemThuocFounder) window.lbThemThuocFounder(r.data.thuoc); })
+    .catch((e) => { _lbFounderDaTai = false; console.warn('Thước Việt Cổ ALN:', e && e.code); });
+});
 
 window.mymySend = async function(text, history) {
   if (!authReady) {
