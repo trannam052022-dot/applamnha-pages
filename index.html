@@ -469,8 +469,12 @@ footer{border-top:1px solid var(--border);padding:44px 0 28px}
 .loban-presets{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:36px}
 .loban-preset{padding:8px 15px;border-radius:99px;border:1px solid var(--border2);background:var(--bg2);color:var(--text2);font-size:var(--text-sm);cursor:pointer;transition:all .2s;box-shadow:var(--shadow-sm)}
 .loban-preset:hover{border-color:var(--gold);color:var(--text);transform:translateY(-1px)}
-.loban-results{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-@media(max-width:900px){.loban-results{grid-template-columns:1fr}}
+.loban-results{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+@media(max-width:1100px){.loban-results{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.loban-results{grid-template-columns:1fr}}
+.lb-ten{font-family:var(--syne);font-weight:700;font-size:var(--text-xs);letter-spacing:.06em;color:var(--gold);text-transform:uppercase;margin-bottom:3px}
+.lb-sub{font-size:var(--text-sm);color:var(--text2);margin:-10px 0 16px}
+.lb-sub b{font-weight:700}
 .lb-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:26px 24px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;transition:box-shadow .3s var(--ease),transform .3s var(--ease)}
 .lb-card:hover{box-shadow:var(--shadow-md);transform:translateY(-3px)}
 .lb-card.good{border-color:rgba(21,128,61,.34)}
@@ -1262,7 +1266,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="sec-head">
       <div class="eyebrow"><span class="ln"></span>PHONG THỦY XÂY DỰNG<span class="ln"></span></div>
       <h2>Thước <em>Lỗ Ban</em> phong thủy</h2>
-      <p>Nhập kích thước để tra cung đẹp – xấu theo ba loại thước Lỗ Ban thông dụng trong xây dựng.</p>
+      <p>Nhập kích thước để tra cung đẹp – xấu theo ba loại thước Lỗ Ban thông dụng trong xây dựng và thước Việt Cổ ALN.</p>
     </div>
     <div class="loban-tool">
       <div class="loban-controls">
@@ -1871,6 +1875,20 @@ var LB_RULERS = [
       { n: 'Hưng', g: 1, m: 'Hưng thịnh, phát đạt.' },
       { n: 'Thất', g: 0, m: 'Thất thoát, mất mát.' },
       { n: 'Tài', g: 1, m: 'Tài lộc, phú quý.' }
+    ] },
+  /* Thước Việt Cổ ALN — theo bản vẽ THUOC.dxf của KTS Trần Long (12/10/2026):
+     chu kỳ 416 mm, 8 cung × 52 mm, mỗi cung 2 câu × 26 mm, 4 cung nhỏ × 13 mm.
+     Cung xấu = ô gạch chéo trong bản vẽ. Tên giữ đúng như bản vẽ. */
+  { ten: 'Việt Cổ ALN', size: '41.6 cm', cycle: 416, use: 'Môn quang',
+    cung: [
+      { n: 'Tài Lộc', g: 1, m: 'Nghinh tài phúc · Tấn điền danh.', sub: ['Sinh Vượng', 'Tấn Bảo', 'Đăng Khoa', 'Tài Chí'] },
+      { n: 'Trường Bệnh', g: 0, m: 'Thân khẩu thiệt · Tổn thê tử.', sub: ['Khẩu Thiệt', 'Bệnh Lâm', 'Tử Tuyệt', 'Tai Nguy'] },
+      { n: 'Sinh Ly', g: 0, m: 'Vong gia thất · Sinh kế bại.', sub: ['Thất Thoát', 'Ly Hương', 'Thoát Tài', 'Tử Biệt'] },
+      { n: 'Nghĩa Thuận', g: 1, m: 'Gia cát tăng · Tấn tài lộc.', sub: ['Phú Quý', 'Trương Ích', 'Hoạch Tài', 'Thuận Lợi'] },
+      { n: 'Quan Tước', g: 1, m: 'Sinh sản cát · Tấn nhân công.', sub: ['Đại Cát', 'Quý Tử', 'Lợi Ích', 'Thiên Định'] },
+      { n: 'Kiếp Đạo', g: 0, m: 'Động tác hung · Bần bạc bệnh.', sub: ['Quan Nghi', 'Thất Vận', 'Kiếp Tài', 'Họa Hại'] },
+      { n: 'Lục Hại', g: 0, m: 'Chung bất lợi · Quan tụng khiên.', sub: ['Cô Quả', 'Tốt Chấp', 'Quan Sự', 'Thoát Hao'] },
+      { n: 'Phúc Đức', g: 1, m: 'Công thành toại · Chiêu tài vật.', sub: ['Đãng Phúc', 'Lục Hạp', 'Thiên Khố', 'Âm Đức'] }
     ] }
 ];
 
@@ -1933,17 +1951,25 @@ function lbUpdate(){
     var good = cung.g === 1;
     var cycleNo = Math.floor(mm / R.cycle) + 1;
     var markerPct = (pos / R.cycle) * 100;
+    var subHtml = '';
+    if(cung.sub){
+      var subLen = segLen / cung.sub.length;
+      var si = Math.floor((pos - idx * segLen) / subLen);
+      if(si >= cung.sub.length){ si = cung.sub.length - 1; }
+      if(si < 0){ si = 0; }
+      subHtml = '<div class="lb-sub">Cung nhỏ: <b>' + cung.sub[si] + '</b></div>';
+    }
     var segs = '';
     for(var s = 0; s < n; s++){
       segs += '<div class="lb-seg ' + (R.cung[s].g === 1 ? 'g' : 'b') + '"></div>';
     }
     html += '<div class="lb-card ' + (good ? 'good' : 'bad') + '">' +
         '<div class="lb-card-top">' +
-          '<div><div class="lb-size">' + R.size + '</div><div class="lb-use">' + R.use + '</div></div>' +
+          '<div>' + (R.ten ? '<div class="lb-ten">' + R.ten + '</div>' : '') + '<div class="lb-size">' + R.size + '</div><div class="lb-use">' + R.use + '</div></div>' +
           '<div class="lb-badge ' + (good ? 'good' : 'bad') + '"><i class="ph ' + (good ? 'ph-check-circle' : 'ph-warning-circle') + '"></i>' + (good ? 'ĐẸP' : 'XẤU') + '</div>' +
         '</div>' +
         '<div class="lb-cung">' + cung.n + '</div>' +
-        '<div class="lb-mean">' + cung.m + '</div>' +
+        '<div class="lb-mean">' + cung.m + '</div>' + subHtml +
         '<div class="lb-scale">' + segs + '<div class="lb-marker" style="left:' + markerPct.toFixed(1) + '%"></div></div>' +
         '<div class="lb-pos">Vòng ' + cycleNo + ' · ' + Math.round(pos) + '/' + R.cycle + ' mm trong chu kỳ</div>' +
       '</div>';
