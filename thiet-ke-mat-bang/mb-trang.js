@@ -57,7 +57,7 @@
     return {
       loai: LOAI_NHA[$('loai').value] ? $('loai').value : 'pho',
       w: w, d: d, n: +$('tang').value, pn: +$('pn').value, lg: +$('duong').value,
-      kd: $('kd').checked, tm: $('tm').checked, oto: $('oto').checked, ongba: $('ongba').checked, hem: $('hem').checked
+      kd: $('kd').checked, tm: $('tm').checked, oto: $('oto').checked, ongba: $('ongba').checked, hem: $('hem').checked, thue: $('thue').checked
     };
   }
   /* Loại nhà (10/10/2026): nhà phố dùng mẫu gốc A Hoàng (mặt tiền 3–7 m) + thư viện mẫu; vườn / biệt thự / villa dùng thư viện mẫu */
@@ -80,8 +80,8 @@
     sel.value = L.tang.indexOf(cu) >= 0 ? cu : L.mac;
     $('tangNhan').textContent = L.nhanTang;
     var pho = $('loai').value === 'pho';
-    $('kdKhoi').hidden = !pho; $('hemKhoi').hidden = !pho; $('tmKhoi').hidden = !pho;
-    if (!pho) { $('kd').checked = false; $('hem').checked = false; $('tm').checked = false; }
+    $('kdKhoi').hidden = !pho; $('hemKhoi').hidden = !pho; $('tmKhoi').hidden = !pho; $('thueKhoi').hidden = !pho;
+    if (!pho) { $('kd').checked = false; $('hem').checked = false; $('tm').checked = false; $('thue').checked = false; }
     $('otoChu').textContent = pho ? 'Để ô tô trong nhà' : 'Có chỗ để ô tô';
     var g = { pho: ['4,5', '16'], vuon: ['16', '30'], biet_thu: ['10', '25'], villa: ['20', '36'] }[$('loai').value];
     if (g && !$('mt').dataset.da) { $('mt').value = g[0]; $('sau').value = g[1]; }
@@ -320,7 +320,7 @@
     $('paTen').textContent = 'Phương án ' + (CHON + 1);
     var nhan = $('paNhan'); nhan.textContent = '';
     nhanPhuongAn(r).forEach(function (t) { var s = document.createElement('span'); s.className = 'chip'; s.textContent = t; nhan.appendChild(s); });
-    if (laTV(r)) $('paTomTat').textContent = 'Mẫu ' + mau(r).ten.charAt(0).toLowerCase() + mau(r).ten.slice(1) + ' · lô ' + fmt(f.w, 2) + ' × ' + fmt(f.d, 2) + ' m, nhà ' + r.v.n + ' tầng' + (mau(r).pho && r.v.n >= 3 ? ' (tầng trên cùng là sân thượng)' : '') + ': ' + dem.pn + ' phòng ngủ, ' + dem.wc + ' WC, tổng sàn khoảng ' + dem.san + ' m² (không tính sân vườn).';
+    if (laTV(r)) $('paTomTat').textContent = 'Mẫu ' + mau(r).ten.charAt(0).toLowerCase() + mau(r).ten.slice(1) + ' · lô ' + fmt(f.w, 2) + ' × ' + fmt(f.d, 2) + ' m, nhà ' + r.v.n + ' tầng' + (mau(r).pho && r.v.n >= 3 ? ' (tầng trên cùng là sân thượng)' : '') + ': ' + dem.pn + (mau(r).thue ? ' phòng cho thuê, ' : ' phòng ngủ, ') + dem.wc + ' WC, tổng sàn khoảng ' + dem.san + ' m² (không tính sân vườn).';
     else $('paTomTat').textContent = 'Lô ' + fmt(f.w, 2) + ' × ' + fmt(f.d, 2) + ' m, nhà ' + r.v.n + ' tầng (tầng trên cùng là sân thượng' + (dem.tum ? ', có tum thang' : '') + '): ' +
       dem.pn + ' phòng ngủ, ' + dem.wc + ' WC, tổng sàn khoảng ' + dem.san + ' m²' + (dem.tum ? ' (chưa tính tum ' + dem.tum + ' m²)' : '') + '.';
     var ly = $('paLuuY'); ly.textContent = '';
@@ -522,7 +522,7 @@
   ];
   /* lựa chọn bật/tắt của mẫu thư viện: lấy theo từng mẫu */
   function batTatTV(r) { var m = mau(r); return Object.keys(m.tuy).map(function (k) { return { k: k, ten: m.tuy[k], mo: MO_TV[k] || '' }; }); }
-  var MO_TV = { oto: 'Chỗ để ô tô (gara trong nhà hoặc sân trước).', ongba: 'Phòng ông bà ở tầng trệt, có WC riêng.', kd: 'Dành mặt tiền tầng trệt để buôn bán; phòng khách lên lầu.', gieng: 'Khoảng trống lấy sáng cho phòng phía sau (từ lầu 1).' };
+  var MO_TV = { oto: 'Chỗ để ô tô (gara trong nhà hoặc sân trước).', ongba: 'Phòng ông bà ở tầng trệt, có WC riêng.', kd: 'Dành mặt tiền tầng trệt để buôn bán; phòng khách lên lầu.', gieng: 'Khoảng trống lấy sáng cho phòng phía sau (từ lầu 1).', tm: 'Thang máy cạnh thang bộ, giữa nhà.' };
   function batTat(k) {
     var e = ed(CHON);
     if (laTV(CUR.r)) {
@@ -624,7 +624,7 @@
   }
   function dauVaoGui() {
     var f = FORM;
-    return { loai_nha: f.loai, mat_tien: f.w, sau: f.d, so_tang: f.n, so_pn: f.pn, lo_gioi: f.lg, kd: f.kd, tm: f.tm, oto: f.oto, ongba: f.ongba, hem: f.hem };
+    return { loai_nha: f.loai, mat_tien: f.w, sau: f.d, so_tang: f.n, so_pn: f.pn, lo_gioi: f.lg, kd: f.kd, tm: f.tm, oto: f.oto, ongba: f.ongba, hem: f.hem, thue: f.thue };
   }
   function guiGopY() {
     if (!GY.danh_gia) return;
@@ -673,7 +673,7 @@
       $('btnTao').disabled = false; $('btnTao').textContent = kq === 'loi' ? 'Vẽ phương án' : 'Vẽ lại phương án';
       if (kq === 'loi') { $('ldKhoi').hidden = false; return; }
       ga('aln_mb_tao', { loai_nha: f.loai, mat_tien_khoang: khoangMatTien(f.w), sau_khoang: khoangSau(f.d), so_tang: f.n, so_pn: f.pn, co_ket_qua: kq && kq.ds.length ? 1 : 0 });
-      may('ghiBuoc', { buoc: 'tao', dau_vao: { loai_nha: f.loai, mat_tien: f.w, sau: f.d, so_tang: f.n, so_pn: f.pn, lo_gioi: f.lg, kd: f.kd, tm: f.tm, oto: f.oto, ongba: f.ongba, hem: f.hem }, so_pa: kq ? kq.ds.length : 0 });
+      may('ghiBuoc', { buoc: 'tao', dau_vao: { loai_nha: f.loai, mat_tien: f.w, sau: f.d, so_tang: f.n, so_pn: f.pn, lo_gioi: f.lg, kd: f.kd, tm: f.tm, oto: f.oto, ongba: f.ongba, hem: f.hem, thue: f.thue }, so_pa: kq ? kq.ds.length : 0 });
       if (!kq || !kq.ds.length) {
         $('mbKetQua').hidden = true;
         tb.textContent = 'Các mẫu hiện có chưa co giãn vừa lô này (lô quá nông hoặc quá hẹp so với loại nhà đã chọn). Anh/chị thử loại nhà khác hoặc để lại số ở cuối trang, KTS của ALN sẽ phác riêng cho lô của mình.';
