@@ -63,7 +63,7 @@
   /* Loại nhà (10/10/2026): nhà phố dùng mẫu gốc A Hoàng (mặt tiền 3–7 m) + thư viện mẫu; vườn / biệt thự / villa dùng thư viện mẫu */
   var LOAI_NHA = {
     pho: { ten: 'Nhà phố', w: [3, 12], d: [8, 40], tang: [2, 3, 4, 5, 6, 7, 8], mac: 4, nhanTang: 'Số tầng (kể cả sân thượng)' },
-    vuon: { ten: 'Nhà vườn', w: [14.4, 40], d: [22, 60], tang: [1], mac: 1, nhanTang: 'Số tầng' },
+    vuon: { ten: 'Nhà vườn', w: [10, 40], d: [20, 60], tang: [1], mac: 1, nhanTang: 'Số tầng' },
     biet_thu: { ten: 'Biệt thự', w: [8.6, 30], d: [22, 50], tang: [2, 3, 4], mac: 2, nhanTang: 'Số tầng' },
     villa: { ten: 'Villa', w: [15.2, 40], d: [26, 60], tang: [1, 2], mac: 1, nhanTang: 'Số tầng' }
   };
