@@ -196,7 +196,7 @@ h2{margin:20px 0 6px;font-family:var(--display);font-weight:500;font-size:18px;l
     <button type="button" class="btn btn-gold" id="btnPdf" disabled>Tải PDF</button>
   </div>
 </div>
-<p class="tip" id="tip" hidden>Trên điện thoại: bấm <b>Tải PDF</b> rồi chọn <b>In</b> → <b>Lưu PDF</b> (hoặc Chia sẻ).</p>
+<p class="tip" id="tip" hidden>Trên điện thoại: bấm <b>Tải PDF</b> rồi chọn <b>In</b> → <b>Lưu PDF</b> (hoặc Chia sẻ). Đang mở trong Zalo/Facebook thì mở trang bằng Chrome hoặc Safari trước.</p>
 
 <div class="state" id="stLoading">Đang lập file dự toán của anh/chị…</div>
 <div class="state" id="stError" hidden><p id="errText">Chưa lập được file.</p><button type="button" class="btn btn-gold" id="btnRetry">Thử lại</button></div>
@@ -284,6 +284,7 @@ h2{margin:20px 0 6px;font-family:var(--display);font-weight:500;font-size:18px;l
 </div>
 
 <script src="aln-founder-xem.js"></script>
+<script src="aln-in-pdf.js"></script>
 <script type="module">
 import { app, auth, onAuthStateChanged } from './firebase-config.js';
 import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js';
@@ -442,7 +443,7 @@ async function xuat() {
   }
 }
 
-$('btnPdf').addEventListener('click', () => { day('aln_xuat_du_toan_in'); window.print(); });
+$('btnPdf').addEventListener('click', () => { day('aln_xuat_du_toan_in'); window.alnInPdf({ trang: 'in-du-toan' }); });
 $('btnRetry').addEventListener('click', xuat);
 
 onAuthStateChanged(auth, (user) => {

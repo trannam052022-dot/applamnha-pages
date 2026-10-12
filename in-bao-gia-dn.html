@@ -208,7 +208,7 @@ body.ban-mau .mau-chim{display:flex}
     <button type="button" class="btn btn-gold" id="btnPdf" disabled>Tải PDF</button>
   </div>
 </div>
-<p class="tip" id="tip" hidden>Trên điện thoại: bấm <b>Tải PDF</b> rồi chọn <b>In</b> → <b>Lưu PDF</b> (hoặc Chia sẻ).</p>
+<p class="tip" id="tip" hidden>Trên điện thoại: bấm <b>Tải PDF</b> rồi chọn <b>In</b> → <b>Lưu PDF</b> (hoặc Chia sẻ). Đang mở trong Zalo/Facebook thì mở trang bằng Chrome hoặc Safari trước.</p>
 
 <div class="mau-chim" aria-hidden="true"><span>BẢN MẪU · SỐ MINH HOẠ</span></div>
 <div class="mau-ghi" id="mauGhi">Đây là <b>file mẫu</b> để anh/chị xem bố cục và mức chi tiết: số liệu minh hoạ, tên công ty giả định. File thật mang logo, tên và số điện thoại của anh/chị, số do công cụ tính từ kích thước công trình anh/chị nhập. <a href="doanh-nghiep.html">Về trang Doanh nghiệp</a></div>
@@ -296,6 +296,7 @@ body.ban-mau .mau-chim{display:flex}
 </div>
 
 <script src="aln-founder-xem.js"></script>
+<script src="aln-in-pdf.js"></script>
 <script type="module">
 import { app, auth, onAuthStateChanged } from './firebase-config.js';
 import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js';
@@ -460,7 +461,7 @@ async function xuat() {
   }
 }
 
-$('btnPdf').addEventListener('click', () => { day('aln_dn_xuat_bao_gia_in'); window.print(); });
+$('btnPdf').addEventListener('click', () => { day('aln_dn_xuat_bao_gia_in'); window.alnInPdf({ trang: 'in-bao-gia-dn' }); });
 $('btnRetry').addEventListener('click', xuat);
 
 /* ── Bản mẫu (?mau=1, Nam chốt 01/10/2026: nhà thầu trả tiền trước, xem kết quả sau —

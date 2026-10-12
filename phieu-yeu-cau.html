@@ -243,7 +243,7 @@ ul.plain li{margin:2px 0}
     <button type="button" class="btn btn-gold" id="btnPdf" disabled>Lưu &amp; tải PDF</button>
   </div>
 </div>
-<p class="tip" id="tip" hidden>Điền những gì anh/chị đã biết, mục nào chưa rõ cứ để trống. Phiếu tự lưu nháp trên máy này; bấm <b>Lưu phiếu</b> để KTS xem trước buổi gặp. Trên điện thoại: bấm <b>Lưu &amp; tải PDF</b> rồi chọn <b>In</b> → <b>Lưu PDF</b> (hoặc Chia sẻ).</p>
+<p class="tip" id="tip" hidden>Điền những gì anh/chị đã biết, mục nào chưa rõ cứ để trống. Phiếu tự lưu nháp trên máy này; bấm <b>Lưu phiếu</b> để KTS xem trước buổi gặp. Trên điện thoại: bấm <b>Lưu &amp; tải PDF</b> rồi chọn <b>In</b> → <b>Lưu PDF</b> (hoặc Chia sẻ). Đang mở trong Zalo/Facebook thì mở trang bằng Chrome hoặc Safari trước.</p>
 
 <div class="fx-khach no-print" id="fxKhach" hidden>
   <b>Thông tin khách nói qua điện thoại</b> <span class="fx-goi">— chỉ Founder thấy ô này; để trống là dùng thông tin hệ thống.</span>
@@ -484,6 +484,7 @@ ul.plain li{margin:2px 0}
 </div>
 
 <script src="aln-founder-xem.js"></script>
+<script src="aln-in-pdf.js"></script>
 <script type="module">
 import { app, auth, onAuthStateChanged } from './firebase-config.js';
 import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js';
@@ -769,7 +770,7 @@ function taiPdf() {
   const tenCu = document.title;
   const ma = $('vMaPhieu').classList.contains('cho') ? 'ALN' : $('vMaPhieu').textContent;
   document.title = 'Phieu-thong-nhat-yeu-cau-' + ma;
-  window.print();
+  window.alnInPdf({ trang: 'phieu-yeu-cau' });
   setTimeout(() => { document.title = tenCu; }, 1500);
 }
 
