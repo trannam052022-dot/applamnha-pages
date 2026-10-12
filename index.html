@@ -475,7 +475,7 @@ footer{border-top:1px solid var(--border);padding:44px 0 28px}
 @media(max-width:1100px){.loban-results.co4{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:640px){.loban-results.co4{grid-template-columns:1fr}}
 .lb-ten{font-family:var(--syne);font-weight:700;font-size:var(--text-xs);letter-spacing:.06em;color:var(--gold);text-transform:uppercase;margin-bottom:3px}
-.lb-sub{font-size:var(--text-sm);color:var(--text2);margin:-10px 0 16px}
+.lb-sub{font-size:var(--text-sm);color:var(--text2);margin:-8px 0 14px;line-height:1.5}
 .lb-sub b{font-weight:700}
 .lb-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:26px 24px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;transition:box-shadow .3s var(--ease),transform .3s var(--ease)}
 .lb-card:hover{box-shadow:var(--shadow-md);transform:translateY(-3px)}
@@ -501,6 +501,7 @@ footer{border-top:1px solid var(--border);padding:44px 0 28px}
 .lb-marker{position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--text)}
 .lb-marker::after{content:'';position:absolute;top:-5px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-top:6px solid var(--text)}
 .lb-pos{margin-top:11px;font-family:var(--mono);font-size:11px;color:var(--muted)}
+.lb-founder-pdf{text-align:center;margin-top:18px}.lb-founder-ghi{font-size:var(--text-xs);color:var(--sub);margin-top:6px}
 .loban-note{text-align:center;font-size:var(--text-sm);color:var(--sub);margin-top:28px}
 
 .steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
@@ -1888,6 +1889,23 @@ window.lbThemThuocFounder = function(t){
   LB_RULERS.push(t);
   var box = document.getElementById('lbResults');
   if(box){ box.classList.add('co4'); lbUpdate(); }
+  /* Nút mở bảng tra PDF nội bộ — chỉ hiện khi máy chủ đã trả thước cho Founder. */
+  if(box && !document.getElementById('lbFounderPdf') && window.lbTaiPdfFounder){
+    var hop = document.createElement('div');
+    hop.id = 'lbFounderPdf';
+    hop.className = 'lb-founder-pdf';
+    var nut = document.createElement('button');
+    nut.type = 'button';
+    nut.className = 'loban-preset';
+    nut.textContent = 'Bảng tra Lỗ Ban Bát Xích Môn (PDF nội bộ)';
+    nut.onclick = function(){ window.lbTaiPdfFounder(nut); };
+    var ghi = document.createElement('div');
+    ghi.className = 'lb-founder-ghi';
+    ghi.textContent = 'Chỉ Founder thấy · tài liệu nội bộ, dùng khi có người am hiểu chỉ dẫn.';
+    hop.appendChild(nut);
+    hop.appendChild(ghi);
+    box.parentNode.insertBefore(hop, box.nextSibling);
+  }
 };
 
 var LB_UNIT = 'mm';
@@ -1944,18 +1962,39 @@ function lbUpdate(){
     var pos = mm % R.cycle;
     if(pos < 0){ pos = pos + R.cycle; }
     var idx = Math.floor(pos / segLen);
+    var cycleNo = Math.floor(mm / R.cycle) + 1;
+    var markerPct = (pos / R.cycle) * 100;
+    var siLi = -1;
+    if(R.quyTac === 'li' && R.cung[0] && R.cung[0].sub){
+      /* Tính theo li như tư liệu: cung k gồm li 13(k-1)+1 … 13k, ni tâm là li thứ 7.
+         416 li là cung cuối (Âm đức), 417 li là Sinh vượng vòng sau. */
+      var li = Math.max(1, Math.round(mm));
+      var soSub = R.cung[0].sub.length;
+      var subLi = segLen / soSub;
+      pos = ((li - 1) % R.cycle + R.cycle) % R.cycle + 1;
+      cycleNo = Math.max(1, Math.floor((li - 1) / R.cycle) + 1);
+      var gIdx = Math.ceil(pos / subLi) - 1;
+      idx = Math.floor(gIdx / soSub);
+      siLi = gIdx % soSub;
+      markerPct = ((pos - 0.5) / R.cycle) * 100;
+    }
     if(idx >= n){ idx = n - 1; }
     var cung = R.cung[idx];
     var good = cung.g === 1;
-    var cycleNo = Math.floor(mm / R.cycle) + 1;
-    var markerPct = (pos / R.cycle) * 100;
     var subHtml = '';
     if(cung.sub){
       var subLen = segLen / cung.sub.length;
-      var si = Math.floor((pos - idx * segLen) / subLen);
+      var si = siLi >= 0 ? siLi : Math.floor((pos - idx * segLen) / subLen);
       if(si >= cung.sub.length){ si = cung.sub.length - 1; }
       if(si < 0){ si = 0; }
-      subHtml = '<div class="lb-sub">Cung nhỏ: <b>' + eH(cung.sub[si]) + '</b></div>';
+      subHtml = '';
+      if(cung.dp && cung.dp.length){
+        var di = Math.min(cung.dp.length - 1, Math.floor(si * cung.dp.length / cung.sub.length));
+        subHtml += '<div class="lb-sub">Địa phận: <b>' + eH(cung.dp[di]) + '</b>' +
+          (cung.dpY && cung.dpY[di] ? ' — ' + eH(cung.dpY[di]) : '') + '</div>';
+      }
+      subHtml += '<div class="lb-sub">Cung nhỏ: <b>' + eH(cung.sub[si]) + '</b>' +
+        (cung.subY && cung.subY[si] ? ' — ' + eH(cung.subY[si]) : '') + '</div>';
     }
     var segs = '';
     for(var s = 0; s < n; s++){
@@ -2287,6 +2326,27 @@ let _lbFounderDaTai = false;
 onAuthStateChanged(auth, (u) => {
   if (_lbFounderDaTai || !u || u.isAnonymous || u.uid !== 'h4kEguPEyMcwJwl89stc0Q6j2si2') return;
   _lbFounderDaTai = true;
+  window.lbTaiPdfFounder = async (nut) => {
+    const chu = nut.textContent;
+    nut.disabled = true; nut.textContent = 'Đang tải bảng tra…';
+    try {
+      const r = await httpsCallable(functions, 'founderThuocVietCo', { timeout: 30000 })({ hanh_dong: 'pdf' });
+      const bin = atob(r.data.pdf);
+      const buf = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+      const url = URL.createObjectURL(new Blob([buf], { type: 'application/pdf' }));
+      const a = document.createElement('a');
+      a.href = alnUrl(url);
+      a.download = 'Lo-Ban-Bat-Xich-Mon.pdf';
+      a.target = '_blank';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+      nut.textContent = chu;
+    } catch (e) {
+      console.warn('Bảng tra Lỗ Ban:', e && e.code);
+      nut.textContent = 'Chưa tải được bảng tra — bấm để thử lại';
+    } finally { nut.disabled = false; }
+  };
   httpsCallable(functions, 'founderThuocVietCo')({})
     .then((r) => { if (r && r.data && window.lbThemThuocFounder) window.lbThemThuocFounder(r.data.thuoc); })
     .catch((e) => { _lbFounderDaTai = false; console.warn('Thước Việt Cổ ALN:', e && e.code); });
