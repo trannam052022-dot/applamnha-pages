@@ -1113,7 +1113,7 @@ document.getElementById('dtSuaLuu').addEventListener('click', async () => {
   try {
     const res = await callSaveEstimate({
       inputs: v.inputs, priceOverrides: px,
-      nhanCong: { cheDo: nc.cheDo || 'khoan', khoanDonGia: nc.khoanDonGia, congDonGia: nc.congDonGia },
+      nhanCong: { cheDo: nc.cheDo || 'khoan', khoanDonGia: nc.khoanDonGia, congDonGia: nc.congDonGia, vtDienNuoc: nc.vtDienNuoc === 'chu_nha' ? 'chu_nha' : 'thau' },
       // Bản lưu trước 05/10/2026 không có mep_don_gia → mặc định của công cụ (250.000 đ/m²).
       mepDonGia: v.mep_don_gia != null ? v.mep_don_gia : 250000,
       qlPct: v.ql_pct, vatPct: v.vat,

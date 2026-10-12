@@ -473,10 +473,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <label><input type="radio" name="lm" value="khoan" checked>Giá khoán theo m²</label>
     <label><input type="radio" name="lm" value="cong">Theo ngày công</label>
    </div>
+   <label style="margin-top:12px">Vật tư điện nước âm tường (ống, dây, tủ điện, CB, ống nước)</label>
+   <div class="seg" role="radiogroup">
+    <label><input type="radio" name="vtdn" value="thau" checked>Nhà thầu mua</label>
+    <label><input type="radio" name="vtdn" value="chu_nha">Chủ nhà tự mua</label>
+   </div>
    <div class="grid" style="margin-top:12px">
-    <div id="fKhoan"><label for="khoan">Giá khoán nhân công (đ/m² quy đổi)</label><input id="khoan" type="number" step="50000" min="0" inputmode="numeric"><div class="hint">Gồm cả công phần thô và công hoàn thiện</div></div>
+    <div id="fKhoan"><label for="khoan">Giá khoán nhân công (đ/m² quy đổi)</label><input id="khoan" type="number" step="50000" min="0" inputmode="numeric"><div class="hint">Gồm cả công phần thô, công hoàn thiện và công điện nước</div></div>
     <div id="fCong" hidden><label for="cong">Giá một ngày công (đ)</label><input id="cong" type="number" step="10000" min="0" inputmode="numeric"><div class="hint" id="congHint"></div></div>
-    <div><label for="mep">Điện nước khoán (đ/m², không tính móng)</label><input id="mep" type="number" step="10000" min="0" inputmode="numeric"></div>
+    <div id="fMep" hidden><label for="mep">Nhân công điện nước (đ/m², không tính móng)</label><input id="mep" type="number" step="10000" min="0" inputmode="numeric"><div class="hint">Giá khoán theo m² đã gồm phần này</div></div>
     <div><label for="ql">Quản lý &amp; lợi nhuận của nhà thầu (%)</label><input id="ql" type="number" step="0.5" min="0" inputmode="decimal"><div class="hint">Đo từ một báo giá thật công ty đã nhận</div></div>
     <div><label for="vat">Thuế GTGT (%)</label><input id="vat" type="number" step="1" min="0" inputmode="decimal"></div>
    </div>
@@ -747,6 +752,7 @@ function capNhatGiaoDienBietThuVuon(isBTV){
  apDungMongTheoCheDo(isBTV);
 }
 document.querySelectorAll('input[name=lm]').forEach(r=>{r.checked=r.value===(st.inp.lm||'khoan');r.addEventListener('change',e=>{st.inp.lm=r.value;run(false,e.isTrusted)})});
+document.querySelectorAll('input[name=vtdn]').forEach(r=>{r.checked=r.value===(st.inp.vtdn||'thau');r.addEventListener('change',e=>{st.inp.vtdn=r.value;run(false,e.isTrusted)})});
 $('resetP').onclick=e=>{st.px={};drawPrices(drawnFor||cur());run(false,e.isTrusted)};
 $('moreT').onclick=()=>{showAllT=!showAllT;drawPrices(drawnFor||cur())};
 function cur(){return laBietThuVuon()?'thi':pickModel($('n').value,$('tm').value)}
@@ -845,7 +851,7 @@ function payloadTinh(gauAnDanh){
   donGiaHangMuc:{...st.dg},
   tinh:tinhDaChon(),
   thietBi:tinhDaChon()?maThietBi():undefined,
-  nhanCong:{cheDo:i.lm||'khoan',khoanDonGia:$('khoan').value,congDonGia:$('cong').value},
+  nhanCong:{cheDo:i.lm||'khoan',khoanDonGia:$('khoan').value,congDonGia:$('cong').value,vtDienNuoc:i.vtdn||'thau'},
   mepDonGia:$('mep').value,qlPct:$('ql').value,vatPct:$('vat').value};
 }
 // Bản DN đang che (chưa thanh toán): chỉ xin bảng giá vật tư + đơn giá hạng mục,
@@ -1038,7 +1044,7 @@ async function runThongThuong(skipPrices,userInitiated){
  $('blocked').hidden=!block;$('blocked').textContent=block;$('out').hidden=!!block;
  const ghiChu=block?null:ghiChuMai(st.inp.mai_loai);
  $('maiNote').hidden=!ghiChu;$('maiNote').textContent=ghiChu||'';
- const lm=st.inp.lm||'khoan';$('fKhoan').hidden=lm!=='khoan';$('fCong').hidden=lm!=='cong';
+ const lm=st.inp.lm||'khoan';$('fKhoan').hidden=lm!=='khoan';$('fCong').hidden=lm!=='cong';$('fMep').hidden=lm!=='cong';
  save(); if(block){$('dockT').textContent='—';anLoiTinh();daXongLuotDau();return}
  // Bản DN đang che: không gọi máy chủ TÍNH TIỀN (số tiền không có trong phản
  // hồi mạng), chỉ giữ inputs để "Lưu báo giá" (máy chủ tự tính lại khi lưu).
@@ -1079,7 +1085,7 @@ async function runBietThuVuon(skipPrices,userInitiated){
  $('blocked').hidden=!block;$('blocked').textContent=block;$('out').hidden=!!block;
  $('scope').textContent='Ước tính theo nhà mẫu nhà phố + khối mái tính theo giá thị trường; ALN chưa có nhà mẫu biệt thự vườn.';
  $('maiNote').hidden=true; // ghi chú "loại mái khác nhà mẫu" của luồng thường không áp dụng ở đây
- const lm=st.inp.lm||'khoan';$('fKhoan').hidden=lm!=='khoan';$('fCong').hidden=lm!=='cong';
+ const lm=st.inp.lm||'khoan';$('fKhoan').hidden=lm!=='khoan';$('fCong').hidden=lm!=='cong';$('fMep').hidden=lm!=='cong';
  save();
  if(block){
   $('aTx').textContent='—';$('aQd').textContent='—';$('aKm').textContent='—';
@@ -1394,7 +1400,7 @@ function buildPayload() {
       dua: inp.dua, doc_mai: inp.doc_mai, dong_gia_mai_thai: inp.dong_gia_mai_thai,
     },
     priceOverrides: est.priceOverrides || {},
-    nhanCong: { cheDo: inp.lm || "khoan", khoanDonGia: inp.khoan, congDonGia: inp.cong },
+    nhanCong: { cheDo: inp.lm || "khoan", khoanDonGia: inp.khoan, congDonGia: inp.cong, vtDienNuoc: inp.vtdn || "thau" },
     mepDonGia: inp.mep,
     qlPct: inp.ql,
     vatPct: inp.vat,
@@ -1881,6 +1887,7 @@ if (Q.get('dn') === '1') {
       const inp = Object.assign({}, d.inputs || {});
       const nc = d.nhanCong || {};
       if (nc.cheDo) inp.lm = nc.cheDo;
+      inp.vtdn = nc.vtDienNuoc === 'chu_nha' ? 'chu_nha' : 'thau';
       if (nc.khoanDonGia != null) inp.khoan = nc.khoanDonGia;
       if (nc.congDonGia != null) inp.cong = nc.congDonGia;
       if (d.mepDonGia != null) inp.mep = d.mepDonGia;
@@ -1929,7 +1936,7 @@ if (Q.get('dn') === '1') {
       },
       priceOverrides: est.priceOverrides || {},
       donGiaHangMuc: est.donGiaHangMuc || {},
-      nhanCong: { cheDo: inp.lm || 'khoan', khoanDonGia: inp.khoan, congDonGia: inp.cong },
+      nhanCong: { cheDo: inp.lm || 'khoan', khoanDonGia: inp.khoan, congDonGia: inp.cong, vtDienNuoc: inp.vtdn || 'thau' },
       mepDonGia: inp.mep, qlPct: inp.ql, vatPct: inp.vat,
     };
     if (suaThat) payload.bao_gia_id = suaInfo.id;
