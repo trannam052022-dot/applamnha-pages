@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<script src="aln-esc.js"></script>
+<script src="scripts/aln-optout.js"></script>
+<!-- Google Tag Manager -->
+<script src="/aln-consent.js?v=3"></script>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MB7VRGR5');</script>
+<!-- End Google Tag Manager -->
+<script src="error-monitor.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Xem hướng nhà Bát trạch theo tuổi cả gia đình | App Làm Nhà</title>
+<meta name="description" content="Nhập ngày sinh của gia chủ và các thành viên: trang tính cung phi Bát trạch, ngày sinh âm lịch, vẽ vòng 8 hướng, đánh giá hướng nhà, gợi ý phòng ngủ cho từng người và xuất PDF. Miễn phí.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://applamnha.vn/bat-trach.html">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://applamnha.vn/bat-trach.html">
+<meta property="og:title" content="Xem hướng nhà Bát trạch theo tuổi cả gia đình | App Làm Nhà">
+<meta property="og:description" content="Nhập ngày sinh của gia chủ và các thành viên: trang tính cung phi Bát trạch, ngày sinh âm lịch, vẽ vòng 8 hướng, đánh giá hướng nhà, gợi ý phòng ngủ cho từng người và xuất PDF. Miễn phí.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Vòng Bát Trạch cho gia đình — App Làm Nhà",
+  "url": "https://applamnha.vn/bat-trach.html",
+  "description": "Nhập ngày sinh của gia chủ và các thành viên: trang tính cung phi Bát trạch, ngày sinh âm lịch, vẽ vòng 8 hướng, đánh giá hướng nhà, gợi ý phòng ngủ cho từng người và xuất PDF. Miễn phí.",
+  "applicationCategory": "LifestyleApplication",
+  "operatingSystem": "Any (web)",
+  "inLanguage": "vi",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "VND" },
+  "provider": { "@type": "Organization", "name": "App Làm Nhà", "url": "https://applamnha.vn/" }
+}
+</script>
+<link rel="stylesheet" href="aln-tokens.css">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: dải tiêu đề navy → khối nhập liệu (gia chủ, nhà, gia đình) → vòng Bát trạch lớn đứng riêng → đánh giá hướng nhà → sơ đồ cửu cung xếp phòng → thẻ từng thành viên. Chữ lớn, tương phản cao cho người lớn tuổi. */
+:root{
+  --bg:#f3f5f9; --surface:#ffffff; --surface-2:#eef1f7; --ink:#0f1a2e; --muted:#46536b; --line:#cfd6e3;
+  --navy:#0a1224; --navy-2:#111c33; --gold:#d4a017; --gold-ink:#7d5b00; --gold-wash:#fbf2d6;
+  --good:#17704a; --good-wash:#e2f4ea; --bad:#a8231b; --bad-wash:#fbe5e2; --warn:#8a5200; --warn-wash:#fdeed6;
+  --focus:#1f5fd1;
+  --paper:#ffffff; --paper-ink:#121a2c; --paper-muted:#56607a; --paper-line:#d6dbe6;
+  --f-display:"Oswald","Arial Narrow",Arial,sans-serif;
+  --f-body:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0a1224; --surface:#111c33; --surface-2:#16233f; --ink:#eef1f7; --muted:#b0bbd2; --line:#2c3c60;
+  --gold-ink:#f0cf6a; --gold-wash:#2a2410; --good:#86e0b6; --good-wash:#12302a; --bad:#f5a39b; --bad-wash:#3a1a1c; --warn:#f5c682; --warn-wash:#352812; --focus:#7aa7ff; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0a1224; --surface:#111c33; --surface-2:#16233f; --ink:#eef1f7; --muted:#b0bbd2; --line:#2c3c60;
+  --gold-ink:#f0cf6a; --gold-wash:#2a2410; --good:#86e0b6; --good-wash:#12302a; --bad:#f5a39b; --bad-wash:#3a1a1c; --warn:#f5c682; --warn-wash:#352812; --focus:#7aa7ff; color-scheme:dark}
+html{font-size:17px}
+html.big{font-size:20px}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1rem;line-height:1.65;margin:0}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;line-height:1.25;text-wrap:balance;margin:0;letter-spacing:.01em}
+b,strong{font-weight:700}
+.wrap{max-width:1160px;margin:0 auto;padding-inline:16px}
+
+.band{background:var(--navy);color:#eef1f7;padding-block:22px 26px;border-bottom:4px solid var(--gold)}
+.band .wrap{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:flex-end;justify-content:space-between}
+.eyebrow{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:#f0cf6a}
+.band h1{font-size:clamp(1.8rem,4.6vw,2.6rem);color:#ffffff}
+.band h1 span{color:#f0cf6a}
+.band p{margin:.3rem 0 0;color:#c9d2e6;max-width:58ch}
+.tools{display:flex;gap:10px;flex-wrap:wrap}
+
+main.wrap{padding-block:24px 48px;display:grid;gap:30px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px}
+.sec-h{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 16px;margin-bottom:14px}
+.sec-h h2{font-size:1.55rem}
+.sec-h p{margin:0;color:var(--muted);font-size:.92rem}
+
+.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+@media (max-width:820px){.formgrid{grid-template-columns:minmax(0,1fr)}}
+.fs{display:grid;gap:14px;align-content:start;min-width:0}
+.fs h3{font-size:1.15rem}
+.field{display:grid;gap:6px;min-width:0}
+label,.lbl{font-size:.9rem;font-weight:600;color:var(--muted)}
+input,select{width:100%;font:inherit;font-size:1rem;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:8px;padding:10px 12px;min-height:50px}
+input:focus-visible,select:focus-visible,button:focus-visible,.seg input:focus-visible+span{outline:3px solid var(--focus);outline-offset:2px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:480px){.two.ns-gt{grid-template-columns:minmax(0,1fr)}}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seg label{position:relative;cursor:pointer}
+.seg input{position:absolute;opacity:0;width:1px;height:1px}
+.seg span{display:flex;align-items:center;justify-content:center;min-height:50px;border:1.5px solid var(--line);border-radius:8px;color:var(--ink);font-weight:600}
+.seg input:checked+span{border-color:var(--gold);background:var(--gold-wash);color:var(--gold-ink)}
+.hint{font-size:.85rem;color:var(--muted);line-height:1.55}
+.amlich{font-size:.88rem;font-weight:600;color:var(--gold-ink);min-height:1.4em;line-height:1.4}
+.sample{display:inline-block;font-family:var(--f-mono);font-size:.68rem;letter-spacing:.08em;color:#0a1224;background:#f0cf6a;border-radius:4px;padding:1px 7px;margin-left:6px;vertical-align:2px}
+
+.members{display:grid;gap:12px}
+.mem{border:1.5px solid var(--line);border-radius:10px;padding:12px;display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr) minmax(0,.7fr) auto;gap:10px;align-items:end;background:var(--surface-2)}
+input[type=date]{min-width:0;-webkit-appearance:none;appearance:none}
+@media (max-width:820px){.mem{grid-template-columns:minmax(0,1fr) auto}.mem .f-ten,.mem .f-role,.mem .f-ns{grid-column:1/-1}}
+.iconbtn{min-height:50px;width:50px;justify-content:center;padding:0;background:var(--surface);color:var(--bad);border:1.5px solid var(--line)}
+
+button{font:inherit;font-weight:600;cursor:pointer;border-radius:8px;min-height:52px;padding:0 20px;display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--gold);font-size:1rem}
+.btn-main{background:var(--gold);color:#0a1224}
+.btn-ghost{background:transparent;color:var(--gold-ink)}
+.band .btn-ghost{color:#f0cf6a}
+.btn-line{background:var(--surface);color:var(--ink);border-color:var(--line)}
+button:disabled{opacity:.55;cursor:progress}
+.actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:18px;padding-top:18px;border-top:1px solid var(--line)}
+.err{color:var(--bad);font-weight:600}
+
+.hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:900px){.hero{grid-template-columns:minmax(0,1fr)}}
+.wheelcard{background:#0a1224;border-radius:14px;padding:18px;display:grid;gap:12px;justify-items:center}
+.wheelcard canvas{width:100%;max-width:640px;aspect-ratio:1/1;height:auto;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;justify-content:center;font-size:.85rem;color:#d6ddeb}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:6px;vertical-align:-2px}
+.owner{display:grid;gap:14px;align-content:start}
+.cungbox{display:flex;gap:16px;align-items:center;padding:16px;border-radius:12px;background:#0a1224;color:#eef1f7}
+.cungbox .big{font-family:var(--f-display);font-size:2.1rem;color:#f0cf6a;line-height:1.22}
+.cungbox .sub{font-size:.95rem;color:#c9d2e6}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0;font-weight:700;text-align:right}
+
+.dirlist{display:grid;gap:8px}
+.dirrow{display:grid;grid-template-columns:8.4rem minmax(0,1fr);gap:4px 14px;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);align-items:center}
+.dirrow.g{border-left:6px solid var(--gold)}
+.dirrow.b{border-left:6px solid #7d8aa6}
+.dirrow.h{box-shadow:0 0 0 2px var(--ink) inset}
+.dirrow .d{font-family:var(--f-display);font-size:1.25rem;line-height:1.22}
+.dirrow .d small{display:block;font-family:var(--f-mono);font-size:.72rem;color:var(--muted);letter-spacing:.04em}
+.dirrow .s{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.dirrow .s b{font-size:1.05rem}
+.dirrow .u{grid-column:2;color:var(--muted);font-size:.9rem;line-height:1.5}
+@media (max-width:480px){.dirrow{grid-template-columns:minmax(0,1fr)}.dirrow .u{grid-column:1}}
+.pill{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:3px 10px;white-space:nowrap}
+.pill.g{background:var(--good-wash);color:var(--good)}
+.pill.b{background:var(--bad-wash);color:var(--bad)}
+.pill.w{background:var(--warn-wash);color:var(--warn)}
+.pill.n{background:var(--surface-2);color:var(--muted)}
+
+.verdict{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:center;padding:16px 20px;border-radius:12px;border:1px solid var(--line);background:var(--surface);margin-bottom:16px}
+.verdict .score{font-family:var(--f-display);font-size:2.4rem;line-height:1.22}
+.verdict p{margin:0;max-width:66ch}
+.cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:760px){.cols{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 20px;min-width:0}
+.card h3{font-size:1.2rem;margin-bottom:8px}
+.card ul{margin:0;padding-left:20px;display:grid;gap:8px}
+.card.pro h3{color:var(--good)}.card.con h3{color:var(--bad)}.card.tip h3{color:var(--gold-ink)}
+
+.plan{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,320px);gap:20px;align-items:start}
+@media (max-width:900px){.plan{grid-template-columns:minmax(0,1fr)}}
+.gridwrap{display:grid;gap:8px}
+.edge{text-align:center;font-family:var(--f-mono);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.nine{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;background:#0a1224;padding:6px;border-radius:12px}
+.cell{background:#ffffff;color:#0f1a2e;border-radius:7px;padding:10px;min-height:9.5rem;display:grid;align-content:start;gap:6px;min-width:0}
+.cell.g{background:#fbf2d6}
+.cell .cd{font-family:var(--f-display);font-size:1.15rem;line-height:1.22}
+.cell .cd small{font-family:var(--f-body);font-size:.75rem;color:#46536b;font-weight:500;margin-left:4px}
+.cell .sn{font-size:.85rem;color:#46536b}
+.cell .rooms{display:grid;gap:4px;font-size:.88rem;line-height:1.4}
+.cell .room{background:#ffffff;border:1px solid #cfd6e3;border-radius:6px;padding:4px 7px;font-weight:600}
+.cell .room.svc{color:#46536b;font-weight:500}
+.cell.center{background:#e6eaf2;display:flex;align-items:center;justify-content:center;text-align:center;color:#46536b;font-size:.85rem}
+.cell .pill.g{background:#e2f4ea;color:#17704a}.cell .pill.b{background:#fbe5e2;color:#a8231b}
+.door{display:flex;justify-content:center}
+.door span{background:var(--gold);color:#0a1224;font-weight:700;border-radius:0 0 8px 8px;padding:3px 18px;font-size:.85rem}
+
+.famtable{display:grid;gap:8px}
+.famrow{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.2fr);gap:6px 14px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface);align-items:center}
+.famrow.head{background:transparent;border:0;padding-block:0;font-family:var(--f-mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+@media (max-width:700px){.famrow{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.famrow.head{display:none}.famrow .nm{grid-column:1/-1}}
+.famrow .nm{font-weight:700;font-size:1.05rem}
+.famrow .nm small{display:block;font-weight:500;color:var(--muted);font-size:.85rem}
+
+.mcards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:820px){.mcards{grid-template-columns:minmax(0,1fr)}}
+.mcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;grid-template-columns:150px minmax(0,1fr);gap:16px;align-items:start;min-width:0}
+@media (max-width:440px){.mcard{grid-template-columns:minmax(0,1fr)}.mcard canvas{justify-self:center}}
+.mcard canvas{width:150px;height:150px}
+.mcard h3{font-size:1.3rem}
+.mcard .meta{color:var(--muted);font-size:.88rem;margin:2px 0 10px}
+.mcard dl{display:grid;gap:7px;margin:0}
+.mcard dl div{display:grid;grid-template-columns:7.2rem minmax(0,1fr);gap:8px}
+.mcard dt{color:var(--muted);font-size:.88rem}
+.mcard dd{margin:0;font-weight:600;font-size:.95rem;line-height:1.45}
+
+.note{font-size:.85rem;color:var(--muted);max-width:90ch;margin:0}
+footer.wrap{padding-block:18px 32px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:10px 24px;justify-content:space-between;color:var(--muted);font-size:.9rem}
+footer b{color:var(--ink)}
+
+/* ---------- Thông tin đã lưu ---------- */
+.dalu{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;border:1.5px solid var(--good);background:var(--good-wash);border-radius:10px;padding:10px 14px;margin:0 0 16px;line-height:1.55}
+.dalu[hidden]{display:none}
+.molai{margin-bottom:18px}
+.molai [hidden]{display:none}
+.molai .zform{margin-top:12px}
+.mlds{display:grid;gap:8px}
+.mlds button{justify-content:flex-start;text-align:left;background:var(--surface);color:var(--ink);border-color:var(--line);height:auto;padding:10px 14px;line-height:1.45}
+
+/* ---------- Lưu phiếu và tải PDF ---------- */
+.lgrid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.3fr);gap:18px;align-items:start}
+@media (max-width:820px){.lgrid{grid-template-columns:minmax(0,1fr)}}
+.lgrid h3{font-size:1.2rem;margin:0 0 6px}
+.lgrid p{margin:0 0 12px;line-height:1.6}
+.lgrid ul{margin:0;padding-left:1.2em;line-height:1.7}
+.zform{display:grid;gap:14px}
+.zform[hidden],.zok[hidden]{display:none}
+.zform .two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:start}
+.zform input[type=text],.zform input:not([type]),.zform input[type=tel]{height:50px;min-height:50px;box-sizing:border-box}
+@media (max-width:560px){.zform .two{grid-template-columns:minmax(0,1fr)}}
+.dongy{display:flex;gap:12px;align-items:flex-start;font-size:.92rem;line-height:1.55;cursor:pointer}
+.dongy input{width:26px;height:26px;min-height:26px;flex:0 0 26px;margin:1px 0 0;accent-color:var(--gold)}
+.zok{border:1.5px solid var(--good);background:var(--good-wash);color:var(--ink);border-radius:10px;padding:14px 16px;line-height:1.6;margin-top:12px}
+.lnk{background:none;border:0;min-height:44px;padding:0;color:var(--gold-ink);text-decoration:underline;font-weight:600;font-size:.95rem}
+.lnk:disabled{opacity:.55}
+
+/* ---------- PDF (ngoài màn hình, A4 @96dpi) ---------- */
+#pdfstage{position:fixed;left:-10000px;top:0;width:794px;pointer-events:none}
+.pg{width:794px;height:1123px;background:var(--paper);color:var(--paper-ink);font-family:var(--f-body);font-size:13px;line-height:1.5;padding:36px 44px 60px;position:relative;overflow:hidden;
+  --ink:#121a2c;--muted:#56607a;--line:#d6dbe6;--surface:#ffffff;--surface-2:#f2f4f8;--gold-ink:#7d5b00;--gold-wash:#fbf2d6;--good:#17704a;--good-wash:#e2f4ea;--bad:#a8231b;--bad-wash:#fbe5e2;--warn:#8a5200;--warn-wash:#fdeed6}
+.pg h1,.pg h2,.pg h3{color:var(--paper-ink)}
+.pg .phead{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid var(--gold);padding-bottom:10px;margin-bottom:12px}
+.pg .phead h1{font-size:25px}
+.pg .phead .eyebrow{color:#7d5b00}
+.pg .phead .r{text-align:right;font-family:var(--f-mono);font-size:10.5px;color:var(--paper-muted)}
+.pg h2{font-size:17px;margin:12px 0 8px;border-left:4px solid var(--gold);padding-left:8px}
+.pg .pinfo{display:grid;grid-template-columns:1fr 1fr;gap:3px 24px;margin-bottom:8px}
+.pg .pinfo div{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dotted var(--paper-line);padding:3px 0}
+.pg .pinfo span{color:var(--paper-muted)}
+.pg .pwheel{display:flex;justify-content:center;margin:2px 0 8px}
+.pg .pwheel img{width:470px;height:470px}
+.pg td.nw{white-space:nowrap}
+.pg table{border-collapse:collapse;width:100%;font-size:11.5px}
+.pg th{background:#f1f3f8;color:var(--paper-muted);border-bottom:1px solid var(--paper-line);padding:5px 7px;text-align:left;font-family:var(--f-mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:500}
+.pg td{border-bottom:1px solid var(--paper-line);padding:5px 7px;vertical-align:top}
+.pg tr.is-house td{background:#fbf2d6}
+.pg .pill{font-size:9.5px;padding:2px 7px}
+.pg .card{padding:10px 14px;border-radius:8px;background:#f8f9fc}
+.pg .card h3{font-size:14px;margin-bottom:4px}
+.pg .card ul{gap:3px;padding-left:16px}
+.pg .cols{grid-template-columns:1fr 1fr;gap:10px}
+.pg .verdict{padding:10px 14px;margin-bottom:10px;background:#f8f9fc}
+.pg .verdict .score{font-size:26px}
+.pg .nine .cell{min-height:112px;padding:7px;font-size:11px;gap:4px}
+.pg .cell .cd{font-size:14px}
+.pg .cell .rooms,.pg .cell .sn{font-size:10.5px}
+.pg .edge,.pg .door span{font-size:9.5px}
+.pg .mcards{grid-template-columns:1fr 1fr;gap:10px}
+.pg .mcard{grid-template-columns:96px minmax(0,1fr);padding:10px;gap:10px}
+.pg .mcard img{width:96px;height:96px}
+.pg .mcard h3{font-size:15px}
+.pg .mcard .meta{font-size:10.5px;margin-bottom:6px}
+.pg .mcard dl{gap:4px}
+.pg .mcard dl div{grid-template-columns:70px minmax(0,1fr)}
+.pg .mcard dt{font-size:10.5px}.pg .mcard dd{font-size:11px}
+.pg .famtable{gap:5px}
+.pg .famrow{padding:6px 10px;font-size:11.5px}
+.pg .famrow.head{font-size:9px}
+.pg .famrow .nm{font-size:12.5px}
+.pg .famrow .nm small{font-size:10px}
+.pg .pfoot{position:absolute;left:44px;right:44px;bottom:24px;border-top:1px solid var(--paper-line);padding-top:8px;display:flex;justify-content:space-between;font-size:10.5px;color:var(--paper-muted)}
+.pg .pfoot b{color:var(--paper-ink)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+</style>
+<!-- Google Analytics 4 (ALN — G-5CSL1TF0RC, tách riêng khỏi property TK.HOUSE) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-5CSL1TF0RC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-5CSL1TF0RC');
+</script>
+<!-- End GA4 -->
+<script>window.ALN_PAGE_LABEL = 'bat-trach';</script>
+<script src="aln-tracking.js"></script>
+</head>
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MB7VRGR5"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+<header class="band">
+  <div class="wrap">
+    <div>
+      <div class="eyebrow">Phong thủy nhà ở · Bát trạch Minh cảnh</div>
+      <h1>Vòng <span>Bát Trạch</span> cho gia đình</h1>
+      <p>Nhập ngày sinh của gia chủ và các thành viên. Trang tính cung cho từng người, đánh giá hướng nhà và gợi ý mỗi người nên ở phòng nào.</p>
+    </div>
+    <div class="tools">
+      <button type="button" class="btn-ghost" id="bigBtn" aria-pressed="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19 9 5l5 14M5.8 14h6.4"/><path d="M17 8v6M14 11h6"/></svg>
+        <span id="bigTxt">Chữ lớn hơn</span>
+      </button>
+      <button type="button" class="btn-ghost pdfBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M12 12v6M9 15l3 3 3-3"/></svg>
+        <span class="pdfTxt">Xuất PDF</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <form id="f" class="panel" novalidate>
+    <div class="sec-h"><h2>1. Thông tin gia đình và ngôi nhà</h2><p id="sampleTag">Ngày sinh đang điền là ví dụ <span class="sample">VÍ DỤ</span></p></div>
+    <div class="dalu" id="daLuuBar" role="status" hidden><span id="daLuuTxt"></span><button type="button" class="lnk" id="xoaLuu">Xoá thông tin đã lưu</button></div>
+    <p class="hint" style="margin:-4px 0 14px">Đã lưu phiếu trước đây? <a href="#molai">Mở lại bằng số điện thoại</a></p>
+    <div class="formgrid">
+      <div class="fs">
+        <h3>Gia chủ (người đứng tên nhà)</h3>
+        <div class="field"><label for="ten">Họ tên <span class="hint">(không bắt buộc)</span></label><input id="ten" autocomplete="name" value="" placeholder="VD: Nguyễn Văn An"><div class="hint">Để trống thì phiếu ghi “Gia chủ”.</div></div>
+        <div class="two ns-gt">
+          <div class="field"><label for="ns">Ngày sinh (dương lịch)</label><input id="ns" type="date" min="1900-01-31" max="2099-12-31" value="1985-08-15"><div class="amlich" id="nsAm" aria-live="polite"></div></div>
+          <div class="field"><span class="lbl" id="gtLbl">Giới tính</span>
+            <div class="seg" role="radiogroup" aria-labelledby="gtLbl">
+              <label><input type="radio" name="gt" id="gtNam" value="nam" checked><span>Nam</span></label>
+              <label><input type="radio" name="gt" id="gtNu" value="nu"><span>Nữ</span></label>
+            </div></div>
+        </div>
+      </div>
+      <div class="fs">
+        <h3>Ngôi nhà</h3>
+        <div class="field"><label for="huongSel">Hướng nhà (hướng cửa chính nhìn ra)</label>
+          <div class="two">
+            <select id="huongSel" aria-label="Chọn nhanh hướng">
+              <option value="">Chưa có nhà</option>
+              <option value="0">Bắc</option><option value="45">Đông Bắc</option><option value="90">Đông</option><option value="135">Đông Nam</option>
+              <option value="180">Nam</option><option value="225" selected>Tây Nam</option><option value="270">Tây</option><option value="315">Tây Bắc</option>
+            </select>
+            <input id="deg" type="number" inputmode="decimal" min="0" max="359.9" step="0.5" value="225" aria-label="Số độ la bàn">
+          </div>
+          <div class="hint">Đứng trong nhà nhìn thẳng ra cửa chính, đọc số độ trên la bàn hoặc ứng dụng la bàn của điện thoại.</div>
+        </div>
+        <div class="field"><label for="namxay">Năm dự kiến xây / sửa nhà</label><input id="namxay" type="number" inputmode="numeric" min="1950" max="2100" value="2027"></div>
+      </div>
+    </div>
+
+    <div class="fs" style="margin-top:22px">
+      <h3>Các thành viên khác trong gia đình</h3>
+      <p class="hint" style="margin:-6px 0 0">Họ tên không bắt buộc. Để trống thì phiếu ghi theo quan hệ: Vợ, Mẹ, Con trai…</p>
+      <div class="members" id="members"></div>
+      <div><button type="button" class="btn-line" id="addMem">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        Thêm thành viên</button></div>
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="btn-main">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg>
+        Xem kết quả
+      </button>
+      <button type="button" class="btn-ghost pdfBtn"><span class="pdfTxt">Xuất PDF</span></button>
+      <div class="err" id="err" role="alert"></div>
+    </div>
+  </form>
+
+  <section aria-labelledby="h2a">
+    <div class="sec-h"><h2 id="h2a">2. Vòng Bát trạch của gia chủ</h2><p>Phía trên vòng là hướng Bắc</p></div>
+    <div class="hero">
+      <div class="wheelcard">
+        <canvas id="wheel" width="1280" height="1280" role="img" aria-label="Vòng Bát trạch của gia chủ"></canvas>
+        <div class="legend">
+          <span><i style="background:#d4a017"></i>Hướng tốt</span>
+          <span><i style="background:#2b3a5e;border:1px solid #6b7896"></i>Hướng xấu</span>
+          <span><i style="background:#c62f24"></i>Bát sát</span>
+          <span><i style="border:2px solid #ff8a3d"></i>Bát sát của nhà</span>
+          <span><i style="border:2px solid #ffffff"></i>Hướng nhà</span>
+        </div>
+      </div>
+      <div class="owner">
+        <div id="summary"></div>
+        <div class="dirlist" id="dirlist"></div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h2b">
+    <div class="sec-h"><h2 id="h2b">3. Đánh giá hướng nhà</h2></div>
+    <div id="house"></div>
+  </section>
+
+  <section aria-labelledby="h2c">
+    <div class="sec-h"><h2 id="h2c">4. Bố trí phòng cho gia đình</h2><p>Mặt bằng chia 9 ô tính từ tâm nhà, cửa chính ở phía dưới</p></div>
+    <div class="famtable" id="famtable"></div>
+    <div class="plan" style="margin-top:18px">
+      <div id="nine"></div>
+      <div class="card tip" id="plannote"></div>
+    </div>
+    <div class="mcards" id="mcards" style="margin-top:18px"></div>
+  </section>
+
+  <section aria-labelledby="h2d">
+    <div class="sec-h"><h2 id="h2d">5. Tuổi gia chủ và năm làm nhà</h2></div>
+    <div id="age"></div>
+  </section>
+
+  <section aria-labelledby="h2e" id="luu">
+    <div class="sec-h"><h2 id="h2e">6. Lưu phiếu và tải PDF</h2></div>
+    <div class="card molai" id="molai">
+      <h3 style="font-size:1.2rem;margin:0 0 6px">Đã lưu phiếu trước đây?</h3>
+      <p style="margin:0 0 10px;line-height:1.6">Nhập số điện thoại đã để lại và mã xác nhận gửi về máy, trang điền lại đúng thông tin gia đình, kể cả khi anh/chị dùng điện thoại khác.</p>
+      <button type="button" class="btn-line" id="mlMo">Mở lại bằng số điện thoại</button>
+      <div class="zform" id="mlPanel" hidden>
+        <div class="field" id="mlSdtBox"><label for="mlSdt">Số điện thoại đã để lại</label><input id="mlSdt" type="tel" inputmode="numeric" autocomplete="tel" placeholder="VD: 0909 123 456" maxlength="20"></div>
+        <div id="mlGuiBox"><button type="button" class="btn-main" id="mlGui"><span id="mlGuiTxt">Gửi mã xác nhận</span></button></div>
+        <div id="mlMaBox" hidden>
+          <div class="field"><label for="mlMa">Mã 6 số trong tin nhắn gửi tới <b id="mlSdtHien"></b></label><input id="mlMa" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6 số"></div>
+          <div style="margin-top:10px"><button type="button" class="btn-main" id="mlXn"><span id="mlXnTxt">Mở phiếu</span></button></div>
+        </div>
+        <div class="mlds" id="mlDs"></div>
+        <div class="err" id="mlErr" role="alert"></div>
+        <div class="hint" id="mlTin" aria-live="polite"></div>
+        <div id="recaptcha-bt"></div>
+      </div>
+    </div>
+    <div class="lgrid">
+      <div class="card">
+        <h3>Phiếu Bát trạch gia đình</h3>
+        <p>Phiếu PDF in đúng thông tin anh/chị đã nhập ở mục 1, gồm:</p>
+        <ul><li>Vòng Bát trạch và ngày sinh âm lịch của từng người</li><li>Đánh giá hướng nhà, cách hóa giải</li><li>Sơ đồ bố trí phòng cho cả nhà</li><li>Tuổi làm nhà của gia chủ</li></ul>
+      </div>
+      <div class="card">
+        <h3>Để lại số để KTS của ALN tư vấn thêm</h3>
+        <p>Để lại số điện thoại, ALN lưu phiếu của gia đình. Khi anh/chị chuẩn bị xây hoặc sửa nhà, KTS Trần Long có sẵn thông tin để tư vấn bố trí phòng, hướng cửa cho căn nhà, không phải hỏi lại từ đầu.</p>
+        <form class="zform" id="zf" novalidate>
+          <div class="two">
+            <div class="field"><label for="zTen">Họ tên</label><input id="zTen" autocomplete="name" placeholder="VD: Nguyễn Văn An" maxlength="100"><div class="hint">Để KTS xưng hô cho đúng.</div></div>
+            <div class="field"><label for="zSdt">Số điện thoại</label><input id="zSdt" type="tel" inputmode="tel" autocomplete="tel" placeholder="VD: 0909 123 456" maxlength="20"></div>
+          </div>
+          <div class="field"><label for="zGd">Anh/chị đang ở giai đoạn nào? <span class="hint">(không bắt buộc)</span></label>
+            <select id="zGd"><option value="">Chọn nếu muốn</option><option value="chi_xem">Chỉ muốn xem kết quả</option><option value="sap_xay">Sắp xây hoặc sửa nhà, cần KTS tư vấn</option><option value="dang_xay">Đang xây hoặc sửa</option></select></div>
+          <label class="dongy"><input type="checkbox" id="zDongY"><span id="zDongYText">Tôi đồng ý để ALN lưu họ tên, SĐT của tôi cùng họ tên, ngày sinh các thành viên và hướng nhà đã nhập để KTS của ALN liên hệ tư vấn, theo Chính sách quyền riêng tư.</span></label>
+          <p class="hint" style="margin:-6px 0 0">Đọc <a href="/chinh-sach-quyen-rieng-tu/">Chính sách quyền riêng tư</a>.</p>
+          <div><button type="submit" class="btn-main" id="zGui"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 21h14"/></svg><span id="zGuiTxt">Lưu và tải PDF</span></button></div>
+          <div class="err" id="zErr" role="alert"></div>
+        </form>
+        <div class="zok" id="zOk" hidden></div>
+        <p style="margin:14px 0 0"><button type="button" class="lnk" id="taiKhongSo">Chỉ tải PDF, không để lại số</button></p>
+      </div>
+    </div>
+  </section>
+
+  <p class="note">Trang tính kết quả ngay trên máy của anh/chị. Thông tin chỉ gửi về ALN khi anh/chị bấm “Lưu và tải PDF” ở mục 6. Trang nhớ thông tin anh/chị đã nhập ngay trên máy này để lần sau không phải nhập lại; bấm “Xoá thông tin đã lưu” ở đầu mục 1 để xoá. Tính theo Bát trạch Minh cảnh, năm sinh lấy theo âm lịch (sinh trước Tết Nguyên đán tính về năm trước). Đây là thông tin tham khảo để định hướng bố trí. Khi thiết kế thật, kiến trúc sư sẽ đo hướng tại hiện trạng và kết hợp với công năng, nắng gió, giao thông của lô đất.</p>
+</main>
+
+<footer class="wrap">
+  <span>Công ty TNHH ALN · <b>applamnha.vn</b></span>
+  <span>KTS Trần Long · Hotline <b>0909 829 696</b></span>
+</footer>
+<!-- ALN-PHAP-NHAN --><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"><style id="alnpn-css">.alnpn,.alnpn *{box-sizing:border-box;margin:0;padding:0;border:0;font:inherit;letter-spacing:normal;text-transform:none;text-shadow:none;float:none;background:none;min-width:0}.alnpn{display:block;width:100%;clear:both;position:relative;z-index:0;background:#0b1428;border-top:2px solid #d4a017;color:#cbd5e1;font-family:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:15px;font-weight:400;line-height:1.5;text-align:left;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;padding:28px 20px 88px}.alnpn-in{max-width:1280px;margin:0 auto;display:grid;gap:22px}.alnpn-brand{display:flex;align-items:center;gap:14px}.alnpn-brand img{display:block;flex:none;width:44px;height:44px;border-radius:10px}.alnpn-ten{font-weight:700;font-size:17px;line-height:1.3;letter-spacing:.03em;color:#fff}.alnpn-sub{margin-top:2px;font-size:13px;line-height:1.4;color:#9fb0c8}.alnpn-muc dt{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;line-height:1.3;letter-spacing:.08em;text-transform:uppercase;color:#e0b43a;margin-bottom:6px}.alnpn-muc dt svg{display:block;flex:none;width:16px;height:16px;fill:none;stroke:#e0b43a;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.alnpn-muc dd{font-size:15px;font-weight:500;line-height:1.45;color:#f1f5f9}.alnpn-mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:600;letter-spacing:.02em}.alnpn a{color:#fff;text-decoration:none}.alnpn a:hover,.alnpn a:focus-visible{color:#e0b43a;outline:none}.alnpn-note{font-size:13px;font-weight:400;color:#9fb0c8;margin-left:8px;white-space:nowrap}@media (min-width:768px){.alnpn{padding:26px 28px}.alnpn-in{grid-template-columns:auto auto auto auto;justify-content:space-between;align-items:stretch;gap:0}.alnpn-brand{align-self:center}.alnpn-muc{padding:0 0 0 28px;margin-left:28px;border-left:1px solid rgba(224,180,58,.22)}}@media (min-width:768px) and (max-width:1099px){.alnpn-in{grid-template-columns:auto minmax(0,1fr) auto;justify-content:stretch;row-gap:20px}.alnpn-brand{grid-column:1/-1;align-self:start}.alnpn-muc:nth-child(2){border-left:0;margin-left:0;padding-left:0}}</style><section class="alnpn" aria-label="Thông tin doanh nghiệp"><div class="alnpn-in"><div class="alnpn-brand"><img src="/icon-192.png" alt="" width="44" height="44" loading="lazy"><div><div class="alnpn-ten">CÔNG TY TNHH ALN</div><div class="alnpn-sub">Đơn vị chủ quản website applamnha.vn</div></div></div><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M10 12h5M10 16h5"/></svg>Mã số thuế</dt><dd class="alnpn-mono">3502593013</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-6-5.3-6-11a6 6 0 1 1 12 0c0 5.7-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/></svg>Địa chỉ</dt><dd>Khu TTTM Sonadezi 536 Trung Sơn, Ngãi Giao, TP. Hồ Chí Minh</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 5 5L14 13l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>Hotline</dt><dd><a class="alnpn-mono" href="tel:0909829696">0909 829 696</a><span class="alnpn-note">KTS Trần Long</span></dd></dl></div></section>
+
+<div id="pdfstage" aria-hidden="true"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+(function(){
+"use strict";
+/* ================= ÂM LỊCH (thuật toán Hồ Ngọc Đức, múi giờ +7) ================= */
+var INT=Math.floor;
+function jdFromDate(dd,mm,yy){var a=INT((14-mm)/12),y=yy+4800-a,m=mm+12*a-3;var jd=dd+INT((153*m+2)/5)+365*y+INT(y/4)-INT(y/100)+INT(y/400)-32045;if(jd<2299161)jd=dd+INT((153*m+2)/5)+365*y+INT(y/4)-32083;return jd;}
+function newMoon(k){var T=k/1236.85,T2=T*T,T3=T2*T,dr=Math.PI/180;var Jd1=2415020.75933+29.53058868*k+0.0001178*T2-0.000000155*T3;Jd1+=0.00033*Math.sin((166.56+132.87*T-0.009173*T2)*dr);var M=359.2242+29.10535608*k-0.0000333*T2-0.00000347*T3;var Mpr=306.0253+385.81691806*k+0.0107306*T2+0.00001236*T3;var F=21.2964+390.67050646*k-0.0016528*T2-0.00000239*T3;var C1=(0.1734-0.000393*T)*Math.sin(M*dr)+0.0021*Math.sin(2*dr*M);C1=C1-0.4068*Math.sin(Mpr*dr)+0.0161*Math.sin(dr*2*Mpr);C1-=0.0004*Math.sin(dr*3*Mpr);C1=C1+0.0104*Math.sin(dr*2*F)-0.0051*Math.sin(dr*(M+Mpr));C1=C1-0.0074*Math.sin(dr*(M-Mpr))+0.0004*Math.sin(dr*(2*F+M));C1=C1-0.0004*Math.sin(dr*(2*F-M))-0.0006*Math.sin(dr*(2*F+Mpr));C1=C1+0.0010*Math.sin(dr*(2*F-Mpr))+0.0005*Math.sin(dr*(2*Mpr+M));var dt=(T<-11)?(0.001+0.000839*T+0.0002261*T2-0.00000845*T3-0.000000081*T*T3):(-0.000278+0.000265*T+0.000262*T2);return Jd1+C1-dt;}
+function sunLong(jdn){var T=(jdn-2451545.0)/36525,T2=T*T,dr=Math.PI/180;var M=357.52910+35999.05030*T-0.0001559*T2-0.00000048*T*T2;var L0=280.46645+36000.76983*T+0.0003032*T2;var DL=(1.914600-0.004817*T-0.000014*T2)*Math.sin(dr*M);DL=DL+(0.019993-0.000101*T)*Math.sin(dr*2*M)+0.000290*Math.sin(dr*3*M);var L=(L0+DL)*dr;L=L-Math.PI*2*INT(L/(Math.PI*2));return L;}
+function getSunLong(d,tz){return INT(sunLong(d-0.5-tz/24)/Math.PI*6);}
+function getNewMoonDay(k,tz){return INT(newMoon(k)+0.5+tz/24);}
+function getMonth11(yy,tz){var off=jdFromDate(31,12,yy)-2415021;var k=INT(off/29.530588853);var nm=getNewMoonDay(k,tz);if(getSunLong(nm,tz)>=9)nm=getNewMoonDay(k-1,tz);return nm;}
+function getLeapOffset(a11,tz){var k=INT((a11-2415021.076998695)/29.530588853+0.5),last=0,i=1,arc=getSunLong(getNewMoonDay(k+i,tz),tz);do{last=arc;i++;arc=getSunLong(getNewMoonDay(k+i,tz),tz);}while(arc!=last&&i<14);return i-1;}
+function solar2lunar(dd,mm,yy){var tz=7,dn=jdFromDate(dd,mm,yy),k=INT((dn-2415021.076998695)/29.530588853);var ms=getNewMoonDay(k+1,tz);if(ms>dn)ms=getNewMoonDay(k,tz);var a11=getMonth11(yy,tz),b11=a11,ly;if(a11>=ms){ly=yy;a11=getMonth11(yy-1,tz);}else{ly=yy+1;b11=getMonth11(yy+1,tz);}var ld=dn-ms+1,diff=INT((ms-a11)/29),leap=0,lm=diff+11;if(b11-a11>365){var lmd=getLeapOffset(a11,tz);if(diff>=lmd){lm=diff+10;if(diff==lmd)leap=1;}}if(lm>12)lm-=12;if(lm>=11&&diff<4)ly-=1;return{d:ld,m:lm,y:ly,leap:leap};}
+
+/* ================= DỮ LIỆU BÁT TRẠCH ================= */
+var CAN=["Giáp","Ất","Bính","Đinh","Mậu","Kỷ","Canh","Tân","Nhâm","Quý"];
+var CHI=["Tý","Sửu","Dần","Mão","Thìn","Tị","Ngọ","Mùi","Thân","Dậu","Tuất","Hợi"];
+var NAPAM=[["Hải Trung Kim","Kim"],["Lư Trung Hỏa","Hỏa"],["Đại Lâm Mộc","Mộc"],["Lộ Bàng Thổ","Thổ"],["Kiếm Phong Kim","Kim"],["Sơn Đầu Hỏa","Hỏa"],["Giản Hạ Thủy","Thủy"],["Thành Đầu Thổ","Thổ"],["Bạch Lạp Kim","Kim"],["Dương Liễu Mộc","Mộc"],["Tuyền Trung Thủy","Thủy"],["Ốc Thượng Thổ","Thổ"],["Tích Lịch Hỏa","Hỏa"],["Tùng Bách Mộc","Mộc"],["Trường Lưu Thủy","Thủy"],["Sa Trung Kim","Kim"],["Sơn Hạ Hỏa","Hỏa"],["Bình Địa Mộc","Mộc"],["Bích Thượng Thổ","Thổ"],["Kim Bạch Kim","Kim"],["Phú Đăng Hỏa","Hỏa"],["Thiên Hà Thủy","Thủy"],["Đại Dịch Thổ","Thổ"],["Thoa Xuyến Kim","Kim"],["Tang Đố Mộc","Mộc"],["Đại Khê Thủy","Thủy"],["Sa Trung Thổ","Thổ"],["Thiên Thượng Hỏa","Hỏa"],["Thạch Lựu Mộc","Mộc"],["Đại Hải Thủy","Thủy"]];
+var SON=["Tý","Quý","Sửu","Cấn","Dần","Giáp","Mão","Ất","Thìn","Tốn","Tị","Bính","Ngọ","Đinh","Mùi","Khôn","Thân","Canh","Dậu","Tân","Tuất","Càn","Hợi","Nhâm"];
+var DIR=[
+ {n:"Bắc",s:"BẮC",q:"Khảm",lt:"1 Bạch",h:"Thủy"},{n:"Đông Bắc",s:"ĐÔNG BẮC",q:"Cấn",lt:"8 Bạch",h:"Thổ"},
+ {n:"Đông",s:"ĐÔNG",q:"Chấn",lt:"3 Bích",h:"Mộc"},{n:"Đông Nam",s:"ĐÔNG NAM",q:"Tốn",lt:"4 Lục",h:"Mộc"},
+ {n:"Nam",s:"NAM",q:"Ly",lt:"9 Tử",h:"Hỏa"},{n:"Tây Nam",s:"TÂY NAM",q:"Khôn",lt:"2 Hắc",h:"Thổ"},
+ {n:"Tây",s:"TÂY",q:"Đoài",lt:"7 Xích",h:"Kim"},{n:"Tây Bắc",s:"TÂY BẮC",q:"Càn",lt:"6 Bạch",h:"Kim"}];
+var QUAI={
+ 1:{n:"Khảm",h:"Thủy",g:"Đông",lines:[0,1,0],sat:"Thìn"},2:{n:"Khôn",h:"Thổ",g:"Tây",lines:[0,0,0],sat:"Mão"},
+ 3:{n:"Chấn",h:"Mộc",g:"Đông",lines:[1,0,0],sat:"Thân"},4:{n:"Tốn",h:"Mộc",g:"Đông",lines:[0,1,1],sat:"Dậu"},
+ 6:{n:"Càn",h:"Kim",g:"Tây",lines:[1,1,1],sat:"Ngọ"},7:{n:"Đoài",h:"Kim",g:"Tây",lines:[1,1,0],sat:"Tị"},
+ 8:{n:"Cấn",h:"Thổ",g:"Tây",lines:[0,0,1],sat:"Dần"},9:{n:"Ly",h:"Hỏa",g:"Đông",lines:[1,0,1],sat:"Hợi"}};
+var QBYDIR=[1,8,3,4,9,2,7,6];
+var DUNIEN={
+ 1:["PV","NQ","TY","SK","DN","TM","HH","LS"],2:["TM","SK","HH","NQ","LS","PV","TY","DN"],
+ 3:["TY","LS","PV","DN","SK","HH","TM","NQ"],4:["SK","TM","DN","PV","TY","NQ","LS","HH"],
+ 6:["LS","TY","NQ","HH","TM","DN","SK","PV"],7:["HH","DN","TM","LS","NQ","TY","PV","SK"],
+ 8:["NQ","PV","LS","TM","HH","SK","DN","TY"],9:["DN","HH","SK","TY","PV","LS","NQ","TM"]};
+var STAR={
+ SK:{n:"Sinh Khí",sao:"Tham Lang",h:"Mộc",cat:1,rank:"Đại cát",lv:4,txt:"Vượng tài lộc, công danh thăng tiến, nhà nhiều sinh khí, con cháu phát triển.",use:"Cửa chính, cổng, phòng khách, bàn làm việc."},
+ TY:{n:"Thiên Y",sao:"Cự Môn",h:"Thổ",cat:1,rank:"Cát",lv:3,txt:"Tốt cho sức khỏe, gặp quý nhân phù trợ, gia đạo ổn định.",use:"Phòng ngủ gia chủ, phòng người cao tuổi, hướng miệng bếp."},
+ DN:{n:"Diên Niên",sao:"Vũ Khúc",h:"Kim",cat:1,rank:"Cát",lv:2,txt:"Vợ chồng hòa thuận, gia đình êm ấm, các mối quan hệ bền lâu.",use:"Phòng ngủ vợ chồng, phòng sinh hoạt chung."},
+ PV:{n:"Phục Vị",sao:"Tả Phù",h:"Mộc",cat:1,rank:"Tiểu cát",lv:1,txt:"Bình yên, vững vàng, tinh thần minh mẫn; hợp học hành, thờ cúng.",use:"Bàn thờ, phòng học, phòng đọc sách."},
+ HH:{n:"Họa Hại",sao:"Lộc Tồn",h:"Thổ",cat:0,rank:"Hung",lv:-1,txt:"Dễ thị phi, thất thoát nhỏ, công việc trắc trở, hay mệt mỏi.",use:"Nhà vệ sinh, kho, phòng giặt."},
+ LS:{n:"Lục Sát",sao:"Văn Khúc",h:"Thủy",cat:0,rank:"Hung",lv:-2,txt:"Bất hòa tình cảm, khẩu thiệt, kiện tụng, hao tài vì chuyện riêng.",use:"Nhà vệ sinh, kho, bếp (miệng bếp quay về hướng tốt)."},
+ NQ:{n:"Ngũ Quỷ",sao:"Liêm Trinh",h:"Hỏa",cat:0,rank:"Đại hung",lv:-3,txt:"Dễ gặp hỏa hoạn, mất mát, tiểu nhân quấy phá, người nhà bất an.",use:"Bếp (để trấn hung), nhà vệ sinh, kho."},
+ TM:{n:"Tuyệt Mệnh",sao:"Phá Quân",h:"Kim",cat:0,rank:"Đại hung",lv:-4,txt:"Nặng nhất trong bốn hướng xấu: ảnh hưởng sức khỏe, đổ vỡ lớn về tài sản, gia đạo.",use:"Nhà vệ sinh, kho, phòng kỹ thuật; tránh cửa chính và giường ngủ."}};
+var ORDER=["SK","TY","DN","PV","HH","LS","NQ","TM"];
+var SINH={"Mộc":"Hỏa","Hỏa":"Thổ","Thổ":"Kim","Kim":"Thủy","Thủy":"Mộc"};
+var KHAC={"Mộc":"Thổ","Thổ":"Thủy","Thủy":"Hỏa","Hỏa":"Kim","Kim":"Mộc"};
+var MAU={"Kim":"trắng, xám, ghi bạc","Mộc":"xanh lá, xanh lục","Thủy":"đen, xanh dương, xanh biển","Hỏa":"đỏ, cam, hồng, tím","Thổ":"vàng, nâu đất, be"};
+function sinhRa(x){for(var k in SINH)if(SINH[k]===x)return k;}
+function khacBoi(x){for(var k in KHAC)if(KHAC[k]===x)return k;}
+var ROLES=[["vo","Vợ","nu","master"],["chong","Chồng","nam","master"],["bo","Bố","nam","old"],["me","Mẹ","nu","old"],["ong","Ông","nam","old"],["ba","Bà","nu","old"],["contrai","Con trai","nam","kid"],["congai","Con gái","nu","kid"],["anhem","Anh / em trai","nam","adult"],["chiem","Chị / em gái","nu","adult"],["khac","Người thân khác","nam","adult"]];
+function roleInfo(id){for(var i=0;i<ROLES.length;i++)if(ROLES[i][0]===id)return{id:id,n:ROLES[i][1],gt:ROLES[i][2],grp:ROLES[i][3]};return{id:"khac",n:"Người thân",gt:"nam",grp:"adult"};}
+
+function norm(d){d=d%360;return d<0?d+360:d;}
+function dirIdx(d){return INT(norm(d+22.5)/45)%8;}
+function sonIdx(d){return INT(norm(d+7.5)/15)%24;}
+function sonCenter(name){return SON.indexOf(name)*15;}
+function fmtDeg(d){return (Math.round(d*10)/10).toString().replace(".",",")+"°";}
+function pad(n){return n<10?"0"+n:""+n;}
+/* eH/eU lấy từ aln-esc.js khi chạy trên applamnha.vn; bản dự phòng khi mở trang riêng lẻ. */
+if(typeof window.eH!=="function"){window.eH=function(v){return String(v===undefined||v===null?"":v).replace(/[&<>"'`]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;","`":"&#96;"}[c];});};}
+if(typeof window.eU!=="function"){window.eU=function(u){var t=String(u||"");return window.eH(/^(https?:|data:image\/|blob:)/i.test(t)?t:"#");};}
+function cungPhi(y,gt){var r=y%9,n;if(gt==="nam"){n=(11-r)%9;if(n===0)n=9;if(n===5)n=2;}else{n=(r+4)%9;if(n===0)n=9;if(n===5)n=8;}return n;}
+
+function person(ns,gt){
+  var p=ns.split("-").map(Number),L=solar2lunar(p[2],p[1],p[0]),Y=L.y;
+  var na=NAPAM[INT(((Y-4)%60+60)%60/2)],cp=cungPhi(Y,gt);
+  return{solar:{d:p[2],m:p[1],y:p[0]},lunar:L,Y:Y,can:CAN[(Y+6)%10],chi:CHI[(Y+8)%12],canchi:CAN[(Y+6)%10]+" "+CHI[(Y+8)%12],napam:na[0],napamH:na[1],cp:cp,Q:QUAI[cp],dn:DUNIEN[cp],beforeTet:Y<p[0],gt:gt};
+}
+function compute(inp){
+  var r=person(inp.ns,inp.gt);r.inp=inp;r.ten=inp.ten||"Gia chủ";
+  if(inp.deg!==null){
+    var d=norm(inp.deg),di=dirIdx(d),si=sonIdx(d),toa=norm(d+180),tq=QBYDIR[dirIdx(toa)];
+    var off=norm(d-7.5)%15,dist=Math.min(off,15-off),offQ=norm(d-22.5)%45,distQ=Math.min(offQ,45-offQ);
+    var kv=distQ<=1.5?"Đại không vong":dist<=1.5?"Tiểu không vong":null;
+    r.house={deg:d,di:di,son:SON[si],toa:toa,toaDi:dirIdx(toa),toaSon:SON[sonIdx(toa)],trach:tq,T:QUAI[tq],star:r.dn[di],kv:kv,satSon:QUAI[tq].sat,hitSat:SON[si]===QUAI[tq].sat};
+  }
+  r.build={year:inp.namxay,tuoi:inp.namxay-r.Y+1,canchi:CAN[(inp.namxay+6)%10]+" "+CHI[(inp.namxay+8)%12]};
+  r.fam=inp.fam.map(function(m){var P=person(m.ns,m.gt);P.role=roleInfo(m.role);P.tenGoc=m.ten;P.ten=m.ten||P.role.n;return P;});
+  r.plan=planRooms(r);
+  return r;
+}
+
+function kimLau(t){return{1:"Kim lâu Thân (hại bản thân)",3:"Kim lâu Thê (hại vợ/chồng)",6:"Kim lâu Tử (hại con cái)",8:"Kim lâu Lục súc (hại vật nuôi, kinh tế)"}[t%9]||null;}
+function hoangOc(t){var k=["Nhất Cát","Nhì Nghi","Tam Địa Sát","Tứ Tấn Tài","Ngũ Thọ Tử","Lục Hoang Ốc"];var i=((INT(t/10)-1+t%10)%6+6)%6;return{n:k[i],bad:[2,4,5].indexOf(i)>=0};}
+function tamTai(c){var g={"Thân":0,"Tý":0,"Thìn":0,"Dần":1,"Ngọ":1,"Tuất":1,"Tị":2,"Dậu":2,"Sửu":2,"Hợi":3,"Mão":3,"Mùi":3}[c];return[["Dần","Mão","Thìn"],["Thân","Dậu","Tuất"],["Hợi","Tý","Sửu"],["Tị","Ngọ","Mùi"]][g];}
+function chiRel(a,b){
+  var ia=CHI.indexOf(a),ib=CHI.indexOf(b);if(ia===ib)return{t:"Cùng tuổi "+a,c:"n"};
+  if((ia+ib)%12===1)return{t:"Lục hợp "+a+" – "+b,c:"g"};
+  if(ia%4===ib%4)return{t:"Tam hợp "+a+" – "+b,c:"g"};
+  if(Math.abs(ia-ib)===6)return{t:"Lục xung "+a+" – "+b,c:"b"};
+  if(ia%3===ib%3)return{t:"Tứ hành xung "+a+" – "+b,c:"w"};
+  return{t:"Bình thường",c:"n"};
+}
+function pill(st){var s=STAR[st];return '<span class="pill '+(s.cat?"g":"b")+'">'+s.rank+'</span>';}
+
+/* ================= XẾP PHÒNG (cửu cung) ================= */
+var PREF={master:["DN","TY","SK","PV"],old:["TY","DN","PV","SK"],kid:["SK","PV","TY","DN"],adult:["TY","DN","SK","PV"]};
+function idxOf(P,star){return P.dn.indexOf(star);}
+function planRooms(r){
+  var cells={},i;for(i=0;i<8;i++)cells[i]={rooms:[],beds:0};
+  function add(i,txt,kind){cells[i].rooms.push({t:txt,k:kind||""});}
+  var front=r.house?r.house.di:null,used={};
+  if(front!==null){add(front,"Cửa chính · phòng khách","svc");used[front]="door";}
+  var kitchen=null,wc=null;
+  ["NQ","TM","LS","HH"].some(function(s){var i=idxOf(r,s);if(i!==front){kitchen=i;return true;}});
+  add(kitchen,"Bếp","svc");used[kitchen]="svc";
+  ["HH","LS","TM","NQ"].some(function(s){var i=idxOf(r,s);if(i!==front&&i!==kitchen){wc=i;return true;}});
+  add(wc,"Vệ sinh · kho","svc");used[wc]="svc";
+  var spouse=r.fam.filter(function(m){return m.role.grp==="master";})[0]||null;
+  var groups=[{who:[r].concat(spouse?[spouse]:[]),main:r,grp:"master",label:spouse?"Phòng ngủ vợ chồng gia chủ":"Phòng ngủ gia chủ"}];
+  r.fam.forEach(function(m){if(m===spouse)return;var short=(m.ten||"").trim().split(/\s+/).pop();groups.push({who:[m],main:m,grp:m.role.grp,label:"Phòng "+m.role.n.toLowerCase()+(short&&short!==m.role.n?" "+short:"")});});
+  var rank={master:0,old:1,adult:2,kid:3};
+  groups=groups.map(function(g,ix){g.ix=ix;return g;}).sort(function(a,b){return rank[a.grp]-rank[b.grp]||a.ix-b.ix;});
+  groups.forEach(function(g){
+    var M=g.main,other=g.who[1]||null,cands=PREF[g.grp].map(function(s){return idxOf(M,s);});
+    if(other){var both=cands.filter(function(i){return STAR[other.dn[i]].cat;});cands=both.concat(cands.filter(function(i){return both.indexOf(i)<0;}));}
+    var pick=null,shared=false,k;
+    for(k=0;k<cands.length;k++){if(!used[cands[k]]&&cells[cands[k]].beds===0){pick=cands[k];break;}}
+    if(pick===null){for(k=0;k<cands.length;k++){if(used[cands[k]]!=="svc"){pick=cands[k];shared=true;break;}}}
+    if(pick===null){pick=cands[0];shared=true;}
+    cells[pick].beds++;add(pick,g.label+(shared?" (tầng khác)":""),"bed");
+    var bed=null;
+    if(other){["TY","DN","SK","PV"].some(function(s){var i=idxOf(M,s);if(STAR[other.dn[i]].cat){bed=i;return true;}});}
+    if(bed===null)bed=idxOf(M,g.grp==="kid"?"SK":"TY");
+    var deskStar=g.grp==="kid"?"PV":"SK",altStar=g.grp==="kid"?"SK":"PV";
+    g.who.forEach(function(P){
+      P.room={cell:pick,label:g.label,shared:shared,star:P.dn[pick],bed:bed,bedStar:P.dn[bed],desk:idxOf(P,deskStar),alt:idxOf(P,altStar),deskStar:deskStar,grp:g.grp};
+    });
+  });
+  var altar=["PV","SK","TY","DN"].map(function(s){return idxOf(r,s);}).filter(function(i){return i!==front&&used[i]!=="svc";})[0];
+  if(altar!==undefined)add(altar,"Phòng thờ (tầng trên cùng)","altar");
+  return{cells:cells,front:front,kitchen:kitchen,wc:wc,altar:altar};
+}
+
+/* ================= HTML DÙNG CHUNG (màn hình + PDF) ================= */
+function trigramSVG(lines,w,color){var h=w*0.8,gap=h/3,bh=gap*0.52,s='<svg width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" aria-hidden="true">';
+  for(var k=0;k<3;k++){var y=h-(k+1)*gap+(gap-bh)/2;if(lines[k])s+='<rect x="0" y="'+y+'" width="'+w+'" height="'+bh+'" rx="2" fill="'+color+'"/>';else s+='<rect x="0" y="'+y+'" width="'+(w*0.42)+'" height="'+bh+'" rx="2" fill="'+color+'"/><rect x="'+(w*0.58)+'" y="'+y+'" width="'+(w*0.42)+'" height="'+bh+'" rx="2" fill="'+color+'"/>';}
+  return s+'</svg>';}
+function summaryHTML(r){var L=r.lunar,S=r.solar;
+  return '<div class="cungbox">'+trigramSVG(r.Q.lines,58,"#d4a017")+'<div><div class="big">Cung '+eH(r.Q.n)+'</div><div class="sub">'+eH(r.ten)+' · '+eH(r.Q.g)+' tứ mệnh · hành '+eH(r.Q.h)+'</div></div></div>'+
+  '<div class="card" style="margin-top:14px"><dl class="kv"><dt>Ngày sinh dương lịch</dt><dd>'+eH(pad(S.d))+'/'+eH(pad(S.m))+'/'+eH(S.y)+' · '+(r.gt==="nam"?"Nam":"Nữ")+'</dd><dt>Ngày sinh âm lịch</dt><dd>'+eH(pad(L.d))+'/'+eH(pad(L.m))+(L.leap?' nhuận':'')+'/'+eH(L.y)+' · '+eH(r.canchi)+'</dd><dt>Mệnh</dt><dd>'+eH(r.napam)+'</dd>'+(r.house?'<dt>Hướng nhà</dt><dd>'+fmtDeg(r.house.deg)+' · '+DIR[r.house.di].n+'</dd>':'')+'</dl>'+(r.beforeTet?'<p class="hint" style="margin:8px 0 0">Sinh trước Tết năm '+eH(S.y)+' nên tính theo năm âm '+eH(r.Y)+'.</p>':'')+'</div>';}
+function dirListHTML(r){return ORDER.map(function(k){var i=r.dn.indexOf(k),s=STAR[k],D=DIR[i],isH=r.house&&r.house.di===i;
+  return '<div class="dirrow '+(s.cat?"g":"b")+(isH?" h":"")+'"><div class="d">'+D.n+'<small>'+fmtDeg(norm(i*45-22.5))+' – '+fmtDeg(norm(i*45+22.5))+'</small></div><div class="s"><b>'+s.n+'</b>'+pill(k)+(isH?'<span class="pill w">Hướng nhà</span>':'')+'</div><div class="u">'+(s.cat?'Nên: ':'Chỉ dùng cho: ')+s.use+'</div></div>';}).join("");}
+
+function list(a){return a.length?'<ul>'+a.map(function(dongHtml){return'<li>'+dongHtml+'</li>';}).join("")+'</ul>':'<p class="hint" style="margin:0">Không có điểm đáng kể.</p>';}
+function nearestGood(r){var d=r.house.deg,best=null;for(var i=0;i<8;i++){if(!STAR[r.dn[i]].cat)continue;var delta=((i*45-d+540)%360)-180;if(!best||Math.abs(delta)<Math.abs(best.delta))best={i:i,st:r.dn[i],delta:delta};}return best;}
+function houseHTML(r){
+  if(!r.house){return '<div class="verdict"><p>Chưa nhập hướng nhà. Với cung <b>'+eH(r.Q.n)+'</b> ('+eH(r.Q.g)+' tứ mệnh), nên chọn lô đất hoặc mở cửa chính về một trong bốn hướng: <b>'+ORDER.slice(0,4).map(function(k){return DIR[r.dn.indexOf(k)].n+' ('+STAR[k].n+')';}).join(", ")+'</b>.</p></div>';}
+  var H=r.house,s=STAR[H.star],D=DIR[H.di],T=H.T,sameG=T.g===r.Q.g,pros=[],cons=[],tips=[];
+  if(s.cat)pros.push('Hướng '+D.n+' là cung <b>'+s.n+'</b> của gia chủ: '+s.txt);else cons.push('Hướng '+D.n+' là cung <b>'+s.n+'</b> ('+s.rank.toLowerCase()+') của gia chủ: '+s.txt);
+  if(sameG)pros.push('Nhà tọa '+DIR[H.toaDi].n+' là <b>'+eH(T.n)+' trạch</b> ('+eH(T.g)+' tứ trạch), cùng nhóm với gia chủ. Các phòng chính dễ xếp vào ô tốt.');
+  else cons.push('Nhà tọa '+DIR[H.toaDi].n+' là <b>'+eH(T.n)+' trạch</b> ('+eH(T.g)+' tứ trạch), khác nhóm với gia chủ ('+eH(r.Q.g)+' tứ mệnh). Phòng ngủ, bếp, bàn thờ cần xếp kỹ.');
+  if(SINH[D.h]===r.Q.h)pros.push('Hành của hướng ('+D.h+') sinh cho hành cung phi ('+r.Q.h+'), thêm trợ lực.');
+  else if(D.h===r.Q.h)pros.push('Hành của hướng ('+D.h+') trùng hành cung phi: bình hòa, ổn định.');
+  else if(KHAC[D.h]===r.Q.h)cons.push('Hành của hướng ('+D.h+') khắc hành cung phi ('+r.Q.h+'). Dùng màu, vật liệu hành '+SINH[D.h]+' ở mặt tiền để hóa giải.');
+  else if(SINH[r.Q.h]===D.h)cons.push('Hành cung phi ('+r.Q.h+') sinh cho hành của hướng ('+D.h+'): dễ hao tổn nhẹ.');
+  if(H.kv)cons.push('Hướng '+fmtDeg(H.deg)+' nằm sát ranh giới hai sơn, phạm <b>'+eH(H.kv)+'</b>. Nên xoay cửa lệch 2–3° vào giữa sơn '+eH(H.son)+'.');else pros.push('Hướng '+fmtDeg(H.deg)+' nằm trong sơn <b>'+eH(H.son)+'</b>, không phạm Không vong.');
+  if(H.hitSat)cons.push('Cửa rơi đúng sơn <b>'+eH(H.satSon)+'</b>, phương Bát sát của '+eH(T.n)+' trạch. Nên dời cửa sang sơn bên cạnh.');
+  tips.push('Phương Bát sát của '+eH(T.n)+' trạch là sơn <b>'+eH(H.satSon)+'</b> ('+fmtDeg(sonCenter(H.satSon))+'): tránh mở cổng, đặt hố ga, đường thoát nước ở đây.');
+  if(!s.cat){var ng=nearestGood(r);tips.push('Ô tốt gần nhất là <b>'+DIR[ng.i].n+'</b> ('+STAR[ng.st].n+'). Có thể xoay cửa chính, cổng hoặc bậc tam cấp về khoảng '+fmtDeg(ng.i*45)+'.');tips.push('Sao '+s.sao+' hành '+s.h+': dùng màu, vật liệu hành '+SINH[s.h]+' ('+MAU[SINH[s.h]]+') ở sảnh để tiết bớt khí xấu.');}
+  tips.push('Bếp đặt ở ô xấu và quay miệng bếp về '+DIR[r.dn.indexOf("SK")].n+', '+DIR[r.dn.indexOf("TY")].n+' hoặc '+DIR[r.dn.indexOf("DN")].n+'.');
+  var score=Math.max(0,Math.min(10,Math.round(5+s.lv+(sameG?1:-1)+(H.kv?-1:0)+(H.hitSat?-2:0)+(SINH[D.h]===r.Q.h||D.h===r.Q.h?0.5:0)+(KHAC[D.h]===r.Q.h?-0.5:0))));
+  var col=score>=7?"var(--good)":score>=5?"var(--warn)":"var(--bad)";
+  return '<div class="verdict"><div class="score" style="color:'+col+'">'+score+'/10</div><p><b>'+(s.cat?'Hướng nhà hợp với tuổi gia chủ.':'Hướng nhà chưa hợp với tuổi gia chủ, cần điều chỉnh khi thiết kế.')+'</b> Hướng '+fmtDeg(H.deg)+' '+D.n+' (sơn '+eH(H.son)+'), tọa sơn '+eH(H.toaSon)+' · '+eH(T.n)+' trạch · rơi vào cung '+s.n+' '+pill(H.star)+'</p></div>'+
+   '<div class="cols"><div class="card pro"><h3>Ưu điểm</h3>'+list(pros)+'</div><div class="card con"><h3>Nhược điểm</h3>'+list(cons)+'</div></div>'+
+   '<div class="card tip" style="margin-top:16px"><h3>Gợi ý hóa giải</h3>'+list(tips)+'</div>';
+}
+
+function famTableHTML(r){
+  var rows='<div class="famrow head"><span>Thành viên</span><span>Ngày sinh âm lịch · mệnh</span><span>Cung phi</span><span>So với gia chủ</span></div>';
+  [r].concat(r.fam).forEach(function(P,ix){
+    var isO=ix===0,rel=isO?null:chiRel(r.chi,P.chi),grp=P.Q.g===r.Q.g;
+    rows+='<div class="famrow"><div class="nm">'+eH(P.ten)+'<small>'+eH(isO?"Gia chủ":P.role.n)+' · '+(P.gt==="nam"?"Nam":"Nữ")+' · '+eH(pad(P.solar.d))+'/'+eH(pad(P.solar.m))+'/'+eH(P.solar.y)+'</small></div>'+
+      '<div>Âm lịch '+eH(lunarFull(P))+'<br><span class="hint">'+eH(P.canchi)+' · '+eH(P.napam)+'</span></div>'+
+      '<div><b>'+eH(P.Q.n)+'</b> · '+eH(P.Q.h)+'<br><span class="hint">'+eH(P.Q.g)+' tứ mệnh</span></div>'+
+      '<div>'+(isO?'<span class="hint">Người đứng tên nhà</span>':'<span class="pill '+(grp?"g":"w")+'">'+(grp?"Cùng nhóm mệnh":"Khác nhóm mệnh")+'</span><br><span class="pill '+eH(rel.c)+'" style="margin-top:4px">'+eH(rel.t)+'</span>')+'</div></div>';
+  });
+  return rows;
+}
+function nineHTML(r){
+  var pl=r.plan,top=r.house?r.house.toaDi:0,order=[[7,0,1],[6,-1,2],[5,4,3]];
+  var h='<div class="gridwrap"><div class="edge">Phía sau nhà · '+(r.house?'tọa '+DIR[r.house.toaDi].n:'Bắc')+'</div><div class="nine">';
+  order.forEach(function(row){row.forEach(function(step){
+    if(step<0){h+='<div class="cell center">Tâm nhà<br>cầu thang, giếng trời<br>không đặt bếp, vệ sinh</div>';return;}
+    var i=(top+step)%8,st=r.dn[i],s=STAR[st];
+    h+='<div class="cell '+(s.cat?"g":"")+'"><div class="cd">'+DIR[i].n+'<small>'+DIR[i].q+'</small></div><div class="sn">'+pill(st)+' '+s.n+'</div><div class="rooms">'+pl.cells[i].rooms.map(function(x){return'<div class="room '+(x.k==="svc"?"svc":"")+'">'+eH(x.t)+'</div>';}).join("")+'</div></div>';
+  });});
+  return h+'</div><div class="door"><span>CỬA CHÍNH'+(r.house?' · '+DIR[r.house.di].n.toUpperCase():'')+'</span></div></div>';
+}
+function planNoteHTML(r){var pl=r.plan;
+  return '<h3>Cách đọc sơ đồ</h3><ul><li>Ô vàng là phương tốt của gia chủ, ô trắng là phương xấu.</li><li>Phương tính từ <b>tâm nhà</b>, là giao điểm hai đường chéo của mặt bằng.</li><li>Nhà nhiều tầng dùng chung sơ đồ này. Phòng ghi “tầng khác” đặt cùng ô ở tầng trên.</li><li>Bếp ở ô <b>'+DIR[pl.kitchen].n+'</b>, miệng bếp quay về '+DIR[r.dn.indexOf("TY")].n+' hoặc '+DIR[r.dn.indexOf("SK")].n+'.</li><li>Người lớn tuổi nên ở tầng trệt, gần vệ sinh nhưng giường không nhìn thẳng cửa vệ sinh.</li></ul>';}
+
+function memberCardHTML(P,isOwner,imgSrc){
+  var R=P.room,good=STAR[R.star].cat;
+  var pic=imgSrc?'<img src="'+eU(imgSrc)+'" alt="">':'<canvas class="mini" data-cp="'+eH(P.cp)+'" width="300" height="300" role="img" aria-label="Vòng 8 hướng của '+eH(P.ten)+'"></canvas>';
+  return '<div class="mcard">'+pic+'<div><h3>'+eH(P.ten)+'</h3><div class="meta">'+eH((isOwner?(P.inp&&P.inp.ten):P.tenGoc)?(isOwner?"Gia chủ":P.role.n)+' · ':'')+(P.gt==="nam"?"Nam":"Nữ")+' · DL '+eH(pad(P.solar.d))+'/'+eH(pad(P.solar.m))+'/'+eH(P.solar.y)+' · ÂL '+eH(lunarFull(P))+'<br>'+eH(P.canchi)+' · cung '+eH(P.Q.n)+' ('+eH(P.Q.g)+' tứ mệnh)</div><dl>'+
+   '<div><dt>Phòng ngủ</dt><dd>Ô '+DIR[R.cell].n+(R.shared?' (tầng khác)':'')+' <span class="pill '+(good?"g":"w")+'">'+STAR[R.star].n+'</span></dd></div>'+
+   '<div><dt>Đầu giường</dt><dd>Quay về '+DIR[R.bed].n+(STAR[R.bedStar].cat?' ('+STAR[R.bedStar].n+')':' (theo gia chủ)')+'</dd></div>'+
+   '<div><dt>'+(R.grp==="kid"?"Bàn học":"Bàn làm việc")+'</dt><dd>Ngồi nhìn về '+DIR[R.desk].n+' ('+STAR[R.deskStar].n+') hoặc '+DIR[R.alt].n+'</dd></div>'+
+   '<div><dt>Hướng tốt</dt><dd>'+ORDER.slice(0,4).map(function(k){return DIR[P.dn.indexOf(k)].n;}).join(", ")+'</dd></div>'+
+   '<div><dt>Màu hợp</dt><dd>'+MAU[P.napamH]+'; '+MAU[sinhRa(P.napamH)]+'</dd></div>'+
+   (R.grp==="master"&&!isOwner&&!good?'<div><dt>Lưu ý</dt><dd>Vợ chồng khác nhóm mệnh nên phòng và đầu giường theo hướng tốt của gia chủ. '+eH(P.ten)+' nên chọn chỗ ngồi làm việc, chỗ ngồi ăn theo hướng tốt của mình ở trên.</dd></div>':(!good?'<div><dt>Lưu ý</dt><dd>Ô này chưa phải phương tốt của người này. Kê đầu giường và bàn theo hướng ở trên để bù lại.</dd></div>':''))+
+   (R.grp==="old"?'<div><dt>Người cao tuổi</dt><dd>Ưu tiên phòng ở tầng trệt, lối đi rộng, có tay vịn ở vệ sinh.</dd></div>':'')+
+   '</dl></div></div>';
+}
+function membersHTML(r,imgs){return [r].concat(r.fam).map(function(P,i){return memberCardHTML(P,i===0,imgs?imgs[i]:null);}).join("");}
+
+function ageHTML(r){
+  var b=r.build,kl=kimLau(b.tuoi),ho=hoangOc(b.tuoi),tt=tamTai(r.chi),isTT=tt.indexOf(CHI[(b.year+8)%12])>=0;
+  var pros=['Cung phi <b>'+eH(r.Q.n)+' ('+eH(r.Q.h)+')</b>: hợp bốn hướng '+ORDER.slice(0,4).map(function(k){return DIR[r.dn.indexOf(k)].n;}).join(", ")+'.','Mệnh <b>'+eH(r.napam)+'</b>: màu hợp '+MAU[r.napamH]+' và '+MAU[sinhRa(r.napamH)]+'.'];
+  var cons=['Hạn chế màu chủ đạo '+MAU[khacBoi(r.napamH)]+' (hành '+khacBoi(r.napamH)+' khắc '+r.napamH+').','Tránh cửa chính, giường ngủ về: '+ORDER.slice(4).map(function(k){return DIR[r.dn.indexOf(k)].n;}).join(", ")+'.'];
+  var y=[],bad=0,out=b.tuoi<10||b.tuoi>100;
+  if(out)y.push('Năm '+b.year+' gia chủ '+b.tuoi+' tuổi âm, ngoài khoảng xét tuổi làm nhà.');
+  else{y.push(kl?'<span class="pill b">Phạm</span> '+kl:'<span class="pill g">Không phạm</span> Kim lâu');y.push((ho.bad?'<span class="pill b">Xấu</span> ':'<span class="pill g">Tốt</span> ')+'Hoang ốc: '+ho.n);y.push(isTT?'<span class="pill b">Phạm</span> Tam tai (tuổi '+eH(r.chi)+' gặp các năm '+tt.join(", ")+')':'<span class="pill g">Không phạm</span> Tam tai (năm tam tai: '+tt.join(", ")+')');bad=(kl?1:0)+(ho.bad?1:0)+(isTT?1:0);}
+  var concl=out?'':bad===0?'Năm '+b.year+' gia chủ đủ tuổi đứng tên làm nhà.':'Năm '+b.year+' gia chủ phạm '+bad+' yếu tố. Có thể chọn năm khác hoặc mượn tuổi người hợp đứng ra động thổ.';
+  return '<div class="cols"><div class="card pro"><h3>Thuận lợi của tuổi</h3>'+list(pros)+'</div><div class="card con"><h3>Cần lưu ý</h3>'+list(cons)+'</div></div>'+
+   '<div class="card tip" style="margin-top:16px"><h3>Năm '+eH(b.year)+' ('+eH(b.canchi)+') · gia chủ '+eH(b.tuoi)+' tuổi âm</h3>'+list(y)+(concl?'<p style="margin:8px 0 0"><b>'+eH(concl)+'</b></p>':'')+'</div>';
+}
+
+/* ================= VẼ VÒNG ================= */
+var FD="'Oswald','Arial Narrow',Arial,sans-serif",FB="'Be Vietnam Pro',Arial,sans-serif",FM="'IBM Plex Mono',Menlo,monospace";
+var GOLD="#d4a017",GOLD2="#f0cf6a",NAVY="#0a1224",NAVY2="#111c33",NAVY3="#1a2846",LINE="#3a4c74",WHITE="#f4f6fb",RED="#c62f24",MUTED="#b9c3d8";
+function tools(c){var rad=Math.PI/180;var T={
+  P:function(a,R){return[R*Math.sin(a*rad),-R*Math.cos(a*rad)];},
+  sector:function(a0,a1,r0,r1,fill,stroke,lw){c.beginPath();c.arc(0,0,r1,(a0-90)*rad,(a1-90)*rad);c.arc(0,0,r0,(a1-90)*rad,(a0-90)*rad,true);c.closePath();if(fill){c.fillStyle=fill;c.fill();}if(stroke){c.strokeStyle=stroke;c.lineWidth=lw||1;c.stroke();}},
+  ring:function(R,col,lw){c.beginPath();c.arc(0,0,R,0,Math.PI*2);c.strokeStyle=col;c.lineWidth=lw;c.stroke();},
+  radial:function(a,r0,r1,col,lw){var p=T.P(a,r0),q=T.P(a,r1);c.beginPath();c.moveTo(p[0],p[1]);c.lineTo(q[0],q[1]);c.strokeStyle=col;c.lineWidth=lw;c.stroke();},
+  tText:function(t,a,R,font,col){c.save();var p=T.P(a,R);c.translate(p[0],p[1]);c.rotate(((a>90&&a<270)?a+180:a)*rad);c.font=font;c.fillStyle=col;c.textAlign="center";c.textBaseline="middle";c.fillText(t,0,0);c.restore();},
+  hText:function(t,x,y,font,col,maxW){c.font=font;if(maxW){var w=c.measureText(t).width;if(w>maxW){var m=font.match(/([\d.]+)px/);c.font=font.replace(m[0],(parseFloat(m[1])*maxW/w).toFixed(1)+"px");}}c.fillStyle=col;c.textAlign="center";c.textBaseline="middle";c.fillText(t,x,y);}};return T;}
+function drawTrigram(c,lines,cy,w,lh,gap,col){c.fillStyle=col;for(var j=0;j<3;j++){var top=cy+(1-j)*gap-lh/2;if(lines[j])c.fillRect(-w/2,top,w,lh);else{c.fillRect(-w/2,top,w*0.42,lh);c.fillRect(w/2-w*0.42,top,w*0.42,lh);}}}
+
+function drawWheel(cv,r,px){
+  cv.width=px;cv.height=px;var c=cv.getContext("2d"),k=px/1060;c.setTransform(k,0,0,k,px/2,px/2);
+  var T=tools(c),a,i;
+  c.clearRect(-530,-530,1060,1060);
+  c.beginPath();c.arc(0,0,522,0,Math.PI*2);c.fillStyle=NAVY;c.fill();
+  for(a=0;a<360;a+=5){var long=a%45===0?38:a%15===0?26:15;T.radial(a,476,476+long,a%45===0?GOLD2:GOLD,a%45===0?3.2:1.6);}
+  T.sector(0,360,410,472,NAVY2);
+  for(a=0;a<360;a++){var L=a%5===0?(a%15===0?14:10):5;T.radial(a,472-L,472,a%5===0?GOLD:"#6b7896",a%15===0?1.8:1);}
+  for(a=0;a<360;a+=15)T.tText(String(a===0?360:a),a,440,"500 18px "+FM,GOLD2);
+  T.ring(472,GOLD,2);T.ring(410,GOLD,1.6);
+  var satW=r.Q.sat,satH=r.house?r.house.satSon:null;
+  for(i=0;i<24;i++){var cA=i*15,nm=SON[i],isSat=nm===satW;
+    T.sector(cA-7.5,cA+7.5,338,410,isSat?RED:(INT(i/3)%2?NAVY3:NAVY2),LINE,1);
+    if(satH&&nm===satH&&!isSat)T.sector(cA-6.6,cA+6.6,342,406,null,"#ff8a3d",3.5);
+    T.tText(nm,cA,isSat?388:374,"600 23px "+FB,WHITE);
+    if(isSat)T.tText("BÁT SÁT",cA,356,"700 11.5px "+FB,"#ffe2df");}
+  for(a=22.5;a<360;a+=45)T.radial(a,338,472,GOLD,2.2);
+  T.ring(338,GOLD,2.2);
+  for(i=0;i<8;i++){var st=STAR[r.dn[i]],ca=i*45,g=st.cat;
+    var grd=c.createRadialGradient(0,0,140,0,0,338);
+    if(g){grd.addColorStop(0,"#a77b12");grd.addColorStop(1,"#e0b23a");}else{grd.addColorStop(0,"#16213b");grd.addColorStop(1,"#2b3a5e");}
+    T.sector(ca-22.5,ca+22.5,138,338,grd,GOLD,1.6);
+    var p=T.P(ca,250),x=p[0],y=p[1],main=g?NAVY:WHITE,sub=g?"#2b1e00":MUTED;
+    T.hText(DIR[i].s,x,y-46,"700 16px "+FB,g?"#3a2800":GOLD2);
+    T.hText(st.n.toUpperCase(),x,y-13,"600 34px "+FD,main,(i%4===0)?158:190);
+    T.hText(st.sao,x,y+20,"500 17px "+FB,sub);
+    T.hText(st.rank.toUpperCase(),x,y+47,"700 14px "+FM,g?"#3a2800":(st.lv<=-3?"#ffa59c":"#efc1bc"));}
+  if(r.house){var hi=r.house.di;T.sector(hi*45-22.5,hi*45+22.5,141,335,null,"#ffffff",5);}
+  T.sector(0,360,76,138,NAVY2);
+  for(i=0;i<8;i++){var up=(i*45>90&&i*45<270);T.tText(DIR[i].q.toUpperCase(),i*45,up?96:120,"700 19px "+FB,GOLD2);T.tText(DIR[i].lt+" "+DIR[i].h,i*45,up?121:95,"500 12.5px "+FB,MUTED);T.radial(i*45+22.5,76,138,LINE,1.2);}
+  T.ring(138,GOLD,2.2);T.ring(76,GOLD,1.6);
+  var cg=c.createRadialGradient(0,-12,4,0,0,76);cg.addColorStop(0,"#f6dc85");cg.addColorStop(1,GOLD);
+  c.beginPath();c.arc(0,0,75,0,Math.PI*2);c.fillStyle=cg;c.fill();
+  drawTrigram(c,r.Q.lines,-14,62,8,13,NAVY);
+  T.hText(r.Q.n.toUpperCase(),0,32,"600 22px "+FD,NAVY);
+  if(r.house){var d=r.house.deg;T.radial(d,410,476,"#ffffff",3);
+    var t1=T.P(d,478),tl=T.P(d-3,510),tr=T.P(d+3,510);c.beginPath();c.moveTo(t1[0],t1[1]);c.lineTo(tl[0],tl[1]);c.lineTo(tr[0],tr[1]);c.closePath();c.fillStyle="#ffffff";c.fill();
+    var t=r.house.toa;T.radial(t,410,476,"#ffffff",1.4);var tc=T.P(t,494);c.beginPath();c.arc(tc[0],tc[1],8,0,Math.PI*2);c.fillStyle=NAVY;c.fill();c.strokeStyle="#ffffff";c.lineWidth=2.4;c.stroke();}
+}
+function drawMini(cv,cp,px){
+  cv.width=px;cv.height=px;var c=cv.getContext("2d"),k=px/260;c.setTransform(k,0,0,k,px/2,px/2);var T=tools(c),dn=DUNIEN[cp],Q=QUAI[cp];
+  c.clearRect(-130,-130,260,260);
+  c.beginPath();c.arc(0,0,128,0,Math.PI*2);c.fillStyle=NAVY;c.fill();
+  var ab=["B","ĐB","Đ","ĐN","N","TN","T","TB"];
+  for(var i=0;i<8;i++){var s=STAR[dn[i]];T.sector(i*45-22.5,i*45+22.5,40,124,s.cat?"#d9a92a":"#24335a",NAVY,2.5);
+    var p=T.P(i*45,84);
+    T.hText(ab[i],p[0],p[1]-9,"700 18px "+FB,s.cat?NAVY:WHITE);T.hText(s.n,p[0],p[1]+11,"600 10px "+FB,s.cat?"#2b1e00":MUTED,52);}
+  c.beginPath();c.arc(0,0,39,0,Math.PI*2);c.fillStyle=GOLD;c.fill();
+  drawTrigram(c,Q.lines,-8,30,4.5,7.5,NAVY);T.hText(Q.n,0,19,"600 13px "+FD,NAVY);
+}
+
+/* ================= FORM THÀNH VIÊN ================= */
+var $=function(id){return document.getElementById(id);};
+var fam=[{ten:"",role:"vo",ns:"1988-03-12",gt:"nu"},{ten:"",role:"me",ns:"1958-11-02",gt:"nu"},{ten:"",role:"contrai",ns:"2014-06-20",gt:"nam"},{ten:"",role:"congai",ns:"2019-01-25",gt:"nu"}];
+var uid=0;fam.forEach(function(m){m.id=++uid;});
+function memRow(m){
+  var opts=ROLES.map(function(r){return'<option value="'+r[0]+'"'+(r[0]===m.role?" selected":"")+'>'+r[1]+'</option>';}).join("");
+  return '<div class="mem" data-id="'+eH(m.id)+'">'+
+   '<div class="field f-ten"><label for="m'+eH(m.id)+'ten">Họ tên <span class="hint">(không bắt buộc)</span></label><input id="m'+eH(m.id)+'ten" data-k="ten" value="'+eH(m.ten)+'" placeholder="VD: Trần Thị Bình"></div>'+
+   '<div class="field f-role"><label for="m'+eH(m.id)+'role">Quan hệ</label><select id="m'+eH(m.id)+'role" data-k="role">'+opts+'</select></div>'+
+   '<div class="field f-ns"><label for="m'+eH(m.id)+'ns">Ngày sinh</label><input id="m'+eH(m.id)+'ns" data-k="ns" type="date" min="1900-01-31" max="2099-12-31" value="'+eH(m.ns)+'"><div class="amlich" data-am="'+eH(m.id)+'">'+eH(amText(m.ns))+'</div></div>'+
+   '<div class="field"><label for="m'+eH(m.id)+'gt">Giới tính</label><select id="m'+eH(m.id)+'gt" data-k="gt"><option value="nam"'+(m.gt==="nam"?" selected":"")+'>Nam</option><option value="nu"'+(m.gt==="nu"?" selected":"")+'>Nữ</option></select></div>'+
+   '<button type="button" class="iconbtn" data-del="'+eH(m.id)+'" aria-label="Xóa '+eH(m.ten||"thành viên")+'"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></button></div>';
+}
+function amText(ns){if(!ns||!/^\d{4}-\d{2}-\d{2}$/.test(ns))return"";var p=ns.split("-").map(Number);if(p[0]<1900||p[0]>2099)return"";var L=solar2lunar(p[2],p[1],p[0]);return"Âm lịch: "+pad(L.d)+"/"+pad(L.m)+(L.leap?" (nhuận)":"")+"/"+L.y+" · "+CAN[(L.y+6)%10]+" "+CHI[(L.y+8)%12];}
+function lunarFull(P){var L=P.lunar;return pad(L.d)+"/"+pad(L.m)+(L.leap?" nhuận":"")+"/"+L.y;}
+function capNhatAmChu(){$("nsAm").textContent=amText($("ns").value);}
+function renderMembers(){$("members").innerHTML=fam.length?fam.map(memRow).join(""):'<p class="hint" style="margin:0">Chưa có thành viên. Bấm “Thêm thành viên” để nhập vợ hoặc chồng, bố mẹ, con cái.</p>';}
+function onMem(e){var row=e.target.closest(".mem");if(!row)return;var m=fam.filter(function(x){return x.id==row.dataset.id;})[0],k=e.target.dataset.k;if(!m||!k)return;m[k]=e.target.value;$("sampleTag").hidden=true;
+  if(k==="ns"){var am=row.querySelector('[data-am]');if(am)am.textContent=amText(m.ns);}
+  if(k==="role"&&e.type==="change"){m.gt=roleInfo(m.role).gt;row.querySelector('[data-k="gt"]').value=m.gt;}}
+$("members").addEventListener("input",onMem);$("members").addEventListener("change",onMem);
+$("members").addEventListener("click",function(e){var b=e.target.closest("[data-del]");if(!b)return;fam=fam.filter(function(x){return x.id!=b.dataset.del;});$("sampleTag").hidden=true;renderMembers();});
+$("addMem").addEventListener("click",function(){if(fam.length>=10){$("err").textContent="Tối đa 10 thành viên.";return;}var m={id:++uid,ten:"",role:"contrai",ns:"",gt:"nam"};fam.push(m);renderMembers();var el=$("m"+m.id+"ten");if(el)el.focus();});
+
+function readForm(){
+  var ns=$("ns").value,degS=$("deg").value.trim().replace(",",".");
+  if(!ns)return{err:"Cần nhập ngày sinh của gia chủ."};
+  var y=+ns.slice(0,4);if(y<1900||y>2099)return{err:"Ngày sinh cần trong khoảng 1900–2099."};
+  var deg=null;if(degS!==""){deg=parseFloat(degS);if(isNaN(deg)||deg<0||deg>=360)return{err:"Số độ hướng nhà từ 0 đến 359,9."};}
+  var nx=parseInt($("namxay").value,10);if(isNaN(nx)||nx<1950||nx>2100)nx=new Date().getFullYear()+1;
+  var fm=[];for(var i=0;i<fam.length;i++){var m=fam[i];if(!m.ns)return{err:"Thành viên "+(m.ten||("thứ "+(i+1)))+" chưa có ngày sinh."};var my=+m.ns.slice(0,4);if(my<1900||my>2099)return{err:"Ngày sinh của "+(m.ten||"thành viên")+" cần trong khoảng 1900–2099."};fm.push({ten:(m.ten||"").trim(),role:m.role,ns:m.ns,gt:m.gt});}
+  if(fm.filter(function(m){return roleInfo(m.role).grp==="master";}).length>1)return{err:"Chỉ chọn một người là vợ hoặc chồng của gia chủ."};
+  return{ten:$("ten").value.trim(),ns:ns,gt:document.querySelector('input[name=gt]:checked').value,deg:deg,namxay:nx,fam:fm};
+}
+var state=null;
+function render(){
+  var inp=readForm();if(inp.err){$("err").textContent=inp.err;return false;}
+  $("err").textContent="";state=compute(inp);var r=state;
+  $("summary").innerHTML=summaryHTML(r);$("dirlist").innerHTML=dirListHTML(r);
+  $("house").innerHTML=houseHTML(r);$("famtable").innerHTML=famTableHTML(r);
+  $("nine").innerHTML=nineHTML(r);$("plannote").innerHTML=planNoteHTML(r);
+  $("mcards").innerHTML=membersHTML(r);$("age").innerHTML=ageHTML(r);
+  drawAll();
+  try{(window.dataLayer=window.dataLayer||[]).push({event:"battrach_xem",cung:r.Q.n,so_thanh_vien:r.fam.length,co_huong:inp.deg!==null});}catch(e){}
+  return true;
+}
+function drawAll(){if(!state)return;var cv=$("wheel"),w=Math.min(cv.getBoundingClientRect().width||640,640),dpr=Math.min(window.devicePixelRatio||1,2.5);
+  drawWheel(cv,state,Math.max(Math.round(w*dpr),700));
+  Array.prototype.forEach.call(document.querySelectorAll("canvas.mini"),function(m){drawMini(m,+m.dataset.cp,Math.round(150*Math.max(dpr,2)));});}
+$("f").addEventListener("submit",function(e){e.preventDefault();$("sampleTag").hidden=true;if(render()){var s=$("h2a");if(s&&s.scrollIntoView)s.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});}});
+$("huongSel").addEventListener("change",function(){$("deg").value=this.value;});
+$("deg").addEventListener("input",function(){var v=parseFloat(this.value.replace(",","."));$("huongSel").value=isNaN(v)?"":String(dirIdx(v)*45);});
+["ten","ns","namxay","deg"].forEach(function(id){$(id).addEventListener("input",function(){$("sampleTag").hidden=true;});});
+$("ns").addEventListener("input",capNhatAmChu);$("ns").addEventListener("change",capNhatAmChu);
+var rt;window.addEventListener("resize",function(){clearTimeout(rt);rt=setTimeout(drawAll,200);});
+
+function setBig(on){document.documentElement.classList.toggle("big",on);$("bigBtn").setAttribute("aria-pressed",on?"true":"false");$("bigTxt").textContent=on?"Chữ vừa":"Chữ lớn hơn";try{localStorage.setItem("bt-big",on?"1":"0");}catch(e){}setTimeout(drawAll,50);}
+$("bigBtn").addEventListener("click",function(){setBig(!document.documentElement.classList.contains("big"));});
+
+/* ================= XUẤT PDF ================= */
+function slug(s){return (s||"gia-chu").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/đ/g,"d").replace(/Đ/g,"D").replace(/[^A-Za-z0-9]+/g,"-").replace(/^-|-$/g,"")||"gia-chu";}
+async function taoPDF(){
+  if(!render())return null;var r=state;
+  {
+    var off=document.createElement("canvas");drawWheel(off,r,1400);var wimg=off.toDataURL("image/png");
+    var all=[r].concat(r.fam),mimgs=all.map(function(P){var m=document.createElement("canvas");drawMini(m,P.cp,300);return m.toDataURL("image/png");});
+    var d=new Date(),dateTxt=pad(d.getDate())+"/"+pad(d.getMonth()+1)+"/"+d.getFullYear();
+    var per=4,chunks=[];for(var i=0;i<all.length;i+=per)chunks.push(i);
+    var tach=all.length>4,total=3+(tach?1:0)+chunks.length+1;
+    function head(n){return'<div class="phead"><div><div class="eyebrow">Phiếu Bát trạch gia đình · ALN</div><h1>Bát Trạch · '+eH(r.ten)+'</h1></div><div class="r">applamnha.vn<br>Trang '+n+'/'+total+'</div></div>';}
+    function foot(){return'<div class="pfoot"><span>Công ty TNHH ALN · <b>applamnha.vn</b> · KTS Trần Long · Hotline <b>0909 829 696</b></span><span>Lập ngày '+eH(dateTxt)+'</span></div>';}
+    var L=r.lunar,S=r.solar;
+    var info=[["Gia chủ",eH(r.ten)+" ("+(r.gt==="nam"?"Nam":"Nữ")+")"],["Ngày sinh dương lịch",pad(S.d)+"/"+pad(S.m)+"/"+S.y],["Ngày sinh âm lịch",pad(L.d)+"/"+pad(L.m)+(L.leap?" nhuận":"")+"/"+L.y+" · "+r.canchi],["Mệnh",r.napam],["Cung phi",r.Q.n+" ("+r.Q.h+") · "+r.Q.g+" tứ mệnh"],["Hướng nhà",r.house?fmtDeg(r.house.deg)+" "+DIR[r.house.di].n+" · sơn "+r.house.son:"Chưa xác định"],["Nhà",r.house?r.house.T.n+" trạch · tọa "+r.house.toaSon:"—"],["Số người",String(all.length)]];
+    var compact='<table><thead><tr><th>Hướng</th><th>Khoảng độ</th><th>Cung</th><th>Mức</th><th>Nên dùng cho</th></tr></thead><tbody>'+ORDER.map(function(k){var i=r.dn.indexOf(k),isH=r.house&&r.house.di===i;return'<tr class="'+(isH?"is-house":"")+'"><td><b>'+DIR[i].n+'</b>'+(isH?' · hướng nhà':'')+'</td><td class="nw">'+fmtDeg(norm(i*45-22.5))+' – '+fmtDeg(norm(i*45+22.5))+'</td><td>'+STAR[k].n+'</td><td>'+pill(k)+'</td><td>'+STAR[k].use+'</td></tr>';}).join("")+'</tbody></table>';
+    var pages=[];
+    pages.push('<div class="pg">'+head(1)+'<div class="pinfo">'+info.map(function(x){return'<div><span>'+eH(x[0])+'</span><b>'+eH(x[1])+'</b></div>';}).join("")+'</div><div class="pwheel"><img src="'+eU(wimg)+'" alt=""></div>'+compact+foot()+'</div>');
+    pages.push('<div class="pg">'+head(2)+'<h2>Đánh giá hướng nhà</h2>'+houseHTML(r)+'<h2>Tuổi gia chủ và năm làm nhà</h2>'+ageHTML(r)+foot()+'</div>');
+    var soDo='<h2>Sơ đồ bố trí phòng</h2><div style="display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:12px;align-items:start">'+nineHTML(r)+'<div class="card tip" style="font-size:11px">'+planNoteHTML(r)+'</div></div>';
+    pages.push('<div class="pg">'+head(3)+'<h2>Các thành viên</h2><div class="famtable">'+famTableHTML(r)+'</div>'+(tach?'':soDo)+foot()+'</div>');
+    if(tach)pages.push('<div class="pg">'+head(4)+soDo+foot()+'</div>');
+    chunks.forEach(function(st,ci){pages.push('<div class="pg">'+head(4+(tach?1:0)+ci)+'<h2>Tư vấn phòng cho từng người</h2><div class="mcards">'+all.slice(st,st+per).map(function(P,j){return memberCardHTML(P,st+j===0,mimgs[st+j]);}).join("")+'</div>'+foot()+'</div>');});
+    var full='<table><thead><tr><th style="width:96px">Cung</th><th>Ý nghĩa</th><th>Nên bố trí</th></tr></thead><tbody>'+ORDER.map(function(k){return'<tr><td><b>'+STAR[k].n+'</b><br>'+pill(k)+'</td><td>'+STAR[k].txt+'</td><td>'+STAR[k].use+'</td></tr>';}).join("")+'</tbody></table>';
+    pages.push('<div class="pg">'+head(total)+'<h2>Ý nghĩa 8 cung Bát trạch</h2>'+full+'<p style="font-size:11px;color:#56607a;margin-top:12px">Tính theo Bát trạch Minh cảnh, năm sinh theo âm lịch (sinh trước Tết Nguyên đán tính về năm trước). Thông tin tham khảo; kiến trúc sư ALN sẽ đo hướng thực tế và kết hợp công năng, nắng gió, giao thông của lô đất khi thiết kế.</p>'+foot()+'</div>');
+    var stage=$("pdfstage");stage.innerHTML=pages.join("");
+    await Promise.all(Array.prototype.map.call(stage.querySelectorAll("img"),function(im){return im.complete?1:new Promise(function(res){im.onload=im.onerror=res;});}));
+    if(document.fonts&&document.fonts.ready)await document.fonts.ready;
+    var pdf=new window.jspdf.jsPDF({unit:"mm",format:"a4",orientation:"portrait"}),pgs=stage.querySelectorAll(".pg");
+    for(var p=0;p<pgs.length;p++){var cnv=await html2canvas(pgs[p],{scale:2,backgroundColor:"#ffffff",logging:false,windowWidth:794});if(p>0)pdf.addPage();pdf.addImage(cnv.toDataURL("image/jpeg",0.9),"JPEG",0,0,210,297);}
+    pdf.setProperties({title:"Bát Trạch gia đình - "+r.ten,author:"ALN · applamnha.vn"});
+    stage.innerHTML="";
+    return{pdf:pdf,ten:"BatTrach-"+slug(r.ten)+"-"+r.Y+".pdf",r:r};
+  }
+}
+function banPdf(ev,r,cach){try{(window.dataLayer=window.dataLayer||[]).push({event:ev,cung:r.Q.n,so_thanh_vien:r.fam.length,cach:cach});}catch(e){}}
+async function exportPDF(cach){
+  var btns=document.querySelectorAll(".pdfBtn");btns.forEach(function(b){b.disabled=true;});var ok=false;
+  try{var o=await taoPDF();if(o){o.pdf.save(o.ten);ok=true;banPdf("battrach_pdf",o.r,cach||"tai_ve");}}
+  catch(e){$("err").textContent="Chưa tạo được PDF. Thử lại, hoặc mở trang bằng Chrome hay Safari bản mới.";console.error(e);}
+  btns.forEach(function(b){b.disabled=false;});
+  return ok;
+}
+
+/* ================= LƯU PHIẾU VÀ TẢI PDF ================= */
+/* Nam chốt 12/10/2026: "họ điền gì thì in đúng bản đó"; tạm thời đề xuất khách để lại SĐT rồi tải PDF,
+   gửi qua Zalo làm sau. Mọi nút "Xuất PDF" dẫn về mục 6; vẫn có lối "Chỉ tải PDF, không để lại số".
+   Gửi lead bằng fetch thẳng callable guiLeadBatTrach (không nạp Firebase, không đăng nhập). */
+var FN_LEAD="https://asia-southeast1-aln-platform.cloudfunctions.net/guiLeadBatTrach";
+function dauVaoGui(inp,r){
+  return{gia_chu:{ten:inp.ten,ns:inp.ns,gt:inp.gt,nam_am:r.Y,cung:r.Q.n},huong:inp.deg,nam_xay:inp.namxay,
+    thanh_vien:inp.fam.map(function(m,i){var P=r.fam[i];return{ten:m.ten,vai:m.role,ns:m.ns,gt:m.gt,nam_am:P.Y,cung:P.Q.n};})};
+}
+function denMucLuu(){var s=$("luu");if(s&&s.scrollIntoView)s.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});
+  setTimeout(function(){var t=$("zf").hidden?$("taiKhongSo"):$("zTen");if(t)t.focus({preventScroll:true});},400);}
+document.querySelectorAll(".pdfBtn").forEach(function(b){b.addEventListener("click",function(){if(render())denMucLuu();});});
+$("taiKhongSo").addEventListener("click",async function(){var b=this;b.disabled=true;b.textContent="Đang tạo PDF…";await exportPDF("khong_so");b.disabled=false;b.textContent="Chỉ tải PDF, không để lại số";});
+var zBatDau=false;
+$("zf").addEventListener("input",function(){if(!zBatDau){zBatDau=true;try{(window.dataLayer=window.dataLayer||[]).push({event:"battrach_luu_bat_dau"});}catch(e){}}});
+$("ten").addEventListener("input",function(){if(!$("zTen").dataset.sua)$("zTen").value=this.value;});
+$("zTen").addEventListener("input",function(){this.dataset.sua="1";});
+$("zf").addEventListener("submit",async function(e){
+  e.preventDefault();var err=$("zErr");err.textContent="";
+  var ten=$("zTen").value.trim(),sdt=$("zSdt").value.trim();
+  if((ten.match(/\p{L}/gu)||[]).length<2){err.textContent="Anh/chị nhập họ tên để KTS xưng hô.";$("zTen").focus();return;}
+  if(sdt.replace(/\D/g,"").length<9){err.textContent="Anh/chị nhập số điện thoại.";$("zSdt").focus();return;}
+  if(!$("zDongY").checked){err.textContent="Anh/chị tick ô đồng ý để ALN lưu phiếu và KTS được liên hệ.";$("zDongY").focus();return;}
+  if(!$("ten").value.trim())$("ten").value=ten; // phiếu ghi đúng tên khách vừa nhập
+  if(!render()){err.textContent="Xem lại thông tin ở mục 1: "+$("err").textContent;return;}
+  var inp=readForm(),r=state,btn=$("zGui");btn.disabled=true;$("zGuiTxt").textContent="Đang lưu…";
+  var daLuu=false,thongBao="";
+  try{
+    var res=await fetch(FN_LEAD,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({data:{
+      name:ten,phone:sdt,dongY:true,giai_doan:$("zGd").value||null,optout:window.ALN_INTERNAL===true,dau_vao:dauVaoGui(inp,r)}})});
+    var j=null;try{j=await res.json();}catch(x){}
+    if(res.ok&&j&&j.result&&j.result.ok)daLuu=true;
+    else if(j&&j.error&&(j.error.status==="INVALID_ARGUMENT"||j.error.status==="RESOURCE_EXHAUSTED")&&j.error.message){err.textContent=j.error.message;btn.disabled=false;$("zGuiTxt").textContent="Lưu và tải PDF";return;}
+    else thongBao="Chưa lưu được số điện thoại, phiếu vẫn được tải về. Cần KTS tư vấn, anh/chị nhắn Zalo 0909 829 696.";
+  }catch(x){thongBao="Mạng đang chập chờn, chưa lưu được số điện thoại. Phiếu vẫn được tải về. Cần KTS tư vấn, anh/chị nhắn Zalo 0909 829 696.";}
+  $("zGuiTxt").textContent="Đang tạo PDF…";
+  if(daLuu){try{(window.dataLayer=window.dataLayer||[]).push({event:"battrach_lead",cung:r.Q.n,so_thanh_vien:r.fam.length,co_huong:inp.deg!==null});}catch(x){}}
+  var ok=await exportPDF("kem_so");
+  var box=$("zOk");box.hidden=false;
+  if(daLuu){$("zf").hidden=true;box.textContent="Đã lưu phiếu của gia đình."+(ok?" Phiếu PDF đã tải về máy.":" Chưa tải được PDF, anh/chị bấm “Chỉ tải PDF” bên dưới để tải lại.")+" Khi cần tư vấn bố trí nhà, anh/chị gọi hoặc nhắn Zalo KTS Trần Long 0909 829 696.";}
+  else{box.textContent=thongBao;}
+  btn.disabled=false;$("zGuiTxt").textContent="Lưu và tải PDF";
+});
+
+/* ================= THÔNG TIN ĐÃ LƯU (12/10/2026, Nam chốt làm cả 2 cách) =================
+   1) Nhớ trên máy khách: localStorage aln_battrach_v1 (không gửi về ALN), chỉ ghi sau khi khách tự nhập
+      (không ghi số liệu ví dụ), không ghi SĐT. Có nút "Xoá thông tin đã lưu" cho máy dùng chung.
+   2) Mở lại từ hồ sơ ALN: OTP Phone Auth → callable moPhieuBatTrach trả phiếu của đúng số đó.
+   Thứ tự khi mở trang: link #nap= (KTS) → dữ liệu nhớ trên máy → số liệu ví dụ. */
+var KHO="aln_battrach_v1",daNhap=false,VAI_HOP=ROLES.map(function(r){return r[0];});
+var reNgay=/^\d{4}-\d{2}-\d{2}$/;
+function ngayVN(ms){var d=new Date(ms);return pad(d.getDate())+"/"+pad(d.getMonth()+1)+"/"+d.getFullYear();}
+function napDauVao(d){
+  if(!d||!reNgay.test(d.ns||"")||(d.gt!=="nam"&&d.gt!=="nu"))return false;
+  $("ten").value=String(d.ten||"").slice(0,100);$("ns").value=d.ns;(d.gt==="nam"?$("gtNam"):$("gtNu")).checked=true;
+  var h=(d.deg===null||d.deg===undefined||d.deg==="")?null:Number(d.deg);if(h!==null&&!(h>=0&&h<360))h=null;
+  $("deg").value=h===null?"":String(h);$("huongSel").value=h===null?"":String(dirIdx(h)*45);
+  var nx=Number(d.namxay);if(nx>=1950&&nx<=2100)$("namxay").value=String(nx);
+  fam=(Array.isArray(d.fam)?d.fam:[]).filter(function(m){return m&&reNgay.test(m.ns||"")&&(m.gt==="nam"||m.gt==="nu");}).slice(0,10)
+    .map(function(m){return{ten:String(m.ten||"").slice(0,60),role:VAI_HOP.indexOf(m.role)>=0?m.role:"khac",ns:m.ns,gt:m.gt};});
+  uid=0;fam.forEach(function(q){q.id=++uid;});$("sampleTag").hidden=true;daNhap=true;
+  if(d.ten&&!$("zTen").value)$("zTen").value=String(d.ten).slice(0,100);
+  return true;
+}
+function luuMay(){if(!daNhap)return;try{var i=readForm();if(i.err)return;
+  localStorage.setItem(KHO,JSON.stringify({ten:i.ten,ns:i.ns,gt:i.gt,deg:i.deg,namxay:i.namxay,fam:i.fam,luc:Date.now()}));}catch(e){}}
+function docMay(){try{var d=JSON.parse(localStorage.getItem(KHO)||"null");if(!d||!d.luc||Date.now()-d.luc>365*864e5)return null;return d;}catch(e){return null;}}
+function hienBar(t){$("daLuuTxt").textContent=t;$("daLuuBar").hidden=false;}
+var renderGoc=render;render=function(){var ok=renderGoc();if(ok)luuMay();return ok;};
+$("f").addEventListener("input",function(){daNhap=true;});$("f").addEventListener("change",function(){daNhap=true;});
+$("xoaLuu").addEventListener("click",function(){try{localStorage.removeItem(KHO);}catch(e){}location.replace(location.pathname);});
+
+/* Link KTS nhận trong lead: #nap=g.1985-08-15.n_h.225_x.2027_m.vo.1987-02-01.u (lib/batTrach.js linkNap) */
+function docNap(){
+  var m=/^#nap=([a-z0-9._-]{1,800})$/.exec(location.hash||"");if(!m)return false;
+  var g=null,h=null,x=null,mem=[],ok=true;
+  m[1].split("_").forEach(function(t){var p=t.split("."),gt=function(c){return c==="n"?"nam":c==="u"?"nu":null;};
+    if(p[0]==="g"&&p.length===3&&reNgay.test(p[1])&&gt(p[2]))g={ns:p[1],gt:gt(p[2])};
+    else if(p[0]==="h"&&(p.length===2||p.length===3)){var v=parseFloat(p.slice(1).join("."));if(v>=0&&v<360)h=v;}
+    else if(p[0]==="x"&&p.length===2&&/^\d{4}$/.test(p[1]))x=+p[1];
+    else if(p[0]==="m"&&p.length===4&&VAI_HOP.indexOf(p[1])>=0&&reNgay.test(p[2])&&gt(p[3]))mem.push({ten:"",role:p[1],ns:p[2],gt:gt(p[3])});
+    else ok=false;});
+  if(!g||!ok)return false;
+  return napDauVao({ten:"",ns:g.ns,gt:g.gt,deg:h,namxay:x,fam:mem});
+}
+
+/* Mở lại từ hồ sơ ALN bằng OTP — chỉ nạp Firebase khi khách bấm (trang nhẹ cho mọi người khác) */
+var FB=null,XN=null;
+async function napFb(){if(FB)return FB;
+  var c=await import("/firebase-config.js"),f=await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js");
+  FB={c:c,mo:f.httpsCallable(f.getFunctions(c.app,"asia-southeast1"),"moPhieuBatTrach",{timeout:20000})};return FB;}
+var LOI_OTP={"auth/invalid-phone-number":"Số điện thoại chưa đúng.","auth/too-many-requests":"Anh/chị thử quá nhiều lần. Vui lòng đợi vài phút rồi thử lại.",
+  "auth/code-expired":"Mã đã hết hạn. Bấm “Gửi mã xác nhận” lại.","auth/invalid-verification-code":"Mã chưa đúng. Kiểm tra lại 6 số trong tin nhắn.",
+  "auth/quota-exceeded":"Hệ thống đã gửi quá nhiều mã hôm nay. Anh/chị nhắn Zalo 0909 829 696 để được hỗ trợ.","auth/network-request-failed":"Lỗi kết nối mạng. Kiểm tra Internet rồi thử lại.",
+  "auth/captcha-check-failed":"Xác thực trình duyệt chưa thành công. Bấm gửi mã lại."};
+function mlLoi(t){$("mlErr").textContent=t||"";}
+function chuanSdt(v){var d=String(v||"").replace(/\D/g,"");if(/^84\d{9}$/.test(d))d="0"+d.slice(2);return /^0\d{9}$/.test(d)?d:null;}
+function moPhieu(p){
+  var dv=p.dau_vao,g=dv.gia_chu;
+  if(!napDauVao({ten:g.ten,ns:g.ns,gt:g.gt,deg:dv.huong,namxay:dv.nam_xay,fam:(dv.thanh_vien||[]).map(function(m){return{ten:m.ten,role:m.vai,ns:m.ns,gt:m.gt};})})){mlLoi("Phiếu này thiếu dữ liệu, chưa mở được.");return;}
+  renderMembers();capNhatAmChu();render();
+  hienBar("Đã mở lại phiếu đã lưu"+(p.luc_ms?" ngày "+ngayVN(p.luc_ms):"")+".");
+  try{(window.dataLayer=window.dataLayer||[]).push({event:"battrach_mo_lai",so_phieu:1});}catch(e){}
+  var s=$("h2a");if(s&&s.scrollIntoView)s.scrollIntoView({behavior:"auto",block:"start"});
+}
+async function goiMo(){
+  $("mlTin").textContent="Đang mở phiếu…";mlLoi("");
+  try{var r=await FB.mo({}),ds=(r.data&&r.data.phieu)||[];$("mlTin").textContent="";
+    if(!ds.length){mlLoi("Chưa có phiếu nào lưu với số này. Anh/chị nhập thông tin ở mục 1 rồi bấm “Lưu và tải PDF”.");return;}
+    if(ds.length===1){moPhieu(ds[0]);return;}
+    var box=$("mlDs");box.textContent="";var tl=document.createElement("p");tl.className="hint";tl.style.margin="0";tl.textContent="Số này đã lưu "+ds.length+" phiếu. Chọn phiếu cần mở:";box.appendChild(tl);
+    ds.forEach(function(p){var b=document.createElement("button");b.type="button";var g=p.dau_vao.gia_chu;
+      b.textContent=(p.luc_ms?ngayVN(p.luc_ms)+" · ":"")+(g.ten||"Gia chủ")+" · "+(1+(p.dau_vao.thanh_vien||[]).length)+" người";
+      b.addEventListener("click",function(){moPhieu(p);});box.appendChild(b);});
+  }catch(e){$("mlTin").textContent="";mlLoi(e&&e.code==="functions/unauthenticated"?"Anh/chị xác nhận số điện thoại bằng mã OTP trước.":"Chưa mở được phiếu. Anh/chị thử lại hoặc nhắn Zalo 0909 829 696.");}
+}
+$("mlMo").addEventListener("click",async function(){
+  var b=this;$("mlPanel").hidden=false;b.hidden=true;mlLoi("");
+  try{await napFb();var u=await new Promise(function(res){var off=FB.c.onAuthStateChanged(FB.c.auth,function(x){off();res(x);});});
+    if(u&&!u.isAnonymous&&u.phoneNumber){$("mlSdtBox").hidden=true;$("mlGuiBox").hidden=true;await goiMo();return;}
+  }catch(e){mlLoi("Chưa tải được phần xác nhận số điện thoại. Kiểm tra mạng rồi tải lại trang.");}
+  $("mlSdt").focus();
+});
+$("mlGui").addEventListener("click",async function(){
+  var sdt=chuanSdt($("mlSdt").value);mlLoi("");if(!sdt){mlLoi("Số điện thoại chưa đúng (10 số, bắt đầu bằng 0).");return;}
+  var b=this,ver=null;b.disabled=true;$("mlGuiTxt").textContent="Đang gửi mã…";
+  try{await napFb();ver=new FB.c.RecaptchaVerifier(FB.c.auth,"recaptcha-bt",{size:"invisible"});
+    XN=await FB.c.signInWithPhoneNumber(FB.c.auth,"+84"+sdt.slice(1),ver);
+    $("mlSdtHien").textContent=sdt;$("mlMaBox").hidden=false;$("mlMa").value="";$("mlMa").focus();$("mlGuiTxt").textContent="Gửi lại mã";
+  }catch(e){mlLoi(LOI_OTP[e&&e.code]||"Chưa gửi được mã. Anh/chị thử lại hoặc nhắn Zalo 0909 829 696.");if(!/Gửi lại/.test($("mlGuiTxt").textContent))$("mlGuiTxt").textContent="Gửi mã xác nhận";}
+  try{ver&&ver.clear();}catch(e){}var c=$("recaptcha-bt");if(c)c.replaceWith(c.cloneNode(false));b.disabled=false;
+});
+$("mlXn").addEventListener("click",async function(){
+  var ma=$("mlMa").value.replace(/\D/g,"");mlLoi("");if(ma.length!==6){mlLoi("Nhập đủ 6 số trong tin nhắn.");return;}if(!XN){mlLoi("Bấm “Gửi mã xác nhận” trước.");return;}
+  var b=this;b.disabled=true;$("mlXnTxt").textContent="Đang xác nhận…";
+  try{await XN.confirm(ma);$("mlMaBox").hidden=true;$("mlSdtBox").hidden=true;$("mlGuiBox").hidden=true;await goiMo();}
+  catch(e){mlLoi(LOI_OTP[e&&e.code]||"Chưa xác nhận được mã. Anh/chị thử lại.");}
+  b.disabled=false;$("mlXnTxt").textContent="Mở phiếu";
+});
+
+var tuNap=docNap();
+if(!tuNap){var dm=docMay();if(dm&&napDauVao(dm))hienBar("Đã điền sẵn thông tin anh/chị nhập lần trước ("+ngayVN(dm.luc)+").");}
+renderMembers();capNhatAmChu();
+try{if(localStorage.getItem("bt-big")==="1")document.documentElement.classList.add("big");}catch(e){}
+render();
+if(document.documentElement.classList.contains("big"))setBig(true);
+if(document.fonts)Promise.all(["600 34px Oswald","600 23px 'Be Vietnam Pro'","700 16px 'Be Vietnam Pro'","500 18px 'IBM Plex Mono'"].map(function(f){return document.fonts.load(f,"ĐƯỜNG Ắ");})).then(drawAll,function(){});
+window.__BT={compute:compute,solar2lunar:solar2lunar,cungPhi:cungPhi};
+})();
+</script>
+
+</body>
+</html>

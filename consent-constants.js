@@ -15,6 +15,7 @@ export const CONSENT_VERSIONS = {
   quang_cao: "2026-10-03",
   mymy_chat: "2026-10-03",
   mat_bang: "2026-10-07",
+  bat_trach: "2026-10-12",
 };
 
 export const CONSENT_TEXTS = {
@@ -30,6 +31,9 @@ export const CONSENT_TEXTS = {
   /* Form "Nhờ KTS chỉnh phương án này" ở /thiet-ke-mat-bang/ — PHẢI giống hệt
      functions/consent_constants.js CONSENT_TEXTS.mat_bang (functions/_test_matBang.js kiểm). */
   mat_bang: "Tôi đồng ý để ALN dùng họ tên, SĐT và phương án mặt bằng này để KTS gọi/nhắn tư vấn thiết kế, theo Chính sách quyền riêng tư.",
+  /* Form "Lưu phiếu và tải PDF" trên bat-trach.html — PHẢI giống hệt
+     functions/consent_constants.js CONSENT_TEXTS.bat_trach (functions/_test_batTrach.js kiểm). */
+  bat_trach: "Tôi đồng ý để ALN lưu họ tên, SĐT của tôi cùng họ tên, ngày sinh các thành viên và hướng nhà đã nhập để KTS của ALN liên hệ tư vấn, theo Chính sách quyền riêng tư.",
 };
 
 export const CONSENT_PURPOSES = {
@@ -38,4 +42,5 @@ export const CONSENT_PURPOSES = {
   quang_cao: "do_hieu_qua_quang_cao_meta",
   mymy_chat: "lien_he_tu_van_mymy",
   mat_bang: "lien_he_tu_van_mat_bang",
+  bat_trach: "lien_he_tu_van_bat_trach",
 };
