@@ -1090,7 +1090,7 @@ function veSuaGia(v) {
   callTinhDuToanNha({ chiBangGia: true, inputs: v.inputs, priceOverrides: v.gia_vat_tu_da_sua || {} }).then((res) => {
     if (suaGia.khoa !== khoa) return;
     const bg = (res.data && res.data.bangGia) || {};
-    const ds = [].concat(bg.T || [], bg.H || []);
+    const ds = [].concat(bg.T || [], bg.H || [], bg.TG || []);
     suaGia.bang = ds;
     const cu = v.gia_vat_tu_da_sua || {};
     body.innerHTML = `<table>${ds.map((d) => { const g = cu[d.m] != null ? cu[d.m] : d.gia; return `<tr data-m="${esc(d.m)}"><td>${esc(d.ten)}</td><td class="dv">${esc(d.dv || '')}</td><td><input type="text" inputmode="numeric" autocomplete="off" data-m="${esc(d.m)}" data-gia="${esc(d.gia)}" value="${esc(Math.round(Number(g) || 0).toLocaleString('vi-VN'))}" aria-label="Giá ${esc(d.ten)}"></td></tr>`; }).join('')}</table>`;

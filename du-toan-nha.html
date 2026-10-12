@@ -444,6 +444,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
    <button class="btn link" id="moreT" type="button"></button>
    <div class="sub">Vật tư hoàn thiện bạn tự mua</div>
    <table class="pt" id="ptH"></table>
+   <div class="sub" id="subG" hidden>Thiết bị và hạng mục trọn gói bạn tự mua</div>
+   <div class="hint" id="hintG" hidden>Giá theo đơn vị (m², bộ, cái) gồm cả lắp đặt. Sửa theo báo giá anh/chị nhận được.</div>
+   <table class="pt" id="ptG"></table>
    <button class="btn" id="resetP" type="button" style="margin-top:12px">Trả về giá mặc định</button>
   </div>
  </details>
@@ -769,9 +772,10 @@ function drawPrices(bgKey){
  const row=(d)=>{const ch=st.px[d.m]!=null&&st.px[d.m]!==''&&num(st.px[d.m])!==d.gia;return `<tr class="${ch?'chg':''}"><td>${eH(d.ten)}</td><td>${eH(d.dv||'')}</td><td><input type="text" inputmode="numeric" autocomplete="off" data-m="${eH(d.m)}" data-gia="${eH(d.gia)}" value="${eH(fmtSo(Math.round(price(d.m,d.gia))))}" aria-label="Giá ${eH(d.ten)}"></td></tr>`};
  const T=bg.T,H=bg.H;
  const Tv=showAllT?T:T.slice(0,8);
- $('ptT').innerHTML=Tv.map(row).join('');$('ptH').innerHTML=H.map(row).join('');
+ const G=bg.TG||[];
+ $('ptT').innerHTML=Tv.map(row).join('');$('ptH').innerHTML=H.map(row).join('');$('ptG').innerHTML=G.map(row).join('');$('subG').hidden=$('hintG').hidden=!G.length;
  $('moreT').textContent=showAllT?'Thu gọn':`Xem thêm ${T.length-8} loại vật tư`;$('moreT').hidden=T.length<=8;
- document.querySelectorAll('#ptT input,#ptH input').forEach(inp=>inp.addEventListener('input',e=>{const d=soThuan(inp.value);inp.value=fmtSo(d);st.px[inp.dataset.m]=d;inp.closest('tr').classList.toggle('chg',d!==''&&num(d)!==num(inp.dataset.gia));run(true,e.isTrusted)}));
+ document.querySelectorAll('#ptT input,#ptH input,#ptG input').forEach(inp=>inp.addEventListener('input',e=>{const d=soThuan(inp.value);inp.value=fmtSo(d);st.px[inp.dataset.m]=d;inp.closest('tr').classList.toggle('chg',d!==''&&num(d)!==num(inp.dataset.gia));run(true,e.isTrusted)}));
 }
 // ── Đơn giá vật tư từng hạng mục (bản DN, 03/10/2026) ──
 // Máy chủ trả [{nhom, ten, dv, gia}] (đơn giá ALN đã tính theo giá vật tư mục 2,
