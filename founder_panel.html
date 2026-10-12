@@ -460,6 +460,16 @@ body {
   box-shadow: -24px 0 80px rgba(0,0,0,.7);
 }
 .drawer.open { transform: translateX(0); }
+/* 12/10/2026: drawer đóng không được để bóng đổ lấn vào mép phải màn hình. */
+.drawer:not(.open) { box-shadow: none; }
+/* Luật bottom-sheet mobile ở khối @media(max-width:768px) phía trên bị luật
+   gốc .drawer (viết sau) đè mất → nhắc lại ở đây để thắng thứ tự nguồn. */
+@media(max-width:768px){
+  .drawer { top: auto; left: 0; right: 0; width: 100%; max-width: 100%; max-height: 92vh;
+    border-left: none; border-top: 1px solid var(--border); border-radius: 16px 16px 0 0;
+    transform: translateY(100%); }
+  .drawer.open { transform: translateY(0); }
+}
 
 /* Drawer header */
 .drawer-header {
@@ -749,7 +759,13 @@ body {
 .doc-chip:hover{transform:translateY(-1px)}
 @media(max-width:768px){
   .dn-kpi{min-width:100px}
+  /* 12/10/2026: hàng KPI của tab Thành viên (6 ô × 100px) từng nới trang
+     ra ~605px trên iPhone → xuống dòng thay vì tràn ngang. */
+  .dn-kpi{min-width:calc(33.333% - 1px);flex:1 1 calc(33.333% - 1px) !important;padding:8px 10px}
+  #panelMgKts > div:first-child, #panelMgDn > div:first-child, #panelMgCn > div:first-child{flex-wrap:wrap}
 }
+/* Mọi panel tab không được rộng hơn màn hình — bảng rộng tự cuộn trong khung của nó */
+[id^="panel"]{min-width:0;max-width:100%}
 
 .ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px; }
 
@@ -891,6 +907,22 @@ body {
    class="fsub"> vào bên trong là tự giãn, không cần sửa CSS. */
 .fsub-cluster{display:inline-flex;align-items:center;gap:3px;padding:2px 6px 2px 3px;border:1px dashed var(--border);border-radius:7px;background:rgba(160,112,32,.05)}
 .fsub-cluster-label{font-family:var(--sans);font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);padding:0 3px;white-space:nowrap;user-select:none}
+/* Mobile (12/10/2026): 2 thanh tab không được đẩy trang rộng hơn màn hình.
+   Trước đây .fnav-group-bar không có overflow → 5 nút nhóm + đồng hồ rộng
+   ~594px trên iPhone 390px, cả trang bị nới ngang, tab cuối "nhảy" ra ngoài.
+   Giờ cả 2 thanh tự cuộn ngang trong khung của nó; tab đang mở được cuộn
+   vào giữa bằng fnavCuonToiTab() (gọi trong switchGroup/switchTab). */
+.fnav-group-bar,.fnav-sub-bar{min-width:0;max-width:100%;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.fnav-group-bar::-webkit-scrollbar,.fnav-sub-bar::-webkit-scrollbar{display:none}
+.fgrp,.fsub,.fsub-cluster,.fnav-sub-bar>span{flex-shrink:0}
+@media(max-width:768px){
+  .fnav-group-bar{padding:0 8px;gap:2px}
+  .fgrp{padding:6px 10px;gap:5px}
+  .fnav-clock{display:none}
+  .fnav-sub-bar{padding:0 8px}
+  /* gợi ý còn tab bên phải: mờ dần mép phải */
+  .fnav-group-bar,.fnav-sub-bar:not(.hidden){-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 22px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 22px),transparent)}
+}
 </style>
 
 <!-- Tầng 1: Group -->
@@ -934,7 +966,7 @@ body {
     <button class="fsub" id="tabMgKtv"  onclick="switchTab('mgKtv')" ><i class="ph-duotone ph-ruler"></i>KTV</button>
     <button class="fsub" id="tabMgNcc"  onclick="switchTab('mgNcc')" ><i class="ph-duotone ph-package"></i>Gian hàng NCC</button>
     <button class="fsub" id="tabBricks" onclick="switchTab('bricks')"><i class="ph-duotone ph-trophy"></i>Gạch &amp; Kim Cương</button>
-    <button class="fsub" id="tabPending" onclick="switchTab('pending')"<i class="ph-duotone ph-user-plus"></i>Duyệt đăng ký<span id="pendingBadge" style="display:none;background:var(--gold);color:#08090f;border-radius:99px;font-size:9px;padding:1px 5px;margin-left:2px;font-weight:800">0</span></button>
+    <button class="fsub" id="tabPending" onclick="switchTab('pending')"><i class="ph-duotone ph-user-plus"></i>Duyệt đăng ký<span id="pendingBadge" style="display:none;background:var(--gold);color:#08090f;border-radius:99px;font-size:9px;padding:1px 5px;margin-left:2px;font-weight:800">0</span></button>
   </span>
 
   <!-- VẬN HÀNH -->
@@ -1025,6 +1057,17 @@ function switchGroup(g, tab) {
     switchTab(tab || _fGroupFirstTab[g]);
   }
 }
+/* Cuộn tab đang mở vào khung nhìn (chỉ cuộn ngang trong thanh tab, không
+   kéo cả trang) — cần trên điện thoại vì thanh tab rộng hơn màn hình. */
+function fnavCuonToiTab(el) {
+  if (!el) return;
+  var bar = el.closest('.fnav-group-bar, .fnav-sub-bar');
+  if (!bar || bar.scrollWidth <= bar.clientWidth) return;
+  var b = bar.getBoundingClientRect(), r = el.getBoundingClientRect();
+  var dich = (r.left + r.width / 2) - (b.left + b.width / 2);
+  try { bar.scrollTo({ left: bar.scrollLeft + dich, behavior: 'smooth' }); }
+  catch (e) { bar.scrollLeft += dich; }
+}
 /* Gọi switchGroup khi cần (ví dụ badge click từ bên ngoài) */
 window.switchGroup = switchGroup;
 /* Patch switchTab: sau khi panels đổi, xoá inline style trên .fsub và dùng class */
@@ -1041,6 +1084,9 @@ document.addEventListener('DOMContentLoaded', function() {
     var cap = tab.charAt(0).toUpperCase() + tab.slice(1);
     var el = document.getElementById('tab' + cap);
     if (el) el.classList.add('active');
+    fnavCuonToiTab(el);
+    var g = document.querySelector('.fgrp.active');
+    fnavCuonToiTab(g);
   };
   // Default: mở nhóm Dự án
   switchGroup('projects');
