@@ -737,7 +737,19 @@ function drawTrigram(c,lines,cy,w,lh,gap,col){c.fillStyle=col;for(var j=0;j<3;j+
 var BONG_DO={mau:"rgba(0,0,0,.78)",nhoe:30,lech:9};
 function vongDia(c,R,fill,k){c.beginPath();c.arc(0,0,R+3,0,Math.PI*2);c.strokeStyle="rgba(0,0,0,.55)";c.lineWidth=6;c.stroke();c.save();c.shadowColor=BONG_DO.mau;c.shadowBlur=BONG_DO.nhoe*k;c.shadowOffsetY=BONG_DO.lech*k;c.beginPath();c.arc(0,0,R,0,Math.PI*2);c.fillStyle=fill;c.fill();c.restore();}
 function vongVien(c,R){c.beginPath();c.arc(0,0,R-1.6,0,Math.PI*2);c.strokeStyle="rgba(255,255,255,.22)";c.lineWidth=2;c.stroke();}
-function drawWheel(cv,r,px,rots){
+/* Hiệu ứng đổi cung phi: mỗi sao (Sinh khí, Thiên y…) TRƯỢT vòng quanh tới phương mới của nó, ô đang trượt nhấc lên có bóng;
+   phương (Bắc, Đông Nam…) đứng yên theo la bàn. an = {dn: thứ tự sao cũ, sat: Bát sát cũ, Q: quẻ cũ, t: số ms từ lúc bắt đầu}. */
+var SAO_TRE=110,SAO_CACH=55,SAO_DAI=1050;
+function eio(x){return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;}
+function tienDo(t,k){return eio(Math.min(1,Math.max(0,(t-SAO_TRE-k*SAO_CACH)/SAO_DAI)));}
+/* Góc và độ nhấc của 8 sao lúc t: trả [{s,i,a,lift}] — i là phương đích */
+function viTriSao(dn,an){var out=[];for(var i=0;i<8;i++){var s=dn[i],a=i*45,lift=0;
+    if(an&&an.dn){var o=an.dn.indexOf(s);if(o>=0&&o!==i){var d=((i*45-o*45)%360+540)%360-180;if(d===-180)d=180;var q=tienDo(an.t,out.length);a=o*45+d*q;lift=Math.sin(Math.PI*q);}}
+    out.push({s:s,i:i,a:a,lift:lift});}
+  return out;}
+function gocGan(x,y){return Math.abs(((x-y)%360+540)%360-180);}
+function saoPhuPhuong(vs,i){var best=vs[0],m=999;vs.forEach(function(v){var g=gocGan(v.a,i*45);if(g<m){m=g;best=v;}});return best.s;}
+function drawWheel(cv,r,px,rots,an){
   rots=rots||rotsDich(r);
   if(cv.width!==px){cv.width=px;cv.height=px;}var c=cv.getContext("2d"),k=px/1060,kp=k;c.setTransform(k,0,0,k,px/2,px/2);
   var a,i,T,T0=tools(c,0);
@@ -758,25 +770,32 @@ function drawWheel(cv,r,px,rots){
   T0.sector(nhanSa-6.5,nhanSa+6.5,480,521,NAVY);T0.tText("ALN · APPLAMNHA.VN",nhanSa,506,"700 13px "+FB,GOLD2);
   /* Vòng 4 — 24 sơn */
   T=tools(c,rots[3]);vongDia(c,410,NAVY2,kp);
-  var satW=r.Q.sat,satH=r.house?r.house.satSon:null;
-  for(i=0;i<24;i++){var cA=i*15,nm=SON[i],isSat=nm===satW;
+  var satW=r.Q.sat,satH=r.house?r.house.satSon:null,satMove=null;
+  if(an&&an.sat&&an.sat!==satW){var so=SON.indexOf(an.sat),sn=SON.indexOf(satW),qs=tienDo(an.t,3);if(so>=0&&sn>=0&&qs<1){var dd=((sn*15-so*15)%360+540)%360-180;satMove=so*15+dd*qs;}}
+  for(i=0;i<24;i++){var cA=i*15,nm=SON[i],isSat=!satMove&&nm===satW;
     T.sector(cA-7.5,cA+7.5,338,410,isSat?RED:(INT(i/3)%2?NAVY3:NAVY2),LINE,1);
     if(satH&&nm===satH&&!isSat)T.sector(cA-6.6,cA+6.6,342,406,null,"#ff8a3d",3.5);
     T.tText(nm,cA,isSat?388:374,"600 23px "+FB,WHITE);
     if(isSat)T.tText("BÁT SÁT",cA,356,"700 11.5px "+FB,"#ffe2df");}
+  if(satMove!==null){c.save();c.globalAlpha=.9;T.sector(satMove-7.5,satMove+7.5,338,410,RED,"#ffd0c9",1.4);c.restore();T.tText("BÁT SÁT",satMove,356,"700 11.5px "+FB,"#ffe2df");
+    for(i=0;i<24;i++)if(gocGan(i*15,satMove)<9)T.tText(SON[i],i*15,374,"600 23px "+FB,WHITE);}
   for(a=22.5;a<360;a+=45)T.radial(a,338,410,GOLD,2.2);
   T.ring(338,GOLD,2.2);vongVien(c,410);
-  /* Vòng 3 — 8 cung của gia chủ */
+  /* Vòng 3 — 8 cung của gia chủ: phương đứng yên, sao trượt tới phương mới khi đổi cung phi */
   T=tools(c,rots[2]);vongDia(c,338,NAVY2,kp);
-  for(i=0;i<8;i++){var st=SAO[r.dn[i]],ca=i*45,g=st.cat;
+  var vs=viTriSao(r.dn,an),dangChay=vs.some(function(v){return v.lift>0||v.a!==v.i*45;});
+  if(dangChay)for(i=0;i<8;i++)T.sector(i*45-22.5,i*45+22.5,138,338,"#0d162b",LINE,1);
+  vs.slice().sort(function(x,y){return x.lift-y.lift;}).forEach(function(v){var st=SAO[v.s],ca=v.a,g=st.cat,L=v.lift;
     var grd=c.createRadialGradient(0,0,140,0,0,338);
     if(g){grd.addColorStop(0,"#a77b12");grd.addColorStop(1,"#e0b23a");}else{grd.addColorStop(0,"#16213b");grd.addColorStop(1,"#2b3a5e");}
-    T.sector(ca-22.5,ca+22.5,138,338,grd,GOLD,1.6);
-    var p=T.P(ca,250),x=p[0],y=p[1],main=g?NAVY:WHITE,sub=g?"#2b1e00":MUTED;
-    T.hText(DIR[i].s,x,y-46,"700 16px "+FB,g?"#3a2800":GOLD2);
-    T.hText(st.n.toUpperCase(),x,y-13,"600 34px "+FD,main,(i%4===0)?158:190);
+    var w=22.5*(1-.1*L),r0=138+12*L,r1=338-4*L;
+    if(L>0){c.save();c.shadowColor="rgba(0,0,0,.7)";c.shadowBlur=26*L*kp;c.shadowOffsetY=10*L*kp;T.sector(ca-w,ca+w,r0,r1,grd,GOLD,1.6);c.restore();}
+    else T.sector(ca-w,ca+w,r0,r1,grd,GOLD,1.6);
+    var p=T.P(ca,250),x=p[0],y=p[1],main=g?NAVY:WHITE,sub=g?"#2b1e00":MUTED,hep=(gocGan(ca,0)<1||gocGan(ca,180)<1)?158:190;
+    T.hText(st.n.toUpperCase(),x,y-13,"600 34px "+FD,main,hep);
     T.hText(st.sao,x,y+20,"500 17px "+FB,sub);
-    T.hText(st.rank.toUpperCase(),x,y+47,"700 14px "+FM,g?"#3a2800":(st.lv<=-3?"#ffa59c":"#efc1bc"));}
+    T.hText(st.rank.toUpperCase(),x,y+47,"700 14px "+FM,g?"#3a2800":(st.lv<=-3?"#ffa59c":"#efc1bc"));});
+  for(i=0;i<8;i++){var pd=T.P(i*45,250),gd=SAO[dangChay?saoPhuPhuong(vs,i):r.dn[i]].cat;T.hText(DIR[i].s,pd[0],pd[1]-46,"700 16px "+FB,gd?"#3a2800":GOLD2);}
   if(r.house){var hi=r.house.di;T.sector(hi*45-22.5,hi*45+22.5,141,335,null,"#ffffff",5);}
   vongVien(c,338);
   /* Vòng 2 — bát quái, Lạc thư */
@@ -786,8 +805,8 @@ function drawWheel(cv,r,px,rots){
   /* Vòng 1 — tâm: quẻ cung phi */
   var cg=c.createRadialGradient(0,-12,4,0,0,76);cg.addColorStop(0,"#f6dc85");cg.addColorStop(1,GOLD);
   vongDia(c,75,cg,kp);
-  c.save();c.rotate((rots[0]||0)*Math.PI/180);drawTrigram(c,r.Q.lines,-14,62,8,13,NAVY);c.restore();
-  T0.hText(r.Q.n.toUpperCase(),0,32,"600 22px "+FD,NAVY);T0.hText("ALN",0,54,"700 12px "+FB,"#3a2800");
+  var Qv=r.Q,sx=1;if(an&&an.Q&&an.Q.n!==r.Q.n){var qc=tienDo(an.t,2);if(qc<1){Qv=qc<.5?an.Q:r.Q;sx=Math.max(.04,Math.abs(Math.cos(Math.PI*qc)));}}
+  c.save();c.scale(sx,1);drawTrigram(c,Qv.lines,-14,62,8,13,NAVY);T0.hText(Qv.n.toUpperCase(),0,32,"600 22px "+FD,NAVY);c.restore();T0.hText("ALN",0,54,"700 12px "+FB,"#3a2800");
 }
 function gocCach(x,y){var d=Math.abs(((x-y)%360+540)%360-180);return d;}
 /* Hướng nhìn: "cua" = cửa chính ở dưới (phía sau nhà ở trên), "bac" = Bắc ở trên. Chưa có hướng nhà thì luôn Bắc ở trên. */
@@ -797,17 +816,22 @@ function gocNhin(r){return (XOAY.che_do==="cua"&&r&&r.house)?norm(r.house.deg-18
 function rotsDich(r){var t=gocNhin(r);return[0,t,t,t,t];}
 /* cho test trình duyệt đọc trạng thái xoay */
 window.__btXoay=XOAY;window.__btState=function(){return state;};
-function drawMini(cv,P,px,rot){
-  cv.width=px;cv.height=px;var c=cv.getContext("2d"),k=px/260;c.setTransform(k,0,0,k,px/2,px/2);var T=tools(c,rot||0),dn=P.dn,Q=P.Q;
+function drawMini(cv,P,px,rot,an){
+  if(cv.width!==px){cv.width=px;cv.height=px;}var c=cv.getContext("2d"),k=px/260;c.setTransform(k,0,0,k,px/2,px/2);var T=tools(c,rot||0),dn=P.dn,Q=P.Q;
   c.clearRect(-130,-130,260,260);
   c.beginPath();c.arc(0,0,128,0,Math.PI*2);c.fillStyle=NAVY;c.fill();
   var ab=["B","ĐB","Đ","ĐN","N","TN","T","TB"];
-  for(var i=0;i<8;i++){var s=SAO[dn[i]];T.sector(i*45-22.5,i*45+22.5,40,124,s.cat?"#d9a92a":"#24335a",NAVY,2.5);
-    var p=T.P(i*45,84);
-    T.hText(ab[i],p[0],p[1]-9,"700 18px "+FB,s.cat?NAVY:WHITE);T.hText(s.n,p[0],p[1]+11,"600 10px "+FB,s.cat?"#2b1e00":MUTED,52);}
+  var vs=viTriSao(dn,an),chay=vs.some(function(v){return v.lift>0;});
+  if(chay)for(var j=0;j<8;j++)T.sector(j*45-22.5,j*45+22.5,40,124,"#0d162b",NAVY,2.5);
+  vs.slice().sort(function(x,y){return x.lift-y.lift;}).forEach(function(v){var s=SAO[v.s],L=v.lift,w=22.5*(1-.1*L);
+    if(L>0){c.save();c.shadowColor="rgba(0,0,0,.7)";c.shadowBlur=10*L*k;c.shadowOffsetY=4*L*k;}
+    T.sector(v.a-w,v.a+w,40+5*L,124-2*L,s.cat?"#d9a92a":"#24335a",NAVY,2.5);if(L>0)c.restore();
+    var p=T.P(v.a,84);T.hText(s.n,p[0],p[1]+11,"600 10px "+FB,s.cat?"#2b1e00":MUTED,52);});
+  for(var i=0;i<8;i++){var pa=T.P(i*45,84),ct=SAO[chay?saoPhuPhuong(vs,i):dn[i]].cat;T.hText(ab[i],pa[0],pa[1]-9,"700 18px "+FB,ct?NAVY:WHITE);}
   var nb=T.P(0,126),nl=T.P(-7,114),nr=T.P(7,114);c.beginPath();c.moveTo(nb[0],nb[1]);c.lineTo(nl[0],nl[1]);c.lineTo(nr[0],nr[1]);c.closePath();c.fillStyle="#ff5a4c";c.fill();
   c.beginPath();c.arc(0,0,39,0,Math.PI*2);c.fillStyle=GOLD;c.fill();
-  drawTrigram(c,Q.lines,-8,30,4.5,7.5,NAVY);T.hText(Q.n,0,19,"600 13px "+FD,NAVY);T.hText("ALN",0,31,"700 7px "+FB,"#3a2800");
+  var Qv=Q,sx=1;if(an&&an.Q&&an.Q.n!==Q.n){var qc=tienDo(an.t,2);if(qc<1){Qv=qc<.5?an.Q:Q;sx=Math.max(.04,Math.abs(Math.cos(Math.PI*qc)));}}
+  c.save();c.scale(sx,1);drawTrigram(c,Qv.lines,-8,30,4.5,7.5,NAVY);T.hText(Qv.n,0,19,"600 13px "+FD,NAVY);c.restore();T.hText("ALN",0,31,"700 7px "+FB,"#3a2800");
 }
 
 /* ================= FORM THÀNH VIÊN ================= */
@@ -866,23 +890,26 @@ async function render(){
   return true;
 }
 function dungCoBan(){var cv=$("wheel"),w=Math.min(cv.getBoundingClientRect().width||640,640),dpr=Math.min(window.devicePixelRatio||1,2.5);return{cv:cv,px:Math.max(Math.round(w*dpr),700),dpr:dpr};}
-function veMini(){var b=dungCoBan(),g=gocNhin(state),ds=[state].concat(state.fam);Array.prototype.forEach.call(document.querySelectorAll("canvas.mini"),function(m){var P=ds[+m.dataset.i];if(P)drawMini(m,P,Math.round(150*Math.max(b.dpr,2)),g);});}
+function veMini(rot,anCu,t){var b=dungCoBan(),g=rot===undefined?gocNhin(state):rot,ds=[state].concat(state.fam);Array.prototype.forEach.call(document.querySelectorAll("canvas.mini"),function(m){var i=+m.dataset.i,P=ds[i],cu=anCu&&anCu[i];if(P)drawMini(m,P,Math.round(150*Math.max(b.dpr,2)),g,cu?{dn:cu.dn,Q:cu.Q,t:t}:null);});}
 function capNhatNhin(){var r=state,cua=!!(r&&r.house);
   var bt=$("xoayCua"),bb=$("xoayBac");if(bt){bt.disabled=!cua;bt.setAttribute("aria-pressed",XOAY.che_do==="cua"&&cua?"true":"false");bb.setAttribute("aria-pressed",XOAY.che_do==="cua"&&cua?"false":"true");}
   var sub=$("wheelSub");if(sub)sub.textContent=(XOAY.che_do==="cua"&&cua)?"Cửa chính ở phía dưới, phía trên là sau nhà (tọa "+DIR[r.house.toaDi].n+"). Chữ BẮC đỏ chỉ hướng Bắc.":"Phía trên vòng là hướng Bắc"+(cua?"":" · nhập hướng nhà để xoay cửa chính về phía dưới");
   var lb=$("laBanVong");if(lb){var g=gocNhin(r);lb.style.transform="rotate("+(-g)+"deg)";}}
-/* Vẽ vòng; đổi cung, hướng nhà hay hướng nhìn thì 4 vòng ngoài lần lượt xoay tới vị trí mới (vòng ngoài trước).
-   Đổi cung phi (ngày sinh, giới tính) thì vòng 8 cung và vòng bát quái quay thêm một vòng ngược chiều nhau. */
-function drawAll(){if(!state)return;var b=dungCoBan(),r=state,dich=rotsDich(r),khoa=r.Q.n+"|"+(r.house?r.house.deg:"-")+"|"+XOAY.che_do+"|"+r.dn.join(",");
-  capNhatNhin();veMini();
-  var giam=matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if(XOAY.khoa===null||giam||khoa===XOAY.khoa){if(XOAY.khoa===null||giam){cancelAnimationFrame(XOAY.raf);XOAY.rot=dich.slice();}XOAY.khoa=khoa;XOAY.cung=r.Q.n;if(!XOAY.raf)drawWheel(b.cv,r,b.px,XOAY.rot);return;}
-  var tu=XOAY.rot.slice(),doiCung=XOAY.cung!==r.Q.n,den=dich.map(function(t,i){var d=((t-tu[i])%360+540)%360-180;if(doiCung&&i===2)d+=360;if(doiCung&&i===1)d-=360;if(doiCung&&i===0)d+=360;return tu[i]+d;});
-  XOAY.khoa=khoa;XOAY.cung=r.Q.n;cancelAnimationFrame(XOAY.raf);
-  var t0=performance.now(),TRE=[0,300,200,100,0],DAI=1150;
-  function buoc(now){var xong=true;for(var i=0;i<5;i++){var p=Math.min(1,Math.max(0,(now-t0-TRE[i])/DAI));if(p<1)xong=false;var e=1-Math.pow(1-p,3);XOAY.rot[i]=tu[i]+(den[i]-tu[i])*e;}
-    var bb=dungCoBan();drawWheel(bb.cv,state,bb.px,XOAY.rot);
-    if(xong){XOAY.rot=XOAY.rot.map(function(x){return norm(x);});XOAY.raf=0;}else XOAY.raf=requestAnimationFrame(buoc);}
+/* Vẽ vòng. Đổi hướng nhà/hướng nhìn: 4 vòng ngoài xoay tới vị trí mới (vòng ngoài đi trước, vòng trong theo sau).
+   Đổi cung phi (ngày sinh, giới tính): phương đứng yên, 8 sao trượt quanh vòng tới phương mới, ô Bát sát trượt theo, quẻ ở tâm lật sang quẻ mới.
+   Lần vẽ đầu có hướng nhà: vòng xoay từ Bắc-ở-trên về Cửa-ở-dưới. */
+function anhChup(P){return{dn:P.dn.slice(),Q:{n:P.Q.n,lines:P.Q.lines.slice()},sat:P.Q.sat};}
+function drawAll(){if(!state)return;var b=dungCoBan(),r=state,dich=rotsDich(r),khoa=r.Q.n+"|"+(r.house?r.house.deg:"-")+"|"+XOAY.che_do+"|"+r.dn.join(",")+"|"+r.fam.map(function(P){return P.Q.n;}).join(",");
+  capNhatNhin();
+  var giam=matchMedia("(prefers-reduced-motion: reduce)").matches,dau=XOAY.khoa===null;
+  if(giam||khoa===XOAY.khoa){if(giam){cancelAnimationFrame(XOAY.raf);XOAY.raf=0;XOAY.rot=dich.slice();}XOAY.khoa=khoa;XOAY.cu=anhChup(r);XOAY.cuFam=[r].concat(r.fam).map(anhChup);if(!XOAY.raf){drawWheel(b.cv,r,b.px,XOAY.rot);veMini(XOAY.rot[2]);}return;}
+  var tu=dau?[0,0,0,0,0]:XOAY.rot.slice(),den=dich.map(function(t,i){var d=((t-tu[i])%360+540)%360-180;return tu[i]+d;});
+  var cu=dau?null:XOAY.cu,cuFam=dau?null:XOAY.cuFam;
+  XOAY.khoa=khoa;XOAY.cu=anhChup(r);XOAY.cuFam=[r].concat(r.fam).map(anhChup);cancelAnimationFrame(XOAY.raf);
+  var t0=performance.now(),TRE=[0,320,220,110,0],DAI=1250,HET=Math.max(DAI+320,SAO_TRE+7*SAO_CACH+SAO_DAI)+20;
+  function buoc(now){var t=now-t0;for(var i=0;i<5;i++){var p=Math.min(1,Math.max(0,(t-TRE[i])/DAI));XOAY.rot[i]=tu[i]+(den[i]-tu[i])*eio(p);}
+    var bb=dungCoBan();drawWheel(bb.cv,state,bb.px,XOAY.rot,cu?{dn:cu.dn,sat:cu.sat,Q:cu.Q,t:t}:null);veMini(XOAY.rot[2],cuFam,t);
+    if(t>=HET){XOAY.rot=den.map(function(x){return norm(x);});XOAY.raf=0;var b2=dungCoBan();drawWheel(b2.cv,state,b2.px,XOAY.rot);veMini(XOAY.rot[2]);}else XOAY.raf=requestAnimationFrame(buoc);}
   XOAY.raf=requestAnimationFrame(buoc);}
 function datNhin(m){XOAY.che_do=m;try{localStorage.setItem("bt-xoay",m);}catch(e){}drawAll();try{(window.dataLayer=window.dataLayer||[]).push({event:"battrach_xoay",che_do:m});}catch(e){}}
 $("xoayCua").addEventListener("click",function(){datNhin("cua");});$("xoayBac").addEventListener("click",function(){datNhin("bac");});
@@ -907,7 +934,7 @@ async function taoPDF(){
   if(!(await render()))return null;var r=state;
   {
     var off=document.createElement("canvas");drawWheel(off,r,1400);var wimg=off.toDataURL("image/png");
-    var all=[r].concat(r.fam),mimgs=all.map(function(P){var m=document.createElement("canvas");drawMini(m,P,300);return m.toDataURL("image/png");});
+    var all=[r].concat(r.fam),mimgs=all.map(function(P){var m=document.createElement("canvas");drawMini(m,P,300,gocNhin(r));return m.toDataURL("image/png");});
     var d=new Date(),dateTxt=pad(d.getDate())+"/"+pad(d.getMonth()+1)+"/"+d.getFullYear();
     var per=4,chunks=[];for(var i=0;i<all.length;i+=per)chunks.push(i);
     var total=3+chunks.length+2,dong=all.length>5,docSo='<div class="card tip bp-read">'+planNoteHTML(r)+'</div>';
