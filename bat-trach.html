@@ -389,6 +389,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
   <section aria-labelledby="h2c">
     <div class="sec-h"><h2 id="h2c">4. Bố trí phòng cho gia đình</h2><p>Mặt bằng chia 9 ô tính từ tâm nhà, cửa chính ở phía dưới</p></div>
+    <p class="hint" id="famMauNote" hidden>Các thành viên dưới đây là ví dụ. Nhập ngày sinh gia chủ ở mục 1 thì các dòng ví dụ tự bỏ; muốn tính cho thành viên nào, bấm “Thêm thành viên”.</p>
     <div class="famtable" id="famtable"></div>
     <div class="plan" style="margin-top:18px">
       <div id="nine"></div>
@@ -749,10 +750,15 @@ function drawMini(cv,cp,px){
 var $=function(id){return document.getElementById(id);};
 var fam=[{ten:"",role:"vo",ns:"1988-03-12",gt:"nu"},{ten:"",role:"me",ns:"1958-11-02",gt:"nu"},{ten:"",role:"contrai",ns:"2014-06-20",gt:"nam"},{ten:"",role:"congai",ns:"2019-01-25",gt:"nu"}];
 var uid=0;fam.forEach(function(m){m.id=++uid;});
+/* famMau: 4 dòng trên là VÍ DỤ. Khách bắt đầu nhập gia chủ hoặc bấm Thêm thành viên thì bỏ hết dòng ví dụ,
+   sửa/xoá một dòng ví dụ thì giữ các dòng còn lại làm của khách (13/10/2026: khách tưởng mục 4 tự sinh thành viên). */
+var famMau=true,daBoMau=false;
+function thoiMau(){if(!famMau)return;famMau=false;Array.prototype.forEach.call(document.querySelectorAll("#members .sample"),function(x){x.remove();});}
+function boMau(){if(!famMau)return;famMau=false;daBoMau=true;fam=[];renderMembers();}
 function memRow(m){
   var opts=ROLES.map(function(r){return'<option value="'+r[0]+'"'+(r[0]===m.role?" selected":"")+'>'+r[1]+'</option>';}).join("");
   return '<div class="mem" data-id="'+eH(m.id)+'">'+
-   '<div class="field f-ten"><label for="m'+eH(m.id)+'ten">Họ tên <span class="hint">(không bắt buộc)</span></label><input id="m'+eH(m.id)+'ten" data-k="ten" value="'+eH(m.ten)+'" placeholder="VD: Trần Thị Bình"></div>'+
+   '<div class="field f-ten"><label for="m'+eH(m.id)+'ten">Họ tên <span class="hint">(không bắt buộc)</span>'+(famMau?'<span class="sample">VÍ DỤ</span>':'')+'</label><input id="m'+eH(m.id)+'ten" data-k="ten" value="'+eH(m.ten)+'" placeholder="VD: Trần Thị Bình"></div>'+
    '<div class="field f-role"><label for="m'+eH(m.id)+'role">Quan hệ</label><select id="m'+eH(m.id)+'role" data-k="role">'+opts+'</select></div>'+
    '<div class="field f-ns"><label for="m'+eH(m.id)+'ns">Ngày sinh</label><input id="m'+eH(m.id)+'ns" data-k="ns" type="date" min="1900-01-31" max="2099-12-31" value="'+eH(m.ns)+'"><div class="amlich" data-am="'+eH(m.id)+'">'+eH(amText(m.ns))+'</div></div>'+
    '<div class="field"><label for="m'+eH(m.id)+'gt">Giới tính</label><select id="m'+eH(m.id)+'gt" data-k="gt"><option value="nam"'+(m.gt==="nam"?" selected":"")+'>Nam</option><option value="nu"'+(m.gt==="nu"?" selected":"")+'>Nữ</option></select></div>'+
@@ -761,13 +767,13 @@ function memRow(m){
 function amText(ns){if(!ns||!/^\d{4}-\d{2}-\d{2}$/.test(ns))return"";var p=ns.split("-").map(Number);if(p[0]<1900||p[0]>2099)return"";var L=solar2lunar(p[2],p[1],p[0]);return"Âm lịch: "+pad(L.d)+"/"+pad(L.m)+(L.leap?" (nhuận)":"")+"/"+L.y+" · "+CAN[(L.y+6)%10]+" "+CHI[(L.y+8)%12];}
 function lunarFull(P){var L=P.lunar;return pad(L.d)+"/"+pad(L.m)+(L.leap?" nhuận":"")+"/"+L.y;}
 function capNhatAmChu(){$("nsAm").textContent=amText($("ns").value);}
-function renderMembers(){$("members").innerHTML=fam.length?fam.map(memRow).join(""):'<p class="hint" style="margin:0">Chưa có thành viên. Bấm “Thêm thành viên” để nhập vợ hoặc chồng, bố mẹ, con cái.</p>';}
-function onMem(e){var row=e.target.closest(".mem");if(!row)return;var m=fam.filter(function(x){return x.id==row.dataset.id;})[0],k=e.target.dataset.k;if(!m||!k)return;m[k]=e.target.value;$("sampleTag").hidden=true;
+function renderMembers(){$("members").innerHTML=fam.length?fam.map(memRow).join(""):'<p class="hint" style="margin:0">'+(daBoMau?'Đã bỏ các thành viên ví dụ. ':'')+'Chưa có thành viên. Bấm “Thêm thành viên” để nhập vợ hoặc chồng, bố mẹ, con cái. Chỉ xem cho gia chủ thì để trống.</p>';}
+function onMem(e){var row=e.target.closest(".mem");if(!row)return;var m=fam.filter(function(x){return x.id==row.dataset.id;})[0],k=e.target.dataset.k;if(!m||!k)return;m[k]=e.target.value;$("sampleTag").hidden=true;thoiMau();
   if(k==="ns"){var am=row.querySelector('[data-am]');if(am)am.textContent=amText(m.ns);}
   if(k==="role"&&e.type==="change"){m.gt=roleInfo(m.role).gt;row.querySelector('[data-k="gt"]').value=m.gt;}}
 $("members").addEventListener("input",onMem);$("members").addEventListener("change",onMem);
-$("members").addEventListener("click",function(e){var b=e.target.closest("[data-del]");if(!b)return;fam=fam.filter(function(x){return x.id!=b.dataset.del;});$("sampleTag").hidden=true;renderMembers();});
-$("addMem").addEventListener("click",function(){if(fam.length>=10){$("err").textContent="Tối đa 10 thành viên.";return;}var m={id:++uid,ten:"",role:"contrai",ns:"",gt:"nam"};fam.push(m);renderMembers();var el=$("m"+m.id+"ten");if(el)el.focus();});
+$("members").addEventListener("click",function(e){var b=e.target.closest("[data-del]");if(!b)return;famMau=false;fam=fam.filter(function(x){return x.id!=b.dataset.del;});$("sampleTag").hidden=true;renderMembers();});
+$("addMem").addEventListener("click",function(){boMau();if(fam.length>=10){$("err").textContent="Tối đa 10 thành viên.";return;}var m={id:++uid,ten:"",role:"contrai",ns:"",gt:"nam"};fam.push(m);renderMembers();var el=$("m"+m.id+"ten");if(el)el.focus();});
 
 function readForm(){
   var ns=$("ns").value,degS=$("deg").value.trim().replace(",",".");
@@ -784,7 +790,7 @@ function render(){
   var inp=readForm();if(inp.err){$("err").textContent=inp.err;return false;}
   $("err").textContent="";state=compute(inp);var r=state;
   $("summary").innerHTML=summaryHTML(r);$("dirlist").innerHTML=dirListHTML(r);
-  $("house").innerHTML=houseHTML(r);$("famtable").innerHTML=famTableHTML(r);
+  $("house").innerHTML=houseHTML(r);$("famtable").innerHTML=famTableHTML(r);$("famMauNote").hidden=!famMau;
   $("nine").innerHTML=nineHTML(r);$("plannote").innerHTML=planNoteHTML(r);
   $("mcards").innerHTML=membersHTML(r);$("age").innerHTML=ageHTML(r);
   drawAll();
@@ -798,6 +804,7 @@ $("f").addEventListener("submit",function(e){e.preventDefault();$("sampleTag").h
 $("huongSel").addEventListener("change",function(){$("deg").value=this.value;});
 $("deg").addEventListener("input",function(){var v=parseFloat(this.value.replace(",","."));$("huongSel").value=isNaN(v)?"":String(dirIdx(v)*45);});
 ["ten","ns","namxay","deg"].forEach(function(id){$(id).addEventListener("input",function(){$("sampleTag").hidden=true;});});
+["ten","ns"].forEach(function(id){$(id).addEventListener("input",boMau);});["gtNam","gtNu"].forEach(function(id){$(id).addEventListener("change",boMau);});
 $("ns").addEventListener("input",capNhatAmChu);$("ns").addEventListener("change",capNhatAmChu);
 var rt;window.addEventListener("resize",function(){clearTimeout(rt);rt=setTimeout(drawAll,200);});
 
@@ -907,11 +914,11 @@ function napDauVao(d){
   var nx=Number(d.namxay);if(nx>=1950&&nx<=2100)$("namxay").value=String(nx);
   fam=(Array.isArray(d.fam)?d.fam:[]).filter(function(m){return m&&reNgay.test(m.ns||"")&&(m.gt==="nam"||m.gt==="nu");}).slice(0,10)
     .map(function(m){return{ten:String(m.ten||"").slice(0,60),role:VAI_HOP.indexOf(m.role)>=0?m.role:"khac",ns:m.ns,gt:m.gt};});
-  uid=0;fam.forEach(function(q){q.id=++uid;});$("sampleTag").hidden=true;daNhap=true;
+  uid=0;fam.forEach(function(q){q.id=++uid;});$("sampleTag").hidden=true;daNhap=true;famMau=false;
   if(d.ten&&!$("zTen").value)$("zTen").value=String(d.ten).slice(0,100);
   return true;
 }
-function luuMay(){if(!daNhap)return;try{var i=readForm();if(i.err)return;
+function luuMay(){if(!daNhap||famMau)return;try{var i=readForm();if(i.err)return;
   localStorage.setItem(KHO,JSON.stringify({ten:i.ten,ns:i.ns,gt:i.gt,deg:i.deg,namxay:i.namxay,fam:i.fam,luc:Date.now()}));}catch(e){}}
 function docMay(){try{var d=JSON.parse(localStorage.getItem(KHO)||"null");if(!d||!d.luc||Date.now()-d.luc>365*864e5)return null;return d;}catch(e){return null;}}
 function hienBar(t){$("daLuuTxt").textContent=t;$("daLuuBar").hidden=false;}
