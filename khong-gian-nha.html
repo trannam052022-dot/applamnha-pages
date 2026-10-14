@@ -985,7 +985,7 @@ function renderSteps() {
       <div class="step-badge"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg></div>
       <div class="step-body">
         <div class="step-ten">Gửi bản vẽ để ALN kiểm nhanh miễn phí</div>
-        <p class="step-note">ALN đọc bản vẽ, trả về diện tích chuẩn và hồ sơ còn thiếu — miễn phí. Bóc khối lượng chi tiết theo từng tầng thuộc gói Đồng hành xây.</p>
+        <p class="step-note">ALN đọc bản vẽ, trả về diện tích chuẩn và hồ sơ còn thiếu — miễn phí. Bóc khối lượng chi tiết theo từng tầng thuộc gói Quản lý Thi công.</p>
         <div class="step-actions"><button type="button" class="btn btn-gold" data-open-upload="ban_ve">Gửi bản vẽ</button></div>
       </div>
     </div>
@@ -1167,8 +1167,7 @@ function renderDuToanOldList(oldVersions) {
 /* ── Khối e2 — Gói dịch vụ ALN (giá từ aln-pricing.js, đã gồm VAT) ──
    Cơ cấu chốt 20/09/2026: 4 gói ĐỘC LẬP, mua lẻ hoặc mua cả hai —
    Tự tính (miễn phí) / Kiểm nhanh (miễn phí, có hạn mức/tuần) / Bóc khối
-   lượng (tinhPhiBoc, thu trước khi bóc) / Quản lý Thi công (đổi tên từ
-   Đồng hành xây, DEC-2026-027: giá theo diện tích từng sàn, chưa gồm thuế
+   lượng (tinhPhiBoc, thu trước khi bóc) / Quản lý Thi công (DEC-2026-027: giá theo diện tích từng sàn, chưa gồm thuế
    GTGT — câu giá dựng từ PRICING.quan_ly_thi_cong, 14/10/2026). */
 function renderPackages() {
   const P = window.ALN_PRICING;
@@ -1196,6 +1195,8 @@ function renderPackages() {
   // Gói Quản lý Thi công tính theo diện tích TỪNG sàn (DEC-2026-027) — bản dự
   // toán chưa có danh sách sàn nên không tính ra số ở đây; cách tính ghi ở #pkgQltc.
   const qltcPrice = 'Theo số sàn và diện tích sàn';
+  // Tỷ lệ 3 đợt thanh toán lấy từ cấu hình giá (PRICING.dong_hanh.chia_dot).
+  const dot = ((P.PRICING && P.PRICING.dong_hanh && P.PRICING.dong_hanh.chia_dot) || []).map((x) => Math.round(Number(x) * 100) + '%');
 
   els.pkgGrid.innerHTML = `
     <div class="pkg-card">
@@ -1216,25 +1217,27 @@ function renderPackages() {
     <div class="pkg-card">
       <div class="pkg-top"><span class="pkg-name">Gói Bóc khối lượng</span><span class="pkg-price">${bocPrice}</span></div>
       ${bocSub}
-      <p class="pkg-note">ALN bóc khối lượng thật từ bản vẽ, thu trước khi bóc. Dùng khi bạn cần dự toán nền đáng tin để nghiệm thu — kể cả khi chưa mua Đồng hành xây.</p>
+      <p class="pkg-note">ALN bóc khối lượng thật từ bản vẽ, thu trước khi bóc. Dùng khi bạn cần dự toán nền đáng tin để nghiệm thu — kể cả khi chưa dùng gói Quản lý Thi công.</p>
       <ul class="pkg-list">
         <li>Bóc khối lượng chi tiết theo từng tầng từ bản vẽ thật</li>
         <li>Khoá kết quả từng tầng sau khi bóc xong</li>
       </ul>
     </div>
+    <!-- ALN-KHOI-QLTC-BAT-DAU (lint-content: chữ "nghiệm thu" trong khối này → WARN) -->
     <div class="pkg-card feat">
       <div class="pkg-top"><span class="pkg-name">Gói Quản lý Thi công</span><span class="pkg-price">${qltcPrice}</span></div>
-      <p class="pkg-note">ALN đồng hành theo từng mốc thi công — nghiệm thu khối lượng, đối chiếu tạm ứng, so sánh chi phí thực tế với dự toán.</p>
+      <p class="pkg-note">Công cụ để anh/chị tự theo dõi từng mốc thi công: biết cần kiểm gì trước khi đổ sàn, và đối chiếu mỗi lần tạm ứng với khối lượng đã làm theo dự toán của chính nhà mình. So sánh chi phí thực tế với dự toán.</p>
       <ul class="pkg-list">
-        <li>Nghiệm thu khối lượng theo từng mốc</li>
-        <li>Mốc móng miễn phí. Chia 3 đợt: 40% sau nghiệm thu móng · 40% khi xong phần thô · 20% khi hoàn công.</li>
-        <li>Sổ tạm ứng nhà thầu — đối chiếu mỗi lần tạm ứng với phần việc đã nghiệm thu</li>
+        <li>Mỗi lần đội thợ xin ứng, so số đã ứng với khối lượng đã làm theo dự toán của chính nhà mình.</li>
+        <li>Không tính phí phần móng. Thanh toán chia 3 đợt: ${esc(dot[0])} sau nghiệm thu móng · ${esc(dot[1])} khi xong phần thô · ${esc(dot[2])} khi hoàn công.</li>
+        <li>Sổ tạm ứng nhà thầu — đối chiếu mỗi lần tạm ứng với khối lượng đã làm theo dự toán</li>
         <li>Sổ chi so với dự toán</li>
-        <li>Công trình phải tạm dừng thi công ngoài ý muốn được bảo lưu tối đa 24 tháng.</li>
+        <li>Bảo lưu tối đa 24 tháng khi phải tạm dừng thi công ngoài ý muốn.</li>
       </ul>
-      <p class="pkg-fine">Cần 1 dự toán nền để nghiệm thu theo mốc: dùng dự toán từ gói Bóc khối lượng (nếu đã mua), hoặc dự toán bạn tự cung cấp. Nếu dùng dự toán bạn cung cấp: <strong>nghiệm thu theo dự toán bạn cung cấp — ALN không xác nhận khối lượng trong dự toán đó</strong>; mua thêm gói Bóc khối lượng để có dự toán nền do ALN chịu trách nhiệm về khối lượng.</p>
-      <p class="pkg-fine">Nộp dự toán có sẵn: file Excel có khối lượng chi tiết dùng được ngay, miễn phí trong gói Đồng hành xây. Chỉ có PDF/ảnh: ALN nhập giá trị hợp đồng + lịch thanh toán để sổ tạm ứng chạy được — nghiệm thu khối lượng cần thêm gói Bóc khối lượng.</p>
-    </div>`;
+      <p class="pkg-fine">Cần một dự toán theo tầng của chính nhà mình để công cụ dựng mốc và đối chiếu: dùng dự toán từ gói Bóc khối lượng (nếu đã mua), hoặc dự toán bạn tự cung cấp. Nếu dùng dự toán bạn cung cấp: <strong>đối chiếu theo dự toán bạn cung cấp — ALN không xác nhận khối lượng trong dự toán đó</strong>; mua thêm gói Bóc khối lượng để có dự toán nền do ALN chịu trách nhiệm về khối lượng.</p>
+      <p class="pkg-fine">Nộp dự toán có sẵn: file Excel có khối lượng chi tiết dùng được ngay, miễn phí trong gói Quản lý Thi công. Chỉ có PDF/ảnh: ALN nhập giá trị hợp đồng + lịch thanh toán để sổ tạm ứng chạy được — đối chiếu khối lượng cần dự toán theo tầng (chưa có thì dùng gói Bóc khối lượng).</p>
+    </div>
+    <!-- ALN-KHOI-QLTC-KET-THUC -->`;
 }
 
 /* ── Khối b3 — Tải bản vẽ / báo giá (P1.4) ── */

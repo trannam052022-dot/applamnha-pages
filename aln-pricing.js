@@ -10,23 +10,23 @@
  * scripts/_test_aln_pricing.js.
  *
  * CƠ CẤU GÓI (Founder chốt 22/09/2026 (3), sửa từ bản 22/09/2026 — bản đó
- * gộp phí bóc khối lượng VÀO Gói Đồng hành xây thành 1 tổng; nay TÁCH lại
+ * gộp phí bóc khối lượng VÀO Gói Quản lý Thi công thành 1 tổng; nay TÁCH lại
  * thành 2 gói ĐỘC LẬP, mua lẻ hoặc mua cả hai — lý do: chủ nhà đã có bản vẽ
- * VÀ dự toán riêng (của đơn vị thiết kế/nhà thầu) chỉ cần Đồng hành xây để
+ * VÀ dự toán riêng (của đơn vị thiết kế/nhà thầu) chỉ cần Quản lý Thi công để
  * quản lý thi công, không cần trả phí bóc):
  *   - Gói Kiểm nhanh = MIỄN PHÍ (có hạn mức lượt dùng/tuần, số cụ thể CHƯA
  *     chốt) — đọc bản vẽ ra 3 con số diện tích, đối chiếu báo giá, KHÔNG
  *     thu tiền, KHÔNG dùng `tinhPhiBoc`.
  *   - Gói Bóc khối lượng = ĐỘC LẬP, dùng thẳng `tinhPhiBoc()` — bóc khối
  *     lượng theo từng tầng từ bản vẽ, thu trước khi bóc.
- *   - Gói Đồng hành xây = ĐỘC LẬP, dùng thẳng `tinhDongHanh()` — KHÔNG còn
+ *   - Gói Quản lý Thi công = ĐỘC LẬP, dùng thẳng `tinhDongHanh()` — KHÔNG còn
  *     gộp phí bóc. Cần 1 "dự toán nền" để nghiệm thu khối lượng theo mốc:
  *     lấy từ Gói Bóc khối lượng (nếu mua) HOẶC dự toán chủ nhà tự cung cấp
  *     (khi đó ALN không xác nhận khối lượng trong dự toán đó — hiển thị rõ
  *     trên UI, xem renderPackages() trong khong-gian-nha.html).
  *   - `tinhGoiDongHanh()` GIỜ CHỈ dùng để hiển thị tổng THAM KHẢO khi chủ
  *     nhà mua CẢ HAI gói cùng lúc (combo cross-sell) — KHÔNG còn là giá mặc
- *     định của Đồng hành xây.
+ *     định của Quản lý Thi công.
  *
  * `thue_suat_vat: 8` là TẠM TÍNH áp tới 31/12/2026 theo spec — kế toán xác
  * nhận diện áp dụng, CHƯA phải quyết định cuối cùng (xem mục 8 "Việc còn
@@ -55,7 +55,7 @@
     dong_hanh: {
       don_gia_moc: 400000, // đ/mốc, chưa VAT — TẠM TÍNH, Founder có thể đổi (spec mục 8)
       so_moc: function (soSan) { return soSan + 3; }, // móng + mỗi lần đổ sàn phía trên (gồm sàn mái/sân thượng) + hoàn thiện + hoàn công
-      so_moc_mien_phi: 1, // mốc móng miễn phí — CHỈ áp cho phần đồng hành, KHÔNG áp cho phí bóc
+      so_moc_mien_phi: 1, // không tính phí phần móng — CHỈ áp cho phần đồng hành, KHÔNG áp cho phí bóc
       chia_dot: [0.40, 0.40, 0.20], // sau nghiệm thu móng / xong phần thô (đổ xong sàn mái) / hoàn công
       tra_1_lan: { giam: 0.10, lam_tron: 50000 }, // chọn SAU khi nghiệm thu móng — làm tròn đến 50.000đ gần nhất
       bao_luu_thang: 24, // đề xuất — Founder xác nhận (spec mục 8)
@@ -101,8 +101,8 @@
   }
 
   /**
-   * tinhDongHanh(soSan) — toàn bộ số của Gói Đồng hành xây cho 1 số sàn.
-   * mocTinhTien = so_moc(soSan) − so_moc_mien_phi (mốc móng miễn phí không
+   * tinhDongHanh(soSan) — toàn bộ số của Gói Quản lý Thi công cho 1 số sàn.
+   * mocTinhTien = so_moc(soSan) − so_moc_mien_phi (không tính phí phần móng không
    * tính tiền — số mốc HIỂN THỊ trong bảng giá spec mục 3 là số này, KHÔNG
    * phải so_moc() thô).
    */
@@ -128,10 +128,10 @@
   /**
    * tinhGoiDongHanh(dienTichQuyDoi, soSan) — KHÔNG còn là giá của 1 gói —
    * đây là TỔNG THAM KHẢO khi chủ nhà mua CẢ HAI gói Bóc khối lượng
-   * (tinhPhiBoc, thu 1 lần trước khi bóc) + Đồng hành xây (tinhDongHanh,
+   * (tinhPhiBoc, thu 1 lần trước khi bóc) + Quản lý Thi công (tinhDongHanh,
    * chia 3 đợt hoặc trả 1 lần) CÙNG LÚC — dùng cho dòng "mua cả hai, tiết
    * kiệm thao tác" (combo cross-sell) trên UI, KHÔNG phải giá mặc định của
-   * Gói Đồng hành xây (gói đó giờ ĐỘC LẬP, dùng thẳng tinhDongHanh()).
+   * Gói Quản lý Thi công (gói đó giờ ĐỘC LẬP, dùng thẳng tinhDongHanh()).
    * Tổng = CỘNG 2 số ĐÃ tính VAT riêng (boc.sauVat + moc.sauVat3Dot), KHÔNG
    * cộng 2 số chưa VAT rồi áp VAT 1 lần trên tổng — để dòng "gồm bóc khối
    * lượng X + theo mốc Y" hiển thị trên UI LUÔN cộng khớp đúng bằng tổng
