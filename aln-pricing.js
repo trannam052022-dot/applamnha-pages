@@ -60,7 +60,30 @@
       tra_1_lan: { giam: 0.10, lam_tron: 50000 }, // chọn SAU khi nghiệm thu móng — làm tròn đến 50.000đ gần nhất
       bao_luu_thang: 24, // đề xuất — Founder xác nhận (spec mục 8)
     },
+    // Gói Quản lý Thi công (DEC-2026-027) — PHẢI khớp bảng giá chủ nhà
+    // scripts/qltc/bang-gia-chu-nha-2026-10-v1.json (doc bang_gia/{phien_ban}
+    // máy chủ dùng để tính phí). scripts/_test_aln_pricing.js kiểm khớp từng số.
+    quan_ly_thi_cong: {
+      phien_ban: "chu-nha-2026-10-v1",
+      nguong_co_ban: 75, // m² — sàn đến mức này tính giá cơ bản
+      buoc: 25, // m² — mỗi bước vượt (làm tròn lên)
+      gia_co_ban: 400000, // đ/sàn, chưa thuế GTGT
+      cong_moi_buoc: 100000, // đ mỗi bước vượt
+      he_so_biet_thu: 1.33,
+    },
   };
+
+  function soVN(n) {
+    return Number(n).toLocaleString("vi-VN", { maximumFractionDigits: 2 });
+  }
+
+  /** Câu giá Gói Quản lý Thi công (Nam duyệt 14/10/2026) — mọi con số lấy từ PRICING. */
+  function cauGiaQuanLyThiCong() {
+    var q = PRICING.quan_ly_thi_cong;
+    return "Gói Quản lý Thi công: " + soVN(q.gia_co_ban) + " đ/sàn cho sàn đến " + soVN(q.nguong_co_ban) +
+      " m²; sàn rộng hơn, mỗi " + soVN(q.buoc) + " m² cộng " + soVN(q.cong_moi_buoc) +
+      " đ. Không tính phí phần móng. Biệt thự áp hệ số " + soVN(q.he_so_biet_thu) + ". Giá chưa gồm thuế GTGT.";
+  }
 
   function round50k(x) {
     return Math.round(x / 50000) * 50000;
@@ -139,5 +162,6 @@
     tinhPhiBoc: tinhPhiBoc,
     tinhDongHanh: tinhDongHanh,
     tinhGoiDongHanh: tinhGoiDongHanh,
+    cauGiaQuanLyThiCong: cauGiaQuanLyThiCong,
   };
 });
