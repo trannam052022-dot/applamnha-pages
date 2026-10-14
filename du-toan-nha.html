@@ -527,7 +527,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
    <p class="mo" id="dnCheMo">Diện tích thực xây và quy đổi ở mục 1 vẫn hiện để anh/chị kiểm tra kích thước trước khi lưu. <a href="in-bao-gia-dn.html?mau=1" target="_blank" rel="noopener">Xem file mẫu</a> để hình dung file sẽ nhận.</p>
   </div>
   <div id="out">
-   <div class="eyebrow">Giá nhà thầu nhận, chưa VAT</div>
+   <div class="eyebrow">Giá đội thầu nhận khoán, chưa thuế GTGT</div>
    <div class="big" id="total">—</div>
    <div class="per"><b id="perM2">—</b> đ/m² quy đổi</div>
    <div class="vat" id="vatLine"></div>
@@ -1121,7 +1121,7 @@ async function runThongThuong(skipPrices,userInitiated){
  $('scope').textContent=`Đang dùng nhà mẫu: ${result.modelLabel}. Khối lượng từng hạng mục được bóc từ bản vẽ thật của nhà mẫu rồi quy theo diện tích nhà bạn.`;
  $('congHint').textContent=`Khoảng ${fmt(result.congDinhMuc)} công theo định mức nhà nước — thợ làm khoán thường nhanh hơn định mức`;
  $('total').textContent=ty(result.totalChuaVat);$('perM2').textContent=fmt(result.perM2ChuaVat);$('tot2').textContent=fmt(result.totalChuaVat);
- $('vatLine').textContent=`Sau VAT ${result.vatPct}%: ${ty(result.totalSauVat)}`;
+ $('vatLine').textContent=`Sau thuế GTGT (${Number(result.vatPct).toLocaleString('vi-VN',{maximumFractionDigits:2})}%): ${ty(result.totalSauVat)}`;
  $('model').textContent='';
  $('dockT').textContent=ty(result.totalChuaVat);
  draw($('rows'),result.lines,result.totalChuaVat);
@@ -1167,7 +1167,7 @@ async function runBietThuVuon(skipPrices,userInitiated){
  $('maiQdHienThi').textContent=fmt(result.maiThai.qdHienThi);
  $('congHint').textContent=`Khoảng ${fmt(result.congDinhMuc)} công theo định mức nhà nước (phần thân) — thợ làm khoán thường nhanh hơn định mức`;
  $('total').textContent=ty(result.totalChuaVat);$('perM2').textContent=fmt(result.perM2ChuaVat);$('tot2').textContent=fmt(result.totalChuaVat);
- $('vatLine').textContent=`Sau VAT ${result.vatPct}%: ${ty(result.totalSauVat)}`;
+ $('vatLine').textContent=`Sau thuế GTGT (${Number(result.vatPct).toLocaleString('vi-VN',{maximumFractionDigits:2})}%): ${ty(result.totalSauVat)}`;
  $('model').textContent='';
  // Founder chốt 21/09/2026 (3) — mái Thái là hạng mục hoàn thiện trọn gói,
  // KHÔNG cộng quản lý nhà thầu chính, nên hiện riêng 2 dòng tổng + tổng cộng

@@ -519,14 +519,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span class="block-title">Dự toán của bạn</span>
       </div>
       <div class="dt-summary">
-        <div class="dt-eyebrow">Giá nhà thầu nhận, chưa VAT</div>
+        <div class="dt-eyebrow">Giá đội thầu nhận khoán, chưa thuế GTGT</div>
         <div class="dt-total" id="dtTotal">—</div>
         <div class="dt-per"><b id="dtPerM2">—</b> đ/m² quy đổi</div>
         <div class="dt-vat" id="dtVatLine"></div>
         <div class="dt-model" id="dtModel"></div>
       </div>
       <div class="dt-rows" id="dtRows"></div>
-      <div class="dt-foot"><span>Cộng, chưa VAT</span><span id="dtTot2"></span></div>
+      <div class="dt-foot"><span>Cộng, chưa thuế GTGT</span><span id="dtTot2"></span></div>
       <div class="dt-sub">Phần bạn tự mua</div>
       <div class="dt-rows" id="dtRowsH"></div>
       <div class="dt-foot"><span>Cộng vật tư hoàn thiện</span><span id="dtTotH"></span></div>
@@ -637,7 +637,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span class="block-title">Gói dịch vụ ALN</span>
       </div>
       <div class="pkg-grid" id="pkgGrid"></div>
-      <p class="pkg-fine">Giá hiển thị đã gồm VAT 8% (mức thuế có thể thay đổi theo quy định). Gói Đồng hành xây: Mốc móng miễn phí. Chia 3 đợt: 40% sau nghiệm thu móng · 40% khi xong phần thô · 20% khi hoàn công. Hoặc trả phần theo mốc 1 lần (chọn sau khi nghiệm thu móng) được giảm khoảng 10% phần theo mốc — trả 1 lần không hoàn lại. Công trình phải tạm dừng thi công ngoài ý muốn được bảo lưu tối đa 24 tháng.</p>
+      <p class="pkg-fine">Giá hiển thị đã gồm thuế GTGT <span id="pkgThueSuat"></span>% (mức thuế có thể thay đổi theo quy định). Gói Đồng hành xây: Mốc móng miễn phí. Chia 3 đợt: 40% sau nghiệm thu móng · 40% khi xong phần thô · 20% khi hoàn công. Hoặc trả phần theo mốc 1 lần (chọn sau khi nghiệm thu móng) được giảm khoảng 10% phần theo mốc — trả 1 lần không hoàn lại. Công trình phải tạm dừng thi công ngoài ý muốn được bảo lưu tối đa 24 tháng.</p>
     </section>
 
     <!-- f. Sắp có -->
@@ -785,10 +785,22 @@ function fmtDate(ts) {
     return d.toLocaleDateString('vi-VN') + ' ' + d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
   } catch (e) { return ''; }
 }
+// Làm tròn tới đồng CHỈ khi hiển thị — dữ liệu đã lưu giữ nguyên.
 function fmtMoney(n) {
   const v = Number(n);
   if (!Number.isFinite(v)) return '';
-  return v.toLocaleString('vi-VN') + ' đ';
+  return Math.round(v).toLocaleString('vi-VN') + ' đ';
+}
+// Thuế suất GTGT: số đã dùng khi tính (lưu trong bản dự toán), không có thì lấy
+// cấu hình dùng chung aln-pricing.js — không ghi cứng trong trang.
+function thueSuatGtgt(daLuu) {
+  const v = Number(daLuu);
+  if (daLuu != null && daLuu !== '' && Number.isFinite(v)) return v;
+  const P = window.ALN_PRICING;
+  return P && P.PRICING ? P.PRICING.thue_suat_vat : null;
+}
+function nhanThueSuat(x) {
+  return x == null ? '' : Number(x).toLocaleString('vi-VN', { maximumFractionDigits: 2 });
 }
 function fmtDateOnly(ts) {
   try {
@@ -1041,9 +1053,9 @@ function drawDuToanRows(el, lines, total) {
 function renderDuToanLatest(v) {
   const kq = v.ket_qua || {};
   els.dtTotal.textContent = fmtMoney(kq.tong_chua_vat) || '—';
-  els.dtPerM2.textContent = kq.don_gia_m2 != null ? Number(kq.don_gia_m2).toLocaleString('vi-VN') : '—';
+  els.dtPerM2.textContent = kq.don_gia_m2 != null && Number.isFinite(Number(kq.don_gia_m2)) ? Math.round(Number(kq.don_gia_m2)).toLocaleString('vi-VN') : '—';
   els.dtVatLine.textContent = kq.tong_sau_vat != null
-    ? `Sau VAT ${esc(kq.vat != null ? kq.vat : '')}%: ${fmtMoney(kq.tong_sau_vat)}`
+    ? `Sau thuế GTGT (${nhanThueSuat(thueSuatGtgt(kq.vat))}%): ${fmtMoney(kq.tong_sau_vat)}`
     : '';
   els.dtModel.textContent = kq.qd != null
     ? `Ước tính từ ${Math.round(kq.qd).toLocaleString('vi-VN')} m² quy đổi, theo nhà mẫu ${esc(NHA_MAU_LABEL[kq.nha_mau] || kq.nha_mau || '')}`
@@ -1160,6 +1172,8 @@ function renderDuToanOldList(oldVersions) {
    hai" (combo cross-sell tham khảo) ở cuối khối — xem aln-pricing.js. */
 function renderPackages() {
   const P = window.ALN_PRICING;
+  const elThue = document.getElementById('pkgThueSuat');
+  if (elThue) elThue.textContent = nhanThueSuat(thueSuatGtgt(null));
   if (!P) { els.pkgGrid.innerHTML = ''; return; }
   const latest = duToanVersions[0];
   const soSan = latest && latest.inputs && latest.inputs.n;
