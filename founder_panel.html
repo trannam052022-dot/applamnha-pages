@@ -11883,13 +11883,13 @@ function adVePheu(k) {
     // Mở hộp/Bấm gửi chỉ có từ bản 11/10/2026 — phiên cũ hơn không có hai cờ này.
     ["Mở hộp nhập SĐT", p.mo_hop || 0, (p.bam_luu || 0) > (p.mo_hop || 0) ? "còn lại đã đăng nhập sẵn hoặc trước bản 11/10/2026" : ""],
     // 14/10/2026: lối chính không OTP — khách chép tin nhắn và mở Zalo ALN. Lead thật đếm ở Zalo.
-    ["Bấm \u201cNhận qua Zalo\u201d", p.zalo || 0, (p.zalo || 0) ? "khách tự dán tin nhắn trong Zalo — đối chiếu số tin Zalo nhận được" : ""],
+    ["Bấm \u201cNhận qua Zalo\u201d", p.zalo || 0, (p.zalo || 0) ? "đã để lại số Zalo — KTS gửi bảng theo tin Telegram" : ""],
     ["Bấm \u201cGửi mã\u201d", p.bam_gui || 0, (p.mo_hop || 0) ? "bỏ ngang ở ô SĐT (mở hộp, không bấm gửi): " + so(Math.max(0, (p.mo_hop || 0) - (p.bam_gui || 0))) : ""],
     ["Gửi OTP lỗi", p.otp_gui_loi || 0, adLyDoOtp(k.ly_do_otp_loi)],
     ["Gửi mã OTP thành công", p.otp_gui, (p.bam_luu || 0) ? "trên bấm Lưu: " + adPct(p.otp_gui || 0, p.bam_luu) + " (DEC-2026-025: KILL nếu < 30% khi đủ 30 bấm Lưu; hiện " + so(p.bam_luu) + ")" : ""],
     ["Nhập đúng mã OTP", p.otp_ok, ""],
     ["Lưu xong vào Không gian Nhà", p.luu_xong, ""],
-    ["Gửi form Nhờ KTS xem (không OTP)", p.co_lead, "đi đường riêng, không qua các bước Lưu"],
+    ["Để lại số không qua OTP (Zalo, form Nhờ KTS, MyMy)", p.co_lead, "gồm cả các phiên ở dòng Nhận qua Zalo"],
   ];
   let h = '<div style="font-weight:700;color:var(--text1);font-size:12.5px;margin-bottom:6px">Phễu theo bước — từ ' + eH(String(k.tu_mo_trang || "").split("-").reverse().join("/")) + '</div>'
     + '<div style="overflow:auto;border:1px solid var(--border);border-radius:12px;background:var(--card)"><table style="width:100%;border-collapse:collapse;font-size:12.5px"><thead><tr><th>Bước</th><th>Phiên</th><th>So với mở trang</th><th>Ghi chú</th></tr></thead><tbody>';
