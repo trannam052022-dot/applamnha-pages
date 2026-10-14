@@ -219,7 +219,7 @@ h2{margin:20px 0 6px;font-family:var(--display);font-weight:500;font-size:18px;l
 
 <p class="eyebrow">Dành cho chủ nhà · Tự kiểm tra dự toán</p>
 <h1>Dự toán phần thô — bản chi tiết</h1>
-<p class="lead">Chi tiết từng hạng mục của dự toán anh/chị đã lưu trong Không gian Nhà, kèm mã ALN để đối chiếu khi trao đổi với KTS.</p>
+<p class="lead" id="moTaFile">Chi tiết từng hạng mục của dự toán anh/chị đã lưu trong Không gian Nhà, kèm mã ALN để đối chiếu khi trao đổi với KTS.</p>
 
 <div class="meta">
   <div><small>Mã file</small><strong class="mono" id="mMa"></strong></div>
@@ -293,6 +293,10 @@ const callXuat = httpsCallable(getFunctions(app, 'asia-southeast1'), 'xuatDuToan
 const $ = (id) => document.getElementById(id);
 let houseId = '';
 let daBatDau = false;
+// Founder xuất từ trang dự toán (14/10/2026): ?tu_trang=1, số đo lấy từ localStorage
+// 'aln_xuat_tu_trang' do du-toan-nha.html ghi lúc bấm nút — máy chủ tự tính lại.
+const TU_TRANG = new URLSearchParams(location.search).get('tu_trang') === '1';
+let tuTrang = null;
 
 function isPhoneAuthed(user) { return !!(user && !user.isAnonymous && user.phoneNumber); }
 function soVN(n) { return n == null ? '' : Math.round(Number(n)).toLocaleString('vi-VN'); }
@@ -421,9 +425,16 @@ async function xuat() {
   $('status').textContent = 'Đang lập file…';
   $('btnPdf').disabled = true;
   try {
-    const params = { houseId };
-    const v = new URLSearchParams(location.search).get('v');
-    if (v && /^\d{1,3}$/.test(v)) params.phien_ban = Number(v);
+    let params;
+    if (TU_TRANG) {
+      params = { tuTrang };
+      const s4 = new URLSearchParams(location.search).get('sdt4');
+      if (s4 && /^\d{4}$/.test(s4)) params.sdt4 = s4;
+    } else {
+      params = { houseId };
+      const v = new URLSearchParams(location.search).get('v');
+      if (v && /^\d{1,3}$/.test(v)) params.phien_ban = Number(v);
+    }
     const r = await callXuat(params);
     const b = r && r.data && r.data.bang;
     if (!b) throw new Error('no-data');
@@ -455,6 +466,17 @@ onAuthStateChanged(auth, (user) => {
     return;
   }
   if (daBatDau) return;
+  if (TU_TRANG) {
+    if (!xemFounder) { $('errText').textContent = 'Chỉ tài khoản Founder xuất được file từ trang dự toán.'; hienState('error'); return; }
+    try { tuTrang = JSON.parse(localStorage.getItem('aln_xuat_tu_trang') || 'null'); } catch (e) { tuTrang = null; }
+    if (!tuTrang || typeof tuTrang !== 'object' || !tuTrang.inputs) { $('errText').textContent = 'Không thấy số đo dự toán — quay lại trang dự toán và bấm "Xuất PDF gửi khách".'; hienState('error'); return; }
+    $('moTaFile').textContent = 'Chi tiết từng hạng mục của dự toán anh/chị đã tính trên applamnha.vn, kèm mã ALN để đối chiếu khi trao đổi với KTS.';
+    $('backLink').href = alnUrl('du-toan-nha.html');
+    $('backLink').textContent = '← Trang dự toán';
+    daBatDau = true;
+    xuat();
+    return;
+  }
   const q = new URLSearchParams(location.search).get('h') || '';
   if (!/^[A-Za-z0-9_-]{1,80}$/.test(q)) {
     if (xemFounder) { $('errText').textContent = 'Mở trang này từ founder_panel (nút "Xem như khách") để có mã hồ sơ.'; hienState('error'); return; }
