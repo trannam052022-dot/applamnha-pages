@@ -283,6 +283,7 @@ h2{margin:20px 0 6px;font-family:var(--display);font-weight:500;font-size:18px;l
 </div>
 </div>
 
+<script src="du-toan-nha-ui.js?v=1"></script>
 <script src="aln-founder-xem.js"></script>
 <script src="aln-in-pdf.js"></script>
 <script type="module">
@@ -297,6 +298,33 @@ let daBatDau = false;
 // 'aln_xuat_tu_trang' do du-toan-nha.html ghi lúc bấm nút — máy chủ tự tính lại.
 const TU_TRANG = new URLSearchParams(location.search).get('tu_trang') === '1';
 let tuTrang = null;
+// Founder bấm "Xuất PDF" ở founder_panel (lead Zalo, 14/10/2026 (4)): ?tu_trang=1&dt=<mã>
+// — mã là phần sau #dt= của link khách (du-toan-nha.html), giải ra số đo + giá vật tư
+// đúng như du-toan-nha.html napTuLink()/payloadTinh(). DEF phải GIỐNG HỆT du-toan-nha.html
+// (test scripts/test-founder-xuat-pdf.js so 2 khối DEF).
+const { MAI_LOAI_MAC_DINH, MAI_THAI_MAC_DINH } = window.ALN_DUTOAN_UI || {};
+const DEF={w1:5,w2:5,l1:20,l2:20,n:4,st:'0.7',tm:'0',ham:'0',sant:0,bc:0,mai:'',mai_loai:MAI_LOAI_MAC_DINH,mong:70,
+ dua:MAI_THAI_MAC_DINH.dua,doc_mai:MAI_THAI_MAC_DINH.docDo,dong_gia_mai_thai:MAI_THAI_MAC_DINH.donGia,
+ khoan:1900000,cong:550000,mep:250000,ql:23.8,vat:8,lm:'khoan'};
+function payloadTuMaDt(ma) {
+  try {
+    if (!/^[A-Za-z0-9_-]{4,6000}$/.test(ma || '')) return null;
+    let s = ma.replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '=';
+    const o = JSON.parse(decodeURIComponent(escape(atob(s))));
+    if (!o || typeof o !== 'object' || !o.i || typeof o.i !== 'object') return null;
+    const inp = { ...DEF };
+    Object.keys(o.i).forEach((k) => { if (!(k in DEF) && k !== 'vtdn') return; const v = o.i[k]; if (v == null) return; const c = String(v); if (c.length <= 24) inp[k] = c; });
+    const px = {};
+    if (o.p && typeof o.p === 'object') Object.keys(o.p).slice(0, 300).forEach((k) => { const v = String(o.p[k]); if (k.length <= 120 && /^\d{1,10}$/.test(v)) px[k] = v; });
+    const g = (k) => String(inp[k]);
+    return {
+      inputs: { w1: g('w1'), w2: g('w2'), l1: g('l1'), l2: g('l2'), n: g('n'), st: g('st'), tm: g('tm'), ham: g('ham'), sant: g('sant'), bc: g('bc'), mai: g('mai'), mai_loai: g('mai_loai'), mong: g('mong'), dua: g('dua'), doc_mai: g('doc_mai'), dong_gia_mai_thai: g('dong_gia_mai_thai') },
+      priceOverrides: px, donGiaHangMuc: {}, tinh: null,
+      nhanCong: { cheDo: inp.lm || 'khoan', khoanDonGia: g('khoan'), congDonGia: g('cong'), vtDienNuoc: inp.vtdn || 'thau' },
+      mepDonGia: g('mep'), qlPct: g('ql'), vatPct: g('vat'),
+    };
+  } catch (e) { return null; }
+}
 
 function isPhoneAuthed(user) { return !!(user && !user.isAnonymous && user.phoneNumber); }
 function soVN(n) { return n == null ? '' : Math.round(Number(n)).toLocaleString('vi-VN'); }
@@ -468,11 +496,13 @@ onAuthStateChanged(auth, (user) => {
   if (daBatDau) return;
   if (TU_TRANG) {
     if (!xemFounder) { $('errText').textContent = 'Chỉ tài khoản Founder xuất được file từ trang dự toán.'; hienState('error'); return; }
-    try { tuTrang = JSON.parse(localStorage.getItem('aln_xuat_tu_trang') || 'null'); } catch (e) { tuTrang = null; }
-    if (!tuTrang || typeof tuTrang !== 'object' || !tuTrang.inputs) { $('errText').textContent = 'Không thấy số đo dự toán — quay lại trang dự toán và bấm "Xuất PDF gửi khách".'; hienState('error'); return; }
+    const maDt = new URLSearchParams(location.search).get('dt');
+    if (maDt) tuTrang = payloadTuMaDt(maDt);
+    else { try { tuTrang = JSON.parse(localStorage.getItem('aln_xuat_tu_trang') || 'null'); } catch (e) { tuTrang = null; } }
+    if (!tuTrang || typeof tuTrang !== 'object' || !tuTrang.inputs) { $('errText').textContent = maDt ? 'Link dự toán của khách bị hỏng — mở lại từ tin Telegram.' : 'Không thấy số đo dự toán — quay lại trang dự toán và bấm "Xuất PDF gửi khách".'; hienState('error'); return; }
     $('moTaFile').textContent = 'Chi tiết từng hạng mục của dự toán anh/chị đã tính trên applamnha.vn, kèm mã ALN để đối chiếu khi trao đổi với KTS.';
-    $('backLink').href = alnUrl('du-toan-nha.html');
-    $('backLink').textContent = '← Trang dự toán';
+    $('backLink').href = alnUrl(maDt ? 'founder_panel.html' : 'du-toan-nha.html');
+    $('backLink').textContent = maDt ? '← Founder panel' : '← Trang dự toán';
     daBatDau = true;
     xuat();
     return;
