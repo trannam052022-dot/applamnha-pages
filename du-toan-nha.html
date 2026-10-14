@@ -328,6 +328,18 @@ body.che-do-dn.dn-che #dnChe{display:block}
 #otpHop .oh-thay button{all:unset;cursor:pointer;color:var(--navy2);font-weight:700;text-decoration:underline;text-underline-offset:2px;padding:6px 0}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) #otpHop .oh-thay button{color:#e8c877}}
 :root[data-theme="dark"] #otpHop .oh-thay button{color:#e8c877}
+/* Lối chính "Nhận qua Zalo" (14/10/2026). Nền #0068ff chữ trắng: tương phản 4,6:1. */
+#otpHop .oh-zalo{margin:8px 0 4px;padding:12px;border:1.5px solid #0068ff;border-radius:12px}
+#otpHop .oh-zalo-tieu{font-weight:700;font-size:15px;color:var(--ink)}
+#otpHop .oh-zalo-nut{display:block;width:100%;border:0;border-radius:10px;background:#0068ff;color:#fff;font:inherit;font-size:16.5px;font-weight:700;min-height:50px;padding:0 14px;margin-top:12px;cursor:pointer}
+#otpHop .oh-zalo-nut:disabled{opacity:.7;cursor:default}
+#otpHop .oh-zalo-xong{margin-top:10px}
+#otpHop .oh-zalo-xong p{margin:0 0 6px;font-weight:700;color:var(--ink);line-height:1.5}
+#otpHop .oh-zalo-xong .oh-zalo-phu{font-weight:400;font-size:14px;color:var(--sub)}
+#otpHop .oh-zalo-xong a{color:var(--navy2);font-weight:700;text-underline-offset:2px}
+#otpHop .oh-hoac{display:flex;align-items:center;gap:8px;margin:16px 0 4px;font-size:13px;color:var(--muted)}
+#otpHop .oh-hoac::before,#otpHop .oh-hoac::after{content:"";flex:1;height:1px;background:var(--line)}
+#otpHop .oh-hoac span{flex:none;max-width:80%;text-align:center}
 #otpHop .oh-msg{margin-top:8px;font-size:14px;min-height:1.2em}
 /* 11/10/2026: lỗi hiện rõ bằng chữ — khung đỏ ngay dưới nút vừa bấm (showMsg dời phần tử). */
 #otpHop .oh-msg.err{color:#b42318;background:#fef3f2;border:1px solid #f3b8b2;border-radius:10px;padding:10px 12px;font-size:15px;font-weight:600;line-height:1.5}
@@ -541,8 +553,27 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <button class="luu-ct" id="btnSaveHouse" type="button"><span class="l1">Lưu và xem chi tiết trong Không gian Nhà</span><span class="l2">Miễn phí · xác nhận SĐT bằng mã OTP</span></button>
     <div id="otpNha">
      <div id="otpHop" hidden role="region" aria-labelledby="ohTieu">
-      <div class="oh-dau"><div class="oh-tieu" id="ohTieu">Lưu vào Không gian Nhà — miễn phí</div><button type="button" class="oh-dong" id="ohDong" aria-label="Đóng">×</button></div>
+      <div class="oh-dau"><div class="oh-tieu" id="ohTieu">Xem chi tiết từng hạng mục — miễn phí</div><button type="button" class="oh-dong" id="ohDong" aria-label="Đóng">×</button></div>
       <div id="ohB1">
+       <!-- 14/10/2026 (Nam chọn cách A): phễu 06–14/10 — 12 phiên bấm Lưu, 3 mở hộp SĐT, 0 bấm gửi mã.
+            Lối chính: nhận bảng qua Zalo (chép sẵn tin nhắn có số đo + link mở lại dự toán), không OTP.
+            OTP lùi xuống làm lối phụ để lưu vào Không gian Nhà. -->
+       <div class="oh-zalo">
+        <div class="oh-zalo-tieu">Nhận bảng chi tiết qua Zalo — không cần nhập mã</div>
+        <div id="ohZaloForm">
+         <label class="oh-nhan" for="ohZaloSdt">Số Zalo của anh/chị</label>
+         <input id="ohZaloSdt" type="tel" inputmode="numeric" autocomplete="tel-national" enterkeyhint="send" maxlength="15" placeholder="VD: 0909 123 456">
+         <!-- Câu đồng ý: trang chép NGUYÊN chữ #tvDongYText (CONSENT_TEXTS.du_toan, cùng câu MyMy dùng). -->
+         <label class="tv-dy" for="ohZaloDongY"><input id="ohZaloDongY" type="checkbox"><span id="ohZaloDongYText"></span></label>
+         <button type="button" class="oh-zalo-nut" id="ohZalo">Gửi bảng chi tiết qua Zalo cho tôi</button>
+         <div class="oh-msg" id="ohZaloMsg" role="status" aria-live="polite" hidden></div>
+        </div>
+        <div class="oh-zalo-xong" id="ohZaloXong" hidden>
+         <p id="ohZaloXongChu">ALN đã nhận yêu cầu. KTS sẽ gửi bảng chi tiết qua Zalo cho anh/chị trong giờ làm việc.</p>
+         <p class="oh-zalo-phu">Muốn hỏi ngay? <a id="ohZaloMoLai" href="https://zalo.me/0909829696" target="_blank" rel="noopener">Nhắn ALN trên Zalo</a></p>
+        </div>
+       </div>
+       <div class="oh-hoac"><span>hoặc lưu vào Không gian Nhà bằng mã xác nhận</span></div>
        <ul>
         <li>Xem khối lượng, đơn giá, thành tiền từng hạng mục</li>
         <li>Giữ dự toán, quay lại sửa giá bất cứ lúc nào</li>
@@ -694,12 +725,33 @@ const K='aln-dutoan-v1';
 // Bản doanh nghiệp: báo cho máy chủ biết để trả bảng đầy đủ (chỉ khi tài khoản Phone
 // Auth có hồ sơ doanh nghiệp — xem functions/tinhDuToanNha.js duocXemChiTiet).
 const LA_DN=new URLSearchParams(location.search).get('dn')==='1';
-let st=load(); let prices={}; let showAllT=false; const openRows=new Set();
+let st=napTuLink()||load(); let prices={}; let showAllT=false; const openRows=new Set();
 const tinhFingerprints=new Set();
 let duToanTinhTimer=null; // debounce aln_du_toan_tinh (P1.5) — run() gọi lại mỗi lần gõ phím, không đẩy dataLayer mỗi keystroke
 // st.dg = đơn giá vật tư từng hạng mục nhà thầu nhập (bản DN, 03/10/2026) — {tên: giá}; state cũ không có thì {}.
 function load(){try{const s=JSON.parse(localStorage.getItem(K)||'null');if(s&&s.inp){if(!s.px||typeof s.px!=='object')s.px={};if(!s.dg||typeof s.dg!=='object')s.dg={};return s}}catch(e){}return{inp:{...DEF},px:{},dg:{}}}
 function save(){try{localStorage.setItem(K,JSON.stringify(st))}catch(e){}}
+// Link mở lại dự toán (14/10/2026): tin nhắn Zalo khách gửi kèm #dt=<base64url JSON {i,p}>.
+// Founder/KTS mở link là trang nạp đúng số đo + giá khách đã nhập (Founder nhận bản chi tiết
+// từ máy chủ). Chỉ nhận khoá có trong DEF + lm/vtdn, chuỗi ngắn; giá chỉ nhận số. Nạp xong
+// ghi localStorage rồi bỏ #dt khỏi thanh địa chỉ.
+function maHoaLink(o){try{const s=btoa(unescape(encodeURIComponent(JSON.stringify(o))));return s.replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}catch(e){return ''}}
+function napTuLink(){
+ try{
+  const m=/^#dt=([A-Za-z0-9_-]{4,6000})$/.exec(location.hash||'');if(!m)return null;
+  let s=m[1].replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';
+  const o=JSON.parse(decodeURIComponent(escape(atob(s))));if(!o||typeof o!=='object'||!o.i||typeof o.i!=='object')return null;
+  const inp={...DEF};
+  Object.keys(o.i).forEach(k=>{if(!(k in DEF)&&k!=='vtdn')return;const v=o.i[k];if(v==null)return;const c=String(v);if(c.length<=24)inp[k]=c});
+  const px={};
+  if(o.p&&typeof o.p==='object')Object.keys(o.p).slice(0,300).forEach(k=>{const v=String(o.p[k]);if(k.length<=120&&/^\d{1,10}$/.test(v))px[k]=v});
+  const kq={inp,px,dg:{}};
+  try{localStorage.setItem(K,JSON.stringify(kq))}catch(e){}
+  try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
+  return kq;
+ }catch(e){return null}
+}
+window.alnDuToanLink=()=>{const i={};Object.keys(st.inp).forEach(k=>{if((k in DEF)||k==='vtdn'){const v=st.inp[k];if(v!=null&&v!=='')i[k]=v}});const p={};Object.keys(st.px).forEach(k=>{const v=st.px[k];if(v!=null&&v!=='')p[k]=v});const ma=maHoaLink({i,p});return ma?'https://applamnha.vn/du-toan-nha.html#dt='+ma:'https://applamnha.vn/du-toan-nha.html'};
 // Móng nhớ RIÊNG theo loại nhà + cờ "đã tự sửa trong CHÍNH loại đó" (Founder
 // chốt 21/09/2026 (4), thay cho heuristic so sánh giá trị ở bản trước — bản
 // đó bỏ sót ca state localStorage CŨ đã có sẵn n=1 + mong=70 từ trước khi
@@ -1693,7 +1745,7 @@ function moHop(viTri, nhom, neo) {
   ghiBuoc('mo_hop');
   // Kéo hộp vào giữa màn hình đến hết nút gửi (lối từ thanh dính: trước đây hộp mở
   // ở chân bảng, nút gửi nằm dưới mép màn hình).
-  requestAnimationFrame(() => hienTrongKhung($('ohTieu'), xacNhan ? $('ohXacNhan') : $('ohGui')));
+  requestAnimationFrame(() => hienTrongKhung($('ohTieu'), xacNhan ? $('ohXacNhan') : $('ohZalo')));
 }
 window.alnLuuChiTiet = { mo: moHop, dong: dongHop };
 
@@ -1701,17 +1753,19 @@ btn.addEventListener('click', () => moHop('chan_bang', '', null));
 $('dockLuu').addEventListener('click', () => moHop('thanh_dinh', '', null));
 // Bàn phím mở trong trình duyệt của app: giữ ô đang gõ + nút gửi trong phần còn thấy.
 function giuONhap() {
+  const a = document.activeElement;
+  if (a && a.id === 'ohZaloSdt') { hienTrongKhung($('ohZaloSdt'), $('ohZalo')); return; }
   const b2 = !$('ohB2').hidden;
   hienTrongKhung(b2 ? $('ohMa') : $('ohSdt'), b2 ? $('ohXacNhan') : $('ohGui'));
 }
 hop.addEventListener('focusin', (e) => {
-  if (!/^(ohSdt|ohMa)$/.test((e.target && e.target.id) || '')) return;
+  if (!/^(ohSdt|ohMa|ohZaloSdt)$/.test((e.target && e.target.id) || '')) return;
   [80, 350, 700].forEach((ms) => setTimeout(giuONhap, ms));
 });
 if (window.visualViewport) {
   window.visualViewport.addEventListener('resize', () => {
     const a = document.activeElement;
-    if (!hop.hidden && a && /^(ohSdt|ohMa)$/.test(a.id || '')) giuONhap();
+    if (!hop.hidden && a && /^(ohSdt|ohMa|ohZaloSdt)$/.test(a.id || '')) giuONhap();
   });
 }
 $('ohDong').addEventListener('click', dongHop);
@@ -1720,6 +1774,36 @@ $('ohNhoKts').addEventListener('click', (e) => {
   try { (window.dataLayer = window.dataLayer || []).push({ event: 'aln_otp_nho_kts', vi_tri: (loiVao && loiVao.viTri) || 'chan_bang' }); } catch (_) {}
   moiNhoKts(e);
 });
+// Lối chính "Nhận bảng chi tiết qua Zalo" (14/10/2026). Nam: khách bấm là ALN được báo để
+// gửi, không bắt khách tự dán. Khách chỉ nhập số Zalo + đồng ý → submitDuToanLead
+// (kenh 'zalo', không cần tên/OTP) → lead + Telegram Trưởng phòng; ghi chú lần chạm có
+// tóm tắt + link #dt= để KTS mở đúng dự toán rồi gửi qua Zalo. Không bắn Pixel Lead.
+try { const g = $('tvDongYText'); if (g) $('ohZaloDongYText').replaceChildren(...Array.from(g.cloneNode(true).childNodes)); } catch (e) {}
+function baoZalo(chu) { const m = $('ohZaloMsg'); m.hidden = !chu; m.textContent = chu || ''; m.className = 'oh-msg' + (chu ? ' err' : ''); }
+async function guiZalo() {
+  const sdt = ($('ohZaloSdt').value || '').replace(/\D/g, '');
+  if (sdt.length < 9) { baoZalo('Anh/chị nhập số Zalo (số điện thoại) để ALN gửi bảng.'); $('ohZaloSdt').focus(); return; }
+  if (!$('ohZaloDongY').checked) { baoZalo('Anh/chị tick ô đồng ý để ALN nhắn Zalo cho anh/chị.'); return; }
+  if (typeof window.alnDuToanGuiZalo !== 'function') { baoZalo('Trang chưa tải xong, anh/chị thử lại sau vài giây.'); return; }
+  baoZalo('');
+  const b = $('ohZalo'); b.disabled = true; b.textContent = 'Đang gửi…';
+  try {
+    const kq = await window.alnDuToanGuiZalo({ phone: $('ohZaloSdt').value, dongY: true });
+    if (!kq || !kq.id) throw new Error('khong_co_ma');
+    $('ohZaloForm').hidden = true;
+    $('ohZaloXongChu').textContent = 'ALN đã nhận yêu cầu. KTS sẽ gửi bảng chi tiết qua Zalo số …' + sdt.slice(-4) + ' trong giờ làm việc.';
+    $('ohZaloXong').hidden = false;
+    ghiBuoc('zalo');
+    try { (window.dataLayer = window.dataLayer || []).push({ event: 'aln_luu_zalo', vi_tri: (loiVao && loiVao.viTri) || 'chan_bang', trung: kq.dup ? 1 : 0 }); } catch (_) {}
+  } catch (e) {
+    const chu = e && e.code === 'functions/invalid-argument' && e.message ? e.message : 'Chưa gửi được. Anh/chị bấm gửi lại, hoặc nhắn Zalo 0909 829 696.';
+    baoZalo(chu);
+  } finally {
+    b.disabled = false; b.textContent = 'Gửi bảng chi tiết qua Zalo cho tôi';
+  }
+}
+$('ohZalo').addEventListener('click', guiZalo);
+$('ohZaloSdt').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); guiZalo(); } });
 $('ohGuiLai').addEventListener('click', guiMa);
 $('ohXacNhan').addEventListener('click', xacNhanMa);
 $('ohDoiSo').addEventListener('click', () => { xacNhan = null; clearInterval(demNguoc); msg.hidden = true; buocHop(1); });
@@ -2039,6 +2123,34 @@ const CB = window.alnCallback || {};
    tóm tắt dự toán, utm/fbp/fbc, attribution. Tên không bắt buộc. Pixel Lead +
    aln_lead_submit bắn y như form, cùng eventID 'lead-'+id để Meta gộp với CAPI.
    mymy-du-toan-nha.js gọi hàm này; trả {id, dup} hoặc ném lỗi. */
+/* "Gửi bảng chi tiết qua Zalo cho tôi" (14/10/2026) — hộp Lưu gọi hàm này. Cùng đường
+   submitDuToanLead như form/MyMy, kenh 'zalo': không cần tên, có đồng ý, kèm link #dt=. */
+window.alnDuToanGuiZalo = async function (o) {
+  try { if (window.alnDuToanCho) await window.alnDuToanCho(); } catch (e) {}
+  const est = window.__lastEstimate;
+  const sig = (window.alnEstimateFunnel && window.alnEstimateFunnel.signals()) || {};
+  let fbc = sig.fbc || '';
+  try { if (window.alnGetFbc) fbc = window.alnGetFbc() || fbc; } catch (e) {}
+  const res = await guiYeuCau({
+    name: '', phone: String((o && o.phone) || ''),
+    kenh: 'zalo', loai: 'phan_tho', projectType: 'xay_moi', dongY: (o && o.dongY) === true,
+    anDanh: window.alnAnDanh ? window.alnAnDanh() : null,
+    tang: est && est.inputs ? (Number(est.inputs.n) || null) : null,
+    tongMin: est && est.result ? est.result.totalChuaVat : null,
+    tongMax: est && est.result ? est.result.totalChuaVat : null,
+    tomTat: est && est.result ? tomTatDuToan(est) : null,
+    link: typeof window.alnDuToanLink === 'function' ? window.alnDuToanLink() : '',
+    utm: sig.utm || {}, fbp: sig.fbp || '', cookieQc: sig.cookieQc === true, fbc,
+    sourceUrl: location.origin + location.pathname,
+    optout: window.ALN_INTERNAL === true,
+    attribution: (() => { try { return window.alnAttr ? window.alnAttr.forLead() : null; } catch (err) { return null; } })(),
+    trangDan: window.alnTrangDan ? window.alnTrangDan() : '',
+  });
+  const d = (res && res.data) || {};
+  const leadId = d.id || '';
+  if (leadId) day('aln_lead_submit', { form_name: 'du-toan-nha-zalo', trung: d.dup ? 1 : 0 });
+  return { id: leadId, dup: !!d.dup };
+};
 window.alnDuToanGuiLeadMyMy = async function (o) {
   // Dự toán tính trên máy chủ (#331): chờ lượt tính mới nhất như form Nhờ KTS xem.
   try { if (window.alnDuToanCho) await window.alnDuToanCho(); } catch (e) {}

@@ -11882,6 +11882,8 @@ function adVePheu(k) {
     // 11/10/2026: tách người bỏ ngang ở ô SĐT với người gửi mã bị lỗi.
     // Mở hộp/Bấm gửi chỉ có từ bản 11/10/2026 — phiên cũ hơn không có hai cờ này.
     ["Mở hộp nhập SĐT", p.mo_hop || 0, (p.bam_luu || 0) > (p.mo_hop || 0) ? "còn lại đã đăng nhập sẵn hoặc trước bản 11/10/2026" : ""],
+    // 14/10/2026: lối chính không OTP — khách chép tin nhắn và mở Zalo ALN. Lead thật đếm ở Zalo.
+    ["Bấm \u201cNhận qua Zalo\u201d", p.zalo || 0, (p.zalo || 0) ? "khách tự dán tin nhắn trong Zalo — đối chiếu số tin Zalo nhận được" : ""],
     ["Bấm \u201cGửi mã\u201d", p.bam_gui || 0, (p.mo_hop || 0) ? "bỏ ngang ở ô SĐT (mở hộp, không bấm gửi): " + so(Math.max(0, (p.mo_hop || 0) - (p.bam_gui || 0))) : ""],
     ["Gửi OTP lỗi", p.otp_gui_loi || 0, adLyDoOtp(k.ly_do_otp_loi)],
     ["Gửi mã OTP thành công", p.otp_gui, (p.bam_luu || 0) ? "trên bấm Lưu: " + adPct(p.otp_gui || 0, p.bam_luu) + " (DEC-2026-025: KILL nếu < 30% khi đủ 30 bấm Lưu; hiện " + so(p.bam_luu) + ")" : ""],
