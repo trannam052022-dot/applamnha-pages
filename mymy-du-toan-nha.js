@@ -627,6 +627,10 @@
   function bbDaHienPhien() { try { return !!sessionStorage.getItem(KEY_BB); } catch (e) { return bbXong; } }
   function bbGhiPhien(v) { try { sessionStorage.setItem(KEY_BB, v); } catch (e) { /* bỏ qua */ } }
   function chatDangMo() { var w = $('mymy-win'); return !!(w && w.classList.contains('open')); }
+  // Hộp "Xem chi tiết từng hạng mục" (#otpHop) đang mở (15/10/2026, Nam): không bật tin mời,
+  // tin mời đang hiện thì ẩn — ở mọi bề ngang. Đóng hộp mới mời (nếu đang chờ).
+  function hopDangMo() { var h = $('otpHop'); return !!(h && !h.hidden); }
+  var bbChoHop = '';
   function rutGonPA(pa) {
     var t = String(pa || '').split(', ').slice(0, 2).join(', ');
     return t ? t.charAt(0).toLowerCase() + t.slice(1) : '';
@@ -666,6 +670,7 @@
     if (!bbEl) return;
     var nut = $('mymy-btn');
     if (!nut || chatDangMo()) { boBB(); return; }
+    if (hopDangMo()) { bbEl.style.visibility = 'hidden'; return; }
     var n = nut.getBoundingClientRect();
     bbEl.style.right = Math.max(8, window.innerWidth - n.left + 10) + 'px';
     bbEl.style.bottom = Math.max(8, window.innerHeight - n.bottom) + 'px';
@@ -686,7 +691,7 @@
         q = bbEl.getBoundingClientRect();
       }
     }
-    var che = deLen(q, $('total')) || deLen(q, document.querySelector('.dock')) || (window.innerWidth >= 980 && soTienDangDe(q).length > 0);
+    var che = deLen(q, $('total')) || deLen(q, document.querySelector('.dock')) || deLen(q, $('otpHop')) || (window.innerWidth >= 980 && soTienDangDe(q).length > 0);
     bbEl.style.visibility = che ? 'hidden' : 'visible';
     if (!che && !bbDaGhi) {
       bbDaGhi = true;
@@ -721,6 +726,7 @@
     var out = $('out');
     if (!out || out.hidden || chatDangMo()) return;
     if (!$('mymy-btn')) return;
+    if (hopDangMo()) { bbChoHop = lyDo; return; } // chưa tính lượt mời; đóng hộp thì thử lại
     bbXong = true;
     bbLyDo = lyDo;
     var cau = cauBongBong();
@@ -772,10 +778,20 @@
     if (t && t.closest && t.closest('#mymy-btn')) khachTuMo = true;
   }, true);
   (function () {
+    var h = $('otpHop');
+    if (!h || !window.MutationObserver) return;
+    new MutationObserver(function () {
+      if (bbEl) datViTriBB(); // mở hộp → ẩn ngay; đóng hộp → hiện lại
+      if (!h.hidden || !bbChoHop) return;
+      var ly = bbChoHop; bbChoHop = '';
+      setTimeout(function () { thuHienBB(ly); }, 1500);
+    }).observe(h, { attributes: true, attributeFilter: ['hidden'] });
+  })();
+  (function () {
     var giay = 0;
     var dem = setInterval(function () {
       if (bbXong || bbDaHienPhien() || khachTuMo) { clearInterval(dem); return; }
-      if (document.hidden || chatDangMo()) return;
+      if (document.hidden || chatDangMo() || hopDangMo()) return;
       var out = $('out');
       if (!out || out.hidden) return;
       var r = out.getBoundingClientRect();

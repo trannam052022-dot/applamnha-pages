@@ -352,7 +352,13 @@ body.che-do-dn.dn-che #dnChe{display:block}
    duyệt của app Facebook các thanh cố định nổi lên trên bàn phím, che ô nhập/nút gửi).
    Đóng hộp là hiện lại. Ô nhập chừa mép khi tự cuộn. */
 body.oh-mo .dock{display:none!important}
-@media (max-width:979px){body.oh-mo .aln-zalo-sticky,body.oh-mo #mymy-btn,body.oh-mo #mymy-moi,body.oh-mo .mm-bb{display:none!important}}
+@media (max-width:979px){body.oh-mo .aln-zalo-sticky,body.oh-mo #mymy-btn{display:none!important}}
+/* 15/10/2026: hộp đang mở thì tin mời MyMy (.mm-bb, #mymy-moi) không hiện ở MỌI bề ngang —
+   trước đây chỉ ẩn dưới 980px, màn rộng tin mời vẫn đè lên hộp. Nút tròn MyMy giữ nguyên. */
+body.oh-mo #mymy-moi,body.oh-mo .mm-bb{display:none!important}
+/* 15/10/2026: nút nổi (Zalo, MyMy) đang nằm đè lên phần tử data-ne-noi (vd "Xem file mẫu"
+   của khối doanh nghiệp) thì tạm nhường chỗ; cuộn qua là hiện lại. Script cuối trang. */
+.noi-nhuong{visibility:hidden!important;pointer-events:none!important}
 #otpHop input{scroll-margin:16px 0 120px}
 #otpHop .oh-msg a{color:var(--navy2);font-weight:700}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) #otpHop .oh-lk button,:root:not([data-theme="light"]) #otpHop .oh-msg a{color:#e8c877}}
@@ -553,7 +559,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         khi vào từ thẻ khoá. -->
    <div class="luu-ct-wrap" id="luuCtWrap">
     <button class="fx-pdf" id="btnFounderPdf" type="button" hidden>Xuất PDF dự toán gửi khách (chỉ Founder)</button>
-    <button class="luu-ct" id="btnSaveHouse" type="button"><span class="l1">Lưu và xem chi tiết trong Không gian Nhà</span><span class="l2">Miễn phí · xác nhận SĐT bằng mã OTP</span></button>
+    <button class="luu-ct" id="btnSaveHouse" type="button"><span class="l1">Lưu và xem chi tiết trong Không gian Nhà</span><span class="l2">Miễn phí · nhận qua Zalo, không cần nhập mã</span></button>
     <div id="otpNha">
      <div id="otpHop" hidden role="region" aria-labelledby="ohTieu">
       <div class="oh-dau"><div class="oh-tieu" id="ohTieu">Xem chi tiết từng hạng mục — miễn phí</div><button type="button" class="oh-dong" id="ohDong" aria-label="Đóng">×</button></div>
@@ -612,7 +618,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <p>Lưu báo giá cho từng khách, xuất file mang logo và tên công ty của mình, không giới hạn số công trình, trả tiền theo từng file. Số vừa nhập ở trên được mang theo.</p>
     <div class="dn-the-nut">
      <a class="dn-the-chinh" href="du-toan-nha.html?dn=1" id="dnTheLink">Mở bản doanh nghiệp</a>
-     <a class="dn-the-phu" href="in-bao-gia-dn.html?mau=1" target="_blank" rel="noopener">Xem file mẫu</a>
+     <a class="dn-the-phu" href="in-bao-gia-dn.html?mau=1" target="_blank" rel="noopener" data-ne-noi>Xem file mẫu</a>
     </div>
    </aside>
    <section class="tv" id="tuVan" aria-labelledby="tuVanTitle">
@@ -2362,9 +2368,41 @@ f.form.addEventListener('submit', async (e) => {
 
 <!-- Nút MyMy + bóng chat mời (mymy-moi.js tự nạp). Gắn sau mốc đo 7 ngày DT-T9-2026 (Nam chốt, 01/10/2026). Thanh .dock có data-mymy-tranh → nút tự nâng lên trên thanh trên điện thoại. -->
 <!-- ?v=: đổi số khi sửa MyMy để trình duyệt không dùng bản cũ trong bộ nhớ đệm (30/09/2026: khách vẫn thấy lời chào cũ sau khi đã deploy). -->
-<script src="mymy-du-toan-nha.js?v=18"></script>
+<script src="mymy-du-toan-nha.js?v=19"></script>
 <script type="module" src="mymy-widget.js?v=20"></script>
 <script src="aln-zalo-widget.js" defer></script>
+<script>
+/* Nút nổi nhường chỗ (15/10/2026, Nam): bóng Chat Zalo (thanh đáy điện thoại / nút trên
+   màn rộng), nút MyMy và tin mời MyMy không được đè phần tử có data-ne-noi (nút "Xem file
+   mẫu" của khối doanh nghiệp). Nút nổi nào đang chồng lên phần tử đó thì tạm ẩn (class
+   .noi-nhuong), hết chồng thì hiện lại. Khung chat MyMy đang mở thì giữ nút MyMy. */
+(function () {
+  var NOI = '#mymy-btn, #mymy-moi, .mm-bb, .aln-zalo-sticky, .aln-zalo-top';
+  var hen = null;
+  function chong(a, b) {
+    return a.width && a.height && b.width && b.height &&
+      a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+  }
+  function kiem() {
+    hen = null;
+    var can = document.querySelectorAll('[data-ne-noi]');
+    var ds = document.querySelectorAll(NOI);
+    var win = document.getElementById('mymy-win');
+    var chatMo = !!(win && win.classList.contains('open'));
+    for (var i = 0; i < ds.length; i++) {
+      var n = ds[i], r = n.getBoundingClientRect(), de = false;
+      if (!(chatMo && n.id === 'mymy-btn')) {
+        for (var j = 0; j < can.length && !de; j++) de = chong(r, can[j].getBoundingClientRect());
+      }
+      n.classList.toggle('noi-nhuong', de);
+    }
+  }
+  function henKiem() { if (!hen) hen = setTimeout(kiem, 60); }
+  window.addEventListener('scroll', henKiem, { passive: true });
+  window.addEventListener('resize', henKiem);
+  setInterval(henKiem, 1000); // nút nổi gắn muộn (Zalo lúc 'load') / tự nâng theo thanh đáy
+})();
+</script>
 <script type="module">
 /* Founder mở link #dt= từ tin Telegram (lối Zalo, 14/10/2026): thanh báo đang xem
    bằng tài khoản Founder (khách KHÔNG thấy chi tiết từng hạng mục — máy chủ chỉ
