@@ -16,6 +16,8 @@ export const CONSENT_VERSIONS = {
   mymy_chat: "2026-10-03",
   mat_bang: "2026-10-07",
   bat_trach: "2026-10-12",
+  du_lieu_nha: "2026-10-15-2",
+  thong_ke_an_danh: "2026-10-15-2",
 };
 
 export const CONSENT_TEXTS = {
@@ -34,6 +36,13 @@ export const CONSENT_TEXTS = {
   /* Form "Lưu phiếu và tải PDF" trên bat-trach.html — PHẢI giống hệt
      functions/consent_constants.js CONSENT_TEXTS.bat_trach (functions/_test_batTrach.js kiểm). */
   bat_trach: "Tôi đồng ý để ALN lưu họ tên, SĐT của tôi cùng họ tên, ngày sinh các thành viên và hướng nhà đã nhập để KTS của ALN liên hệ tư vấn, theo Chính sách quyền riêng tư.",
+  /* Đồng ý dữ liệu Gói Quản lý Thi công (PR-4) — Nam duyệt câu chữ 15/10/2026, phiên bản
+     "2026-10-15-2" (bản nháp "2026-10-15" chưa từng lên production). Đổi câu = tăng phiên bản.
+     du_lieu_nha bắt buộc trước khi bật gói; thong_ke_an_danh tuỳ chọn (mục đích riêng,
+     tách ô theo Luật 91/2025/QH15). Ghi ở houses/{id}.dong_y_du_lieu qua khDongYDuLieu;
+     aln-dong-y-du-lieu.js hiện GIỐNG HỆT (functions/_test_dongYDuLieu.js kiểm hai bản). */
+  du_lieu_nha: "Tôi đồng ý để ALN lưu và xử lý dữ liệu công trình của tôi trong Không gian Nhà, để cung cấp gói dịch vụ tôi chọn cho chính nhà tôi, theo Chính sách quyền riêng tư.",
+  thong_ke_an_danh: "Cho phép ALN dùng số liệu kích thước và chi phí của công trình này, đã bỏ họ tên, số điện thoại và địa chỉ chi tiết, để thống kê giá xây dựng theo khu vực.",
 };
 
 export const CONSENT_PURPOSES = {
@@ -43,4 +52,6 @@ export const CONSENT_PURPOSES = {
   mymy_chat: "lien_he_tu_van_mymy",
   mat_bang: "lien_he_tu_van_mat_bang",
   bat_trach: "lien_he_tu_van_bat_trach",
+  du_lieu_nha: "van_hanh_goi_dich_vu_khong_gian_nha",
+  thong_ke_an_danh: "thong_ke_gia_an_danh",
 };

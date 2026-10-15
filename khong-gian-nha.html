@@ -638,6 +638,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
       <div class="pkg-grid" id="pkgGrid"></div>
       <p class="pkg-fine">Giá hiển thị đã gồm thuế GTGT <span id="pkgThueSuat"></span>% (mức thuế có thể thay đổi theo quy định). <span id="pkgQltc"></span></p>
+      <!-- Đồng ý dữ liệu Gói Quản lý Thi công (PR-4) — aln-dong-y-du-lieu.js vẽ -->
+      <div id="dydlBox"></div>
     </section>
 
     <!-- f. Sắp có -->
@@ -662,6 +664,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <script src="aln-pricing.js"></script>
 <script src="scripts/aln-callback.js"></script>
 <script src="aln-founder-xem.js"></script>
+<script src="aln-dong-y-du-lieu.js"></script>
 <script type="module">
 import {
   app, auth, db, onAuthStateChanged, signOut,
@@ -676,6 +679,7 @@ const callKhLienKetTaiKhoan = httpsCallable(functionsInst, 'khLienKetTaiKhoan');
 let XEM_FOUNDER = false;
 const callKhGhiUpload = httpsCallable(functionsInst, 'khGhiUpload');
 const callKhChonKhungGio = httpsCallable(functionsInst, 'khChonKhungGio');
+const callKhDongYDuLieu = httpsCallable(functionsInst, 'khDongYDuLieu');
 
 const els = {
   loading: document.getElementById('state-loading'),
@@ -933,6 +937,7 @@ function updateTruocC1Visibility() {
   els.uploadBlock.hidden = !isTruocC1;
   els.pkgBlock.hidden = !isTruocC1;
   if (isTruocC1) renderPackages();
+  if (isTruocC1) renderDongYDuLieu(currentHouseData);
 
   const showDt = isTruocC1 && hasVersions;
   els.dtBlock.hidden = !showDt;
@@ -968,6 +973,28 @@ function renderHouseCallback() {
   } else {
     houseCallbackCtl.setHouse(currentHouseId, khungGio);
   }
+}
+
+/* ── Đồng ý dữ liệu Gói Quản lý Thi công (PR-4, 15/10/2026) — đọc lại từ
+   snapshot house, ghi qua khDongYDuLieu (máy chủ kiểm phiên OTP + chủ nhà).
+   Mount 1 lần/house như khung giờ gọi. ── */
+let dydlCtl = null;
+let dydlFor = null;
+function renderDongYDuLieu(h) {
+  const el = document.getElementById('dydlBox');
+  if (!el || !window.alnDongYDuLieu || !currentHouseId) return;
+  if (!dydlCtl || dydlFor !== currentHouseId) {
+    dydlFor = currentHouseId;
+    const id = currentHouseId;
+    dydlCtl = window.alnDongYDuLieu.mount(el, {
+      xemFounder: XEM_FOUNDER,
+      goi: (data) => {
+        if (!isPhoneAuthed(auth.currentUser)) return Promise.reject({ message: 'Phiên đăng nhập đã hết — anh/chị tải lại trang để xác nhận lại số điện thoại.' });
+        return callKhDongYDuLieu(Object.assign({ houseId: id }, data));
+      },
+    });
+  }
+  dydlCtl.capNhat(h && h.dong_y_du_lieu);
 }
 
 /* ── Khối b — Bước tiếp theo (chỉ house trang_thai='truoc_c1') ── */
