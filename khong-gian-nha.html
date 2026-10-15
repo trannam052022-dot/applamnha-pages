@@ -190,6 +190,8 @@ a{color:inherit}
 .house-stat .l{font-size:var(--text-xs);color:var(--text-3);margin-top:.25rem}
 /* PR-5: hồ sơ gói — chữ thường (không mono) để "3 tầng · 4 sàn", "Nhà phố" không vỡ dòng/dấu. */
 .house-stats.chu .v{font-family:var(--f-body);font-size:var(--text-base);font-weight:600;line-height:1.35}
+.house-stats.goi{grid-template-columns:repeat(2,1fr)}
+.house-stats.goi .house-stat:nth-child(2){order:-1}
 #hKhuVuc{display:flex;flex-direction:column;align-items:center;gap:.15rem}
 #hKhuVuc .kv-tinh,#hKhuVuc .kv-quan-item{white-space:nowrap}
 .kts-row{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;padding-top:.85rem;border-top:1px solid var(--border-soft)}
@@ -954,17 +956,22 @@ function renderHouseHeader(h) {
   els.hName.textContent = h.ten_hien_thi || '';
   els.hMa.textContent = h.ma_ho_so || '';
 
-  // PR-5: hồ sơ Gói Quản lý Thi công — "N tầng · M sàn" + tổng m² từ danh sách sàn lưu trên house.
-  const tt = h.danh_sach_san && h.danh_sach_san.tom_tat;
+  // PR-5: hồ sơ Gói Quản lý Thi công — "N tầng · M sàn" + tổng m² sàn, không có ô Khu vực.
+  // Hồ sơ gói tạo trước #455 chưa có danh_sach_san trên doc house → lấy tóm tắt từ
+  // kết quả qltcDanhSachSan 'doc' (máy chủ đọc bản mới nhất ở houses/{id}/danh_sach_san).
+  const goi = h.trang_thai === 'truoc_c1' && laHoSoGoi(h);
+  const dsDoc = dsSanFor === currentHouseId && dsSan && dsSan.danh_sach_san;
+  const tt = (h.danh_sach_san && h.danh_sach_san.tom_tat) || (dsDoc && dsDoc.tom_tat) || null;
   const stats = els.hSoTang.closest('.house-stats');
   const nhan = (el, chu) => { const l = el.parentNode.querySelector('.l'); if (l) l.textContent = chu; };
-  stats.classList.toggle('chu', !!(h.trang_thai === 'truoc_c1' && tt));
+  stats.classList.toggle('chu', goi);
+  stats.classList.toggle('goi', goi);
+  els.hKhuVuc.parentNode.hidden = goi;
   nhan(els.hDienTich, 'Diện tích sàn'); nhan(els.hSoTang, 'Số tầng'); nhan(els.hKhuVuc, 'Khu vực');
-  if (h.trang_thai === 'truoc_c1' && tt) {
-    nhan(els.hSoTang, T('the.nhan_tang_san')); nhan(els.hKhuVuc, T('the.nhan_loai'));
-    els.hDienTich.textContent = T('the.tong_m2', { m2: soM2(tt.tong_m2) });
-    els.hSoTang.textContent = tomTatTangSan(tt);
-    els.hKhuVuc.textContent = T('loai.' + (h.loai_cong_trinh === 'biet_thu' ? 'biet_thu' : 'nha_pho'));
+  if (goi) {
+    nhan(els.hSoTang, T('the.nhan_tang_san'));
+    els.hDienTich.textContent = tt ? T('the.tong_m2', { m2: soM2(tt.tong_m2) }) : '—';
+    els.hSoTang.textContent = tt ? tomTatTangSan(tt) : '—';
     els.ktsRow.hidden = true;
     return;
   }
@@ -1286,6 +1293,7 @@ async function napDanhSachSan(houseId) {
     if (houseId !== currentHouseId) return;
     dsSan = { loi: true };
   }
+  if (currentHouseData) renderHouseHeader(currentHouseData);
   renderMocTc();
 }
 
@@ -1485,6 +1493,7 @@ async function luuSuaSan() {
     const d = r.data || {};
     dsSan = Object.assign({}, dsSan, { danh_sach_san: d.danh_sach_san, goi: d.goi, loi: false, msg: T(d.khong_doi ? 'sua.khong_doi' : 'sua.da_luu') });
     suaSan = null;
+    if (currentHouseData) renderHouseHeader(currentHouseData);
     renderMocTc();
   } catch (e) {
     if (!suaSan) return;
