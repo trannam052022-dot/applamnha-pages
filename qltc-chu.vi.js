@@ -1,0 +1,187 @@
+/**
+ * qltc-chu.vi.js — câu chữ màn hình Gói Quản lý Thi công, tiếng Việt (PR-5, nền đa quốc gia).
+ *
+ * Dùng ở quan-ly-thi-cong.html và các khối gói trong khong-gian-nha.html. Trang đọc
+ * theo khoá: phần tử tĩnh có data-chu="khoá" (chữ trong HTML là bản dự phòng khi
+ * chưa chạy JS — scripts/check-qltc-chu.js chặn khi chữ HTML lệch file này); chữ
+ * dựng bằng JS gọi window.alnChuQltc('khoá', {biến}).
+ *
+ * Thêm ngôn ngữ: tạo qltc-chu.<mã>.js cùng bộ khoá, trang nạp theo ngon_ngu của quốc
+ * gia (functions/lib/quocGia.js). Câu đồng ý / pháp lý KHÔNG ở đây — ở
+ * consent-constants.js (có phiên bản). Tên sàn (Trệt, Lầu 1…) do máy chủ trả.
+ *
+ * Nội dung công khai (mức B): sửa câu ở đây = sửa câu trên trang — Nam duyệt qua PR.
+ */
+(function (root) {
+  "use strict";
+  var CHU = {
+    // quan-ly-thi-cong.html — đầu trang
+    "dau.tieu_de": "Gói Quản lý Thi công",
+    "dau.mo_ta": "Tạo hồ sơ cho công trình của anh/chị, xem các mốc thi công theo từng sàn và phí gói trước khi quyết định.",
+    // Màn 1
+    "m1.hoi": "Nhà anh/chị đang ở bước nào?",
+    "m1.co_ban_ve_du_toan": "Đã có bản vẽ và dự toán",
+    "m1.co_ban_ve_du_toan_mo_ta": "Tạo hồ sơ, tải dự toán lên để theo dõi khi xây.",
+    "m1.co_ban_ve": "Đã có bản vẽ, chưa có dự toán",
+    "m1.co_ban_ve_mo_ta": "Tạo hồ sơ, tải bản vẽ lên.",
+    "m1.chua_ban_ve": "Chưa có bản vẽ",
+    "m1.chua_ban_ve_mo_ta": "Xem phí thiết kế, để số cho KTS của ALN gọi.",
+    // Màn 2
+    "chung.quay_lai": "← Quay lại",
+    "m2.hoi": "Nhà anh/chị gồm những sàn nào?",
+    "loai.nha_pho": "Nhà phố",
+    "loai.biet_thu": "Biệt thự",
+    "m2.so_lau": "Số lầu (không tính trệt):",
+    "m2.co_ham": "Có tầng hầm",
+    "m2.co_lung": "Có lửng",
+    "m2.co_san_thuong": "Có sân thượng",
+    "m2.co_mai": "Có mái (mái bê tông hoặc mái ngói đổ sàn)",
+    "m2.dien_tich": "Diện tích mỗi sàn khoảng bao nhiêu m²?",
+    "m2.goi_y": "Chưa chắc số nào thì nhập số gần đúng; bước sau sửa được từng sàn.",
+    "m2.nut": "Xem sơ đồ và phí",
+    "m2.loi_dien_tich": "Anh/chị nhập diện tích mỗi sàn (m²), ví dụ 80.",
+    // Màn 3
+    "m3.quay_lai": "← Sửa số sàn",
+    "m3.tieu_de": "Sơ đồ mốc thi công",
+    "m3.cot_moc": "Mốc",
+    "m3.cot_m2": "m²",
+    "m3.cot_phi": "Phí",
+    "m3.hang_muc": "Hạng mục ngoài nhà",
+    "hm.cong_tuong_rao": "Cổng, tường rào",
+    "hm.ho_boi": "Hồ bơi",
+    "hm.nha_phu": "Nhà phụ",
+    "m3.tong": "Phí gói",
+    "m3.khong_thay_giam_sat": "Gói Quản lý Thi công là công cụ để anh/chị tự theo dõi công trình của mình — không thay thế công tác giám sát thi công.",
+    "m3.nut": "Tạo hồ sơ cho nhà tôi",
+    "m3.mong_khong_tinh": "Không tính",
+    "m3.dien_tich_sai": "Diện tích {ten} chưa đúng.",
+    "m3.he_so": "Đã nhân hệ số biệt thự {he_so} (trước hệ số: {truoc}).",
+    "phi.chua_thue": "Phí chưa gồm thuế {thue}.",
+    "phi.ngoac_chua_thue": "(chưa gồm thuế {thue})",
+    "phi.tinh_loi": "Chưa tính được phí — anh/chị thử lại.",
+    // Màn 4
+    "m4.quay_lai": "← Quay lại sơ đồ",
+    "m4.tieu_de": "Xác nhận số điện thoại để tạo hồ sơ",
+    "o.ho_ten": "Họ tên",
+    "o.sdt": "Số điện thoại",
+    "o.khong_bat_buoc": "Không bắt buộc.",
+    "m4.giai_thich_ma": "ALN gửi mã 6 số qua tin nhắn để chắc chắn đúng số của anh/chị.",
+    "chung.chinh_sach": "Chính sách quyền riêng tư",
+    "m4.gui_ma": "Gửi mã xác nhận",
+    "m4.da_gui": "Mã đã gửi tới số",
+    "m4.o_ma": "Mã xác nhận (6 số)",
+    "m4.xac_nhan": "Xác nhận và tạo hồ sơ",
+    "m4.doi_so": "Đổi số điện thoại",
+    // Màn 5
+    "m5.tieu_de": "Đã tạo hồ sơ cho nhà anh/chị",
+    "m5.ma": "Mã hồ sơ:",
+    "m5.ghi_ma": "Ghi lại mã này — ALN dùng mã này khi trao đổi, chuyển khoản và mở lại hồ sơ.",
+    "m5.dong_y": "1. Đồng ý dữ liệu",
+    "m5.tai_du_toan": "2. Tải dự toán lên",
+    "m5.tai_ban_ve": "2. Tải bản vẽ lên",
+    "m5.chon_file": "Bấm để chọn file (PDF, ảnh, Excel, DWG — tối đa 50 MB)",
+    "m5.thanh_toan": "3. Thanh toán",
+    "m5.phi": "Phí gói:",
+    "m5.thanh_toan_mo_ta": "Sau khi nhận chuyển khoản, ALN bật gói và nhắn anh/chị qua Zalo. Nếu danh sách sàn có chỗ chưa đúng, anh/chị sửa được ngay trong Không gian Nhà.",
+    "m5.mo_kgn": "Mở Không gian Nhà",
+    // Lối 3
+    "t1.tieu_de": "Chưa có bản vẽ: bắt đầu từ thiết kế",
+    "t1.phi": "Phí thiết kế:",
+    "t1.dien_tich": "Tổng diện tích sàn dự kiến (m², không bắt buộc)",
+    "t1.bon_moc": "Thanh toán theo 4 mốc:",
+    "t1.de_so": "Để số cho KTS của ALN gọi",
+    "t1.buoi": "Buổi tiện nghe máy",
+    "t1.nut": "Nhờ KTS gọi lại",
+    "t2.tieu_de": "ALN đã nhận thông tin",
+    "t2.can_gap": "Cần gấp: gọi hoặc nhắn Zalo 0909 829 696.",
+
+    // khong-gian-nha.html — thẻ hồ sơ
+    "the.tang_san": "{tang} tầng · {san} sàn",
+    "the.co_ham_lung": " (có {cac})",
+    "the.ham": "hầm",
+    "the.lung": "lửng",
+    "the.tong_m2": "{m2} m² sàn",
+    "the.nhan_tang_san": "Tầng · sàn",
+    "the.nhan_loai": "Loại nhà",
+    // Việc tiếp theo
+    "viec.tieu_de": "Việc tiếp theo",
+    "viec.dong_y.ten": "Đồng ý dữ liệu công trình",
+    "viec.dong_y.mo_ta": "Để công cụ dựng mốc thi công theo nhà anh/chị, và anh/chị tự đối chiếu tạm ứng với dự toán của chính nhà mình.",
+    "viec.tai_du_toan.ten": "Tải dự toán lên",
+    "viec.tai_du_toan.mo_ta": "File Excel có khối lượng chi tiết dùng được ngay; PDF hoặc ảnh cũng nhận.",
+    "viec.tai_du_toan.nut": "Chọn file dự toán",
+    "viec.tai_ban_ve.ten": "Tải bản vẽ lên",
+    "viec.tai_ban_ve.mo_ta": "ALN xem bản vẽ và gọi lại trong 1–2 ngày làm việc.",
+    "viec.tai_ban_ve.nut": "Chọn file bản vẽ",
+    "viec.kiem_san.ten": "Kiểm lại các sàn của nhà",
+    "viec.kiem_san.mo_ta": "Phí gói tính theo từng sàn. Sàn nào chưa đúng thì sửa trước khi ALN bật gói.",
+    "viec.kiem_san.nut": "Xem và sửa danh sách sàn",
+    "viec.theo_doi.ten": "Theo dõi mốc thi công",
+    "viec.theo_doi.mo_ta": "Gói đã bật. Các mốc thi công của nhà anh/chị ở ngay bên dưới.",
+    "viec.phieu.ten": "Hẹn gặp KTS chốt phương án? Điền phiếu thông tin nhu cầu cho cuộc gặp",
+    "viec.phieu.mo_ta": "Ghi công năng từng tầng, người cùng quyết định, giấy tờ đang có… — số liệu dự toán đã điền sẵn. KTS đọc phiếu rồi gọi theo khung giờ anh/chị chọn để hẹn gặp.",
+    "viec.phieu.nut": "Hẹn gặp KTS — điền phiếu",
+    "viec.gui_ban_ve.ten": "Gửi bản vẽ để ALN kiểm nhanh miễn phí",
+    "viec.gui_ban_ve.mo_ta": "ALN đọc bản vẽ, trả về diện tích chuẩn và hồ sơ còn thiếu — miễn phí.",
+    "viec.gui_ban_ve.nut": "Gửi bản vẽ",
+    "viec.zalo.ten": "Thiết kế cùng ALN",
+    "viec.zalo.mo_ta": "Khi thiết kế với ALN, dự toán được tính lại theo đúng bản vẽ của nhà anh/chị — Không gian Nhà đã có sẵn trong gói.",
+    "viec.zalo.nut": "Nhắn Zalo ALN",
+    // Thêm
+    "them.tieu_de": "Thêm",
+    "them.mo_ta": "Các mục khác của hồ sơ",
+    // Mốc thi công
+    "moc.tieu_de": "Mốc thi công",
+    "moc.chua_co": "Chưa có danh sách sàn cho hồ sơ này.",
+    "moc.tt.chua_lam": "Chưa làm",
+    "moc.tt.dang_lam": "Đang làm",
+    "moc.tt.xong": "Đã xong",
+    "moc.tong": "Phí gói",
+    "moc.sua": "Sửa danh sách sàn",
+    "moc.goi_da_bat": "Gói đã bật — muốn sửa danh sách sàn, anh/chị nhắn Zalo 0909 829 696.",
+    "moc.chi_xem": "Chỉ chủ nhà sửa được danh sách sàn.",
+    // Sửa danh sách sàn
+    "sua.tieu_de": "Sửa danh sách sàn",
+    "sua.loai": "Loại công trình",
+    "sua.cac_san": "Các sàn",
+    "sua.xoa": "Bỏ",
+    "sua.them": "Thêm sàn:",
+    "sua.them.ham": "+ Hầm",
+    "sua.them.lung": "+ Lửng",
+    "sua.them.lau": "+ Lầu",
+    "sua.them.san_thuong": "+ Sân thượng",
+    "sua.them.mai": "+ Mái",
+    "sua.luu": "Lưu danh sách sàn",
+    "sua.huy": "Huỷ",
+    "sua.da_luu": "Đã lưu. Các mốc thi công đã cập nhật theo danh sách mới.",
+    "sua.khong_doi": "Danh sách sàn không đổi.",
+    "sua.loi": "Chưa lưu được — anh/chị thử lại.",
+    "sua.giu_moc": "Mốc đã đánh dấu (ảnh, ghi chú) vẫn giữ nguyên; sàn bỏ đi được cất lại, không xoá.",
+  };
+
+  function chu(khoa, bien) {
+    var s = Object.prototype.hasOwnProperty.call(CHU, khoa) ? CHU[khoa] : khoa;
+    if (bien) s = s.replace(/\{(\w+)\}/g, function (m, k) { return bien[k] != null ? String(bien[k]) : m; });
+    return s;
+  }
+  // Tiền theo tiền tệ của bảng giá (máy chủ trả tien_te). VND: "1.400.000 đ" như mọi trang ALN.
+  function tien(n, tienTe) {
+    var v = Number(n);
+    if (!Number.isFinite(v)) return "";
+    if (!tienTe || tienTe === "VND") return Math.round(v).toLocaleString("vi-VN") + " đ";
+    try { return v.toLocaleString("vi-VN", { style: "currency", currency: tienTe }); } catch (e) { return v + " " + tienTe; }
+  }
+  function so(n) { return Number(n).toLocaleString("vi-VN", { maximumFractionDigits: 2 }); }
+  /** Đổ chữ vào mọi phần tử [data-chu] trong `goc` (mặc định cả trang). */
+  function apDung(goc) {
+    var ds = (goc || document).querySelectorAll("[data-chu]");
+    for (var i = 0; i < ds.length; i++) {
+      var k = ds[i].getAttribute("data-chu");
+      if (Object.prototype.hasOwnProperty.call(CHU, k)) ds[i].textContent = CHU[k];
+    }
+  }
+
+  var api = { ngon_ngu: "vi", CHU: CHU, chu: chu, tien: tien, so: so, apDung: apDung };
+  if (typeof module === "object" && module.exports) module.exports = api;
+  else { root.ALN_CHU_QLTC = api; root.alnChuQltc = chu; }
+})(typeof self !== "undefined" ? self : this);

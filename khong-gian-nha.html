@@ -188,6 +188,8 @@ a{color:inherit}
 .house-stat{background:var(--surface);border:1px solid var(--border-soft);border-radius:var(--r-sm);padding:.6rem .5rem;text-align:center}
 .house-stat .v{font-family:var(--f-mono);font-size:var(--text-md);color:var(--text-1);font-weight:500}
 .house-stat .l{font-size:var(--text-xs);color:var(--text-3);margin-top:.25rem}
+/* PR-5: hồ sơ gói — chữ thường (không mono) để "3 tầng · 4 sàn", "Nhà phố" không vỡ dòng/dấu. */
+.house-stats.chu .v{font-family:var(--f-body);font-size:var(--text-base);font-weight:600;line-height:1.35}
 #hKhuVuc{display:flex;flex-direction:column;align-items:center;gap:.15rem}
 #hKhuVuc .kv-tinh,#hKhuVuc .kv-quan-item{white-space:nowrap}
 .kts-row{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;padding-top:.85rem;border-top:1px solid var(--border-soft)}
@@ -405,6 +407,53 @@ a{color:inherit}
 #state-house.truoc-c1-layout #logBlock{order:6}
 #state-house.truoc-c1-layout #sochiBlock{order:7}
 #state-house.truoc-c1-layout #soonBlock{order:8}
+/* PR-5 (15/10/2026) — hồ sơ trước C1: mỗi màn ≤ 1 việc cần làm + 1 nút chính.
+   Đầu trang → Việc tiếp theo → Mốc thi công (hồ sơ gói) → Dự toán → "Thêm" (thu gọn, chứa
+   các khối còn lại — datBoCuc() chuyển DOM vào #themBody). House C1–C4 không đổi. */
+#state-house.truoc-c1-layout #viecBlock{order:2}
+#state-house.truoc-c1-layout #mocTcBlock{order:3}
+#state-house.truoc-c1-layout #themBlock{order:9}
+/* Đang sửa danh sách sàn: màn này chỉ còn một việc (bộ sửa, nút "Lưu") — tạm ẩn thẻ việc. */
+#state-house.dang-sua-san #viecBlock{display:none}
+#state-house.truoc-c1-layout #dtBlock .btn-gold{background:transparent;color:var(--text-1);border:1.5px solid var(--border-soft);box-shadow:none}
+#themBody > .block{box-shadow:none;margin-bottom:.8rem}
+.viec-ten{font-size:var(--text-md);font-weight:600;color:var(--text-1);margin:0 0 .35rem;line-height:1.45}
+.viec-mo-ta{font-size:var(--text-base);color:var(--text-3);line-height:1.7;margin:0 0 .9rem}
+.viec-nut{width:100%;min-height:3rem;font-size:var(--text-md)}
+details.them{padding:0}
+details.them > summary{list-style:none;cursor:pointer;padding:1.1rem;display:flex;align-items:center;justify-content:space-between;gap:.6rem;font-family:var(--f-head);font-weight:600;font-size:var(--text-md);color:var(--text-1);min-height:3rem}
+details.them > summary::-webkit-details-marker{display:none}
+details.them > summary .them-sub{display:block;font-family:var(--f-body);font-weight:400;font-size:var(--text-sm);color:var(--text-3)}
+details.them > summary::after{content:"+";font-size:1.4rem;color:var(--gold);line-height:1}
+details.them[open] > summary::after{content:"−"}
+#themBody{padding:0 .8rem .8rem}
+.mtc-list{display:flex;flex-direction:column;gap:.45rem;margin:0 0 .8rem}
+.mtc-row{display:grid;grid-template-columns:1fr auto;gap:.2rem .6rem;align-items:center;padding:.65rem .8rem;border:1px solid var(--border-soft);border-radius:var(--r-sm);background:var(--surface)}
+.mtc-ten{font-weight:600;color:var(--text-1);font-size:var(--text-base)}
+.mtc-phi{font-family:var(--f-mono);color:var(--text-1);font-size:var(--text-base);text-align:right;white-space:nowrap}
+.mtc-sub{grid-column:1 / -1;font-size:var(--text-sm);color:var(--text-3)}
+.mtc-tong{display:flex;justify-content:space-between;gap:.6rem;font-weight:700;font-size:var(--text-md);color:var(--text-1);padding:.7rem 0;border-top:2px solid var(--border)}
+.mtc-note{font-size:var(--text-sm);color:var(--text-3);line-height:1.7;margin:.3rem 0 .8rem}
+.mtc-msg{font-size:var(--text-sm);margin:.5rem 0;min-height:1em}
+.mtc-msg.loi{color:var(--red,#b42318)}
+.mtc-msg.ok{color:var(--green,#17704a)}
+.sua-tg{display:inline-flex;border:1.5px solid var(--border-soft);border-radius:var(--r-sm);overflow:hidden;margin:.2rem 0 .9rem}
+.sua-tg button{border:0;background:var(--surface);color:var(--text-1);font:inherit;font-size:var(--text-base);padding:.6rem 1.1rem;min-height:2.9rem;cursor:pointer}
+.sua-tg button[aria-pressed="true"]{background:var(--gold);color:var(--on-gold);font-weight:600}
+.sua-row{display:flex;align-items:center;gap:.5rem;padding:.45rem 0;border-bottom:1px solid var(--border-soft)}
+.sua-row .ten{flex:1;font-weight:600;color:var(--text-1);font-size:var(--text-base)}
+.sua-row input{width:5.5rem;min-height:2.75rem;border:1.5px solid var(--border-soft);border-radius:8px;padding:0 .5rem;font:inherit;font-size:var(--text-base);text-align:right;background:var(--surface);color:var(--text-1)}
+.sua-row .m2{color:var(--text-3);font-size:var(--text-sm)}
+.sua-row .phi{width:6.5rem;text-align:right;font-family:var(--f-mono);font-size:var(--text-sm);color:var(--text-2)}
+.sua-row .bo{border:1.5px solid var(--border-soft);background:transparent;color:var(--text-2);border-radius:8px;min-height:2.75rem;min-width:2.75rem;font:inherit;cursor:pointer}
+.sua-them{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin:.8rem 0}
+.sua-them button{border:1.5px solid var(--border-soft);background:var(--surface);color:var(--text-1);border-radius:99px;padding:.45rem .9rem;min-height:2.75rem;font:inherit;font-size:var(--text-sm);cursor:pointer}
+.sua-hm{display:flex;align-items:center;gap:.6rem;margin:.45rem 0;font-size:var(--text-base);color:var(--text-1);cursor:pointer}
+.sua-hm input{width:1.3rem;height:1.3rem}
+.sua-hm .gia{color:var(--text-3);font-family:var(--f-mono);font-size:var(--text-sm)}
+.sua-hanh{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.9rem}
+.sua-hanh .btn-gold{flex:1;min-height:3rem}
+@media (max-width:420px){.sua-row .phi{display:none}}
 /* Founder xem như khách (30/09/2026): thấy đúng giao diện khách, các nút ghi bị khoá. */
 body.xem-founder #btnPickBanVe,body.xem-founder #btnPickBaoGia,body.xem-founder #sochiForm,
 body.xem-founder #houseCallback,body.xem-founder #btnSaveLocalEstimate{pointer-events:none;opacity:.45}
@@ -498,6 +547,24 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           KTS có CCHN được xác minh
         </span>
       </div>
+    </section>
+
+    <!-- PR-5 — Việc tiếp theo (hồ sơ trước C1): đúng 1 việc + 1 nút chính, đổi theo trạng thái (chonViec). -->
+    <section class="block" id="viecBlock" hidden>
+      <div class="block-head">
+        <span class="block-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        <span class="block-title" data-chu="viec.tieu_de">Việc tiếp theo</span>
+      </div>
+      <div id="viecBody"></div>
+    </section>
+
+    <!-- PR-5 — Mốc thi công + chủ nhà tự sửa danh sách sàn (hồ sơ Gói Quản lý Thi công). Máy chủ: qltcDanhSachSan. -->
+    <section class="block" id="mocTcBlock" hidden>
+      <div class="block-head">
+        <span class="block-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16M6 20V9l6-5 6 5v11M9 20v-5h6v5"/></svg></span>
+        <span class="block-title" data-chu="moc.tieu_de">Mốc thi công</span>
+      </div>
+      <div id="mocTcBody"></div>
     </section>
 
     <!-- b. Bạn đang ở đâu (house thật, C1-C4) / Bước tiếp theo (house trang_thai='truoc_c1' — chưa có KTS/hợp đồng) -->
@@ -649,6 +716,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div id="dydlBox"></div>
     </section>
 
+    <!-- PR-5 — "Thêm" thu gọn: hồ sơ trước C1 dồn các khối phụ vào đây (datBoCuc). -->
+    <details class="block them" id="themBlock" hidden>
+      <summary><span><span data-chu="them.tieu_de">Thêm</span><span class="them-sub" data-chu="them.mo_ta">Các mục khác của hồ sơ</span></span></summary>
+      <div id="themBody"></div>
+    </details>
+
     <!-- f. Sắp có -->
     <section class="block" id="soonBlock">
       <div class="block-head">
@@ -672,6 +745,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <script src="scripts/aln-callback.js"></script>
 <script src="aln-founder-xem.js"></script>
 <script src="aln-dong-y-du-lieu.js"></script>
+<script src="qltc-chu.vi.js"></script>
 <script type="module">
 import {
   app, auth, db, onAuthStateChanged, signOut,
@@ -688,6 +762,8 @@ const callKhGhiUpload = httpsCallable(functionsInst, 'khGhiUpload');
 const callKhChonKhungGio = httpsCallable(functionsInst, 'khChonKhungGio');
 const callKhDongYDuLieu = httpsCallable(functionsInst, 'khDongYDuLieu');
 const callQltcMoTheoMa = httpsCallable(functionsInst, 'qltcMoTheoMa');
+const callQltcDanhSachSan = httpsCallable(functionsInst, 'qltcDanhSachSan');
+const callQltcBaoPhi = httpsCallable(functionsInst, 'qltcBaoPhi');
 
 const els = {
   loading: document.getElementById('state-loading'),
@@ -712,6 +788,11 @@ const els = {
   mocList: document.getElementById('mocList'),
   stepList: document.getElementById('stepList'),
   houseCallback: document.getElementById('houseCallback'),
+  viecBlock: document.getElementById('viecBlock'),
+  viecBody: document.getElementById('viecBody'),
+  mocTcBlock: document.getElementById('mocTcBlock'),
+  mocTcBody: document.getElementById('mocTcBody'),
+  themBlock: document.getElementById('themBlock'),
 
   dtBlock: document.getElementById('dtBlock'),
   dtTotal: document.getElementById('dtTotal'),
@@ -873,6 +954,21 @@ function renderHouseHeader(h) {
   els.hName.textContent = h.ten_hien_thi || '';
   els.hMa.textContent = h.ma_ho_so || '';
 
+  // PR-5: hồ sơ Gói Quản lý Thi công — "N tầng · M sàn" + tổng m² từ danh sách sàn lưu trên house.
+  const tt = h.danh_sach_san && h.danh_sach_san.tom_tat;
+  const stats = els.hSoTang.closest('.house-stats');
+  const nhan = (el, chu) => { const l = el.parentNode.querySelector('.l'); if (l) l.textContent = chu; };
+  stats.classList.toggle('chu', !!(h.trang_thai === 'truoc_c1' && tt));
+  nhan(els.hDienTich, 'Diện tích sàn'); nhan(els.hSoTang, 'Số tầng'); nhan(els.hKhuVuc, 'Khu vực');
+  if (h.trang_thai === 'truoc_c1' && tt) {
+    nhan(els.hSoTang, T('the.nhan_tang_san')); nhan(els.hKhuVuc, T('the.nhan_loai'));
+    els.hDienTich.textContent = T('the.tong_m2', { m2: soM2(tt.tong_m2) });
+    els.hSoTang.textContent = tomTatTangSan(tt);
+    els.hKhuVuc.textContent = T('loai.' + (h.loai_cong_trinh === 'biet_thu' ? 'biet_thu' : 'nha_pho'));
+    els.ktsRow.hidden = true;
+    return;
+  }
+
   if (h.trang_thai === 'truoc_c1') {
     // House tạo từ công cụ dự toán (saveEstimateToHouse.js): dien_tich_san_m2/
     // khu_vuc/quan luôn null/rỗng — lấy số liệu từ phiên bản dự toán mới nhất
@@ -935,7 +1031,7 @@ function updateTruocC1Visibility() {
   els.sochiFull.hidden = isTruocC1;
   els.sochiCollapsed.hidden = !isTruocC1;
 
-  els.stepBlockTitle.textContent = isTruocC1 ? 'Bước tiếp theo' : 'Bạn đang ở đâu';
+  datBoCuc(isTruocC1);
   els.mocList.hidden = isTruocC1;
   els.stepList.hidden = !isTruocC1;
   if (isTruocC1) renderSteps();
@@ -946,6 +1042,8 @@ function updateTruocC1Visibility() {
   els.pkgBlock.hidden = !isTruocC1;
   if (isTruocC1) renderPackages();
   renderDongYDuLieu(currentHouseData);
+  renderViec();
+  renderMocTc();
 
   const showDt = isTruocC1 && hasVersions;
   els.dtBlock.hidden = !showDt;
@@ -1007,54 +1105,392 @@ function renderDongYDuLieu(h) {
   dydlCtl.capNhat(h && h.dong_y_du_lieu);
 }
 
-/* ── Khối b — Bước tiếp theo (chỉ house trang_thai='truoc_c1') ── */
-function renderSteps() {
-  els.stepList.innerHTML = `
+/* ── PR-5 (15/10/2026) — hồ sơ trước C1: "Việc tiếp theo" (1 việc + 1 nút chính), các việc khác
+   và các khối phụ dồn vào "Thêm" thu gọn. Hẹn gặp KTS / hồ sơ mẫu chỉ cho hồ sơ CHƯA có bản vẽ
+   (lối 3 — buoc_xay chua_ban_ve, hoặc hồ sơ lưu từ công cụ dự toán không có buoc_xay). ── */
+const CHU = window.ALN_CHU_QLTC;
+const T = (k, v) => (CHU ? CHU.chu(k, v) : k);
+if (CHU) CHU.apDung(document);
+const ICON_BUOC = {
+  phieu: '<path d="M8 3h8l3 3v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M9 11l2 2 4-4M9 17h6"/>',
+  gui_ban_ve: '<path d="M12 16V4M7 9l5-5 5 5M5 20h14"/>',
+  ho_so_mau: '<path d="M4 5h16v14H4z"/><path d="M4 9h16M9 9v10"/>',
+  bao_gia: '<path d="M9 7h6M9 11h6M9 15h4M5 3h14a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/>',
+  zalo: '<circle cx="12" cy="12" r="9"/><path d="M12 16v.01M12 8a2.3 2.3 0 0 1 2.3 2.3c0 1.5-2.3 1.7-2.3 3.4"/>',
+};
+/* Các bước (thẻ) trong "Thêm" — chữ giữ nguyên như trước PR-5. */
+function theBuoc(ma) {
+  const h = encodeURIComponent(currentHouseId || '');
+  const B = {
+    phieu: ['Hẹn gặp KTS chốt phương án? Điền phiếu thông tin nhu cầu cho cuộc gặp',
+      'Ghi công năng từng tầng, người cùng quyết định, giấy tờ đang có… — số liệu dự toán đã điền sẵn. KTS đọc phiếu rồi gọi theo khung giờ anh/chị chọn để hẹn gặp. Tải phiếu về làm cơ sở làm việc.',
+      `<a class="btn btn-ghost" href="phieu-yeu-cau.html?h=${h}">Hẹn gặp KTS — điền phiếu</a>`],
+    gui_ban_ve: ['Gửi bản vẽ để ALN kiểm nhanh miễn phí',
+      'ALN đọc bản vẽ, trả về diện tích chuẩn và hồ sơ còn thiếu — miễn phí. Bóc khối lượng chi tiết theo từng tầng thuộc gói Quản lý Thi công.',
+      '<button type="button" class="btn btn-ghost" data-open-upload="ban_ve">Gửi bản vẽ</button>'],
+    ho_so_mau: ['Xem đủ bộ hồ sơ mẫu 4 bộ môn',
+      'Một bộ hồ sơ nhà tân cổ điển thật: kiến trúc, kết cấu, điện – nước, nội thất, 233 tờ. Để biết hồ sơ của nhà mình sẽ có những gì.',
+      '<a class="btn btn-ghost" href="ho-so-mau-xem.html">Xem hồ sơ mẫu</a>'],
+    bao_gia: ['Đã có báo giá nhà thầu? Gửi để ALN đối chiếu',
+      'ALN đưa báo giá về cùng cách tính diện tích và phạm vi, rồi chỉ ra những câu nên hỏi nhà thầu trước khi ký.',
+      '<button type="button" class="btn btn-ghost" data-open-upload="bao_gia">Gửi báo giá</button>'],
+    zalo: ['Thiết kế cùng ALN — không cần tự làm những bước này nữa',
+      'Khi thiết kế với ALN, dự toán được tính lại theo đúng bản vẽ của nhà anh/chị (không còn theo nhà mẫu) — và Không gian Nhà anh/chị đang dùng đã có sẵn trong gói, không phát sinh thêm.',
+      '<a class="btn btn-ghost" href="https://zalo.me/alnsanthietke" target="_blank" rel="noopener">Nhắn Zalo ALN</a>'],
+  };
+  const b = B[ma];
+  return `
     <div class="step-item">
-      <div class="step-badge"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8l3 3v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M9 11l2 2 4-4M9 17h6"/></svg></div>
+      <div class="step-badge"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICON_BUOC[ma]}</svg></div>
       <div class="step-body">
-        <div class="step-ten">Hẹn gặp KTS chốt phương án? Điền phiếu thông tin nhu cầu cho cuộc gặp</div>
-        <p class="step-note">Ghi công năng từng tầng, người cùng quyết định, giấy tờ đang có… — số liệu dự toán đã điền sẵn. KTS đọc phiếu rồi gọi theo khung giờ bạn chọn để hẹn gặp. Tải phiếu về làm cơ sở làm việc.</p>
-        <div class="step-actions"><a class="btn btn-gold" href="phieu-yeu-cau.html?h=${encodeURIComponent(currentHouseId || '')}">Hẹn gặp KTS — điền phiếu</a></div>
-      </div>
-    </div>
-    <div class="step-item">
-      <div class="step-badge"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg></div>
-      <div class="step-body">
-        <div class="step-ten">Gửi bản vẽ để ALN kiểm nhanh miễn phí</div>
-        <p class="step-note">ALN đọc bản vẽ, trả về diện tích chuẩn và hồ sơ còn thiếu — miễn phí. Bóc khối lượng chi tiết theo từng tầng thuộc gói Quản lý Thi công.</p>
-        <div class="step-actions"><button type="button" class="btn btn-gold" data-open-upload="ban_ve">Gửi bản vẽ</button></div>
-      </div>
-    </div>
-    <div class="step-item">
-      <div class="step-badge"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v14H4z"/><path d="M4 9h16M9 9v10"/></svg></div>
-      <div class="step-body">
-        <div class="step-ten">Xem đủ bộ hồ sơ mẫu 4 bộ môn</div>
-        <p class="step-note">Một bộ hồ sơ nhà tân cổ điển thật: kiến trúc, kết cấu, điện – nước, nội thất, 233 tờ. Để biết hồ sơ của nhà mình sẽ có những gì.</p>
-        <div class="step-actions"><a class="btn btn-gold" href="ho-so-mau-xem.html">Xem hồ sơ mẫu</a></div>
-      </div>
-    </div>
-    <div class="step-item">
-      <div class="step-badge"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7h6M9 11h6M9 15h4M5 3h14a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/></svg></div>
-      <div class="step-body">
-        <div class="step-ten">Đã có báo giá nhà thầu? Gửi để ALN đối chiếu</div>
-        <p class="step-note">ALN đưa báo giá về cùng cách tính diện tích và phạm vi, rồi chỉ ra những câu nên hỏi nhà thầu trước khi ký.</p>
-        <div class="step-actions"><button type="button" class="btn btn-ghost" data-open-upload="bao_gia">Gửi báo giá</button></div>
-      </div>
-    </div>
-    <div class="step-item">
-      <div class="step-badge"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v.01M12 8a2.3 2.3 0 0 1 2.3 2.3c0 1.5-2.3 1.7-2.3 3.4"/></svg></div>
-      <div class="step-body">
-        <div class="step-ten">Thiết kế cùng ALN — không cần tự làm những bước này nữa</div>
-        <p class="step-note">Khi thiết kế với ALN, dự toán được tính lại theo đúng bản vẽ của nhà bạn (không còn theo nhà mẫu) — và Không gian Nhà bạn đang dùng đã có sẵn trong gói, không phát sinh thêm.</p>
-        <div class="step-actions"><a class="btn btn-gold" href="https://zalo.me/alnsanthietke" target="_blank" rel="noopener">Nhắn Zalo ALN</a></div>
+        <div class="step-ten">${b[0]}</div>
+        <p class="step-note">${b[1]}</p>
+        <div class="step-actions">${b[2]}</div>
       </div>
     </div>`;
+}
+
+function tomTatTangSan(tt) {
+  const cac = [];
+  if (tt.co_ham) cac.push(T('the.ham'));
+  if (tt.co_lung) cac.push(T('the.lung'));
+  return T('the.tang_san', { tang: tt.so_tang, san: tt.so_san }).replace(' ·', (cac.length ? T('the.co_ham_lung', { cac: cac.join(', ') }) : '') + ' ·');
+}
+function laHoSoGoi(h) { return !!(h && (h.nguon === 'cua_vao_qltc' || (h.danh_sach_san && Array.isArray(h.danh_sach_san.san)))); }
+function laChuaBanVe(h) { return !(h && (h.buoc_xay === 'co_ban_ve' || h.buoc_xay === 'co_ban_ve_du_toan')); }
+let uploadItems = [];
+let phienBanDuLieuNha = null;
+import('./consent-constants.js').then((C) => {
+  phienBanDuLieuNha = C.CONSENT_VERSIONS && C.CONSENT_VERSIONS.du_lieu_nha;
+  if (currentHouseData) renderViec();
+}).catch(() => { /* không đọc được thì coi như chưa biết phiên bản — vẫn hiện việc đồng ý */ });
+function daDongYDuLieu(h) {
+  const t = (h && h.dong_y_du_lieu) || {};
+  return t.dong_y === true && !!phienBanDuLieuNha && t.phien_ban_dieu_khoan === phienBanDuLieuNha;
+}
+function coUpload(loai) { return uploadItems.some((u) => u.loai === loai); }
+
+/** Chọn đúng 1 việc tiếp theo theo trạng thái hồ sơ. */
+function chonViec(h) {
+  if (laHoSoGoi(h)) {
+    if (!daDongYDuLieu(h)) return 'dong_y';
+    const loai = h.buoc_xay === 'co_ban_ve_du_toan' ? 'du_toan' : 'ban_ve';
+    if (!coUpload(loai)) return loai === 'du_toan' ? 'tai_du_toan' : 'tai_ban_ve';
+    if (h.gia_ap_dung == null) return 'kiem_san';
+    return 'theo_doi';
+  }
+  if (!h.phieu_yeu_cau) return 'phieu';
+  if (!coUpload('ban_ve')) return 'gui_ban_ve';
+  return 'zalo';
+}
+/* Thẻ thuộc "Thêm" của hồ sơ — trừ việc đang ở "Việc tiếp theo". */
+function cacBuocThem(h, viec) {
+  const ds = laHoSoGoi(h) ? ['bao_gia'] : ['phieu', 'gui_ban_ve', 'ho_so_mau', 'bao_gia', 'zalo'];
+  return ds.filter((m) => m !== viec && ((m !== 'phieu' && m !== 'ho_so_mau') || laChuaBanVe(h)));
+}
+
+/* ── Khối b — các bước khác (nằm trong "Thêm", chỉ house trang_thai='truoc_c1') ── */
+function renderSteps() {
+  const h = currentHouseData || {};
+  const ds = cacBuocThem(h, chonViec(h));
+  els.stepList.innerHTML = ds.map(theBuoc).join('');
   els.stepList.querySelectorAll('[data-open-upload]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      openFilePicker(btn.dataset.openUpload);
-    });
+    btn.addEventListener('click', () => { openFilePicker(btn.dataset.openUpload); });
   });
+}
+
+/* Dồn/khôi phục khối phụ vào "Thêm". Mỗi khối nhớ chỗ cũ bằng một comment đánh dấu. */
+const KHOI_THEM = ['stepsBlock', 'uploadBlock', 'pkgBlock', 'dydlBlock', 'logBlock', 'sochiBlock', 'soonBlock'];
+const choCu = {};
+function datBoCuc(truocC1) {
+  const body = document.getElementById('themBody');
+  els.themBlock.hidden = !truocC1;
+  for (const id of KHOI_THEM) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    if (truocC1 && el.parentNode !== body) {
+      if (!choCu[id]) { choCu[id] = document.createComment('cho-' + id); el.parentNode.insertBefore(choCu[id], el); }
+      body.appendChild(el);
+    } else if (!truocC1 && choCu[id] && el.parentNode === body) {
+      choCu[id].parentNode.insertBefore(el, choCu[id]);
+    }
+  }
+  els.stepBlockTitle.textContent = truocC1 ? 'Các việc khác' : 'Bạn đang ở đâu';
+}
+
+/* ── Việc tiếp theo ── */
+let viecDangVe = null;
+function renderViec() {
+  const h = currentHouseData;
+  const truocC1 = !!(h && h.trang_thai === 'truoc_c1');
+  const dydlBox = document.getElementById('dydlBox');
+  const dydlBlock = document.getElementById('dydlBlock');
+  els.viecBlock.hidden = !truocC1;
+  if (!truocC1) {
+    if (dydlBox.parentNode !== dydlBlock) dydlBlock.appendChild(dydlBox);
+    viecDangVe = null;
+    return;
+  }
+  const viec = chonViec(h);
+  // Việc đồng ý: đưa chính ô đồng ý (aln-dong-y-du-lieu.js) lên thẻ — nút "Đồng ý" của nó là nút chính.
+  if (viec !== 'dong_y' && dydlBox.parentNode !== dydlBlock) dydlBlock.appendChild(dydlBox);
+  if (viec === viecDangVe && (viec !== 'dong_y' || dydlBox.parentNode === els.viecBody)) { renderSteps(); return; }
+  viecDangVe = viec;
+  const body = els.viecBody;
+  body.textContent = '';
+  const ten = document.createElement('p'); ten.className = 'viec-ten';
+  const moTa = document.createElement('p'); moTa.className = 'viec-mo-ta';
+  ten.textContent = T('viec.' + viec + '.ten');
+  moTa.textContent = T('viec.' + viec + '.mo_ta');
+  body.appendChild(ten); body.appendChild(moTa);
+  const nut = (chu, onClick, lienKet) => {
+    const b = document.createElement(lienKet ? 'a' : 'button');
+    b.className = 'btn btn-gold viec-nut';
+    b.textContent = chu;
+    if (lienKet === 'phieu') b.href = 'phieu-yeu-cau.html?h=' + encodeURIComponent(currentHouseId || '');
+    else if (lienKet === 'zalo') { b.href = 'https://zalo.me/alnsanthietke'; b.target = '_blank'; b.rel = 'noopener'; }
+    else { b.type = 'button'; b.addEventListener('click', onClick); }
+    body.appendChild(b);
+    return b;
+  };
+  if (viec === 'dong_y') body.appendChild(dydlBox);
+  else if (viec === 'tai_du_toan' || viec === 'tai_ban_ve') {
+    nut(T('viec.' + viec + '.nut'), () => { els.themBlock.open = true; openFilePicker(viec === 'tai_du_toan' ? 'du_toan' : 'ban_ve'); });
+  } else if (viec === 'kiem_san') nut(T('viec.kiem_san.nut'), () => moSuaSan(true));
+  else if (viec === 'phieu') nut(T('viec.phieu.nut'), null, 'phieu');
+  else if (viec === 'gui_ban_ve') nut(T('viec.gui_ban_ve.nut'), () => { els.themBlock.open = true; openFilePicker('ban_ve'); });
+  else if (viec === 'zalo') nut(T('viec.zalo.nut'), null, 'zalo');
+  if (XEM_FOUNDER) body.querySelectorAll('button').forEach((b) => { b.disabled = true; });
+  renderSteps();
+}
+
+/* ── Mốc thi công + sửa danh sách sàn (hồ sơ gói) — máy chủ qltcDanhSachSan ── */
+const LOAI_SAN = ['mong', 'ham', 'tret', 'lung', 'lau', 'san_thuong', 'mai'];
+const TEN_SAN = { mong: 'Móng', ham: 'Hầm', tret: 'Trệt', lung: 'Lửng', lau: 'Lầu', san_thuong: 'Sân thượng', mai: 'Mái' };
+const TOI_DA_SAN = { mong: 1, ham: 3, tret: 1, lung: 2, lau: 12, san_thuong: 1, mai: 1 };
+const HANG_MUC = ['cong_tuong_rao', 'ho_boi', 'nha_phu'];
+const TT_MOC = { chua_lam: 'moc.tt.chua_lam', dang_lam: 'moc.tt.dang_lam', xong: 'moc.tt.xong' };
+let dsSan = null;      // kết quả 'doc': { danh_sach_san, goi, duoc_sua, goi_da_bat }
+let dsSanFor = null;
+let suaSan = null;     // trạng thái bộ sửa: { loai, san:[{loai,dien_tich_m2}], hm:[], goi, msg }
+const tien = (n) => (CHU ? CHU.tien(n, dsSan && dsSan.goi && dsSan.goi.tien_te) : fmtMoney(n));
+const soM2 = (n) => Number(n).toLocaleString('vi-VN', { maximumFractionDigits: 2 });
+
+async function napDanhSachSan(houseId) {
+  try {
+    const r = await callQltcDanhSachSan({ hanh_dong: 'doc', houseId });
+    if (houseId !== currentHouseId) return;
+    dsSan = r.data || null;
+  } catch (e) {
+    console.error('[khong-gian-nha] qltcDanhSachSan doc lỗi:', e);
+    if (houseId !== currentHouseId) return;
+    dsSan = { loi: true };
+  }
+  renderMocTc();
+}
+
+function tenTheoThu(ds) {
+  const dem = {}; const tong = {};
+  ds.forEach((s) => { tong[s.loai] = (tong[s.loai] || 0) + 1; });
+  return ds.map((s) => {
+    dem[s.loai] = (dem[s.loai] || 0) + 1;
+    return TEN_SAN[s.loai] + (s.loai === 'lau' || tong[s.loai] > 1 ? ' ' + dem[s.loai] : '');
+  });
+}
+
+function renderMocTc() {
+  const h = currentHouseData;
+  const hien = !!(h && laHoSoGoi(h));
+  els.mocTcBlock.hidden = !hien;
+  if (!hien) { els.house.classList.remove('dang-sua-san'); return; }
+  if (dsSanFor !== currentHouseId) { dsSanFor = currentHouseId; dsSan = null; suaSan = null; napDanhSachSan(currentHouseId); }
+  const body = els.mocTcBody;
+  body.textContent = '';
+  els.house.classList.toggle('dang-sua-san', !!suaSan);
+  if (suaSan) { veSuaSan(body); return; }
+  if (!dsSan) { const p = document.createElement('p'); p.className = 'empty-note'; p.textContent = 'Đang tải…'; body.appendChild(p); return; }
+  const goi = dsSan.goi;
+  const phiTheoMa = {};
+  if (goi && Array.isArray(goi.moc)) goi.moc.forEach((m) => { phiTheoMa[m.ma_moc] = m; });
+  // Mốc từ Firestore (trạng thái thật); chưa có thì dùng danh sách tính phí.
+  const byCode = window.__khMocByCode || {};
+  let ds = Object.keys(byCode).map((id) => Object.assign({ id }, byCode[id]))
+    .filter((m) => m.loai_moc === 'thi_cong' && m.da_bo !== true)
+    .sort((a, b) => (a.thu_tu || 0) - (b.thu_tu || 0));
+  if (!ds.length && goi && goi.moc) ds = goi.moc.map((m) => ({ id: m.ma_moc, ten: m.ten, dien_tich_m2: m.dien_tich_m2, loai_san: m.loai_san, trang_thai: 'chua_lam' }));
+  if (!ds.length) {
+    const p = document.createElement('p'); p.className = 'empty-note'; p.textContent = T('moc.chua_co'); body.appendChild(p);
+  } else {
+    const list = document.createElement('div'); list.className = 'mtc-list';
+    ds.forEach((m) => {
+      // Mã mốc (MONG, L01…) là khoá nội bộ — chỉ hiện tên sàn bằng lời.
+      const row = document.createElement('div'); row.className = 'mtc-row';
+      const ten = document.createElement('span'); ten.className = 'mtc-ten'; ten.textContent = m.ten || '';
+      const phi = document.createElement('span'); phi.className = 'mtc-phi';
+      const p = phiTheoMa[m.id];
+      phi.textContent = m.loai_san === 'mong' ? T('m3.mong_khong_tinh') : (p ? tien(p.phi) : '');
+      const sub = document.createElement('span'); sub.className = 'mtc-sub';
+      const tt = T(TT_MOC[m.trang_thai] || 'moc.tt.chua_lam');
+      sub.textContent = (m.dien_tich_m2 != null ? soM2(m.dien_tich_m2) + ' m² · ' : '') + tt;
+      row.appendChild(ten); row.appendChild(phi); row.appendChild(sub);
+      list.appendChild(row);
+    });
+    body.appendChild(list);
+  }
+  if (goi) {
+    const tong = document.createElement('div'); tong.className = 'mtc-tong';
+    const a = document.createElement('span'); a.textContent = T('moc.tong');
+    const b = document.createElement('span'); b.textContent = tien(goi.tong_chua_thue);
+    tong.appendChild(a); tong.appendChild(b); body.appendChild(tong);
+    const note = document.createElement('p'); note.className = 'mtc-note';
+    note.textContent = T('phi.chua_thue', { thue: (goi.thue && goi.thue.ten) || 'GTGT' });
+    body.appendChild(note);
+  }
+  if (dsSan.loi) { const p = document.createElement('p'); p.className = 'mtc-msg loi'; p.textContent = T('phi.tinh_loi'); body.appendChild(p); }
+  if (dsSan.msg) { const p = document.createElement('p'); p.className = 'mtc-msg ok'; p.textContent = dsSan.msg; body.appendChild(p); }
+  if (dsSan.goi_da_bat) {
+    const p = document.createElement('p'); p.className = 'mtc-note'; p.textContent = T('moc.goi_da_bat'); body.appendChild(p);
+  } else if (dsSan.duoc_sua && dsSan.danh_sach_san) {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'btn btn-ghost'; b.textContent = T('moc.sua');
+    b.addEventListener('click', () => moSuaSan(true));
+    body.appendChild(b);
+  } else if (dsSan.danh_sach_san && !XEM_FOUNDER) {
+    const p = document.createElement('p'); p.className = 'mtc-note'; p.textContent = T('moc.chi_xem'); body.appendChild(p);
+  }
+}
+
+function moSuaSan(cuon) {
+  if (XEM_FOUNDER || !dsSan || !dsSan.duoc_sua || !dsSan.danh_sach_san) return;
+  const d = dsSan.danh_sach_san;
+  suaSan = {
+    loai: d.loai_cong_trinh === 'biet_thu' ? 'biet_thu' : 'nha_pho',
+    san: d.san.map((s) => ({ loai: s.loai, dien_tich_m2: s.dien_tich_m2 })),
+    hm: Array.isArray(d.hang_muc) ? d.hang_muc.slice() : [],
+    goi: dsSan.goi, msg: '', loi: false, dangLuu: false,
+  };
+  renderMocTc();
+  if (cuon) els.mocTcBlock.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+let suaSeq = 0; let suaHen = null;
+function tinhLaiSua() {
+  clearTimeout(suaHen);
+  suaHen = setTimeout(async () => {
+    const seq = ++suaSeq;
+    try {
+      const r = await callQltcBaoPhi({ che_do: 'goi', loai_cong_trinh: suaSan.loai, san: suaSan.san, hang_muc: suaSan.hm });
+      if (!suaSan || seq !== suaSeq) return;
+      suaSan.goi = r.data.goi; suaSan.loi = false; suaSan.msg = '';
+    } catch (e) {
+      if (!suaSan || seq !== suaSeq) return;
+      suaSan.loi = true; suaSan.msg = (e && e.message) || T('phi.tinh_loi');
+    }
+    renderMocTc();
+  }, 400);
+}
+
+function veSuaSan(body) {
+  const S = suaSan;
+  const h3 = document.createElement('p'); h3.className = 'viec-ten'; h3.textContent = T('sua.tieu_de'); body.appendChild(h3);
+  // Nhà phố / biệt thự bằng nút.
+  const tg = document.createElement('div'); tg.className = 'sua-tg'; tg.setAttribute('role', 'group'); tg.setAttribute('aria-label', T('sua.loai'));
+  ['nha_pho', 'biet_thu'].forEach((l) => {
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = T('loai.' + l);
+    b.setAttribute('aria-pressed', String(S.loai === l));
+    b.addEventListener('click', () => { if (S.loai !== l) { S.loai = l; renderMocTc(); tinhLaiSua(); } });
+    tg.appendChild(b);
+  });
+  body.appendChild(tg);
+  // Các sàn: diện tích sửa được, phí cạnh từng sàn (từ lượt tính gần nhất).
+  const ten = tenTheoThu(S.san);
+  const phiMoc = (S.goi && S.goi.moc) || [];
+  S.san.forEach((s, i) => {
+    const row = document.createElement('div'); row.className = 'sua-row';
+    const t = document.createElement('span'); t.className = 'ten'; t.textContent = ten[i];
+    const ip = document.createElement('input'); ip.type = 'text'; ip.inputMode = 'decimal';
+    ip.value = String(s.dien_tich_m2).replace('.', ','); ip.setAttribute('aria-label', 'Diện tích ' + ten[i] + ' (m²)');
+    ip.addEventListener('change', () => {
+      const v = Number(String(ip.value).replace(/\s/g, '').replace(',', '.'));
+      if (!Number.isFinite(v) || v <= 0 || v > 10000) { S.loi = true; S.msg = T('m3.dien_tich_sai', { ten: ten[i] }); renderMocTc(); return; }
+      s.dien_tich_m2 = Math.round(v * 100) / 100; tinhLaiSua();
+    });
+    const m2 = document.createElement('span'); m2.className = 'm2'; m2.textContent = 'm²';
+    const phi = document.createElement('span'); phi.className = 'phi';
+    const pm = phiMoc.filter((x) => x.dien_tich_m2 != null)[i];
+    phi.textContent = s.loai === 'mong' ? T('m3.mong_khong_tinh') : (pm && pm.ten === ten[i] ? tien(pm.phi) : '');
+    row.appendChild(t); row.appendChild(ip); row.appendChild(m2); row.appendChild(phi);
+    if (s.loai !== 'mong' && s.loai !== 'tret') {
+      const bo = document.createElement('button'); bo.type = 'button'; bo.className = 'bo'; bo.textContent = '×';
+      bo.setAttribute('aria-label', T('sua.xoa') + ' ' + ten[i]);
+      bo.addEventListener('click', () => { S.san.splice(i, 1); renderMocTc(); tinhLaiSua(); });
+      row.appendChild(bo);
+    }
+    body.appendChild(row);
+  });
+  // Thêm sàn — giữ đúng thứ tự thi công.
+  const them = document.createElement('div'); them.className = 'sua-them';
+  const lb = document.createElement('span'); lb.textContent = T('sua.them'); them.appendChild(lb);
+  ['ham', 'lung', 'lau', 'san_thuong', 'mai'].forEach((l) => {
+    const co = S.san.filter((s) => s.loai === l).length;
+    if (co >= TOI_DA_SAN[l] || S.san.length >= 20) return;
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = T('sua.them.' + l);
+    b.addEventListener('click', () => {
+      const tret = S.san.find((s) => s.loai === 'tret') || S.san[S.san.length - 1];
+      const dt = tret ? tret.dien_tich_m2 : 50;
+      const moi = { loai: l, dien_tich_m2: l === 'lung' ? Math.round(dt * 50) / 100 : dt };
+      const vi = S.san.findIndex((s) => LOAI_SAN.indexOf(s.loai) > LOAI_SAN.indexOf(l));
+      if (vi < 0) S.san.push(moi); else S.san.splice(vi, 0, moi);
+      renderMocTc(); tinhLaiSua();
+    });
+    them.appendChild(b);
+  });
+  body.appendChild(them);
+  // Hạng mục ngoài nhà — giá ngay cạnh ô.
+  const hmT = document.createElement('p'); hmT.className = 'viec-ten'; hmT.textContent = T('m3.hang_muc'); body.appendChild(hmT);
+  HANG_MUC.forEach((k) => {
+    const lab = document.createElement('label'); lab.className = 'sua-hm';
+    const c = document.createElement('input'); c.type = 'checkbox'; c.checked = S.hm.includes(k);
+    c.addEventListener('change', () => { S.hm = HANG_MUC.filter((x) => (x === k ? c.checked : S.hm.includes(x))); tinhLaiSua(); });
+    const t = document.createElement('span'); t.textContent = T('hm.' + k);
+    const g = document.createElement('span'); g.className = 'gia';
+    const v = S.goi && S.goi.gia_hang_muc && S.goi.gia_hang_muc[k];
+    g.textContent = v ? '+ ' + tien(v) : '';
+    lab.appendChild(c); lab.appendChild(t); lab.appendChild(g); body.appendChild(lab);
+  });
+  if (S.goi) {
+    const tong = document.createElement('div'); tong.className = 'mtc-tong';
+    const a = document.createElement('span'); a.textContent = T('moc.tong');
+    const b = document.createElement('span'); b.textContent = tien(S.goi.tong_chua_thue);
+    tong.appendChild(a); tong.appendChild(b); body.appendChild(tong);
+  }
+  const note = document.createElement('p'); note.className = 'mtc-note'; note.textContent = T('sua.giu_moc'); body.appendChild(note);
+  const msg = document.createElement('p'); msg.className = 'mtc-msg' + (S.loi ? ' loi' : ''); msg.setAttribute('role', 'status'); msg.textContent = S.msg || '';
+  body.appendChild(msg);
+  const hanh = document.createElement('div'); hanh.className = 'sua-hanh';
+  const luu = document.createElement('button'); luu.type = 'button'; luu.className = 'btn btn-gold'; luu.textContent = T('sua.luu');
+  luu.disabled = S.dangLuu;
+  luu.addEventListener('click', luuSuaSan);
+  const huy = document.createElement('button'); huy.type = 'button'; huy.className = 'btn btn-ghost'; huy.textContent = T('sua.huy');
+  huy.addEventListener('click', () => { suaSan = null; renderMocTc(); });
+  hanh.appendChild(luu); hanh.appendChild(huy); body.appendChild(hanh);
+}
+
+async function luuSuaSan() {
+  const S = suaSan;
+  if (!S || S.dangLuu) return;
+  if (!isPhoneAuthed(auth.currentUser)) { S.loi = true; S.msg = 'Phiên đăng nhập đã hết — anh/chị tải lại trang để xác nhận lại số điện thoại.'; renderMocTc(); return; }
+  S.dangLuu = true; S.msg = ''; renderMocTc();
+  try {
+    const r = await callQltcDanhSachSan({ hanh_dong: 'luu', houseId: currentHouseId, loai_cong_trinh: S.loai, san: S.san, hang_muc: S.hm });
+    const d = r.data || {};
+    dsSan = Object.assign({}, dsSan, { danh_sach_san: d.danh_sach_san, goi: d.goi, loi: false, msg: T(d.khong_doi ? 'sua.khong_doi' : 'sua.da_luu') });
+    suaSan = null;
+    renderMocTc();
+  } catch (e) {
+    if (!suaSan) return;
+    suaSan.dangLuu = false; suaSan.loi = true; suaSan.msg = (e && e.message) || T('sua.loi');
+    renderMocTc();
+  }
 }
 
 /* ── Khối b2 — Dự toán của bạn (cùng bố cục nhóm mở-chi-tiết như du-toan-nha.html,
@@ -1279,7 +1715,7 @@ function renderPackages() {
 /* ── Khối b3 — Tải bản vẽ / báo giá (P1.4) ── */
 const UPLOAD_EXT_RE = /\.(pdf|jpe?g|png|heic|xlsx?|dwg)$/i;
 const UPLOAD_MAX_BYTES = 50 * 1024 * 1024;
-const UPLOAD_LOAI_TAG = { ban_ve: 'Bản vẽ', bao_gia: 'Báo giá', khac: 'Khác' };
+const UPLOAD_LOAI_TAG = { ban_ve: 'Bản vẽ', bao_gia: 'Báo giá', du_toan: 'Dự toán', khac: 'Khác' };
 
 /**
  * Mở hộp chọn file NGAY (đặt sẵn loai) — dùng chung cho nút ở khối "Bước
@@ -1321,6 +1757,8 @@ function sanitizeFileName(name) {
 }
 
 function renderUploadList(items) {
+  uploadItems = items;
+  if (currentHouseData) renderViec();
   if (!items.length) {
     els.uploadListBody.innerHTML = `<div class="empty-note">Chưa có file nào.</div>`;
     return;
@@ -1481,6 +1919,10 @@ function loadHouse(houseId) {
   currentHouseId = houseId;
   currentHouseData = null;
   duToanVersions = [];
+  uploadItems = [];
+  viecDangVe = null;
+  dsSanFor = null;
+  suaSan = null;
   dtOpenRows.clear();
   resetSoChiForm();
 
@@ -1500,6 +1942,7 @@ function loadHouse(houseId) {
     snap.forEach((d) => { byCode[d.id] = d.data(); });
     window.__khMocByCode = byCode;
     renderMoc(byCode, window.__khMocHienTai);
+    if (currentHouseData && !suaSan) renderMocTc();
   }, (err) => console.error('[khong-gian-nha] onSnapshot moc lỗi:', err)));
 
   unsubscribers.push(onSnapshot(
@@ -1557,6 +2000,13 @@ function renderChoose(houses) {
       const h = houses[Number(btn.dataset.idx)];
       loadHouse(h.id);
     });
+  });
+
+  // PR-5: hồ sơ Gói Quản lý Thi công — "N tầng · M sàn · X m² sàn" (khLienKetTaiKhoan trả tom_tat_san).
+  houses.forEach((h, i) => {
+    if (!h.tom_tat_san) return;
+    const subEl = els.pickList.querySelector(`[data-sub-idx="${i}"]`);
+    if (subEl) subEl.textContent = tomTatTangSan(h.tom_tat_san) + ' · ' + T('the.tong_m2', { m2: soM2(h.tom_tat_san.tong_m2) });
   });
 
   // House chưa có ma_ho_so (tạo từ công cụ dự toán, xem saveEstimateToHouse.js)

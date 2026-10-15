@@ -80,7 +80,7 @@ table.moc{width:100%;border-collapse:collapse;margin:8px 0}
 table.moc th,table.moc td{padding:8px 4px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
 table.moc td.so{text-align:right;white-space:nowrap}
 table.moc input{width:68px;min-height:44px;border:2px solid var(--line);border-radius:8px;padding:0 8px;font:inherit;background:var(--surface);color:var(--ink);text-align:right}
-table.moc .ma{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85rem;color:var(--muted)}
+.gia-hm{font-weight:600;color:var(--muted);white-space:nowrap}
 .tong{display:flex;justify-content:space-between;gap:10px;font-size:1.15rem;font-weight:700;padding:12px 0;border-top:2px solid var(--ink)}
 .mahs{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1.5rem;font-weight:700;letter-spacing:.02em;background:var(--san);color:var(--san-ink);padding:10px 14px;border-radius:10px;display:inline-block}
 .tai{border:2px dashed var(--line);border-radius:12px;padding:16px;text-align:center;cursor:pointer;display:block}
@@ -119,6 +119,7 @@ fbq('track', 'PageView');
 <script src="aln-tracking.js"></script>
 <script src="aln-pricing.js"></script>
 <script src="aln-dong-y-du-lieu.js"></script>
+<script src="qltc-chu.vi.js"></script>
 </head>
 <body>
 <!-- Google Tag Manager (noscript) -->
@@ -127,136 +128,136 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 <header class="band"><div class="in">
   <a class="logo" href="/">App Làm Nhà</a>
-  <h1>Gói Quản lý Thi công</h1>
-  <p>Tạo hồ sơ cho công trình của anh/chị, xem các mốc thi công theo từng sàn và phí gói trước khi quyết định.</p>
+  <h1 data-chu="dau.tieu_de">Gói Quản lý Thi công</h1>
+  <p data-chu="dau.mo_ta">Tạo hồ sơ cho công trình của anh/chị, xem các mốc thi công theo từng sàn và phí gói trước khi quyết định.</p>
 </div></header>
 
 <main class="wrap">
   <!-- Màn 1 -->
   <section class="man" id="m1">
-    <h2>Nhà anh/chị đang ở bước nào?</h2>
+    <h2 data-chu="m1.hoi">Nhà anh/chị đang ở bước nào?</h2>
     <div class="chon">
-      <button type="button" data-buoc="co_ban_ve_du_toan"><b>Đã có bản vẽ và dự toán</b><span>Tạo hồ sơ, tải dự toán lên để theo dõi khi xây.</span></button>
-      <button type="button" data-buoc="co_ban_ve"><b>Đã có bản vẽ, chưa có dự toán</b><span>Tạo hồ sơ, tải bản vẽ lên.</span></button>
-      <button type="button" data-buoc="chua_ban_ve"><b>Chưa có bản vẽ</b><span>Xem phí thiết kế, để số cho KTS của ALN gọi.</span></button>
+      <button type="button" data-buoc="co_ban_ve_du_toan"><b data-chu="m1.co_ban_ve_du_toan">Đã có bản vẽ và dự toán</b><span data-chu="m1.co_ban_ve_du_toan_mo_ta">Tạo hồ sơ, tải dự toán lên để theo dõi khi xây.</span></button>
+      <button type="button" data-buoc="co_ban_ve"><b data-chu="m1.co_ban_ve">Đã có bản vẽ, chưa có dự toán</b><span data-chu="m1.co_ban_ve_mo_ta">Tạo hồ sơ, tải bản vẽ lên.</span></button>
+      <button type="button" data-buoc="chua_ban_ve"><b data-chu="m1.chua_ban_ve">Chưa có bản vẽ</b><span data-chu="m1.chua_ban_ve_mo_ta">Xem phí thiết kế, để số cho KTS của ALN gọi.</span></button>
     </div>
   </section>
 
   <!-- Lối 1, 2 — câu 1 + câu 2 -->
   <section class="man" id="m2" hidden>
-    <button type="button" class="lui" data-ve="m1">← Quay lại</button>
-    <h2>Nhà anh/chị gồm những sàn nào?</h2>
+    <button type="button" class="lui" data-ve="m1" data-chu="chung.quay_lai">← Quay lại</button>
+    <h2 data-chu="m2.hoi">Nhà anh/chị gồm những sàn nào?</h2>
     <div class="hang">
       <div class="tg" role="group" aria-label="Loại công trình">
-        <button type="button" data-loai="nha_pho" aria-pressed="true">Nhà phố</button>
-        <button type="button" data-loai="biet_thu" aria-pressed="false">Biệt thự</button>
+        <button type="button" data-loai="nha_pho" aria-pressed="true" data-chu="loai.nha_pho">Nhà phố</button>
+        <button type="button" data-loai="biet_thu" aria-pressed="false" data-chu="loai.biet_thu">Biệt thự</button>
       </div>
     </div>
-    <div class="hang"><span>Số lầu (không tính trệt):</span>
+    <div class="hang"><span data-chu="m2.so_lau">Số lầu (không tính trệt):</span>
       <span class="dem"><button type="button" id="lauBot" aria-label="Bớt một lầu">−</button><output id="soLau">2</output><button type="button" id="lauThem" aria-label="Thêm một lầu">+</button></span>
     </div>
-    <label class="ck"><input type="checkbox" id="coHam"><span>Có tầng hầm</span></label>
-    <label class="ck"><input type="checkbox" id="coLung"><span>Có lửng</span></label>
-    <label class="ck"><input type="checkbox" id="coSanThuong" checked><span>Có sân thượng</span></label>
-    <label class="ck"><input type="checkbox" id="coMai"><span>Có mái (mái bê tông hoặc mái ngói đổ sàn)</span></label>
-    <label class="o"><span>Diện tích mỗi sàn khoảng bao nhiêu m²?</span>
+    <label class="ck"><input type="checkbox" id="coHam"><span data-chu="m2.co_ham">Có tầng hầm</span></label>
+    <label class="ck"><input type="checkbox" id="coLung"><span data-chu="m2.co_lung">Có lửng</span></label>
+    <label class="ck"><input type="checkbox" id="coSanThuong" checked><span data-chu="m2.co_san_thuong">Có sân thượng</span></label>
+    <label class="ck"><input type="checkbox" id="coMai"><span data-chu="m2.co_mai">Có mái (mái bê tông hoặc mái ngói đổ sàn)</span></label>
+    <label class="o"><span data-chu="m2.dien_tich">Diện tích mỗi sàn khoảng bao nhiêu m²?</span>
       <input id="dtSan" type="text" inputmode="decimal" autocomplete="off" placeholder="VD: 80">
     </label>
-    <p class="nho">Chưa chắc số nào thì nhập số gần đúng; bước sau sửa được từng sàn.</p>
+    <p class="nho" data-chu="m2.goi_y">Chưa chắc số nào thì nhập số gần đúng; bước sau sửa được từng sàn.</p>
     <p class="loi" id="m2Loi" hidden></p>
-    <button type="button" class="nut" id="m2Nut">Xem sơ đồ và phí</button>
+    <button type="button" class="nut" id="m2Nut" data-chu="m2.nut">Xem sơ đồ và phí</button>
   </section>
 
   <!-- Lối 1, 2 — sơ đồ + mốc + phí -->
   <section class="man" id="m3" hidden>
-    <button type="button" class="lui" data-ve="m2">← Sửa số sàn</button>
-    <h2>Sơ đồ mốc thi công</h2>
+    <button type="button" class="lui" data-ve="m2" data-chu="m3.quay_lai">← Sửa số sàn</button>
+    <h2 data-chu="m3.tieu_de">Sơ đồ mốc thi công</h2>
     <svg class="sodo" id="sodo" role="img" aria-label="Mặt cắt các sàn của nhà"></svg>
-    <table class="moc"><thead><tr><th>Mốc</th><th>m²</th><th class="so">Phí</th></tr></thead><tbody id="mocBody"></tbody></table>
-    <h3>Hạng mục ngoài nhà</h3>
-    <label class="ck"><input type="checkbox" data-hm="cong_tuong_rao"><span>Cổng, tường rào</span></label>
-    <label class="ck"><input type="checkbox" data-hm="ho_boi"><span>Hồ bơi</span></label>
-    <label class="ck"><input type="checkbox" data-hm="nha_phu"><span>Nhà phụ</span></label>
-    <div class="tong"><span>Phí gói</span><span id="tongPhi">—</span></div>
+    <table class="moc"><thead><tr><th data-chu="m3.cot_moc">Mốc</th><th data-chu="m3.cot_m2">m²</th><th class="so" data-chu="m3.cot_phi">Phí</th></tr></thead><tbody id="mocBody"></tbody></table>
+    <h3 data-chu="m3.hang_muc">Hạng mục ngoài nhà</h3>
+    <label class="ck"><input type="checkbox" data-hm="cong_tuong_rao"><span><span data-chu="hm.cong_tuong_rao">Cổng, tường rào</span> <b class="gia-hm" data-gia-hm="cong_tuong_rao"></b></span></label>
+    <label class="ck"><input type="checkbox" data-hm="ho_boi"><span><span data-chu="hm.ho_boi">Hồ bơi</span> <b class="gia-hm" data-gia-hm="ho_boi"></b></span></label>
+    <label class="ck"><input type="checkbox" data-hm="nha_phu"><span><span data-chu="hm.nha_phu">Nhà phụ</span> <b class="gia-hm" data-gia-hm="nha_phu"></b></span></label>
+    <div class="tong"><span data-chu="m3.tong">Phí gói</span><span id="tongPhi">—</span></div>
     <p class="nho" id="cauGia"></p>
     <p class="nho" id="heSoNote" hidden></p>
     <p class="loi" id="m3Loi" hidden></p>
-    <p class="canh">Gói Quản lý Thi công là công cụ để anh/chị tự theo dõi công trình của mình — không thay thế công tác giám sát thi công.</p>
-    <button type="button" class="nut" id="m3Nut">Tạo hồ sơ cho nhà tôi</button>
+    <p class="canh" data-chu="m3.khong_thay_giam_sat">Gói Quản lý Thi công là công cụ để anh/chị tự theo dõi công trình của mình — không thay thế công tác giám sát thi công.</p>
+    <button type="button" class="nut" id="m3Nut" data-chu="m3.nut">Tạo hồ sơ cho nhà tôi</button>
   </section>
 
   <!-- Lối 1, 2 — họ tên + SĐT + OTP -->
   <section class="man" id="m4" hidden>
-    <button type="button" class="lui" data-ve="m3">← Quay lại sơ đồ</button>
-    <h2>Xác nhận số điện thoại để tạo hồ sơ</h2>
+    <button type="button" class="lui" data-ve="m3" data-chu="m4.quay_lai">← Quay lại sơ đồ</button>
+    <h2 data-chu="m4.tieu_de">Xác nhận số điện thoại để tạo hồ sơ</h2>
     <div id="m4Nhap">
-      <label class="o"><span>Họ tên</span><input id="hoTen" type="text" autocomplete="name" maxlength="80"></label>
-      <label class="o"><span>Số điện thoại</span><input id="sdt" type="tel" inputmode="numeric" autocomplete="tel" maxlength="14" placeholder="VD: 0909 123 456"></label>
+      <label class="o"><span data-chu="o.ho_ten">Họ tên</span><input id="hoTen" type="text" autocomplete="name" maxlength="80"></label>
+      <label class="o"><span data-chu="o.sdt">Số điện thoại</span><input id="sdt" type="tel" inputmode="numeric" autocomplete="tel" maxlength="14" placeholder="VD: 0909 123 456"></label>
       <label class="ck"><input type="checkbox" id="dongY"><span id="dongYText"></span></label>
-      <label class="ck"><input type="checkbox" id="dongYQc"><span><span id="dongYQcText"></span> <i class="nho">Không bắt buộc.</i></span></label>
-      <p class="nho">ALN gửi mã 6 số qua tin nhắn để chắc chắn đúng số của anh/chị. <a href="/chinh-sach-quyen-rieng-tu/" target="_blank" rel="noopener">Chính sách quyền riêng tư</a>.</p>
+      <label class="ck"><input type="checkbox" id="dongYQc"><span><span id="dongYQcText"></span> <i class="nho" data-chu="o.khong_bat_buoc">Không bắt buộc.</i></span></label>
+      <p class="nho"><span data-chu="m4.giai_thich_ma">ALN gửi mã 6 số qua tin nhắn để chắc chắn đúng số của anh/chị.</span> <a href="/chinh-sach-quyen-rieng-tu/" target="_blank" rel="noopener" data-chu="chung.chinh_sach">Chính sách quyền riêng tư</a>.</p>
       <div id="recaptcha-qltc"></div>
       <p class="loi" id="m4Loi" hidden></p>
-      <button type="button" class="nut" id="guiMa">Gửi mã xác nhận</button>
+      <button type="button" class="nut" id="guiMa" data-chu="m4.gui_ma">Gửi mã xác nhận</button>
     </div>
     <div id="m4Ma" hidden>
-      <p>Mã đã gửi tới số <b id="sdtHien"></b>.</p>
-      <label class="o"><span>Mã xác nhận (6 số)</span><input id="ma" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></label>
+      <p><span data-chu="m4.da_gui">Mã đã gửi tới số</span> <b id="sdtHien"></b>.</p>
+      <label class="o"><span data-chu="m4.o_ma">Mã xác nhận (6 số)</span><input id="ma" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></label>
       <p class="loi" id="m4MaLoi" hidden></p>
-      <button type="button" class="nut" id="xacNhan">Xác nhận và tạo hồ sơ</button>
-      <button type="button" class="lui" id="doiSo">Đổi số điện thoại</button>
+      <button type="button" class="nut" id="xacNhan" data-chu="m4.xac_nhan">Xác nhận và tạo hồ sơ</button>
+      <button type="button" class="lui" id="doiSo" data-chu="m4.doi_so">Đổi số điện thoại</button>
     </div>
   </section>
 
   <!-- Lối 1, 2 — đã tạo hồ sơ -->
   <section class="man" id="m5" hidden>
-    <h2>Đã tạo hồ sơ cho nhà anh/chị</h2>
-    <p>Mã hồ sơ:</p>
+    <h2 data-chu="m5.tieu_de">Đã tạo hồ sơ cho nhà anh/chị</h2>
+    <p data-chu="m5.ma">Mã hồ sơ:</p>
     <p><span class="mahs" id="maHs"></span></p>
-    <p class="nho">Ghi lại mã này — ALN dùng mã này khi trao đổi, chuyển khoản và mở lại hồ sơ.</p>
-    <h3>1. Đồng ý dữ liệu</h3>
+    <p class="nho" data-chu="m5.ghi_ma">Ghi lại mã này — ALN dùng mã này khi trao đổi, chuyển khoản và mở lại hồ sơ.</p>
+    <h3 data-chu="m5.dong_y">1. Đồng ý dữ liệu</h3>
     <div id="dydlBox"></div>
     <h3 id="taiTieuDe">2. Tải dự toán lên</h3>
-    <label class="tai" for="taiFile"><input type="file" id="taiFile" accept=".pdf,.jpg,.jpeg,.png,.heic,.xlsx,.xls,.dwg"><span id="taiNhan">Bấm để chọn file (PDF, ảnh, Excel, DWG — tối đa 50 MB)</span></label>
+    <label class="tai" for="taiFile"><input type="file" id="taiFile" accept=".pdf,.jpg,.jpeg,.png,.heic,.xlsx,.xls,.dwg"><span id="taiNhan" data-chu="m5.chon_file">Bấm để chọn file (PDF, ảnh, Excel, DWG — tối đa 50 MB)</span></label>
     <p class="nho" id="taiTrangThai"></p>
-    <h3>3. Thanh toán</h3>
-    <p>Phí gói: <b id="m5Phi"></b> (chưa gồm thuế GTGT).</p>
-    <p class="nho">Sau khi nhận chuyển khoản, ALN bật gói và nhắn anh/chị qua Zalo. Nếu danh sách sàn có chỗ chưa đúng, anh/chị sửa được ngay trong Không gian Nhà.</p>
+    <h3 data-chu="m5.thanh_toan">3. Thanh toán</h3>
+    <p><span data-chu="m5.phi">Phí gói:</span> <b id="m5Phi"></b> <span id="m5Thue"></span></p>
+    <p class="nho" data-chu="m5.thanh_toan_mo_ta">Sau khi nhận chuyển khoản, ALN bật gói và nhắn anh/chị qua Zalo. Nếu danh sách sàn có chỗ chưa đúng, anh/chị sửa được ngay trong Không gian Nhà.</p>
     <!-- Lời nhắc "không thay thế giám sát thi công" của màn này nằm trong khối đồng ý (aln-dong-y-du-lieu.js). -->
-    <a class="nut" id="moKgn" href="khong-gian-nha.html">Mở Không gian Nhà</a>
+    <a class="nut" id="moKgn" href="khong-gian-nha.html" data-chu="m5.mo_kgn">Mở Không gian Nhà</a>
   </section>
 
   <!-- Lối 3 — chưa có bản vẽ -->
   <section class="man" id="t1" hidden>
-    <button type="button" class="lui" data-ve="m1">← Quay lại</button>
-    <h2>Chưa có bản vẽ: bắt đầu từ thiết kế</h2>
+    <button type="button" class="lui" data-ve="m1" data-chu="chung.quay_lai">← Quay lại</button>
+    <h2 data-chu="t1.tieu_de">Chưa có bản vẽ: bắt đầu từ thiết kế</h2>
     <div class="hang">
       <div class="tg" role="group" aria-label="Loại công trình">
-        <button type="button" data-loai3="nha_pho" aria-pressed="true">Nhà phố</button>
-        <button type="button" data-loai3="biet_thu" aria-pressed="false">Biệt thự</button>
+        <button type="button" data-loai3="nha_pho" aria-pressed="true" data-chu="loai.nha_pho">Nhà phố</button>
+        <button type="button" data-loai3="biet_thu" aria-pressed="false" data-chu="loai.biet_thu">Biệt thự</button>
       </div>
     </div>
-    <p>Phí thiết kế: <b id="tkDonGia">—</b>.</p>
-    <label class="o"><span>Tổng diện tích sàn dự kiến (m², không bắt buộc)</span>
+    <p><span data-chu="t1.phi">Phí thiết kế:</span> <b id="tkDonGia">—</b>.</p>
+    <label class="o"><span data-chu="t1.dien_tich">Tổng diện tích sàn dự kiến (m², không bắt buộc)</span>
       <input id="tkDt" type="text" inputmode="decimal" autocomplete="off" placeholder="VD: 240"></label>
     <p id="tkPhi" hidden></p>
-    <p>Thanh toán theo 4 mốc:</p>
+    <p data-chu="t1.bon_moc">Thanh toán theo 4 mốc:</p>
     <ol class="moc4" id="tkMoc"></ol>
-    <h3>Để số cho KTS của ALN gọi</h3>
-    <label class="o"><span>Họ tên</span><input id="tkTen" type="text" autocomplete="name" maxlength="80"></label>
-    <label class="o"><span>Số điện thoại</span><input id="tkSdt" type="tel" inputmode="numeric" autocomplete="tel" maxlength="14" placeholder="VD: 0909 123 456"></label>
-    <label class="o"><span>Buổi tiện nghe máy</span>
+    <h3 data-chu="t1.de_so">Để số cho KTS của ALN gọi</h3>
+    <label class="o"><span data-chu="o.ho_ten">Họ tên</span><input id="tkTen" type="text" autocomplete="name" maxlength="80"></label>
+    <label class="o"><span data-chu="o.sdt">Số điện thoại</span><input id="tkSdt" type="tel" inputmode="numeric" autocomplete="tel" maxlength="14" placeholder="VD: 0909 123 456"></label>
+    <label class="o"><span data-chu="t1.buoi">Buổi tiện nghe máy</span>
       <select id="tkGio"><option value="">Buổi nào cũng được</option><option value="sang">Buổi sáng</option><option value="trua">Buổi trưa</option><option value="chieu">Buổi chiều</option><option value="toi">Buổi tối</option></select></label>
     <label class="ck"><input type="checkbox" id="tkDongY"><span id="tkDongYText"></span></label>
-    <label class="ck"><input type="checkbox" id="tkDongYQc"><span><span id="tkDongYQcText"></span> <i class="nho">Không bắt buộc.</i></span></label>
+    <label class="ck"><input type="checkbox" id="tkDongYQc"><span><span id="tkDongYQcText"></span> <i class="nho" data-chu="o.khong_bat_buoc">Không bắt buộc.</i></span></label>
     <p class="loi" id="t1Loi" hidden></p>
-    <button type="button" class="nut" id="t1Nut">Nhờ KTS gọi lại</button>
+    <button type="button" class="nut" id="t1Nut" data-chu="t1.nut">Nhờ KTS gọi lại</button>
   </section>
 
   <section class="man" id="t2" hidden>
-    <h2>ALN đã nhận thông tin</h2>
+    <h2 data-chu="t2.tieu_de">ALN đã nhận thông tin</h2>
     <p>KTS của ALN sẽ gọi anh/chị trong 1–2 ngày làm việc<span id="t2Gio"></span>.</p>
-    <p class="nho">Cần gấp: gọi hoặc nhắn Zalo 0909 829 696.</p>
+    <p class="nho" data-chu="t2.can_gap">Cần gấp: gọi hoặc nhắn Zalo 0909 829 696.</p>
   </section>
 </main>
 <footer>Công ty TNHH ALN · <a href="/chinh-sach-quyen-rieng-tu/">Chính sách quyền riêng tư</a></footer>
@@ -277,6 +278,9 @@ async function napFb() {
   FB = { c, call: (ten) => f.httpsCallable(fn, ten, { timeout: 30000 }) };
   return FB;
 }
+const CHU = window.ALN_CHU_QLTC;
+const T = (k, v) => (CHU ? CHU.chu(k, v) : k);
+if (CHU) CHU.apDung(document);
 const C = await import('/consent-constants.js').catch(() => null);
 if (C) {
   $('dongYText').textContent = C.CONSENT_TEXTS.qltc;
@@ -285,6 +289,9 @@ if (C) {
   $('tkDongYQcText').textContent = C.CONSENT_TEXTS.quang_cao;
 }
 const soVN = (n) => Number(n).toLocaleString('vi-VN');
+/* Tiền theo tiền tệ của bảng giá (máy chủ trả tien_te) — PR-5, nền đa quốc gia. */
+const tien = (n) => (CHU ? CHU.tien(n, ST.goi && ST.goi.tien_te) : soVN(n) + ' đ');
+const tenThue = () => (ST.goi && ST.goi.thue && ST.goi.thue.ten) || 'GTGT';
 const day = (ev, p) => { try { (window.dataLayer = window.dataLayer || []).push(Object.assign({ event: ev }, p || {})); } catch (e) { /* bỏ qua */ } };
 const tinHieu = () => { try { return (window.alnEstimateFunnel && window.alnEstimateFunnel.signals()) || {}; } catch (e) { return {}; } };
 const attr = () => { try { return window.alnAttr ? window.alnAttr.forLead() : null; } catch (e) { return null; } };
@@ -302,7 +309,7 @@ document.querySelectorAll('#m1 [data-buoc]').forEach((b) => b.addEventListener('
   ST.buoc = b.dataset.buoc;
   day('aln_qltc_buoc', { buoc_xay: ST.buoc });
   if (ST.buoc === 'chua_ban_ve') { hien('t1'); veThietKe(); return; }
-  $('taiTieuDe').textContent = ST.buoc === 'co_ban_ve_du_toan' ? '2. Tải dự toán lên' : '2. Tải bản vẽ lên';
+  $('taiTieuDe').textContent = T(ST.buoc === 'co_ban_ve_du_toan' ? 'm5.tai_du_toan' : 'm5.tai_ban_ve');
   hien('m2');
 }));
 
@@ -325,7 +332,7 @@ function dungSan(dt) {
 }
 $('m2Nut').addEventListener('click', async () => {
   const dt = soDuong($('dtSan').value);
-  if (!dt || dt > 10000) { bao('m2Loi', 'Anh/chị nhập diện tích mỗi sàn (m²), ví dụ 80.'); $('dtSan').focus(); return; }
+  if (!dt || dt > 10000) { bao('m2Loi', T('m2.loi_dien_tich')); $('dtSan').focus(); return; }
   bao('m2Loi', '');
   ST.san = dungSan(dt);
   const ok = await tinhPhi('m2Nut', 'm2Loi');
@@ -347,7 +354,7 @@ async function tinhPhi(nutId, loiId) {
     bao(loiId, '');
     return true;
   } catch (e) {
-    if (seq === tinhSeq) bao(loiId, (e && e.message) || 'Chưa tính được phí — anh/chị thử lại.');
+    if (seq === tinhSeq) bao(loiId, (e && e.message) || T('phi.tinh_loi'));
     return false;
   } finally { if (nut) nut.disabled = false; }
 }
@@ -381,16 +388,16 @@ function veSoDo() {
     const rong = m.loai_san === 'mai' ? 220 : 280;
     const x = (300 - rong) / 2;
     svg.appendChild(svgEl('rect', { x, y, width: rong, height: cao - 6, rx: 4, fill: laMong ? 'var(--mong)' : 'var(--san)', stroke: 'var(--line)' }));
+    // PR-5: chỉ tên sàn bằng lời — mã mốc (MONG, L01…) là khoá nội bộ, không hiện cho khách.
     svg.appendChild(svgEl('text', { x: x + 10, y: y + 19, 'font-size': 15, 'font-weight': 600, fill: 'var(--san-ink)' }, m.ten));
-    svg.appendChild(svgEl('text', { x: x + rong - 10, y: y + 19, 'font-size': 12, 'text-anchor': 'end', fill: 'var(--san-ink)' }, m.ma_moc));
+    if (m.dien_tich_m2 != null) svg.appendChild(svgEl('text', { x: x + rong - 10, y: y + 19, 'font-size': 12, 'text-anchor': 'end', fill: 'var(--san-ink)' }, soVN(m.dien_tich_m2) + ' m²'));
   });
   const body = $('mocBody');
   body.textContent = '';
   g.moc.forEach((m) => {
     const tr = document.createElement('tr');
     const td1 = document.createElement('td');
-    td1.appendChild(document.createTextNode(m.ten + ' '));
-    const sp = document.createElement('span'); sp.className = 'ma'; sp.textContent = m.ma_moc; td1.appendChild(sp);
+    td1.textContent = m.ten;
     const td2 = document.createElement('td');
     if (m.dien_tich_m2 != null) {
       const ip = document.createElement('input');
@@ -399,23 +406,28 @@ function veSoDo() {
       const idx = viTriSan(m);
       ip.addEventListener('change', () => {
         const v = soDuong(ip.value);
-        if (!v || v > 10000 || idx < 0) { bao('m3Loi', 'Diện tích ' + m.ten + ' chưa đúng.'); return; }
+        if (!v || v > 10000 || idx < 0) { bao('m3Loi', T('m3.dien_tich_sai', { ten: m.ten })); return; }
         ST.san[idx].dien_tich_m2 = Math.round(v * 100) / 100;
         tinhLai();
       });
       td2.appendChild(ip);
     } else td2.textContent = '—';
     const td3 = document.createElement('td'); td3.className = 'so';
-    td3.textContent = m.loai_san === 'mong' ? 'Không tính' : soVN(m.phi) + ' đ';
+    td3.textContent = m.loai_san === 'mong' ? T('m3.mong_khong_tinh') : tien(m.phi);
     tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3);
     body.appendChild(tr);
   });
-  $('tongPhi').textContent = soVN(g.tong_chua_thue) + ' đ';
+  $('tongPhi').textContent = tien(g.tong_chua_thue);
+  // PR-5: giá ngay cạnh ô hạng mục ngoài nhà (máy chủ trả, đã nhân hệ số loại công trình).
+  document.querySelectorAll('[data-gia-hm]').forEach((el) => {
+    const v = g.gia_hang_muc && g.gia_hang_muc[el.dataset.giaHm];
+    el.textContent = v ? '+ ' + tien(v) : '';
+  });
   const P = window.ALN_PRICING;
-  $('cauGia').textContent = (P && P.cauGiaQuanLyThiCong) ? P.cauGiaQuanLyThiCong() : 'Phí chưa gồm thuế GTGT.';
+  $('cauGia').textContent = (P && P.cauGiaQuanLyThiCong) ? P.cauGiaQuanLyThiCong() : T('phi.chua_thue', { thue: tenThue() });
   const hs = $('heSoNote');
   hs.hidden = !(g.he_so && g.he_so !== 1);
-  hs.textContent = hs.hidden ? '' : 'Đã nhân hệ số biệt thự ' + String(g.he_so).replace('.', ',') + ' (trước hệ số: ' + soVN(g.tong_truoc_he_so) + ' đ).';
+  hs.textContent = hs.hidden ? '' : T('m3.he_so', { he_so: String(g.he_so).replace('.', ','), truoc: tien(g.tong_truoc_he_so) });
 }
 /* Mốc ↔ dòng sàn: thứ tự xuất hiện của cùng loại sàn (khớp chuanDanhSachSan phía máy chủ). */
 function viTriSan(m) {
@@ -495,7 +507,8 @@ async function taoHoSo() {
 }
 function moXong() {
   $('maHs').textContent = ST.ma;
-  $('m5Phi').textContent = ST.goi ? soVN(ST.goi.tong_chua_thue) + ' đ' : '—';
+  $('m5Phi').textContent = ST.goi ? tien(ST.goi.tong_chua_thue) : '—';
+  $('m5Thue').textContent = T('phi.ngoac_chua_thue', { thue: tenThue() });
   $('moKgn').href = 'khong-gian-nha.html?ma=' + encodeURIComponent(ST.ma);
   hien('m5');
   const ctl = window.alnDongYDuLieu && window.alnDongYDuLieu.mount($('dydlBox'), {
