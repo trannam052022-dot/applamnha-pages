@@ -107,7 +107,7 @@
           bRut.type = 'button';
           bRut.disabled = dangGui || !!o.xemFounder;
           bRut.addEventListener('click', function () {
-            if (!window.confirm('Rút lại đồng ý thì ALN không bật được Gói Quản lý Thi công cho hồ sơ này và sẽ xoá dữ liệu cá nhân theo Chính sách quyền riêng tư; số liệu đã ẩn danh đưa vào thống kê không rút ra được. Anh/chị chắc chắn?')) return;
+            if (!window.confirm('Rút lại đồng ý thì ALN không bật được Gói Quản lý Thi công cho hồ sơ này và ALN sẽ xoá dữ liệu cá nhân của anh/chị trong vòng 30 ngày; số liệu đã ẩn danh đưa vào thống kê không rút ra được. Anh/chị chắc chắn?')) return;
             goi({ hanh_dong: 'rut' });
           });
           var pRut = tao('p', 'dydl-nho');

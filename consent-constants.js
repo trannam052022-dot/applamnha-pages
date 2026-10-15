@@ -19,6 +19,7 @@ export const CONSENT_VERSIONS = {
   du_lieu_nha: "2026-10-15-2",
   thong_ke_an_danh: "2026-10-15-2",
   qltc: "2026-10-15",
+  qltc_goi: "2026-10-15",
 };
 
 export const CONSENT_TEXTS = {
@@ -44,9 +45,12 @@ export const CONSENT_TEXTS = {
      aln-dong-y-du-lieu.js hiện GIỐNG HỆT (functions/_test_dongYDuLieu.js kiểm hai bản). */
   du_lieu_nha: "Tôi đồng ý để ALN lưu và xử lý dữ liệu công trình của tôi trong Không gian Nhà, để cung cấp gói dịch vụ tôi chọn cho chính nhà tôi, theo Chính sách quyền riêng tư.",
   thong_ke_an_danh: "Cho phép ALN dùng số liệu kích thước và chi phí của công trình này, đã bỏ họ tên, số điện thoại và địa chỉ chi tiết, để thống kê giá xây dựng theo khu vực.",
-  /* Trang Gói Quản lý Thi công (quan-ly-thi-cong.html, PR-9) — form tạo hồ sơ (lối 1, 2) và form
-     nhờ KTS gọi (lối 3). NHÁP chờ Nam duyệt (mức B). functions/_test_qltcCuaVao.js kiểm hai bản. */
+  /* Trang Gói Quản lý Thi công (quan-ly-thi-cong.html, PR-9) — form tạo hồ sơ sau OTP (lối 1, 2).
+     Nam duyệt 15/10/2026. functions/_test_qltcCuaVao.js kiểm hai bản. */
   qltc: "Tôi đồng ý để ALN dùng họ tên và SĐT này để tạo hồ sơ Không gian Nhà và liên hệ tư vấn về công trình của tôi, theo Chính sách quyền riêng tư.",
+  /* qltc_goi: form "Chưa có bản vẽ" của quan-ly-thi-cong.html (lối 3, không tạo hồ sơ) — Nam duyệt
+     15/10/2026, câu theo form "nhờ KTS gọi" trang dự toán, mục đích + phiên bản riêng. */
+  qltc_goi: "Tôi đồng ý để ALN dùng họ tên và SĐT này để gọi/nhắn tư vấn về công trình của tôi, theo Chính sách quyền riêng tư.",
 };
 
 export const CONSENT_PURPOSES = {
@@ -59,4 +63,5 @@ export const CONSENT_PURPOSES = {
   du_lieu_nha: "van_hanh_goi_dich_vu_khong_gian_nha",
   thong_ke_an_danh: "thong_ke_gia_an_danh",
   qltc: "tao_ho_so_va_lien_he_qltc",
+  qltc_goi: "lien_he_tu_van_qltc_chua_ban_ve",
 };

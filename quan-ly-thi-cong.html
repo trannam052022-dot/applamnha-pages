@@ -221,7 +221,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <p class="nho" id="taiTrangThai"></p>
     <h3>3. Thanh toán</h3>
     <p>Phí gói: <b id="m5Phi"></b> (chưa gồm thuế GTGT).</p>
-    <p class="nho">Bước thanh toán đang được mở trên trang này. Trong lúc chờ, KTS của ALN sẽ gọi để xác nhận lại danh sách sàn trước khi bật gói.</p>
+    <p class="nho">Sau khi nhận chuyển khoản, ALN bật gói và nhắn anh/chị qua Zalo. Nếu danh sách sàn có chỗ chưa đúng, anh/chị sửa được ngay trong Không gian Nhà.</p>
     <!-- Lời nhắc "không thay thế giám sát thi công" của màn này nằm trong khối đồng ý (aln-dong-y-du-lieu.js). -->
     <a class="nut" id="moKgn" href="khong-gian-nha.html">Mở Không gian Nhà</a>
   </section>
@@ -280,7 +280,7 @@ async function napFb() {
 const C = await import('/consent-constants.js').catch(() => null);
 if (C) {
   $('dongYText').textContent = C.CONSENT_TEXTS.qltc;
-  $('tkDongYText').textContent = C.CONSENT_TEXTS.qltc;
+  $('tkDongYText').textContent = C.CONSENT_TEXTS.qltc_goi;
   $('dongYQcText').textContent = C.CONSENT_TEXTS.quang_cao;
   $('tkDongYQcText').textContent = C.CONSENT_TEXTS.quang_cao;
 }

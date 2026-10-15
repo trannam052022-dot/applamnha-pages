@@ -1219,14 +1219,13 @@ function renderPackages() {
   const soSan = latest && latest.inputs && latest.inputs.n;
   const dienTich = latest && latest.ket_qua && latest.ket_qua.qd;
 
-  // Giá CHÍNH luôn là giá đã gồm VAT — dòng .pkg-sub nhỏ bên dưới mới là số
-  // chưa VAT, KHÔNG đảo ngược.
+  // Phí gói hiện CHƯA gồm thuế GTGT, thống nhất với gói Thiết kế và gói Quản lý
+  // Thi công (Nam chốt 15/10/2026, PR-9b). Chỉ số dự toán xây nhà mới hiện đã gồm thuế.
   let bocPrice = 'Theo diện tích quy đổi nhà bạn';
-  let bocSub = '';
+  let bocSub = '<div class="pkg-sub">Chưa gồm thuế GTGT · 8.000 đ/m² quy đổi, tối thiểu 2.000.000 đ/bộ hồ sơ</div>';
   if (dienTich) {
     const b = P.tinhPhiBoc(dienTich);
-    bocPrice = esc(fmtMoney(b.sauVat));
-    bocSub = `<div class="pkg-sub">Chưa VAT: ${esc(fmtMoney(b.chuaVat))} (8.000 đ/m² quy đổi, tối thiểu 2.000.000 đ/bộ hồ sơ)</div>`;
+    bocPrice = esc(fmtMoney(b.chuaVat));
   }
 
   // Gói Quản lý Thi công tính theo diện tích TỪNG sàn (DEC-2026-027) — bản dự
