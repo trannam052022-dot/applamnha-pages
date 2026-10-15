@@ -413,6 +413,7 @@ a{color:inherit}
    Đầu trang → Việc tiếp theo → Mốc thi công (hồ sơ gói) → Dự toán → "Thêm" (thu gọn, chứa
    các khối còn lại — datBoCuc() chuyển DOM vào #themBody). House C1–C4 không đổi. */
 #state-house.truoc-c1-layout #viecBlock{order:2}
+#state-house.truoc-c1-layout #daTtBlock{order:3}
 #state-house.truoc-c1-layout #mocTcBlock{order:3}
 #state-house.truoc-c1-layout #themBlock{order:9}
 /* Đang sửa danh sách sàn: màn này chỉ còn một việc (bộ sửa, nút "Lưu") — tạm ẩn thẻ việc. */
@@ -439,6 +440,18 @@ details.them[open] > summary::after{content:"−"}
 .mtc-msg{font-size:var(--text-sm);margin:.5rem 0;min-height:1em}
 .mtc-msg.loi{color:var(--red,#b42318)}
 .mtc-msg.ok{color:var(--green,#17704a)}
+/* PR-6a — mốc bấm mở chi tiết (trạng thái, nút khép mốc, checklist). */
+button.mtc-row{width:100%;font:inherit;text-align:left;cursor:pointer;color:inherit}
+button.mtc-row[aria-expanded="true"]{border-color:var(--gold,#b8892b);border-bottom-left-radius:0;border-bottom-right-radius:0}
+.mtc-row.dang{border-left:4px solid var(--gold,#b8892b)}
+.mtc-ct{border:1px solid var(--gold,#b8892b);border-top:0;border-radius:0 0 var(--r-sm) var(--r-sm);padding:.7rem .8rem .8rem;margin-top:-.45rem;background:var(--surface)}
+.mtc-ct p{margin:.2rem 0 .5rem;font-size:var(--text-sm);color:var(--text-3);line-height:1.6}
+.mtc-ct .btn{width:100%;min-height:2.8rem;margin:.3rem 0 .6rem}
+.mtc-ck-tieu{font-weight:600;color:var(--text-1)!important;font-size:var(--text-base)!important;margin-top:.6rem!important}
+.mtc-ck{display:flex;gap:.6rem;align-items:flex-start;padding:.45rem 0;border-top:1px dashed var(--border-soft);font-size:var(--text-base);color:var(--text-1);line-height:1.5;cursor:pointer}
+.mtc-ck input{width:1.25rem;height:1.25rem;margin-top:.12rem;flex:none}
+.dtt-so{font-family:var(--f-mono);font-size:var(--text-lg);font-weight:700;color:var(--text-1);margin:0 0 .3rem}
+.viec-sau{display:block;margin:.6rem auto 0;background:none;border:0;color:var(--text-3);text-decoration:underline;font:inherit;font-size:var(--text-sm);cursor:pointer;min-height:2.4rem}
 .sua-tg{display:inline-flex;border:1.5px solid var(--border-soft);border-radius:var(--r-sm);overflow:hidden;margin:.2rem 0 .9rem}
 .sua-tg button{border:0;background:var(--surface);color:var(--text-1);font:inherit;font-size:var(--text-base);padding:.6rem 1.1rem;min-height:2.9rem;cursor:pointer}
 .sua-tg button[aria-pressed="true"]{background:var(--gold);color:var(--on-gold);font-weight:600}
@@ -558,6 +571,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span class="block-title" data-chu="viec.tieu_de">Việc tiếp theo</span>
       </div>
       <div id="viecBody"></div>
+    </section>
+
+    <!-- PR-6a — Đã thanh toán (hồ sơ gói đã bật): số tiền ALN đã nhận, ngày, câu hoá đơn. Ngay trên khối mốc. -->
+    <section class="block" id="daTtBlock" hidden>
+      <div class="block-head">
+        <span class="block-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg></span>
+        <span class="block-title" data-chu="dtt.tieu_de">Đã thanh toán</span>
+      </div>
+      <div id="daTtBody"></div>
     </section>
 
     <!-- PR-5 — Mốc thi công + chủ nhà tự sửa danh sách sàn (hồ sơ Gói Quản lý Thi công). Máy chủ: qltcDanhSachSan. -->
@@ -768,6 +790,7 @@ const callQltcMoTheoMa = httpsCallable(functionsInst, 'qltcMoTheoMa');
 const callQltcDanhSachSan = httpsCallable(functionsInst, 'qltcDanhSachSan');
 const callQltcBaoPhi = httpsCallable(functionsInst, 'qltcBaoPhi');
 const callQltcThanhToan = httpsCallable(functionsInst, 'qltcThanhToan');
+const callQltcMoc = httpsCallable(functionsInst, 'qltcMoc');
 
 const els = {
   loading: document.getElementById('state-loading'),
@@ -795,6 +818,8 @@ const els = {
   viecBlock: document.getElementById('viecBlock'),
   viecBody: document.getElementById('viecBody'),
   mocTcBlock: document.getElementById('mocTcBlock'),
+  daTtBlock: document.getElementById('daTtBlock'),
+  daTtBody: document.getElementById('daTtBody'),
   mocTcBody: document.getElementById('mocTcBody'),
   themBlock: document.getElementById('themBlock'),
 
@@ -1179,15 +1204,52 @@ function daDongYDuLieu(h) {
   return t.dong_y === true && !!phienBanDuLieuNha && t.phien_ban_dieu_khoan === phienBanDuLieuNha;
 }
 function coUpload(loai) { return uploadItems.some((u) => u.loai === loai); }
+/* PR-6a — "Tải lên sau" ở bước dự toán: nhớ trên máy theo hồ sơ; dự toán vẫn tải được trong "Thêm". */
+function taiSau() { try { return localStorage.getItem('aln_kgn_tai_sau_' + currentHouseId) === '1'; } catch (e) { return false; } }
+function datTaiSau() { try { localStorage.setItem('aln_kgn_tai_sau_' + currentHouseId, '1'); } catch (e) { /* không lưu được thì thôi */ } }
+
+/* ── PR-6a: mốc thi công sau khi gói bật — cấu hình checklist (máy chủ qltcMoc) + chọn việc theo mốc ── */
+let mocCfg = null; let mocCfgFor = null;
+function cfgLoai(loai) { return (mocCfg && mocCfg.loai && mocCfg.loai[loai]) || { truoc_khi: '', nut_xong: '', muc: [] }; }
+async function napMocCfg(houseId) {
+  if (mocCfgFor === houseId) return;
+  mocCfgFor = houseId; mocCfg = null;
+  try {
+    const r = await callQltcMoc({ hanh_dong: 'cau_hinh', houseId });
+    if (houseId !== currentHouseId) return;
+    mocCfg = (r.data && r.data.cau_hinh) || { loai: {} };
+  } catch (e) {
+    console.error('[khong-gian-nha] qltcMoc cau_hinh lỗi:', e);
+    if (houseId !== currentHouseId) return;
+    mocCfg = { loai: {}, loi: true };
+  }
+  renderViec(); renderMocTc();
+}
+function dsMocTc() {
+  const byCode = window.__khMocByCode || {};
+  return Object.keys(byCode).map((id) => Object.assign({ id }, byCode[id]))
+    .filter((m) => m.loai_moc === 'thi_cong' && m.da_bo !== true)
+    .sort((a, b) => (a.thu_tu || 0) - (b.thu_tu || 0));
+}
+function ttMoc(m) { return ['chua_lam', 'dang_lam', 'xong'].includes(m.trang_thai) ? m.trang_thai : 'chua_lam'; }
+/** Việc theo mốc: mốc đang làm → khép mốc; chưa có → bắt đầu mốc kế tiếp; hết → đã xong. */
+function viecMoc() {
+  const ds = dsMocTc();
+  const dang = ds.find((m) => ttMoc(m) === 'dang_lam');
+  if (dang) return { kieu: 'dang_lam', m: dang };
+  const toi = ds.find((m) => ttMoc(m) === 'chua_lam');
+  if (toi) return { kieu: cfgLoai(toi.loai_san).muc.length ? 'bat_dau' : 'bat_dau_trong', m: toi };
+  return { kieu: ds.length ? 'het' : 'cho', m: null };
+}
 
 /** Chọn đúng 1 việc tiếp theo theo trạng thái hồ sơ. */
 function chonViec(h) {
   if (laHoSoGoi(h)) {
     if (!daDongYDuLieu(h)) return 'dong_y';
     const loai = h.buoc_xay === 'co_ban_ve_du_toan' ? 'du_toan' : 'ban_ve';
-    if (!coUpload(loai)) return loai === 'du_toan' ? 'tai_du_toan' : 'tai_ban_ve';
+    if (!coUpload(loai) && !(loai === 'du_toan' && taiSau())) return loai === 'du_toan' ? 'tai_du_toan' : 'tai_ban_ve';
     if (h.gia_ap_dung == null) return 'kiem_san';
-    return 'theo_doi';
+    return 'moc';
   }
   if (!h.phieu_yeu_cau) return 'phieu';
   if (!coUpload('ban_ve')) return 'gui_ban_ve';
@@ -1242,17 +1304,28 @@ function renderViec() {
     return;
   }
   const viec = chonViec(h);
+  if (viec === 'moc' && mocCfgFor !== currentHouseId) napMocCfg(currentHouseId);
+  const vm = viec === 'moc' ? viecMoc() : null;
+  const khoaViec = vm ? ['moc', vm.kieu, vm.m ? vm.m.id : '', mocCfg ? 1 : 0].join(':') : viec;
   // Việc đồng ý: đưa chính ô đồng ý (aln-dong-y-du-lieu.js) lên thẻ — nút "Đồng ý" của nó là nút chính.
   if (viec !== 'dong_y' && dydlBox.parentNode !== dydlBlock) dydlBlock.appendChild(dydlBox);
-  if (viec === viecDangVe && (viec !== 'dong_y' || dydlBox.parentNode === els.viecBody)) { renderSteps(); return; }
-  viecDangVe = viec;
+  if (khoaViec === viecDangVe && (viec !== 'dong_y' || dydlBox.parentNode === els.viecBody)) { renderSteps(); return; }
+  viecDangVe = khoaViec;
   const body = els.viecBody;
   body.textContent = '';
   const ten = document.createElement('p'); ten.className = 'viec-ten';
   const moTa = document.createElement('p'); moTa.className = 'viec-mo-ta';
-  ten.textContent = T('viec.' + viec + '.ten');
-  moTa.textContent = T('viec.' + viec + '.mo_ta');
-  body.appendChild(ten); body.appendChild(moTa);
+  if (vm) {
+    const c = vm.m ? cfgLoai(vm.m.loai_san) : null;
+    const kv = 'viec.moc_' + (!mocCfg && vm.m ? 'cho' : vm.kieu); // khoá động: KHOA_DONG trong scripts/check-qltc-chu.js
+    ten.textContent = T(kv + '.ten', vm.m ? { ten: vm.m.ten || '', n: c.muc.length, truoc_khi: c.truoc_khi, nut_xong: c.nut_xong } : null);
+    moTa.textContent = T(kv + '.mo_ta');
+  } else {
+    ten.textContent = T('viec.' + viec + '.ten');
+    moTa.textContent = T('viec.' + viec + '.mo_ta');
+  }
+  body.appendChild(ten);
+  if (moTa.textContent) body.appendChild(moTa);
   const nut = (chu, onClick, lienKet) => {
     const b = document.createElement(lienKet ? 'a' : 'button');
     b.className = 'btn btn-gold viec-nut';
@@ -1264,8 +1337,17 @@ function renderViec() {
     return b;
   };
   if (viec === 'dong_y') body.appendChild(dydlBox);
-  else if (viec === 'tai_du_toan' || viec === 'tai_ban_ve') {
+  else if (vm) {
+    const kv = 'viec.moc_' + vm.kieu;
+    if (vm.m && mocCfg) nut(T(kv + '.nut'), () => moMoc(vm.m.id)).dataset.xem = '1';
+  } else if (viec === 'tai_du_toan' || viec === 'tai_ban_ve') {
     nut(T('viec.' + viec + '.nut'), () => { els.themBlock.open = true; openFilePicker(viec === 'tai_du_toan' ? 'du_toan' : 'ban_ve'); });
+    if (viec === 'tai_du_toan' && !XEM_FOUNDER) {
+      const sau = document.createElement('button'); sau.type = 'button'; sau.className = 'viec-sau';
+      sau.textContent = T('viec.tai_sau');
+      sau.addEventListener('click', () => { datTaiSau(); renderViec(); });
+      body.appendChild(sau);
+    }
   } else if (viec === 'kiem_san') {
     nut(T('viec.kiem_san.nut'), () => moSuaSan(true));
     // PR-10: chuyển khoản để bật gói — số tiền + STK công ty + nội dung (máy chủ qltcThanhToan).
@@ -1276,7 +1358,7 @@ function renderViec() {
   else if (viec === 'phieu') nut(T('viec.phieu.nut'), null, 'phieu');
   else if (viec === 'gui_ban_ve') nut(T('viec.gui_ban_ve.nut'), () => { els.themBlock.open = true; openFilePicker('ban_ve'); });
   else if (viec === 'zalo') nut(T('viec.zalo.nut'), null, 'zalo');
-  if (XEM_FOUNDER) body.querySelectorAll('button').forEach((b) => { b.disabled = true; });
+  if (XEM_FOUNDER) body.querySelectorAll('button:not([data-xem])').forEach((b) => { b.disabled = true; });
   renderSteps();
 }
 
@@ -1319,6 +1401,7 @@ function renderMocTc() {
   const h = currentHouseData;
   const hien = !!(h && laHoSoGoi(h));
   els.mocTcBlock.hidden = !hien;
+  renderDaTt();
   if (!hien) { els.house.classList.remove('dang-sua-san'); return; }
   if (dsSanFor !== currentHouseId) { dsSanFor = currentHouseId; dsSan = null; suaSan = null; napDanhSachSan(currentHouseId); }
   const body = els.mocTcBody;
@@ -1330,10 +1413,9 @@ function renderMocTc() {
   const phiTheoMa = {};
   if (goi && Array.isArray(goi.moc)) goi.moc.forEach((m) => { phiTheoMa[m.ma_moc] = m; });
   // Mốc từ Firestore (trạng thái thật); chưa có thì dùng danh sách tính phí.
-  const byCode = window.__khMocByCode || {};
-  let ds = Object.keys(byCode).map((id) => Object.assign({ id }, byCode[id]))
-    .filter((m) => m.loai_moc === 'thi_cong' && m.da_bo !== true)
-    .sort((a, b) => (a.thu_tu || 0) - (b.thu_tu || 0));
+  const daBat = !!dsSan.goi_da_bat;
+  if (daBat && mocCfgFor !== currentHouseId) napMocCfg(currentHouseId);
+  let ds = dsMocTc();
   if (!ds.length && goi && goi.moc) ds = goi.moc.map((m) => ({ id: m.ma_moc, ten: m.ten, dien_tich_m2: m.dien_tich_m2, loai_san: m.loai_san, trang_thai: 'chua_lam' }));
   if (!ds.length) {
     const p = document.createElement('p'); p.className = 'empty-note'; p.textContent = T('moc.chua_co'); body.appendChild(p);
@@ -1341,7 +1423,14 @@ function renderMocTc() {
     const list = document.createElement('div'); list.className = 'mtc-list';
     ds.forEach((m) => {
       // Mã mốc (MONG, L01…) là khoá nội bộ — chỉ hiện tên sàn bằng lời.
-      const row = document.createElement('div'); row.className = 'mtc-row';
+      // PR-6a: gói đã bật → mỗi dòng bấm được, mở chi tiết mốc ngay dưới dòng.
+      const row = document.createElement(daBat ? 'button' : 'div'); row.className = 'mtc-row';
+      if (ttMoc(m) === 'dang_lam') row.classList.add('dang');
+      if (daBat) {
+        row.type = 'button';
+        row.setAttribute('aria-expanded', String(mocMo === m.id));
+        row.addEventListener('click', () => { mocMo = mocMo === m.id ? null : m.id; mocMsg = null; renderMocTc(); });
+      }
       const ten = document.createElement('span'); ten.className = 'mtc-ten'; ten.textContent = m.ten || '';
       const phi = document.createElement('span'); phi.className = 'mtc-phi';
       const p = phiTheoMa[m.id];
@@ -1351,6 +1440,7 @@ function renderMocTc() {
       sub.textContent = (m.dien_tich_m2 != null ? soM2(m.dien_tich_m2) + ' m² · ' : '') + tt;
       row.appendChild(ten); row.appendChild(phi); row.appendChild(sub);
       list.appendChild(row);
+      if (daBat && mocMo === m.id) list.appendChild(veChiTietMoc(m));
     });
     body.appendChild(list);
   }
@@ -1367,7 +1457,6 @@ function renderMocTc() {
   if (dsSan.msg) { const p = document.createElement('p'); p.className = 'mtc-msg ok'; p.textContent = dsSan.msg; body.appendChild(p); }
   if (dsSan.goi_da_bat) {
     const p = document.createElement('p'); p.className = 'mtc-note'; p.textContent = T('moc.goi_da_bat'); body.appendChild(p);
-    const hd = document.createElement('p'); hd.className = 'mtc-note'; hd.textContent = T('tt.hoa_don'); body.appendChild(hd);
   } else if (dsSan.duoc_sua && dsSan.danh_sach_san) {
     const b = document.createElement('button'); b.type = 'button'; b.className = 'btn btn-ghost'; b.textContent = T('moc.sua');
     b.addEventListener('click', () => moSuaSan(true));
@@ -1375,6 +1464,88 @@ function renderMocTc() {
   } else if (dsSan.danh_sach_san && !XEM_FOUNDER) {
     const p = document.createElement('p'); p.className = 'mtc-note'; p.textContent = T('moc.chi_xem'); body.appendChild(p);
   }
+  const gs = document.createElement('p'); gs.className = 'mtc-note'; gs.textContent = T('m3.khong_thay_giam_sat'); body.appendChild(gs);
+}
+
+/* PR-6a — chi tiết một mốc: trạng thái + thời điểm, nút đổi trạng thái (chỉ chủ nhà), checklist. */
+let mocMo = null; let mocMsg = null; let mocBan = false;
+function ngayVN(ts) {
+  const d = ts && typeof ts.toDate === 'function' ? ts.toDate() : null;
+  return d ? d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '';
+}
+function moMoc(ma) {
+  mocMo = ma; mocMsg = null; renderMocTc();
+  els.mocTcBlock.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+async function goiMoc(data) {
+  if (mocBan) return;
+  mocBan = true; mocMsg = null; renderMocTc();
+  try { await callQltcMoc(Object.assign({ houseId: currentHouseId }, data)); }
+  catch (e) { console.error('[khong-gian-nha] qltcMoc lỗi:', e); mocMsg = (e && e.message) || T('moc.ct.loi'); }
+  mocBan = false; renderMocTc(); renderViec();
+}
+function veChiTietMoc(m) {
+  const box = document.createElement('div'); box.className = 'mtc-ct';
+  const c = cfgLoai(m.loai_san);
+  const tt = ttMoc(m);
+  const ghi = [];
+  if (m.bat_dau_luc) ghi.push(T('moc.ct.bat_dau_luc', { ngay: ngayVN(m.bat_dau_luc) }));
+  if (m.xong_luc) ghi.push(T('moc.ct.xong_luc', { ngay: ngayVN(m.xong_luc) }));
+  const p = document.createElement('p');
+  p.textContent = T(TT_MOC[tt]) + (ghi.length ? ' · ' + ghi.join(' · ') : '');
+  box.appendChild(p);
+  const coQuyen = !!(dsSan && dsSan.la_chu_nha) && !XEM_FOUNDER;
+  if (!mocCfg) { const q = document.createElement('p'); q.textContent = 'Đang tải…'; box.appendChild(q); return box; }
+  if (coQuyen && tt !== 'xong') {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'btn btn-gold';
+    b.disabled = mocBan;
+    if (tt === 'chua_lam') {
+      b.textContent = T('moc.ct.bat_dau');
+      b.addEventListener('click', () => goiMoc({ hanh_dong: 'bat_dau', ma_moc: m.id }));
+    } else {
+      b.textContent = c.nut_xong;
+      b.addEventListener('click', () => {
+        if (!window.confirm(T('moc.ct.xac_nhan', { ten: m.ten || '', nut_xong: c.nut_xong }))) return;
+        goiMoc({ hanh_dong: 'xong', ma_moc: m.id });
+      });
+    }
+    box.appendChild(b);
+  }
+  if (c.muc.length) {
+    const daTick = (m.checklist && typeof m.checklist === 'object') ? m.checklist : {};
+    const dem = c.muc.filter((x) => daTick[x.id]).length;
+    const t = document.createElement('p'); t.className = 'mtc-ck-tieu';
+    t.textContent = T('moc.ct.checklist', { truoc_khi: c.truoc_khi }) + ' · ' + T('moc.ct.dem', { da: dem, tong: c.muc.length });
+    box.appendChild(t);
+    c.muc.forEach((x) => {
+      const lb = document.createElement('label'); lb.className = 'mtc-ck';
+      const ip = document.createElement('input'); ip.type = 'checkbox'; ip.checked = !!daTick[x.id];
+      ip.disabled = !coQuyen || tt === 'xong' || mocBan;
+      ip.addEventListener('change', () => goiMoc({ hanh_dong: 'tick', ma_moc: m.id, muc_id: x.id, chon: ip.checked }));
+      const sp = document.createElement('span'); sp.textContent = x.chu;
+      lb.appendChild(ip); lb.appendChild(sp); box.appendChild(lb);
+    });
+  }
+  if (mocMsg) { const e = document.createElement('p'); e.className = 'mtc-msg loi'; e.textContent = mocMsg; box.appendChild(e); }
+  return box;
+}
+
+/* PR-6a — khối "Đã thanh toán" ngay trên khối mốc: số tiền ALN đã nhận, ngày, câu hoá đơn. */
+function renderDaTt() {
+  const h = currentHouseData;
+  const t = h && laHoSoGoi(h) && dsSan && dsSan.da_thanh_toan;
+  els.daTtBlock.hidden = !t;
+  if (!t) return;
+  const body = els.daTtBody; body.textContent = '';
+  if (t.so_tien != null) {
+    const a = document.createElement('p'); a.className = 'dtt-so';
+    a.textContent = CHU ? CHU.tien(t.so_tien, t.tien_te) : fmtMoney(t.so_tien); body.appendChild(a);
+  }
+  if (t.ngay) {
+    const [y, mo, d] = t.ngay.split('-');
+    const b = document.createElement('p'); b.className = 'mtc-note'; b.textContent = T('dtt.ngay', { ngay: d + '/' + mo + '/' + y }); body.appendChild(b);
+  }
+  const c = document.createElement('p'); c.className = 'mtc-note'; c.textContent = T('tt.hoa_don'); body.appendChild(c);
 }
 
 function moSuaSan(cuon) {
@@ -1943,6 +2114,7 @@ function loadHouse(houseId) {
   viecDangVe = null;
   dsSanFor = null;
   suaSan = null;
+  mocMo = null; mocMsg = null; mocCfg = null; mocCfgFor = null;
   dtOpenRows.clear();
   resetSoChiForm();
 
@@ -1963,6 +2135,7 @@ function loadHouse(houseId) {
     window.__khMocByCode = byCode;
     renderMoc(byCode, window.__khMocHienTai);
     if (currentHouseData && !suaSan) renderMocTc();
+    if (currentHouseData) renderViec();
   }, (err) => console.error('[khong-gian-nha] onSnapshot moc lỗi:', err)));
 
   unsubscribers.push(onSnapshot(
