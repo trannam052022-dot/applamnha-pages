@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<script src="aln-esc.js"></script>
+<script src="scripts/aln-optout.js"></script>
+<!-- Google Tag Manager -->
+<script src="/aln-consent.js?v=3"></script>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MB7VRGR5');</script>
+<!-- End Google Tag Manager -->
+<script src="error-monitor.js"></script>
+<script src="scripts/aln-estimate-funnel.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Gói Quản lý Thi công | App Làm Nhà</title>
+<meta name="description" content="Chủ nhà tự tạo hồ sơ công trình: nhập các sàn, xem sơ đồ mốc thi công và phí gói, lưu dự toán và bản vẽ vào Không gian Nhà.">
+<!-- Dùng thử (PR-9, 15/10/2026): chưa mở chỉ mục — mở thì đổi robots + thêm vào STATIC_PAGES của tools/gen-sitemap.js -->
+<meta name="robots" content="noindex, follow">
+<link rel="canonical" href="https://applamnha.vn/quan-ly-thi-cong.html">
+<link rel="stylesheet" href="aln-tokens.css">
+<link rel="icon" href="icon-192.png" type="image/png">
+<style>
+/* Trang công khai cho chủ nhà: chữ gốc 16px (CLAUDE.md "Ngoại lệ trang công khai"). Mỗi màn một nút chính. */
+html{font-size:16px}
+:root{
+  --bg:#f3f5f9; --surface:#fff; --ink:#0f1a2e; --muted:#46536b; --line:#cfd6e3;
+  --navy:#0a1224; --gold:#d4a017; --nut:#9a6b08; --nut-2:#6b4906; --good:#17704a; --bad:#a8231b; --focus:#1f5fd1;
+  --san:#e7ecf5; --san-ink:#24324f; --mong:#d9cbb0;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0a1224; --surface:#111c33; --ink:#eef1f7; --muted:#b0bbd2; --line:#2c3c60; --good:#86e0b6; --bad:#f5a39b; --focus:#7aa7ff;
+  --san:#1b2a48; --san-ink:#dce6f4; --mong:#4a3f2b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0a1224; --surface:#111c33; --ink:#eef1f7; --muted:#b0bbd2; --line:#2c3c60; --good:#86e0b6; --bad:#f5a39b; --focus:#7aa7ff;
+  --san:#1b2a48; --san-ink:#dce6f4; --mong:#4a3f2b; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.55;font-size:1rem}
+a{color:var(--focus)}
+.band{background:var(--navy);color:#fff;padding:20px 16px}
+.band .in,.wrap{max-width:720px;margin:0 auto}
+.band a.logo{color:#fff;text-decoration:none;font-weight:700}
+.band h1{margin:10px 0 4px;font-size:1.6rem;line-height:1.25}
+.band p{margin:0;color:#c9d3e6}
+.wrap{padding:16px}
+.man{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 16px;margin:0 0 16px}
+.man h2{margin:0 0 12px;font-size:1.3rem;line-height:1.3}
+.man h3{margin:18px 0 8px;font-size:1.08rem}
+.nho{color:var(--muted);font-size:.92rem}
+.chon{display:grid;gap:12px}
+.chon button{display:block;width:100%;text-align:left;padding:16px;border:2px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font:inherit;cursor:pointer;min-height:64px}
+.chon button b{display:block;font-size:1.08rem}
+.chon button span{color:var(--muted);font-size:.92rem}
+.chon button:hover,.chon button:focus-visible{border-color:var(--nut)}
+.nut{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 22px;border-radius:12px;border:0;background:var(--nut);color:#fff;font:inherit;font-weight:700;font-size:1.05rem;cursor:pointer;width:100%;text-decoration:none}
+.nut:hover{background:var(--nut-2)}
+.nut:disabled{opacity:.55;cursor:not-allowed}
+.lui{background:none;border:0;color:var(--focus);font:inherit;padding:8px 0;cursor:pointer;text-decoration:underline;margin-bottom:8px}
+.hang{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0}
+.tg{display:inline-flex;gap:0;border:2px solid var(--line);border-radius:12px;overflow:hidden}
+.tg button{border:0;background:var(--surface);color:var(--ink);font:inherit;padding:10px 16px;min-height:48px;cursor:pointer}
+.tg button[aria-pressed="true"]{background:var(--nut);color:#fff;font-weight:700}
+.dem{display:inline-flex;align-items:center;gap:8px}
+.dem button{width:48px;height:48px;border-radius:12px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font-size:1.4rem;cursor:pointer}
+.dem output{min-width:40px;text-align:center;font-size:1.3rem;font-weight:700}
+label.ck{display:flex;gap:10px;align-items:flex-start;margin:10px 0;cursor:pointer;line-height:1.5}
+label.ck input{width:22px;height:22px;flex:0 0 22px;margin-top:2px}
+.o{display:block;margin:12px 0}
+.o > span{display:block;font-weight:600;margin-bottom:6px}
+.o input,.o select{width:100%;min-height:50px;border:2px solid var(--line);border-radius:10px;padding:0 12px;font:inherit;font-size:1.05rem;background:var(--surface);color:var(--ink)}
+.o input:focus,.tg button:focus-visible,.nut:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.loi{color:var(--bad);font-weight:600;margin:10px 0}
+.ok{color:var(--good);font-weight:700}
+.canh{border-left:4px solid var(--gold);background:rgba(212,160,23,.1);padding:10px 12px;border-radius:6px;margin:14px 0;font-size:.95rem}
+.sodo{width:100%;max-width:460px;display:block;margin:6px auto 4px}
+.sodo text{font-family:inherit}
+table.moc{width:100%;border-collapse:collapse;margin:8px 0}
+table.moc th,table.moc td{padding:8px 4px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+table.moc td.so{text-align:right;white-space:nowrap}
+table.moc input{width:68px;min-height:44px;border:2px solid var(--line);border-radius:8px;padding:0 8px;font:inherit;background:var(--surface);color:var(--ink);text-align:right}
+table.moc .ma{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85rem;color:var(--muted)}
+.tong{display:flex;justify-content:space-between;gap:10px;font-size:1.15rem;font-weight:700;padding:12px 0;border-top:2px solid var(--ink)}
+.mahs{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1.5rem;font-weight:700;letter-spacing:.02em;background:var(--san);color:var(--san-ink);padding:10px 14px;border-radius:10px;display:inline-block}
+.tai{border:2px dashed var(--line);border-radius:12px;padding:16px;text-align:center;cursor:pointer;display:block}
+.tai input{display:none}
+ol.moc4{padding-left:22px}
+ol.moc4 li{margin:6px 0}
+footer{max-width:720px;margin:0 auto;padding:16px 16px 40px;color:var(--muted);font-size:.9rem}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+</style>
+<!-- Meta Pixel (không lưu dữ liệu khi chưa đồng ý cookie Quảng cáo — aln-consent.js) -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('set', 'autoConfig', false, '1656666692225878');
+fbq('consent', window.ALN_QC===true?'grant':'revoke');
+fbq('init', '1656666692225878');
+fbq('track', 'PageView');
+</script>
+<!-- Google Analytics 4 (ALN — G-5CSL1TF0RC, tách riêng khỏi property TK.HOUSE) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-5CSL1TF0RC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-5CSL1TF0RC');
+</script>
+<!-- End GA4 -->
+<script>window.ALN_PAGE_LABEL = 'quan-ly-thi-cong';</script>
+<script src="aln-tracking.js"></script>
+<script src="aln-pricing.js"></script>
+<script src="aln-dong-y-du-lieu.js"></script>
+</head>
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MB7VRGR5"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+<header class="band"><div class="in">
+  <a class="logo" href="/">App Làm Nhà</a>
+  <h1>Gói Quản lý Thi công</h1>
+  <p>Tạo hồ sơ cho công trình của anh/chị, xem các mốc thi công theo từng sàn và phí gói trước khi quyết định.</p>
+</div></header>
+
+<main class="wrap">
+  <!-- Màn 1 -->
+  <section class="man" id="m1">
+    <h2>Nhà anh/chị đang ở bước nào?</h2>
+    <div class="chon">
+      <button type="button" data-buoc="co_ban_ve_du_toan"><b>Đã có bản vẽ và dự toán</b><span>Tạo hồ sơ, tải dự toán lên để theo dõi khi xây.</span></button>
+      <button type="button" data-buoc="co_ban_ve"><b>Đã có bản vẽ, chưa có dự toán</b><span>Tạo hồ sơ, tải bản vẽ lên.</span></button>
+      <button type="button" data-buoc="chua_ban_ve"><b>Chưa có bản vẽ</b><span>Xem phí thiết kế, để số cho KTS của ALN gọi.</span></button>
+    </div>
+  </section>
+
+  <!-- Lối 1, 2 — câu 1 + câu 2 -->
+  <section class="man" id="m2" hidden>
+    <button type="button" class="lui" data-ve="m1">← Quay lại</button>
+    <h2>Nhà anh/chị gồm những sàn nào?</h2>
+    <div class="hang">
+      <div class="tg" role="group" aria-label="Loại công trình">
+        <button type="button" data-loai="nha_pho" aria-pressed="true">Nhà phố</button>
+        <button type="button" data-loai="biet_thu" aria-pressed="false">Biệt thự</button>
+      </div>
+    </div>
+    <div class="hang"><span>Số lầu (không tính trệt):</span>
+      <span class="dem"><button type="button" id="lauBot" aria-label="Bớt một lầu">−</button><output id="soLau">2</output><button type="button" id="lauThem" aria-label="Thêm một lầu">+</button></span>
+    </div>
+    <label class="ck"><input type="checkbox" id="coHam"><span>Có tầng hầm</span></label>
+    <label class="ck"><input type="checkbox" id="coLung"><span>Có lửng</span></label>
+    <label class="ck"><input type="checkbox" id="coSanThuong" checked><span>Có sân thượng</span></label>
+    <label class="ck"><input type="checkbox" id="coMai"><span>Có mái (mái bê tông hoặc mái ngói đổ sàn)</span></label>
+    <label class="o"><span>Diện tích mỗi sàn khoảng bao nhiêu m²?</span>
+      <input id="dtSan" type="text" inputmode="decimal" autocomplete="off" placeholder="VD: 80">
+    </label>
+    <p class="nho">Chưa chắc số nào thì nhập số gần đúng; bước sau sửa được từng sàn.</p>
+    <p class="loi" id="m2Loi" hidden></p>
+    <button type="button" class="nut" id="m2Nut">Xem sơ đồ và phí</button>
+  </section>
+
+  <!-- Lối 1, 2 — sơ đồ + mốc + phí -->
+  <section class="man" id="m3" hidden>
+    <button type="button" class="lui" data-ve="m2">← Sửa số sàn</button>
+    <h2>Sơ đồ mốc thi công</h2>
+    <svg class="sodo" id="sodo" role="img" aria-label="Mặt cắt các sàn của nhà"></svg>
+    <table class="moc"><thead><tr><th>Mốc</th><th>m²</th><th class="so">Phí</th></tr></thead><tbody id="mocBody"></tbody></table>
+    <h3>Hạng mục ngoài nhà</h3>
+    <label class="ck"><input type="checkbox" data-hm="cong_tuong_rao"><span>Cổng, tường rào</span></label>
+    <label class="ck"><input type="checkbox" data-hm="ho_boi"><span>Hồ bơi</span></label>
+    <label class="ck"><input type="checkbox" data-hm="nha_phu"><span>Nhà phụ</span></label>
+    <div class="tong"><span>Phí gói</span><span id="tongPhi">—</span></div>
+    <p class="nho" id="cauGia"></p>
+    <p class="nho" id="heSoNote" hidden></p>
+    <p class="loi" id="m3Loi" hidden></p>
+    <p class="canh">Gói Quản lý Thi công là công cụ để anh/chị tự theo dõi công trình của mình — không thay thế công tác giám sát thi công.</p>
+    <button type="button" class="nut" id="m3Nut">Tạo hồ sơ cho nhà tôi</button>
+  </section>
+
+  <!-- Lối 1, 2 — họ tên + SĐT + OTP -->
+  <section class="man" id="m4" hidden>
+    <button type="button" class="lui" data-ve="m3">← Quay lại sơ đồ</button>
+    <h2>Xác nhận số điện thoại để tạo hồ sơ</h2>
+    <div id="m4Nhap">
+      <label class="o"><span>Họ tên</span><input id="hoTen" type="text" autocomplete="name" maxlength="80"></label>
+      <label class="o"><span>Số điện thoại</span><input id="sdt" type="tel" inputmode="numeric" autocomplete="tel" maxlength="14" placeholder="VD: 0909 123 456"></label>
+      <label class="ck"><input type="checkbox" id="dongY"><span id="dongYText"></span></label>
+      <label class="ck"><input type="checkbox" id="dongYQc"><span><span id="dongYQcText"></span> <i class="nho">Không bắt buộc.</i></span></label>
+      <p class="nho">ALN gửi mã 6 số qua tin nhắn để chắc chắn đúng số của anh/chị. <a href="/chinh-sach-quyen-rieng-tu/" target="_blank" rel="noopener">Chính sách quyền riêng tư</a>.</p>
+      <div id="recaptcha-qltc"></div>
+      <p class="loi" id="m4Loi" hidden></p>
+      <button type="button" class="nut" id="guiMa">Gửi mã xác nhận</button>
+    </div>
+    <div id="m4Ma" hidden>
+      <p>Mã đã gửi tới số <b id="sdtHien"></b>.</p>
+      <label class="o"><span>Mã xác nhận (6 số)</span><input id="ma" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></label>
+      <p class="loi" id="m4MaLoi" hidden></p>
+      <button type="button" class="nut" id="xacNhan">Xác nhận và tạo hồ sơ</button>
+      <button type="button" class="lui" id="doiSo">Đổi số điện thoại</button>
+    </div>
+  </section>
+
+  <!-- Lối 1, 2 — đã tạo hồ sơ -->
+  <section class="man" id="m5" hidden>
+    <h2>Đã tạo hồ sơ cho nhà anh/chị</h2>
+    <p>Mã hồ sơ:</p>
+    <p><span class="mahs" id="maHs"></span></p>
+    <p class="nho">Ghi lại mã này — ALN dùng mã này khi trao đổi, chuyển khoản và mở lại hồ sơ.</p>
+    <h3>1. Đồng ý dữ liệu</h3>
+    <div id="dydlBox"></div>
+    <h3 id="taiTieuDe">2. Tải dự toán lên</h3>
+    <label class="tai" for="taiFile"><input type="file" id="taiFile" accept=".pdf,.jpg,.jpeg,.png,.heic,.xlsx,.xls,.dwg"><span id="taiNhan">Bấm để chọn file (PDF, ảnh, Excel, DWG — tối đa 50 MB)</span></label>
+    <p class="nho" id="taiTrangThai"></p>
+    <h3>3. Thanh toán</h3>
+    <p>Phí gói: <b id="m5Phi"></b> (chưa gồm thuế GTGT).</p>
+    <p class="nho">Bước thanh toán đang được mở trên trang này. Trong lúc chờ, KTS của ALN sẽ gọi để xác nhận lại danh sách sàn trước khi bật gói.</p>
+    <!-- Lời nhắc "không thay thế giám sát thi công" của màn này nằm trong khối đồng ý (aln-dong-y-du-lieu.js). -->
+    <a class="nut" id="moKgn" href="khong-gian-nha.html">Mở Không gian Nhà</a>
+  </section>
+
+  <!-- Lối 3 — chưa có bản vẽ -->
+  <section class="man" id="t1" hidden>
+    <button type="button" class="lui" data-ve="m1">← Quay lại</button>
+    <h2>Chưa có bản vẽ: bắt đầu từ thiết kế</h2>
+    <div class="hang">
+      <div class="tg" role="group" aria-label="Loại công trình">
+        <button type="button" data-loai3="nha_pho" aria-pressed="true">Nhà phố</button>
+        <button type="button" data-loai3="biet_thu" aria-pressed="false">Biệt thự</button>
+      </div>
+    </div>
+    <p>Phí thiết kế: <b id="tkDonGia">—</b>.</p>
+    <label class="o"><span>Tổng diện tích sàn dự kiến (m², không bắt buộc)</span>
+      <input id="tkDt" type="text" inputmode="decimal" autocomplete="off" placeholder="VD: 240"></label>
+    <p id="tkPhi" hidden></p>
+    <p>Thanh toán theo 4 mốc:</p>
+    <ol class="moc4" id="tkMoc"></ol>
+    <h3>Để số cho KTS của ALN gọi</h3>
+    <label class="o"><span>Họ tên</span><input id="tkTen" type="text" autocomplete="name" maxlength="80"></label>
+    <label class="o"><span>Số điện thoại</span><input id="tkSdt" type="tel" inputmode="numeric" autocomplete="tel" maxlength="14" placeholder="VD: 0909 123 456"></label>
+    <label class="o"><span>Buổi tiện nghe máy</span>
+      <select id="tkGio"><option value="">Buổi nào cũng được</option><option value="sang">Buổi sáng</option><option value="trua">Buổi trưa</option><option value="chieu">Buổi chiều</option><option value="toi">Buổi tối</option></select></label>
+    <label class="ck"><input type="checkbox" id="tkDongY"><span id="tkDongYText"></span></label>
+    <label class="ck"><input type="checkbox" id="tkDongYQc"><span><span id="tkDongYQcText"></span> <i class="nho">Không bắt buộc.</i></span></label>
+    <p class="loi" id="t1Loi" hidden></p>
+    <button type="button" class="nut" id="t1Nut">Nhờ KTS gọi lại</button>
+  </section>
+
+  <section class="man" id="t2" hidden>
+    <h2>ALN đã nhận thông tin</h2>
+    <p>KTS của ALN sẽ gọi anh/chị trong 1–2 ngày làm việc<span id="t2Gio"></span>.</p>
+    <p class="nho">Cần gấp: gọi hoặc nhắn Zalo 0909 829 696.</p>
+  </section>
+</main>
+<footer>Công ty TNHH ALN · <a href="/chinh-sach-quyen-rieng-tu/">Chính sách quyền riêng tư</a></footer>
+<!-- ALN-PHAP-NHAN --><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"><style id="alnpn-css">.alnpn,.alnpn *{box-sizing:border-box;margin:0;padding:0;border:0;font:inherit;letter-spacing:normal;text-transform:none;text-shadow:none;float:none;background:none;min-width:0}.alnpn{display:block;width:100%;clear:both;position:relative;z-index:0;background:#0b1428;border-top:2px solid #d4a017;color:#cbd5e1;font-family:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:15px;font-weight:400;line-height:1.5;text-align:left;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;padding:28px 20px 88px}.alnpn-in{max-width:1280px;margin:0 auto;display:grid;gap:22px}.alnpn-brand{display:flex;align-items:center;gap:14px}.alnpn-brand img{display:block;flex:none;width:44px;height:44px;border-radius:10px}.alnpn-ten{font-weight:700;font-size:17px;line-height:1.3;letter-spacing:.03em;color:#fff}.alnpn-sub{margin-top:2px;font-size:13px;line-height:1.4;color:#9fb0c8}.alnpn-muc dt{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;line-height:1.3;letter-spacing:.08em;text-transform:uppercase;color:#e0b43a;margin-bottom:6px}.alnpn-muc dt svg{display:block;flex:none;width:16px;height:16px;fill:none;stroke:#e0b43a;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.alnpn-muc dd{font-size:15px;font-weight:500;line-height:1.45;color:#f1f5f9}.alnpn-mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:600;letter-spacing:.02em}.alnpn a{color:#fff;text-decoration:none}.alnpn a:hover,.alnpn a:focus-visible{color:#e0b43a;outline:none}.alnpn-note{font-size:13px;font-weight:400;color:#9fb0c8;margin-left:8px;white-space:nowrap}@media (min-width:768px){.alnpn{padding:26px 28px}.alnpn-in{grid-template-columns:auto auto auto auto;justify-content:space-between;align-items:stretch;gap:0}.alnpn-brand{align-self:center}.alnpn-muc{padding:0 0 0 28px;margin-left:28px;border-left:1px solid rgba(224,180,58,.22)}}@media (min-width:768px) and (max-width:1099px){.alnpn-in{grid-template-columns:auto minmax(0,1fr) auto;justify-content:stretch;row-gap:20px}.alnpn-brand{grid-column:1/-1;align-self:start}.alnpn-muc:nth-child(2){border-left:0;margin-left:0;padding-left:0}}</style><section class="alnpn" aria-label="Thông tin doanh nghiệp"><div class="alnpn-in"><div class="alnpn-brand"><img src="/icon-192.png" alt="" width="44" height="44" loading="lazy"><div><div class="alnpn-ten">CÔNG TY TNHH ALN</div><div class="alnpn-sub">Đơn vị chủ quản website applamnha.vn</div></div></div><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M10 12h5M10 16h5"/></svg>Mã số thuế</dt><dd class="alnpn-mono">3502593013</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-6-5.3-6-11a6 6 0 1 1 12 0c0 5.7-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/></svg>Địa chỉ</dt><dd>Khu TTTM Sonadezi 536 Trung Sơn, Ngãi Giao, TP. Hồ Chí Minh</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 5 5L14 13l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>Hotline</dt><dd><a class="alnpn-mono" href="tel:0909829696">0909 829 696</a><span class="alnpn-note">KTS Trần Long</span></dd></dl></div></section>
+
+<script type="module">
+/* quan-ly-thi-cong.html — cửa vào tự phục vụ Gói Quản lý Thi công (đợt 2, PR-9).
+   Máy chủ: functions/qltcCuaVao.js (qltcBaoPhi, qltcTaoHoSo, qltcGuiLead). Phí tính trên máy
+   chủ theo bảng giá hiện hành — trang không giữ con số giá nào. Chỉ textContent/createElement. */
+const $ = (id) => document.getElementById(id);
+const ST = { buoc: null, loai: 'nha_pho', lau: 2, san: [], hm: [], goi: null, loai3: 'nha_pho', houseId: null, ma: null };
+let FB = null;
+async function napFb() {
+  if (FB) return FB;
+  const c = await import('/firebase-config.js');
+  const f = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js');
+  const fn = f.getFunctions(c.app, 'asia-southeast1');
+  FB = { c, call: (ten) => f.httpsCallable(fn, ten, { timeout: 30000 }) };
+  return FB;
+}
+const C = await import('/consent-constants.js').catch(() => null);
+if (C) {
+  $('dongYText').textContent = C.CONSENT_TEXTS.qltc;
+  $('tkDongYText').textContent = C.CONSENT_TEXTS.qltc;
+  $('dongYQcText').textContent = C.CONSENT_TEXTS.quang_cao;
+  $('tkDongYQcText').textContent = C.CONSENT_TEXTS.quang_cao;
+}
+const soVN = (n) => Number(n).toLocaleString('vi-VN');
+const day = (ev, p) => { try { (window.dataLayer = window.dataLayer || []).push(Object.assign({ event: ev }, p || {})); } catch (e) { /* bỏ qua */ } };
+const tinHieu = () => { try { return (window.alnEstimateFunnel && window.alnEstimateFunnel.signals()) || {}; } catch (e) { return {}; } };
+const attr = () => { try { return window.alnAttr ? window.alnAttr.forLead() : null; } catch (e) { return null; } };
+function bao(id, msg) { const e = $(id); e.textContent = msg || ''; e.hidden = !msg; }
+function soDuong(v) { const n = Number(String(v || '').replace(/\s/g, '').replace(',', '.')); return Number.isFinite(n) && n > 0 ? n : null; }
+function chuanSdt(v) { let d = String(v || '').replace(/\D/g, ''); if (/^84\d{9}$/.test(d)) d = '0' + d.slice(2); return /^0\d{9}$/.test(d) ? d : null; }
+function hien(id) {
+  for (const m of ['m1', 'm2', 'm3', 'm4', 'm5', 't1', 't2']) $(m).hidden = m !== id;
+  $(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+document.querySelectorAll('[data-ve]').forEach((b) => b.addEventListener('click', () => hien(b.dataset.ve)));
+
+/* ── Màn 1 ── */
+document.querySelectorAll('#m1 [data-buoc]').forEach((b) => b.addEventListener('click', () => {
+  ST.buoc = b.dataset.buoc;
+  day('aln_qltc_buoc', { buoc_xay: ST.buoc });
+  if (ST.buoc === 'chua_ban_ve') { hien('t1'); veThietKe(); return; }
+  $('taiTieuDe').textContent = ST.buoc === 'co_ban_ve_du_toan' ? '2. Tải dự toán lên' : '2. Tải bản vẽ lên';
+  hien('m2');
+}));
+
+/* ── Câu 1 + câu 2 ── */
+function chonNhom(sel, attrName, giaTri) {
+  document.querySelectorAll(sel).forEach((x) => x.setAttribute('aria-pressed', String(x.dataset[attrName] === giaTri)));
+}
+document.querySelectorAll('[data-loai]').forEach((b) => b.addEventListener('click', () => { ST.loai = b.dataset.loai; chonNhom('[data-loai]', 'loai', ST.loai); }));
+$('lauBot').addEventListener('click', () => { ST.lau = Math.max(0, ST.lau - 1); $('soLau').textContent = String(ST.lau); });
+$('lauThem').addEventListener('click', () => { ST.lau = Math.min(12, ST.lau + 1); $('soLau').textContent = String(ST.lau); });
+function dungSan(dt) {
+  const s = [{ loai: 'mong', dien_tich_m2: dt }];
+  if ($('coHam').checked) s.push({ loai: 'ham', dien_tich_m2: dt });
+  s.push({ loai: 'tret', dien_tich_m2: dt });
+  if ($('coLung').checked) s.push({ loai: 'lung', dien_tich_m2: Math.round(dt * 0.5 * 100) / 100 });
+  for (let i = 0; i < ST.lau; i++) s.push({ loai: 'lau', dien_tich_m2: dt });
+  if ($('coSanThuong').checked) s.push({ loai: 'san_thuong', dien_tich_m2: dt });
+  if ($('coMai').checked) s.push({ loai: 'mai', dien_tich_m2: dt });
+  return s;
+}
+$('m2Nut').addEventListener('click', async () => {
+  const dt = soDuong($('dtSan').value);
+  if (!dt || dt > 10000) { bao('m2Loi', 'Anh/chị nhập diện tích mỗi sàn (m²), ví dụ 80.'); $('dtSan').focus(); return; }
+  bao('m2Loi', '');
+  ST.san = dungSan(dt);
+  const ok = await tinhPhi('m2Nut', 'm2Loi');
+  if (ok) { hien('m3'); day('aln_qltc_so_do', { buoc_xay: ST.buoc, so_san: ST.san.length - 1, loai: ST.loai }); }
+});
+
+/* ── Phí từ máy chủ ── */
+let tinhSeq = 0;
+async function tinhPhi(nutId, loiId) {
+  const seq = ++tinhSeq;
+  const nut = nutId ? $(nutId) : null;
+  if (nut) nut.disabled = true;
+  try {
+    await napFb();
+    const r = await FB.call('qltcBaoPhi')({ che_do: 'goi', loai_cong_trinh: ST.loai, san: ST.san, hang_muc: ST.hm });
+    if (seq !== tinhSeq) return false;
+    ST.goi = r.data.goi;
+    veSoDo();
+    bao(loiId, '');
+    return true;
+  } catch (e) {
+    if (seq === tinhSeq) bao(loiId, (e && e.message) || 'Chưa tính được phí — anh/chị thử lại.');
+    return false;
+  } finally { if (nut) nut.disabled = false; }
+}
+let hen = null;
+function tinhLai() { clearTimeout(hen); hen = setTimeout(() => tinhPhi(null, 'm3Loi'), 400); }
+document.querySelectorAll('[data-hm]').forEach((c) => c.addEventListener('change', () => {
+  ST.hm = Array.from(document.querySelectorAll('[data-hm]')).filter((x) => x.checked).map((x) => x.dataset.hm);
+  tinhLai();
+}));
+
+/* ── Sơ đồ mặt cắt (SVG dựng bằng createElementNS) + bảng mốc ── */
+const NS = 'http://www.w3.org/2000/svg';
+function svgEl(tag, at, text) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in at) e.setAttribute(k, String(at[k]));
+  if (text != null) e.textContent = text;
+  return e;
+}
+function veSoDo() {
+  const g = ST.goi;
+  const svg = $('sodo');
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+  const nha = g.moc.filter((m) => m.dien_tich_m2 != null);
+  const cao = 34;
+  const H = nha.length * cao + 20;
+  svg.setAttribute('viewBox', '0 0 300 ' + H);
+  // Vẽ từ trên xuống: mốc cuối (mái) ở trên cùng, móng dưới cùng.
+  nha.slice().reverse().forEach((m, i) => {
+    const y = 10 + i * cao;
+    const laMong = m.loai_san === 'mong';
+    const rong = m.loai_san === 'mai' ? 220 : 280;
+    const x = (300 - rong) / 2;
+    svg.appendChild(svgEl('rect', { x, y, width: rong, height: cao - 6, rx: 4, fill: laMong ? 'var(--mong)' : 'var(--san)', stroke: 'var(--line)' }));
+    svg.appendChild(svgEl('text', { x: x + 10, y: y + 19, 'font-size': 15, 'font-weight': 600, fill: 'var(--san-ink)' }, m.ten));
+    svg.appendChild(svgEl('text', { x: x + rong - 10, y: y + 19, 'font-size': 12, 'text-anchor': 'end', fill: 'var(--san-ink)' }, m.ma_moc));
+  });
+  const body = $('mocBody');
+  body.textContent = '';
+  g.moc.forEach((m) => {
+    const tr = document.createElement('tr');
+    const td1 = document.createElement('td');
+    td1.appendChild(document.createTextNode(m.ten + ' '));
+    const sp = document.createElement('span'); sp.className = 'ma'; sp.textContent = m.ma_moc; td1.appendChild(sp);
+    const td2 = document.createElement('td');
+    if (m.dien_tich_m2 != null) {
+      const ip = document.createElement('input');
+      ip.type = 'text'; ip.inputMode = 'decimal'; ip.value = String(m.dien_tich_m2).replace('.', ',');
+      ip.setAttribute('aria-label', 'Diện tích ' + m.ten);
+      const idx = viTriSan(m);
+      ip.addEventListener('change', () => {
+        const v = soDuong(ip.value);
+        if (!v || v > 10000 || idx < 0) { bao('m3Loi', 'Diện tích ' + m.ten + ' chưa đúng.'); return; }
+        ST.san[idx].dien_tich_m2 = Math.round(v * 100) / 100;
+        tinhLai();
+      });
+      td2.appendChild(ip);
+    } else td2.textContent = '—';
+    const td3 = document.createElement('td'); td3.className = 'so';
+    td3.textContent = m.loai_san === 'mong' ? 'Không tính' : soVN(m.phi) + ' đ';
+    tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3);
+    body.appendChild(tr);
+  });
+  $('tongPhi').textContent = soVN(g.tong_chua_thue) + ' đ';
+  const P = window.ALN_PRICING;
+  $('cauGia').textContent = (P && P.cauGiaQuanLyThiCong) ? P.cauGiaQuanLyThiCong() : 'Phí chưa gồm thuế GTGT.';
+  const hs = $('heSoNote');
+  hs.hidden = !(g.he_so && g.he_so !== 1);
+  hs.textContent = hs.hidden ? '' : 'Đã nhân hệ số biệt thự ' + String(g.he_so).replace('.', ',') + ' (trước hệ số: ' + soVN(g.tong_truoc_he_so) + ' đ).';
+}
+/* Mốc ↔ dòng sàn: thứ tự xuất hiện của cùng loại sàn (khớp chuanDanhSachSan phía máy chủ). */
+function viTriSan(m) {
+  if (m.loai_san === 'mong') return ST.san.findIndex((s) => s.loai === 'mong');
+  const cung = ST.san.map((s, i) => ({ s, i })).filter((x) => x.s.loai === m.loai_san);
+  const thu = m.loai_san === 'lau' ? Number((/\d+/.exec(m.ten) || ['1'])[0]) : Number((/\d+$/.exec(m.ten) || ['1'])[0]);
+  return cung[thu - 1] ? cung[thu - 1].i : -1;
+}
+
+$('m3Nut').addEventListener('click', () => { day('aln_qltc_tao_bat_dau', { buoc_xay: ST.buoc }); hien('m4'); });
+
+/* ── OTP + tạo hồ sơ ── */
+const LOI_OTP = {
+  'auth/invalid-phone-number': 'Số điện thoại chưa đúng.',
+  'auth/too-many-requests': 'Anh/chị thử quá nhiều lần. Vui lòng đợi vài phút rồi thử lại.',
+  'auth/code-expired': 'Mã đã hết hạn. Bấm “Gửi mã xác nhận” lại.',
+  'auth/invalid-verification-code': 'Mã chưa đúng. Kiểm tra lại 6 số trong tin nhắn.',
+  'auth/quota-exceeded': 'Hệ thống đã gửi quá nhiều mã hôm nay. Anh/chị nhắn Zalo 0909 829 696 để được hỗ trợ.',
+  'auth/network-request-failed': 'Lỗi kết nối mạng. Kiểm tra Internet rồi thử lại.',
+  'auth/captcha-check-failed': 'Xác thực trình duyệt chưa thành công. Bấm gửi mã lại.',
+};
+let XN = null;
+function kiemForm() {
+  const ten = $('hoTen').value.trim();
+  if ((ten.match(/\p{L}/gu) || []).length < 2) { bao('m4Loi', 'Anh/chị nhập họ tên.'); $('hoTen').focus(); return null; }
+  const sdt = chuanSdt($('sdt').value);
+  if (!sdt) { bao('m4Loi', 'Số điện thoại chưa đúng — 10 số, bắt đầu bằng 0.'); $('sdt').focus(); return null; }
+  if (!$('dongY').checked) { bao('m4Loi', 'Anh/chị tick ô đồng ý để ALN tạo hồ sơ.'); return null; }
+  bao('m4Loi', '');
+  return { ten, sdt };
+}
+$('guiMa').addEventListener('click', async () => {
+  const f = kiemForm();
+  if (!f) return;
+  const b = $('guiMa'); b.disabled = true;
+  try {
+    await napFb();
+    const u = FB.c.auth.currentUser;
+    if (u && !u.isAnonymous && u.phoneNumber === '+84' + f.sdt.slice(1)) { await taoHoSo(); return; }
+    const ver = new FB.c.RecaptchaVerifier(FB.c.auth, 'recaptcha-qltc', { size: 'invisible' });
+    try {
+      XN = await FB.c.signInWithPhoneNumber(FB.c.auth, '+84' + f.sdt.slice(1), ver);
+    } finally { try { ver.clear(); } catch (e) { /* bỏ qua */ } const c = $('recaptcha-qltc'); if (c) c.replaceWith(c.cloneNode(false)); }
+    $('sdtHien').textContent = f.sdt;
+    $('m4Nhap').hidden = true; $('m4Ma').hidden = false; $('ma').value = ''; $('ma').focus();
+    day('aln_qltc_otp_gui', {});
+  } catch (e) {
+    bao('m4Loi', LOI_OTP[e && e.code] || 'Chưa gửi được mã. Anh/chị thử lại hoặc nhắn Zalo 0909 829 696.');
+  } finally { b.disabled = false; }
+});
+$('doiSo').addEventListener('click', () => { $('m4Ma').hidden = true; $('m4Nhap').hidden = false; });
+$('xacNhan').addEventListener('click', async () => {
+  const ma = $('ma').value.replace(/\D/g, '');
+  if (ma.length !== 6) { bao('m4MaLoi', 'Mã gồm 6 số.'); return; }
+  const b = $('xacNhan'); b.disabled = true;
+  try {
+    await XN.confirm(ma);
+    bao('m4MaLoi', '');
+    await taoHoSo();
+  } catch (e) {
+    bao('m4MaLoi', LOI_OTP[e && e.code] || (e && e.message) || 'Chưa xác nhận được mã. Anh/chị thử lại.');
+  } finally { b.disabled = false; }
+});
+async function taoHoSo() {
+  const sig = tinHieu();
+  const r = await FB.call('qltcTaoHoSo')({
+    buoc_xay: ST.buoc, loai_cong_trinh: ST.loai, san: ST.san, hang_muc: ST.hm,
+    name: $('hoTen').value.trim(), dongY: $('dongY').checked === true, dongYQuangCao: $('dongYQc').checked === true,
+    utm: sig.utm || {}, fbp: sig.fbp || '', fbc: sig.fbc || '', cookieQc: sig.cookieQc === true,
+    attribution: attr(), sourceUrl: location.origin + location.pathname, optout: window.ALN_INTERNAL === true,
+  });
+  const d = r.data || {};
+  ST.houseId = d.house_id; ST.ma = d.ma_ho_so; ST.goi = d.goi || ST.goi;
+  if (window.fbq && d.lead_id && d.pixel_lead === true) window.fbq('track', 'Lead', { value: 100000, currency: 'VND', content_name: 'quan-ly-thi-cong' }, { eventID: 'lead-' + d.lead_id });
+  if (d.lead_id) day('aln_lead_submit', { form_name: 'quan-ly-thi-cong', buoc_xay: ST.buoc });
+  moXong();
+}
+function moXong() {
+  $('maHs').textContent = ST.ma;
+  $('m5Phi').textContent = ST.goi ? soVN(ST.goi.tong_chua_thue) + ' đ' : '—';
+  $('moKgn').href = 'khong-gian-nha.html?ma=' + encodeURIComponent(ST.ma);
+  hien('m5');
+  const ctl = window.alnDongYDuLieu && window.alnDongYDuLieu.mount($('dydlBox'), {
+    goi: (data) => FB.call('khDongYDuLieu')(Object.assign({ houseId: ST.houseId }, data)),
+  });
+  if (!ctl) return;
+  ctl.capNhat(null);
+  // Trạng thái đồng ý đọc lại từ chính hồ sơ (chủ nhà đọc được houses/{id} — khHouseAccess).
+  try {
+    FB.c.onSnapshot(FB.c.doc(FB.c.db, 'houses', ST.houseId), (snap) => {
+      ctl.capNhat(snap.exists() ? (snap.data() || {}).dong_y_du_lieu : null);
+    }, () => { /* không đọc được thì giữ ô trống, ghi vẫn qua máy chủ */ });
+  } catch (e) { /* bỏ qua */ }
+}
+
+/* ── Tải dự toán / bản vẽ (cùng đường với Không gian Nhà: Storage houses/{id}/uploads/ + khGhiUpload) ── */
+function lamSachTen(name) {
+  const raw = String(name || 'file');
+  const dot = raw.lastIndexOf('.');
+  const base = dot > 0 ? raw.slice(0, dot) : raw;
+  const ext = dot > 0 ? raw.slice(dot).toLowerCase() : '';
+  return (base.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/gi, 'd')
+    .replace(/[^a-zA-Z0-9-_]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').slice(0, 80) || 'file') + ext;
+}
+const RE_DUOI = /\.(pdf|jpe?g|png|heic|xlsx?|dwg)$/i;
+$('taiFile').addEventListener('change', async (e) => {
+  const file = e.target.files && e.target.files[0];
+  e.target.value = '';
+  if (!file || !ST.houseId) return;
+  const tt = $('taiTrangThai');
+  if (!RE_DUOI.test(file.name)) { tt.textContent = 'File chưa đúng loại — nhận PDF, ảnh, Excel hoặc DWG.'; return; }
+  if (file.size > 50 * 1024 * 1024) { tt.textContent = 'File lớn hơn 50 MB.'; return; }
+  tt.textContent = 'Đang tải lên…';
+  try {
+    await napFb();
+    const uploadId = crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(36).slice(2);
+    const path = 'houses/' + ST.houseId + '/uploads/' + uploadId + '_' + lamSachTen(file.name);
+    await FB.c.uploadBytes(FB.c.storageRef(FB.c.storage, path), file);
+    const loai = ST.buoc === 'co_ban_ve_du_toan' ? 'du_toan' : 'ban_ve';
+    await FB.call('khGhiUpload')({ houseId: ST.houseId, storagePath: path, loai, uploadId });
+    tt.textContent = 'Đã tải lên: ' + file.name + '. Có thể tải thêm file khác.';
+    day('aln_qltc_tai_file', { loai });
+  } catch (err) {
+    tt.textContent = 'Chưa tải lên được — anh/chị thử lại hoặc tải sau trong Không gian Nhà.';
+  }
+});
+
+/* ── Lối 3: phí thiết kế + để số ── */
+let tkSeq = 0;
+async function veThietKe() {
+  const seq = ++tkSeq;
+  try {
+    await napFb();
+    const r = await FB.call('qltcBaoPhi')({ che_do: 'thiet_ke', loai_cong_trinh: ST.loai3, dien_tich: soDuong($('tkDt').value) });
+    if (seq !== tkSeq) return;
+    const t = r.data.thiet_ke;
+    $('tkDonGia').textContent = soVN(t.don_gia) + ' ' + t.don_vi + ' (' + t.nhan + ', chưa gồm thuế GTGT)';
+    const ol = $('tkMoc'); ol.textContent = '';
+    t.moc.forEach((m, i) => {
+      const li = document.createElement('li');
+      const tien = t.tien_moc ? ' — ' + soVN(t.tien_moc[i]) + ' đ' : '';
+      li.textContent = m.ma + ' ' + m.ten + ': ' + Math.round(m.ty_le * 100) + '%' + tien + (m.tra_khi ? ' (' + m.tra_khi + ')' : '');
+      ol.appendChild(li);
+    });
+    const p = $('tkPhi');
+    p.hidden = !t.phi_chua_vat;
+    p.textContent = t.phi_chua_vat ? 'Phí thiết kế ước tính cho ' + soVN(Math.round(t.dien_tich)) + ' m²: ' + soVN(t.phi_chua_vat) + ' đ (chưa gồm thuế GTGT).' : '';
+  } catch (e) { if (seq === tkSeq) bao('t1Loi', (e && e.message) || 'Chưa tải được phí thiết kế.'); }
+}
+document.querySelectorAll('[data-loai3]').forEach((b) => b.addEventListener('click', () => { ST.loai3 = b.dataset.loai3; chonNhom('[data-loai3]', 'loai3', ST.loai3); veThietKe(); }));
+let tkHen = null;
+$('tkDt').addEventListener('input', () => { clearTimeout(tkHen); tkHen = setTimeout(veThietKe, 500); });
+$('t1Nut').addEventListener('click', async () => {
+  const ten = $('tkTen').value.trim();
+  if ((ten.match(/\p{L}/gu) || []).length < 2) { bao('t1Loi', 'Anh/chị nhập họ tên.'); $('tkTen').focus(); return; }
+  const sdt = chuanSdt($('tkSdt').value);
+  if (!sdt) { bao('t1Loi', 'Số điện thoại chưa đúng — 10 số, bắt đầu bằng 0.'); $('tkSdt').focus(); return; }
+  if (!$('tkDongY').checked) { bao('t1Loi', 'Anh/chị tick ô đồng ý để KTS của ALN được liên hệ.'); return; }
+  bao('t1Loi', '');
+  const b = $('t1Nut'); b.disabled = true;
+  try {
+    await napFb();
+    const sig = tinHieu();
+    const gio = $('tkGio').value;
+    const r = await FB.call('qltcGuiLead')({
+      name: ten, phone: sdt, khung_gio_goi: gio || null, loai_cong_trinh: ST.loai3, dien_tich: soDuong($('tkDt').value),
+      dongY: true, dongYQuangCao: $('tkDongYQc').checked === true,
+      utm: sig.utm || {}, fbp: sig.fbp || '', fbc: sig.fbc || '', cookieQc: sig.cookieQc === true,
+      attribution: attr(), sourceUrl: location.origin + location.pathname, optout: window.ALN_INTERNAL === true,
+    });
+    const d = r.data || {};
+    if (window.fbq && d.id && d.pixel_lead === true) window.fbq('track', 'Lead', { value: 100000, currency: 'VND', content_name: 'quan-ly-thi-cong-thiet-ke' }, { eventID: 'lead-' + d.id });
+    if (d.id) day('aln_lead_submit', { form_name: 'quan-ly-thi-cong-thiet-ke' });
+    $('t2Gio').textContent = gio ? ', vào buổi ' + ({ sang: 'sáng', trua: 'trưa', chieu: 'chiều', toi: 'tối' })[gio] : '';
+    hien('t2');
+  } catch (e) {
+    bao('t1Loi', (e && e.message) || 'Chưa gửi được — anh/chị thử lại hoặc nhắn Zalo 0909 829 696.');
+  } finally { b.disabled = false; }
+});
+</script>
+</body>
+</html>

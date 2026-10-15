@@ -47,6 +47,7 @@
     + '.dydl button{min-height:44px;padding:0 16px;border-radius:10px;font:inherit;cursor:pointer}'
     + '.dydl .dydl-chinh{background:var(--nut-vang,#9a6b08);color:#fff;border:0;font-weight:600}'
     + '.dydl .dydl-phu{background:transparent;border:1px solid var(--line,#c7cfd9);color:inherit}'
+    + '.dydl .dydl-link{min-height:0;padding:4px 0;border:0;background:none;color:var(--sub,#55606e);text-decoration:underline;font-size:var(--text-sm,.9rem)}'
     + '.dydl button:disabled{opacity:.55;cursor:not-allowed}';
   function chenCss() {
     if (document.getElementById('dydl-css')) return;
@@ -87,7 +88,8 @@
         el.appendChild(tao('h3', null, 'Đồng ý dữ liệu cho Gói Quản lý Thi công'));
 
         if (daDongY) {
-          el.appendChild(tao('p', 'dydl-ok', 'Anh/chị đã đồng ý ngày ' + ngay(t.thoi_diem) + '.'));
+          var nd = ngay(t.thoi_diem);
+          el.appendChild(tao('p', 'dydl-ok', nd ? 'Anh/chị đã đồng ý ngày ' + nd + '.' : 'Anh/chị đã đồng ý.'));
           el.appendChild(tao('p', 'dydl-nho', C.CONSENT_TEXTS.du_lieu_nha));
           el.appendChild(tao('p', 'dydl-nho', 'Thống kê giá theo khu vực (đã bỏ thông tin cá nhân): '
             + (t.thong_ke_an_danh ? 'có cho phép.' : 'không cho phép.')));
@@ -98,15 +100,19 @@
           bTk.addEventListener('click', function () {
             goi({ hanh_dong: 'dong_y', dong_y: true, phien_ban: PB, thong_ke_an_danh: !t.thong_ke_an_danh });
           });
-          var bRut = tao('button', 'dydl-phu', 'Rút lại đồng ý');
+          nut.appendChild(bTk);
+          el.appendChild(nut);
+          // Rút lại: link chữ nhỏ (Nam chốt 15/10/2026), luôn hỏi xác nhận.
+          var bRut = tao('button', 'dydl-link', 'Rút lại đồng ý');
           bRut.type = 'button';
           bRut.disabled = dangGui || !!o.xemFounder;
           bRut.addEventListener('click', function () {
-            if (!window.confirm('Rút lại đồng ý thì ALN không bật được Gói Quản lý Thi công cho hồ sơ này. Dữ liệu anh/chị đã ghi vẫn giữ trong Không gian Nhà. Anh/chị chắc chắn?')) return;
+            if (!window.confirm('Rút lại đồng ý thì ALN không bật được Gói Quản lý Thi công cho hồ sơ này và sẽ xoá dữ liệu cá nhân theo Chính sách quyền riêng tư; số liệu đã ẩn danh đưa vào thống kê không rút ra được. Anh/chị chắc chắn?')) return;
             goi({ hanh_dong: 'rut' });
           });
-          nut.appendChild(bTk); nut.appendChild(bRut);
-          el.appendChild(nut);
+          var pRut = tao('p', 'dydl-nho');
+          pRut.appendChild(bRut);
+          el.appendChild(pRut);
         } else {
           if (t.dong_y === true) {
             el.appendChild(tao('p', 'dydl-nho', 'Điều khoản đã cập nhật ngày ' + ngayPhienBan(PB) + ' — anh/chị đọc và đồng ý lại.'));

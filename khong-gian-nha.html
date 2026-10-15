@@ -637,8 +637,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span class="block-title">Gói dịch vụ ALN</span>
       </div>
       <div class="pkg-grid" id="pkgGrid"></div>
-      <p class="pkg-fine">Giá hiển thị đã gồm thuế GTGT <span id="pkgThueSuat"></span>% (mức thuế có thể thay đổi theo quy định). <span id="pkgQltc"></span></p>
-      <!-- Đồng ý dữ liệu Gói Quản lý Thi công (PR-4) — aln-dong-y-du-lieu.js vẽ -->
+      <p class="pkg-fine">Số dự toán đã gồm thuế GTGT <span id="pkgThueSuat"></span>%. Phí gói chưa gồm thuế GTGT. <span id="pkgQltc"></span></p>
+    </section>
+
+    <!-- e3. Đồng ý dữ liệu Gói Quản lý Thi công (PR-4; PR-9: hiện ở MỌI trạng thái hồ sơ) — aln-dong-y-du-lieu.js vẽ -->
+    <section class="block" id="dydlBlock" hidden>
+      <div class="block-head">
+        <span class="block-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg></span>
+        <span class="block-title">Dữ liệu công trình của bạn</span>
+      </div>
       <div id="dydlBox"></div>
     </section>
 
@@ -680,6 +687,7 @@ let XEM_FOUNDER = false;
 const callKhGhiUpload = httpsCallable(functionsInst, 'khGhiUpload');
 const callKhChonKhungGio = httpsCallable(functionsInst, 'khChonKhungGio');
 const callKhDongYDuLieu = httpsCallable(functionsInst, 'khDongYDuLieu');
+const callQltcMoTheoMa = httpsCallable(functionsInst, 'qltcMoTheoMa');
 
 const els = {
   loading: document.getElementById('state-loading'),
@@ -937,7 +945,7 @@ function updateTruocC1Visibility() {
   els.uploadBlock.hidden = !isTruocC1;
   els.pkgBlock.hidden = !isTruocC1;
   if (isTruocC1) renderPackages();
-  if (isTruocC1) renderDongYDuLieu(currentHouseData);
+  renderDongYDuLieu(currentHouseData);
 
   const showDt = isTruocC1 && hasVersions;
   els.dtBlock.hidden = !showDt;
@@ -983,6 +991,8 @@ let dydlFor = null;
 function renderDongYDuLieu(h) {
   const el = document.getElementById('dydlBox');
   if (!el || !window.alnDongYDuLieu || !currentHouseId) return;
+  const blk = document.getElementById('dydlBlock');
+  if (blk) blk.hidden = false;
   if (!dydlCtl || dydlFor !== currentHouseId) {
     dydlFor = currentHouseId;
     const id = currentHouseId;
@@ -1578,6 +1588,13 @@ function renderChoose(houses) {
 
 let cachedHouses = [];
 const THAM_SO = new URLSearchParams(location.search);
+/* Mã hồ sơ ALN-H-YYYY-NNN (PR-9) — khoá dùng trong link, không dùng doc ID.
+   Khớp lib/maHoSo.chuanMa phía máy chủ. */
+function chuanMaHoSo(v) {
+  const s = String(v || '').trim().toUpperCase().replace(/\s+/g, '');
+  const m = /^ALN-H-(\d{4})-(\d{3,6})$/.exec(s);
+  return m ? 'ALN-H-' + m[1] + '-' + String(Number(m[2])).padStart(3, '0') : null;
+}
 
 async function init() {
   showState('loading');
@@ -1596,7 +1613,9 @@ async function init() {
     els.switchHouseLink.hidden = houses.length < 2;
     // Vừa lưu từ du-toan-nha.html: mở đúng hồ sơ vừa lưu (chỉ khi house thuộc SĐT này).
     const hMuon = THAM_SO.get('h');
-    const hDung = hMuon && houses.find((h) => h.id === hMuon);
+    const maMuon = chuanMaHoSo(THAM_SO.get('ma'));
+    const hDung = (hMuon && houses.find((h) => h.id === hMuon))
+      || (maMuon && houses.find((h) => chuanMaHoSo(h.ma_ho_so) === maMuon));
     if (hDung) {
       loadHouse(hDung.id);
     } else if (houses.length === 1) {
@@ -1803,6 +1822,17 @@ function initFounder() {
   els.logoutLink.hidden = true;
   els.switchHouseLink.hidden = true;
   const h = new URLSearchParams(location.search).get('h') || '';
+  const ma = chuanMaHoSo(new URLSearchParams(location.search).get('ma'));
+  if (!h && ma) {
+    showState('loading');
+    callQltcMoTheoMa({ ma }).then((r) => loadHouse(r.data.house_id)).catch(() => {
+      showState('error');
+      const t = els.error.querySelector('p');
+      if (t) t.textContent = 'Không tìm thấy hồ sơ ' + ma + '.';
+      els.retryBtn.hidden = true;
+    });
+    return;
+  }
   if (!/^[A-Za-z0-9_-]{1,80}$/.test(h)) {
     showState('error');
     const t = els.error.querySelector('p');
@@ -1819,7 +1849,11 @@ onAuthStateChanged(auth, (user) => {
     return;
   }
   if (!isPhoneAuthed(user)) {
-    window.location.href = window.alnEstimateFunnel.preserve('dang-nhap-chu-nha.html');
+    // Link có mã hồ sơ (?ma=) / ?h= → đăng nhập xong quay lại đúng hồ sơ.
+    const quayLai = (THAM_SO.get('ma') || THAM_SO.get('h'))
+      ? 'dang-nhap-chu-nha.html?next=' + encodeURIComponent('khong-gian-nha.html' + location.search)
+      : 'dang-nhap-chu-nha.html';
+    window.location.href = window.alnEstimateFunnel.preserve(quayLai);
     return;
   }
   init();
