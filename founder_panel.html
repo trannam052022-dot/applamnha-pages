@@ -1397,6 +1397,8 @@ document.addEventListener('DOMContentLoaded', function() {
     <a href="founder-don-gia-tinh.html" target="_blank" rel="noopener" title="Bảng đơn giá theo tỉnh cho bản doanh nghiệp — nhà thầu chọn tỉnh thì đơn giá ALN đổi theo (03/10/2026)" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans);text-decoration:none;display:inline-block">🗺 Đơn giá theo tỉnh</a>
     <button onclick="fpDnChoThu()" title="Doanh nghiệp đã báo chuyển khoản tay, chờ Founder xác nhận đã nhận tiền để mở kết quả + xuất file" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans)">💳 DN chờ xác nhận CK</button>
     <button onclick="fpDnTangFile()" title="Mở miễn phí 1 báo giá cho tài khoản doanh nghiệp mới (mỗi tài khoản 1 lần) — nhà thầu thấy file thật rồi mới trả cho file sau" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans)">🎁 Tặng file đầu</button>
+    <button onclick="fpQltcNhanTien()" title="Gói Quản lý Thi công: đơn chờ chuyển khoản — đối chiếu tài khoản rồi bấm Đã nhận tiền để bật gói" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans)">🏗 Gói QLTC — Đã nhận tiền</button>
+    <div id="qltcCkCanhBao" hidden style="flex-basis:100%;margin-top:6px;padding:8px 12px;border-radius:7px;border:1px solid #ef4444;background:rgba(239,68,68,.12);color:#fca5a5;font-size:12px;font-weight:700"></div>
     <button onclick="fpHanMucChuNha()" title="Hạn mức chủ nhà: mỗi SĐT tối đa 3 công trình/12 tháng — xem và mở thêm cho khách thật" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans)">🔓 Hạn mức chủ nhà</button>
     <button onclick="fpBocBanVe()" title="Thử nghiệm: AI đọc bộ bản vẽ kết cấu PDF, code tính khối lượng, so với A.Hoàng v67" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans)">🧪 Thử AI bóc bản vẽ</button>
     <button onclick="fpBocGia()" title="Dịch vụ Dự toán từ bản vẽ cho doanh nghiệp: giá 2026/2027, mở/đóng nhận hồ sơ" style="padding:7px 14px;border-radius:7px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans)">📐 Giá dự toán từ bản vẽ</button>
@@ -4740,6 +4742,47 @@ window.fpDnChoThu = async function() {
     if (!confirm('Xác nhận ĐÃ NHẬN ' + Number(c.so_tien || 0).toLocaleString('vi-VN') + ' đ từ ' + c.ten_cong_ty + ' (ND "' + c.noi_dung + '")?' + (c.mo_truoc ? '\n(Báo giá đã mở trước — bước này chốt đối chiếu, đếm vào doanh thu.)' : '\nSau bước này doanh nghiệp xem được số và xuất PDF.'))) return;
     r = (await fn({ hanh_dong: 'thu_tien', bao_gia_id: c.id })).data || {};
     toast(r.da_tra_truoc_do ? 'Báo giá này đã được xác nhận trước đó' : 'Đã xác nhận thu ' + Number(r.so_tien || 0).toLocaleString('vi-VN') + ' đ — ' + c.ten_cong_ty + (r.mo_truoc ? ' (đã đối chiếu xong)' : ' xuất file được ngay'), 'ok');
+  } catch(e) {
+    toast('Lỗi: ' + (e.message || e), 'err');
+  }
+};
+
+/* ── GÓI QUẢN LÝ THI CÔNG — ĐÃ NHẬN TIỀN (PR-10, 15/10/2026) ── founderQltcThanhToan 'ds' + 'nhan_tien'.
+   STK lấy chung settings/dnGia.ck; không phải tài khoản CÔNG TY TNHH ALN → cảnh báo đỏ (khách không thấy STK).
+   Bấm xác nhận → bật gói (gia_ap_dung), bản ghi qltc_thanh_toan (evidence REVENUE), Telegram. Chữ dữ liệu chỉ vào prompt/alert/textContent. */
+window.fpQltcNhanTien = async function() {
+  try {
+    var { getFunctions, httpsCallable } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js');
+    var fn = httpsCallable(getFunctions(window.app, 'asia-southeast1'), 'founderQltcThanhToan');
+    var r = (await fn({ hanh_dong: 'ds' })).data || {};
+    var cb = document.getElementById('qltcCkCanhBao');
+    var canhBao = r.ck_tinh_trang === 'ca_nhan'
+      ? '⚠️ STK đang lưu (nút 🏢 Bản doanh nghiệp) KHÔNG đứng tên CÔNG TY TNHH ALN — khách Gói QLTC KHÔNG thấy STK, chỉ thấy "ALN sẽ gửi số tài khoản qua Zalo". Cập nhật STK công ty trước khi mở thanh toán.'
+      : (r.ck_tinh_trang === 'chua_co' ? '⚠️ Chưa có STK nhận tiền (nút 🏢 Bản doanh nghiệp) — khách Gói QLTC chỉ thấy "ALN sẽ gửi số tài khoản qua Zalo".' : '');
+    if (cb) { cb.textContent = canhBao; cb.hidden = !canhBao; }
+    var ds = r.ds || [];
+    if (!ds.length) { alert((canhBao ? canhBao + '\n\n' : '') + 'Không có đơn Gói Quản lý Thi công nào đang chờ chuyển khoản.'); return; }
+    var vnd = function(n) { return Number(n || 0).toLocaleString('vi-VN') + ' đ'; };
+    var luc = function(ms) { return ms ? new Date(ms).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : '?'; };
+    var dong = ds.map(function(c, i) { return (i + 1) + '. ' + c.ma_ho_so + ' — ' + vnd(c.tong) + ' (chưa thuế ' + vnd(c.chua_thue) + ') — ND "' + c.noi_dung_ck + '" — tạo ' + luc(c.tao_luc_ms); }).join('\n');
+    var chon = prompt((canhBao ? canhBao + '\n\n' : '') + 'Đơn Gói Quản lý Thi công chờ chuyển khoản:\n\n' + dong + '\n\nĐối chiếu tài khoản ngân hàng (nội dung = mã hồ sơ), rồi nhập SỐ THỨ TỰ đơn ĐÃ NHẬN TIỀN. Để trống nếu chỉ xem.', '');
+    if (chon === null || !chon.trim()) return;
+    var i2 = parseInt(chon.trim(), 10) - 1;
+    if (!(i2 >= 0 && i2 < ds.length)) { toast('Số thứ tự không hợp lệ', 'err'); return; }
+    var c = ds[i2];
+    var soStr = prompt('Số tiền THẬT đã nhận cho ' + c.ma_ho_so + ' (đồng, không dấu chấm). Đơn: ' + vnd(c.tong), String(c.tong || ''));
+    if (soStr === null) return;
+    var so = parseInt(String(soStr).replace(/[^0-9]/g, ''), 10);
+    if (!(so > 0)) { toast('Số tiền không hợp lệ', 'err'); return; }
+    var homNay = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
+    var ngay = prompt('Ngày nhận tiền (YYYY-MM-DD):', homNay);
+    if (ngay === null) return;
+    var lech = so - Number(c.tong || 0);
+    var hoi = 'Xác nhận ĐÃ NHẬN ' + vnd(so) + ' cho ' + c.ma_ho_so + ' ngày ' + ngay + '?\nSau bước này gói được bật, danh sách sàn bị khoá, ghi bản ghi thanh toán.';
+    if (lech) hoi = '⚠️ SỐ TIỀN LỆCH ĐƠN ' + (lech > 0 ? '+' : '') + vnd(lech) + ' (đơn ' + vnd(c.tong) + ').\n\n' + hoi;
+    if (!confirm(hoi)) return;
+    r = (await fn({ hanh_dong: 'nhan_tien', don_id: c.id, so_tien: so, ngay: ngay.trim() })).data || {};
+    toast(r.da_co ? 'Đơn này đã được xác nhận trước đó' : 'Đã bật gói ' + (r.ma_ho_so || c.ma_ho_so) + (r.lech ? ' — lệch ' + vnd(r.lech) : ''), r.lech ? 'err' : 'ok');
   } catch(e) {
     toast('Lỗi: ' + (e.message || e), 'err');
   }

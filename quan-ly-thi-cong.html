@@ -120,6 +120,7 @@ fbq('track', 'PageView');
 <script src="aln-pricing.js"></script>
 <script src="aln-dong-y-du-lieu.js"></script>
 <script src="qltc-chu.vi.js"></script>
+<script src="aln-qltc-thanh-toan.js"></script>
 </head>
 <body>
 <!-- Google Tag Manager (noscript) -->
@@ -221,7 +222,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <label class="tai" for="taiFile"><input type="file" id="taiFile" accept=".pdf,.jpg,.jpeg,.png,.heic,.xlsx,.xls,.dwg"><span id="taiNhan" data-chu="m5.chon_file">Bấm để chọn file (PDF, ảnh, Excel, DWG — tối đa 50 MB)</span></label>
     <p class="nho" id="taiTrangThai"></p>
     <h3 data-chu="m5.thanh_toan">3. Thanh toán</h3>
-    <p><span data-chu="m5.phi">Phí gói:</span> <b id="m5Phi"></b> <span id="m5Thue"></span></p>
+    <!-- PR-10: số tiền (chưa thuế · thuế · tổng), STK công ty, nội dung chuyển khoản — máy chủ qltcThanhToan. -->
+    <div id="ttBox"></div>
     <p class="nho" data-chu="m5.thanh_toan_mo_ta">Sau khi nhận chuyển khoản, ALN bật gói và nhắn anh/chị qua Zalo. Nếu danh sách sàn có chỗ chưa đúng, anh/chị sửa được ngay trong Không gian Nhà.</p>
     <!-- Lời nhắc "không thay thế giám sát thi công" của màn này nằm trong khối đồng ý (aln-dong-y-du-lieu.js). -->
     <a class="nut" id="moKgn" href="khong-gian-nha.html" data-chu="m5.mo_kgn">Mở Không gian Nhà</a>
@@ -507,19 +509,26 @@ async function taoHoSo() {
 }
 function moXong() {
   $('maHs').textContent = ST.ma;
-  $('m5Phi').textContent = ST.goi ? tien(ST.goi.tong_chua_thue) : '—';
-  $('m5Thue').textContent = T('phi.ngoac_chua_thue', { thue: tenThue() });
   $('moKgn').href = 'khong-gian-nha.html?ma=' + encodeURIComponent(ST.ma);
   hien('m5');
   const ctl = window.alnDongYDuLieu && window.alnDongYDuLieu.mount($('dydlBox'), {
     goi: (data) => FB.call('khDongYDuLieu')(Object.assign({ houseId: ST.houseId }, data)),
   });
+  // PR-10: khối chuyển khoản — tải lại khi trạng thái đồng ý đổi (máy chủ chỉ tạo đơn sau khi đồng ý).
+  const tt = window.alnQltcThanhToan ? window.alnQltcThanhToan.gan($('ttBox'), {
+    goi: (data) => FB.call('qltcThanhToan')(data), houseId: ST.houseId, boCauChung: true, // câu PR-9b ngay dưới khối
+  }) : null;
+  let dyCu = null;
   if (!ctl) return;
   ctl.capNhat(null);
   // Trạng thái đồng ý đọc lại từ chính hồ sơ (chủ nhà đọc được houses/{id} — khHouseAccess).
   try {
     FB.c.onSnapshot(FB.c.doc(FB.c.db, 'houses', ST.houseId), (snap) => {
-      ctl.capNhat(snap.exists() ? (snap.data() || {}).dong_y_du_lieu : null);
+      const dy = snap.exists() ? (snap.data() || {}).dong_y_du_lieu : null;
+      ctl.capNhat(dy);
+      const k = JSON.stringify(dy ? [dy.dong_y, dy.phien_ban_dieu_khoan] : null);
+      if (tt && dyCu !== null && k !== dyCu) tt.lamMoi();
+      dyCu = k;
     }, () => { /* không đọc được thì giữ ô trống, ghi vẫn qua máy chủ */ });
   } catch (e) { /* bỏ qua */ }
 }

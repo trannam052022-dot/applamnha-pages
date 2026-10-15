@@ -748,6 +748,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <script src="aln-founder-xem.js"></script>
 <script src="aln-dong-y-du-lieu.js"></script>
 <script src="qltc-chu.vi.js"></script>
+<script src="aln-qltc-thanh-toan.js"></script>
 <script type="module">
 import {
   app, auth, db, onAuthStateChanged, signOut,
@@ -766,6 +767,7 @@ const callKhDongYDuLieu = httpsCallable(functionsInst, 'khDongYDuLieu');
 const callQltcMoTheoMa = httpsCallable(functionsInst, 'qltcMoTheoMa');
 const callQltcDanhSachSan = httpsCallable(functionsInst, 'qltcDanhSachSan');
 const callQltcBaoPhi = httpsCallable(functionsInst, 'qltcBaoPhi');
+const callQltcThanhToan = httpsCallable(functionsInst, 'qltcThanhToan');
 
 const els = {
   loading: document.getElementById('state-loading'),
@@ -1166,6 +1168,7 @@ function tomTatTangSan(tt) {
 function laHoSoGoi(h) { return !!(h && (h.nguon === 'cua_vao_qltc' || (h.danh_sach_san && Array.isArray(h.danh_sach_san.san)))); }
 function laChuaBanVe(h) { return !(h && (h.buoc_xay === 'co_ban_ve' || h.buoc_xay === 'co_ban_ve_du_toan')); }
 let uploadItems = [];
+let ttCtl = null;      // PR-10: khối chuyển khoản trong thẻ việc 'kiem_san'
 let phienBanDuLieuNha = null;
 import('./consent-constants.js').then((C) => {
   phienBanDuLieuNha = C.CONSENT_VERSIONS && C.CONSENT_VERSIONS.du_lieu_nha;
@@ -1263,7 +1266,13 @@ function renderViec() {
   if (viec === 'dong_y') body.appendChild(dydlBox);
   else if (viec === 'tai_du_toan' || viec === 'tai_ban_ve') {
     nut(T('viec.' + viec + '.nut'), () => { els.themBlock.open = true; openFilePicker(viec === 'tai_du_toan' ? 'du_toan' : 'ban_ve'); });
-  } else if (viec === 'kiem_san') nut(T('viec.kiem_san.nut'), () => moSuaSan(true));
+  } else if (viec === 'kiem_san') {
+    nut(T('viec.kiem_san.nut'), () => moSuaSan(true));
+    // PR-10: chuyển khoản để bật gói — số tiền + STK công ty + nội dung (máy chủ qltcThanhToan).
+    const ttEl = document.createElement('div'); ttEl.id = 'viecTt';
+    body.appendChild(ttEl);
+    ttCtl = window.alnQltcThanhToan ? window.alnQltcThanhToan.gan(ttEl, { goi: (data) => callQltcThanhToan(data), houseId: currentHouseId }) : null;
+  }
   else if (viec === 'phieu') nut(T('viec.phieu.nut'), null, 'phieu');
   else if (viec === 'gui_ban_ve') nut(T('viec.gui_ban_ve.nut'), () => { els.themBlock.open = true; openFilePicker('ban_ve'); });
   else if (viec === 'zalo') nut(T('viec.zalo.nut'), null, 'zalo');
@@ -1495,6 +1504,7 @@ async function luuSuaSan() {
     suaSan = null;
     if (currentHouseData) renderHouseHeader(currentHouseData);
     renderMocTc();
+    if (ttCtl && !d.khong_doi) ttCtl.lamMoi(); // đơn cũ đã huỷ → tạo đơn theo phí mới
   } catch (e) {
     if (!suaSan) return;
     suaSan.dangLuu = false; suaSan.loi = true; suaSan.msg = (e && e.message) || T('sua.loi');
