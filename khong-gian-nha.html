@@ -385,9 +385,9 @@ a{color:inherit}
 .pkg-grid{display:flex;flex-direction:column;gap:.7rem}
 .pkg-card{background:var(--surface);border:1.5px solid var(--border-soft);border-radius:var(--r-sm);padding:1rem}
 .pkg-card.feat{border-color:var(--gold-dim);background:var(--gold-bg)}
-.pkg-top{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.3rem}
+.pkg-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.2rem .5rem;margin-bottom:.3rem}
 .pkg-name{font-family:var(--f-head);font-weight:600;font-size:var(--text-base);color:var(--text-1)}
-.pkg-price{font-family:var(--f-mono);font-size:var(--text-md);font-weight:600;color:var(--gold);white-space:nowrap}
+.pkg-price{font-family:var(--f-mono);font-size:var(--text-md);font-weight:600;color:var(--gold);white-space:normal;max-width:100%}
 .pkg-sub{font-family:var(--f-mono);font-size:var(--text-xs);color:var(--dim);margin-bottom:.4rem}
 .pkg-note{font-size:var(--text-sm);color:var(--text-3);line-height:1.7;margin-bottom:.5rem}
 .pkg-list{list-style:none;display:flex;flex-direction:column;gap:.35rem}
@@ -668,6 +668,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span class="block-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span>
         <span class="block-title">Nhật ký</span>
       </div>
+      <div id="logTaiAnh" hidden></div>
       <div id="logBody"></div>
     </section>
 
@@ -771,6 +772,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <script src="aln-dong-y-du-lieu.js"></script>
 <script src="qltc-chu.vi.js"></script>
 <script src="aln-qltc-thanh-toan.js"></script>
+<script src="aln-qltc-bang-chung.js"></script>
 <script type="module">
 import {
   app, auth, db, onAuthStateChanged, signOut,
@@ -791,6 +793,7 @@ const callQltcDanhSachSan = httpsCallable(functionsInst, 'qltcDanhSachSan');
 const callQltcBaoPhi = httpsCallable(functionsInst, 'qltcBaoPhi');
 const callQltcThanhToan = httpsCallable(functionsInst, 'qltcThanhToan');
 const callQltcMoc = httpsCallable(functionsInst, 'qltcMoc');
+const callQltcBangChung = httpsCallable(functionsInst, 'qltcBangChung');
 
 const els = {
   loading: document.getElementById('state-loading'),
@@ -1402,6 +1405,7 @@ function renderMocTc() {
   const hien = !!(h && laHoSoGoi(h));
   els.mocTcBlock.hidden = !hien;
   renderDaTt();
+  renderLogTaiAnh();
   if (!hien) { els.house.classList.remove('dang-sua-san'); return; }
   if (dsSanFor !== currentHouseId) { dsSanFor = currentHouseId; dsSan = null; suaSan = null; napDanhSachSan(currentHouseId); }
   const body = els.mocTcBody;
@@ -1527,7 +1531,33 @@ function veChiTietMoc(m) {
     });
   }
   if (mocMsg) { const e = document.createElement('p'); e.className = 'mtc-msg loi'; e.textContent = mocMsg; box.appendChild(e); }
+  if (window.alnQltcBangChung) box.appendChild(window.alnQltcBangChung.khoiMoc(m, bcCtx())); // PR-7: ảnh, bản vẽ tầng, biên bản
   return box;
+}
+
+/* PR-7 — bằng chứng theo mốc (aln-qltc-bang-chung.js; máy chủ qltcBangChung quyết định quyền). */
+function bcCtx() {
+  return {
+    goi: (data) => callQltcBangChung(data), houseId: currentHouseId, xemFounder: XEM_FOUNDER,
+    laChuNha: !!(dsSan && dsSan.la_chu_nha), goiDaBat: !!(dsSan && dsSan.goi_da_bat),
+    dsMoc: () => dsMocTc(),
+    mocMacDinh: () => { const ds = dsMocTc(); const m = ds.find((x) => ttMoc(x) === 'dang_lam') || ds.find((x) => ttMoc(x) === 'chua_lam') || ds[ds.length - 1]; return m ? m.id : null; },
+  };
+}
+/* Đầu khối Nhật ký: thêm ảnh gắn mốc — chỉ khi gói đã bật và người xem là chủ nhà (đội thợ tải qua máy chủ). */
+let logTaiAnhKhoa = null;
+function renderLogTaiAnh() {
+  const el = document.getElementById('logTaiAnh');
+  if (!el) return;
+  const h = currentHouseData;
+  const hien = !!(window.alnQltcBangChung && h && laHoSoGoi(h) && dsSan && dsSan.goi_da_bat && dsSan.la_chu_nha && !XEM_FOUNDER);
+  const ctx = hien ? bcCtx() : null;
+  const k = hien ? [currentHouseId, ctx.mocMacDinh(), dsMocTc().map((m) => m.id + ':' + (m.ten || '')).join(',')].join('|') : '';
+  if (k === logTaiAnhKhoa) return;
+  logTaiAnhKhoa = k;
+  el.textContent = '';
+  el.hidden = !hien;
+  if (hien) el.appendChild(window.alnQltcBangChung.khoiTaiAnh(ctx));
 }
 
 /* PR-6a — khối "Đã thanh toán" ngay trên khối mốc: số tiền ALN đã nhận, ngày, câu hoá đơn. */
@@ -2013,7 +2043,7 @@ function renderLog(items) {
   els.logBody.innerHTML = `<div class="log-list">${items.map((n) => `
     <div class="log-item">
       <div class="log-date">${esc(fmtDate(n.created_at))}</div>
-      <div class="log-text">${esc(n.noi_dung || '')}${n.tu_dong ? '<span class="auto-tag">Tự động</span>' : ''}</div>
+      <div class="log-text">${esc(n.noi_dung || '')}${n.tu_dong ? '<span class="auto-tag">Tự động</span>' : ''}${n.loai === 'anh_moc' ? '<span class="auto-tag">Ảnh</span>' : ''}</div>
     </div>`).join('')}</div>`;
 }
 
@@ -2114,7 +2144,7 @@ function loadHouse(houseId) {
   viecDangVe = null;
   dsSanFor = null;
   suaSan = null;
-  mocMo = null; mocMsg = null; mocCfg = null; mocCfgFor = null;
+  mocMo = null; mocMsg = null; mocCfg = null; mocCfgFor = null; logTaiAnhKhoa = null;
   dtOpenRows.clear();
   resetSoChiForm();
 

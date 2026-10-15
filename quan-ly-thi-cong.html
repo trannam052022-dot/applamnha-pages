@@ -44,6 +44,10 @@ a{color:var(--focus)}
 .band a.logo{color:#fff;text-decoration:none;font-weight:700}
 .band h1{margin:10px 0 4px;font-size:1.6rem;line-height:1.25}
 .band p{margin:0;color:#c9d3e6}
+.band ul.loi-ich{list-style:none;margin:8px 0 10px;padding:0;color:#fff;font-size:1.02rem;line-height:1.45}
+.band ul.loi-ich li{position:relative;padding-left:1.4em;margin:4px 0}
+.band ul.loi-ich li::before{content:"✓";position:absolute;left:0;color:var(--gold);font-weight:700}
+#m3:not([hidden]) ~ .giam-sat-chung{display:none}
 .wrap{padding:16px}
 .man{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 16px;margin:0 0 16px}
 .man h2{margin:0 0 12px;font-size:1.3rem;line-height:1.3}
@@ -130,6 +134,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <header class="band"><div class="in">
   <a class="logo" href="/">App Làm Nhà</a>
   <h1 data-chu="dau.tieu_de">Gói Quản lý Thi công</h1>
+  <ul class="loi-ich">
+    <li data-chu="dau.loi_1">Biết đã chi bao nhiêu, còn bao nhiêu so với dự toán</li>
+    <li data-chu="dau.loi_2">Biết tầng tới cần chuẩn bị gì và bao nhiêu tiền</li>
+    <li data-chu="dau.loi_3">Có ảnh và biên bản từng mốc, lưu làm hồ sơ của ngôi nhà.</li>
+  </ul>
   <p data-chu="dau.mo_ta">Tạo hồ sơ cho công trình của anh/chị, xem các mốc thi công theo từng sàn và phí gói trước khi quyết định.</p>
 </div></header>
 
@@ -181,6 +190,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <label class="ck"><input type="checkbox" data-hm="nha_phu"><span><span data-chu="hm.nha_phu">Nhà phụ</span> <b class="gia-hm" data-gia-hm="nha_phu"></b></span></label>
     <div class="tong"><span data-chu="m3.tong">Phí gói</span><span id="tongPhi">—</span></div>
     <p class="nho" id="cauGia"></p>
+    <p class="nho" data-chu="m3.tu_kiem">Anh/chị tự kiểm được bằng dự toán của chính nhà mình.</p>
     <p class="nho" id="heSoNote" hidden></p>
     <p class="loi" id="m3Loi" hidden></p>
     <p class="canh" data-chu="m3.khong_thay_giam_sat">Gói Quản lý Thi công là công cụ để anh/chị tự theo dõi công trình của mình — không thay thế công tác giám sát thi công.</p>
@@ -261,6 +271,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <p>KTS của ALN sẽ gọi anh/chị trong 1–2 ngày làm việc<span id="t2Gio"></span>.</p>
     <p class="nho" data-chu="t2.can_gap">Cần gấp: gọi hoặc nhắn Zalo 0909 829 696.</p>
   </section>
+  <!-- Câu giám sát ở MỌI màn của gói (màn sơ đồ đã có câu này cạnh phí → ẩn bản chung ở màn đó). -->
+  <p class="canh giam-sat-chung" data-chu="m3.khong_thay_giam_sat">Gói Quản lý Thi công là công cụ để anh/chị tự theo dõi công trình của mình — không thay thế công tác giám sát thi công.</p>
 </main>
 <footer>Công ty TNHH ALN · <a href="/chinh-sach-quyen-rieng-tu/">Chính sách quyền riêng tư</a></footer>
 <!-- ALN-PHAP-NHAN --><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"><style id="alnpn-css">.alnpn,.alnpn *{box-sizing:border-box;margin:0;padding:0;border:0;font:inherit;letter-spacing:normal;text-transform:none;text-shadow:none;float:none;background:none;min-width:0}.alnpn{display:block;width:100%;clear:both;position:relative;z-index:0;background:#0b1428;border-top:2px solid #d4a017;color:#cbd5e1;font-family:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:15px;font-weight:400;line-height:1.5;text-align:left;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;padding:28px 20px 88px}.alnpn-in{max-width:1280px;margin:0 auto;display:grid;gap:22px}.alnpn-brand{display:flex;align-items:center;gap:14px}.alnpn-brand img{display:block;flex:none;width:44px;height:44px;border-radius:10px}.alnpn-ten{font-weight:700;font-size:17px;line-height:1.3;letter-spacing:.03em;color:#fff}.alnpn-sub{margin-top:2px;font-size:13px;line-height:1.4;color:#9fb0c8}.alnpn-muc dt{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;line-height:1.3;letter-spacing:.08em;text-transform:uppercase;color:#e0b43a;margin-bottom:6px}.alnpn-muc dt svg{display:block;flex:none;width:16px;height:16px;fill:none;stroke:#e0b43a;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.alnpn-muc dd{font-size:15px;font-weight:500;line-height:1.45;color:#f1f5f9}.alnpn-mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:600;letter-spacing:.02em}.alnpn a{color:#fff;text-decoration:none}.alnpn a:hover,.alnpn a:focus-visible{color:#e0b43a;outline:none}.alnpn-note{font-size:13px;font-weight:400;color:#9fb0c8;margin-left:8px;white-space:nowrap}@media (min-width:768px){.alnpn{padding:26px 28px}.alnpn-in{grid-template-columns:auto auto auto auto;justify-content:space-between;align-items:stretch;gap:0}.alnpn-brand{align-self:center}.alnpn-muc{padding:0 0 0 28px;margin-left:28px;border-left:1px solid rgba(224,180,58,.22)}}@media (min-width:768px) and (max-width:1099px){.alnpn-in{grid-template-columns:auto minmax(0,1fr) auto;justify-content:stretch;row-gap:20px}.alnpn-brand{grid-column:1/-1;align-self:start}.alnpn-muc:nth-child(2){border-left:0;margin-left:0;padding-left:0}}</style><section class="alnpn" aria-label="Thông tin doanh nghiệp"><div class="alnpn-in"><div class="alnpn-brand"><img src="/icon-192.png" alt="" width="44" height="44" loading="lazy"><div><div class="alnpn-ten">CÔNG TY TNHH ALN</div><div class="alnpn-sub">Đơn vị chủ quản website applamnha.vn</div></div></div><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M10 12h5M10 16h5"/></svg>Mã số thuế</dt><dd class="alnpn-mono">3502593013</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-6-5.3-6-11a6 6 0 1 1 12 0c0 5.7-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/></svg>Địa chỉ</dt><dd>Khu TTTM Sonadezi 536 Trung Sơn, Ngãi Giao, TP. Hồ Chí Minh</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 5 5L14 13l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>Hotline</dt><dd><a class="alnpn-mono" href="tel:0909829696">0909 829 696</a><span class="alnpn-note">KTS Trần Long</span></dd></dl></div></section>
@@ -295,6 +307,14 @@ const soVN = (n) => Number(n).toLocaleString('vi-VN');
 const tien = (n) => (CHU ? CHU.tien(n, ST.goi && ST.goi.tien_te) : soVN(n) + ' đ');
 const tenThue = () => (ST.goi && ST.goi.thue && ST.goi.thue.ten) || 'GTGT';
 const day = (ev, p) => { try { (window.dataLayer = window.dataLayer || []).push(Object.assign({ event: ev }, p || {})); } catch (e) { /* bỏ qua */ } };
+/* PR-7 — sự kiện riêng của trang gói (GA4 + Pixel trackCustom) để Meta tối ưu đúng trang. Không PII.
+   Lead (Pixel/CAPI) giữ nguyên quy tắc cũ (chỉ khi máy chủ cho phép). ?internal=1 không bắn. */
+const suKienGoi = (ten, p, eventID) => {
+  if (window.ALN_INTERNAL === true) return;
+  day(ten, p);
+  try { if (window.fbq) window.fbq('trackCustom', ten, p || {}, eventID ? { eventID } : undefined); } catch (e) { /* bỏ qua */ }
+};
+suKienGoi('aln_qltc_view', { trang: 'quan-ly-thi-cong' });
 const tinHieu = () => { try { return (window.alnEstimateFunnel && window.alnEstimateFunnel.signals()) || {}; } catch (e) { return {}; } };
 const attr = () => { try { return window.alnAttr ? window.alnAttr.forLead() : null; } catch (e) { return null; } };
 function bao(id, msg) { const e = $(id); e.textContent = msg || ''; e.hidden = !msg; }
@@ -505,6 +525,7 @@ async function taoHoSo() {
   ST.houseId = d.house_id; ST.ma = d.ma_ho_so; ST.goi = d.goi || ST.goi;
   if (window.fbq && d.lead_id && d.pixel_lead === true) window.fbq('track', 'Lead', { value: 100000, currency: 'VND', content_name: 'quan-ly-thi-cong' }, { eventID: 'lead-' + d.lead_id });
   if (d.lead_id) day('aln_lead_submit', { form_name: 'quan-ly-thi-cong', buoc_xay: ST.buoc });
+  if (d.house_id) suKienGoi('aln_qltc_tao_ho_so', { buoc_xay: ST.buoc, loai: ST.loai, so_san: ST.san.length - 1 }, 'qltchs-' + d.house_id);
   moXong();
 }
 function moXong() {

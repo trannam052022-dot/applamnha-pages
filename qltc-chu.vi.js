@@ -18,6 +18,15 @@
     // quan-ly-thi-cong.html — đầu trang
     "dau.tieu_de": "Gói Quản lý Thi công",
     "dau.mo_ta": "Tạo hồ sơ cho công trình của anh/chị, xem các mốc thi công theo từng sàn và phí gói trước khi quyết định.",
+    // PR-7 — ba dòng dẫn dưới tiêu đề + dòng nhỏ dưới giá (mức B, Nam duyệt 15/10/2026)
+    "dau.loi_1": "Biết đã chi bao nhiêu, còn bao nhiêu so với dự toán",
+    "dau.loi_2": "Biết tầng tới cần chuẩn bị gì và bao nhiêu tiền",
+    "dau.loi_3": "Có ảnh và biên bản từng mốc, lưu làm hồ sơ của ngôi nhà.",
+    "m3.tu_kiem": "Anh/chị tự kiểm được bằng dự toán của chính nhà mình.",
+    // PR-7 — câu mở đầu cho quảng cáo: CHỈ LƯU, chưa dùng trên trang nào (Nam duyệt 15/10/2026)
+    "qc.mo_dau_1": "Đội thợ xin ứng tiền. Anh/chị biết phần việc đã làm đáng bao nhiêu chưa?",
+    "qc.mo_dau_2": "Xây nhà không có người giám sát? Có cách để tự biết đã chi bao nhiêu, còn bao nhiêu.",
+    "qc.mo_dau_3": "Trước khi đổ sàn, biết cần kiểm gì rồi hãy trả tiền.",
     // Màn 1
     "m1.hoi": "Nhà anh/chị đang ở bước nào?",
     "m1.co_ban_ve_du_toan": "Đã có bản vẽ và dự toán",
@@ -166,6 +175,31 @@
     // PR-6a — khối Đã thanh toán (ngay trên khối mốc)
     "dtt.tieu_de": "Đã thanh toán",
     "dtt.ngay": "Ngày ALN nhận: {ngay}",
+    // PR-7 — bằng chứng theo mốc (aln-qltc-bang-chung.js): ảnh gắn mốc, bản vẽ tầng, biên bản PDF
+    "bc.anh_tieu_de": "Ảnh",
+    "bc.chua_co_anh": "Chưa có ảnh nào gắn mốc này.",
+    "bc.xem_anh": "Xem ảnh",
+    "bc.them_anh": "Chụp hoặc chọn ảnh",
+    "bc.ghi_chu": "Ghi chú cho ảnh",
+    "bc.ghi_chu_goi_y": "Ghi chú (không bắt buộc), vd thép sàn trước khi đổ",
+    "bc.dang_gui": "Đang gửi ảnh {da}/{tong}…",
+    "bc.da_gui": "Đã gửi {da} ảnh.",
+    "bc.gui_mot_phan": "Đã gửi {da}/{tong} ảnh.",
+    "bc.anh_khong_doc": "Không đọc được ảnh này — anh/chị chụp lại hoặc chọn ảnh khác.",
+    "bc.ban_ve_tieu_de": "Bản vẽ tầng này",
+    "bc.chua_co_ban_ve": "Chưa gắn trang bản vẽ cho tầng này.",
+    "bc.trang": "{file} · trang {trang}",
+    "bc.tai_bien_ban": "Tải biên bản PDF",
+    "bc.dang_lap": "Đang lập biên bản…",
+    "bc.da_lap": "Biên bản đã sẵn sàng.",
+    "bc.mo_bien_ban": "Mở biên bản",
+    "bc.dang_tai": "Đang tải…",
+    "bc.dong": "Đóng",
+    "bc.mo_co_lon": "Mở cỡ lớn",
+    "bc.loi": "Chưa tải được — anh/chị thử lại.",
+    "bc.nk_tieu_de": "Thêm ảnh công trình",
+    "bc.nk_moc": "Ảnh của mốc",
+    "bc.nk_chua_moc": "Chưa có mốc thi công để gắn ảnh.",
     // Sửa danh sách sàn
     "sua.tieu_de": "Sửa danh sách sàn",
     "sua.loai": "Loại công trình",
