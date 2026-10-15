@@ -11701,6 +11701,43 @@ const KENH_THU_TU = ["paid", "organic_search", "social", "zalo", "referral", "di
 const TIEU_CHI = [["dich_vu", "Dịch vụ"], ["khu_vuc", "Khu vực"], ["ngan_sach", "Ngân sách"], ["thoi_diem", "Thời điểm"]];
 let DL = null;
 let NHOM = "tat_ca";
+// Trạng thái nút Lưu (15/10/2026, Nam: bấm Lưu không biết đã nhận chưa).
+// Khoá "cp_<tuần>" / "dg_<contact_id>" → { ok, chu }. Giữ qua lần vẽ lại sau khi tải lại số.
+const LUU_TT = {};
+const KIEU_NUT = "padding:4px 9px;border:1px solid var(--border);border-radius:5px;background:var(--raised);color:var(--sub);cursor:pointer;font-size:11.5px";
+function nhanLuu(khoa) {
+  const t = LUU_TT[khoa];
+  if (!t) return '<span class="kl-luu-tt" data-khoa="' + esc(khoa) + '"></span>';
+  return '<span class="kl-luu-tt" data-khoa="' + esc(khoa) + '" style="display:block;font-size:11px;margin-top:3px;color:'
+    + (t.ok ? "var(--green)" : "var(--red)") + '">' + esc(t.chu) + "</span>";
+}
+// Cập nhật dòng trạng thái tại chỗ, không vẽ lại bảng (giữ nguyên số anh vừa gõ khi lưu lỗi).
+function hienTT(khoa) {
+  const t = LUU_TT[khoa];
+  document.querySelectorAll(".kl-luu-tt").forEach((el) => {
+    if (el.dataset.khoa !== khoa || !t) return;
+    el.style.display = "block"; el.style.fontSize = "11px"; el.style.marginTop = "3px";
+    el.style.color = t.ok ? "var(--green)" : "var(--red)";
+    el.textContent = t.chu;
+  });
+}
+function gioPhut() { return new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }); }
+function datNut(nut, dangLuu) {
+  if (!nut) return;
+  nut.disabled = !!dangLuu;
+  nut.textContent = dangLuu ? "Đang lưu…" : "Lưu";
+  nut.style.opacity = dangLuu ? ".6" : "";
+}
+// Ô vừa sửa mà chưa lưu → nút đổi vàng, ghi "chưa lưu".
+window.klDanhDauDoi = function (nutId) {
+  const nut = $(nutId);
+  if (!nut) return;
+  nut.style.background = "var(--gold, #c9a227)";
+  nut.style.color = "#1a1408";
+  nut.style.borderColor = "var(--gold, #c9a227)";
+  const tt = nut.parentNode && nut.parentNode.querySelector(".kl-luu-tt");
+  if (tt) { tt.style.display = "block"; tt.style.fontSize = "11px"; tt.style.marginTop = "3px"; tt.style.color = "var(--gold, #c9a227)"; tt.textContent = "Chưa lưu"; }
+};
 
 const esc = (v) => String(v == null ? "" : v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const so = (n) => Number(n || 0).toLocaleString("vi-VN");
@@ -11762,11 +11799,21 @@ function veBangChiPhi() {
     const cp = (DL.chi_phi[t.ma] || {}).paid;
     const c = (DL.cpl[t.ma] || {}).paid;
     const leadQc = DL.nhom.tat_ca.tuan[t.ma].lt.paid;
+    const nutId = "klCpNut_" + t.ma;
+    const chiPhiLead = c && c.cpl != null
+      ? so(c.cpl) + " đ"
+      : (cp != null && cp > 0 && !leadQc
+        ? '<span style="color:var(--red)">chi ' + so(cp) + " đ, chưa có lead</span>"
+        : '<span class="kl-mo">—</span>');
     h += "<tr><td>" + esc(nhanTuan(t)) + "</td>"
-      + '<td><input id="klCp_' + esc(t.ma) + '" type="number" min="0" step="1000" value="' + (cp != null ? esc(cp) : "") + '" placeholder="chưa nhập" style="width:120px;padding:4px 6px;border:1px solid var(--border);border-radius:5px;background:var(--raised);color:var(--text1);text-align:right"> '
-      + '<button onclick="klLuuChiPhi(' + eJ(t.ma) + ')" style="padding:4px 9px;border:1px solid var(--border);border-radius:5px;background:var(--raised);color:var(--sub);cursor:pointer;font-size:11.5px">Lưu</button></td>'
+      + '<td><input id="klCp_' + esc(t.ma) + '" type="number" min="0" step="1000" value="' + (cp != null ? esc(cp) : "") + '" placeholder="chưa nhập" oninput="klDanhDauDoi(' + eJ(nutId) + ')" style="width:120px;padding:4px 6px;border:1px solid var(--border);border-radius:5px;background:var(--raised);color:var(--text1);text-align:right"> '
+      + '<button id="' + esc(nutId) + '" onclick="klLuuChiPhi(' + eJ(t.ma) + ')" style="' + KIEU_NUT + '">Lưu</button>'
+      + (cp != null && !LUU_TT["cp_" + t.ma]
+        ? '<span class="kl-luu-tt" data-khoa="cp_' + esc(t.ma) + '" style="display:block;font-size:11px;margin-top:3px;color:var(--dim)">Đã lưu trên hệ thống</span>'
+        : nhanLuu("cp_" + t.ma))
+      + "</td>"
       + "<td>" + so(leadQc) + "</td>"
-      + "<td>" + (c && c.cpl != null ? so(c.cpl) + " đ" : '<span class="kl-mo">—</span>') + "</td>"
+      + "<td>" + chiPhiLead + "</td>"
       + "<td>" + (c ? so(c.du_dieu_kien) : '<span class="kl-mo">—</span>') + "</td>"
       + "<td>" + (c && c.cp_du_dieu_kien != null ? so(c.cp_du_dieu_kien) + " đ" : '<span class="kl-mo">—</span>') + "</td></tr>";
   });
@@ -11781,7 +11828,7 @@ function veBangDanhGia() {
   ds.forEach((k, i) => {
     const dk = k.du_dieu_kien || {};
     const mau = k.trang_thai_dk === "dat" ? "var(--green)" : (k.trang_thai_dk === "khong_dat" ? "var(--red)" : "var(--dim)");
-    const chon = (c) => '<select class="kl-dk" id="klDk_' + i + "_" + c + '"' + (k.contact_id ? "" : " disabled") + ">"
+    const chon = (c) => '<select class="kl-dk" id="klDk_' + i + "_" + c + '"' + (k.contact_id ? ' onchange="klDanhDauDoi(' + eJ("klDgNut_" + i) + ')"' : " disabled") + ">"
       + '<option value=""' + (dk[c] == null ? " selected" : "") + ">?</option>"
       + '<option value="1"' + (dk[c] === true ? " selected" : "") + ">Có</option>"
       + '<option value="0"' + (dk[c] === false ? " selected" : "") + ">Không</option></select>";
@@ -11794,7 +11841,7 @@ function veBangDanhGia() {
       + "<td>" + esc(k.khu_vuc || "—") + "</td>"
       + TIEU_CHI.map((c) => "<td>" + chon(c[0]) + "</td>").join("")
       + "<td>" + (k.contact_id
-        ? '<button onclick="klLuuDanhGia(' + i + ')" style="padding:4px 9px;border:1px solid var(--border);border-radius:5px;background:var(--raised);color:var(--sub);cursor:pointer;font-size:11.5px">Lưu</button>'
+        ? '<button id="klDgNut_' + i + '" onclick="klLuuDanhGia(' + i + ')" style="' + KIEU_NUT + '">Lưu</button>' + nhanLuu("dg_" + k.contact_id)
         : '<span class="kl-mo" title="Lead này chưa có bản ghi liên hệ">—</span>') + "</td></tr>";
   });
   $("klBangDanhGia").innerHTML = h + "</tbody>";
@@ -11825,12 +11872,24 @@ window.initKenhLeadPanel = async function () {
 };
 
 window.klLuuChiPhi = async function (ma) {
+  const khoa = "cp_" + ma;
+  const nut = $("klCpNut_" + ma);
   const v = $("klCp_" + ma).value.trim();
-  if (v === "") return;
+  if (v === "" || !(Number(v) >= 0)) {
+    LUU_TT[khoa] = { ok: false, chu: "Nhập số tiền trước khi bấm Lưu" };
+    hienTT(khoa);
+    return;
+  }
+  datNut(nut, true);
   try {
     await goi("founderGhiChiPhiKenh", { tuan: ma, kenh: "paid", vnd: Number(v) });
+    LUU_TT[khoa] = { ok: true, chu: "✓ Đã lưu " + so(Number(v)) + " đ lúc " + gioPhut() };
     await window.initKenhLeadPanel();
-  } catch (e) { alert("Chưa lưu được: " + (e.message || e)); }
+  } catch (e) {
+    LUU_TT[khoa] = { ok: false, chu: "✗ Chưa lưu được: " + (e.message || e) };
+    datNut(nut, false);
+    hienTT(khoa);
+  }
 };
 
 window.klLuuDanhGia = async function (i) {
@@ -11841,10 +11900,17 @@ window.klLuuDanhGia = async function (i) {
     const v = $("klDk_" + i + "_" + c[0]).value;
     data[c[0]] = v === "1" ? true : (v === "0" ? false : null);
   });
+  const khoa = "dg_" + k.contact_id;
+  datNut($("klDgNut_" + i), true);
   try {
     await goi("founderDanhGiaLead", data);
+    LUU_TT[khoa] = { ok: true, chu: "✓ Đã lưu lúc " + gioPhut() };
     await window.initKenhLeadPanel();
-  } catch (e) { alert("Chưa lưu được: " + (e.message || e)); }
+  } catch (e) {
+    LUU_TT[khoa] = { ok: false, chu: "✗ Chưa lưu được: " + (e.message || e) };
+    datNut($("klDgNut_" + i), false);
+    hienTT(khoa);
+  }
 };
 
 /* ── Phễu ẩn danh trang dự toán (03/10/2026) — founderPheuAnDanh ── */
