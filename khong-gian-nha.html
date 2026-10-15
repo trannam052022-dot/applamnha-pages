@@ -1367,6 +1367,7 @@ function renderMocTc() {
   if (dsSan.msg) { const p = document.createElement('p'); p.className = 'mtc-msg ok'; p.textContent = dsSan.msg; body.appendChild(p); }
   if (dsSan.goi_da_bat) {
     const p = document.createElement('p'); p.className = 'mtc-note'; p.textContent = T('moc.goi_da_bat'); body.appendChild(p);
+    const hd = document.createElement('p'); hd.className = 'mtc-note'; hd.textContent = T('tt.hoa_don'); body.appendChild(hd);
   } else if (dsSan.duoc_sua && dsSan.danh_sach_san) {
     const b = document.createElement('button'); b.type = 'button'; b.className = 'btn btn-ghost'; b.textContent = T('moc.sua');
     b.addEventListener('click', () => moSuaSan(true));

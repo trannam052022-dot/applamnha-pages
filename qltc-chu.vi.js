@@ -171,7 +171,7 @@
     "tt.sao_chep": "Sao chép",
     "tt.da_chep": "Đã chép",
     "tt.sau_khi": "Sau khi nhận chuyển khoản, ALN bật gói và nhắn anh/chị qua Zalo.",
-    "tt.hoa_don": "Hoá đơn: ALN gửi sau khi được cấp.",
+    "tt.hoa_don": "Hoá đơn ALN sẽ gửi sau cho anh/chị.",
     "tt.sua_truoc": "Danh sách sàn chưa đúng thì sửa trước khi chuyển khoản — số tiền sẽ tính lại theo danh sách mới.",
     "tt.can_dong_y": "Anh/chị đồng ý dữ liệu công trình trước, phần chuyển khoản sẽ hiện ở đây.",
     "tt.da_bat": "Gói đã bật.",

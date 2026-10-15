@@ -49,7 +49,7 @@
 
   function ve(el, kq, opts) {
     el.textContent = "";
-    if (kq.da_bat) { el.appendChild(the("p", "qtt-ghi", T("tt.da_bat"))); return; }
+    if (kq.da_bat) { el.appendChild(the("p", "qtt-ghi", T("tt.da_bat"))); el.appendChild(the("p", "qtt-ghi", T("tt.hoa_don"))); return; }
     if (kq.can_dong_y || !kq.don) { el.appendChild(the("p", "qtt-ghi", T("tt.can_dong_y"))); return; }
     var d = kq.don;
     var hop = the("div", "qtt");
