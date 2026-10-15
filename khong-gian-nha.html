@@ -447,6 +447,7 @@ button.mtc-row[aria-expanded="true"]{border-color:var(--gold,#b8892b);border-bot
 .mtc-ct{border:1px solid var(--gold,#b8892b);border-top:0;border-radius:0 0 var(--r-sm) var(--r-sm);padding:.7rem .8rem .8rem;margin-top:-.45rem;background:var(--surface)}
 .mtc-ct p{margin:.2rem 0 .5rem;font-size:var(--text-sm);color:var(--text-3);line-height:1.6}
 .mtc-ct .btn{width:100%;min-height:2.8rem;margin:.3rem 0 .6rem}
+.mtc-ck-ghi{font-size:var(--text-sm)!important;color:var(--text-2)!important;font-style:italic;margin-top:.3rem!important}
 .mtc-ck-tieu{font-weight:600;color:var(--text-1)!important;font-size:var(--text-base)!important;margin-top:.6rem!important}
 .mtc-ck{display:flex;gap:.6rem;align-items:flex-start;padding:.45rem 0;border-top:1px dashed var(--border-soft);font-size:var(--text-base);color:var(--text-1);line-height:1.5;cursor:pointer}
 .mtc-ck input{width:1.25rem;height:1.25rem;margin-top:.12rem;flex:none}
@@ -1529,6 +1530,7 @@ function veChiTietMoc(m) {
       const sp = document.createElement('span'); sp.textContent = x.chu;
       lb.appendChild(ip); lb.appendChild(sp); box.appendChild(lb);
     });
+    if (c.ghi_chu) { const g = document.createElement('p'); g.className = 'mtc-ck-ghi'; g.textContent = c.ghi_chu; box.appendChild(g); }
   }
   if (mocMsg) { const e = document.createElement('p'); e.className = 'mtc-msg loi'; e.textContent = mocMsg; box.appendChild(e); }
   if (window.alnQltcBangChung) box.appendChild(window.alnQltcBangChung.khoiMoc(m, bcCtx())); // PR-7: ảnh, bản vẽ tầng, biên bản
