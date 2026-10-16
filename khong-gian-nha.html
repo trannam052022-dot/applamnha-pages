@@ -1950,7 +1950,7 @@ function renderBaSo() {
     (su.canh_bao || []).filter((c) => c.loai === 'tong').forEach((c) => {
       const p = document.createElement('p'); p.className = 'so-canh-bao'; p.textContent = T('so.canh_bao', { pt: c.phan_tram }); body.appendChild(p);
     });
-    if (su.du_toan != null) { const p = document.createElement('p'); p.className = 'mtc-note'; p.textContent = T('so.du_toan', { tien: tienSo(su.du_toan) }); body.appendChild(p); }
+    if (su.du_toan != null) { const p = document.createElement('p'); p.className = 'mtc-note'; p.textContent = T(su.nguon_du_toan === 'du_toan_tang' ? 'so.du_toan_tang' : 'so.du_toan', { tien: tienSo(su.du_toan) }); body.appendChild(p); }
   }
 }
 function renderChuanBi() {

@@ -270,6 +270,7 @@
     "so.moc_het": "Đã xong các mốc",
     "so.dang_tai": "Đang tải…",
     "so.du_toan": "Dự toán: {tien} (phần nhận khoán chưa thuế GTGT và vật tư anh/chị tự mua). Đã chi là tổng các khoản trong Sổ chi.",
+    "so.du_toan_tang": "Dự toán: {tien} (cộng dự toán theo tầng của các mốc, chưa thuế GTGT). Đã chi là tổng các khoản trong Sổ chi.",
     "so.chi_chu_nha": "Số tiền chỉ chủ nhà xem được.",
     "so.canh_bao": "Tổng tiền đã ứng cho thợ đã tới {pt}% dự toán. Anh/chị có thể đối chiếu: phần việc đã xong có tương ứng với số tiền đã ứng không?",
     // PR-6b — chuẩn bị cho mốc tới (từ dự toán của tầng N+1)
