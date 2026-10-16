@@ -1,8 +1,10 @@
 /**
  * aln-qltc-bang-chung.js — bằng chứng theo mốc của Gói Quản lý Thi công (PR-7), dùng ở khong-gian-nha.html.
  *
- *   window.alnQltcBangChung.khoiMoc(moc, ctx)  → phần tử: "Ảnh", "Bản vẽ tầng này", "Tải biên bản PDF"
- *                                                 (gắn cuối chi tiết mốc)
+ *   window.alnQltcBangChung.khoiMoc(moc, ctx, mucIds) → phần tử: "Ảnh khác của mốc", "Bản vẽ tầng này",
+ *                                                 "Tải biên bản PDF" (gắn cuối chi tiết mốc)
+ *   window.alnQltcBangChung.khoiAnhViec(moc, muc, ctx) → ảnh của MỘT việc trong checklist + nút
+ *                                                 "Chụp ảnh" (mở camera sau) / "Chọn ảnh" (16/10/2026)
  *   window.alnQltcBangChung.khoiTaiAnh(ctx)    → phần tử: chọn mốc + chụp/chọn ảnh (đầu khối Nhật ký)
  *
  *   ctx = { goi: (data) => httpsCallable('qltcBangChung')(data), houseId, xemFounder, laChuNha,
@@ -39,7 +41,7 @@
 
   /* ── Bộ nhớ theo hồ sơ + mốc; khối vẽ lại khi có dữ liệu (chi tiết mốc bị dựng lại mỗi lần renderMocTc) ── */
   var cache = {};   // khoá → { anh, duoc_tai, loi, dang } | bản vẽ: { trang, loi, khong_quyen }
-  var cho = {};     // khoá → phần tử đang chờ vẽ lại
+  var cho = {};     // khoá → [phần tử đang chờ vẽ lại] (khối ảnh mốc + khối ảnh từng việc)
   function khoa(ctx, ma, loai) { return ctx.houseId + "|" + ma + "|" + loai; }
   function napAnh(ctx, ma, ep) {
     var k = khoa(ctx, ma, "anh");
@@ -59,7 +61,17 @@
       cache[k] = e && /permission-denied/.test(String(e.code)) ? { khong_quyen: true } : { trang: [], loi: loiCua(e) };
     }).then(function () { veLai(k); });
   }
-  function veLai(k) { var el = cho[k]; if (el && el.isConnected && el.__ve) el.__ve(); }
+  // Phần tử mới dựng chưa gắn vào trang (chi tiết mốc dựng xong mới gắn) → chỉ dọn phần tử rời trang đã > 5 giây.
+  function ganCho(k, el) {
+    var bay = Date.now();
+    el.__luc = bay;
+    cho[k] = (cho[k] || []).filter(function (x) { return x.isConnected || bay - x.__luc < 5000; });
+    cho[k].push(el);
+  }
+  function veLai(k) {
+    (cho[k] || []).forEach(function (el) { if (el.isConnected && el.__ve) el.__ve(); });
+    cho[k] = (cho[k] || []).filter(function (x) { return x.isConnected; });
+  }
 
   /* ── Xem ảnh lớn (lớp phủ) ── */
   function xemLon(tieuDe, layAnh) {
@@ -92,14 +104,15 @@
   }
 
   /* ── Khối trong chi tiết mốc ── */
-  function khoiMoc(m, ctx) {
+  /** mucIds: id các việc trong checklist của mốc — ảnh gắn các việc này hiện ở từng việc, không ở đây. */
+  function khoiMoc(m, ctx, mucIds) {
     var box = the("div", "bc-khoi");
     var kA = khoa(ctx, m.id, "anh"), kB = khoa(ctx, m.id, "bv");
     var phanAnh = the("div", "bc-phan"); var phanBv = the("div", "bc-phan"); var phanBb = the("div", "bc-phan");
     box.appendChild(phanAnh); box.appendChild(phanBv);
-    phanAnh.__ve = function () { veAnh(phanAnh, m, ctx); };
+    phanAnh.__ve = function () { veAnh(phanAnh, m, ctx, mucIds || []); };
     phanBv.__ve = function () { veBanVe(phanBv, m, ctx); };
-    cho[kA] = phanAnh; cho[kB] = phanBv;
+    ganCho(kA, phanAnh); ganCho(kB, phanBv);
     phanAnh.__ve(); phanBv.__ve();
     // Biên bản: chỉ chủ nhà (Founder xem thử), mốc đã xong.
     if ((ctx.laChuNha || ctx.xemFounder) && ctx.goiDaBat && m.trang_thai === "xong") {
@@ -110,34 +123,62 @@
     return box;
   }
 
-  function veAnh(el, m, ctx) {
+  function luoiAnh(ds, m, ctx) {
+    var luoi = the("div", "bc-luoi");
+    ds.forEach(function (a) {
+      var o = the("button", "bc-o"); o.type = "button";
+      var tieu = (m.ten || "") + " · " + gioVN(a.luc_ms);
+      o.setAttribute("aria-label", T("bc.xem_anh") + " " + tieu);
+      if (a.nho) { var img = the("img"); img.alt = ""; img.onload = function () { URL.revokeObjectURL(img.src); }; img.src = blobUrl(a.nho); o.appendChild(img); }
+      o.appendChild(the("span", "bc-o-gio", gioVN(a.luc_ms)));
+      if (a.ghi_chu) o.title = a.ghi_chu;
+      o.addEventListener("click", function () {
+        xemLon(tieu + (a.ghi_chu ? " · " + a.ghi_chu : ""), function () {
+          return ctx.goi({ hanh_dong: "xem_anh", houseId: ctx.houseId, anh_id: a.id }).then(function (r) { return r.data.anh; });
+        });
+      });
+      luoi.appendChild(o);
+    });
+    return luoi;
+  }
+
+  /** Ảnh chung của mốc: ảnh không gắn việc nào trong checklist (mốc không có checklist: mọi ảnh). */
+  function veAnh(el, m, ctx, mucIds) {
     el.textContent = "";
     var c = cache[khoa(ctx, m.id, "anh")];
-    el.appendChild(the("p", "bc-tieu", T("bc.anh_tieu_de") + (c && c.anh && c.anh.length ? " (" + c.anh.length + ")" : "")));
+    var coViec = mucIds.length > 0;
+    var ds = c && c.anh ? c.anh.filter(function (a) { return mucIds.indexOf(a.muc_id) < 0; }) : [];
+    el.appendChild(the("p", "bc-tieu", T(coViec ? "bc.anh_khac" : "bc.anh_tieu_de") + (ds.length ? " (" + ds.length + ")" : "")));
     if (!c || c.dang) { el.appendChild(the("p", "bc-ghi", T("bc.dang_tai"))); return; }
     if (c.loi) { el.appendChild(the("p", "bc-ghi loi", c.loi)); return; }
-    if (!c.anh.length) el.appendChild(the("p", "bc-ghi", T("bc.chua_co_anh")));
-    else {
-      var luoi = the("div", "bc-luoi");
-      c.anh.forEach(function (a) {
-        var o = the("button", "bc-o"); o.type = "button";
-        var tieu = (m.ten || "") + " · " + gioVN(a.luc_ms);
-        o.setAttribute("aria-label", T("bc.xem_anh") + " " + tieu);
-        if (a.nho) { var img = the("img"); img.alt = ""; img.onload = function () { URL.revokeObjectURL(img.src); }; img.src = blobUrl(a.nho); o.appendChild(img); }
-        o.appendChild(the("span", "bc-o-gio", gioVN(a.luc_ms)));
-        if (a.ghi_chu) o.title = a.ghi_chu;
-        o.addEventListener("click", function () {
-          xemLon(tieu + (a.ghi_chu ? " · " + a.ghi_chu : ""), function () {
-            return ctx.goi({ hanh_dong: "xem_anh", houseId: ctx.houseId, anh_id: a.id }).then(function (r) { return r.data.anh; });
-          });
-        });
-        luoi.appendChild(o);
-      });
-      el.appendChild(luoi);
-    }
+    if (!ds.length) { if (!coViec) el.appendChild(the("p", "bc-ghi", T("bc.chua_co_anh"))); }
+    else el.appendChild(luoiAnh(ds, m, ctx));
     if (c.duoc_tai && !ctx.xemFounder) {
-      el.appendChild(khoiChonAnh(ctx, function () { return m.id; }, null));
+      el.appendChild(khoiChonAnh(ctx, function () { return m.id; }, null, null));
     }
+  }
+
+  /** Ảnh của một việc trong checklist + nút chụp/chọn ảnh gắn đúng việc đó.
+   *  khongCanAnh: việc "không áp dụng" — chưa có ảnh thì chỉ ghi không cần ảnh, không hiện nút. */
+  function khoiAnhViec(m, muc, ctx, khongCanAnh) {
+    var el = the("div", "bc-viec");
+    var k = khoa(ctx, m.id, "anh");
+    el.__ve = function () {
+      el.textContent = "";
+      var c = cache[k];
+      if (!c || c.dang) { el.appendChild(the("p", "bc-ghi", T("bc.dang_tai"))); return; }
+      if (c.loi) { el.appendChild(the("p", "bc-ghi loi", c.loi)); return; }
+      var ds = c.anh.filter(function (a) { return a.muc_id === muc.id; });
+      el.dataset.soAnh = String(ds.length);
+      if (ds.length) el.appendChild(luoiAnh(ds, m, ctx));
+      else if (khongCanAnh) { el.appendChild(the("p", "bc-ghi", T("bc.khong_can_anh"))); return; }
+      else el.appendChild(the("p", "bc-ghi bc-thieu", T("bc.chua_co_anh_viec")));
+      if (c.duoc_tai && !ctx.xemFounder && !khongCanAnh) el.appendChild(khoiChonAnh(ctx, function () { return m.id; }, null, muc.id));
+    };
+    ganCho(k, el);
+    el.__ve();
+    napAnh(ctx, m.id);
+    return el;
   }
 
   function veBanVe(el, m, ctx) {
@@ -200,42 +241,63 @@
     });
   }
 
-  /** Nút chọn ảnh + ghi chú. chonMa() trả mã mốc lúc gửi; chon (select) tuỳ chọn. */
-  function khoiChonAnh(ctx, chonMa, chon) {
-    var hop = the("div", "bc-tai");
-    var ip = the("input"); ip.type = "file"; ip.accept = "image/*"; ip.multiple = true; ip.hidden = true;
-    var gc = the("input", "bc-gc"); gc.type = "text"; gc.maxLength = 200; gc.placeholder = T("bc.ghi_chu_goi_y");
-    gc.setAttribute("aria-label", T("bc.ghi_chu"));
-    var b = nut(T("bc.them_anh"), "btn btn-ghost bc-tai-nut");
+  /**
+   * Nút "Chụp ảnh" (mở camera sau trên điện thoại) + "Chọn ảnh" (thư viện) + ghi chú.
+   * chonMa() trả mã mốc lúc gửi; chon (select) tuỳ chọn; mucId: gắn ảnh vào một việc (khi đó không
+   * có ô ghi chú — tên việc đã là ngữ cảnh).
+   */
+  function khoiChonAnh(ctx, chonMa, chon, mucId) {
+    var hop = the("div", "bc-tai" + (mucId ? " bc-tai-gon" : ""));
+    function oChon(chup) {
+      var ip = the("input"); ip.type = "file"; ip.accept = "image/*"; ip.hidden = true;
+      if (chup) ip.setAttribute("capture", "environment"); else ip.multiple = true;
+      return ip;
+    }
+    var ipChup = oChon(true), ipChon = oChon(false);
+    var gc = null;
+    if (!mucId) {
+      gc = the("input", "bc-gc"); gc.type = "text"; gc.maxLength = 200; gc.placeholder = T("bc.ghi_chu_goi_y");
+      gc.setAttribute("aria-label", T("bc.ghi_chu"));
+    }
+    var hang = the("div", "bc-tai-hang");
+    var bChup = nut(T("bc.chup_anh"), "btn btn-ghost bc-tai-nut");
+    var bChon = nut(T("bc.chon_anh"), "btn btn-ghost bc-tai-nut");
+    hang.appendChild(bChup); hang.appendChild(bChon);
     var tt = the("p", "bc-ghi", ""); tt.setAttribute("role", "status");
     if (chon) hop.appendChild(chon);
-    hop.appendChild(gc); hop.appendChild(b); hop.appendChild(ip); hop.appendChild(tt);
-    b.addEventListener("click", function () { ip.click(); });
-    ip.addEventListener("change", function () {
+    if (gc) hop.appendChild(gc);
+    hop.appendChild(hang); hop.appendChild(ipChup); hop.appendChild(ipChon); hop.appendChild(tt);
+    bChup.addEventListener("click", function () { ipChup.click(); });
+    bChon.addEventListener("click", function () { ipChon.click(); });
+    function guiTu(ip) {
       var files = Array.prototype.slice.call(ip.files || []).slice(0, 10);
       ip.value = "";
       var ma = chonMa();
       if (!files.length || !ma) return;
-      b.disabled = true; tt.className = "bc-ghi";
+      bChup.disabled = bChon.disabled = true; tt.className = "bc-ghi";
       var xong = 0, loi = null;
       var chuoi = Promise.resolve();
       files.forEach(function (f) {
         chuoi = chuoi.then(function () {
           tt.textContent = T("bc.dang_gui", { da: xong, tong: files.length });
           return thuNho(f).then(function (data) {
-            return ctx.goi({ hanh_dong: "tai_anh", houseId: ctx.houseId, ma_moc: ma, anh: data, ghi_chu: gc.value || null });
+            var goi = { hanh_dong: "tai_anh", houseId: ctx.houseId, ma_moc: ma, anh: data, ghi_chu: gc ? (gc.value || null) : null };
+            if (mucId) goi.muc_id = mucId;
+            return ctx.goi(goi);
           }).then(function () { xong++; }, function (e) { loi = loiCua(e); });
         });
       });
       chuoi.then(function () {
-        b.disabled = false;
-        if (xong) gc.value = "";
+        bChup.disabled = bChon.disabled = false;
+        if (xong && gc) gc.value = "";
         tt.className = "bc-ghi" + (loi ? " loi" : " ok");
         tt.textContent = loi ? (xong ? T("bc.gui_mot_phan", { da: xong, tong: files.length }) + " " : "") + loi : T("bc.da_gui", { da: xong });
         napAnh(ctx, ma, true);
-        try { if (window.dataLayer && xong) window.dataLayer.push({ event: "aln_qltc_anh_moc", so_anh: xong }); } catch (e) { /* bỏ qua */ }
+        try { if (window.dataLayer && xong) window.dataLayer.push({ event: "aln_qltc_anh_moc", so_anh: xong, theo_viec: mucId ? 1 : 0 }); } catch (e) { /* bỏ qua */ }
       });
-    });
+    }
+    ipChup.addEventListener("change", function () { guiTu(ipChup); });
+    ipChon.addEventListener("change", function () { guiTu(ipChon); });
     return hop;
   }
 
@@ -256,7 +318,7 @@
       sel.appendChild(o);
     });
     lb.appendChild(sel);
-    box.appendChild(khoiChonAnh(ctx, function () { return sel.value; }, lb));
+    box.appendChild(khoiChonAnh(ctx, function () { return sel.value; }, lb, null));
     return box;
   }
 
@@ -265,6 +327,7 @@
     + ".bc-tieu{font-weight:600;color:var(--text-1,#1e293b)!important;font-size:var(--text-base,1rem)!important;margin:.5rem 0 .35rem!important}"
     + ".bc-ghi{font-size:var(--text-sm,.875rem);color:var(--text-3,#5b6472);margin:.25rem 0;line-height:1.5}"
     + ".bc-ghi.loi{color:var(--red,#b42318)}.bc-ghi.ok{color:var(--green,#17704a)}"
+    + ".bc-ghi:empty{display:none}"
     + ".bc-luoi{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:.45rem;margin:.3rem 0 .6rem}"
     + ".bc-o{position:relative;aspect-ratio:4/3;padding:0;border:1px solid var(--border-soft,#ddd);border-radius:8px;overflow:hidden;background:#eee;cursor:pointer}"
     + ".bc-o img{width:100%;height:100%;object-fit:cover;display:block}"
@@ -273,7 +336,11 @@
     + ".bc-bv-nut{text-align:left;border:1px solid var(--border-soft,#ddd);background:var(--surface,#fff);color:var(--text-1,#1e293b);border-radius:8px;padding:.6rem .75rem;min-height:2.75rem;font:inherit;cursor:pointer}"
     + ".bc-bb-nut{width:100%;min-height:2.8rem}.bc-bb-link{font-weight:600;color:var(--gold-dark,#7a5a12)}"
     + ".bc-tai{display:flex;flex-direction:column;gap:.45rem;margin:.3rem 0}"
-    + ".bc-tai-nut{min-height:2.8rem}"
+    + ".bc-tai-nut{min-height:2.8rem;flex:1 1 0}"
+    + ".bc-tai-hang{display:flex;gap:.45rem}"
+    + ".bc-tai-gon{margin:.2rem 0 .1rem}"
+    + ".bc-viec .bc-luoi{grid-template-columns:repeat(auto-fill,minmax(80px,1fr));margin:.25rem 0 .35rem}"
+    + ".bc-thieu{color:var(--amber-dark,#8a5a00)!important}"
     + ".bc-gc,.bc-chon-moc select{font:inherit;font-size:16px;padding:.55rem .65rem;border:1.5px solid var(--border-soft,#ccc);border-radius:8px;width:100%;box-sizing:border-box;background:var(--surface,#fff);color:inherit}"
     + ".bc-chon-moc{display:flex;flex-direction:column;gap:.25rem;font-size:var(--text-sm,.875rem);color:var(--text-3,#5b6472)}"
     + ".bc-nk{border:1px dashed var(--border-soft,#ccc);border-radius:10px;padding:.7rem .8rem;margin:0 0 .9rem}"
@@ -288,5 +355,5 @@
     var st = document.createElement("style"); st.id = "bc-css"; st.textContent = css; document.head.appendChild(st);
   }
 
-  window.alnQltcBangChung = { khoiMoc: khoiMoc, khoiTaiAnh: khoiTaiAnh, _xoaBoNho: function () { cache = {}; cho = {}; } };
+  window.alnQltcBangChung = { khoiMoc: khoiMoc, khoiAnhViec: khoiAnhViec, khoiTaiAnh: khoiTaiAnh, _xoaBoNho: function () { cache = {}; cho = {}; } };
 })();
