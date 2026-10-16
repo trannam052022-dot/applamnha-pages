@@ -5,7 +5,8 @@
 <script src="scripts/aln-optout.js"></script>
 <script src="scripts/aln-estimate-funnel.js"></script>
 <!-- Google Tag Manager -->
-<script src="/aln-consent.js?v=3"></script>
+<meta name="aln-ck" content="khong-thanh">
+<script src="/aln-consent.js?v=4"></script>
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
@@ -579,6 +580,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           KTS có CCHN được xác minh
         </span>
       </div>
+      <!-- Người cùng theo dõi (16/10/2026): một dòng, bấm mới mở khối mời/gỡ/bật quyền — aln-kiem-giup.js vẽ -->
+      <div id="kgDong" hidden></div>
     </section>
 
     <!-- PR-5 — Việc tiếp theo (hồ sơ trước C1): đúng 1 việc + 1 nút chính, đổi theo trạng thái (chonViec). -->
@@ -677,15 +680,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span class="block-title">Tài liệu của bạn</span>
       </div>
       <div id="docBody"></div>
-    </section>
-
-    <!-- d0. Người cùng theo dõi (người kiểm giúp, 16/10/2026) — chủ nhà, hồ sơ gói; aln-kiem-giup.js vẽ -->
-    <section class="block" id="kgBlock" hidden>
-      <div class="block-head">
-        <span class="block-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.6"/><path d="M15.5 14.2c2.4.2 4.2 1.8 4.8 4.8"/></svg></span>
-        <span class="block-title" data-chu="kg.chu.tieu_de">Người cùng theo dõi</span>
-      </div>
-      <div id="kgBody"></div>
     </section>
 
     <!-- d. Nhật ký -->
@@ -1312,7 +1306,7 @@ function renderSteps() {
 }
 
 /* Dồn/khôi phục khối phụ vào "Thêm". Mỗi khối nhớ chỗ cũ bằng một comment đánh dấu. */
-const KHOI_THEM = ['stepsBlock', 'uploadBlock', 'pkgBlock', 'dydlBlock', 'kgBlock', 'logBlock', 'sochiBlock', 'soonBlock'];
+const KHOI_THEM = ['stepsBlock', 'uploadBlock', 'pkgBlock', 'dydlBlock', 'logBlock', 'sochiBlock', 'soonBlock'];
 const choCu = {};
 function datBoCuc(truocC1) {
   const body = document.getElementById('themBody');
@@ -1690,19 +1684,19 @@ function renderLogTaiAnh() {
   if (hien) el.appendChild(window.alnQltcBangChung.khoiTaiAnh(ctx));
 }
 
-/* Người cùng theo dõi (người kiểm giúp, 16/10/2026): chỉ chủ nhà của hồ sơ gói, không ở chế độ Founder xem. */
+/* Người cùng theo dõi (người kiểm giúp, 16/10/2026): chỉ chủ nhà của hồ sơ gói, không ở chế độ Founder xem.
+   Một dòng ngay dưới thẻ đầu hồ sơ, bấm mới mở khối mời/gỡ/bật quyền (không phải nút chính). */
 let kgKhoa = null;
 function renderKiemGiup() {
-  const el = document.getElementById('kgBlock');
+  const el = document.getElementById('kgDong');
   const h = currentHouseData;
   const hien = !!(window.alnKiemGiup && h && laHoSoGoi(h) && dsSan && dsSan.la_chu_nha && !XEM_FOUNDER);
   el.hidden = !hien;
   const k = hien ? currentHouseId : '';
   if (k === kgKhoa) return;
   kgKhoa = k;
-  const body = document.getElementById('kgBody');
-  body.textContent = '';
-  if (hien) body.appendChild(window.alnKiemGiup.khoiChuNha({ goi: (data) => callKiemGiup(data), houseId: currentHouseId }));
+  el.textContent = '';
+  if (hien) el.appendChild(window.alnKiemGiup.dongDau({ goi: (data) => callKiemGiup(data), houseId: currentHouseId }));
 }
 /* "do {tên}, người kiểm giúp, lúc …" — việc / mốc do người kiểm giúp bấm. */
 function doNguoiKiem(g) {

@@ -293,6 +293,10 @@
     "kg.chu.xn_go": "Gỡ {ten} khỏi hồ sơ? Số điện thoại của {ten} sẽ không còn trong hồ sơ; các việc {ten} đã đánh dấu vẫn giữ tên.",
     "kg.chu.toi_da": "Mỗi hồ sơ mời tối đa {n} người.",
     "kg.chu.loi": "Chưa lưu được — anh/chị thử lại.",
+    // Dòng dưới thẻ đầu hồ sơ (16/10/2026): "Người cùng theo dõi: Chị Lan, Anh Hùng · + Mời"
+    "kg.dau.nhan": "Người cùng theo dõi:",
+    "kg.dau.trong": "chưa có ai",
+    "kg.dau.moi": "+ Mời",
     "kg.do": "do {ten}, người kiểm giúp",
     "kg.do_luc": "do {ten}, người kiểm giúp, lúc {luc}",
     // Người được mời — kiem-giup.html

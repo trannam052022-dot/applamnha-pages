@@ -247,6 +247,24 @@
    * chonMa() trả mã mốc lúc gửi; chon (select) tuỳ chọn; mucId: gắn ảnh vào một việc (khi đó không
    * có ô ghi chú — tên việc đã là ngữ cảnh).
    */
+  /**
+   * Có mở được camera để chụp không (16/10/2026, Nam: máy tính chỉ hiện "Chọn ảnh").
+   * Thuộc tính capture chỉ có tác dụng trên máy cảm ứng; máy tính bấm "Chụp ảnh" cũng chỉ mở hộp chọn file.
+   * Đồng bộ: màn cảm ứng (pointer: coarse). Sau đó hỏi danh sách thiết bị: không có camera thì ẩn luôn.
+   */
+  function coCameraNgay() {
+    try { return !!(window.matchMedia && window.matchMedia("(pointer: coarse)").matches); } catch (e) { return false; }
+  }
+  function kiemCamera(khongCo) {
+    try {
+      var md = navigator.mediaDevices;
+      if (!md || !md.enumerateDevices) return;
+      md.enumerateDevices().then(function (ds) {
+        if (!ds.some(function (x) { return x.kind === "videoinput"; })) khongCo();
+      }, function () { /* không hỏi được thì giữ nguyên */ });
+    } catch (e) { /* bỏ qua */ }
+  }
+
   function khoiChonAnh(ctx, chonMa, chon, mucId) {
     var hop = the("div", "bc-tai" + (mucId ? " bc-tai-gon" : ""));
     function oChon(chup) {
@@ -264,6 +282,10 @@
     var bChup = nut(T("bc.chup_anh"), "btn btn-ghost bc-tai-nut");
     var bChon = nut(T("bc.chon_anh"), "btn btn-ghost bc-tai-nut");
     hang.appendChild(bChup); hang.appendChild(bChon);
+    // .btn đặt display riêng nên [hidden] không đủ — ẩn bằng style.
+    function anChup() { bChup.hidden = true; bChup.style.display = "none"; }
+    if (!coCameraNgay()) anChup();
+    else kiemCamera(anChup);
     var tt = the("p", "bc-ghi", ""); tt.setAttribute("role", "status");
     if (chon) hop.appendChild(chon);
     if (gc) hop.appendChild(gc);

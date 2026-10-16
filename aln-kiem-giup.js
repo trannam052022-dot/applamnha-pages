@@ -1,6 +1,8 @@
 /**
  * aln-kiem-giup.js — khối "Người cùng theo dõi" của chủ nhà trong khong-gian-nha.html (16/10/2026).
  *
+ *   window.alnKiemGiup.dongDau(ctx)    → một dòng dưới thẻ đầu hồ sơ ("Người cùng theo dõi: … · + Mời"),
+ *                                        bấm mở khoiChuNha ngay bên dưới.
  *   window.alnKiemGiup.khoiChuNha(ctx) → phần tử: danh sách người kiểm giúp, form mời bằng SĐT,
  *                                        bật/tắt quyền bắt đầu & khép mốc, gỡ.
  *   ctx = { goi: (data) => httpsCallable('kiemGiup')(data), houseId }
@@ -27,6 +29,7 @@
     function nap() {
       ctx.goi({ hanh_dong: "ds", houseId: ctx.houseId }).then(function (r) {
         st.ds = (r.data && r.data.nguoi) || []; st.toi_da = (r.data && r.data.toi_da) || 5; st.link = (r.data && r.data.link) || st.link; st.loi = null;
+        if (ctx.khiDoi) ctx.khiDoi(st.ds);
       }, function (e) { st.ds = st.ds || []; st.loi = loiCua(e); }).then(ve);
     }
     function lam(data) {
@@ -88,7 +91,7 @@
         var sdt = the("input", "kg-o"); sdt.type = "tel"; sdt.inputMode = "numeric"; sdt.maxLength = 16; sdt.autocomplete = "off";
         sdt.placeholder = T("kg.chu.sdt"); sdt.setAttribute("aria-label", T("kg.chu.sdt"));
         sdt.setAttribute("data-aln-quyen", "");
-        var gui = the("button", "btn btn-gold", T(st.dang ? "kg.chu.dang_moi" : "kg.chu.nut_moi")); gui.type = "submit"; gui.disabled = st.dang;
+        var gui = the("button", "btn btn-ghost kg-gui", T(st.dang ? "kg.chu.dang_moi" : "kg.chu.nut_moi")); gui.type = "submit"; gui.disabled = st.dang;
         f.appendChild(the("label", "kg-nhan", T("kg.chu.ten"))); f.appendChild(ten);
         f.appendChild(the("label", "kg-nhan", T("kg.chu.sdt"))); f.appendChild(sdt);
         f.appendChild(gui);
@@ -116,6 +119,31 @@
     return box;
   }
 
+  /**
+   * Dòng ngay dưới thẻ đầu hồ sơ (16/10/2026, Nam): "Người cùng theo dõi: Chị Lan, Anh Hùng · + Mời".
+   * Không phải nút chính — bấm mới mở khối mời / gỡ / bật quyền (khoiChuNha) ngay bên dưới.
+   */
+  function dongDau(ctx) {
+    var box = the("div", "kg-dau-dong");
+    var nutDong = the("button", "kg-dau-nut"); nutDong.type = "button";
+    nutDong.setAttribute("aria-expanded", "false");
+    var nhan = the("span", "kg-dau-nhan", T("kg.dau.nhan"));
+    var ten = the("span", "kg-dau-ten", "…");
+    var moi = the("span", "kg-dau-moi", T("kg.dau.moi"));
+    nutDong.appendChild(nhan); nutDong.appendChild(ten); nutDong.appendChild(the("span", "kg-dau-cham", "·")); nutDong.appendChild(moi);
+    var panel = khoiChuNha(Object.assign({}, ctx, {
+      khiDoi: function (ds) { ten.textContent = ds.length ? ds.map(function (n) { return n.ten; }).join(", ") : T("kg.dau.trong"); }
+    }));
+    var vo = the("div", "kg-dau-panel"); vo.hidden = true; vo.id = "kgPanel"; vo.appendChild(panel);
+    nutDong.setAttribute("aria-controls", "kgPanel");
+    nutDong.addEventListener("click", function () {
+      vo.hidden = !vo.hidden;
+      nutDong.setAttribute("aria-expanded", vo.hidden ? "false" : "true");
+    });
+    box.appendChild(nutDong); box.appendChild(vo);
+    return box;
+  }
+
   var css = ".kg-chu{display:flex;flex-direction:column;gap:.55rem}"
     + ".kg-mo-ta{margin:0;font-size:var(--text-sm);color:var(--text-2);line-height:1.6}"
     + ".kg-ghi{margin:0;font-size:var(--text-sm);color:var(--text-3)}"
@@ -132,12 +160,21 @@
     + ".kg-nhan{font-size:var(--text-sm);color:var(--text-2);font-weight:600}"
     + ".kg-o,.kg-link{width:100%;box-sizing:border-box;font:inherit;font-size:16px;padding:.6rem .7rem;border:1.5px solid var(--border-soft,#ccc);border-radius:8px;background:var(--surface,#fff);color:inherit}"
     + ".kg-form .btn{min-height:2.8rem;margin-top:.3rem}"
+    + ".kg-form .kg-gui{font-weight:700;color:var(--text-1);border-color:var(--gold,#98690a)}"
     + ".kg-da-moi{background:#e3f4ea;color:#14532d;border-radius:10px;padding:.6rem .7rem;display:flex;flex-direction:column;gap:.4rem}"
     + ".kg-da-moi p{margin:0;font-size:var(--text-sm);line-height:1.55}"
-    + ".kg-loi{margin:0;color:#b42318;font-size:var(--text-sm)}";
+    + ".kg-loi{margin:0;color:#b42318;font-size:var(--text-sm)}"
+    + ".kg-dau-dong{margin-top:.8rem;padding-top:.7rem;border-top:1px solid var(--border-soft,#e3dfd4)}"
+    + ".kg-dau-nut{display:flex;align-items:baseline;gap:.35rem;width:100%;min-height:2.75rem;padding:.35rem 0;background:none;border:0;font:inherit;font-size:var(--text-sm);color:var(--text-2);text-align:left;cursor:pointer}"
+    + ".kg-dau-nhan{flex:none}"
+    + ".kg-dau-ten{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-1);font-weight:600}"
+    + ".kg-dau-cham{flex:none}"
+    + ".kg-dau-moi{flex:none;color:var(--gold,#9a6b08);font-weight:600;text-decoration:underline;text-underline-offset:3px}"
+    + ".kg-dau-nut:focus-visible{outline:3px solid var(--gold,#b8860b);outline-offset:2px;border-radius:6px}"
+    + ".kg-dau-panel{padding-top:.4rem}";
   if (typeof document !== "undefined" && !document.getElementById("kg-css")) {
     var s = document.createElement("style"); s.id = "kg-css"; s.textContent = css; document.head.appendChild(s);
   }
 
-  window.alnKiemGiup = { khoiChuNha: khoiChuNha };
+  window.alnKiemGiup = { khoiChuNha: khoiChuNha, dongDau: dongDau };
 })();

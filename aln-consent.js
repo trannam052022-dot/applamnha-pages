@@ -88,10 +88,14 @@
     'border:1px solid var(--ck-line);border-radius:14px;box-shadow:0 8px 28px rgba(10,18,36,.16);font-family:"Be Vietnam Pro",Arial,sans-serif;font-size:15px;line-height:1.5;max-height:40vh;overflow:auto}' +
     '.aln-ck-in{padding:14px 16px;display:flex;flex-direction:column;gap:10px}' +
     '.aln-ck p{margin:0;color:var(--ck-sub)}.aln-ck p b{color:var(--ck-ink);font-weight:600}' +
-    '@media (max-width:719px){.aln-ck{left:8px;bottom:8px;width:auto;right:8px;max-height:28vh;font-size:14px}.aln-ck-in{padding:10px 12px;gap:8px}.aln-ck .ck-chinh{min-width:96px}}' +
+    '@media (max-width:719px){.aln-ck{left:8px;bottom:8px;width:auto;right:8px;max-height:28vh;font-size:14px}.aln-ck-in{padding:10px 12px;gap:8px}.aln-ck .ck-chinh,.aln-ck .ck-phu{min-width:96px}}' +
     '.aln-ck-nut{display:flex;flex-wrap:wrap;align-items:center;gap:8px}' +
     '.aln-ck button,.aln-ckd button{font:inherit;font-size:16px;cursor:pointer;border-radius:10px;min-height:44px}' +
-    '.aln-ck .ck-chinh{min-width:104px;padding:8px 16px;font-weight:600;background:var(--ck-navy);color:#fff;border:1.5px solid var(--ck-navy)}' +
+    // Từ chối (trái) là nút thường, Đồng ý (phải) nổi bật — cùng cỡ chữ, cùng cỡ nút, bấm một lần là xong (16/10/2026).
+    '.aln-ck-nut .ck-lk{margin-right:auto}' +
+    '.aln-ck .ck-chinh,.aln-ck .ck-phu{min-width:104px;padding:8px 16px;font-weight:600}' +
+    '.aln-ck .ck-chinh{background:var(--ck-navy);color:#fff;border:1.5px solid var(--ck-navy)}' +
+    '.aln-ck .ck-phu{background:var(--ck-bg);color:var(--ck-ink);border:1.5px solid var(--ck-ink)}' +
     '.aln-ck .ck-lk,.aln-ckd .ck-lk{background:none;border:0;padding:8px 6px;color:var(--ck-ink);text-decoration:underline;text-underline-offset:3px}' +
     '.aln-ck button:focus-visible,.aln-ckd button:focus-visible,.aln-ckd a:focus-visible,.aln-ckd input:focus-visible+span,.aln-ck-cd:focus-visible{outline:3px solid var(--ck-focus);outline-offset:2px}' +
     '.aln-ckd-nen{position:fixed;inset:0;z-index:2147483001;background:rgba(10,18,36,.55);display:flex;align-items:center;justify-content:center;padding:16px}' +
@@ -143,12 +147,12 @@
     p.appendChild(el('b', null, 'ALN sẽ nhắc lại bảng dự toán cho bạn trên Facebook.'));
     var nut = el('div', { 'class': 'aln-ck-nut' });
     var dy = el('button', { type: 'button', 'class': 'ck-chinh', 'data-ck': 'dong_y' }, 'Đồng ý');
-    var tc = el('button', { type: 'button', 'class': 'ck-chinh', 'data-ck': 'tu_choi' }, 'Từ chối');
+    var tc = el('button', { type: 'button', 'class': 'ck-phu', 'data-ck': 'tu_choi' }, 'Từ chối');
     var tu = el('button', { type: 'button', 'class': 'ck-lk', 'data-ck': 'tuy_chinh', 'aria-haspopup': 'dialog' }, 'Tuỳ chỉnh');
     dy.onclick = function () { apDung({ do_luong: true, quang_cao: true }, 'dong_y'); anThanh(); };
     tc.onclick = function () { apDung({ do_luong: false, quang_cao: false }, 'tu_choi'); anThanh(); };
     tu.onclick = function () { moHop(tu); };
-    nut.appendChild(dy); nut.appendChild(tc); nut.appendChild(tu);
+    nut.appendChild(tu); nut.appendChild(tc); nut.appendChild(dy);
     vao.appendChild(p); vao.appendChild(nut); thanh.appendChild(vao);
     return thanh;
   }
@@ -242,17 +246,29 @@
     b.onclick = function () { moHop(b); };
     css();
     var fs = d.getElementsByTagName('footer');
+    var dong = el('div', { 'class': 'aln-ck-cd-dong' });
+    dong.appendChild(b);
     if (fs.length) {
-      var dong = el('div', { 'class': 'aln-ck-cd-dong' });
-      dong.style.padding = '8px 0 0';
+      dong.style.paddingTop = '8px';
       dong.style.color = 'inherit';
-      dong.appendChild(b);
       fs[fs.length - 1].appendChild(dong);
     } else {
-      var dong2 = el('div', { 'class': 'aln-ck-cd-dong' });
-      dong2.appendChild(b);
-      d.body.appendChild(dong2);
+      d.body.appendChild(dong);
     }
+    // Link nằm cuối trang: thanh cố định ở đáy (.dock, thanh Zalo — [data-mymy-tranh]) từng che mất
+    // trên điện thoại, không bấm được (16/10/2026). Đệm dưới link bằng chiều cao thanh cao nhất.
+    var dem = function () {
+      var cao = 0, ds = d.querySelectorAll('[data-mymy-tranh]');
+      for (var i = 0; i < ds.length; i++) {
+        var r = ds[i].getBoundingClientRect(), st = w.getComputedStyle(ds[i]);
+        if (st.position === 'fixed' && r.height && r.top > w.innerHeight / 2) cao = Math.max(cao, w.innerHeight - r.top);
+      }
+      dong.style.paddingBottom = cao ? (Math.ceil(cao) + 12) + 'px' : '';
+    };
+    var cho = false;
+    var demSau = function () { if (cho) return; cho = true; (w.requestAnimationFrame || setTimeout)(function () { cho = false; dem(); }); };
+    dem(); setTimeout(dem, 1500);
+    w.addEventListener('resize', demSau); w.addEventListener('scroll', demSau, { passive: true });
   }
 
   /* ───────── Câu quyền dưới mọi form (Nam chốt 03/10/2026) ─────────
@@ -312,8 +328,14 @@
 
   /* ───────── Thời điểm hiện ───────── */
   var daHenHien = false;
+  // Trang sau đăng nhập (Không gian Nhà, kiểm giúp, file in…) đặt <meta name="aln-ck" content="khong-thanh">:
+  // không hiện thanh, vẫn giữ mặc định từ chối + link "Cài đặt cookie" (16/10/2026, Nam: chỉ trang công khai).
+  function khongThanh() {
+    var m = d.querySelector('meta[name="aln-ck"]');
+    return !!(m && m.getAttribute('content') === 'khong-thanh');
+  }
   function henHien(ms) {
-    if (daHenHien || doc()) return;
+    if (daHenHien || doc() || khongThanh()) return;
     daHenHien = true;
     setTimeout(function () { if (!doc() && !hop) hienThanh(); }, ms || 0);
   }
