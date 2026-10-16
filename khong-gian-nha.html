@@ -469,6 +469,17 @@ button.mtc-row[aria-expanded="true"]{border-color:var(--gold,#b8892b);border-bot
 .mtc-ck-nuts{display:flex;flex-wrap:wrap;gap:.45rem;margin:.35rem 0 .1rem}
 .mtc-ct .mtc-ck-nuts .btn{flex:1 1 6.5rem;min-height:2.6rem;margin:0;width:auto}
 .mtc-ck-o{width:100%;box-sizing:border-box;font:inherit;font-size:16px;padding:.55rem .65rem;border:1.5px solid var(--border-soft);border-radius:8px;background:var(--surface);color:inherit;margin-top:.35rem}
+/* 16/10/2026 — hạng mục của tầng (dự toán theo tầng), việc cần kiểm xếp dưới hạng mục theo mã ALN. */
+.mtc-dtt{margin:.4rem 0 .6rem}
+.mtc-ct p.mtc-dtt-tong{color:var(--text-2);font-size:var(--text-sm);margin:.1rem 0 .5rem}
+.mtc-dtt-chuong{margin:.7rem 0 .2rem}
+.mtc-ct p.mtc-dtt-tc{font-weight:700;color:var(--text-1);font-size:var(--text-sm);text-transform:uppercase;letter-spacing:.03em;margin:.8rem 0 .2rem;padding-bottom:.25rem;border-bottom:1px solid var(--border-soft)}
+.mtc-ct p.mtc-dtt-chung{color:var(--text-3);font-size:var(--text-xs);font-style:italic;margin:0 0 .2rem}
+.mtc-dtt-dong{background:var(--surface-2,#eef1f5);border-radius:8px;padding:.55rem .7rem;margin:.4rem 0 .2rem}
+.mtc-ct p.mtc-dtt-ten{font-weight:600;color:var(--text-1);font-size:var(--text-base);margin:0 0 .15rem;line-height:1.45}
+.mtc-ct p.mtc-dtt-so{color:var(--text-2);font-size:var(--text-sm);margin:0}
+.mtc-dtt .mtc-ck{margin-left:.5rem;padding-left:.65rem;border-left:2px solid var(--border-soft);border-top:0}
+.mtc-dtt.trong{border:1px dashed var(--border);border-radius:8px;padding:.5rem .7rem}
 .mtc-goi-y{font-size:var(--text-sm)!important}
 .mtc-tin{width:100%;box-sizing:border-box;min-height:7rem;font:inherit;font-size:var(--text-sm);padding:.5rem;border:1px solid var(--border-soft);border-radius:8px}
 .house-stats.goi.mot{grid-template-columns:1fr}
@@ -478,6 +489,7 @@ button.mtc-row[aria-expanded="true"]{border-color:var(--gold,#b8892b);border-bot
 .so-o .v{font-family:var(--f-mono);font-size:var(--text-md);font-weight:700;color:var(--text-1);text-align:right;white-space:nowrap;line-height:1.35}
 .so-o .v.chu{font-family:var(--f-body);white-space:normal}
 .so-o .v.am{color:var(--red,#b42318)}
+.so-canh-bao.vuot{border-left-color:var(--red,#b42318)}
 .so-canh-bao{border-left:4px solid var(--gold,#b8892b);background:var(--surface);padding:.6rem .8rem;margin:.4rem 0 .6rem;font-size:var(--text-base);color:var(--text-1);line-height:1.6}
 .cb-list{margin:.2rem 0 .6rem;padding-left:1.1rem;font-size:var(--text-base);color:var(--text-1);line-height:1.6}
 .ung-khoi{border-top:1px dashed var(--border-soft);margin-top:.7rem;padding-top:.6rem}
@@ -1610,6 +1622,81 @@ function tinDoiTho(m) {
   return dong.join('\n');
 }
 let mocSua = null; let mocSuaChu = ''; let mocChep = null;
+/* Dự toán theo tầng (16/10/2026): hạng mục + khối lượng + thành tiền của mốc (máy chủ qltcMoc 'du_toan_tang',
+   nạp bằng workflow). Người kiểm giúp / đội thợ không vào trang này và máy chủ cũng chặn. */
+const dttCache = {};
+function dttMoc(ma) {
+  const k = currentHouseId + '|' + ma;
+  if (!dttCache[k]) {
+    dttCache[k] = { trang: 'dang' };
+    callQltcMoc({ hanh_dong: 'du_toan_tang', houseId: currentHouseId, ma_moc: ma })
+      .then((r) => { dttCache[k] = { trang: 'xong', du_toan: (r.data && r.data.du_toan) || null, xep: (r.data && r.data.xep_viec) || null }; })
+      .catch((e) => { console.error('[khong-gian-nha] qltcMoc du_toan_tang lỗi:', e); dttCache[k] = { trang: 'loi' }; })
+      .then(() => { if (mocMo === ma) renderMocTc(); });
+  }
+  return dttCache[k];
+}
+const soVN = (n) => Number(n || 0).toLocaleString('vi-VN', { maximumFractionDigits: 3 });
+/* Theo CHƯƠNG (Nam chốt 16/10/2026): tiêu đề chương → hạng mục của chương → việc cần kiểm của chương. */
+const CHUONG_CO_TEN = ['ALN0', 'ALN1', 'ALN2', 'ALN3', 'ALN4', 'ALN5', 'ALN6', 'ALN9'];
+function tenChuong(ma) {
+  if (!ma) return T('dtang.chuong_khong_ma');
+  return CHUONG_CO_TEN.includes(ma) ? T('dtang.chuong.' + ma) : T('dtang.chuong_khac', { ma }); // khoá động: KHOA_DONG trong scripts/check-qltc-chu.js
+}
+/** Cột "Đã ứng" (chỉ chủ nhà): luỹ kế ứng theo mã ALN của mốc từ qltcSoUng; null = không hiện. */
+function daUngTheoMa(maMoc) {
+  const su = soUngFor === currentHouseId ? soUng : null;
+  if (!su || !su.la_chu_nha || XEM_FOUNDER) return null;
+  const tm = su.theo_moc && su.theo_moc[maMoc];
+  return tm && tm.theo_ma ? tm.theo_ma : null; // máy chủ cũ (chưa có theo_ma) → không hiện cột, tránh hiện 0 đ sai
+}
+function veHangMucTang(dt, xep, themViec, maMoc) {
+  const daUng = daUngTheoMa(maMoc); const maDaGhi = new Set(); // nhiều dòng cùng mã: số ứng ghi ở dòng đầu
+  const w = document.createElement('div'); w.className = 'mtc-dtt';
+  const t = document.createElement('p'); t.className = 'mtc-ck-tieu'; t.textContent = T('dtang.tieu_de'); w.appendChild(t);
+  const tong = document.createElement('p'); tong.className = 'mtc-dtt-tong';
+  tong.textContent = T('dtang.cong', { tien: soVN(dt.tong) }) + ' · ' + T(dt.nguon === 'khach_tai_len' ? 'dtang.nguon_khach' : 'dtang.nguon_aln') + ' · ' + T('dtang.ban', { n: dt.phien_ban || 1 });
+  w.appendChild(tong);
+  const nhom = (xep && Array.isArray(xep.chuong)) ? xep.chuong : [{ ma: null, dong: dt.dong.map((_, i) => i), viec: [] }];
+  nhom.forEach((c) => {
+    const ch = document.createElement('div'); ch.className = 'mtc-dtt-chuong'; ch.dataset.chuong = c.ma || '';
+    const tc = document.createElement('p'); tc.className = 'mtc-dtt-tc'; tc.textContent = tenChuong(c.ma); ch.appendChild(tc);
+    if (!c.dong.length) { const cg = document.createElement('p'); cg.className = 'mtc-dtt-chung'; cg.textContent = T('dtang.chung_ca_nha'); ch.appendChild(cg); }
+    c.dong.forEach((i) => {
+      const d = dt.dong[i]; if (!d) return;
+      const the = document.createElement('div'); the.className = 'mtc-dtt-dong';
+      const ten = document.createElement('p'); ten.className = 'mtc-dtt-ten'; ten.textContent = d.hang_muc; the.appendChild(ten);
+      const so = document.createElement('p'); so.className = 'mtc-dtt-so';
+      let ung = '';
+      if (daUng && d.ma_aln && !maDaGhi.has(d.ma_aln)) { maDaGhi.add(d.ma_aln); ung = ' · ' + T('dtang.da_ung', { tien: soVN(daUng[d.ma_aln] || 0) }); }
+      else if (daUng && !d.ma_aln) ung = ' · ' + T('dtang.da_ung_khong_ma');
+      so.textContent = soVN(d.khoi_luong) + ' ' + d.don_vi + ' · ' + T('dtang.thanh_tien', { tien: soVN(d.thanh_tien) }) + ung;
+      the.appendChild(so);
+      ch.appendChild(the);
+    });
+    if (themViec && c.viec.length) themViec(c.viec, ch);
+    w.appendChild(ch);
+  });
+  return w;
+}
+function veCanDuToan(coQuyen) {
+  const w = document.createElement('div'); w.className = 'mtc-dtt trong';
+  const t = document.createElement('p'); t.className = 'mtc-ck-tieu'; t.textContent = T('dtang.can'); w.appendChild(t);
+  const g = document.createElement('p'); g.className = 'mtc-note'; g.textContent = T(coQuyen ? 'dtang.can_mo_ta' : 'dtang.can_mo_ta_xem'); w.appendChild(g);
+  if (coQuyen) {
+    const n = document.createElement('div'); n.className = 'mtc-ck-nuts';
+    const b1 = document.createElement('button'); b1.type = 'button'; b1.className = 'btn btn-ghost'; b1.textContent = T('dtang.nut_tai');
+    b1.addEventListener('click', () => { els.themBlock.open = true; openFilePicker('du_toan'); });
+    n.appendChild(b1);
+    if (!els.pkgBlock.hidden) {
+      const b2 = document.createElement('button'); b2.type = 'button'; b2.className = 'btn btn-ghost'; b2.textContent = T('dtang.nut_goi');
+      b2.addEventListener('click', () => { els.themBlock.open = true; els.pkgBlock.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+      n.appendChild(b2);
+    }
+    w.appendChild(n);
+  }
+  return w;
+}
 function veChiTietMoc(m) {
   const box = document.createElement('div'); box.className = 'mtc-ct';
   const c = cfgLoai(m.loai_san);
@@ -1649,7 +1736,7 @@ function veChiTietMoc(m) {
       + (canSua.length ? ' · ' + T('moc.ct.dem_can_sua', { n: canSua.length }) : '')
       + (kad ? ' · ' + T('moc.ct.dem_kad', { n: kad }) : '');
     box.appendChild(t);
-    c.muc.forEach((x, i) => {
+    const dongViec = (x, i) => {
       const ttm = ttMuc(ck[x.id]);
       const dong = document.createElement('div'); dong.className = 'mtc-ck'; dong.dataset.muc = x.id;
       const dau = document.createElement('div'); dau.className = 'mtc-ck-dau';
@@ -1695,8 +1782,26 @@ function veChiTietMoc(m) {
         else n.appendChild(bo());
         dong.appendChild(n);
       }
-      box.appendChild(dong);
-    });
+      return dong;
+    };
+    // Việc xếp dưới hạng mục theo mã ALN khi đã có dự toán theo tầng; giữ số thứ tự gốc của checklist.
+    const dtt = dttMoc(m.id);
+    const soCu = {}; c.muc.forEach((x, i) => { soCu[x.id] = i; });
+    const theoId = {}; c.muc.forEach((x) => { theoId[x.id] = x; });
+    if (dtt.trang === 'xong' && dtt.du_toan && dtt.du_toan.dong.length && dtt.xep) {
+      box.appendChild(veHangMucTang(dtt.du_toan, dtt.xep, (ids, w) => {
+        ids.filter((id) => theoId[id]).forEach((id) => w.appendChild(dongViec(theoId[id], soCu[id])));
+      }, m.id));
+      const daXep = new Set([].concat.apply([], (dtt.xep.chuong || []).map((x) => x.viec)));
+      const khac = c.muc.filter((x) => !daXep.has(x.id));
+      if (khac.length) {
+        const k = document.createElement('p'); k.className = 'mtc-ck-tieu'; k.textContent = T('dtang.viec_khac'); box.appendChild(k);
+        khac.forEach((x) => box.appendChild(dongViec(x, soCu[x.id])));
+      }
+    } else {
+      if (dtt.trang === 'xong') box.appendChild(veCanDuToan(coQuyen));
+      c.muc.forEach((x, i) => box.appendChild(dongViec(x, i)));
+    }
     if (c.ghi_chu) { const g = document.createElement('p'); g.className = 'mtc-ck-ghi'; g.textContent = c.ghi_chu; box.appendChild(g); }
     if (canSua.length) {
       box.appendChild(nho(T('moc.ct.chep_tin'), 'btn-ghost', () => {
@@ -1714,6 +1819,10 @@ function veChiTietMoc(m) {
         }
       }
     }
+  }
+  if (mocCfg && !c.muc.length) { // mốc không có checklist (cổng, hồ bơi…) vẫn hiện hạng mục của mốc
+    const dtt = dttMoc(m.id);
+    if (dtt.trang === 'xong') box.appendChild(dtt.du_toan && dtt.du_toan.dong.length ? veHangMucTang(dtt.du_toan, dtt.xep, null, m.id) : veCanDuToan(coQuyen));
   }
   const su = soUngFor === currentHouseId ? soUng : null;
   if (su && su.la_chu_nha && !XEM_FOUNDER) box.appendChild(veUngMoc(m, su));
@@ -1879,7 +1988,7 @@ function veUngMoc(m, su) {
   add('', T('ung.da_ung', { tien: tien(tm.luy_ke), n: tm.so_lan }));
   if (tm.gia_tri) {
     add('', T('ung.gia_tri', { tien: tien(tm.gia_tri), pt: Math.round((tm.luy_ke / tm.gia_tri) * 100) }));
-    if (tm.dong && tm.dong.length) {
+    if (tm.dong && tm.dong.length && tm.nguon !== 'du_toan_tang') { // dự toán theo tầng đã có khối "Hạng mục của tầng này" phía trên
       add('', T('ung.dong_du_toan'));
       tm.dong.forEach((x) => {
         const r = document.createElement('div'); r.className = 'ung-dong';
@@ -1889,8 +1998,9 @@ function veUngMoc(m, su) {
       });
     }
   } else add('', T('ung.can_du_toan'));
-  (su.canh_bao || []).filter((c) => c.loai === 'moc' && c.ma_moc === m.id).forEach((c) => {
-    add('so-canh-bao', T('ung.canh_bao', { ten: c.ten, pt: c.phan_tram }));
+  (su.canh_bao || []).filter((c) => (c.loai === 'moc' || c.loai === 'moc_vuot') && c.ma_moc === m.id).forEach((c) => {
+    if (c.loai === 'moc_vuot') add('so-canh-bao vuot', T('ung.vuot', { ten: c.ten, tien: tien(c.vuot) }));
+    else add('so-canh-bao', T('ung.canh_bao', { ten: c.ten, pt: c.phan_tram }));
   });
   (su.ung || []).filter((u) => u.moc_id === m.id).forEach((u) => {
     const r = document.createElement('div'); r.className = 'ung-dong';
