@@ -20,6 +20,7 @@ export const CONSENT_VERSIONS = {
   thong_ke_an_danh: "2026-10-15-2",
   qltc: "2026-10-15",
   qltc_goi: "2026-10-15",
+  kiem_giup: "2026-10-16",
 };
 
 export const CONSENT_TEXTS = {
@@ -51,6 +52,8 @@ export const CONSENT_TEXTS = {
   /* qltc_goi: form "Chưa có bản vẽ" của quan-ly-thi-cong.html (lối 3, không tạo hồ sơ) — Nam duyệt
      15/10/2026, câu theo form "nhờ KTS gọi" trang dự toán, mục đích + phiên bản riêng. */
   qltc_goi: "Tôi đồng ý để ALN dùng họ tên và SĐT này để gọi/nhắn tư vấn về công trình của tôi, theo Chính sách quyền riêng tư.",
+  /* kiem_giup: người được chủ nhà mời "kiểm giúp" (kiem-giup.html) tick lần đầu — Nam duyệt 16/10/2026 (mức B). Ghi ở houses/{id}/members/{uid}.dong_y qua callable kiemGiup. */
+  kiem_giup: "Tôi đồng ý để ALN lưu họ tên và số điện thoại của tôi trong hồ sơ nhà này, để tôi xem mốc thi công, chụp ảnh và ghi kết quả kiểm giúp chủ nhà. Chủ nhà gỡ tôi khỏi hồ sơ bất cứ lúc nào; các mục tôi đã ghi vẫn giữ tên tôi trong hồ sơ.",
 };
 
 export const CONSENT_PURPOSES = {
@@ -64,4 +67,5 @@ export const CONSENT_PURPOSES = {
   thong_ke_an_danh: "thong_ke_gia_an_danh",
   qltc: "tao_ho_so_va_lien_he_qltc",
   qltc_goi: "lien_he_tu_van_qltc_chua_ban_ve",
+  kiem_giup: "luu_nguoi_kiem_giup_trong_ho_so_nha",
 };

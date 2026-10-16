@@ -127,10 +127,11 @@
     var luoi = the("div", "bc-luoi");
     ds.forEach(function (a) {
       var o = the("button", "bc-o"); o.type = "button";
-      var tieu = (m.ten || "") + " · " + gioVN(a.luc_ms);
+      var ai = a.vai === "nguoi_kiem_giup" && a.ten ? a.ten : ""; // ảnh do người kiểm giúp chụp: ghi tên
+      var tieu = (m.ten || "") + " · " + gioVN(a.luc_ms) + (ai ? " · " + T("kg.do", { ten: ai }) : "");
       o.setAttribute("aria-label", T("bc.xem_anh") + " " + tieu);
       if (a.nho) { var img = the("img"); img.alt = ""; img.onload = function () { URL.revokeObjectURL(img.src); }; img.src = blobUrl(a.nho); o.appendChild(img); }
-      o.appendChild(the("span", "bc-o-gio", gioVN(a.luc_ms)));
+      o.appendChild(the("span", "bc-o-gio", gioVN(a.luc_ms) + (ai ? " · " + ai : "")));
       if (a.ghi_chu) o.title = a.ghi_chu;
       o.addEventListener("click", function () {
         xemLon(tieu + (a.ghi_chu ? " · " + a.ghi_chu : ""), function () {

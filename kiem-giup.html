@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM -->
+<script src="scripts/aln-optout.js"></script>
+<script src="scripts/aln-estimate-funnel.js"></script>
+<script src="aln-esc.js"></script>
+<!-- Google Tag Manager -->
+<script src="/aln-consent.js?v=3"></script>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MB7VRGR5');</script>
+<!-- End Google Tag Manager -->
+<script src="error-monitor.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>ALN — Kiểm giúp công trình</title>
+<!--
+  Người kiểm giúp (nguoi_kiem_giup, Nam chốt 16/10/2026): chủ nhà mời bằng SĐT ở Không gian Nhà.
+  Người được mời đăng nhập OTP, tick câu đồng ý một lần (CONSENT_TEXTS.kiem_giup), rồi xem mốc
+  thi công, việc cần kiểm, bản vẽ tầng; chụp ảnh từng việc; đánh dấu Đạt / Cần sửa / Không áp dụng.
+  Bắt đầu / khép mốc chỉ khi chủ nhà bật quyền. Trang KHÔNG đọc doc houses (phí gói, thanh toán):
+  đầu trang lấy qua callable kiemGiup 'mo', mốc đọc qua listener moc/ (firestore.rules cho vai này
+  đọc mốc thi công), ảnh/bản vẽ qua qltcBangChung, đánh dấu qua qltcMoc.
+  Chỉ textContent / DOM, không innerHTML. Chữ ở qltc-chu.vi.js (khoá kg.*, moc.*, bc.*).
+-->
+<!-- Google Analytics 4 (ALN — G-5CSL1TF0RC) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-5CSL1TF0RC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-5CSL1TF0RC');
+</script>
+<!-- End GA4 -->
+<link rel="stylesheet" href="aln-tokens.css">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#f6f4ef; --surface:#ffffff; --surface-2:#eef1f5; --navy:#0a1224;
+  --gold:#98690a; --gold2:#b8860b; --on-gold:#1a1400; --gold-dim:rgba(152,105,10,.35);
+  --border-soft:#e3dfd4; --text-1:#141a2b; --text-2:#4a5268; --text-3:#5b6b7f;
+  --red:#b42318; --green:#17704a; --focus:#1f5fd1;
+  --f-head:"Oswald","Arial Narrow",Arial,sans-serif;
+  --f-body:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0a1224; --surface:#111c33; --surface-2:#1a2742; --gold:#d4a017; --gold2:#d4a017; --on-gold:#0a1224;
+  --border-soft:rgba(255,255,255,.12); --text-1:#dce6f4; --text-2:#bcc8dc; --text-3:#9aaac4;
+  --red:#f5a39b; --green:#3dd68c; --focus:#7aa7ff; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0a1224; --surface:#111c33; --surface-2:#1a2742; --gold:#d4a017; --gold2:#d4a017; --on-gold:#0a1224;
+  --border-soft:rgba(255,255,255,.12); --text-1:#dce6f4; --text-2:#bcc8dc; --text-3:#9aaac4;
+  --red:#f5a39b; --green:#3dd68c; --focus:#7aa7ff; color-scheme:dark}
+html{font-size:16px}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--text-1);font-family:var(--f-body);line-height:1.6;margin:0}
+button,input{font:inherit}
+a{color:var(--gold)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+[hidden]{display:none!important}
+.wrap{max-width:760px;margin:0 auto;padding-inline:16px}
+.top{background:var(--navy);color:#eef1f7;border-bottom:3px solid #d4a017}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:12px}
+.top h1{font-family:var(--f-head);font-weight:600;font-size:1.3rem;margin:0}
+.top button{background:transparent;color:#f0cf6a;border:1px solid rgba(240,207,106,.5);border-radius:8px;padding:6px 12px;min-height:40px;cursor:pointer;font-weight:600}
+main{padding-block:16px 48px}
+.the{background:var(--surface);border:1px solid var(--border-soft);border-radius:14px;padding:16px;margin-bottom:14px}
+.the h2{font-family:var(--f-head);font-weight:600;font-size:1.2rem;margin:0 0 8px}
+.the p{margin:0 0 10px}
+.mo-ta{color:var(--text-2)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;border-radius:10px;padding:.65rem 1rem;font-weight:600;cursor:pointer;border:0;min-height:2.8rem}
+.btn:disabled{opacity:.5;cursor:default}
+.btn-gold{background:linear-gradient(135deg,var(--gold2),var(--gold));color:var(--on-gold)}
+.btn-ghost{background:transparent;color:var(--text-2);border:1.5px solid var(--border-soft)}
+.dong-y{display:flex;gap:.6rem;align-items:flex-start;margin:12px 0;line-height:1.55}
+.dong-y input{width:1.3rem;height:1.3rem;margin-top:.2rem;flex:none}
+.loi{color:var(--red);font-size:var(--text-sm)}
+.chon a{display:block;padding:12px 14px;border:1px solid var(--border-soft);border-radius:10px;margin-bottom:8px;text-decoration:none;color:var(--text-1)}
+.chon .ma{font-family:var(--f-mono);font-size:var(--text-xs);color:var(--gold)}
+.dau .ma{font-family:var(--f-mono);font-size:var(--text-sm);color:var(--gold)}
+.dau .ten{font-weight:600;font-size:1.1rem}
+.dau .vai{color:var(--text-3);font-size:var(--text-sm)}
+.ghi{color:var(--text-3);font-size:var(--text-sm)}
+/* Mốc + checklist — cùng lớp với khong-gian-nha.html */
+.mtc-list{display:flex;flex-direction:column;gap:.45rem}
+.mtc-row{display:grid;grid-template-columns:1fr auto;gap:.2rem .6rem;align-items:center;padding:.75rem .85rem;border:1px solid var(--border-soft);border-radius:10px;background:var(--surface);width:100%;font:inherit;text-align:left;cursor:pointer;color:inherit}
+.mtc-row[aria-expanded="true"]{border-color:var(--gold);border-bottom-left-radius:0;border-bottom-right-radius:0}
+.mtc-row.dang{border-left:4px solid var(--gold)}
+.mtc-ten{font-weight:600}
+.mtc-sub{grid-column:1 / -1;font-size:var(--text-sm);color:var(--text-3)}
+.mtc-ct{border:1px solid var(--gold);border-top:0;border-radius:0 0 10px 10px;padding:.7rem .8rem .8rem;margin-top:-.45rem;background:var(--surface)}
+.mtc-ct p{margin:.2rem 0 .5rem;font-size:var(--text-sm);color:var(--text-3);line-height:1.6}
+.mtc-ct .btn{width:100%;margin:.3rem 0 .6rem}
+.mtc-ck-tieu{font-weight:600;color:var(--text-1)!important;font-size:var(--text-base)!important;margin-top:.6rem!important}
+.mtc-ck{padding:.6rem 0 .3rem;border-top:1px dashed var(--border-soft)}
+.mtc-ck-dau{display:flex;gap:.5rem;align-items:flex-start}
+.mtc-ck-chu{flex:1 1 auto;min-width:0;line-height:1.5}
+.mtc-ck-tt{flex:none;font-size:var(--text-xs);font-weight:700;border-radius:999px;padding:.15rem .55rem;margin-top:.15rem;white-space:nowrap}
+.mtc-ck-tt.chua{background:var(--surface-2);color:var(--text-3)}
+.mtc-ck-tt.dat{background:#e3f4ea;color:#17704a}
+.mtc-ck-tt.can_sua{background:#fde8e6;color:#b42318}
+.mtc-ck-tt.khong_ap_dung{background:var(--surface-2);color:var(--text-2)}
+.mtc-ct p.mtc-ck-sua{color:var(--red)}
+.mtc-ct p.mtc-ck-kad{color:var(--text-2)}
+.mtc-ct p.mtc-ck-do{font-size:var(--text-xs);margin:.2rem 0 .1rem}
+.mtc-ck-nuts{display:flex;flex-wrap:wrap;gap:.45rem;margin:.35rem 0 .1rem}
+.mtc-ct .mtc-ck-nuts .btn{flex:1 1 6.5rem;min-height:2.6rem;margin:0;width:auto}
+.mtc-ck-o{width:100%;font-size:16px;padding:.55rem .65rem;border:1.5px solid var(--border-soft);border-radius:8px;background:var(--surface);color:inherit;margin-top:.35rem}
+.mtc-ck-ghi{font-style:italic}
+.mtc-msg{font-size:var(--text-sm);margin:.5rem 0}
+.mtc-msg.loi{color:var(--red)}
+</style>
+</head>
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MB7VRGR5" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+<div class="top"><div class="wrap">
+  <h1 data-chu="kg.tieu_de">Kiểm giúp công trình</h1>
+  <button type="button" id="dangXuat" data-chu="kg.dang_xuat">Đăng xuất</button>
+</div></div>
+
+<main class="wrap">
+  <section class="the" id="sTai"><p data-chu="kg.dang_tai">Đang mở hồ sơ…</p></section>
+  <section class="the" id="sLoi" hidden>
+    <p class="loi" id="loiChu" role="alert" data-chu="kg.loi">Chưa mở được hồ sơ — anh/chị thử lại.</p>
+    <button type="button" class="btn btn-ghost" id="thuLai" data-chu="kg.thu_lai">Thử lại</button>
+  </section>
+  <section class="the" id="sKhong" hidden><p data-chu="kg.khong_co">Số điện thoại này chưa được mời kiểm giúp hồ sơ nào. Anh/chị hỏi lại chủ nhà xem đã mời đúng số chưa.</p></section>
+  <section class="the chon" id="sChon" hidden>
+    <h2 data-chu="kg.chon">Chọn hồ sơ anh/chị kiểm giúp</h2>
+    <div id="dsChon"></div>
+  </section>
+  <section class="the" id="sMoi" hidden>
+    <h2 id="moiTieuDe"></h2>
+    <p class="mo-ta" data-chu="kg.moi_mo_ta">Anh/chị xem được các mốc thi công, việc cần kiểm trước mỗi lần đổ bê tông và bản vẽ từng tầng; chụp ảnh từng việc và đánh dấu Đạt, Cần sửa hoặc Không áp dụng. Anh/chị không xem được phí, thanh toán hay dự toán của chủ nhà.</p>
+    <label class="dong-y"><input type="checkbox" id="oDongY"><span id="cauDongY"></span></label>
+    <p class="ghi"><a href="/chinh-sach-quyen-rieng-tu/" target="_blank" rel="noopener">Chính sách quyền riêng tư</a></p>
+    <button type="button" class="btn btn-gold" id="nutDongY" data-chu="kg.nut_dong_y">Đồng ý và mở hồ sơ</button>
+    <p class="loi" id="moiLoi" role="alert"></p>
+  </section>
+  <section id="sHoSo" hidden>
+    <div class="the dau">
+      <div class="ma" id="hMa"></div>
+      <div class="ten" id="hTen"></div>
+      <div class="vai" id="hVai"></div>
+      <p class="ghi" id="hGhi"></p>
+    </div>
+    <div class="the">
+      <h2 data-chu="moc.tieu_de">Mốc thi công</h2>
+      <div id="dsMoc"></div>
+    </div>
+  </section>
+</main>
+
+<script src="qltc-chu.vi.js"></script>
+<script src="aln-qltc-bang-chung.js"></script>
+<script type="module">
+import { app, auth, db, onAuthStateChanged, signOut, collection, query, where, onSnapshot } from './firebase-config.js';
+import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js';
+
+const fns = getFunctions(app, 'asia-southeast1');
+const callKiemGiup = httpsCallable(fns, 'kiemGiup');
+const callQltcMoc = httpsCallable(fns, 'qltcMoc');
+const callQltcBangChung = httpsCallable(fns, 'qltcBangChung');
+const T = (k, b) => window.alnChuQltc(k, b);
+const $ = (id) => document.getElementById(id);
+document.querySelectorAll('[data-chu]').forEach((el) => { el.textContent = T(el.dataset.chu); });
+
+const TT_MOC = { chua_lam: 'moc.tt.chua_lam', dang_lam: 'moc.tt.dang_lam', xong: 'moc.tt.xong' };
+const CAC = ['sTai', 'sLoi', 'sKhong', 'sChon', 'sMoi', 'sHoSo'];
+function hien(id) { CAC.forEach((x) => { $(x).hidden = x !== id; }); }
+function isPhoneAuthed(u) { return !!(u && !u.isAnonymous && u.phoneNumber); }
+function loiMo(e) { $('loiChu').textContent = (e && e.message) || T('kg.loi'); hien('sLoi'); }
+function day(ev, p) { try { (window.dataLayer = window.dataLayer || []).push(Object.assign({ event: ev }, p || {})); } catch (e) { /* bỏ qua */ } }
+
+const houseId = new URLSearchParams(location.search).get('h');
+let hs = null;          // đầu hồ sơ từ kiemGiup 'mo'
+let cfg = null;         // cấu hình checklist (qltcMoc cau_hinh)
+let mocDs = [];         // mốc thi công (listener)
+let mocMo = null, mocMsg = null, mocBan = false, mocSua = null, mocSuaChu = '';
+let huyNghe = null;
+
+async function batDau() {
+  hien('sTai');
+  try {
+    if (!houseId) {
+      const r = (await callKiemGiup({ hanh_dong: 'cua_toi' })).data || {};
+      const ds = r.ho_so || [];
+      if (!ds.length) { hien('sKhong'); return; }
+      if (ds.length === 1) { location.replace(alnUrl('kiem-giup.html?h=' + encodeURIComponent(ds[0].id))); return; }
+      const box = $('dsChon'); box.textContent = '';
+      ds.forEach((h) => {
+        const a = document.createElement('a'); a.href = alnUrl('kiem-giup.html?h=' + encodeURIComponent(h.id));
+        const ma = document.createElement('div'); ma.className = 'ma'; ma.textContent = h.ma_ho_so || '';
+        const ten = document.createElement('div'); ten.textContent = h.ten_hien_thi || '';
+        a.appendChild(ma); a.appendChild(ten); box.appendChild(a);
+      });
+      hien('sChon');
+      return;
+    }
+    hs = (await callKiemGiup({ hanh_dong: 'mo', houseId })).data || {};
+    if (!hs.da_nhan) { veMoi(); return; }
+    moHoSo();
+  } catch (e) {
+    console.error('[kiem-giup] mở hồ sơ lỗi:', e);
+    if (e && /not-found/.test(String(e.code))) { hien('sKhong'); return; }
+    loiMo(e);
+  }
+}
+
+function veMoi() {
+  $('moiTieuDe').textContent = T('kg.moi_tieu_de', { ma: hs.ma_ho_so || '' });
+  $('cauDongY').textContent = hs.cau_dong_y || '';
+  $('moiLoi').textContent = '';
+  hien('sMoi');
+}
+$('nutDongY').addEventListener('click', async () => {
+  if (!$('oDongY').checked) { $('moiLoi').textContent = T('kg.can_tick'); $('oDongY').focus(); return; }
+  const b = $('nutDongY'); b.disabled = true; $('moiLoi').textContent = '';
+  try {
+    await callKiemGiup({ hanh_dong: 'nhan', houseId, dong_y: true, phien_ban: hs.phien_ban });
+    day('aln_kiem_giup_nhan');
+    hs = (await callKiemGiup({ hanh_dong: 'mo', houseId })).data || {};
+    moHoSo();
+  } catch (e) {
+    console.error('[kiem-giup] nhận lời mời lỗi:', e);
+    $('moiLoi').textContent = (e && e.message) || T('kg.loi');
+  }
+  b.disabled = false;
+});
+
+async function moHoSo() {
+  $('hMa').textContent = hs.ma_ho_so || '';
+  $('hTen').textContent = hs.ten_hien_thi || '';
+  $('hVai').textContent = T('kg.vai', { ten: hs.ten || '' });
+  $('hGhi').textContent = !hs.goi_da_bat ? T('kg.goi_chua_bat') : (hs.duoc_khep_moc ? '' : T('kg.chu_nha_khep'));
+  hien('sHoSo');
+  try { cfg = (await callQltcMoc({ hanh_dong: 'cau_hinh', houseId })).data.cau_hinh; } catch (e) { console.error('[kiem-giup] cấu hình lỗi:', e); }
+  if (huyNghe) huyNghe();
+  huyNghe = onSnapshot(query(collection(db, 'houses', houseId, 'moc'), where('loai_moc', '==', 'thi_cong')), (snap) => {
+    mocDs = snap.docs.map((d) => Object.assign({ id: d.id }, d.data())).filter((m) => m.da_bo !== true)
+      .sort((a, b) => (a.thu_tu || 0) - (b.thu_tu || 0));
+    veMoc();
+  }, (e) => { console.error('[kiem-giup] đọc mốc lỗi:', e); loiMo(e); });
+}
+
+function ttMoc(m) { return TT_MOC[m.trang_thai] ? m.trang_thai : 'chua_lam'; }
+function ttMuc(g) { return !g || typeof g !== 'object' ? 'chua' : (['can_sua', 'khong_ap_dung'].includes(g.trang_thai) ? g.trang_thai : 'dat'); }
+function cfgLoai(loai) {
+  const c = cfg && cfg.loai && cfg.loai[loai];
+  return c || { truoc_khi: '', nut_xong: T('moc.tt.xong'), muc: [] };
+}
+function ngayVN(ts) { const d = ts && typeof ts.toDate === 'function' ? ts.toDate() : null; return d ? d.toLocaleDateString('vi-VN') : ''; }
+function doNguoiKiem(g) {
+  if (!g || g.vai !== 'nguoi_kiem_giup') return '';
+  const d = g.luc && typeof g.luc.toDate === 'function' ? g.luc.toDate() : null;
+  const luc = d ? d.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' }) : '';
+  return luc ? T('kg.do_luc', { ten: g.ten || '', luc }) : T('kg.do', { ten: g.ten || '' });
+}
+function bcCtx() {
+  return {
+    goi: (data) => callQltcBangChung(data), houseId, xemFounder: false, laChuNha: false, goiDaBat: !!hs.goi_da_bat,
+    dsMoc: () => mocDs, mocMacDinh: () => (mocMo || (mocDs[0] && mocDs[0].id) || null),
+  };
+}
+
+async function goiMoc(data) {
+  if (mocBan) return false;
+  mocBan = true; mocMsg = null; veMoc();
+  let ok = true;
+  try { await callQltcMoc(Object.assign({ houseId }, data)); }
+  catch (e) { console.error('[kiem-giup] qltcMoc lỗi:', e); mocMsg = (e && e.message) || T('moc.ct.loi'); ok = false; }
+  mocBan = false; veMoc();
+  return ok;
+}
+async function khepMoc(m) {
+  if (mocBan) return;
+  const c = cfgLoai(m.loai_san);
+  mocBan = true; mocMsg = T('moc.ct.dang_kiem'); veMoc();
+  let kq = null;
+  try { kq = (await callQltcMoc({ houseId, hanh_dong: 'kiem_xong', ma_moc: m.id })).data; }
+  catch (e) { mocMsg = (e && e.message) || T('moc.ct.loi'); }
+  mocBan = false;
+  if (!kq) { veMoc(); return; }
+  if (!kq.du_anh) { mocMsg = kq.cau_thieu_anh || T(c.muc.length ? 'moc.ct.can_anh' : 'moc.ct.can_anh_moc', { nut_xong: c.nut_xong }); veMoc(); return; }
+  mocMsg = null; veMoc();
+  const dong = [T('moc.ct.xac_nhan', { ten: m.ten || '', nut_xong: c.nut_xong })];
+  if (kq.chua_kiem && kq.chua_kiem.length) dong.push(T('moc.ct.xn_chua_kiem', { n: kq.chua_kiem.length }));
+  if (kq.can_sua && kq.can_sua.length) dong.push(T('moc.ct.xn_can_sua', { n: kq.can_sua.length, ds: kq.can_sua.map((x) => String(x.chu || '').split(/[:;]/)[0].trim()).join('; ') }));
+  if (!window.confirm(dong.join('\n\n'))) return;
+  goiMoc({ hanh_dong: 'xong', ma_moc: m.id });
+}
+
+function veMoc() {
+  const body = $('dsMoc'); body.textContent = '';
+  if (!mocDs.length) { const p = document.createElement('p'); p.className = 'ghi'; p.textContent = T('kg.chua_co_moc'); body.appendChild(p); return; }
+  const list = document.createElement('div'); list.className = 'mtc-list';
+  mocDs.forEach((m) => {
+    const row = document.createElement('button'); row.type = 'button'; row.className = 'mtc-row';
+    if (ttMoc(m) === 'dang_lam') row.classList.add('dang');
+    row.setAttribute('aria-expanded', String(mocMo === m.id));
+    row.addEventListener('click', () => { mocMo = mocMo === m.id ? null : m.id; mocMsg = null; mocSua = null; veMoc(); });
+    const ten = document.createElement('span'); ten.className = 'mtc-ten'; ten.textContent = m.ten || '';
+    const sub = document.createElement('span'); sub.className = 'mtc-sub'; sub.textContent = T(TT_MOC[ttMoc(m)]);
+    row.appendChild(ten); row.appendChild(sub); list.appendChild(row);
+    if (mocMo === m.id) list.appendChild(veChiTiet(m));
+  });
+  body.appendChild(list);
+}
+
+function veChiTiet(m) {
+  const box = document.createElement('div'); box.className = 'mtc-ct';
+  const c = cfgLoai(m.loai_san);
+  const tt = ttMoc(m);
+  const ghi = [];
+  if (m.bat_dau_luc) ghi.push(T('moc.ct.bat_dau_luc', { ngay: ngayVN(m.bat_dau_luc) }));
+  if (m.xong_luc) ghi.push(T('moc.ct.xong_luc', { ngay: ngayVN(m.xong_luc) }));
+  const p = document.createElement('p'); p.textContent = T(TT_MOC[tt]) + (ghi.length ? ' · ' + ghi.join(' · ') : ''); box.appendChild(p);
+  if (!cfg) { const q = document.createElement('p'); q.textContent = T('kg.dang_tai'); box.appendChild(q); return box; }
+  const sua = tt !== 'xong' && !!hs.goi_da_bat;
+  const ck = (m.checklist && typeof m.checklist === 'object') ? m.checklist : {};
+  const nho = (chu, cls, onClick) => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'btn ' + (cls || 'btn-ghost');
+    b.textContent = chu; b.disabled = mocBan; b.addEventListener('click', onClick); return b;
+  };
+  if (sua && hs.duoc_khep_moc) {
+    if (tt === 'chua_lam') box.appendChild(nho(T('moc.ct.bat_dau'), 'btn-gold', () => goiMoc({ hanh_dong: 'bat_dau', ma_moc: m.id })));
+    else box.appendChild(nho(c.nut_xong, 'btn-gold', () => khepMoc(m)));
+  }
+  if (sua) { const g = document.createElement('p'); g.textContent = T(c.muc.length ? 'moc.ct.can_anh' : 'moc.ct.can_anh_moc', { nut_xong: c.nut_xong }); box.appendChild(g); }
+  if (mocMsg) { const e = document.createElement('p'); e.className = 'mtc-msg loi'; e.setAttribute('role', 'status'); e.textContent = mocMsg; box.appendChild(e); }
+  if (c.muc.length) {
+    const dat = c.muc.filter((x) => ttMuc(ck[x.id]) === 'dat').length;
+    const kad = c.muc.filter((x) => ttMuc(ck[x.id]) === 'khong_ap_dung').length;
+    const t = document.createElement('p'); t.className = 'mtc-ck-tieu';
+    t.textContent = T('moc.ct.checklist', { truoc_khi: c.truoc_khi }) + ' · ' + T('moc.ct.dem', { da: dat, tong: c.muc.length - kad });
+    box.appendChild(t);
+    c.muc.forEach((x, i) => {
+      const ttm = ttMuc(ck[x.id]);
+      const dong = document.createElement('div'); dong.className = 'mtc-ck'; dong.dataset.muc = x.id;
+      const dau = document.createElement('div'); dau.className = 'mtc-ck-dau';
+      const chu = document.createElement('span'); chu.className = 'mtc-ck-chu'; chu.textContent = (i + 1) + '. ' + x.chu;
+      const chip = document.createElement('span'); chip.className = 'mtc-ck-tt ' + ttm; chip.textContent = T('moc.ct.tt.' + ttm);
+      dau.appendChild(chu); dau.appendChild(chip); dong.appendChild(dau);
+      const doKg = ttm !== 'chua' ? doNguoiKiem(ck[x.id]) : '';
+      if (doKg) { const dk = document.createElement('p'); dk.className = 'mtc-ck-do'; dk.textContent = doKg; dong.appendChild(dk); }
+      if ((ttm === 'can_sua' || ttm === 'khong_ap_dung') && ck[x.id].ghi_chu) {
+        const gs = document.createElement('p'); gs.className = ttm === 'can_sua' ? 'mtc-ck-sua' : 'mtc-ck-kad';
+        gs.textContent = T('moc.ct.tt.' + ttm) + ': ' + ck[x.id].ghi_chu; dong.appendChild(gs);
+      }
+      if (window.alnQltcBangChung) dong.appendChild(window.alnQltcBangChung.khoiAnhViec(m, x, bcCtx(), ttm === 'khong_ap_dung'));
+      const khoaSua = m.id + '|' + x.id;
+      if (sua && mocSua && mocSua.khoa === khoaSua) {
+        const kieu = mocSua.kieu;
+        const ip = document.createElement('input'); ip.className = 'mtc-ck-o'; ip.type = 'text'; ip.maxLength = 200;
+        ip.placeholder = T(kieu === 'can_sua' ? 'moc.ct.ghi_sua_goi_y' : 'moc.ct.ghi_kad_goi_y');
+        ip.setAttribute('aria-label', T(kieu === 'can_sua' ? 'moc.ct.ghi_sua' : 'moc.ct.ghi_kad')); ip.value = mocSuaChu;
+        ip.addEventListener('input', () => { mocSuaChu = ip.value; });
+        dong.appendChild(ip);
+        const n = document.createElement('div'); n.className = 'mtc-ck-nuts';
+        n.appendChild(nho(T('moc.ct.luu_sua'), 'btn-gold', async () => {
+          if (!mocSuaChu.trim()) { ip.focus(); return; }
+          if (await goiMoc({ hanh_dong: 'tick', ma_moc: m.id, muc_id: x.id, trang_thai: kieu, ghi_chu: mocSuaChu })) { mocSua = null; mocSuaChu = ''; veMoc(); }
+        }));
+        n.appendChild(nho(T('moc.ct.huy'), 'btn-ghost', () => { mocSua = null; mocSuaChu = ''; veMoc(); }));
+        dong.appendChild(n);
+        setTimeout(() => { if (ip.isConnected && document.activeElement !== ip) ip.focus(); }, 0);
+      } else if (sua) {
+        const n = document.createElement('div'); n.className = 'mtc-ck-nuts';
+        const danhDau = (trang) => goiMoc({ hanh_dong: 'tick', ma_moc: m.id, muc_id: x.id, trang_thai: trang });
+        const moSua = (kieu) => () => { mocSua = { khoa: khoaSua, kieu }; mocSuaChu = (ttm === kieu && ck[x.id] && ck[x.id].ghi_chu) || ''; veMoc(); };
+        const bo = () => nho(T('moc.ct.nut_bo'), 'btn-ghost', () => danhDau('chua'));
+        if (ttm === 'chua') {
+          n.appendChild(nho(T('moc.ct.nut_dat'), 'btn-ghost', () => danhDau('dat')));
+          n.appendChild(nho(T('moc.ct.nut_can_sua'), 'btn-ghost', moSua('can_sua')));
+          n.appendChild(nho(T('moc.ct.nut_kad'), 'btn-ghost', moSua('khong_ap_dung')));
+        } else if (ttm === 'dat') { n.appendChild(nho(T('moc.ct.nut_can_sua'), 'btn-ghost', moSua('can_sua'))); n.appendChild(bo()); }
+        else if (ttm === 'can_sua') { n.appendChild(nho(T('moc.ct.nut_da_sua'), 'btn-ghost', () => danhDau('dat'))); n.appendChild(bo()); }
+        else n.appendChild(bo());
+        dong.appendChild(n);
+      }
+      box.appendChild(dong);
+    });
+    if (c.ghi_chu) { const g = document.createElement('p'); g.className = 'mtc-ck-ghi'; g.textContent = c.ghi_chu; box.appendChild(g); }
+  }
+  if (window.alnQltcBangChung) box.appendChild(window.alnQltcBangChung.khoiMoc(m, bcCtx(), c.muc.map((x) => x.id)));
+  return box;
+}
+
+$('thuLai').addEventListener('click', batDau);
+$('dangXuat').addEventListener('click', async () => {
+  try { await signOut(auth); } catch (e) { console.error('[kiem-giup] đăng xuất lỗi:', e); }
+  location.href = alnUrl('dang-nhap-chu-nha.html?next=' + encodeURIComponent('kiem-giup.html' + location.search));
+});
+
+let daChay = false;
+onAuthStateChanged(auth, (user) => {
+  if (!isPhoneAuthed(user)) {
+    location.href = alnUrl(window.alnEstimateFunnel.preserve('dang-nhap-chu-nha.html?next=' + encodeURIComponent('kiem-giup.html' + location.search)));
+    return;
+  }
+  if (daChay) return;
+  daChay = true;
+  day('aln_kiem_giup_mo');
+  batDau();
+});
+</script>
+<!-- ALN-PHAP-NHAN --><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"><style id="alnpn-css">.alnpn,.alnpn *{box-sizing:border-box;margin:0;padding:0;border:0;font:inherit;letter-spacing:normal;text-transform:none;text-shadow:none;float:none;background:none;min-width:0}.alnpn{display:block;width:100%;clear:both;position:relative;z-index:0;background:#0b1428;border-top:2px solid #d4a017;color:#cbd5e1;font-family:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:15px;font-weight:400;line-height:1.5;text-align:left;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;padding:28px 20px 88px}.alnpn-in{max-width:1280px;margin:0 auto;display:grid;gap:22px}.alnpn-brand{display:flex;align-items:center;gap:14px}.alnpn-brand img{display:block;flex:none;width:44px;height:44px;border-radius:10px}.alnpn-ten{font-weight:700;font-size:17px;line-height:1.3;letter-spacing:.03em;color:#fff}.alnpn-sub{margin-top:2px;font-size:13px;line-height:1.4;color:#9fb0c8}.alnpn-muc dt{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;line-height:1.3;letter-spacing:.08em;text-transform:uppercase;color:#e0b43a;margin-bottom:6px}.alnpn-muc dt svg{display:block;flex:none;width:16px;height:16px;fill:none;stroke:#e0b43a;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.alnpn-muc dd{font-size:15px;font-weight:500;line-height:1.45;color:#f1f5f9}.alnpn-mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:600;letter-spacing:.02em}.alnpn a{color:#fff;text-decoration:none}.alnpn a:hover,.alnpn a:focus-visible{color:#e0b43a;outline:none}.alnpn-note{font-size:13px;font-weight:400;color:#9fb0c8;margin-left:8px;white-space:nowrap}@media (min-width:768px){.alnpn{padding:26px 28px}.alnpn-in{grid-template-columns:auto auto auto auto;justify-content:space-between;align-items:stretch;gap:0}.alnpn-brand{align-self:center}.alnpn-muc{padding:0 0 0 28px;margin-left:28px;border-left:1px solid rgba(224,180,58,.22)}}@media (min-width:768px) and (max-width:1099px){.alnpn-in{grid-template-columns:auto minmax(0,1fr) auto;justify-content:stretch;row-gap:20px}.alnpn-brand{grid-column:1/-1;align-self:start}.alnpn-muc:nth-child(2){border-left:0;margin-left:0;padding-left:0}}</style><section class="alnpn" aria-label="Thông tin doanh nghiệp"><div class="alnpn-in"><div class="alnpn-brand"><img src="/icon-192.png" alt="" width="44" height="44" loading="lazy"><div><div class="alnpn-ten">CÔNG TY TNHH ALN</div><div class="alnpn-sub">Đơn vị chủ quản website applamnha.vn</div></div></div><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M10 12h5M10 16h5"/></svg>Mã số thuế</dt><dd class="alnpn-mono">3502593013</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-6-5.3-6-11a6 6 0 1 1 12 0c0 5.7-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/></svg>Địa chỉ</dt><dd>Khu TTTM Sonadezi 536 Trung Sơn, Ngãi Giao, TP. Hồ Chí Minh</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 5 5L14 13l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>Hotline</dt><dd><a class="alnpn-mono" href="tel:0909829696">0909 829 696</a><span class="alnpn-note">KTS Trần Long</span></dd></dl></div></section>
+</body>
+</html>

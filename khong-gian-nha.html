@@ -166,6 +166,7 @@ a{color:inherit}
 .pick-item .ten{font-size:var(--text-base);color:var(--text-1);font-weight:500}
 .pick-item .sub{font-family:var(--f-mono);font-size:var(--text-xs);color:var(--dim)}
 .pick-item .sub:empty{display:none}
+.pick-item.pick-kg{text-decoration:none}
 
 /* ── BLOCK CHUNG ── */
 .block{
@@ -458,6 +459,7 @@ button.mtc-row[aria-expanded="true"]{border-color:var(--gold,#b8892b);border-bot
 .mtc-ck-tt.dat{background:#e3f4ea;color:#17704a}
 .mtc-ck-tt.can_sua{background:#fde8e6;color:#b42318}
 .mtc-ck-tt.khong_ap_dung{background:var(--surface-2,#eef1f5);color:var(--text-2)}
+.mtc-ct p.mtc-ck-do{color:var(--text-3);font-size:var(--text-xs);margin:.2rem 0 .1rem}
 .mtc-ct p.mtc-ck-kad{color:var(--text-2);font-size:var(--text-sm);margin:.3rem 0 .2rem}
 .mtc-ct p.mtc-ck-sua{color:#b42318;font-size:var(--text-sm);margin:.3rem 0 .2rem}
 .mtc-ck-nuts{display:flex;flex-wrap:wrap;gap:.45rem;margin:.35rem 0 .1rem}
@@ -677,6 +679,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div id="docBody"></div>
     </section>
 
+    <!-- d0. Người cùng theo dõi (người kiểm giúp, 16/10/2026) — chủ nhà, hồ sơ gói; aln-kiem-giup.js vẽ -->
+    <section class="block" id="kgBlock" hidden>
+      <div class="block-head">
+        <span class="block-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.6"/><path d="M15.5 14.2c2.4.2 4.2 1.8 4.8 4.8"/></svg></span>
+        <span class="block-title" data-chu="kg.chu.tieu_de">Người cùng theo dõi</span>
+      </div>
+      <div id="kgBody"></div>
+    </section>
+
     <!-- d. Nhật ký -->
     <section class="block" id="logBlock">
       <div class="block-head">
@@ -788,6 +799,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <script src="qltc-chu.vi.js"></script>
 <script src="aln-qltc-thanh-toan.js"></script>
 <script src="aln-qltc-bang-chung.js"></script>
+<script src="aln-kiem-giup.js"></script>
 <script type="module">
 import {
   app, auth, db, onAuthStateChanged, signOut,
@@ -809,6 +821,7 @@ const callQltcBaoPhi = httpsCallable(functionsInst, 'qltcBaoPhi');
 const callQltcThanhToan = httpsCallable(functionsInst, 'qltcThanhToan');
 const callQltcMoc = httpsCallable(functionsInst, 'qltcMoc');
 const callQltcBangChung = httpsCallable(functionsInst, 'qltcBangChung');
+const callKiemGiup = httpsCallable(functionsInst, 'kiemGiup');
 
 const els = {
   loading: document.getElementById('state-loading'),
@@ -1299,7 +1312,7 @@ function renderSteps() {
 }
 
 /* Dồn/khôi phục khối phụ vào "Thêm". Mỗi khối nhớ chỗ cũ bằng một comment đánh dấu. */
-const KHOI_THEM = ['stepsBlock', 'uploadBlock', 'pkgBlock', 'dydlBlock', 'logBlock', 'sochiBlock', 'soonBlock'];
+const KHOI_THEM = ['stepsBlock', 'uploadBlock', 'pkgBlock', 'dydlBlock', 'kgBlock', 'logBlock', 'sochiBlock', 'soonBlock'];
 const choCu = {};
 function datBoCuc(truocC1) {
   const body = document.getElementById('themBody');
@@ -1430,6 +1443,7 @@ function renderMocTc() {
   els.mocTcBlock.hidden = !hien;
   renderDaTt();
   renderLogTaiAnh();
+  renderKiemGiup();
   if (!hien) { els.house.classList.remove('dang-sua-san'); return; }
   if (dsSanFor !== currentHouseId) { dsSanFor = currentHouseId; dsSan = null; suaSan = null; napDanhSachSan(currentHouseId); }
   const body = els.mocTcBody;
@@ -1549,6 +1563,8 @@ function veChiTietMoc(m) {
   const ghi = [];
   if (m.bat_dau_luc) ghi.push(T('moc.ct.bat_dau_luc', { ngay: ngayVN(m.bat_dau_luc) }));
   if (m.xong_luc) ghi.push(T('moc.ct.xong_luc', { ngay: ngayVN(m.xong_luc) }));
+  if (m.xong_boi && m.xong_boi.vai === 'nguoi_kiem_giup') ghi.push(T('kg.do', { ten: m.xong_boi.ten || '' }));
+  else if (m.bat_dau_boi && m.bat_dau_boi.vai === 'nguoi_kiem_giup' && !m.xong_luc) ghi.push(T('kg.do', { ten: m.bat_dau_boi.ten || '' }));
   const p = document.createElement('p');
   p.textContent = T(TT_MOC[tt]) + (ghi.length ? ' · ' + ghi.join(' · ') : '');
   box.appendChild(p);
@@ -1586,6 +1602,8 @@ function veChiTietMoc(m) {
       const chu = document.createElement('span'); chu.className = 'mtc-ck-chu'; chu.textContent = (i + 1) + '. ' + x.chu;
       const chip = document.createElement('span'); chip.className = 'mtc-ck-tt ' + ttm; chip.textContent = T('moc.ct.tt.' + ttm);
       dau.appendChild(chu); dau.appendChild(chip); dong.appendChild(dau);
+      const doKg = ttm !== 'chua' ? doNguoiKiem(ck[x.id]) : '';
+      if (doKg) { const dk = document.createElement('p'); dk.className = 'mtc-ck-do'; dk.textContent = doKg; dong.appendChild(dk); }
       if ((ttm === 'can_sua' || ttm === 'khong_ap_dung') && ck[x.id].ghi_chu) {
         const gs = document.createElement('p'); gs.className = ttm === 'can_sua' ? 'mtc-ck-sua' : 'mtc-ck-kad';
         gs.textContent = T('moc.ct.tt.' + ttm) + ': ' + ck[x.id].ghi_chu; dong.appendChild(gs);
@@ -1670,6 +1688,28 @@ function renderLogTaiAnh() {
   el.textContent = '';
   el.hidden = !hien;
   if (hien) el.appendChild(window.alnQltcBangChung.khoiTaiAnh(ctx));
+}
+
+/* Người cùng theo dõi (người kiểm giúp, 16/10/2026): chỉ chủ nhà của hồ sơ gói, không ở chế độ Founder xem. */
+let kgKhoa = null;
+function renderKiemGiup() {
+  const el = document.getElementById('kgBlock');
+  const h = currentHouseData;
+  const hien = !!(window.alnKiemGiup && h && laHoSoGoi(h) && dsSan && dsSan.la_chu_nha && !XEM_FOUNDER);
+  el.hidden = !hien;
+  const k = hien ? currentHouseId : '';
+  if (k === kgKhoa) return;
+  kgKhoa = k;
+  const body = document.getElementById('kgBody');
+  body.textContent = '';
+  if (hien) body.appendChild(window.alnKiemGiup.khoiChuNha({ goi: (data) => callKiemGiup(data), houseId: currentHouseId }));
+}
+/* "do {tên}, người kiểm giúp, lúc …" — việc / mốc do người kiểm giúp bấm. */
+function doNguoiKiem(g) {
+  if (!g || g.vai !== 'nguoi_kiem_giup') return '';
+  const d = g.luc && typeof g.luc.toDate === 'function' ? g.luc.toDate() : null;
+  const luc = d ? d.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' }) : '';
+  return luc ? T('kg.do_luc', { ten: g.ten || '', luc }) : T('kg.do', { ten: g.ten || '' });
 }
 
 /* PR-6a — khối "Đã thanh toán" ngay trên khối mốc: số tiền ALN đã nhận, ngày, câu hoá đơn. */
@@ -2330,7 +2370,13 @@ function renderChoose(houses) {
       <span class="ten">${esc(h.ten_hien_thi)}</span>
       <span class="sub" data-sub-idx="${i}"></span>
     </button>`).join('');
-  Array.from(els.pickList.querySelectorAll('.pick-item')).forEach((btn) => {
+  if (kgHoSo.length) {
+    const a = document.createElement('a'); a.className = 'pick-item pick-kg'; a.href = 'kiem-giup.html';
+    const ma = document.createElement('span'); ma.className = 'ma'; ma.textContent = T('kg.kgn_link');
+    const ten = document.createElement('span'); ten.className = 'ten'; ten.textContent = kgHoSo.map((x) => x.ma_ho_so).filter(Boolean).join(', ');
+    a.appendChild(ma); a.appendChild(ten); els.pickList.appendChild(a);
+  }
+  Array.from(els.pickList.querySelectorAll('button.pick-item')).forEach((btn) => {
     btn.addEventListener('click', () => {
       const h = houses[Number(btn.dataset.idx)];
       loadHouse(h.id);
@@ -2371,6 +2417,7 @@ function renderChoose(houses) {
 }
 
 let cachedHouses = [];
+let kgHoSo = [];
 const THAM_SO = new URLSearchParams(location.search);
 /* Mã hồ sơ ALN-H-YYYY-NNN (PR-9) — khoá dùng trong link, không dùng doc ID.
    Khớp lib/maHoSo.chuanMa phía máy chủ. */
@@ -2387,6 +2434,13 @@ async function init() {
     const data = res.data || {};
     const houses = Array.isArray(data.houses) ? data.houses : [];
     cachedHouses = houses;
+    // Số này được mời "kiểm giúp" hồ sơ của người khác (16/10/2026): mở kiem-giup.html.
+    const kgDs = Array.isArray(data.kiem_giup) ? data.kiem_giup : [];
+    kgHoSo = kgDs;
+    if (!houses.length && kgDs.length) {
+      window.location.href = 'kiem-giup.html' + (kgDs.length === 1 ? '?h=' + encodeURIComponent(kgDs[0].id) : '');
+      return;
+    }
 
     if (!houses.length || data.code === 'khong_co_ho_so') {
       renderNoHouseSaveButton();
@@ -2394,7 +2448,7 @@ async function init() {
       els.switchHouseLink.hidden = true;
       return;
     }
-    els.switchHouseLink.hidden = houses.length < 2;
+    els.switchHouseLink.hidden = houses.length < 2 && !kgHoSo.length;
     // Vừa lưu từ du-toan-nha.html: mở đúng hồ sơ vừa lưu (chỉ khi house thuộc SĐT này).
     const hMuon = THAM_SO.get('h');
     const maMuon = chuanMaHoSo(THAM_SO.get('ma'));
