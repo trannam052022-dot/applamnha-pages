@@ -255,6 +255,21 @@ async function moHoSo() {
 }
 
 function ttMoc(m) { return TT_MOC[m.trang_thai] ? m.trang_thai : 'chua_lam'; }
+function nhanTtMoc(m) { const tt = ttMoc(m); return T(tt === 'xong' && m.xong_khong_anh === true ? 'moc.tt.xong_khong_anh' : TT_MOC[tt]); }
+/* Móng + các sàn đi theo thứ tự (17/10/2026) — khớp CHUOI của functions/lib/qltcMoc.js. */
+const CHUOI_MOC = ['mong', 'ham', 'tret', 'lung', 'lau', 'san_thuong', 'mai'];
+function mocTruocChuaXong(m) {
+  const ds = mocDs.filter((x) => CHUOI_MOC.includes(x.loai_san));
+  const i = ds.findIndex((x) => x.id === m.id);
+  return i < 0 ? [] : ds.slice(0, i).filter((x) => ttMoc(x) !== 'xong');
+}
+function batDauMoc(m) {
+  const truoc = mocTruocChuaXong(m);
+  if (!truoc.length) return goiMoc({ hanh_dong: 'bat_dau', ma_moc: m.id });
+  const ten = truoc.map((x) => x.ten || '').join(', ');
+  if (!window.confirm(T('moc.nhay_coc', { ten }) + '\n\n' + T('moc.nhay_coc_mo_ta', { ten, sau: m.ten || '' }))) return;
+  return goiMoc({ hanh_dong: 'bat_dau', ma_moc: m.id, xac_nhan_truoc: truoc.map((x) => x.id) });
+}
 function ttMuc(g) { return !g || typeof g !== 'object' ? 'chua' : (['can_sua', 'khong_ap_dung'].includes(g.trang_thai) ? g.trang_thai : 'dat'); }
 function cfgLoai(loai) {
   const c = cfg && cfg.loai && cfg.loai[loai];
@@ -311,7 +326,7 @@ function veMoc() {
     row.setAttribute('aria-expanded', String(mocMo === m.id));
     row.addEventListener('click', () => { mocMo = mocMo === m.id ? null : m.id; mocMsg = null; mocSua = null; veMoc(); });
     const ten = document.createElement('span'); ten.className = 'mtc-ten'; ten.textContent = m.ten || '';
-    const sub = document.createElement('span'); sub.className = 'mtc-sub'; sub.textContent = T(TT_MOC[ttMoc(m)]);
+    const sub = document.createElement('span'); sub.className = 'mtc-sub'; sub.textContent = nhanTtMoc(m);
     row.appendChild(ten); row.appendChild(sub); list.appendChild(row);
     if (mocMo === m.id) list.appendChild(veChiTiet(m));
   });
@@ -325,7 +340,7 @@ function veChiTiet(m) {
   const ghi = [];
   if (m.bat_dau_luc) ghi.push(T('moc.ct.bat_dau_luc', { ngay: ngayVN(m.bat_dau_luc) }));
   if (m.xong_luc) ghi.push(T('moc.ct.xong_luc', { ngay: ngayVN(m.xong_luc) }));
-  const p = document.createElement('p'); p.textContent = T(TT_MOC[tt]) + (ghi.length ? ' · ' + ghi.join(' · ') : ''); box.appendChild(p);
+  const p = document.createElement('p'); p.textContent = nhanTtMoc(m) + (ghi.length ? ' · ' + ghi.join(' · ') : ''); box.appendChild(p);
   if (!cfg) { const q = document.createElement('p'); q.textContent = T('kg.dang_tai'); box.appendChild(q); return box; }
   const sua = tt !== 'xong' && !!hs.goi_da_bat;
   const ck = (m.checklist && typeof m.checklist === 'object') ? m.checklist : {};
@@ -334,7 +349,15 @@ function veChiTiet(m) {
     b.textContent = chu; b.disabled = mocBan; b.addEventListener('click', onClick); return b;
   };
   if (sua && hs.duoc_khep_moc) {
-    if (tt === 'chua_lam') box.appendChild(nho(T('moc.ct.bat_dau'), 'btn-gold', () => goiMoc({ hanh_dong: 'bat_dau', ma_moc: m.id })));
+    if (tt === 'chua_lam') {
+      const truoc = mocTruocChuaXong(m);
+      if (truoc.length) {
+        const g = document.createElement('p'); g.className = 'mtc-goi-y';
+        g.textContent = T('moc.ct.truoc_chua_xong', { ten: truoc.map((x) => x.ten || '').join(', ') });
+        box.appendChild(g);
+      }
+      box.appendChild(nho(T('moc.ct.bat_dau'), truoc.length ? 'btn-ghost' : 'btn-gold', () => batDauMoc(m)));
+    }
     else box.appendChild(nho(c.nut_xong, 'btn-gold', () => khepMoc(m)));
   }
   if (sua) { const g = document.createElement('p'); g.textContent = T(c.muc.length ? 'moc.ct.can_anh' : 'moc.ct.can_anh_moc', { nut_xong: c.nut_xong }); box.appendChild(g); }

@@ -10074,10 +10074,10 @@ function ldctVe(el, l, dep){
         return String(s).replace(' Không nói nhãn sai số (DEC-2026-016).', '');
       }));
       danhSach(box, '03 / Đề xuất dịch vụ thiết kế', (b.de_xuat || []).map(function(s){
-        if(/^Gói Thiết kế gồm thêm: Sổ tay công trình/.test(s)) return 'Sổ tay công trình cơ bản: Sắp ra mắt; không thay thế công tác giám sát thi công.';
+        if(/^Gói Thiết kế gồm thêm: Sổ tay công trình/.test(s)) return null; // brief lưu trước 17/10/2026: bỏ dòng Sổ tay (đã thay bằng Gói Quản lý Thi công)
         if(/^Loại nhà chưa rõ trong dữ liệu/.test(s)) return 'Loại nhà cần xác nhận; phí đang tạm tính theo đơn giá nhà phố.';
         return String(s).replace(' (đang chạy)', '');
-      }));
+      }).filter(Boolean));
       bgkBangPhi(box, b);
       danhSach(box, '04 / Nội dung thống nhất tại buổi gặp', [
         'Xác nhận kích thước, diện tích và nhu cầu công năng của công trình.',

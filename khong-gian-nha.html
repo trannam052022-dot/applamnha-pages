@@ -410,7 +410,6 @@ a{color:inherit}
 #state-house.truoc-c1-layout #pkgBlock{order:5}
 #state-house.truoc-c1-layout #logBlock{order:6}
 #state-house.truoc-c1-layout #sochiBlock{order:7}
-#state-house.truoc-c1-layout #soonBlock{order:8}
 /* PR-5 (15/10/2026) — hồ sơ trước C1: mỗi màn ≤ 1 việc cần làm + 1 nút chính.
    Đầu trang → Việc tiếp theo → Mốc thi công (hồ sơ gói) → Dự toán → "Thêm" (thu gọn, chứa
    các khối còn lại — datBoCuc() chuyển DOM vào #themBody). House C1–C4 không đổi. */
@@ -843,7 +842,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <span class="block-title">Gói dịch vụ ALN</span>
       </div>
       <div class="pkg-grid" id="pkgGrid"></div>
-      <p class="pkg-fine">Số dự toán đã gồm thuế GTGT <span id="pkgThueSuat"></span>%. Phí gói chưa gồm thuế GTGT. <span id="pkgQltc"></span></p>
+      <p class="pkg-fine"><span id="pkgThue"></span><span data-chu="goi.phi_chua_thue">Phí gói chưa gồm thuế GTGT.</span> <span id="pkgQltc"></span></p>
     </section>
 
     <!-- e3. Đồng ý dữ liệu Gói Quản lý Thi công (PR-4; PR-9: hiện ở MỌI trạng thái hồ sơ) — aln-dong-y-du-lieu.js vẽ -->
@@ -861,19 +860,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div id="themBody"></div>
     </details>
 
-    <!-- f. Sắp có -->
-    <section class="block" id="soonBlock">
-      <div class="block-head">
-        <span class="block-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/></svg></span>
-        <span class="block-title">Sắp có</span>
-      </div>
-      <div class="soon-grid">
-        <div class="soon-card">
-          <div class="soon-top"><span class="soon-name">Sổ tay công trình</span><span class="soon-badge">Sắp ra mắt</span></div>
-          <p class="soon-note">Ghi chép hình ảnh, mốc thời gian công trình — không thay thế công tác giám sát thi công.</p>
-        </div>
-      </div>
-    </section>
 
   </main>
 </div>
@@ -1052,6 +1038,15 @@ function thueSuatGtgt(daLuu) {
 }
 function nhanThueSuat(x) {
   return x == null ? '' : Number(x).toLocaleString('vi-VN', { maximumFractionDigits: 2 });
+}
+/** Thuế theo cấu hình quốc gia: {ten, pct} hoặc null khi thiếu cấu hình. */
+function thueQuocGia() {
+  const g = dsSanFor === currentHouseId && dsSan && dsSan.goi && dsSan.goi.thue;
+  const v = g ? Number(g.ty_le_phan_tram) : NaN;
+  if (g && Number.isFinite(v)) return { ten: g.ten || 'GTGT', pct: v };
+  const P = window.ALN_PRICING;
+  const c = P && P.PRICING ? Number(P.PRICING.thue_suat_vat) : NaN;
+  return P && P.PRICING && P.PRICING.thue_suat_vat != null && Number.isFinite(c) ? { ten: 'GTGT', pct: c } : null;
 }
 function fmtDateOnly(ts) {
   try {
@@ -1365,6 +1360,24 @@ function dsMocTc() {
     .sort((a, b) => (a.thu_tu || 0) - (b.thu_tu || 0));
 }
 function ttMoc(m) { return ['chua_lam', 'dang_lam', 'xong'].includes(m.trang_thai) ? m.trang_thai : 'chua_lam'; }
+/** Nhãn trạng thái mốc — mốc xong do xác nhận nhảy cóc ghi "không có ảnh kiểm". */
+function nhanTtMoc(m) { const tt = ttMoc(m); return T(tt === 'xong' && m.xong_khong_anh === true ? 'moc.tt.xong_khong_anh' : TT_MOC[tt]); }
+/* Móng + các sàn đi theo thứ tự (17/10/2026): khớp CHUOI của functions/lib/qltcMoc.js. Hạng mục ngoài nhà không nằm trong chuỗi. */
+const CHUOI_MOC = ['mong', 'ham', 'tret', 'lung', 'lau', 'san_thuong', 'mai'];
+/** Mốc trước m trong chuỗi mà chưa xong. */
+function mocTruocChuaXong(m) {
+  const ds = dsMocTc().filter((x) => CHUOI_MOC.includes(x.loai_san));
+  const i = ds.findIndex((x) => x.id === m.id);
+  return i < 0 ? [] : ds.slice(0, i).filter((x) => ttMoc(x) !== 'xong');
+}
+/** Bắt đầu mốc: mốc trước chưa xong → hỏi "Đội đã làm xong …?" rồi gửi kèm danh sách xác nhận. */
+function batDauMoc(m) {
+  const truoc = mocTruocChuaXong(m);
+  if (!truoc.length) return goiMoc({ hanh_dong: 'bat_dau', ma_moc: m.id });
+  const ten = truoc.map((x) => x.ten || '').join(', ');
+  if (!window.confirm(T('moc.nhay_coc', { ten }) + '\n\n' + T('moc.nhay_coc_mo_ta', { ten, sau: m.ten || '' }))) return;
+  return goiMoc({ hanh_dong: 'bat_dau', ma_moc: m.id, xac_nhan_truoc: truoc.map((x) => x.id) });
+}
 /** Việc theo mốc: mốc đang làm → khép mốc; chưa có → bắt đầu mốc kế tiếp; hết → đã xong. */
 function ttMuc(g) { return !g || typeof g !== 'object' ? 'chua' : (['can_sua', 'khong_ap_dung'].includes(g.trang_thai) ? g.trang_thai : 'dat'); }
 /** Các việc "cần sửa" của mốc (theo checklist hiện hành). */
@@ -1415,7 +1428,7 @@ function renderSteps() {
 }
 
 /* Dồn/khôi phục khối phụ vào "Thêm". Mỗi khối nhớ chỗ cũ bằng một comment đánh dấu. */
-const KHOI_THEM = ['stepsBlock', 'uploadBlock', 'pkgBlock', 'dydlBlock', 'logBlock', 'sochiBlock', 'soonBlock'];
+const KHOI_THEM = ['stepsBlock', 'uploadBlock', 'pkgBlock', 'dydlBlock', 'logBlock', 'sochiBlock'];
 const choCu = {};
 function datBoCuc(truocC1) {
   const body = document.getElementById('themBody');
@@ -1646,7 +1659,7 @@ function renderMocTc() {
       const p = phiTheoMa[m.id];
       phi.textContent = m.loai_san === 'mong' ? T('m3.mong_khong_tinh') : (p ? tien(p.phi) : '');
       const sub = document.createElement('span'); sub.className = 'mtc-sub';
-      const tt = T(TT_MOC[m.trang_thai] || 'moc.tt.chua_lam');
+      const tt = nhanTtMoc(m);
       const nhanDt = nhanDienTich(p, m);
       sub.textContent = (nhanDt ? nhanDt + ' · ' : '') + (khoa ? nhanKhoa(m) : tt);
       row.appendChild(ten); row.appendChild(phi); row.appendChild(sub);
@@ -1880,7 +1893,7 @@ function veChiTietMoc(m) {
   if (m.xong_boi && m.xong_boi.vai === 'nguoi_kiem_giup') ghi.push(T('kg.do', { ten: m.xong_boi.ten || '' }));
   else if (m.bat_dau_boi && m.bat_dau_boi.vai === 'nguoi_kiem_giup' && !m.xong_luc) ghi.push(T('kg.do', { ten: m.bat_dau_boi.ten || '' }));
   const p = document.createElement('p');
-  p.textContent = T(TT_MOC[tt]) + (ghi.length ? ' · ' + ghi.join(' · ') : '');
+  p.textContent = nhanTtMoc(m) + (ghi.length ? ' · ' + ghi.join(' · ') : '');
   box.appendChild(p);
   const coQuyen = !!(dsSan && dsSan.la_chu_nha) && !XEM_FOUNDER;
   if (!mocCfg) { const q = document.createElement('p'); q.textContent = 'Đang tải…'; box.appendChild(q); return box; }
@@ -1891,7 +1904,15 @@ function veChiTietMoc(m) {
     b.textContent = chu; b.disabled = mocBan; b.addEventListener('click', onClick); return b;
   };
   if (sua) {
-    if (tt === 'chua_lam') box.appendChild(nho(T('moc.ct.bat_dau'), 'btn-gold', () => goiMoc({ hanh_dong: 'bat_dau', ma_moc: m.id })));
+    if (tt === 'chua_lam') {
+      const truoc = mocTruocChuaXong(m);
+      if (truoc.length) {
+        const g = document.createElement('p'); g.className = 'mtc-goi-y';
+        g.textContent = T('moc.ct.truoc_chua_xong', { ten: truoc.map((x) => x.ten || '').join(', ') });
+        box.appendChild(g);
+      }
+      box.appendChild(nho(T('moc.ct.bat_dau'), truoc.length ? 'btn-ghost' : 'btn-gold', () => batDauMoc(m)));
+    }
     else {
       box.appendChild(nho(c.nut_xong, 'btn-gold', () => khepMoc(m)));
       const g = document.createElement('p'); g.className = 'mtc-goi-y';
@@ -2885,8 +2906,14 @@ function renderDuToanOldList(oldVersions) {
    GTGT — câu giá dựng từ PRICING.quan_ly_thi_cong, 14/10/2026). */
 function renderPackages() {
   const P = window.ALN_PRICING;
-  const elThue = document.getElementById('pkgThueSuat');
-  if (elThue) elThue.textContent = nhanThueSuat(thueSuatGtgt(null));
+  // Câu thuế: thuế suất từ cấu hình quốc gia (máy chủ trả qua danh sách sàn; chưa có thì aln-pricing.js,
+  // giữ bằng cấu hình quốc gia VN — test _test_qltcDanhSach). Không có số → ẩn cả câu, không để "GTGT %".
+  // Cả câu gán một lần bằng textContent (không chèn span số giữa câu — Chrome tự dịch làm rớt span).
+  const elThue = document.getElementById('pkgThue');
+  if (elThue) {
+    const tq = thueQuocGia();
+    elThue.textContent = tq ? T('goi.thue_du_toan', { thue: tq.ten, pct: nhanThueSuat(tq.pct) }) + ' ' : '';
+  }
   if (!P) { els.pkgGrid.innerHTML = ''; return; }
   // Câu giá Gói Quản lý Thi công (Nam duyệt 14/10/2026) — số lấy từ cấu hình
   // aln-pricing.js (khớp bảng giá máy chủ, test scripts/_test_aln_pricing.js).
@@ -2908,8 +2935,6 @@ function renderPackages() {
   // Gói Quản lý Thi công tính theo diện tích TỪNG sàn (DEC-2026-027) — bản dự
   // toán chưa có danh sách sàn nên không tính ra số ở đây; cách tính ghi ở #pkgQltc.
   const qltcPrice = 'Theo số sàn và diện tích sàn';
-  // Tỷ lệ 3 đợt thanh toán lấy từ cấu hình giá (PRICING.dong_hanh.chia_dot).
-  const dot = ((P.PRICING && P.PRICING.dong_hanh && P.PRICING.dong_hanh.chia_dot) || []).map((x) => Math.round(Number(x) * 100) + '%');
 
   els.pkgGrid.innerHTML = `
     <div class="pkg-card">
@@ -2942,7 +2967,7 @@ function renderPackages() {
       <p class="pkg-note">Công cụ để anh/chị tự theo dõi từng mốc thi công: biết cần kiểm gì trước khi đổ sàn, và đối chiếu mỗi lần tạm ứng với khối lượng đã làm theo dự toán của chính nhà mình. So sánh chi phí thực tế với dự toán.</p>
       <ul class="pkg-list">
         <li>Mỗi lần đội thợ xin ứng, so số đã ứng với khối lượng đã làm theo dự toán của chính nhà mình.</li>
-        <li>Không tính phí phần móng. Thanh toán chia 3 đợt: ${esc(dot[0])} sau nghiệm thu móng · ${esc(dot[1])} khi xong phần thô · ${esc(dot[2])} khi hoàn công.</li>
+        <li>${esc(T('goi.cach_tra'))}</li>
         <li>Sổ tạm ứng nhà thầu — đối chiếu mỗi lần tạm ứng với khối lượng đã làm theo dự toán</li>
         <li>Sổ chi so với dự toán</li>
         <li>Bảo lưu tối đa 24 tháng khi phải tạm dừng thi công ngoài ý muốn.</li>

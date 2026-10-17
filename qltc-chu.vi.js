@@ -161,6 +161,10 @@
     "viec.zalo.mo_ta": "Khi thiết kế với ALN, dự toán được tính lại theo đúng bản vẽ của nhà anh/chị — Không gian Nhà đã có sẵn trong gói.",
     "viec.zalo.nut": "Nhắn Zalo ALN",
     // Thêm
+    // Thẻ gói (Không gian Nhà) + trang gói
+    "goi.cach_tra": "Không tính phí phần móng. Trả theo từng sàn trước khi đội làm sàn đó, hoặc trả một lần cho cả nhà.",
+    "goi.thue_du_toan": "Số dự toán đã gồm thuế {thue} {pct}%.",
+    "goi.phi_chua_thue": "Phí gói chưa gồm thuế GTGT.",
     "them.tieu_de": "Thêm",
     "them.mo_ta": "Các mục khác của hồ sơ",
     // Mốc thi công
@@ -169,6 +173,10 @@
     "moc.tt.chua_lam": "Chưa làm",
     "moc.tt.dang_lam": "Đang làm",
     "moc.tt.xong": "Đã xong",
+    "moc.tt.xong_khong_anh": "Đã xong, không có ảnh kiểm",
+    "moc.nhay_coc": "Đội đã làm xong {ten}?",
+    "moc.nhay_coc_mo_ta": "Bấm OK: {ten} chuyển “Đã xong, không có ảnh kiểm”, rồi bắt đầu mốc {sau}.",
+    "moc.ct.truoc_chua_xong": "Mốc trước chưa xong: {ten}.",
     "moc.khoa": "Chưa mở",
     "moc.khoa_du_toan": "Chưa mở · dự toán {tien}",
     "moc.khoa_hop_dong": "Chưa mở · hợp đồng {tien}",

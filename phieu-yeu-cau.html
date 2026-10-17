@@ -408,7 +408,6 @@ ul.plain li{margin:2px 0}
         <li>Hồ sơ kỹ thuật: kiến trúc, kết cấu, điện nước</li>
         <li>Hồ sơ lập theo yêu cầu hồ sơ xin phép xây dựng; hồ sơ đứng tên ALN, ALN chịu trách nhiệm pháp lý về hồ sơ thiết kế</li>
         <li><b>Không gian Nhà</b>: nơi lưu hồ sơ, dự toán và tài liệu của căn nhà</li>
-        <li><b>Sổ tay công trình</b> bản cơ bản <span class="tag">Sắp ra mắt</span> — mở cho <span class="xh">anh/chị</span> khi ra mắt; không thay thế công tác giám sát thi công</li>
       </ul>
     </div>
     <div>
@@ -420,6 +419,7 @@ ul.plain li{margin:2px 0}
       </ul>
       <b style="color:var(--navy);display:block;margin-top:8px">Tùy chọn: thiết kế nội thất</b>
       <p class="note" style="margin:2px 0 0">Làm sau phần kiến trúc. <span id="vDgNoiThat"></span> đ/m² sử dụng các phòng <span class="xh">anh/chị</span> chọn, chưa gồm VAT. Diện tích đo theo phương án đã chốt.</p>
+      <p class="note" style="margin:8px 0 0"><b style="color:var(--navy)">Gói Quản lý Thi công</b> — theo dõi mốc, ảnh kiểm, sổ ứng<span id="vGiaQltc"></span>; không thay thế công tác giám sát thi công.</p>
     </div>
   </div>
 </section>
@@ -484,6 +484,7 @@ ul.plain li{margin:2px 0}
 </div>
 </div>
 
+<script src="aln-pricing.js"></script>
 <script src="aln-founder-xem.js"></script>
 <script src="aln-in-pdf.js"></script>
 <script type="module">
@@ -643,6 +644,9 @@ function veDienSan(sdt4, ds, phieu) {
 
   // Phí + mốc
   $('vDgNoiThat').textContent = soVN(ds.don_gia_noi_that);
+  // Giá Gói Quản lý Thi công / sàn: từ cấu hình giá dùng chung (aln-pricing.js, khớp bảng giá máy chủ); thiếu → bỏ phần giá.
+  const qltc = window.ALN_PRICING && window.ALN_PRICING.PRICING && window.ALN_PRICING.PRICING.quan_ly_thi_cong;
+  $('vGiaQltc').textContent = qltc && Number(qltc.gia_co_ban) > 0 ? ' · ' + soVN(qltc.gia_co_ban) + ' đ/sàn' : '';
   const mocBody = $('mocBody');
   mocBody.textContent = '';
   if (ds.phi) {
