@@ -93,8 +93,9 @@ table.moc input{width:68px;min-height:44px;border:2px solid var(--line);border-r
 .gia-hm{font-weight:600;color:var(--muted);white-space:nowrap}
 .tong{display:flex;justify-content:space-between;gap:10px;font-size:1.15rem;font-weight:700;padding:12px 0;border-top:2px solid var(--ink)}
 #tongPhi{text-align:right;margin-left:auto}
-.uu-dai{display:inline-block;margin:.4rem 0 .6rem;padding:.35rem .7rem;border-radius:8px;background:#fff4d6;color:#5a3c00;font-weight:600}
-.km-ghi{color:var(--ok, #1f6b3a);font-weight:600}
+/* Dải ưu đãi nằm trong .band: phải viết .band p.uu-dai, nếu không ".band p" (chữ nhạt cho nền tối) đè màu chữ → chữ mờ trên nền vàng nhạt. */
+.band p.uu-dai{display:inline-block;margin:.4rem 0 .6rem;padding:.35rem .7rem;border-radius:8px;background:#fff4d6;color:#4a3100;font-weight:600}
+.km-ghi{color:var(--good);font-weight:600}
 .tong{flex-wrap:wrap}
 .mahs{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1.5rem;font-weight:700;letter-spacing:.02em;background:var(--san);color:var(--san-ink);padding:10px 14px;border-radius:10px;display:inline-block}
 .tai{border:2px dashed var(--line);border-radius:12px;padding:16px;text-align:center;cursor:pointer;display:block}
