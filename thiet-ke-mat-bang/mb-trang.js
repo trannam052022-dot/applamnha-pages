@@ -57,7 +57,7 @@
     return {
       loai: LOAI_NHA[$('loai').value] ? $('loai').value : 'pho',
       w: w, d: d, n: +$('tang').value, pn: +$('pn').value, lg: +$('duong').value,
-      kd: $('kd').checked, tm: $('tm').checked, oto: $('oto').checked, ongba: $('ongba').checked, hem: $('hem').checked, thue: $('thue').checked
+      kd: $('kd').checked, tm: $('tm').checked, oto: $('oto').checked, ongba: $('ongba').checked, hem: $('hem').checked, thue: $('thue').checked, toiDa: $('toiDa').checked
     };
   }
   /* Loại nhà (10/10/2026): nhà phố dùng mẫu gốc A Hoàng (mặt tiền 3–7 m) + thư viện mẫu; vườn / biệt thự / villa dùng thư viện mẫu */
@@ -80,8 +80,8 @@
     sel.value = L.tang.indexOf(cu) >= 0 ? cu : L.mac;
     $('tangNhan').textContent = L.nhanTang;
     var pho = $('loai').value === 'pho';
-    $('kdKhoi').hidden = !pho; $('hemKhoi').hidden = !pho; $('tmKhoi').hidden = !pho; $('thueKhoi').hidden = !pho;
-    if (!pho) { $('kd').checked = false; $('hem').checked = false; $('tm').checked = false; $('thue').checked = false; }
+    $('kdKhoi').hidden = !pho; $('hemKhoi').hidden = !pho; $('tmKhoi').hidden = !pho; $('thueKhoi').hidden = !pho; $('toiDaKhoi').hidden = !pho;
+    if (!pho) { $('kd').checked = false; $('hem').checked = false; $('tm').checked = false; $('thue').checked = false; $('toiDa').checked = false; }
     $('otoChu').textContent = pho ? 'Để ô tô trong nhà' : 'Có chỗ để ô tô';
     var g = { pho: ['4,5', '16'], vuon: ['16', '30'], biet_thu: ['10', '25'], villa: ['20', '36'] }[$('loai').value];
     if (g && !$('mt').dataset.da) { $('mt').value = g[0]; $('sau').value = g[1]; }
@@ -141,7 +141,8 @@
       else if (w === 'có kinh doanh') o.push('Phương án này có dành mặt bằng kinh doanh ở trệt.');
     });
     if (laTV(r)) o.push('Mẫu "' + mau(r).ten + '" là bố cục điển hình tổng hợp từ nhiều mặt bằng nhà ở Việt Nam, co giãn theo lô — chưa phải thiết kế của KTS cho lô này.');
-    if (!laTV(r) && !r.v.gieng && f.d > 15 && !f.hem) o.push('Nhà sâu, phòng phía sau có thể thiếu sáng nếu sau nhà không có hẻm — KTS sẽ xem thêm giếng trời hoặc ô thoáng.');
+    if (f.toiDa && (r.P.issues || []).some(function (i) { return i.kind === 'dark'; })) o.push('Anh/chị chọn ưu tiên diện tích: phương án này dồn sàn cho phòng, một số phòng lấy sáng gián tiếp. Nhà sâu trên 18 m vẫn giữ giếng trời theo tiêu chuẩn.');
+    else if (!laTV(r) && !r.v.gieng && f.d > 15 && !f.hem) o.push('Nhà sâu, phòng phía sau có thể thiếu sáng nếu sau nhà không có hẻm — KTS sẽ xem thêm giếng trời hoặc ô thoáng.');
     return o;
   }
 
@@ -570,7 +571,7 @@
     (r.P.issues || []).forEach(function (i) {
       var ten = tenPhong(i.r && i.r.lb), cho = ten + ' ở ' + String(i.fl || '').replace(' · thờ', ''), k = i.kind + cho;
       if (da[k]) return; da[k] = 1;
-      if (i.kind === 'dark') ds.push(cho + ' thiếu cửa sổ lấy sáng — KTS sẽ thêm ô thoáng hoặc giếng trời.');
+      if (i.kind === 'dark') ds.push(FORM && FORM.toiDa ? cho + ' lấy sáng gián tiếp (anh/chị chọn ưu tiên diện tích) — KTS sẽ tính ô thoáng, đèn và quạt hút.' : cho + ' thiếu cửa sổ lấy sáng — KTS sẽ thêm ô thoáng hoặc giếng trời.');
       else if (i.kind === 'via_pn') ds.push('Muốn vào ' + cho + ' phải đi qua phòng ngủ.');
       else if (i.kind === 'ob_bep') ds.push('Phòng ông bà sát bếp — có thể nóng, ồn.');
       else if (i.kind === 'wc_tren_tho') ds.push('Có WC nằm ngay trên phòng thờ (' + String(i.fl || '') + ') — nên tránh.');
@@ -624,7 +625,7 @@
   }
   function dauVaoGui() {
     var f = FORM;
-    return { loai_nha: f.loai, mat_tien: f.w, sau: f.d, so_tang: f.n, so_pn: f.pn, lo_gioi: f.lg, kd: f.kd, tm: f.tm, oto: f.oto, ongba: f.ongba, hem: f.hem, thue: f.thue };
+    return { loai_nha: f.loai, mat_tien: f.w, sau: f.d, so_tang: f.n, so_pn: f.pn, lo_gioi: f.lg, kd: f.kd, tm: f.tm, oto: f.oto, ongba: f.ongba, hem: f.hem, thue: f.thue, toi_da: f.toiDa };
   }
   function guiGopY() {
     if (!GY.danh_gia) return;
@@ -673,7 +674,7 @@
       $('btnTao').disabled = false; $('btnTao').textContent = kq === 'loi' ? 'Vẽ phương án' : 'Vẽ lại phương án';
       if (kq === 'loi') { $('ldKhoi').hidden = false; return; }
       ga('aln_mb_tao', { loai_nha: f.loai, mat_tien_khoang: khoangMatTien(f.w), sau_khoang: khoangSau(f.d), so_tang: f.n, so_pn: f.pn, co_ket_qua: kq && kq.ds.length ? 1 : 0 });
-      may('ghiBuoc', { buoc: 'tao', dau_vao: { loai_nha: f.loai, mat_tien: f.w, sau: f.d, so_tang: f.n, so_pn: f.pn, lo_gioi: f.lg, kd: f.kd, tm: f.tm, oto: f.oto, ongba: f.ongba, hem: f.hem, thue: f.thue }, so_pa: kq ? kq.ds.length : 0 });
+      may('ghiBuoc', { buoc: 'tao', dau_vao: { loai_nha: f.loai, mat_tien: f.w, sau: f.d, so_tang: f.n, so_pn: f.pn, lo_gioi: f.lg, kd: f.kd, tm: f.tm, oto: f.oto, ongba: f.ongba, hem: f.hem, thue: f.thue, toi_da: f.toiDa }, so_pa: kq ? kq.ds.length : 0 });
       if (!kq || !kq.ds.length) {
         $('mbKetQua').hidden = true;
         tb.textContent = 'Các mẫu hiện có chưa co giãn vừa lô này (lô quá nông hoặc quá hẹp so với loại nhà đã chọn). Anh/chị thử loại nhà khác hoặc để lại số ở cuối trang, KTS của ALN sẽ phác riêng cho lô của mình.';
