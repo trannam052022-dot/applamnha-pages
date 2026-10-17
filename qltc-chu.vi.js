@@ -394,6 +394,7 @@
     "cb.vat_tu": "Vật tư cần đặt:",
     "cb.vt_tieu_de": "Tổng vật tư chính của mốc",
     "cb.vt_ghi_chu": "Ước tính từ khối lượng dự toán của tầng này và định mức hao phí hiện hành (đã gồm hao hụt định mức). Mác bê tông, vữa và loại thép thực tế theo bản vẽ kết cấu; nhà thầu kiểm lại trước khi đặt hàng.",
+    "cb.vt_tuong": "Gạch tính theo độ dày từng loại tường: tường 20 tốn gần gấp đôi tường 10. Tường 30, 50 tính như 2 lớp tường 10 xây bao quanh (chưa cộng 2 đầu tường). Anh/chị đo chiều dài × chiều cao từng loại tường trên bản vẽ, so với số m² ở trên.",
     "cb.vt_tuoi": "Mua bê tông tươi thì đặt theo số m³ bê tông, bỏ qua phần trộn tại chỗ.",
     "cb.vt_chua_quy": "{n} hạng mục chưa quy ra vật tư: {ds}.",
     "cb.vt_hang_muc": "Hạng mục của mốc ({n} dòng)",

@@ -2637,10 +2637,11 @@ function veTongVatTu(body, vt) {
   const box = document.createElement('div'); box.className = 'cb-vt';
   const p = (cls, chu) => { const e = document.createElement('p'); e.className = cls; e.textContent = chu; box.appendChild(e); return e; };
   p('cb-vt-tieu', T('cb.vt_tieu_de'));
-  let coTron = false;
+  let coTron = false; let coTuong = false;
   vt.nhom.forEach((g) => {
     if (!g || !Array.isArray(g.dong) || !g.dong.length) return;
     if (g.khoa === 'tron_be_tong') coTron = true;
+    if (g.khoa === 'tuong') coTuong = true;
     p('cb-vt-nhom', String(g.ten || ''));
     g.dong.forEach((d) => {
       const r = document.createElement('div'); r.className = 'cb-vt-dong';
@@ -2652,6 +2653,7 @@ function veTongVatTu(body, vt) {
     });
   });
   if (coTron) p('cb-vt-note', T('cb.vt_tuoi'));
+  if (coTuong) p('cb-vt-note', T('cb.vt_tuong'));
   p('cb-vt-note cb-vt-nhan', T('cb.vt_nhan_hang'));
   const kiem = document.createElement('details'); kiem.className = 'cb-vt-kiem';
   const sm = document.createElement('summary'); sm.textContent = T('cb.vt_kiem_tieu_de'); kiem.appendChild(sm);
