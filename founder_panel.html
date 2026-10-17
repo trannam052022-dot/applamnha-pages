@@ -4765,24 +4765,34 @@ window.fpQltcNhanTien = async function() {
     var vnd = function(n) { return Number(n || 0).toLocaleString('vi-VN') + ' đ'; };
     var luc = function(ms) { return ms ? new Date(ms).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : '?'; };
     var dong = ds.map(function(c, i) { return (i + 1) + '. ' + c.ma_ho_so + ' — ' + vnd(c.tong) + ' (chưa thuế ' + vnd(c.chua_thue) + ') — ND "' + c.noi_dung_ck + '" — tạo ' + luc(c.tao_luc_ms); }).join('\n');
-    var chon = prompt((canhBao ? canhBao + '\n\n' : '') + 'Đơn Gói Quản lý Thi công chờ chuyển khoản:\n\n' + dong + '\n\nĐối chiếu tài khoản ngân hàng (nội dung = mã hồ sơ), rồi nhập SỐ THỨ TỰ đơn ĐÃ NHẬN TIỀN. Để trống nếu chỉ xem.', '');
+    var chon = prompt((canhBao ? canhBao + '\n\n' : '') + 'Đơn Gói Quản lý Thi công chờ chuyển khoản:\n\n' + dong + '\n\nĐối chiếu tài khoản ngân hàng (nội dung = mã hồ sơ + số sàn), rồi nhập SỐ THỨ TỰ đơn ĐÃ NHẬN TIỀN. Để trống nếu chỉ xem.', '');
     if (chon === null || !chon.trim()) return;
     var i2 = parseInt(chon.trim(), 10) - 1;
     if (!(i2 >= 0 && i2 < ds.length)) { toast('Số thứ tự không hợp lệ', 'err'); return; }
     var c = ds[i2];
-    var soStr = prompt('Số tiền THẬT đã nhận cho ' + c.ma_ho_so + ' (đồng, không dấu chấm). Đơn: ' + vnd(c.tong), String(c.tong || ''));
-    if (soStr === null) return;
-    var so = parseInt(String(soStr).replace(/[^0-9]/g, ''), 10);
-    if (!(so > 0)) { toast('Số tiền không hợp lệ', 'err'); return; }
+    // Trả theo sàn (17/10/2026, Nam chốt): Founder nhập SỐ TIỀN thực nhận (bắt buộc), máy suy số sàn theo bảng phí khoá.
+    // Không khớp cách mở nào → không cho xác nhận, hiện 2 cách gần nhất kèm tiền rồi hỏi lại.
+    var goiY = c.tong_san != null ? '\nKhách chọn mở ' + c.so_san_mo + ' sàn — ' + vnd(c.tong) + (c.tong_con_lai != null ? '; mở hết ' + (c.tong_san - c.so_san_truoc) + ' sàn còn lại — ' + vnd(c.tong_con_lai) : '') + '.' : '';
+    var so = null, dk = null;
+    while (true) {
+      var soStr = prompt('SỐ TIỀN THỰC NHẬN cho ' + c.ma_ho_so + ' (đồng, bắt buộc — đối chiếu sao kê).' + goiY, '');
+      if (soStr === null) return;
+      so = parseInt(String(soStr).replace(/[^0-9]/g, ''), 10);
+      if (!(so > 0)) { alert('Nhập số tiền thực nhận (số dương).'); continue; }
+      dk = (await fn({ hanh_dong: 'du_kien', don_id: c.id, so_tien: so })).data || {};
+      if (dk.khop) break;
+      alert('⚠️ ' + (dk.cau || 'Số tiền không khớp cách mở sàn nào.') + '\n\nKhông xác nhận được — kiểm lại số tiền rồi nhập lại.');
+    }
     var homNay = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
     var ngay = prompt('Ngày nhận tiền (YYYY-MM-DD):', homNay);
     if (ngay === null) return;
-    var lech = so - Number(c.tong || 0);
-    var hoi = 'Xác nhận ĐÃ NHẬN ' + vnd(so) + ' cho ' + c.ma_ho_so + ' ngày ' + ngay + '?\nSau bước này gói được bật, danh sách sàn bị khoá, ghi bản ghi thanh toán.';
-    if (lech) hoi = '⚠️ SỐ TIỀN LỆCH ĐƠN ' + (lech > 0 ? '+' : '') + vnd(lech) + ' (đơn ' + vnd(c.tong) + ').\n\n' + hoi;
+    var sau = (dk.so_san_truoc || 0) + dk.khop.so_san;
+    var hoi = 'Xác nhận ĐÃ NHẬN ' + vnd(so) + ' cho ' + c.ma_ho_so + ' ngày ' + ngay + '?\nMở ' + dk.khop.so_san + ' sàn' + (dk.khop.ten && dk.khop.ten.length ? ' (' + dk.khop.ten.join(', ') + ')' : '')
+      + ' → đã mở ' + sau + '/' + dk.tong_san + ' sàn' + (sau >= dk.tong_san ? ' (đủ, gồm hạng mục ngoài nhà)' : '') + '.\nDanh sách sàn bị khoá, ghi bản ghi thanh toán.';
     if (!confirm(hoi)) return;
     r = (await fn({ hanh_dong: 'nhan_tien', don_id: c.id, so_tien: so, ngay: ngay.trim() })).data || {};
-    toast(r.da_co ? 'Đơn này đã được xác nhận trước đó' : 'Đã bật gói ' + (r.ma_ho_so || c.ma_ho_so) + (r.lech ? ' — lệch ' + vnd(r.lech) : ''), r.lech ? 'err' : 'ok');
+    toast(r.da_co ? 'Đơn này đã được xác nhận trước đó'
+      : 'Đã nhận tiền ' + (r.ma_ho_so || c.ma_ho_so) + (r.tong_san ? ' — đã mở ' + r.so_san_sau + '/' + r.tong_san + ' sàn' : ''), 'ok');
   } catch(e) {
     toast('Lỗi: ' + (e.message || e), 'err');
   }

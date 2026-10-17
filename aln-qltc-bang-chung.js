@@ -243,7 +243,7 @@
   }
 
   /**
-   * Nút "Chụp ảnh" (mở camera sau trên điện thoại) + "Chọn ảnh" (thư viện) + ghi chú.
+   * Nút "Chụp ảnh" (mở camera sau trên điện thoại) + "Chọn ảnh" (thư viện) + ghi chú; máy tính: một nút "Tải ảnh lên".
    * chonMa() trả mã mốc lúc gửi; chon (select) tuỳ chọn; mucId: gắn ảnh vào một việc (khi đó không
    * có ô ghi chú — tên việc đã là ngữ cảnh).
    */
@@ -282,15 +282,17 @@
     var bChup = nut(T("bc.chup_anh"), "btn btn-ghost bc-tai-nut");
     var bChon = nut(T("bc.chon_anh"), "btn btn-ghost bc-tai-nut");
     hang.appendChild(bChup); hang.appendChild(bChon);
-    // .btn đặt display riêng nên [hidden] không đủ — ẩn bằng style.
-    function anChup() { bChup.hidden = true; bChup.style.display = "none"; }
+    // Máy không chụp được (máy tính, không camera — 17/10/2026, Nam): nút thứ nhất thành "Tải ảnh lên" (chọn file),
+    // ẩn "Chọn ảnh" cho khỏi trùng. .btn đặt display riêng nên [hidden] không đủ — ẩn bằng style.
+    var taiLen = false;
+    function anChup() { taiLen = true; bChup.textContent = T("bc.tai_anh_len"); bChon.hidden = true; bChon.style.display = "none"; }
     if (!coCameraNgay()) anChup();
     else kiemCamera(anChup);
     var tt = the("p", "bc-ghi", ""); tt.setAttribute("role", "status");
     if (chon) hop.appendChild(chon);
     if (gc) hop.appendChild(gc);
     hop.appendChild(hang); hop.appendChild(ipChup); hop.appendChild(ipChon); hop.appendChild(tt);
-    bChup.addEventListener("click", function () { ipChup.click(); });
+    bChup.addEventListener("click", function () { (taiLen ? ipChon : ipChup).click(); });
     bChon.addEventListener("click", function () { ipChon.click(); });
     function guiTu(ip) {
       var files = Array.prototype.slice.call(ip.files || []).slice(0, 10);
