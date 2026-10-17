@@ -196,6 +196,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <p class="nho" id="cauGia"></p>
     <p class="nho" data-chu="m3.tu_kiem">Anh/chị tự kiểm được bằng dự toán của chính nhà mình.</p>
     <p class="nho" data-chu="goi.cach_tra">Không tính phí phần móng. Trả theo từng sàn trước khi đội làm sàn đó, hoặc trả một lần cho cả nhà.</p>
+    <p class="nho" id="giamTraHet" hidden></p>
     <p class="nho" id="heSoNote" hidden></p>
     <p class="loi" id="m3Loi" hidden></p>
     <p class="canh" data-chu="m3.khong_thay_giam_sat">Gói Quản lý Thi công là công cụ để anh/chị tự theo dõi công trình của mình — không thay thế công tác giám sát thi công.</p>
@@ -459,6 +460,10 @@ function veSoDo() {
   });
   const P = window.ALN_PRICING;
   $('cauGia').textContent = (P && P.cauGiaQuanLyThiCong) ? P.cauGiaQuanLyThiCong() : T('phi.chua_thue', { thue: tenThue() });
+  // bang_gia v3 (18/10/2026): "Trả một lần cho cả nhà: giảm 10%" — chỉ khi bảng giá hiện hành có giảm.
+  const gp = Number(g.giam_tra_het_pct); const gh = $('giamTraHet');
+  gh.hidden = !(gp > 0 && gp < 100);
+  gh.textContent = gh.hidden ? '' : T('goi.giam_tra_het', { pct: CHU ? CHU.so(gp) : String(gp) });
   const hs = $('heSoNote');
   hs.hidden = !(g.he_so && g.he_so !== 1);
   hs.textContent = hs.hidden ? '' : T('m3.he_so', { he_so: String(g.he_so).replace('.', ','), truoc: tien(g.tong_truoc_he_so) });

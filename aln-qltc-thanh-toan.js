@@ -60,13 +60,19 @@
     var b = the("button", "qtt-lc" + (dangChon ? " qtt-lc-chon" : ""));
     b.type = "button";
     b.setAttribute("aria-pressed", String(!!dangChon));
-    var gia = tien(x.tong, x.tien_te).replace(/ đ$/, "\u00a0đ");
+    var nbsp = function (n) { return tien(n, x.tien_te).replace(/ đ$/, "\u00a0đ"); };
+    var gia = nbsp(x.tong);
+    var giam = lc === "het" && x.giam && x.tong_goc > x.tong;
     var chu = lc === "mot_san"
       ? T("tt.lc_mot_san", { ten: (x.ten || []).join(", "), tien: gia })
-      : T("tt.lc_het", { n: x.so_san, tien: gia });
-    // Số trên nút = số chuyển khoản (đã gồm thuế) — ghi rõ thuế suất (Nam chốt 17/10/2026).
+      : giam ? T("tt.lc_het_giam", { n: x.so_san, goc: nbsp(x.tong_goc), tien: gia }) : T("tt.lc_het", { n: x.so_san, tien: gia });
+    // Số trên nút = số chuyển khoản (đã gồm thuế) — ghi rõ thuế suất (Nam chốt 17/10/2026);
+    // trả hết có giảm (18/10/2026): "{gốc} → {giảm} (đã giảm 10%, đã gồm GTGT 8%)".
     var t = x.thue;
-    if (t && isFinite(Number(t.ty_le_phan_tram))) chu += " " + T("tt.gom_thue", { thue: t.ten || "GTGT", pct: so(t.ty_le_phan_tram) }).replace(/ /g, "\u00a0");
+    if (t && isFinite(Number(t.ty_le_phan_tram))) {
+      chu += " " + (giam ? T("tt.giam_gom_thue", { giam: so(x.giam.pct), thue: t.ten || "GTGT", pct: so(t.ty_le_phan_tram) })
+        : T("tt.gom_thue", { thue: t.ten || "GTGT", pct: so(t.ty_le_phan_tram) })).replace(/ /g, "\u00a0");
+    }
     b.textContent = chu;
     if (!dangChon) b.addEventListener("click", function () { onChon(lc); });
     return b;
@@ -124,11 +130,18 @@
       kq.lua_chon_co.forEach(function (lc) {
         var x = kq[lc];
         if (x) lcBox.appendChild(nutLuaChon(lc, x, kq.lua_chon === lc, onChon));
+        // Dưới "Trả 1 sàn": trả hết một lần tiết kiệm bao nhiêu (đã gồm thuế).
+        if (lc === "mot_san" && kq.het && kq.het.tiet_kiem > 0 && kq.lua_chon_co.indexOf("het") >= 0) {
+          lcBox.appendChild(the("p", "qtt-tk", T("tt.tiet_kiem", { tien: tien(kq.het.tiet_kiem, kq.het.tien_te) })));
+        }
       });
       hop.appendChild(lcBox);
       if (kq.lua_chon_co.length > 1) hop.appendChild(the("p", "qtt-ghi", T("tt.cach_tra")));
     }
-    hop.appendChild(dong(T("tt.chua_thue"), tien(d.chua_thue, d.tien_te)));
+    if (d.giam && d.chua_thue_goc > d.chua_thue) {
+      hop.appendChild(dong(T("tt.chua_thue"), tien(d.chua_thue_goc, d.tien_te)));
+      hop.appendChild(dong(T("tt.giam", { pct: so(d.giam.pct) }), "−" + tien(d.giam.tien, d.tien_te), "qtt-giam"));
+    } else hop.appendChild(dong(T("tt.chua_thue"), tien(d.chua_thue, d.tien_te)));
     hop.appendChild(dong(T("tt.thue", { thue: so(d.thue.ty_le_phan_tram) + "%" }), tien(d.thue.tien, d.tien_te)));
     hop.appendChild(dong(T("tt.tong"), tien(d.tong, d.tien_te), "qtt-tong"));
     if (kq.ck) {
@@ -202,6 +215,8 @@
     + ".qtt-lc-box{display:grid;gap:.45rem;margin:.2rem 0 .3rem}"
     + ".qtt-lc{font:inherit;text-align:left;padding:.6rem .75rem;border-radius:8px;border:1px solid var(--border-soft,#cbd5e1);background:transparent;cursor:pointer;min-height:44px;color:inherit}"
     + ".qtt-lc-chon{border:2px solid var(--gold,#b8892b);font-weight:600;cursor:default}"
+    + ".qtt-tk{font-size:.9em;margin:-.15rem 0 .15rem .2rem;color:var(--text-2,#475569)}"
+    + ".qtt-giam .qtt-so{color:var(--green,#15803d);font-weight:600}"
     + ".qtt-qr{display:block;width:220px;max-width:100%;height:auto;margin:.4rem auto .1rem;border-radius:8px;background:#fff}"
     + ".qtt-bao{margin:.8rem 0 .2rem}.qtt-bao-nut{font:inherit;font-weight:700;width:100%;min-height:48px;border-radius:10px;border:0;background:#8a5f07;color:#fff;cursor:pointer}"
     + ".qtt-bao-nut:disabled{background:#e5e7eb;color:#374151;cursor:default}"

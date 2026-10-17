@@ -70,6 +70,10 @@
       gia_co_ban: 400000, // đ/sàn, chưa thuế GTGT
       cong_moi_buoc: 100000, // đ mỗi bước vượt
       he_so_biet_thu: 1.33,
+      // bang_gia v3 (scripts/qltc/bang-gia-chu-nha-2026-10-v3.json): giảm khi trả một lần cho mọi sàn còn lại,
+      // có hiệu lực từ giam_tra_het_tu. Chỉ dùng cho thẻ gói khi hồ sơ chưa có bảng phí từ máy chủ.
+      giam_tra_het_pct: 10,
+      giam_tra_het_tu: "2026-10-17",
     },
   };
 

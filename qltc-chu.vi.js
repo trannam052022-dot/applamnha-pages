@@ -181,6 +181,7 @@
     // Thêm
     // Thẻ gói (Không gian Nhà) + trang gói
     "goi.cach_tra": "Không tính phí phần móng. Trả theo từng sàn trước khi đội làm sàn đó, hoặc trả một lần cho cả nhà.",
+    "goi.giam_tra_het": "Trả một lần cho cả nhà: giảm {pct}%",
     "goi.thue_du_toan": "Số dự toán đã gồm thuế {thue} {pct}%.",
     "goi.phi_chua_thue": "Phí gói chưa gồm thuế GTGT.",
     "them.tieu_de": "Thêm",
@@ -200,6 +201,7 @@
     "moc.khoa_hop_dong": "Chưa mở · hợp đồng {tien}",
     "moc.mo_san": "Mở sàn này — {gia}",
     "moc.mo_con_lai": "Mở các sàn còn lại — {gia}",
+    "moc.mo_con_lai_giam": "Mở các sàn còn lại — {goc} → {gia}",
     "moc.tong": "Phí gói",
     "moc.sua": "Sửa danh sách sàn",
     "moc.goi_da_bat": "Gói đã bật — muốn sửa danh sách sàn, anh/chị nhắn Zalo 0909 829 696.",
@@ -489,6 +491,10 @@
     "tt.lc_mot_san": "Trả 1 sàn ({ten}) — {tien}",
     "tt.lc_het": "Trả hết {n} sàn còn lại — {tien}",
     "tt.gom_thue": "(đã gồm {thue} {pct}%)",
+    "tt.lc_het_giam": "Trả hết {n} sàn còn lại — {goc} → {tien}",
+    "tt.giam_gom_thue": "(đã giảm {giam}%, đã gồm {thue} {pct}%)",
+    "tt.tiet_kiem": "Trả hết một lần tiết kiệm {tien}",
+    "tt.giam": "Giảm trả một lần ({pct}%)",
     "tt.cach_tra": "Trả từng sàn trước khi đội làm sàn đó, hoặc trả hết một lần.",
     "tt.qr": "Quét mã bằng ứng dụng ngân hàng — số tiền và nội dung đã điền sẵn.",
     "tt.sau_khi_them": "Sau khi nhận chuyển khoản, ALN mở sàn và nhắn anh/chị qua Zalo.",

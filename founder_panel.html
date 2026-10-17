@@ -4773,7 +4773,7 @@ window.fpQltcNhanTien = async function() {
     var c = ds[i2];
     // Trả theo sàn (17/10/2026, Nam chốt): Founder nhập SỐ TIỀN thực nhận (bắt buộc), máy suy số sàn theo bảng phí khoá.
     // Không khớp cách mở nào → không cho xác nhận, hiện 2 cách gần nhất kèm tiền rồi hỏi lại.
-    var goiY = c.tong_san != null ? '\nKhách chọn mở ' + c.so_san_mo + ' sàn — ' + vnd(c.tong) + (c.tong_con_lai != null ? '; mở hết ' + (c.tong_san - c.so_san_truoc) + ' sàn còn lại — ' + vnd(c.tong_con_lai) : '') + '.' : '';
+    var goiY = c.tong_san != null ? '\nKhách chọn mở ' + c.so_san_mo + ' sàn — ' + vnd(c.tong) + (c.giam_pct ? ' (đã giảm ' + c.giam_pct + '%)' : '') + (c.tong_con_lai != null ? '; mở hết ' + (c.tong_san - c.so_san_truoc) + ' sàn còn lại — ' + vnd(c.tong_con_lai) + (c.giam_con_lai_pct ? ' (đã giảm ' + c.giam_con_lai_pct + '%)' : '') : '') + '.' : '';
     var so = null, dk = null;
     while (true) {
       var soStr = prompt('SỐ TIỀN THỰC NHẬN cho ' + c.ma_ho_so + ' (đồng, bắt buộc — đối chiếu sao kê).' + goiY, '');
@@ -4789,7 +4789,7 @@ window.fpQltcNhanTien = async function() {
     if (ngay === null) return;
     var sau = (dk.so_san_truoc || 0) + dk.khop.so_san;
     var hoi = 'Xác nhận ĐÃ NHẬN ' + vnd(so) + ' cho ' + c.ma_ho_so + ' ngày ' + ngay + '?\nMở ' + dk.khop.so_san + ' sàn' + (dk.khop.ten && dk.khop.ten.length ? ' (' + dk.khop.ten.join(', ') + ')' : '')
-      + ' → đã mở ' + sau + '/' + dk.tong_san + ' sàn' + (sau >= dk.tong_san ? ' (đủ, gồm hạng mục ngoài nhà)' : '') + '.\nDanh sách sàn bị khoá, ghi bản ghi thanh toán.';
+      + ' → đã mở ' + sau + '/' + dk.tong_san + ' sàn' + (sau >= dk.tong_san ? ' (đủ, gồm hạng mục ngoài nhà)' : '') + (dk.khop.giam_pct ? ' — trả một lần, đã giảm ' + dk.khop.giam_pct + '%' : '') + '.\nDanh sách sàn bị khoá, ghi bản ghi thanh toán.';
     if (!confirm(hoi)) return;
     r = (await fn({ hanh_dong: 'nhan_tien', don_id: c.id, so_tien: so, ngay: ngay.trim() })).data || {};
     toast(r.da_co ? 'Đơn này đã được xác nhận trước đó'

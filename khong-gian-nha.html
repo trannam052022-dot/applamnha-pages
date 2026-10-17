@@ -1058,6 +1058,13 @@ function thueQuocGia() {
   const c = P && P.PRICING ? Number(P.PRICING.thue_suat_vat) : NaN;
   return P && P.PRICING && P.PRICING.thue_suat_vat != null && Number.isFinite(c) ? { ten: 'GTGT', pct: c } : null;
 }
+/** % giảm khi trả một lần cho cả nhà: bảng phí của hồ sơ (máy chủ) nếu có, không thì aln-pricing.js từ ngày hiệu lực. */
+function giamTraHetPct() {
+  if (dsSanFor === currentHouseId && dsSan && dsSan.goi) { const v = Number(dsSan.goi.giam_tra_het_pct); return v > 0 && v < 100 ? v : 0; }
+  const q = window.ALN_PRICING && window.ALN_PRICING.PRICING && window.ALN_PRICING.PRICING.quan_ly_thi_cong;
+  const homNay = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
+  return q && q.giam_tra_het_pct > 0 && q.giam_tra_het_tu && homNay >= q.giam_tra_het_tu ? q.giam_tra_het_pct : 0;
+}
 function fmtDateOnly(ts) {
   try {
     const d = ts && typeof ts.toDate === 'function' ? ts.toDate() : (ts instanceof Date ? ts : null);
@@ -1548,7 +1555,7 @@ function renderViec() {
     const kv = 'viec.moc_' + vm.kieu;
     if (vm.kieu === 'mo_san' && vm.m) {
       const lc = luaChonCho(vm.m);
-      const b = nut(kemGomThue(lc === 'mot_san' ? T('viec.moc_mo_san.nut', { ten: vm.m.ten || '', gia: tienTong(giaCho(lc)) }) : T('moc.mo_con_lai', { gia: tienTong(giaCho(lc)) })), () => moTraSan(lc));
+      const b = nut(lc === 'mot_san' ? kemGomThue(T('viec.moc_mo_san.nut', { ten: vm.m.ten || '', gia: tienTong(giaCho(lc)) })) : nhanMoConLai(), () => moTraSan(lc));
       b.dataset.xem = '1';
     } else if (vm.kieu === 'doi_chieu') {
       /* chỉ báo, không có nút */
@@ -1608,6 +1615,7 @@ async function napDanhSachSan(houseId) {
   }
   if (currentHouseData) renderHouseHeader(currentHouseData);
   if (currentHouseData) renderHopDong();
+  if (els.pkgBlock && !els.pkgBlock.hidden) renderPackages(); // dòng giảm trả trọn gói theo bảng phí của hồ sơ
   renderMocTc();
   renderViec(); // Việc tiếp theo phụ thuộc danh sách sàn + trạng thái trả theo sàn
 }
@@ -1628,9 +1636,20 @@ function mocKhoa(m) { const t = traSan(); return !!(t && (t.goi_mo || t.da_bat) 
 /** Sàn kế tiếp → trả 1 sàn (nếu còn ≥ 2 sàn); sàn sau đó / ngoài nhà → trả hết phần còn lại. */
 function luaChonCho(m) {
   const t = traSan();
-  return t && t.tiep && t.tiep.ma_moc === m.id && (t.lua_chon_co || []).includes('mot_san') ? 'mot_san' : 'het';
+  return t && t.tiep && t.tiep.ma_moc === m.id && (t.lua_chon_co || []).includes('mot_san') ? 'mot_san' : lcHet();
 }
 function giaCho(lc) { const t = traSan(); return t ? (lc === 'mot_san' ? t.gia_mot_san : t.gia_con_lai) : null; }
+/** Lựa chọn "mở hết phần còn lại": còn 1 sàn thì máy chủ chỉ có "trả 1 sàn" (18/10/2026). */
+function lcHet() { const t = traSan(); return t && (t.lua_chon_co || []).includes('het') ? 'het' : 'mot_san'; }
+/** Nút "Mở các sàn còn lại": có giảm trả trọn gói → "{gốc} → {giảm} (đã giảm 10%, đã gồm GTGT 8%)". */
+function nhanMoConLai() {
+  const t = traSan(); const lc = lcHet(); const th = thueGoi();
+  if (lc === 'het' && t && t.giam_pct && t.gia_con_lai_goc > t.gia_con_lai && th) {
+    return T('moc.mo_con_lai_giam', { goc: tienTong(t.gia_con_lai_goc), gia: tienTong(t.gia_con_lai) }) + ' '
+      + T('tt.giam_gom_thue', { giam: CHU ? CHU.so(t.giam_pct) : String(t.giam_pct), thue: th.ten || 'GTGT', pct: pctThue(th) }).replace(/ /g, '\u00a0');
+  }
+  return kemGomThue(T('moc.mo_con_lai', { gia: tienTong(giaCho(lc)) }));
+}
 // Khoảng trắng cứng trước "đ" — nút hẹp không để "đ" rớt dòng một mình.
 const tienTong = (n) => (n == null ? '' : (CHU ? CHU.tien(n, traSan() && traSan().tien_te) : fmtMoney(n)).replace(/ đ$/, '\u00a0đ'));
 /** Thuế của bảng phí (bảng khoá ở lần trả đầu, không thì bảng hiện hành). Không có → null. */
@@ -1739,10 +1758,11 @@ function renderMocTc() {
       // ngay dưới — một lần. Các mốc khoá sau không có nút.
       if (khoa && !daCoNutMo) {
         daCoNutMo = true;
-        const cacLc = luaChonCho(m) === 'mot_san' ? ['mot_san', 'het'] : ['het'];
+        const co = (traSan() && traSan().lua_chon_co) || [];
+        const cacLc = luaChonCho(m) === 'mot_san' ? (co.includes('het') ? ['mot_san', 'het'] : ['mot_san']) : [lcHet()];
         cacLc.forEach((lc) => {
           const b = document.createElement('button'); b.type = 'button'; b.className = 'btn btn-ghost mtc-mo';
-          b.textContent = kemGomThue(T(lc === 'mot_san' ? 'moc.mo_san' : 'moc.mo_con_lai', { gia: tienTong(giaCho(lc)) }));
+          b.textContent = lc === 'mot_san' ? kemGomThue(T('moc.mo_san', { gia: tienTong(giaCho(lc)) })) : nhanMoConLai();
           b.addEventListener('click', () => moTraSan(lc));
           if (!dsSan.la_chu_nha && !XEM_FOUNDER) b.hidden = true;
           list.appendChild(b);
@@ -2463,8 +2483,8 @@ function renderHoanThien() {
     add('viec-mo-ta', T('ht.can_tra_du'));
     if (chuNha || XEM_FOUNDER) {
       const b = document.createElement('button'); b.type = 'button'; b.className = 'btn btn-ghost';
-      b.textContent = kemGomThue(T('moc.mo_con_lai', { gia: tienTong(giaCho('het')) }));
-      b.addEventListener('click', () => moTraSan('het'));
+      b.textContent = nhanMoConLai();
+      b.addEventListener('click', () => moTraSan(lcHet()));
       body.appendChild(b);
     }
   } else if (!ht.mo) {
@@ -3020,6 +3040,7 @@ function renderPackages() {
   // Gói Quản lý Thi công tính theo diện tích TỪNG sàn (DEC-2026-027) — bản dự
   // toán chưa có danh sách sàn nên không tính ra số ở đây; cách tính ghi ở #pkgQltc.
   const qltcPrice = 'Theo số sàn và diện tích sàn';
+  const pctGiam = giamTraHetPct();
 
   els.pkgGrid.innerHTML = `
     <div class="pkg-card">
@@ -3052,7 +3073,8 @@ function renderPackages() {
       <p class="pkg-note">Công cụ để anh/chị tự theo dõi từng mốc thi công: biết cần kiểm gì trước khi đổ sàn, và đối chiếu mỗi lần tạm ứng với khối lượng đã làm theo dự toán của chính nhà mình. So sánh chi phí thực tế với dự toán.</p>
       <ul class="pkg-list">
         <li>Mỗi lần đội thợ xin ứng, so số đã ứng với khối lượng đã làm theo dự toán của chính nhà mình.</li>
-        <li>${esc(T('goi.cach_tra'))}</li>
+        <li>${esc(T('goi.cach_tra'))}</li>${pctGiam > 0 ? `
+        <li>${esc(T('goi.giam_tra_het', { pct: CHU ? CHU.so(pctGiam) : String(pctGiam) }))}</li>` : ''}
         <li>Sổ tạm ứng nhà thầu — đối chiếu mỗi lần tạm ứng với khối lượng đã làm theo dự toán</li>
         <li>Sổ chi so với dự toán</li>
         <li>Bảo lưu tối đa 24 tháng khi phải tạm dừng thi công ngoài ý muốn.</li>
