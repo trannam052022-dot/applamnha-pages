@@ -204,7 +204,7 @@
     "moc.mo_con_lai_giam": "Mở các sàn còn lại — {goc} → {gia}",
     "moc.tong": "Phí gói",
     "moc.sua": "Sửa danh sách sàn",
-    "moc.goi_da_bat": "Gói đã bật — muốn sửa danh sách sàn, anh/chị nhắn Zalo 0909 829 696.",
+    "moc.goi_da_bat": "Gói đã bật — danh sách sàn đã khoá.",
     "moc.chi_xem": "Chỉ chủ nhà sửa được danh sách sàn.",
     // PR-6a — chi tiết mốc
     "moc.ct.bat_dau": "Bắt đầu mốc này",

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" data-theme="light">
 <head>
+<script src="aln-esc.js"></script>
 <!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM -->
 <script src="scripts/aln-optout.js"></script>
 <script src="scripts/aln-estimate-funnel.js"></script>
@@ -18,7 +19,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <!-- Trang tự có bảng màu sáng + tối: khai báo để trình duyệt điện thoại (Chrome/Samsung "ép tối") KHÔNG tự đảo màu — tự đảo làm chữ mờ, ô tick thành khối đen. -->
-<meta name="color-scheme" content="light dark">
+<meta name="color-scheme" content="light">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>ALN — Không Gian Nhà</title>
 
@@ -66,11 +67,16 @@ fbq('track','PageView');
      tiếng Việt U+1EA0–1EF1 — xem báo cáo audit font riêng, chưa migrate).
      Toàn bộ giá trị dưới đây đã tự kiểm contrast WCAG AA (≥4.5:1) trên nền
      --card trước khi chọn — xem chi tiết trong PR description. */
-  --navy-1:#f6f4ef;--card:#ffffff;--surface:#f6f4ef;
+  /* 17/10/2026 — bảng điều khiển chủ nhà: màu lấy đúng CSS trang chủ applamnha.vn
+     (nền #f7f9fb, chữ #1a2634, viền #e1e7ee, vàng #98690a/#b8860b); navy #0b1f3a
+     theo bản mockup Nam duyệt (sáng hơn navy trang chủ, đỡ tối trên điện thoại).
+     Ép sáng (data-theme="light" + meta color-scheme light) — không còn chế độ tối. */
+  --navy-1:#f7f9fb;--card:#ffffff;--surface:#eef2f6;--surface-2:#eef2f6;
+  --navy:#0b1f3a;--navy-2:#1c3356;--navy-3:#153052;--gold-navy:#c9a84c;--navy-muted:#aeb8c6;
   --gold:#98690a;--gold2:#b8860b;--gold-dim:rgba(152,105,10,.35);--gold-bg:rgba(152,105,10,.09);
-  --border:rgba(152,105,10,.22);--border-soft:#e3dfd4;
-  --text-1:#141a2b;--text-2:#4a5268;--text-3:#5b6b7f;--dim:#606883;
-  --on-gold:#1a1400;
+  --border:rgba(152,105,10,.22);--border-soft:#e1e7ee;
+  --text-1:#1a2634;--text-2:#3d4b5c;--text-3:#5b6b7f;--dim:#5b6b7f;
+  --on-gold:#ffffff;
   --red:#dc2626;--red-bg:rgba(220,38,38,.08);
   --green:#15803d;--green-bg:rgba(21,128,61,.08);
   --shadow-sm:0 1px 2px rgba(20,26,43,.04),0 3px 10px rgba(20,26,43,.05);
@@ -120,13 +126,13 @@ a{color:inherit}
    đổi theo theme sáng/tối của phần thân trang bên dưới ── */
 .topbar{
   position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;
-  padding:.85rem 1.1rem;background:linear-gradient(155deg,#0a1224,#111c33);
+  padding:.7rem 1rem;background:var(--navy);min-height:3.5rem;
   box-shadow:0 1px 0 rgba(0,0,0,.08);
 }
-.topbar-brand{display:flex;align-items:center;gap:.5rem;font-family:var(--f-mono);font-size:var(--text-xs);letter-spacing:.1em;text-transform:uppercase;color:#e8c877}
+.topbar-brand{display:flex;align-items:center;gap:.5rem;font-family:var(--f-mono);font-size:var(--text-xs);letter-spacing:.1em;text-transform:uppercase;color:var(--gold-navy)}
 .topbar-actions{display:flex;align-items:center;gap:1rem}
-.topbar-link{font-size:var(--text-xs);color:#c8cddb;cursor:pointer;text-decoration:underline;text-underline-offset:2px;background:none;border:none;font-family:var(--f-body)}
-.topbar-link:hover{color:#e8c877}
+.topbar-link{font-size:var(--text-xs);color:var(--navy-muted);cursor:pointer;text-decoration:underline;text-underline-offset:2px;background:none;border:none;font-family:var(--f-body);min-height:2.5rem}
+.topbar-link:hover{color:var(--gold-navy)}
 
 .wrap{max-width:34rem;margin:0 auto;padding:1.1rem 1.1rem 3rem}
 
@@ -153,7 +159,8 @@ a{color:inherit}
   transition:opacity .15s,transform .1s;text-decoration:none;
 }
 .btn:active{transform:scale(.98)}
-.btn-gold{background:linear-gradient(135deg,var(--gold2),var(--gold));color:var(--on-gold);box-shadow:0 4px 12px rgba(152,105,10,.22)}
+/* Nút vàng chữ trắng: cùng token --nut-vang của du-toan-nha.html (#9a6b08→#6b4906, 4,69:1). */
+.btn-gold{background:linear-gradient(135deg,#9a6b08,#6b4906);color:#fff;box-shadow:none}
 .btn-gold:hover{opacity:.92}
 .btn-ghost{background:transparent;color:var(--text-2);border:1.5px solid var(--border-soft)}
 .btn-ghost:hover{border-color:var(--gold-dim);color:var(--text-1)}
@@ -186,7 +193,6 @@ a{color:inherit}
 .empty-note{font-size:var(--text-base);color:var(--text-3);font-style:normal;padding:.4rem 0;line-height:1.7}
 
 /* ── HEADER HỒ SƠ (khối a) ── */
-.house-head{background:linear-gradient(160deg,var(--gold-bg),var(--card));border:1px solid var(--border)}
 .house-name{font-family:var(--f-head);font-weight:600;font-size:var(--text-xl);color:var(--text-1);line-height:1.3;margin-bottom:.35rem}
 .house-ma{font-family:var(--f-mono);font-size:var(--text-xs);color:var(--gold);letter-spacing:.04em;margin-bottom:.9rem}
 .house-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-bottom:1rem}
@@ -400,45 +406,100 @@ a{color:inherit}
 .pkg-list li::before{content:"✓";position:absolute;left:0;color:var(--gold);font-weight:700}
 .pkg-fine{font-size:var(--text-sm);color:var(--text-3);line-height:1.7;margin-top:.8rem}
 
-/* Thứ tự khối CHỈ áp dụng cho house trang_thai='truoc_c1' (Founder chốt
-   22/09/2026 (2)): Bước tiếp theo → Dự toán → Tải bản vẽ/báo giá → Gói dịch
-   vụ → Nhật ký → Sổ chi (thu gọn) → Sắp có; Tài liệu của bạn ẩn hẳn. House
-   C1-C4 KHÔNG có class này — giữ nguyên thứ tự DOM gốc (a→b→c→d→e→f),
-   không đổi nội dung/logic, chỉ đổi màu/giao diện như đã yêu cầu. */
-#state-house{display:flex;flex-direction:column}
-#state-house.truoc-c1-layout .house-head{order:1}
-#state-house.truoc-c1-layout #stepsBlock{order:2}
-#state-house.truoc-c1-layout #dtBlock{order:3}
-#state-house.truoc-c1-layout #uploadBlock{order:4}
-#state-house.truoc-c1-layout #pkgBlock{order:5}
-#state-house.truoc-c1-layout #logBlock{order:6}
-#state-house.truoc-c1-layout #sochiBlock{order:7}
-/* PR-5 (15/10/2026) — hồ sơ trước C1: mỗi màn ≤ 1 việc cần làm + 1 nút chính.
-   Đầu trang → Việc tiếp theo → Mốc thi công (hồ sơ gói) → Dự toán → "Thêm" (thu gọn, chứa
-   các khối còn lại — datBoCuc() chuyển DOM vào #themBody). House C1–C4 không đổi. */
-#state-house.truoc-c1-layout #viecBlock{order:2}
-/* PR-6b: 3 số ngay trên Việc tiếp theo, Chuẩn bị mốc tới ngay dưới (cùng order, theo thứ tự DOM). */
-#state-house.truoc-c1-layout #baSoBlock{order:2}
-#state-house.truoc-c1-layout #cbBlock{order:2}
-#state-house.truoc-c1-layout #htBlock{order:3}
-#state-house.truoc-c1-layout #hdBlock{order:2}
-#state-house.truoc-c1-layout #daTtBlock{order:3}
-#state-house.truoc-c1-layout #mocTcBlock{order:3}
-#state-house.truoc-c1-layout #themBlock{order:9}
-/* Đang sửa danh sách sàn: màn này chỉ còn một việc (bộ sửa, nút "Lưu") — tạm ẩn thẻ việc. */
+/* ── 17/10/2026 — BẢNG ĐIỀU KHIỂN: menu trái (desktop) / thanh dưới + menu trượt (điện thoại),
+   6 mục: Tổng quan · Mốc · Tiền · Hồ sơ · Nhật ký · Gói & dữ liệu. Mỗi khối có data-tab; JS moTab()
+   bật/tắt bằng class .tab-off (không đụng [hidden] do các hàm vẽ đặt). Thứ tự `order` và "Thêm"
+   thu gọn cũ bỏ — tab thay cho việc gom khối. ── */
+body.co-nha .wrap{max-width:none;padding:0}
+#state-house{display:grid;grid-template-columns:1fr;min-height:calc(100vh - 3.5rem)}
+@media(min-width:900px){#state-house{grid-template-columns:15rem minmax(0,1fr);background:linear-gradient(90deg,var(--navy) 15rem,transparent 15rem)}body.co-nha .topbar-actions{display:none}}
+.main-col{min-width:0;padding:.9rem .9rem 5.5rem;max-width:72rem;width:100%}
+@media(min-width:900px){.main-col{padding:1.25rem 1.75rem 2.5rem}}
+.main-col > .block.tab-off,.main-col > .tab-off{display:none !important}
+.tab-trong{font-size:var(--text-base);color:var(--text-3);text-align:center;padding:2.2rem 1rem;border:1.5px dashed var(--border-soft);border-radius:var(--r);background:var(--card)}
 #state-house.dang-sua-san #viecBlock{display:none}
-#state-house.truoc-c1-layout #dtBlock .btn-gold{background:transparent;color:var(--text-1);border:1.5px solid var(--border-soft);box-shadow:none}
-#themBody > .block{box-shadow:none;margin-bottom:.8rem}
-.viec-ten{font-size:var(--text-md);font-weight:600;color:var(--text-1);margin:0 0 .35rem;line-height:1.45}
-.viec-mo-ta{font-size:var(--text-base);color:var(--text-3);line-height:1.7;margin:0 0 .9rem}
-.viec-nut{width:100%;min-height:3rem;font-size:var(--text-md)}
-details.them{padding:0}
-details.them > summary{list-style:none;cursor:pointer;padding:1.1rem;display:flex;align-items:center;justify-content:space-between;gap:.6rem;font-family:var(--f-head);font-weight:600;font-size:var(--text-md);color:var(--text-1);min-height:3rem}
-details.them > summary::-webkit-details-marker{display:none}
-details.them > summary .them-sub{display:block;font-family:var(--f-body);font-weight:400;font-size:var(--text-sm);color:var(--text-3)}
-details.them > summary::after{content:"+";font-size:1.4rem;color:var(--gold);line-height:1}
-details.them[open] > summary::after{content:"−"}
-#themBody{padding:0 .8rem .8rem}
+/* Menu trái */
+.sidenav{display:none;background:var(--navy);color:#fff;padding:1.1rem .8rem;flex-direction:column;gap:.3rem;position:sticky;top:3.5rem;align-self:start;height:calc(100vh - 3.5rem);overflow:auto}
+@media(min-width:900px){.sidenav{display:flex}}
+.sidenav .nav-item{display:flex;align-items:center;gap:.7rem;padding:.7rem .85rem;border-radius:10px;color:var(--navy-muted);font-size:var(--text-base);font-weight:500;min-height:2.75rem;background:none;border:0;font-family:inherit;cursor:pointer;text-align:left;width:100%}
+.sidenav .nav-item:hover{color:#fff}
+.sidenav .nav-item[aria-current="page"]{background:var(--gold2);color:#fff;font-weight:600}
+.sidenav .nav-item .icon{width:1.15rem;height:1.15rem}
+.sidenav .nav-sep{flex:1}
+.sidenav .nav-user{border-top:1px solid var(--navy-2);padding-top:.8rem;margin-top:.6rem;display:flex;flex-direction:column;gap:.3rem}
+.sidenav .nav-ma{font-family:var(--f-mono);font-size:var(--text-xs);color:var(--gold-navy);padding:0 .85rem .3rem;letter-spacing:.04em}
+/* Menu trượt trên điện thoại: cùng phần tử .sidenav, mở bằng class .mo */
+@media(max-width:899px){
+  .sidenav.mo{display:flex;position:fixed;inset:3.5rem 0 0 0;height:auto;z-index:30;top:3.5rem}
+  body.menu-mo{overflow:hidden}
+}
+/* Thanh dưới (điện thoại) */
+.bottomnav{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;background:var(--card);border-top:1px solid var(--border-soft);padding:0 .25rem env(safe-area-inset-bottom)}
+@media(min-width:900px){.bottomnav{display:none}}
+.bottomnav .bn{flex:1;display:flex;flex-direction:column;align-items:center;gap:.2rem;padding:.55rem 0 .45rem;font-size:11px;font-weight:600;color:var(--text-3);background:none;border:0;font-family:inherit;min-height:3.25rem;cursor:pointer}
+.bottomnav .bn[aria-current="page"]{color:var(--gold)}
+.bottomnav .bn .icon{width:1.35rem;height:1.35rem}
+#hamburger{display:inline-flex;align-items:center;justify-content:center;width:2.5rem;height:2.5rem;border-radius:8px;border:0;background:transparent;color:#fff;cursor:pointer;margin-left:-.4rem}
+@media(min-width:900px){#hamburger{display:none}}
+/* Hero: phối cảnh + tên nhà + mốc hiện tại */
+.hero{background:var(--navy);color:#fff;border:0;border-radius:var(--r);padding:0;overflow:hidden;display:flex;flex-direction:column}
+@media(min-width:900px){.hero{flex-direction:row;align-items:stretch}}
+.hero-anh{position:relative;background:var(--navy-3);min-height:10rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;border-bottom:1px solid var(--navy-2)}
+@media(min-width:900px){.hero-anh{flex:0 0 22rem;min-height:14rem;border-bottom:0;border-right:1px solid var(--navy-2)}}
+.hero-anh img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hero-anh .hero-anh-chu{font-size:var(--text-sm);color:var(--navy-muted)}
+.hero-anh .btn{min-height:2.5rem;font-size:var(--text-sm);padding:0 .9rem}
+.hero-anh.co-anh .hero-anh-chu,.hero-anh.co-anh .hero-anh-nut{display:none}
+.hero-body{flex:1;min-width:0;padding:1.1rem 1.1rem 1rem;display:flex;flex-direction:column;gap:.8rem}
+.hero .house-name{color:#fff;font-size:var(--text-xl);margin:0}
+.hero .house-ma{color:var(--gold-navy);margin:0}
+.hero .house-stats{margin:0}
+.hero .house-stat{background:var(--navy-3);border-color:var(--navy-2)}
+.hero .house-stat .v{color:#fff}
+.hero .house-stat .l{color:var(--navy-muted)}
+.hero-moc{display:flex;flex-direction:column;gap:.2rem;border-top:1px solid var(--navy-2);padding-top:.7rem}
+.hero-moc .l{font-size:var(--text-xs);font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--navy-muted)}
+.hero-moc .v{font-family:var(--f-head);font-weight:600;font-size:var(--text-xl);line-height:1.2;text-transform:uppercase}
+.hero-moc .v span{color:var(--navy-muted)}
+.hero-moc .s{font-size:var(--text-sm);color:var(--navy-muted)}
+.hero-gd{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.4rem;margin-top:.3rem}
+.hero-gd div{display:flex;flex-direction:column;gap:.3rem;min-width:0}
+.hero-gd b{font-size:11px;font-weight:600;color:var(--navy-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hero-gd b.on{color:var(--gold-navy)}
+.hero-gd b.xong{color:#6fbf8f}
+.hero-gd i{display:block;height:5px;border-radius:3px;background:var(--navy-2)}
+.hero-gd i.xong{background:#6fbf8f}
+.hero-gd i.on{background:linear-gradient(90deg,var(--gold-navy) 0 var(--p,10%),var(--navy-2) var(--p,10%))}
+.hero #kgDong{border-top:1px solid var(--navy-2);padding-top:.6rem}
+.hero #kgDong,.hero #kgDong *{color:#fff}
+.kts-row{display:none !important}
+/* 4 ô chỉ số */
+.kpi{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem;margin:0 0 1rem}
+@media(min-width:900px){.kpi{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.kpi button{display:flex;flex-direction:column;gap:.35rem;text-align:left;background:var(--card);border:1px solid var(--border-soft);border-radius:var(--r);padding:.9rem;font-family:inherit;color:var(--text-1);cursor:pointer;min-height:5.5rem}
+.kpi button:hover{border-color:var(--gold-dim)}
+.kpi .k-ico{width:2rem;height:2rem;border-radius:8px;background:var(--gold-bg);color:var(--gold);display:flex;align-items:center;justify-content:center}
+.kpi .k-ten{font-size:var(--text-sm);font-weight:600;color:var(--text-2)}
+.kpi .k-so{font-family:var(--f-mono);font-size:var(--text-md);font-weight:600;line-height:1.3}
+.kpi .k-so.chu{font-family:var(--f-body)}
+.kpi .k-sub{font-size:var(--text-xs);color:var(--text-3);line-height:1.4}
+/* Tiêu đề tab (trên điện thoại) */
+.tab-head{display:flex;align-items:baseline;justify-content:space-between;gap:.6rem;margin:0 0 .8rem}
+.tab-head h2{font-family:var(--f-head);font-weight:600;font-size:var(--text-lg);color:var(--navy);text-transform:uppercase;letter-spacing:.02em}
+.tab-head .sub{font-size:var(--text-sm);color:var(--text-3)}
+/* Thư mục hồ sơ */
+.tm-list{display:flex;flex-direction:column}
+.tm-row{display:flex;align-items:center;gap:.75rem;padding:.7rem 0;border-top:1px solid var(--border-soft);min-height:3.5rem}
+.tm-row:first-child{border-top:0}
+.tm-ico{width:2.5rem;height:2.5rem;border-radius:10px;background:var(--gold-bg);color:var(--gold);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.tm-ten{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.3}
+.tm-ten b{font-size:var(--text-base)}
+.tm-ten b .m{font-family:var(--f-mono);font-size:var(--text-xs);color:var(--text-3);font-weight:500}
+.tm-ten span{font-size:var(--text-sm);color:var(--text-3)}
+.tm-up{width:2.75rem;height:2.75rem;border-radius:10px;border:1px solid #c9d3de;background:var(--card);color:var(--text-1);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto}
+.tm-up:disabled{opacity:.45;cursor:default}
+.upload-zone .btn{display:none}
+body.xem-founder .tm-up{pointer-events:none;opacity:.45}
 .mtc-list{display:flex;flex-direction:column;gap:.45rem;margin:0 0 .8rem}
 .mtc-row{display:grid;grid-template-columns:1fr auto;gap:.2rem .6rem;align-items:center;padding:.65rem .8rem;border:1px solid var(--border-soft);border-radius:var(--r-sm);background:var(--surface)}
 .mtc-ten{font-weight:600;color:var(--text-1);font-size:var(--text-base)}
@@ -565,6 +626,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 
 <div class="topbar">
+  <button id="hamburger" type="button" aria-label="Mở menu" aria-expanded="false" hidden><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
   <div class="topbar-brand">
     <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg>
     Không Gian Nhà
@@ -629,11 +691,35 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   </section>
 
   <main id="state-house" hidden>
+    <!-- 17/10/2026 — menu trái (≥900px) / menu trượt (điện thoại, mở bằng ☰ hoặc nút Menu thanh dưới) -->
+    <nav class="sidenav" id="sidenav" aria-label="Mục của hồ sơ">
+      <div class="nav-ma" id="navMa"></div>
+      <button type="button" class="nav-item" data-tab-nut="tongquan"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/></svg>Tổng quan</button>
+      <button type="button" class="nav-item" data-tab-nut="moc"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16"/><path d="M6 20V9h12v11"/><path d="M6 14h12"/><path d="M9 9V5h6v4"/></svg>Mốc thi công</button>
+      <button type="button" class="nav-item" data-tab-nut="tien"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>Tiền</button>
+      <button type="button" class="nav-item" data-tab-nut="hoso"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h10l6 6v10H4z"/><path d="M14 4v6h6"/></svg>Hồ sơ</button>
+      <button type="button" class="nav-item" data-tab-nut="nhatky"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Nhật ký</button>
+      <button type="button" class="nav-item" data-tab-nut="goi"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/></svg>Gói &amp; dữ liệu</button>
+      <span class="nav-sep"></span>
+      <div class="nav-user">
+        <button type="button" class="nav-item" id="navSwitchHouse" hidden><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h10l6 6v10H4z"/><path d="M14 4v6h6"/></svg>Xem hồ sơ khác</button>
+        <button type="button" class="nav-item" id="navLogout"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 4H5v16h5"/><path d="M14 8l4 4-4 4M18 12H9"/></svg>Đăng xuất</button>
+      </div>
+    </nav>
 
-    <!-- a. Đầu trang -->
-    <section class="block house-head">
+    <div class="main-col" id="mainCol">
+
+    <!-- a. Đầu trang — hero: phối cảnh (thư mục Phối cảnh, ảnh mới nhất) + tên nhà + mốc hiện tại -->
+    <section class="block house-head hero" data-tab="tongquan">
+      <div class="hero-anh" id="heroAnh" role="img" aria-label="Phối cảnh nhà — chưa có ảnh">
+        <span class="hero-anh-chu">Phối cảnh nhà anh/chị</span>
+        <button type="button" class="btn btn-gold hero-anh-nut" id="btnPhoiCanh">Thêm phối cảnh</button>
+      </div>
+      <div class="hero-body">
+      <div>
       <div class="house-name" id="hName"></div>
       <div class="house-ma" id="hMa"></div>
+      </div>
       <div class="house-stats">
         <div class="house-stat"><div class="v" id="hDienTich">—</div><div class="l">Diện tích sàn</div></div>
         <div class="house-stat"><div class="v" id="hSoTang">—</div><div class="l">Số tầng</div></div>
@@ -647,11 +733,26 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </span>
       </div>
       <!-- Người cùng theo dõi (16/10/2026): một dòng, bấm mới mở khối mời/gỡ/bật quyền — aln-kiem-giup.js vẽ -->
+      <div class="hero-moc" id="heroMoc" hidden>
+        <span class="l" id="heroMocL">Công trình đang ở</span>
+        <span class="v" id="heroMocV">—</span>
+        <span class="s" id="heroMocS"></span>
+        <div class="hero-gd" id="heroGd" hidden></div>
+      </div>
       <div id="kgDong" hidden></div>
+      </div>
     </section>
 
+    <!-- 4 ô chỉ số — bấm sang tab tương ứng. renderKpi() điền. -->
+    <div class="kpi" id="kpiBlock" data-tab="tongquan" hidden>
+      <button type="button" data-tab-nut="moc"><span class="k-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16"/><path d="M6 20V9h12v11"/><path d="M6 14h12"/><path d="M9 9V5h6v4"/></svg></span><span class="k-ten">Tiến độ</span><span class="k-so chu" id="kpiMoc">—</span><span class="k-sub" id="kpiMocSub"></span></button>
+      <button type="button" data-tab-nut="tien"><span class="k-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg></span><span class="k-ten">Tiền</span><span class="k-so" id="kpiTien">—</span><span class="k-sub" id="kpiTienSub"></span></button>
+      <button type="button" data-tab-nut="hoso"><span class="k-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h10l6 6v10H4z"/><path d="M14 4v6h6"/></svg></span><span class="k-ten">Hồ sơ</span><span class="k-so" id="kpiHoSo">—</span><span class="k-sub" id="kpiHoSoSub"></span></button>
+      <button type="button" data-tab-nut="nhatky"><span class="k-ico"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="k-ten">Nhật ký</span><span class="k-so" id="kpiLog">—</span><span class="k-sub" id="kpiLogSub"></span></button>
+    </div>
+
     <!-- PR-6b — 3 số đầu hồ sơ gói (gói đã bật): đã chi · còn lại so với dự toán · đang ở mốc nào. Máy chủ: qltcSoUng 'tong_hop'. -->
-    <section class="block" id="baSoBlock" hidden>
+    <section class="block" id="baSoBlock" data-tab="tongquan" hidden>
       <div class="block-head">
         <span class="block-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg></span>
         <span class="block-title" data-chu="so.tieu_de">Công trình đến nay</span>
@@ -661,7 +762,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     <!-- Hợp đồng thi công (16/10/2026): chủ nhà nhập tổng + phạm vi, đợt gắn mốc (tuỳ chọn), sửa tay từng mốc.
          Tiền ứng đối chiếu theo hợp đồng; dự toán chỉ để đối chiếu và chia theo tầng. Máy chủ: qltcHopDong. -->
-    <section class="block" id="hdBlock" hidden>
+    <section class="block" id="hdBlock" data-tab="tien" hidden>
       <div class="block-head">
         <span class="block-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 17h6"/></svg></span>
         <span class="block-title" data-chu="hd.tieu_de">Hợp đồng thi công</span>
@@ -670,7 +771,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </section>
 
     <!-- PR-5 — Việc tiếp theo (hồ sơ trước C1): đúng 1 việc + 1 nút chính, đổi theo trạng thái (chonViec). -->
-    <section class="block" id="viecBlock" hidden>
+    <section class="block" id="viecBlock" data-tab="tongquan" hidden>
       <div class="block-head">
         <span class="block-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
         <span class="block-title" data-chu="viec.tieu_de">Việc tiếp theo</span>
@@ -679,7 +780,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </section>
 
     <!-- PR-6b — Chuẩn bị cho mốc tới (từ dự toán của tầng N+1). Không có nút — chỉ để dự trù. -->
-    <section class="block" id="cbBlock" hidden>
+    <section class="block" id="cbBlock" data-tab="tongquan" hidden>
       <div class="block-head">
         <span class="block-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5h10M9 12h10M9 19h10M4 5h.01M4 12h.01M4 19h.01"/></svg></span>
         <span class="block-title" data-chu="cb.tieu_de">Chuẩn bị cho mốc tới</span>
@@ -688,7 +789,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </section>
 
     <!-- 17/10/2026 — Hoàn thiện (chương ALN4 theo tầng): mở khi mốc Mái xong hoặc chủ nhà bấm "Bắt đầu hoàn thiện". -->
-    <section class="block" id="htBlock" hidden>
+    <section class="block" id="htBlock" data-tab="moc" hidden>
       <div class="block-head">
         <span class="block-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16M6 20V9l6-5 6 5v11M10 20v-6h4v6"/></svg></span>
         <span class="block-title" data-chu="ht.tieu_de">Hoàn thiện</span>
@@ -697,7 +798,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </section>
 
     <!-- PR-6a — Đã thanh toán (hồ sơ gói đã bật): số tiền ALN đã nhận, ngày, câu hoá đơn. Ngay trên khối mốc. -->
-    <section class="block" id="daTtBlock" hidden>
+    <section class="block" id="daTtBlock" data-tab="tien" hidden>
       <div class="block-head">
         <span class="block-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg></span>
         <span class="block-title" data-chu="dtt.tieu_de">Đã thanh toán</span>
@@ -706,7 +807,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </section>
 
     <!-- PR-5 — Mốc thi công + chủ nhà tự sửa danh sách sàn (hồ sơ Gói Quản lý Thi công). Máy chủ: qltcDanhSachSan. -->
-    <section class="block" id="mocTcBlock" hidden>
+    <section class="block" id="mocTcBlock" data-tab="moc" hidden>
       <div class="block-head">
         <span class="block-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16M6 20V9l6-5 6 5v11M9 20v-5h6v5"/></svg></span>
         <span class="block-title" data-chu="moc.tieu_de">Mốc thi công</span>
@@ -715,7 +816,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </section>
 
     <!-- b. Bạn đang ở đâu (house thật, C1-C4) / Bước tiếp theo (house trang_thai='truoc_c1' — chưa có KTS/hợp đồng) -->
-    <section class="block" id="stepsBlock">
+    <section class="block" id="stepsBlock" data-tab="tongquan">
       <div class="block-head">
         <span class="block-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v4M16 3v4M4 9h16M6 5h12a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"/></svg></span>
         <span class="block-title" id="stepBlockTitle">Bạn đang ở đâu</span>
@@ -727,7 +828,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </section>
 
     <!-- b2. Dự toán của bạn (P1.3 — chỉ hiện với house trang_thai='truoc_c1' đã có ≥1 du_toan_versions) -->
-    <section class="block" id="dtBlock" hidden>
+    <section class="block" id="dtBlock" data-tab="tien" hidden>
       <div class="block-head">
         <span class="block-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7h6M9 11h6M9 15h4M5 3h14a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/></svg></span>
         <span class="block-title">Dự toán của bạn</span>
@@ -760,24 +861,26 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </section>
 
     <!-- b3. Tải bản vẽ / báo giá (P1.4 — chỉ hiện với house trang_thai='truoc_c1') -->
-    <section class="block" id="uploadBlock" hidden>
+    <section class="block" id="uploadBlock" data-tab="hoso" hidden>
       <div class="block-head">
         <span class="block-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg></span>
-        <span class="block-title">Tải bản vẽ / báo giá</span>
+        <span class="block-title">Thư mục hồ sơ</span>
       </div>
+      <!-- 17/10/2026 — thư mục: mỗi dòng tên · số file · nút tải vào đúng thư mục (renderThuMuc). -->
+      <div class="tm-list" id="tmList"></div>
       <div class="upload-zone">
         <button type="button" class="btn btn-gold" id="btnPickBanVe">Tải bản vẽ</button>
-        <button type="button" class="btn btn-ghost" id="btnPickBaoGia" style="margin-left:.5rem">Tải báo giá nhà thầu</button>
+        <button type="button" class="btn btn-ghost" id="btnPickBaoGia">Tải báo giá nhà thầu</button>
         <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png,.heic,.xlsx,.xls,.dwg">
         <div class="upload-progress" id="uploadProgress"></div>
         <div class="upload-err" id="uploadErr"></div>
-        <p class="upload-hint">Nhận file pdf, jpg, png, heic, xlsx, dwg — tối đa 50MB/file. ALN sẽ xem và liên hệ lại sau khi nhận được.</p>
+        <p class="upload-hint">pdf · jpg · png · heic · xlsx · dwg · ≤ 50 MB</p>
       </div>
       <div id="uploadListBody"></div>
     </section>
 
     <!-- c. Tài liệu của bạn — ẩn hoàn toàn khi trang_thai='truoc_c1' (chưa có gì để bàn giao trước C1) -->
-    <section class="block" id="docBlock">
+    <section class="block" id="docBlock" data-tab="hoso">
       <div class="block-head">
         <span class="block-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/><path d="M14 3v5h5"/></svg></span>
         <span class="block-title">Tài liệu của bạn</span>
@@ -786,7 +889,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </section>
 
     <!-- d. Nhật ký -->
-    <section class="block" id="logBlock">
+    <section class="block" id="logBlock" data-tab="nhatky">
       <div class="block-head">
         <span class="block-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span>
         <span class="block-title">Nhật ký</span>
@@ -796,7 +899,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </section>
 
     <!-- e. Sổ chi của bạn — thu gọn khi trang_thai='truoc_c1' (chưa xây, chưa có gì để ghi) -->
-    <section class="block" id="sochiBlock">
+    <section class="block" id="sochiBlock" data-tab="tien">
       <div class="block-head">
         <span class="block-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h4"/></svg></span>
         <span class="block-title">Sổ chi của bạn</span>
@@ -846,7 +949,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </section>
 
     <!-- e2. Gói dịch vụ ALN (P1.3 — chỉ hiện với house trang_thai='truoc_c1') -->
-    <section class="block" id="pkgBlock" hidden>
+    <section class="block" id="pkgBlock" data-tab="goi" hidden>
       <div class="block-head">
         <span class="block-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 7.3 12 12l-8.5-4.7M12 12v9M3.5 7.3v9L12 21l8.5-4.7v-9L12 3Z"/></svg></span>
         <span class="block-title">Gói dịch vụ ALN</span>
@@ -856,7 +959,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </section>
 
     <!-- e3. Đồng ý dữ liệu Gói Quản lý Thi công (PR-4; PR-9: hiện ở MỌI trạng thái hồ sơ) — aln-dong-y-du-lieu.js vẽ -->
-    <section class="block" id="dydlBlock" hidden>
+    <section class="block" id="dydlBlock" data-tab="goi" hidden>
       <div class="block-head">
         <span class="block-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg></span>
         <span class="block-title">Dữ liệu công trình của bạn</span>
@@ -864,14 +967,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div id="dydlBox"></div>
     </section>
 
-    <!-- PR-5 — "Thêm" thu gọn: hồ sơ trước C1 dồn các khối phụ vào đây (datBoCuc). -->
-    <details class="block them" id="themBlock" hidden>
-      <summary><span><span data-chu="them.tieu_de">Thêm</span><span class="them-sub" data-chu="them.mo_ta">Các mục khác của hồ sơ</span></span></summary>
-      <div id="themBody"></div>
-    </details>
-
-
+    <p class="tab-trong" id="tabTrong" hidden>Chưa có gì ở mục này.</p>
+    </div>
   </main>
+
+  <nav class="bottomnav" id="bottomnav" aria-label="Điều hướng" hidden>
+    <button type="button" class="bn" data-tab-nut="tongquan"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/></svg>Tổng quan</button>
+    <button type="button" class="bn" data-tab-nut="moc"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16"/><path d="M6 20V9h12v11"/><path d="M6 14h12"/><path d="M9 9V5h6v4"/></svg>Mốc</button>
+    <button type="button" class="bn" data-tab-nut="tien"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>Tiền</button>
+    <button type="button" class="bn" data-tab-nut="hoso"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h10l6 6v10H4z"/><path d="M14 4v6h6"/></svg>Hồ sơ</button>
+    <button type="button" class="bn" id="bnMenu"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Menu</button>
+  </nav>
 </div>
 
 <!-- Bảng giá Gói Bóc khối lượng/Quản lý Thi công — nguồn cấu hình duy nhất, dùng
@@ -946,7 +1052,6 @@ const els = {
   daTtBlock: document.getElementById('daTtBlock'),
   daTtBody: document.getElementById('daTtBody'),
   mocTcBody: document.getElementById('mocTcBody'),
-  themBlock: document.getElementById('themBlock'),
 
   dtBlock: document.getElementById('dtBlock'),
   dtTotal: document.getElementById('dtTotal'),
@@ -1002,7 +1107,56 @@ const LOAI_HINH_LABEL = {
 
 function showState(name) {
   for (const s of ['loading', 'error', 'noHouse', 'choose', 'house']) els[s].hidden = s !== name;
+  const nha = name === 'house';
+  document.body.classList.toggle('co-nha', nha);
+  document.getElementById('bottomnav').hidden = !nha;
+  document.getElementById('hamburger').hidden = !nha;
+  if (!nha) dongMenu();
 }
+
+/* ── 17/10/2026 — Tab + menu của bảng điều khiển ── */
+const TAB_TEN = { tongquan: 'Tổng quan', moc: 'Mốc thi công', tien: 'Tiền', hoso: 'Hồ sơ', nhatky: 'Nhật ký', goi: 'Gói & dữ liệu' };
+let tabHienTai = 'tongquan';
+function moTab(t, cuon) {
+  if (!TAB_TEN[t]) t = 'tongquan';
+  tabHienTai = t;
+  document.querySelectorAll('#mainCol > [data-tab]').forEach((el) => el.classList.toggle('tab-off', el.dataset.tab !== t));
+  document.querySelectorAll('[data-tab-nut]').forEach((b) => {
+    if (b.dataset.tabNut === t) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+  });
+  capNhatTabTrong();
+  dongMenu();
+  try { if (currentHouseId) sessionStorage.setItem('aln_kgn_tab', t); } catch (e) { /* bỏ qua */ }
+  if (cuon !== false) window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+/** Tab không còn khối nào hiện → "Chưa có gì ở mục này." */
+window.alnKgnMoTab = moTab; // test tay (scripts/test-kgn-*.js)
+function capNhatTabTrong() {
+  const co = [...document.querySelectorAll('#mainCol > [data-tab]')].some((el) => el.dataset.tab === tabHienTai && !el.hidden);
+  const trong = document.getElementById('tabTrong');
+  // Chỉ gán khi đổi: gán lại cùng giá trị vẫn sinh bản ghi thay đổi → bộ theo dõi tự gọi lại vô hạn, trang treo (lỗi #492).
+  if (trong.hidden !== co) trong.hidden = co;
+}
+new MutationObserver((ds) => {
+  if (ds.some((d) => d.target.id !== 'tabTrong')) capNhatTabTrong();
+}).observe(document.getElementById('mainCol'), { attributes: true, attributeFilter: ['hidden'], subtree: true });
+function dongMenu() {
+  document.getElementById('sidenav').classList.remove('mo');
+  document.body.classList.remove('menu-mo');
+  document.getElementById('hamburger').setAttribute('aria-expanded', 'false');
+}
+function batMenu() {
+  const mo = !document.getElementById('sidenav').classList.contains('mo');
+  document.getElementById('sidenav').classList.toggle('mo', mo);
+  document.body.classList.toggle('menu-mo', mo);
+  document.getElementById('hamburger').setAttribute('aria-expanded', String(mo));
+}
+document.querySelectorAll('[data-tab-nut]').forEach((b) => b.addEventListener('click', () => moTab(b.dataset.tabNut)));
+document.getElementById('hamburger').addEventListener('click', batMenu);
+document.getElementById('bnMenu').addEventListener('click', batMenu);
+document.getElementById('navLogout').addEventListener('click', () => els.logoutLink.click());
+document.getElementById('navSwitchHouse').addEventListener('click', () => { dongMenu(); els.switchHouseLink.click(); });
+moTab('tongquan', false);
 
 // Lưới cứu (khắc phục sự cố chặn chiến dịch 21/09/2026) — cùng key localStorage
 // với du-toan-nha.html (biến K ở đó). CHỈ đọc để QUYẾT ĐỊNH có hiện nút hay
@@ -1086,6 +1240,7 @@ function setUploadBusy(busy) {
   uploadBusy = busy;
   els.btnPickBanVe.disabled = busy;
   els.btnPickBaoGia.disabled = busy;
+  document.querySelectorAll('.tm-up').forEach((b) => { b.disabled = busy; });
   els.switchHouseLink.disabled = busy;
 }
 function uploadKey() { return 'aln_upload_pending_' + auth.currentUser.uid; }
@@ -1120,6 +1275,7 @@ const NHA_MAU_LABEL = {
 
 /* ── Khối a — đầu trang ── */
 function renderHouseHeader(h) {
+  renderHero(); renderKpi();
   currentHouseData = h;
   els.hName.textContent = h.ten_hien_thi || '';
   els.hMa.textContent = h.ma_ho_so || '';
@@ -1477,21 +1633,8 @@ function renderSteps() {
 }
 
 /* Dồn/khôi phục khối phụ vào "Thêm". Mỗi khối nhớ chỗ cũ bằng một comment đánh dấu. */
-const KHOI_THEM = ['stepsBlock', 'uploadBlock', 'pkgBlock', 'dydlBlock', 'logBlock', 'sochiBlock'];
-const choCu = {};
+/* 17/10/2026 — "Thêm" thu gọn bỏ: các khối phụ nằm ở tab riêng (data-tab). Chỉ còn đổi tiêu đề. */
 function datBoCuc(truocC1) {
-  const body = document.getElementById('themBody');
-  els.themBlock.hidden = !truocC1;
-  for (const id of KHOI_THEM) {
-    const el = document.getElementById(id);
-    if (!el) continue;
-    if (truocC1 && el.parentNode !== body) {
-      if (!choCu[id]) { choCu[id] = document.createComment('cho-' + id); el.parentNode.insertBefore(choCu[id], el); }
-      body.appendChild(el);
-    } else if (!truocC1 && choCu[id] && el.parentNode === body) {
-      choCu[id].parentNode.insertBefore(el, choCu[id]);
-    }
-  }
   els.stepBlockTitle.textContent = truocC1 ? 'Các việc khác' : 'Bạn đang ở đâu';
 }
 
@@ -1567,7 +1710,7 @@ function renderViec() {
     else if (vm.m && mocCfg && vm.kieu === 'dang_lam') nut(T('viec.moc_dang_lam.nut_xem'), () => moMoc(vm.m.id)).dataset.xem = '1';
     else if (vm.m && mocCfg) nut(T(kv + '.nut'), () => moMoc(vm.m.id)).dataset.xem = '1';
   } else if (viec === 'tai_du_toan' || viec === 'tai_ban_ve') {
-    nut(T('viec.' + viec + '.nut'), () => { els.themBlock.open = true; openFilePicker(viec === 'tai_du_toan' ? 'du_toan' : 'ban_ve'); });
+    nut(T('viec.' + viec + '.nut'), () => { moTab('hoso'); openFilePicker(viec === 'tai_du_toan' ? 'du_toan' : 'ban_ve'); });
     if (viec === 'tai_du_toan' && !XEM_FOUNDER) {
       const sau = document.createElement('button'); sau.type = 'button'; sau.className = 'viec-sau';
       sau.textContent = T('viec.tai_sau');
@@ -1584,7 +1727,7 @@ function renderViec() {
     ttCtl = window.alnQltcThanhToan ? window.alnQltcThanhToan.gan(ttEl, { goi: (data) => callQltcThanhToan(data), houseId: currentHouseId }) : null;
   }
   else if (viec === 'phieu') nut(T('viec.phieu.nut'), null, 'phieu');
-  else if (viec === 'gui_ban_ve') nut(T('viec.gui_ban_ve.nut'), () => { els.themBlock.open = true; openFilePicker('ban_ve'); });
+  else if (viec === 'gui_ban_ve') nut(T('viec.gui_ban_ve.nut'), () => { moTab('hoso'); openFilePicker('ban_ve'); });
   else if (viec === 'zalo') nut(T('viec.zalo.nut'), null, 'zalo');
   if (XEM_FOUNDER) body.querySelectorAll('button:not([data-xem])').forEach((b) => { b.disabled = true; });
   renderSteps();
@@ -1971,11 +2114,11 @@ function veCanDuToan(coQuyen) {
   if (coQuyen) {
     const n = document.createElement('div'); n.className = 'mtc-ck-nuts';
     const b1 = document.createElement('button'); b1.type = 'button'; b1.className = 'btn btn-ghost'; b1.textContent = T('dtang.nut_tai');
-    b1.addEventListener('click', () => { els.themBlock.open = true; openFilePicker('du_toan'); });
+    b1.addEventListener('click', () => { moTab('hoso'); openFilePicker('du_toan'); });
     n.appendChild(b1);
     if (!els.pkgBlock.hidden) {
       const b2 = document.createElement('button'); b2.type = 'button'; b2.className = 'btn btn-ghost'; b2.textContent = T('dtang.nut_goi');
-      b2.addEventListener('click', () => { els.themBlock.open = true; els.pkgBlock.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+      b2.addEventListener('click', () => { moTab('goi'); els.pkgBlock.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
       n.appendChild(b2);
     }
     w.appendChild(n);
@@ -2241,6 +2384,7 @@ function renderBaSo() {
     : vm.kieu === 'het' ? T('so.moc_het') : '—';
   luoi.appendChild(oSo(T('so.moc'), mocChu, 'chu'));
   body.appendChild(luoi);
+  renderHero(); renderKpi();
   if (!xemTien) { const p = document.createElement('p'); p.className = 'mtc-note'; p.textContent = T('so.chi_chu_nha'); body.appendChild(p); return; }
   if (su && su.la_chu_nha) {
     (su.canh_bao || []).filter((c) => c.loai === 'tong').forEach((c) => {
@@ -3088,7 +3232,7 @@ function renderPackages() {
 /* ── Khối b3 — Tải bản vẽ / báo giá (P1.4) ── */
 const UPLOAD_EXT_RE = /\.(pdf|jpe?g|png|heic|xlsx?|dwg)$/i;
 const UPLOAD_MAX_BYTES = 50 * 1024 * 1024;
-const UPLOAD_LOAI_TAG = { ban_ve: 'Bản vẽ', bao_gia: 'Báo giá', du_toan: 'Dự toán', khac: 'Khác' };
+const UPLOAD_LOAI_TAG = { ban_ve: 'Bản vẽ', bao_gia: 'Báo giá', du_toan: 'Dự toán', phoi_canh: 'Phối cảnh', khac: 'Khác' };
 
 /**
  * Mở hộp chọn file NGAY (đặt sẵn loai) — dùng chung cho nút ở khối "Bước
@@ -3109,6 +3253,7 @@ function openFilePicker(loai) {
   pickerContext = { houseId: currentHouseId, loai };
   els.switchHouseLink.disabled = true;
   els.fileInput.click();
+  moTab('hoso');
   els.uploadBlock.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -3131,6 +3276,9 @@ function sanitizeFileName(name) {
 
 function renderUploadList(items) {
   uploadItems = items;
+  renderThuMuc();
+  renderPhoiCanh();
+  renderKpi();
   if (currentHouseData) renderViec();
   if (!items.length) {
     els.uploadListBody.innerHTML = `<div class="empty-note">Chưa có file nào.</div>`;
@@ -3172,6 +3320,136 @@ function renderMoc(mocByCode, mocHienTai) {
   }).join('');
 }
 
+
+/* ── 17/10/2026 — hero (mốc hiện tại + 4 giai đoạn + phối cảnh), 4 ô chỉ số, thư mục hồ sơ.
+   Chỉ đọc dữ liệu các hàm vẽ sẵn có đã nạp (dsMocTc/viecMoc/soUng/uploadItems/logItems). ── */
+let logItems = [];
+let phoiCanhUrlFor = null;
+const TM_LOAI = [
+  ['ban_ve', 'Bản vẽ', '<path d="M4 4h16v16H4z"/><path d="M4 10h16M10 4v16"/>'],
+  ['du_toan', 'Dự toán', '<path d="M5 3h14v18H5z"/><path d="M9 7h6M9 11h6M9 15h4"/>'],
+  ['bao_gia', 'Báo giá nhà thầu', '<path d="M6 3h9l3 3v15H6z"/><path d="M12 10v6M9 13h6"/>'],
+  ['phoi_canh', 'Phối cảnh', '<rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="9" cy="9" r="1.5"/><path d="m20 15-5-5-9 9"/>'],
+  ['khac', 'Hợp đồng & khác', '<path d="M4 4h10l6 6v10H4z"/><path d="M14 4v6h6"/>'],
+];
+function renderThuMuc() {
+  const box = document.getElementById('tmList');
+  if (!box) return;
+  box.textContent = '';
+  for (const [loai, ten, ico] of TM_LOAI) {
+    const ds = uploadItems.filter((u) => u.loai === loai);
+    const row = document.createElement('div'); row.className = 'tm-row';
+    const i = document.createElement('span'); i.className = 'tm-ico';
+    i.innerHTML = `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ico}</svg>`;
+    const t = document.createElement('div'); t.className = 'tm-ten';
+    const b = document.createElement('b'); b.textContent = ten + ' ';
+    const m = document.createElement('span'); m.className = 'm'; m.textContent = '· ' + ds.length; b.appendChild(m);
+    const sub = document.createElement('span');
+    sub.textContent = ds.length ? `${ds[0].ten_file || ''} · ${fmtDate(ds[0].created_at)}` : (loai === 'phoi_canh' ? 'Chưa có · hiện ở đầu trang' : 'Chưa có');
+    t.appendChild(b); t.appendChild(sub);
+    const up = document.createElement('button'); up.type = 'button'; up.className = 'tm-up'; up.setAttribute('aria-label', 'Tải lên: ' + ten);
+    up.innerHTML = '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 16v4h16v-4"/><path d="M12 4v12"/><path d="m8 8 4-4 4 4"/></svg>';
+    up.disabled = uploadBusy;
+    up.addEventListener('click', () => openFilePicker(loai));
+    row.appendChild(i); row.appendChild(t); row.appendChild(up);
+    box.appendChild(row);
+  }
+}
+/** Ảnh phối cảnh mới nhất (thư mục Phối cảnh, file ảnh) lên hero. Chủ nhà đọc được Storage theo rule. */
+function renderPhoiCanh() {
+  const box = document.getElementById('heroAnh');
+  if (!box) return;
+  const anh = uploadItems.find((u) => u.loai === 'phoi_canh' && /^image\//.test(String(u.mime || '')) && u.storage_path);
+  const khoa = anh ? anh.storage_path : null;
+  if (khoa === phoiCanhUrlFor) return;
+  phoiCanhUrlFor = khoa;
+  const cu = box.querySelector('img'); if (cu) cu.remove();
+  box.classList.toggle('co-anh', !!anh);
+  box.setAttribute('aria-label', anh ? 'Phối cảnh nhà' : 'Phối cảnh nhà — chưa có ảnh');
+  if (!anh) return;
+  getDownloadURL(storageRef(storage, anh.storage_path)).then((url) => {
+    if (phoiCanhUrlFor !== khoa) return;
+    const img = document.createElement('img'); img.alt = 'Phối cảnh nhà'; img.src = alnUrl(url);
+    box.appendChild(img);
+  }).catch(() => { box.classList.remove('co-anh'); });
+}
+function renderHero() {
+  const h = currentHouseData;
+  const el = document.getElementById('heroMoc');
+  if (!h || !el) return;
+  const navMa = document.getElementById('navMa'); if (navMa) navMa.textContent = h.ma_ho_so || '';
+  const goi = laHoSoGoi(h);
+  const V = document.getElementById('heroMocV'), S = document.getElementById('heroMocS'), L = document.getElementById('heroMocL'), G = document.getElementById('heroGd');
+  el.hidden = false;
+  if (goi) {
+    const ds = dsMocTc();
+    const vm = viecMoc();
+    const xong = ds.filter((m) => ttMoc(m) === 'xong').length;
+    const i = vm.m ? ds.findIndex((m) => m.id === vm.m.id) : -1;
+    L.textContent = 'Công trình đang ở';
+    if (vm.m) { V.innerHTML = ''; V.append(`Mốc ${i + 1}`); const sp = document.createElement('span'); sp.textContent = `/${ds.length}`; V.appendChild(sp); V.append(` · ${vm.m.ten || ''}`); }
+    else V.textContent = vm.kieu === 'het' ? 'Xong phần thô' : (ds.length ? '—' : 'Chưa có mốc');
+    const tt = vm.m ? (ttMoc(vm.m) === 'dang_lam' ? 'Đang làm' : (vm.kieu === 'mo_san' ? 'Chờ mở sàn' : 'Mốc tới')) : '';
+    S.textContent = [tt, ds.length ? `${xong}/${ds.length} mốc xong` : ''].filter(Boolean).join(' · ');
+    const p = ds.length ? Math.round((xong / ds.length) * 100) : 0;
+    const htMo = !!(h.hoan_thien && h.hoan_thien.bat_dau) || (ds.length && xong === ds.length);
+    const gd = [
+      ['Chuẩn bị', daDongYDuLieu(h) && ds.length ? 'xong' : 'on', 100],
+      ['Phần thô', xong === ds.length && ds.length ? 'xong' : (ds.length ? 'on' : ''), p],
+      ['Hoàn thiện', htMo ? 'on' : '', 10],
+      ['Bàn giao', '', 0],
+    ];
+    G.hidden = false; G.innerHTML = '';
+    for (const [ten, cls, pct] of gd) {
+      const d = document.createElement('div');
+      const b = document.createElement('b'); b.textContent = ten; if (cls) b.className = cls;
+      const i2 = document.createElement('i'); if (cls) i2.className = cls; i2.style.setProperty('--p', pct + '%');
+      d.appendChild(b); d.appendChild(i2); G.appendChild(d);
+    }
+    return;
+  }
+  G.hidden = true;
+  if (h.trang_thai === 'truoc_c1') {
+    L.textContent = 'Hồ sơ của anh/chị';
+    V.textContent = duToanVersions.length ? 'Đã có dự toán' : 'Chuẩn bị';
+    S.textContent = duToanVersions.length ? `${duToanVersions.length} phiên bản dự toán` : 'Tính dự toán hoặc tải bản vẽ để bắt đầu';
+    return;
+  }
+  const mh = window.__khMocHienTai;
+  const mb = (window.__khMocByCode || {})[mh];
+  L.textContent = 'Thiết kế cùng ALN · đang ở';
+  V.textContent = mb ? `${mh} · ${mb.ten || ''}` : (mh || '—');
+  S.textContent = mb ? (MOC_STATUS_LABEL[String(mb.trang_thai || '').trim()] || '') : '';
+}
+function renderKpi() {
+  const h = currentHouseData;
+  const blk = document.getElementById('kpiBlock');
+  if (!h || !blk) return;
+  const goi = laHoSoGoi(h);
+  blk.hidden = !goi;
+  if (!goi) return;
+  const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+  const ds = dsMocTc(); const vm = viecMoc();
+  const xong = ds.filter((m) => ttMoc(m) === 'xong').length;
+  set('kpiMoc', ds.length ? `${xong}/${ds.length} mốc xong` : '—');
+  set('kpiMocSub', vm.m ? `${ttMoc(vm.m) === 'dang_lam' ? 'Đang làm' : 'Mốc tới'}: ${vm.m.ten || ''}` : (vm.kieu === 'het' ? 'Xong phần thô' : ''));
+  const su = soUngFor === currentHouseId ? soUng : null;
+  const xemTien = !XEM_FOUNDER && (!su || su.loi || su.la_chu_nha);
+  const tienSo = (n) => (CHU ? CHU.tien(n, h.gia_ap_dung && h.gia_ap_dung.tien_te) : fmtMoney(n));
+  if (!xemTien) { set('kpiTien', '—'); set('kpiTienSub', T('so.chi_chu_nha')); }
+  else if (!su || su.loi) { set('kpiTien', '—'); set('kpiTienSub', su ? '' : 'Đang tải…'); }
+  else {
+    set('kpiTien', `Đã chi ${tienSo(su.da_chi)}`);
+    const cl = su.hop_dong ? su.hop_dong.con_lai : su.con_lai;
+    set('kpiTienSub', cl == null ? 'Chưa có dự toán để đối chiếu' : (cl < 0 ? `Vượt ${tienSo(-cl)}` : `Còn ${tienSo(cl)} so với ${su.hop_dong ? 'hợp đồng' : 'dự toán'}`));
+  }
+  set('kpiHoSo', `${uploadItems.length} file`);
+  const thieu = ['du_toan', 'ban_ve'].filter((l) => !coUpload(l));
+  set('kpiHoSoSub', thieu.length ? 'Thiếu: ' + thieu.map((l) => (l === 'du_toan' ? 'dự toán' : 'bản vẽ')).join(', ') : 'Đủ dự toán và bản vẽ');
+  set('kpiLog', `${logItems.length} mục`);
+  set('kpiLogSub', logItems[0] ? `${fmtDate(logItems[0].created_at)} · ${logItems[0].noi_dung || ''}` : 'Chưa có');
+}
+
 /* ── Khối c — tài liệu ── */
 function renderDocs(docs) {
   if (!docs.length) {
@@ -3188,6 +3466,8 @@ function renderDocs(docs) {
 
 /* ── Khối d — nhật ký ── */
 function renderLog(items) {
+  logItems = items;
+  renderKpi();
   if (!items.length) {
     els.logBody.innerHTML = `<div class="empty-note">Chưa có nhật ký nào.</div>`;
     return;
@@ -3289,10 +3569,18 @@ async function deleteSoChi(id) {
 function loadHouse(houseId) {
   clearListeners();
   showState('house');
+  let tabCu = 'tongquan';
+  try { tabCu = sessionStorage.getItem('aln_kgn_tab') || 'tongquan'; } catch (e) { /* bỏ qua */ }
+  moTab(tabCu, false);
   currentHouseId = houseId;
   currentHouseData = null;
   duToanVersions = [];
   uploadItems = [];
+  logItems = [];
+  phoiCanhUrlFor = null;
+  renderThuMuc(); renderPhoiCanh();
+  document.getElementById('heroMoc').hidden = true;
+  document.getElementById('kpiBlock').hidden = true;
   viecDangVe = null;
   dsSanFor = null; dsSanKhoaTra = null;
   suaSan = null;
@@ -3325,6 +3613,7 @@ function loadHouse(houseId) {
     snap.forEach((d) => { byCode[d.id] = d.data(); });
     window.__khMocByCode = byCode;
     renderMoc(byCode, window.__khMocHienTai);
+    renderHero(); renderKpi();
     if (currentHouseData && !suaSan) renderMocTc();
     if (currentHouseData) { renderViec(); renderBaSo(); napSoUng(); }
   }, (err) => console.error('[khong-gian-nha] onSnapshot moc lỗi:', err)));
@@ -3466,6 +3755,7 @@ async function init() {
       return;
     }
     els.switchHouseLink.hidden = houses.length < 2 && !kgHoSo.length;
+    document.getElementById('navSwitchHouse').hidden = els.switchHouseLink.hidden;
     // Vừa lưu từ du-toan-nha.html: mở đúng hồ sơ vừa lưu (chỉ khi house thuộc SĐT này).
     const hMuon = THAM_SO.get('h');
     const maMuon = chuanMaHoSo(THAM_SO.get('ma'));
@@ -3579,6 +3869,7 @@ els.sochiForm.addEventListener('submit', async (e) => {
    file — xem functions/khGhiUpload.js. */
 els.btnPickBanVe.addEventListener('click', () => openFilePicker('ban_ve'));
 els.btnPickBaoGia.addEventListener('click', () => openFilePicker('bao_gia'));
+document.getElementById('btnPhoiCanh').addEventListener('click', () => openFilePicker('phoi_canh'));
 
 els.fileInput.addEventListener('cancel', () => {
   pickerContext = null;
