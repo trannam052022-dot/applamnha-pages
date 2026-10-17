@@ -219,7 +219,7 @@ h1 em{font-style:normal;color:var(--gold)}
 .trust li{display:flex;align-items:center;gap:9px;font-size:14px;color:rgba(255,255,255,.7)}
 .trust .ico{width:17px;height:17px;stroke:var(--gold);stroke-width:1.6}
 
-/* ---------- Sổ tay công trình ---------- */
+/* ---------- Gói Quản lý Thi công ---------- */
 .ledger{background:var(--navy-800);color:#fff}
 .ledger .sec-eyebrow{color:var(--gold)}
 .ledger .sec-lede{color:rgba(255,255,255,.68)}
@@ -228,28 +228,13 @@ h1 em{font-style:normal;color:var(--gold)}
 .panel-top{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:18px 20px;border-bottom:1px solid var(--line-dark)}
 .panel-top strong{display:block;font-family:var(--display);font-size:16px;font-weight:600;letter-spacing:.01em}
 .panel-top span{font-size:13px;color:rgba(255,255,255,.55)}
-.badge{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);
-  border:1px solid var(--gold);border-radius:2px;padding:5px 9px;white-space:nowrap}
-.row{display:grid;grid-template-columns:1.7fr .7fr 1.1fr .8fr;gap:12px;align-items:center;
-  padding:14px 20px;border-bottom:1px solid rgba(212,160,23,.1);font-size:13.5px}
-.row:last-of-type{border-bottom:0}
-.row-head{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
-  color:rgba(255,255,255,.42);padding:11px 20px;background:rgba(212,160,23,.05)}
-.row .nm{font-weight:500}
-.row .nm em{display:block;font-style:normal;font-size:11.5px;color:var(--gold);margin-top:4px;line-height:1.4}
-.row .mo{font-family:var(--mono);font-size:12.5px;color:rgba(255,255,255,.66)}
-.row .pr{position:relative;display:block}
-.row .pr i{display:block;height:4px;background:var(--gold);border-radius:2px;margin-bottom:5px;min-width:2px}
-.row .pr::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:rgba(255,255,255,.1);border-radius:2px}
-.row .pr i{position:relative;z-index:1}
-.row .pr b{font-family:var(--mono);font-size:11.5px;font-weight:500;color:rgba(255,255,255,.66)}
-.row.warn{background:rgba(212,160,23,.07)}
-.row.dim{opacity:.5}
-.row.dim .pr i{background:rgba(255,255,255,.25)}
-.panel-foot{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:18px 20px;border-top:1px solid var(--line-dark);background:rgba(212,160,23,.05)}
-.panel-foot span{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:5px}
-.panel-foot b{font-family:var(--display);font-size:17px;font-weight:600;letter-spacing:.01em}
-.panel-foot b.gold{color:var(--gold)}
+.qltc-dong{display:grid;grid-template-columns:7.5em 1fr;gap:14px;align-items:baseline;padding:16px 20px;border-bottom:1px solid rgba(212,160,23,.1);font-size:14.5px}
+.qltc-dong span{color:rgba(255,255,255,.62)}
+.qltc-dong b{font-family:var(--display);font-size:20px;font-weight:600;color:var(--gold)}
+.qltc-dong b.nho{font-family:inherit;font-size:14.5px;font-weight:500;color:#fff;line-height:1.55}
+.qltc-dong b em{display:block;font-family:var(--body);font-style:normal;font-size:12.5px;font-weight:400;color:rgba(255,255,255,.6);margin-top:3px}
+.qltc-chan{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:14px;padding:18px 20px;background:rgba(212,160,23,.05)}
+.qltc-chan span{font-size:12.5px;color:rgba(255,255,255,.55)}
 .why{margin-bottom:28px}
 .why .ico{width:26px;height:26px;stroke:var(--gold)}
 .why h3{font-family:var(--display);font-size:17px;font-weight:600;margin:12px 0 7px;letter-spacing:.01em}
@@ -347,13 +332,9 @@ footer{background:var(--navy-900);color:rgba(255,255,255,.66);padding:52px 0 34p
 @media(max-width:860px){
   .controls,.cards,.dossier,.form-grid,.three,.ledger-grid{grid-template-columns:1fr}
   .ledger-grid{gap:34px}
-  .row{grid-template-columns:1.6fr 1fr;gap:8px 12px;padding:14px 16px}
-  .row .mo:last-of-type{text-align:right}
-  .row-head{display:none}
-  .row .pr{grid-column:1/-1;margin-top:2px}
-  .panel-foot{grid-template-columns:1fr;gap:14px}
-  .panel-foot div{display:flex;justify-content:space-between;align-items:baseline}
-  .panel-foot span{margin-bottom:0}
+  .qltc-dong{grid-template-columns:1fr;gap:4px;padding:14px 16px}
+  .qltc-chan{padding:16px}
+  .qltc-chan .btn{width:100%;justify-content:center}
   .trust{flex-direction:column;gap:11px}
   .card+.card{border-left:0;border-top:1px solid var(--line-dark)}
   .step{grid-template-columns:60px 1fr;gap:16px}
@@ -559,69 +540,47 @@ footer{background:var(--navy-900);color:rgba(255,255,255,.66);padding:52px 0 34p
   </div>
 </div></section>
 
-<!-- ============ SỔ TAY CÔNG TRÌNH ============ -->
-<section class="ledger"><div class="wrap">
-  <p class="sec-eyebrow">Sau khi nhận hồ sơ</p>
-  <h2 class="sec">Bàn giao hồ sơ xong, việc của anh chị mới bắt đầu — và chúng tôi vẫn ở đó</h2>
-  <p class="sec-lede">Trong bộ hồ sơ có bảng bóc tách khối lượng: mỗi hạng mục cần bao nhiêu bê tông, bao nhiêu thép, bao nhiêu mét vuông tường. Suốt quá trình thi công, anh chị dùng chính bảng đó để đối chiếu với những gì nhà thầu báo — biết đã làm được bao nhiêu, đã chi bao nhiêu, còn lại bao nhiêu.</p>
+<!-- ============ GÓI QUẢN LÝ THI CÔNG ============ -->
+<!-- Giá ở khối này PHẢI khớp aln-pricing.js (quan_ly_thi_cong.gia_co_ban / nguong_co_ban) — test functions/_test_qltcCuaVao.js kiểm. -->
+<section class="ledger" id="quan-ly-thi-cong"><div class="wrap">
+  <p class="sec-eyebrow">Khi bắt đầu xây</p>
+  <h2 class="sec">Gói Quản lý Thi công — tự theo dõi từng mốc của nhà mình</h2>
+  <p class="sec-lede">Công cụ để anh chị tự theo dõi công trình: biết cần kiểm gì trước khi đổ móng, đổ sàn; chụp ảnh từng việc; ghi mỗi lần ứng tiền cho đội thợ và so với dự toán của chính nhà mình.</p>
 
   <div class="ledger-grid">
     <div class="panel">
       <div class="panel-top">
         <div>
-          <strong>Sổ tay công trình</strong>
-          <span>Nhà phố 3 tầng · 186 m² sàn</span>
+          <strong>Gói Quản lý Thi công</strong>
+          <span>Phí tính theo từng sàn</span>
         </div>
-        <div class="badge">Sắp ra mắt</div>
       </div>
-
-      <div class="row row-head"><span>Hạng mục</span><span>Thiết kế</span><span>Đã làm</span><span>Đã chi</span></div>
-
-      <div class="row">
-        <span class="nm">Móng &amp; bể ngầm</span><span class="mo">20 m³</span>
-        <span class="pr"><i style="width:100%"></i><b>100%</b></span><span class="mo">148 tr</span>
-      </div>
-      <div class="row">
-        <span class="nm">Khung cột, dầm, sàn</span><span class="mo">44 m³</span>
-        <span class="pr"><i style="width:74%"></i><b>74%</b></span><span class="mo">392 tr</span>
-      </div>
-      <div class="row warn">
-        <span class="nm">Xây tường bao<em>Nhà thầu báo 657 m² — thiết kế 579 m²</em></span><span class="mo">579 m²</span>
-        <span class="pr"><i style="width:40%"></i><b>40%</b></span><span class="mo">96 tr</span>
-      </div>
-      <div class="row">
-        <span class="nm">Điện nước âm tường</span><span class="mo">—</span>
-        <span class="pr"><i style="width:22%"></i><b>22%</b></span><span class="mo">41 tr</span>
-      </div>
-      <div class="row dim">
-        <span class="nm">Hoàn thiện, sơn, thiết bị</span><span class="mo">—</span>
-        <span class="pr"><i style="width:0%"></i><b>Chưa bắt đầu</b></span><span class="mo">0</span>
-      </div>
-
-      <div class="panel-foot">
-        <div><span>Đã chi</span><b>677 triệu</b></div>
-        <div><span>Ngân sách dự kiến</span><b>1.020 triệu</b></div>
-        <div><span>Còn lại</span><b class="gold">343 triệu</b></div>
+      <div class="qltc-dong"><span>Móng</span><b>Không tính phí</b></div>
+      <div class="qltc-dong"><span>Mỗi sàn</span><b>400.000 đ<em>giá cơ bản cho sàn đến 75 m²</em></b></div>
+      <div class="qltc-dong"><span>Cách trả</span><b class="nho">Trả theo từng sàn trước khi đội làm sàn đó, hoặc trả một lần cho cả nhà.</b></div>
+      <div class="qltc-chan">
+        <span>Giá chưa gồm thuế GTGT.</span>
+        <a class="btn btn-gold" href="quan-ly-thi-cong.html" data-aln-cta="chu-nha-qltc">Xem phí cho nhà của tôi</a>
       </div>
     </div>
 
     <div class="ledger-why">
       <div class="why">
         <svg class="ico" viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h10"/></svg>
-        <h3>Đối chiếu khối lượng, không nói suông</h3>
-        <p>Nhà thầu báo khối lượng nào, anh chị so ngay với khối lượng trong hồ sơ thiết kế. Lệch bao nhiêu hiện rõ trên màn hình — không phải tranh cãi bằng trí nhớ.</p>
+        <h3>Theo dõi mốc</h3>
+        <p>Mỗi mốc (móng, từng sàn, mái) có danh sách việc cần kiểm trước khi đổ bê tông.</p>
+      </div>
+      <div class="why">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M4 7h3l2-3h6l2 3h3a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="4"/></svg>
+        <h3>Ảnh kiểm từng việc</h3>
+        <p>Chụp ảnh từng việc ngay tại công trình, lưu theo mốc để xem lại khi cần.</p>
       </div>
       <div class="why">
         <svg class="ico" viewBox="0 0 24 24"><path d="M12 2v20M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-        <h3>Biết tiền đang đi về đâu</h3>
-        <p>Mỗi lần trả tiền cho nhà thầu, ghi vào đúng hạng mục. Lúc nào cũng biết đã chi bao nhiêu so với ngân sách, còn lại đủ hay thiếu cho phần chưa làm.</p>
+        <h3>Sổ ứng</h3>
+        <p>Ghi mỗi lần ứng tiền cho đội thợ, so tổng đã ứng với dự toán của từng tầng.</p>
       </div>
-      <div class="why">
-        <svg class="ico" viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9.2 9.2 0 0 1-2.6-.4L3 21l1.6-4.7A8.2 8.2 0 0 1 3 11.5a8.4 8.4 0 0 1 9-8.4 8.4 8.4 0 0 1 9 8.4z"/></svg>
-        <h3>Hỏi lại KTS ngay tại hạng mục</h3>
-        <p>Thấy chỗ nào không khớp bản vẽ, gửi ảnh kèm hạng mục đó cho KTS đã làm hồ sơ. Người trả lời là người vẽ ra nó, không phải tổng đài.</p>
-      </div>
-      <p class="ledger-note">Sổ tay công trình miễn phí cho mọi chủ nhà đã nhận hồ sơ từ App Làm Nhà. Đây là công cụ theo dõi dành cho anh chị — không thay thế công tác giám sát thi công, và ALN không đứng tên thi công công trình.</p>
+      <p class="ledger-note">Gói Quản lý Thi công là công cụ để anh chị tự theo dõi công trình của mình — không thay thế công tác giám sát thi công. ALN không đứng tên thi công công trình.</p>
     </div>
   </div>
 </div></section>
@@ -692,7 +651,6 @@ footer{background:var(--navy-900);color:rgba(255,255,255,.66);padding:52px 0 34p
     <details><summary>CCHN là gì và vì sao lại quan trọng?</summary><p>CCHN là chứng chỉ hành nghề kiến trúc do cơ quan nhà nước cấp. Theo NĐ 15/2021/NĐ-CP, hồ sơ thiết kế trong bộ xin giấy phép xây dựng phải do người có chứng chỉ hành nghề phù hợp chủ trì và ký. Bản vẽ mua trôi nổi, ký khống có rủi ro bị trả hồ sơ, hoặc xây sai bản vẽ được duyệt dẫn đến khó hoàn công. Mọi KTS trên App Làm Nhà đều được xác minh CCHN trước khi nhận việc.</p></details>
     <details><summary>Tôi có phải thanh toán trước toàn bộ không?</summary><p>Không. Bốn bước C1–C4 với tỷ lệ 10% – 20% – 60% – 10%. Mỗi bước có sản phẩm bàn giao cụ thể, anh chị nghiệm thu xong mới thanh toán cho bước đó. Sau mỗi bước, anh chị hoàn toàn chủ động quyết định có đi tiếp hay không.</p></details>
     <details><summary>Bản vẽ xin phép và hồ sơ thi công khác nhau ra sao?</summary><p>Bản vẽ xin phép là hồ sơ pháp lý nộp cơ quan cấp phép, thể hiện quy mô, mật độ, chiều cao, khoảng lùi — không đủ chi tiết để thợ làm theo. Hồ sơ thi công mới là bộ chi tiết ngoài công trường: bố trí thép từng cấu kiện, sơ đồ điện nước, chi tiết cầu thang, chống thấm. Hai bộ phải thống nhất với nhau, nên tốt nhất do cùng một KTS thực hiện. Hồ sơ ALN bàn giao ở C4 bao gồm cả hai.</p></details>
-    <details><summary>Bàn giao hồ sơ xong là hết liên hệ à?</summary><p>Không. Mỗi chủ nhà đã nhận hồ sơ từ App Làm Nhà được dùng miễn phí Sổ tay công trình để theo dõi tiến độ, đối chiếu khối lượng nhà thầu báo với khối lượng trong hồ sơ thiết kế, và ghi lại các khoản đã chi. Khi thấy chỗ nào không khớp bản vẽ, anh chị gửi ảnh kèm hạng mục cho chính KTS đã làm hồ sơ. Đây là công cụ theo dõi dành cho anh chị, không thay thế công tác giám sát thi công.</p></details>
     <details><summary>Tôi muốn biết chi phí xây nhà trước khi làm thiết kế?</summary><p>Dùng công cụ dự toán miễn phí tại applamnha.vn/du-toan — nhập diện tích, số tầng và mức hoàn thiện để xem khoảng chi phí tham khảo dựa trên dữ liệu công trình thực tế. Lưu ý đó là ngân sách thi công anh chị trả cho nhà thầu, tách riêng với phí thiết kế trả cho ALN.</p></details>
   </div>
 </div></section>
