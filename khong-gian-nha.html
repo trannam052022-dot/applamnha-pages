@@ -17,6 +17,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <script src="error-monitor.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<!-- Trang tự có bảng màu sáng + tối: khai báo để trình duyệt điện thoại (Chrome/Samsung "ép tối") KHÔNG tự đảo màu — tự đảo làm chữ mờ, ô tick thành khối đen. -->
+<meta name="color-scheme" content="light dark">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>ALN — Không Gian Nhà</title>
 
@@ -54,7 +56,7 @@ fbq('track','PageView');
 </script>
 
 <style>
-:root{
+:root{color-scheme:light;
   /* Nền sáng theo index.html (trang chủ applamnha.vn thật) + du-toan-nha.html
      (cùng công cụ dự toán chủ nhà đang xem lại ở đây — Founder chốt
      22/09/2026 (2): ưu tiên khớp đúng du-toan-nha.html để 2 trang cùng 1
@@ -80,6 +82,7 @@ fbq('track','PageView');
    test kỹ trước 22/09/2026, cùng cách du-toan-nha.html đã làm). Đặt
    data-theme="light" lên <html> nếu cần ép sáng bất kể theme hệ thống. */
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
   --navy-1:#0a1224;--card:#111c33;--surface:rgba(255,255,255,.04);
   --gold:#d4a017;--gold2:#d4a017;--gold-dim:rgba(212,160,23,.35);--gold-bg:rgba(212,160,23,.09);
   --border:rgba(212,160,23,.2);--border-soft:rgba(255,255,255,.08);
@@ -452,7 +455,12 @@ details.them[open] > summary::after{content:"−"}
 button.mtc-row{width:100%;font:inherit;text-align:left;cursor:pointer;color:inherit}
 button.mtc-row[aria-expanded="true"]{border-color:var(--gold,#b8892b);border-bottom-left-radius:0;border-bottom-right-radius:0}
 .mtc-row.dang{border-left:4px solid var(--gold,#b8892b)}
-.mtc-row.khoa{border-style:dashed;background:var(--surface-2,#f6f7f9)}
+.mtc-row.khoa{border-style:dashed;opacity:.6}
+/* Mốc chưa mở: mờ cả thẻ (opacity .6), chữ giữ màu chữ chính. Nền giữ --surface (có ở cả 2 chế độ —
+   --surface-2 không có trong chế độ tối nên trước đây ra nền sáng + chữ sáng). Chế độ sáng:
+   --text-1 #141a2b qua opacity .6 chỉ còn ~4,3:1 → dùng #000 (≈5,4:1); chế độ tối --text-1 ≈5,3:1. */
+.mtc-row.khoa .mtc-ten,.mtc-row.khoa .mtc-phi,.mtc-row.khoa .mtc-sub{color:#000}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .mtc-row.khoa .mtc-ten,:root:not([data-theme="light"]) .mtc-row.khoa .mtc-phi,:root:not([data-theme="light"]) .mtc-row.khoa .mtc-sub{color:var(--text-1)}}
 .mtc-mo{justify-self:start;margin:-.15rem 0 .2rem;min-height:40px}
 .dtt-san{font-weight:600;margin:.4rem 0 0}
 .mtc-ct{border:1px solid var(--gold,#b8892b);border-top:0;border-radius:0 0 var(--r-sm) var(--r-sm);padding:.7rem .8rem .8rem;margin-top:-.45rem;background:var(--surface)}
@@ -1704,6 +1712,7 @@ function renderMocTc() {
     const p = document.createElement('p'); p.className = 'empty-note'; p.textContent = T('moc.chua_co'); body.appendChild(p);
   } else {
     const list = document.createElement('div'); list.className = 'mtc-list';
+    let daCoNutMo = false;
     ds.forEach((m) => {
       // Mã mốc (MONG, L01…) là khoá nội bộ — chỉ hiện tên sàn bằng lời.
       // PR-6a: gói đã bật → mỗi dòng bấm được, mở chi tiết mốc ngay dưới dòng.
@@ -1726,13 +1735,18 @@ function renderMocTc() {
       sub.textContent = (nhanDt ? nhanDt + ' · ' : '') + (khoa ? nhanKhoa(m) : tt);
       row.appendChild(ten); row.appendChild(phi); row.appendChild(sub);
       list.appendChild(row);
-      if (khoa) {
-        const lc = luaChonCho(m);
-        const b = document.createElement('button'); b.type = 'button'; b.className = 'btn btn-ghost mtc-mo';
-        b.textContent = kemGomThue(T(lc === 'mot_san' ? 'moc.mo_san' : 'moc.mo_con_lai', { gia: tienTong(giaCho(lc)) }));
-        b.addEventListener('click', () => moTraSan(lc));
-        if (!dsSan.la_chu_nha && !XEM_FOUNDER) b.hidden = true;
-        list.appendChild(b);
+      // Nút trả chỉ ở mốc khoá ĐẦU TIÊN (sàn kế tiếp): "Mở sàn này" rồi, nếu còn ≥ 2 sàn, "Mở các sàn còn lại"
+      // ngay dưới — một lần. Các mốc khoá sau không có nút.
+      if (khoa && !daCoNutMo) {
+        daCoNutMo = true;
+        const cacLc = luaChonCho(m) === 'mot_san' ? ['mot_san', 'het'] : ['het'];
+        cacLc.forEach((lc) => {
+          const b = document.createElement('button'); b.type = 'button'; b.className = 'btn btn-ghost mtc-mo';
+          b.textContent = kemGomThue(T(lc === 'mot_san' ? 'moc.mo_san' : 'moc.mo_con_lai', { gia: tienTong(giaCho(lc)) }));
+          b.addEventListener('click', () => moTraSan(lc));
+          if (!dsSan.la_chu_nha && !XEM_FOUNDER) b.hidden = true;
+          list.appendChild(b);
+        });
       }
       if (daBat && !khoa && mocMo === m.id) list.appendChild(veChiTietMoc(m));
     });
