@@ -36,19 +36,39 @@
     var m = /^(\d{4})-(\d{2})-(\d{2})(?:-\d+)?$/.exec(pb || '');
     return m ? m[3] + '/' + m[2] + '/' + m[1] : (pb || '');
   }
-  var CSS = '.dydl{border:1px solid var(--line,#d8dee6);border-radius:12px;padding:16px;margin-top:14px;background:var(--card,#fff)}'
-    + '.dydl h3{margin:0 0 8px;font-size:var(--text-md,1.05rem)}'
-    + '.dydl label{display:flex;gap:10px;align-items:flex-start;margin:10px 0;line-height:1.5;cursor:pointer}'
-    + '.dydl input[type=checkbox]{width:20px;height:20px;flex:0 0 20px;margin-top:2px}'
-    + '.dydl .dydl-nho{font-size:var(--text-sm,.9rem);color:var(--sub,#55606e);margin:8px 0}'
-    + '.dydl .dydl-loi{color:#b42318;margin:8px 0}'
-    + '.dydl .dydl-ok{color:#166534;font-weight:600;margin:6px 0}'
+  // Màu riêng của khối, KHÔNG dựa biến màu của trang: quan-ly-thi-cong.html và
+  // khong-gian-nha.html đặt tên biến khác nhau, dark mode từng cho chữ sáng trên
+  // nền trắng (chữ gần như mất) và checkbox gốc của trình duyệt thành khối đen
+  // (17/10/2026). Mọi cặp chữ/nền dưới đây ≥ 4.5:1, kể cả nút đang khoá.
+  var CHECK = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='%23fff' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E\")";
+  var CHECK_TOI = CHECK.replace('%23fff', '%230a1224');
+  var MAU_SANG = '--dy-nen:#ffffff;--dy-chu:#1f2937;--dy-phu:#4b5563;--dy-vien:#cfd6e3;--dy-o:#4b5563;'
+    + '--dy-tick:#8a5f07;--dy-tick-dau:' + CHECK + ';--dy-nut:#8a5f07;--dy-nut-chu:#ffffff;'
+    + '--dy-khoa:#e5e7eb;--dy-khoa-chu:#374151;--dy-loi:#b42318;--dy-ok:#166534;--dy-link:#1d4ed8;--dy-focus:#2563eb;';
+  var MAU_TOI = '--dy-nen:#111c33;--dy-chu:#eef1f7;--dy-phu:#c3cde0;--dy-vien:#3a4a6e;--dy-o:#c3cde0;'
+    + '--dy-tick:#e0b43c;--dy-tick-dau:' + CHECK_TOI + ';--dy-nut:#e0b43c;--dy-nut-chu:#0a1224;'
+    + '--dy-khoa:#26344f;--dy-khoa-chu:#d5ddeb;--dy-loi:#f5a39b;--dy-ok:#86e0b6;--dy-link:#9cc1ff;--dy-focus:#7aa7ff;';
+  var CSS = '.dydl{' + MAU_SANG + 'color-scheme:light;color:var(--dy-chu);background:var(--dy-nen);border:1px solid var(--dy-vien);border-radius:12px;padding:16px;margin-top:14px}'
+    + '@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .dydl{' + MAU_TOI + 'color-scheme:dark}}'
+    + ':root[data-theme="dark"] .dydl{' + MAU_TOI + 'color-scheme:dark}'
+    + '.dydl h3{margin:0 0 8px;font-size:var(--text-md,1.05rem);color:var(--dy-chu)}'
+    + '.dydl label{display:flex;gap:12px;align-items:flex-start;margin:12px 0;line-height:1.55;cursor:pointer;color:var(--dy-chu);opacity:1;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}'
+    + '.dydl label span{color:var(--dy-chu)}'
+    + '.dydl input[type=checkbox]{-webkit-appearance:none;appearance:none;width:24px;height:24px;flex:0 0 24px;margin:1px 0 0;'
+    + 'border:2px solid var(--dy-o);border-radius:5px;background:var(--dy-nen) center/18px 18px no-repeat;cursor:pointer;opacity:1}'
+    + '.dydl input[type=checkbox]:checked{background-color:var(--dy-tick);border-color:var(--dy-tick);background-image:var(--dy-tick-dau)}'
+    + '.dydl input[type=checkbox]:focus-visible,.dydl button:focus-visible{outline:3px solid var(--dy-focus);outline-offset:2px}'
+    + '.dydl .dydl-nho{font-size:var(--text-sm,.9rem);color:var(--dy-phu);margin:8px 0}'
+    + '.dydl a{color:var(--dy-link)}'
+    + '.dydl .dydl-loi{color:var(--dy-loi);margin:8px 0}'
+    + '.dydl .dydl-ok{color:var(--dy-ok);font-weight:600;margin:6px 0}'
     + '.dydl .dydl-nut{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}'
     + '.dydl button{min-height:44px;padding:0 16px;border-radius:10px;font:inherit;cursor:pointer}'
-    + '.dydl .dydl-chinh{background:var(--nut-vang,#9a6b08);color:#fff;border:0;font-weight:600}'
-    + '.dydl .dydl-phu{background:transparent;border:1px solid var(--line,#c7cfd9);color:inherit}'
-    + '.dydl .dydl-link{min-height:0;padding:4px 0;border:0;background:none;color:var(--sub,#55606e);text-decoration:underline;font-size:var(--text-sm,.9rem)}'
-    + '.dydl button:disabled{opacity:.55;cursor:not-allowed}';
+    + '.dydl .dydl-chinh{background:var(--dy-nut);color:var(--dy-nut-chu);border:0;font-weight:600}'
+    + '.dydl .dydl-phu{background:transparent;border:1px solid var(--dy-o);color:var(--dy-chu)}'
+    + '.dydl .dydl-link{min-height:0;padding:4px 0;border:0;background:none;color:var(--dy-phu);text-decoration:underline;font-size:var(--text-sm,.9rem)}'
+    + '.dydl button:disabled{background:var(--dy-khoa);color:var(--dy-khoa-chu);border-color:var(--dy-khoa);cursor:not-allowed;opacity:1}'
+    + '.dydl .dydl-link:disabled{background:none}';
   function chenCss() {
     if (document.getElementById('dydl-css')) return;
     var s = document.createElement('style');
@@ -119,7 +139,11 @@
           }
           var l1 = tao('label');
           var c1 = document.createElement('input'); c1.type = 'checkbox'; c1.id = 'dydlDongY'; c1.checked = chon.dy;
-          c1.addEventListener('change', function () { chon.dy = c1.checked; });
+          c1.addEventListener('change', function () {
+            chon.dy = c1.checked;
+            // Nút Đồng ý chỉ bật khi đã tick ô 1 (ô 2 tuỳ chọn) — đổi tại chỗ, không vẽ lại.
+            bOk.disabled = dangGui || !!o.xemFounder || !c1.checked;
+          });
           l1.appendChild(c1); l1.appendChild(tao('span', null, C.CONSENT_TEXTS.du_lieu_nha));
           var l2 = tao('label');
           var c2 = document.createElement('input'); c2.type = 'checkbox'; c2.id = 'dydlThongKe'; c2.checked = chon.tk;
@@ -136,7 +160,7 @@
           var nut2 = tao('div', 'dydl-nut');
           var bOk = tao('button', 'dydl-chinh', dangGui ? 'Đang lưu…' : 'Đồng ý');
           bOk.type = 'button';
-          bOk.disabled = dangGui || !!o.xemFounder;
+          bOk.disabled = dangGui || !!o.xemFounder || !chon.dy;
           bOk.addEventListener('click', function () {
             if (!c1.checked) { loi = 'Anh/chị đánh dấu ô đầu tiên để đồng ý.'; ve(); return; }
             goi({ hanh_dong: 'dong_y', dong_y: true, phien_ban: PB, thong_ke_an_danh: c2.checked });
