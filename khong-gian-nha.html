@@ -570,6 +570,19 @@ button.mtc-row[aria-expanded="true"]{border-color:var(--gold,#b8892b);border-bot
 .so-canh-bao.vuot{border-left-color:var(--red,#b42318)}
 .so-canh-bao{border-left:4px solid var(--gold,#b8892b);background:var(--surface);padding:.6rem .8rem;margin:.4rem 0 .6rem;font-size:var(--text-base);color:var(--text-1);line-height:1.6}
 .cb-list{margin:.2rem 0 .6rem;padding-left:1.1rem;font-size:var(--text-base);color:var(--text-1);line-height:1.6}
+.cb-vt{margin:.5rem 0 .8rem;border:1px solid var(--border);border-radius:12px;background:var(--surface-2);padding:.75rem .9rem}
+.cb-vt-tieu{margin:0 0 .35rem;font-weight:700;color:var(--text-1);font-size:var(--text-md)}
+.cb-vt-nhom{margin:.55rem 0 .15rem;font-size:var(--text-sm);font-weight:700;color:var(--text-2);text-transform:none}
+.cb-vt-dong{display:flex;justify-content:space-between;gap:.75rem;padding:.3rem 0;border-bottom:1px dashed var(--border);font-size:var(--text-base);color:var(--text-1)}
+.cb-vt-dong:last-of-type{border-bottom:0}
+.cb-vt-so{font-family:'IBM Plex Mono',monospace;font-weight:600;white-space:nowrap;text-align:right}
+.cb-vt-phu{display:block;font-family:inherit;font-weight:400;font-size:var(--text-xs);color:var(--text-2)}
+.cb-vt-note{margin:.5rem 0 0;font-size:var(--text-sm);color:var(--text-2);line-height:1.5}
+.cb-vt-nhan{color:var(--text-1);font-weight:600}
+.cb-vt-kiem summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:600;color:var(--text-1);font-size:var(--text-sm)}
+.cb-vt-kiem ul{margin:.1rem 0 .3rem;padding-left:1.1rem;font-size:var(--text-sm);color:var(--text-2);line-height:1.55}
+.cb-vt-kiem li{margin:.2rem 0}
+.cb-hm summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:600;color:var(--text-1)}
 .cb-ht{margin:.2rem 0 .6rem;font-size:var(--text-base);color:var(--text-2)}
 .cb-ht summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:600}
 .ht-tang{margin:.4rem 0;border-top:1px solid var(--border,#e2e8f0);padding-top:.4rem}
@@ -2585,9 +2598,16 @@ function renderChuanBi() {
     // Chỉ phần THÔ (máy chủ đã xếp: móng → khung trước đổ sàn → ống chờ điện nước → xây tô sau đổ sàn).
     add('viec-mo-ta', T(cb.du_tru_theo === 'hop_dong' ? 'cb.du_tru_hd' : 'cb.du_tru', { tien: tien(cb.du_tru != null ? cb.du_tru : cb.du_toan.gia_tri) }));
     const tuMua = new Set(Array.isArray(cb.tu_mua) ? cb.tu_mua : []);
+    veTongVatTu(body, cb.vat_tu_tong);
     const vt = (cb.du_toan.dong || []).slice(0, 30);
     if (vt.length) {
-      add('mtc-note', T('cb.vat_tu'));
+      // Có bảng tổng vật tư thì danh sách hạng mục thu gọn (bấm mới mở); chưa có thì giữ như cũ.
+      let noi = body;
+      if (cb.vat_tu_tong && cb.vat_tu_tong.nhom && cb.vat_tu_tong.nhom.length) {
+        const det = document.createElement('details'); det.className = 'cb-hm';
+        const sm = document.createElement('summary'); sm.textContent = T('cb.vt_hang_muc', { n: vt.length }); det.appendChild(sm);
+        body.appendChild(det); noi = det;
+      } else add('mtc-note', T('cb.vat_tu'));
       const ul = document.createElement('ul'); ul.className = 'cb-list';
       vt.forEach((x) => {
         const li = document.createElement('li');
@@ -2595,7 +2615,7 @@ function renderChuanBi() {
           + (tuMua.has(khoaDong(x.ma_aln, x.ten)) ? ' · ' + T('dtang.tu_mua') : '');
         ul.appendChild(li);
       });
-      body.appendChild(ul);
+      noi.appendChild(ul);
     }
     if (cb.du_toan.gia_tri_ht > 0) { // ALN4 gom một dòng, làm sau khi xong phần thô cả nhà
       const p = document.createElement('p'); p.className = 'cb-ht'; p.textContent = T('cb.hoan_thien', { tien: tien(cb.du_toan.gia_tri_ht) });
@@ -2604,6 +2624,39 @@ function renderChuanBi() {
   } else add('viec-mo-ta', T('cb.can_du_toan'));
   if (cb.la_mong) add('mtc-note', T('cb.mong'));
   if (cb.la_cuoi) add('mtc-note', T('cb.cuoi'));
+}
+/* 17/10/2026 — tổng vật tư chính của mốc tới (máy chủ tính: lib/vatTuMoc.js). Chỉ textContent. */
+function veTongVatTu(body, vt) {
+  if (!vt || !Array.isArray(vt.nhom) || !vt.nhom.length) return;
+  const box = document.createElement('div'); box.className = 'cb-vt';
+  const p = (cls, chu) => { const e = document.createElement('p'); e.className = cls; e.textContent = chu; box.appendChild(e); return e; };
+  p('cb-vt-tieu', T('cb.vt_tieu_de'));
+  let coTron = false;
+  vt.nhom.forEach((g) => {
+    if (!g || !Array.isArray(g.dong) || !g.dong.length) return;
+    if (g.khoa === 'tron_be_tong') coTron = true;
+    p('cb-vt-nhom', String(g.ten || ''));
+    g.dong.forEach((d) => {
+      const r = document.createElement('div'); r.className = 'cb-vt-dong';
+      const ten = document.createElement('span'); ten.textContent = String(d.ten || '');
+      const so = document.createElement('span'); so.className = 'cb-vt-so';
+      so.textContent = soM2(d.so) + ' ' + String(d.dvt || '');
+      if (d.phu) { const ph = document.createElement('span'); ph.className = 'cb-vt-phu'; ph.textContent = String(d.phu); so.appendChild(ph); }
+      r.appendChild(ten); r.appendChild(so); box.appendChild(r);
+    });
+  });
+  if (coTron) p('cb-vt-note', T('cb.vt_tuoi'));
+  p('cb-vt-note cb-vt-nhan', T('cb.vt_nhan_hang'));
+  const kiem = document.createElement('details'); kiem.className = 'cb-vt-kiem';
+  const sm = document.createElement('summary'); sm.textContent = T('cb.vt_kiem_tieu_de'); kiem.appendChild(sm);
+  const ul = document.createElement('ul');
+  ['cb.vt_kiem_cat_da', 'cb.vt_kiem_xi_mang', 'cb.vt_kiem_thep', 'cb.vt_kiem_gach', 'cb.vt_kiem_be_tong', 'cb.vt_kiem_luu'].forEach((k) => {
+    const li = document.createElement('li'); li.textContent = T(k); ul.appendChild(li);
+  });
+  kiem.appendChild(ul); box.appendChild(kiem);
+  if (Array.isArray(vt.chua_quy) && vt.chua_quy.length) p('cb-vt-note', T('cb.vt_chua_quy', { n: vt.chua_quy.length, ds: vt.chua_quy.slice(0, 5).join('; ') }));
+  p('cb-vt-note', T('cb.vt_ghi_chu'));
+  body.appendChild(box);
 }
 const laHoanThien = (ma) => (/^(ALN[0-9A-ZĐ]+)(\.|$)/.exec(String(ma || '')) || [])[1] === 'ALN4';
 
