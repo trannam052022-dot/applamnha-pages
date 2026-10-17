@@ -3020,7 +3020,10 @@ function veSuaSan(body) {
     b.addEventListener('click', () => {
       const tret = S.san.find((s) => s.loai === 'tret') || S.san[S.san.length - 1];
       const dt = tret ? tret.dien_tich_m2 : 50;
-      const moi = { loai: l, dien_tich_m2: l === 'lung' ? Math.round(dt * 50) / 100 : dt };
+      // Lửng: tạm tính theo tỷ lệ aln-pricing.js (65% trệt, Nam chốt 18/10/2026); khách sửa được ở ô m².
+      const qp = window.ALN_PRICING && window.ALN_PRICING.PRICING && window.ALN_PRICING.PRICING.quan_ly_thi_cong;
+      const tl = qp && Number(qp.ty_le_lung_mac_dinh) > 0 && Number(qp.ty_le_lung_mac_dinh) <= 1 ? Number(qp.ty_le_lung_mac_dinh) : 0.65;
+      const moi = { loai: l, dien_tich_m2: l === 'lung' ? Math.round(dt * tl * 100) / 100 : dt };
       const vi = S.san.findIndex((s) => LOAI_SAN.indexOf(s.loai) > LOAI_SAN.indexOf(l));
       if (vi < 0) S.san.push(moi); else S.san.splice(vi, 0, moi);
       renderMocTc(); tinhLaiSua();

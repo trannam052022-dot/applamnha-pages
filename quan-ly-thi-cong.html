@@ -180,6 +180,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
     <label class="ck"><input type="checkbox" id="coHam"><span data-chu="m2.co_ham">Có tầng hầm</span></label>
     <label class="ck"><input type="checkbox" id="coLung"><span data-chu="m2.co_lung">Có lửng</span></label>
+    <label class="o" id="oLung" hidden><span data-chu="m2.dien_tich_lung">Diện tích lửng (m²) — bỏ trống thì tạm tính 65% diện tích trệt</span>
+      <input id="dtLung" type="text" inputmode="decimal" autocomplete="off" placeholder="VD: 40">
+    </label>
     <label class="ck"><input type="checkbox" id="coSanThuong" checked><span data-chu="m2.co_san_thuong">Có sân thượng</span></label>
     <label class="ck"><input type="checkbox" id="coMai"><span data-chu="m2.co_mai">Có mái (mái bê tông hoặc mái ngói đổ sàn)</span></label>
     <label class="o"><span data-chu="m2.dien_tich">Diện tích mỗi sàn khoảng bao nhiêu m²?</span>
@@ -360,11 +363,22 @@ function chonNhom(sel, attrName, giaTri) {
 document.querySelectorAll('[data-loai]').forEach((b) => b.addEventListener('click', () => { ST.loai = b.dataset.loai; chonNhom('[data-loai]', 'loai', ST.loai); }));
 $('lauBot').addEventListener('click', () => { ST.lau = Math.max(0, ST.lau - 1); $('soLau').textContent = String(ST.lau); });
 $('lauThem').addEventListener('click', () => { ST.lau = Math.min(12, ST.lau + 1); $('soLau').textContent = String(ST.lau); });
+/* Lửng: khách nhập thì dùng số đó; bỏ trống thì tạm tính theo tỷ lệ trong aln-pricing.js (65% trệt). */
+function tyLeLung() {
+  const q = window.ALN_PRICING && window.ALN_PRICING.PRICING && window.ALN_PRICING.PRICING.quan_ly_thi_cong;
+  const v = q ? Number(q.ty_le_lung_mac_dinh) : NaN;
+  return v > 0 && v <= 1 ? v : 0.65;
+}
+function dtLung(dt) {
+  const v = soDuong($('dtLung').value);
+  return v && v <= 10000 ? Math.round(v * 100) / 100 : Math.round(dt * tyLeLung() * 100) / 100;
+}
+$('coLung').addEventListener('change', () => { $('oLung').hidden = !$('coLung').checked; });
 function dungSan(dt) {
   const s = [{ loai: 'mong', dien_tich_m2: dt }];
   if ($('coHam').checked) s.push({ loai: 'ham', dien_tich_m2: dt });
   s.push({ loai: 'tret', dien_tich_m2: dt });
-  if ($('coLung').checked) s.push({ loai: 'lung', dien_tich_m2: Math.round(dt * 0.5 * 100) / 100 });
+  if ($('coLung').checked) s.push({ loai: 'lung', dien_tich_m2: dtLung(dt) });
   for (let i = 0; i < ST.lau; i++) s.push({ loai: 'lau', dien_tich_m2: dt });
   if ($('coSanThuong').checked) s.push({ loai: 'san_thuong', dien_tich_m2: dt });
   if ($('coMai').checked) s.push({ loai: 'mai', dien_tich_m2: dt });
@@ -373,6 +387,10 @@ function dungSan(dt) {
 $('m2Nut').addEventListener('click', async () => {
   const dt = soDuong($('dtSan').value);
   if (!dt || dt > 10000) { bao('m2Loi', T('m2.loi_dien_tich')); $('dtSan').focus(); return; }
+  const vLung = soDuong($('dtLung').value);
+  if ($('coLung').checked && $('dtLung').value.trim() && (!vLung || vLung > 10000)) {
+    bao('m2Loi', T('m2.loi_dien_tich_lung')); $('dtLung').focus(); return;
+  }
   bao('m2Loi', '');
   ST.san = dungSan(dt);
   const ok = await tinhPhi('m2Nut', 'm2Loi');

@@ -43,6 +43,8 @@
     "m2.so_lau": "Số lầu (không tính trệt):",
     "m2.co_ham": "Có tầng hầm",
     "m2.co_lung": "Có lửng",
+    "m2.dien_tich_lung": "Diện tích lửng (m²) — bỏ trống thì tạm tính 65% diện tích trệt",
+    "m2.loi_dien_tich_lung": "Diện tích lửng chưa đúng — nhập số m², hoặc bỏ trống.",
     "m2.co_san_thuong": "Có sân thượng",
     "m2.co_mai": "Có mái (mái bê tông hoặc mái ngói đổ sàn)",
     "m2.dien_tich": "Diện tích mỗi sàn khoảng bao nhiêu m²?",

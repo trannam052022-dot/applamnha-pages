@@ -77,6 +77,9 @@
       // bang_gia v4 (scripts/qltc/bang-gia-chu-nha-2026-10-v4.json): hồ sơ chưa trả lần nào, gặp ưu đãi trong
       // khoảng khuyen_mai_tu → khuyen_mai_den, được miễn phí thêm khuyen_mai_san_tang sàn đầu (sau móng).
       // Chỉ dùng cho thẻ gói / chu-nha.html khi chưa có bảng phí từ máy chủ — số phải khớp file v4 (test kiểm).
+      // Lửng khách chưa nhập diện tích: tạm tính bằng tỷ lệ này × diện tích trệt (Nam chốt 18/10/2026: 65%).
+      // Dùng ở quan-ly-thi-cong.html và nút "+ Lửng" khi sửa danh sách sàn ở Không gian Nhà.
+      ty_le_lung_mac_dinh: 0.65,
       khuyen_mai_san_tang: 1,
       khuyen_mai_tu: "2026-10-17",
       khuyen_mai_den: "2026-12-31",
