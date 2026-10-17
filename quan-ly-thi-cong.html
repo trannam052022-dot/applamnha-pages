@@ -230,6 +230,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div id="dydlBox"></div>
     <h3 id="taiTieuDe">2. Tải dự toán lên</h3>
     <label class="tai" for="taiFile"><input type="file" id="taiFile" accept=".pdf,.jpg,.jpeg,.png,.heic,.xlsx,.xls,.dwg"><span id="taiNhan" data-chu="m5.chon_file">Bấm để chọn file (PDF, ảnh, Excel, DWG — tối đa 50 MB)</span></label>
+    <p class="nho" id="taiGhiSan" hidden data-chu="dtang.ghi_san">Thép, ván khuôn, bê tông của sàn lầu N ghi vào mốc tầng N-1 (mốc đóng khi đổ xong sàn đó). Dòng của sàn mái ghi vào mốc Sân thượng.</p>
     <p class="nho" id="taiTrangThai"></p>
     <h3 data-chu="m5.thanh_toan">3. Thanh toán</h3>
     <!-- PR-10: số tiền (chưa thuế · thuế · tổng), STK công ty, nội dung chuyển khoản — máy chủ qltcThanhToan. -->
@@ -332,6 +333,7 @@ document.querySelectorAll('#m1 [data-buoc]').forEach((b) => b.addEventListener('
   day('aln_qltc_buoc', { buoc_xay: ST.buoc });
   if (ST.buoc === 'chua_ban_ve') { hien('t1'); veThietKe(); return; }
   $('taiTieuDe').textContent = T(ST.buoc === 'co_ban_ve_du_toan' ? 'm5.tai_du_toan' : 'm5.tai_ban_ve');
+  $('taiGhiSan').hidden = ST.buoc !== 'co_ban_ve_du_toan';
   hien('m2');
 }));
 
