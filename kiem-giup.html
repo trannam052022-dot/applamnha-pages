@@ -255,7 +255,12 @@ async function moHoSo() {
 }
 
 function ttMoc(m) { return TT_MOC[m.trang_thai] ? m.trang_thai : 'chua_lam'; }
-function nhanTtMoc(m) { const tt = ttMoc(m); return T(tt === 'xong' && m.xong_khong_anh === true ? 'moc.tt.xong_khong_anh' : TT_MOC[tt]); }
+function nhanTtMoc(m) {
+  const tt = ttMoc(m);
+  if (tt === 'xong' && m.xong_khong_anh === true) return T('moc.tt.xong_khong_anh');
+  if (tt === 'xong' && m.xong_thieu_anh > 0) return T('moc.tt.xong_thieu_anh', { n: m.xong_thieu_anh });
+  return T(TT_MOC[tt]);
+}
 /* Móng + các sàn đi theo thứ tự (17/10/2026) — khớp CHUOI của functions/lib/qltcMoc.js. */
 const CHUOI_MOC = ['mong', 'ham', 'tret', 'lung', 'lau', 'san_thuong', 'mai'];
 function mocTruocChuaXong(m) {
@@ -307,9 +312,10 @@ async function khepMoc(m) {
   catch (e) { mocMsg = (e && e.message) || T('moc.ct.loi'); }
   mocBan = false;
   if (!kq) { veMoc(); return; }
-  if (!kq.du_anh) { mocMsg = kq.cau_thieu_anh || T(c.muc.length ? 'moc.ct.can_anh' : 'moc.ct.can_anh_moc', { nut_xong: c.nut_xong }); veMoc(); return; }
+  // Thiếu ảnh chỉ nhắc, không chặn (Nam chốt 17/10/2026).
   mocMsg = null; veMoc();
   const dong = [T('moc.ct.xac_nhan', { ten: m.ten || '', nut_xong: c.nut_xong })];
+  if (!kq.du_anh) dong.push(kq.cau_thieu_anh || T(c.muc.length ? 'moc.ct.can_anh' : 'moc.ct.can_anh_moc', { nut_xong: c.nut_xong }));
   if (kq.chua_kiem && kq.chua_kiem.length) dong.push(T('moc.ct.xn_chua_kiem', { n: kq.chua_kiem.length }));
   if (kq.can_sua && kq.can_sua.length) dong.push(T('moc.ct.xn_can_sua', { n: kq.can_sua.length, ds: kq.can_sua.map((x) => String(x.chu || '').split(/[:;]/)[0].trim()).join('; ') }));
   if (!window.confirm(dong.join('\n\n'))) return;
