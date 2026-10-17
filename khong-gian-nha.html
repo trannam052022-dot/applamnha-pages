@@ -441,7 +441,9 @@ details.them[open] > summary::after{content:"−"}
 .mtc-ten{font-weight:600;color:var(--text-1);font-size:var(--text-base)}
 .mtc-phi{font-family:var(--f-mono);color:var(--text-1);font-size:var(--text-base);text-align:right;white-space:nowrap}
 .mtc-sub{grid-column:1 / -1;font-size:var(--text-sm);color:var(--text-3)}
-.mtc-tong{display:flex;justify-content:space-between;gap:.6rem;font-weight:700;font-size:var(--text-md);color:var(--text-1);padding:.7rem 0;border-top:2px solid var(--border)}
+.mtc-tong > span:last-child{text-align:right;margin-left:auto}
+.mtc-sua{margin:.4rem 0 0}
+.mtc-tong{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.6rem;font-weight:700;font-size:var(--text-md);color:var(--text-1);padding:.7rem 0;border-top:2px solid var(--border)}
 .mtc-note{font-size:var(--text-sm);color:var(--text-3);line-height:1.7;margin:.3rem 0 .8rem}
 .mtc-msg{font-size:var(--text-sm);margin:.5rem 0;min-height:1em}
 .mtc-msg.loi{color:var(--red,#b42318)}
@@ -870,8 +872,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <script src="scripts/aln-callback.js"></script>
 <script src="aln-founder-xem.js"></script>
 <script src="aln-dong-y-du-lieu.js?v=2"></script>
-<script src="qltc-chu.vi.js"></script>
-<script src="aln-qltc-thanh-toan.js"></script>
+<script src="qltc-chu.vi.js?v=2"></script>
+<script src="aln-qltc-thanh-toan.js?v=2"></script>
 <script src="aln-qltc-bang-chung.js"></script>
 <script src="aln-kiem-giup.js"></script>
 <script type="module">
@@ -1385,15 +1387,45 @@ function mucCanSua(m) {
   const ck = (m.checklist && typeof m.checklist === 'object') ? m.checklist : {};
   return cfgLoai(m.loai_san).muc.filter((x) => ttMuc(ck[x.id]) === 'can_sua').map((x) => Object.assign({ ghi_chu: ck[x.id].ghi_chu || '' }, x));
 }
+/* Ảnh mốc từ nhật ký (listener nhat_ky) — đếm việc còn thiếu ảnh như máy chủ (lib/qltcMoc.tomTatXong). */
+let anhMoc = [];
+function soViecThieuAnh(m) {
+  const muc = cfgLoai(m.loai_san).muc;
+  const anh = anhMoc.filter((a) => a.moc_id === m.id);
+  if (!muc.length) return anh.length ? 0 : 1;
+  const co = new Set(anh.map((a) => a.muc_id).filter((x) => typeof x === 'string'));
+  const ck = (m.checklist && typeof m.checklist === 'object') ? m.checklist : {};
+  return muc.filter((x) => ttMuc(ck[x.id]) !== 'khong_ap_dung' && !co.has(x.id)).length;
+}
+/** Khách đã bấm "Tôi đã chuyển khoản" cho đơn đang chờ — ALN đang đối chiếu. */
+function dangDoiChieu() {
+  const d = currentHouseData && currentHouseData.don_qltc;
+  return !!(d && d.trang_thai === 'cho_tien' && d.khach_bao === true);
+}
+/**
+ * Việc theo mốc (18/10/2026): cần sửa → mốc đang làm (chụp ảnh việc còn thiếu / đủ ảnh thì khép mốc) →
+ * gói chưa trả: mở sàn đầu tiên (Móng vẫn bắt đầu được ở khối mốc) → mốc kế chưa mở: mở sàn đó →
+ * bắt đầu mốc kế. Đã báo chuyển khoản thì thay "mở sàn" bằng "ALN đang đối chiếu".
+ */
 function viecMoc() {
   const ds = dsMocTc();
+  const t = traSan();
+  const moSan = (m) => ({ kieu: dangDoiChieu() ? 'doi_chieu' : 'mo_san', m });
   // Việc cần sửa của mốc chưa xong đứng trước — đội thợ sửa xong chủ nhà mới khép mốc.
   const sua = ds.find((m) => ttMoc(m) !== 'xong' && mucCanSua(m).length);
   if (sua) return { kieu: 'can_sua', m: sua, n: mucCanSua(sua).length };
   const dang = ds.find((m) => ttMoc(m) === 'dang_lam');
-  if (dang) return { kieu: 'dang_lam', m: dang };
+  if (dang) {
+    const n = soViecThieuAnh(dang);
+    if (!n) return { kieu: 'du_anh', m: dang };
+    return { kieu: cfgLoai(dang.loai_san).muc.length ? 'chup_anh' : 'chup_anh_moc', m: dang, n };
+  }
+  if (t && t.chua_tra && t.tiep) {
+    const dau = ds.find((m) => m.id === t.tiep.ma_moc);
+    if (dau) return moSan(dau);
+  }
   const toi = ds.find((m) => ttMoc(m) === 'chua_lam');
-  if (toi && mocKhoa(toi)) return { kieu: 'mo_san', m: toi }; // trả theo sàn: mốc kế tiếp chưa mở
+  if (toi && mocKhoa(toi)) return moSan(toi); // trả theo sàn: mốc kế tiếp chưa mở
   if (toi) return { kieu: cfgLoai(toi.loai_san).muc.length ? 'bat_dau' : 'bat_dau_trong', m: toi };
   return { kieu: ds.length ? 'het' : 'cho', m: null };
 }
@@ -1402,9 +1434,11 @@ function viecMoc() {
 function chonViec(h) {
   if (laHoSoGoi(h)) {
     if (!daDongYDuLieu(h)) return 'dong_y';
+    // 18/10/2026: chưa có danh sách sàn → nhập sàn. Gói "chưa trả" không cần Founder bật — việc trả
+    // tiền nằm ở khối mốc, dự toán chưa tải không chặn trả tiền.
+    if (dsSan && dsSan.danh_sach_san === null && !dsSan.loi && dsSan.duoc_sua) return 'nap_san';
     const loai = h.buoc_xay === 'co_ban_ve_du_toan' ? 'du_toan' : 'ban_ve';
     if (!coUpload(loai) && !(loai === 'du_toan' && taiSau())) return loai === 'du_toan' ? 'tai_du_toan' : 'tai_ban_ve';
-    if (h.gia_ap_dung == null) return 'kiem_san';
     return 'moc';
   }
   if (!h.phieu_yeu_cau) return 'phieu';
@@ -1467,7 +1501,7 @@ function renderViec() {
   const su = soUngFor === currentHouseId ? soUng : null;
   const nhac = vm && vm.kieu === 'dang_lam' && su && su.nhac && su.nhac.ma_moc === vm.m.id ? su.nhac : null;
   const ts = traSan();
-  const khoaViec = vm ? ['moc', vm.kieu, vm.m ? vm.m.id : '', vm.n || 0, mocCfg ? 1 : 0, chuNhaGhi ? 1 : 0, nhac ? nhac.so_ngay : '', ts ? ts.k : ''].join(':') : viec;
+  const khoaViec = vm ? ['moc', vm.kieu, vm.m ? vm.m.id : '', vm.n || 0, mocCfg ? 1 : 0, chuNhaGhi ? 1 : 0, nhac ? nhac.so_ngay : '', ts ? ts.k : '', ts && ts.gia_mot_san, ts && ts.gia_con_lai].join(':') : viec;
   // Việc đồng ý: đưa chính ô đồng ý (aln-dong-y-du-lieu.js) lên thẻ — nút "Đồng ý" của nó là nút chính.
   if (viec !== 'dong_y' && dydlBox.parentNode !== dydlBlock) dydlBlock.appendChild(dydlBox);
   if (khoaViec === viecDangVe && (viec !== 'dong_y' || dydlBox.parentNode === els.viecBody)) { renderSteps(); return; }
@@ -1506,8 +1540,14 @@ function renderViec() {
     const kv = 'viec.moc_' + vm.kieu;
     if (vm.kieu === 'mo_san' && vm.m) {
       const lc = luaChonCho(vm.m);
-      const b = nut(T(lc === 'mot_san' ? 'moc.mo_san' : 'moc.mo_con_lai', { gia: tienTong(giaCho(lc)) }), () => moTraSan(lc));
+      const b = nut(kemGomThue(lc === 'mot_san' ? T('viec.moc_mo_san.nut', { ten: vm.m.ten || '', gia: tienTong(giaCho(lc)) }) : T('moc.mo_con_lai', { gia: tienTong(giaCho(lc)) })), () => moTraSan(lc));
       b.dataset.xem = '1';
+    } else if (vm.kieu === 'doi_chieu') {
+      /* chỉ báo, không có nút */
+    } else if (vm.m && mocCfg && vm.kieu === 'du_anh' && chuNhaGhi) {
+      nut(T('viec.moc_du_anh.nut', { nut_xong: cfgLoai(vm.m.loai_san).nut_xong }), () => { moMoc(vm.m.id); khepMoc(vm.m); });
+    } else if (vm.m && mocCfg && (vm.kieu === 'du_anh' || vm.kieu === 'chup_anh' || vm.kieu === 'chup_anh_moc')) {
+      nut(T('viec.moc_chup_anh.nut'), () => moMoc(vm.m.id)).dataset.xem = '1';
     } else if (vm.m && mocCfg && vm.kieu === 'dang_lam' && chuNhaGhi) nut(T('viec.moc_dang_lam.nut'), () => moMoc(vm.m.id, true));
     else if (vm.m && mocCfg && vm.kieu === 'dang_lam') nut(T('viec.moc_dang_lam.nut_xem'), () => moMoc(vm.m.id)).dataset.xem = '1';
     else if (vm.m && mocCfg) nut(T(kv + '.nut'), () => moMoc(vm.m.id)).dataset.xem = '1';
@@ -1519,6 +1559,8 @@ function renderViec() {
       sau.addEventListener('click', () => { datTaiSau(); renderViec(); });
       body.appendChild(sau);
     }
+  } else if (viec === 'nap_san') {
+    nut(T('viec.nap_san.nut'), () => moSuaSan(true));
   } else if (viec === 'kiem_san') {
     nut(T('viec.kiem_san.nut'), () => moSuaSan(true));
     // PR-10: chuyển khoản để bật gói — số tiền + STK công ty + nội dung (máy chủ qltcThanhToan).
@@ -1541,6 +1583,7 @@ const HANG_MUC = ['cong_tuong_rao', 'ho_boi', 'nha_phu'];
 const TT_MOC = { chua_lam: 'moc.tt.chua_lam', dang_lam: 'moc.tt.dang_lam', xong: 'moc.tt.xong' };
 let dsSan = null;      // kết quả 'doc': { danh_sach_san, goi, duoc_sua, goi_da_bat }
 let dsSanFor = null;
+let dsSanKhoaTra = null; // khoá trạng thái trả (đồng ý · đã trả · số sàn) lúc đọc danh sách sàn
 let suaSan = null;     // trạng thái bộ sửa: { loai, san:[{loai,dien_tich_m2}], hm:[], goi, msg }
 const tien = (n) => (CHU ? CHU.tien(n, dsSan && dsSan.goi && dsSan.goi.tien_te) : fmtMoney(n));
 const soM2 = (n) => Number(n).toLocaleString('vi-VN', { maximumFractionDigits: 2 });
@@ -1558,6 +1601,7 @@ async function napDanhSachSan(houseId) {
   if (currentHouseData) renderHouseHeader(currentHouseData);
   if (currentHouseData) renderHopDong();
   renderMocTc();
+  renderViec(); // Việc tiếp theo phụ thuộc danh sách sàn + trạng thái trả theo sàn
 }
 
 function tenTheoThu(ds) {
@@ -1572,7 +1616,7 @@ function tenTheoThu(ds) {
 /* ── Trả theo sàn (17/10/2026) — máy chủ: qltcDanhSachSan.tra_san, qltcThanhToan ── */
 const traSan = () => (dsSan && dsSan.tra_san) || null;
 /** Mốc chưa mở: gói đã bật nhưng chưa trả tới sàn này (mốc ngoài nhà: chưa trả đủ). */
-function mocKhoa(m) { const t = traSan(); return !!(t && t.da_bat && t.mo && t.mo[m.id] === false); }
+function mocKhoa(m) { const t = traSan(); return !!(t && (t.goi_mo || t.da_bat) && t.mo && t.mo[m.id] === false); }
 /** Sàn kế tiếp → trả 1 sàn (nếu còn ≥ 2 sàn); sàn sau đó / ngoài nhà → trả hết phần còn lại. */
 function luaChonCho(m) {
   const t = traSan();
@@ -1581,6 +1625,22 @@ function luaChonCho(m) {
 function giaCho(lc) { const t = traSan(); return t ? (lc === 'mot_san' ? t.gia_mot_san : t.gia_con_lai) : null; }
 // Khoảng trắng cứng trước "đ" — nút hẹp không để "đ" rớt dòng một mình.
 const tienTong = (n) => (n == null ? '' : (CHU ? CHU.tien(n, traSan() && traSan().tien_te) : fmtMoney(n)).replace(/ đ$/, '\u00a0đ'));
+/** Thuế của bảng phí (bảng khoá ở lần trả đầu, không thì bảng hiện hành). Không có → null. */
+function thueGoi() {
+  const t = (traSan() && traSan().thue) || (dsSan && dsSan.goi && dsSan.goi.thue);
+  return t && Number.isFinite(Number(t.ty_le_phan_tram)) ? t : null;
+}
+const pctThue = (t) => (CHU ? CHU.so(t.ty_le_phan_tram) : String(t.ty_le_phan_tram));
+/** Nút trả tiền: số đã gồm thuế + "(đã gồm GTGT 8%)". */
+function kemGomThue(chu) { const t = thueGoi(); return t ? chu + ' ' + T('tt.gom_thue', { thue: t.ten || 'GTGT', pct: pctThue(t) }).replace(/ /g, '\u00a0') : chu; } // ngoặc thuế không gãy giữa chừng
+/** Giá chưa thuế trong danh sách mốc: "400.000 đ + GTGT". */
+function kemCongThue(n) { const t = thueGoi(); return t ? T('phi.cong_thue_moc', { tien: tien(n), thue: t.ten || 'GTGT' }) : tien(n); }
+/** Dòng Phí gói: "3.200.000 đ + GTGT 8% = 3.456.000 đ". */
+function tongCongThue(chua) {
+  const t = thueGoi(); if (!t) return tien(chua);
+  const c = Math.round(Number(chua));
+  return T('phi.cong_thue', { tien: tien(c), thue: t.ten || 'GTGT', pct: pctThue(t), tong: tien(c + Math.round(c * Number(t.ty_le_phan_tram) / 100)) });
+}
 /** Nhãn dòng mốc chưa mở: giá trị theo hợp đồng nếu có, không thì dự toán của tầng. */
 function nhanKhoa(m) {
   const su = soUngFor === currentHouseId ? soUng : null;
@@ -1593,25 +1653,26 @@ function nhanKhoa(m) {
 let traEl = null; let traCtl = null; let traCtlKhoa = null;
 function veTraSan(body) {
   const t = traSan();
-  const hien = !!(t && t.da_bat && !t.du && (dsSan.la_chu_nha || XEM_FOUNDER));
+  const hien = !!(t && (t.da_bat || t.chua_tra) && !t.du && (dsSan.la_chu_nha || XEM_FOUNDER));
   if (!hien) return;
   if (!traEl) { traEl = document.createElement('div'); traEl.id = 'traSanTt'; }
   body.appendChild(traEl);
-  const khoa = currentHouseId + ':' + t.k;
+  // Đổi danh sách sàn (giá đổi) hoặc trả thêm → gắn lại khối, máy chủ tạo đơn mới theo phí mới.
+  const khoa = [currentHouseId, t.k, t.gia_mot_san, t.gia_con_lai].join(':');
   if (traCtlKhoa !== khoa) {
     traCtlKhoa = khoa;
-    traCtl = window.alnQltcThanhToan ? window.alnQltcThanhToan.gan(traEl, { goi: (data) => callQltcThanhToan(data), houseId: currentHouseId, boTienDo: true }) : null;
+    traCtl = window.alnQltcThanhToan ? window.alnQltcThanhToan.gan(traEl, { goi: (data) => callQltcThanhToan(data), houseId: currentHouseId, boTienDo: true, daBao: () => renderViec() }) : null;
   }
 }
 /** Nút "Mở sàn này": chọn lựa chọn trả + cuộn tới khối chuyển khoản. */
 function moTraSan(lc) {
   const t = traSan();
-  if (t && !t.da_bat) { // chưa bật gói: khối chuyển khoản nằm ở thẻ việc
+  if (t && !t.da_bat && !t.chua_tra) { // hồ sơ chưa đồng ý dữ liệu: khối chuyển khoản (nếu có) nằm ở thẻ việc
     if (ttCtl && ttCtl.chon) ttCtl.chon(lc);
     els.viecBlock.scrollIntoView({ behavior: 'smooth', block: 'start' });
     return;
   }
-  renderDaTt();
+  if (t && t.chua_tra) renderMocTc(); else renderDaTt();
   if (traCtl && traCtl.chon) traCtl.chon(lc);
   if (traEl) traEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -1634,7 +1695,8 @@ function renderMocTc() {
   const phiTheoMa = {};
   if (goi && Array.isArray(goi.moc)) goi.moc.forEach((m) => { phiTheoMa[m.ma_moc] = m; });
   // Mốc từ Firestore (trạng thái thật); chưa có thì dùng danh sách tính phí.
-  const daBat = !!dsSan.goi_da_bat;
+  // 18/10/2026: gói "chưa trả" (đồng ý dữ liệu + có danh sách sàn) dùng được như gói đã bật — Móng mở.
+  const daBat = !!(dsSan.goi_mo || dsSan.goi_da_bat);
   if (daBat && mocCfgFor !== currentHouseId) napMocCfg(currentHouseId);
   let ds = dsMocTc();
   if (!ds.length && goi && goi.moc) ds = goi.moc.map((m) => ({ id: m.ma_moc, ten: m.ten, dien_tich_m2: m.dien_tich_m2, loai_san: m.loai_san, trang_thai: 'chua_lam' }));
@@ -1657,7 +1719,7 @@ function renderMocTc() {
       const ten = document.createElement('span'); ten.className = 'mtc-ten'; ten.textContent = m.ten || '';
       const phi = document.createElement('span'); phi.className = 'mtc-phi';
       const p = phiTheoMa[m.id];
-      phi.textContent = m.loai_san === 'mong' ? T('m3.mong_khong_tinh') : (p ? tien(p.phi) : '');
+      phi.textContent = m.loai_san === 'mong' ? T('m3.mong_khong_tinh') : (p ? kemCongThue(p.phi) : '');
       const sub = document.createElement('span'); sub.className = 'mtc-sub';
       const tt = nhanTtMoc(m);
       const nhanDt = nhanDienTich(p, m);
@@ -1667,7 +1729,7 @@ function renderMocTc() {
       if (khoa) {
         const lc = luaChonCho(m);
         const b = document.createElement('button'); b.type = 'button'; b.className = 'btn btn-ghost mtc-mo';
-        b.textContent = T(lc === 'mot_san' ? 'moc.mo_san' : 'moc.mo_con_lai', { gia: tienTong(giaCho(lc)) });
+        b.textContent = kemGomThue(T(lc === 'mot_san' ? 'moc.mo_san' : 'moc.mo_con_lai', { gia: tienTong(giaCho(lc)) }));
         b.addEventListener('click', () => moTraSan(lc));
         if (!dsSan.la_chu_nha && !XEM_FOUNDER) b.hidden = true;
         list.appendChild(b);
@@ -1675,24 +1737,27 @@ function renderMocTc() {
       if (daBat && !khoa && mocMo === m.id) list.appendChild(veChiTietMoc(m));
     });
     body.appendChild(list);
+    // Link nhỏ ngay dưới danh sách mốc, chỉ khi chưa trả lần nào (sau lần trả đầu máy chủ trả duoc_sua=false).
+    if (dsSan.duoc_sua && dsSan.danh_sach_san && !dsSan.goi_da_bat) {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'viec-sau mtc-sua'; b.textContent = T('moc.sua');
+      b.addEventListener('click', () => moSuaSan(true));
+      body.appendChild(b);
+    }
   }
+  // Gói chưa trả: khối chuyển khoản ngay dưới mốc ("Đã mở 0/{n} sàn", 2 lựa chọn, QR, "Tôi đã chuyển khoản").
+  { const t = traSan(); if (t && t.chua_tra && !t.da_bat) veTraSan(body); }
   if (goi) {
     const tong = document.createElement('div'); tong.className = 'mtc-tong';
     const a = document.createElement('span'); a.textContent = T('moc.tong');
-    const b = document.createElement('span'); b.textContent = tien(goi.tong_chua_thue);
+    const b = document.createElement('span'); b.textContent = tongCongThue(goi.tong_chua_thue);
     tong.appendChild(a); tong.appendChild(b); body.appendChild(tong);
-    const note = document.createElement('p'); note.className = 'mtc-note';
-    note.textContent = T('phi.chua_thue', { thue: (goi.thue && goi.thue.ten) || 'GTGT' });
-    body.appendChild(note);
   }
   if (dsSan.loi) { const p = document.createElement('p'); p.className = 'mtc-msg loi'; p.textContent = T('phi.tinh_loi'); body.appendChild(p); }
   if (dsSan.msg) { const p = document.createElement('p'); p.className = 'mtc-msg ok'; p.textContent = dsSan.msg; body.appendChild(p); }
   if (dsSan.goi_da_bat) {
     const p = document.createElement('p'); p.className = 'mtc-note'; p.textContent = T('moc.goi_da_bat'); body.appendChild(p);
   } else if (dsSan.duoc_sua && dsSan.danh_sach_san) {
-    const b = document.createElement('button'); b.type = 'button'; b.className = 'btn btn-ghost'; b.textContent = T('moc.sua');
-    b.addEventListener('click', () => moSuaSan(true));
-    body.appendChild(b);
+    /* link "Sửa danh sách sàn" đã đặt ngay dưới danh sách mốc */
   } else if (dsSan.danh_sach_san && !XEM_FOUNDER) {
     const p = document.createElement('p'); p.className = 'mtc-note'; p.textContent = T('moc.chi_xem'); body.appendChild(p);
   }
@@ -2384,7 +2449,7 @@ function renderHoanThien() {
     add('viec-mo-ta', T('ht.can_tra_du'));
     if (chuNha || XEM_FOUNDER) {
       const b = document.createElement('button'); b.type = 'button'; b.className = 'btn btn-ghost';
-      b.textContent = T('moc.mo_con_lai', { gia: tienTong(giaCho('het')) });
+      b.textContent = kemGomThue(T('moc.mo_con_lai', { gia: tienTong(giaCho('het')) }));
       b.addEventListener('click', () => moTraSan('het'));
       body.appendChild(b);
     }
@@ -2620,8 +2685,9 @@ function renderDaTt() {
 }
 
 function moSuaSan(cuon) {
-  if (XEM_FOUNDER || !dsSan || !dsSan.duoc_sua || !dsSan.danh_sach_san) return;
-  const d = dsSan.danh_sach_san;
+  if (XEM_FOUNDER || !dsSan || !dsSan.duoc_sua) return;
+  // Chưa có danh sách sàn (18/10/2026): mở bộ sửa với móng + trệt để chủ nhà nhập.
+  const d = dsSan.danh_sach_san || { loai_cong_trinh: 'nha_pho', san: [{ loai: 'mong', dien_tich_m2: 50 }, { loai: 'tret', dien_tich_m2: 50 }], hang_muc: [] };
   suaSan = {
     loai: d.loai_cong_trinh === 'biet_thu' ? 'biet_thu' : 'nha_pho',
     san: d.san.map((s) => ({ loai: s.loai, dien_tich_m2: s.dien_tich_m2 })),
@@ -2748,6 +2814,11 @@ async function luuSuaSan() {
     if (currentHouseData) renderHouseHeader(currentHouseData);
     renderMocTc();
     if (ttCtl && !d.khong_doi) ttCtl.lamMoi(); // đơn cũ đã huỷ → tạo đơn theo phí mới
+    if (!d.khong_doi) { // giá trả theo sàn đổi → đọc lại tra_san; khối chuyển khoản dưới mốc gắn lại theo phí mới
+      const msg = dsSan.msg; const id = currentHouseId;
+      await napDanhSachSan(id);
+      if (id === currentHouseId && dsSan && !suaSan) { dsSan.msg = msg; renderMocTc(); }
+    }
   } catch (e) {
     if (!suaSan) return;
     suaSan.dangLuu = false; suaSan.loi = true; suaSan.msg = (e && e.message) || T('sua.loi');
@@ -3187,9 +3258,10 @@ function loadHouse(houseId) {
   duToanVersions = [];
   uploadItems = [];
   viecDangVe = null;
-  dsSanFor = null;
+  dsSanFor = null; dsSanKhoaTra = null;
   suaSan = null;
   mocMo = null; mocMsg = null; mocCfg = null; mocCfgFor = null; logTaiAnhKhoa = null;
+  anhMoc = [];
   soUng = null; soUngFor = null; ungMsg = null; ungNhap = null; clearTimeout(soUngHen);
   hdData = null; hdFor = null; hdMsg = null; hdMo = false; hdNhap = null; hdDot = null; hdSuaMoc = null;
   dtOpenRows.clear();
@@ -3202,6 +3274,10 @@ function loadHouse(houseId) {
     updateTruocC1Visibility();
     renderBaSo(); renderChuanBi(); renderHoanThien(); napSoUng();
     if (hdFor !== houseId) napHopDong();
+    // Trạng thái trả theo sàn đổi (khách vừa đồng ý dữ liệu → "chưa trả"; Founder vừa nhận tiền) → đọc lại danh sách sàn.
+    const khoaTra = [daDongYDuLieu(h) ? 1 : 0, h.gia_ap_dung != null ? 1 : 0, h.so_san_da_tra == null ? '' : h.so_san_da_tra].join(':');
+    if (dsSanFor === houseId && dsSan && dsSanKhoaTra !== null && dsSanKhoaTra !== khoaTra && !suaSan) napDanhSachSan(houseId);
+    dsSanKhoaTra = khoaTra;
     // trim phòng dữ liệu cũ/nhập tay lọt khoảng trắng thừa (vd "C1 ") — so
     // sánh === với code sạch trong renderMoc sẽ luôn sai nếu không trim ở đây.
     window.__khMocHienTai = typeof h.moc_hien_tai === 'string' ? h.moc_hien_tai.trim() : h.moc_hien_tai;
@@ -3225,7 +3301,12 @@ function loadHouse(houseId) {
 
   unsubscribers.push(onSnapshot(
     query(collection(db, 'houses', houseId, 'nhat_ky'), orderBy('created_at', 'desc')),
-    (snap) => renderLog(snap.docs.map((d) => d.data())),
+    (snap) => {
+      const ds = snap.docs.map((d) => d.data());
+      anhMoc = ds.filter((n) => n.loai === 'anh_moc' && typeof n.moc_id === 'string').map((n) => ({ moc_id: n.moc_id, muc_id: n.muc_id || null }));
+      renderLog(ds);
+      if (currentHouseData) renderViec();
+    },
     (err) => console.error('[khong-gian-nha] onSnapshot nhat_ky lỗi:', err)
   ));
 

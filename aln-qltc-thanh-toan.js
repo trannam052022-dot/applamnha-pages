@@ -8,6 +8,9 @@
  * Trả theo sàn (17/10/2026): "Đã mở {k}/{n} sàn" + hai lựa chọn — trả 1 sàn (sàn kế tiếp) hoặc trả hết
  * phần còn lại; chọn lựa chọn khác → máy chủ tạo đơn mới. Mã QR (VietQR) do máy chủ dựng khi nhận ra ngân hàng.
  *
+ * "Chưa trả" (18/10/2026): hồ sơ chưa trả lần nào nhưng đã đồng ý dữ liệu — Móng đã mở, khối ghi "Đã mở 0/{n} sàn".
+ * Nút "Tôi đã chuyển khoản" (qltcThanhToan 'bao_ck') báo Founder đối chiếu; sau đó khối ghi "ALN đang đối chiếu…".
+ *
  * Máy chủ (functions/qltcThanhToan.js) quyết định số tiền, STK (chỉ tài khoản CÔNG TY TNHH ALN) và
  * nội dung chuyển khoản; trang chỉ hiển thị. Chữ lấy từ qltc-chu.vi.js (window.ALN_CHU_QLTC),
  * thuế suất lấy từ đơn (cấu hình quốc gia) — không viết cứng. Chỉ textContent, không innerHTML.
@@ -57,11 +60,43 @@
     var b = the("button", "qtt-lc" + (dangChon ? " qtt-lc-chon" : ""));
     b.type = "button";
     b.setAttribute("aria-pressed", String(!!dangChon));
-    b.textContent = (lc === "mot_san"
-      ? T("tt.lc_mot_san", { ten: (x.ten || []).join(", "), tien: tien(x.tong, x.tien_te) })
-      : T("tt.lc_het", { n: x.so_san, tien: tien(x.tong, x.tien_te) })).replace(/ đ$/, "\u00a0đ");
+    var gia = tien(x.tong, x.tien_te).replace(/ đ$/, "\u00a0đ");
+    var chu = lc === "mot_san"
+      ? T("tt.lc_mot_san", { ten: (x.ten || []).join(", "), tien: gia })
+      : T("tt.lc_het", { n: x.so_san, tien: gia });
+    // Số trên nút = số chuyển khoản (đã gồm thuế) — ghi rõ thuế suất (Nam chốt 17/10/2026).
+    var t = x.thue;
+    if (t && isFinite(Number(t.ty_le_phan_tram))) chu += " " + T("tt.gom_thue", { thue: t.ten || "GTGT", pct: so(t.ty_le_phan_tram) }).replace(/ /g, "\u00a0");
+    b.textContent = chu;
     if (!dangChon) b.addEventListener("click", function () { onChon(lc); });
     return b;
+  }
+
+  /** Nút "Tôi đã chuyển khoản" — hoặc dòng "ALN đang đối chiếu" khi đã báo. */
+  function khoiBao(kq, opts, veLai) {
+    var d = kq.don;
+    if (d.khach_bao) return the("p", "qtt-doi-chieu", T("tt.dang_doi_chieu"));
+    if (kq.xem_founder || !d.id) return null;
+    var hop = the("div", "qtt-bao");
+    var b = the("button", "qtt-bao-nut", T("tt.da_chuyen"));
+    b.type = "button";
+    var msg = the("p", "qtt-ghi");
+    b.addEventListener("click", function () {
+      b.disabled = true; msg.textContent = T("tt.dang_bao"); msg.className = "qtt-ghi";
+      Promise.resolve(opts.goi({ hanh_dong: "bao_ck", houseId: opts.houseId, don_id: d.id })).then(function () {
+        d.khach_bao = true;
+        veLai();
+        if (opts.daBao) opts.daBao();
+      }, function (e) {
+        b.disabled = false;
+        msg.className = "qtt-ghi qtt-loi";
+        msg.textContent = (e && e.message) || T("tt.loi_bao");
+      });
+    });
+    hop.appendChild(b);
+    hop.appendChild(the("p", "qtt-ghi", T("tt.da_chuyen_ghi_chu")));
+    hop.appendChild(msg);
+    return hop;
   }
 
   function ve(el, kq, opts, onChon) {
@@ -75,10 +110,15 @@
     if (kq.can_dong_y || !kq.don) { el.appendChild(the("p", "qtt-ghi", T("tt.can_dong_y"))); return; }
     var d = kq.don;
     var them = !!kq.da_bat;
+    // "Chưa trả": máy chủ trả tien_do {k:0, n} khi đã đồng ý dữ liệu và có danh sách sàn — Móng đã mở.
+    var chuaTra = !them && !!(tienDo && tienDo.n);
     var hop = the("div", "qtt");
-    hop.appendChild(the("p", "qtt-tieu-de", T(them ? "tt.tieu_de_them" : "tt.tieu_de")));
-    // Trang đã ghi "Đã mở k/n sàn" ngay trên khối (Không gian Nhà) → boTienDo; chưa bật gói thì không ghi 0/n.
-    if (them && tienDo && tienDo.n && !(opts && opts.boTienDo)) hop.appendChild(the("p", "qtt-tien-do", T("tt.da_mo", { k: tienDo.k, n: tienDo.n })));
+    hop.appendChild(the("p", "qtt-tieu-de", T(them ? "tt.tieu_de_them" : chuaTra ? "tt.tieu_de_mo_san" : "tt.tieu_de")));
+    // Trang đã ghi "Đã mở k/n sàn" ngay trên khối (Không gian Nhà, hồ sơ đã trả) → boTienDo.
+    if ((them || chuaTra) && tienDo && tienDo.n && !(opts && opts.boTienDo && them)) {
+      hop.appendChild(the("p", "qtt-tien-do", T("tt.da_mo", { k: tienDo.k, n: tienDo.n })));
+      if (chuaTra) hop.appendChild(the("p", "qtt-ghi", T("tt.mong_da_mo")));
+    }
     if (kq.lua_chon_co && kq.lua_chon_co.length) {
       var lcBox = the("div", "qtt-lc-box");
       kq.lua_chon_co.forEach(function (lc) {
@@ -111,8 +151,10 @@
       hop.appendChild(dongChep(T("tt.noi_dung"), d.noi_dung_ck));
       hop.appendChild(the("p", "qtt-ghi qtt-zalo", T("tt.chua_co_tk")));
     }
+    var bao = khoiBao(kq, opts, function () { ve(el, kq, opts, onChon); });
+    if (bao) hop.appendChild(bao);
     // boCauChung: trang đã có câu "Sau khi nhận chuyển khoản…" riêng (quan-ly-thi-cong.html, câu PR-9b).
-    if (them) hop.appendChild(the("p", "qtt-ghi", T("tt.sau_khi_them")));
+    if (them || chuaTra) hop.appendChild(the("p", "qtt-ghi", T("tt.sau_khi_them")));
     else if (!(opts && opts.boCauChung)) hop.appendChild(the("p", "qtt-ghi", T("tt.sau_khi")));
     hop.appendChild(the("p", "qtt-ghi", T("tt.hoa_don")));
     if (!them && !(opts && opts.boCauChung)) hop.appendChild(the("p", "qtt-ghi", T("tt.sua_truoc")));
@@ -152,7 +194,7 @@
   var css = ".qtt{border:1px solid var(--border-soft,#d9dee5);border-radius:10px;padding:.8rem .9rem;margin:.6rem 0;background:var(--surface,#fff)}"
     + ".qtt-tieu-de{font-weight:600;margin:0 0 .5rem}"
     + ".qtt-dong{display:flex;justify-content:space-between;align-items:center;gap:.6rem;padding:.3rem 0;border-bottom:1px dashed var(--border-soft,#e3e7ec);flex-wrap:wrap}"
-    + ".qtt-nhan{color:var(--text-2,#475569)}.qtt-so{text-align:right;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;justify-content:flex-end;word-break:break-all}"
+    + ".qtt-nhan{color:var(--text-2,#475569)}.qtt-so{text-align:right;display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;justify-content:flex-end;overflow-wrap:anywhere}"
     + ".qtt-tong .qtt-nhan,.qtt-tong .qtt-so{font-weight:700;color:var(--text-1,#0f172a)}"
     + ".qtt-muc{font-weight:600;margin:.8rem 0 .2rem}"
     + ".qtt-ghi{font-size:.92em;color:var(--text-2,#475569);margin:.45rem 0 0}.qtt-loi{color:#b91c1c}.qtt-zalo{font-weight:600;color:var(--text-1,#0f172a)}"
@@ -161,6 +203,9 @@
     + ".qtt-lc{font:inherit;text-align:left;padding:.6rem .75rem;border-radius:8px;border:1px solid var(--border-soft,#cbd5e1);background:transparent;cursor:pointer;min-height:44px;color:inherit}"
     + ".qtt-lc-chon{border:2px solid var(--gold,#b8892b);font-weight:600;cursor:default}"
     + ".qtt-qr{display:block;width:220px;max-width:100%;height:auto;margin:.4rem auto .1rem;border-radius:8px;background:#fff}"
+    + ".qtt-bao{margin:.8rem 0 .2rem}.qtt-bao-nut{font:inherit;font-weight:700;width:100%;min-height:48px;border-radius:10px;border:0;background:#8a5f07;color:#fff;cursor:pointer}"
+    + ".qtt-bao-nut:disabled{background:#e5e7eb;color:#374151;cursor:default}"
+    + ".qtt-doi-chieu{font-weight:600;margin:.8rem 0 .2rem;padding:.6rem .75rem;border-radius:8px;background:var(--gold-bg,rgba(152,105,10,.09));color:var(--text-1,#0f172a)}"
     + ".qtt-chep{font:inherit;font-size:.85em;padding:.2rem .6rem;border-radius:6px;border:1px solid var(--border-soft,#cbd5e1);background:transparent;cursor:pointer;min-height:32px}";
   try {
     var st = document.createElement("style");

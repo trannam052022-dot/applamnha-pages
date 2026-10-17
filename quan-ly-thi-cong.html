@@ -86,6 +86,8 @@ table.moc td.so{text-align:right;white-space:nowrap}
 table.moc input{width:68px;min-height:44px;border:2px solid var(--line);border-radius:8px;padding:0 8px;font:inherit;background:var(--surface);color:var(--ink);text-align:right}
 .gia-hm{font-weight:600;color:var(--muted);white-space:nowrap}
 .tong{display:flex;justify-content:space-between;gap:10px;font-size:1.15rem;font-weight:700;padding:12px 0;border-top:2px solid var(--ink)}
+#tongPhi{text-align:right;margin-left:auto}
+.tong{flex-wrap:wrap}
 .mahs{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1.5rem;font-weight:700;letter-spacing:.02em;background:var(--san);color:var(--san-ink);padding:10px 14px;border-radius:10px;display:inline-block}
 .tai{border:2px dashed var(--line);border-radius:12px;padding:16px;text-align:center;cursor:pointer;display:block}
 .tai input{display:none}
@@ -123,8 +125,8 @@ fbq('track', 'PageView');
 <script src="aln-tracking.js"></script>
 <script src="aln-pricing.js"></script>
 <script src="aln-dong-y-du-lieu.js?v=2"></script>
-<script src="qltc-chu.vi.js"></script>
-<script src="aln-qltc-thanh-toan.js"></script>
+<script src="qltc-chu.vi.js?v=2"></script>
+<script src="aln-qltc-thanh-toan.js?v=2"></script>
 </head>
 <body>
 <!-- Google Tag Manager (noscript) -->
@@ -308,6 +310,7 @@ const soVN = (n) => Number(n).toLocaleString('vi-VN');
 /* Tiền theo tiền tệ của bảng giá (máy chủ trả tien_te) — PR-5, nền đa quốc gia. */
 const tien = (n) => (CHU ? CHU.tien(n, ST.goi && ST.goi.tien_te) : soVN(n) + ' đ');
 const tenThue = () => (ST.goi && ST.goi.thue && ST.goi.thue.ten) || 'GTGT';
+const thueOk = (g) => !!(g && g.thue && Number.isFinite(Number(g.thue.ty_le_phan_tram)));
 const day = (ev, p) => { try { (window.dataLayer = window.dataLayer || []).push(Object.assign({ event: ev }, p || {})); } catch (e) { /* bỏ qua */ } };
 /* PR-7 — sự kiện riêng của trang gói (GA4 + Pixel trackCustom) để Meta tối ưu đúng trang. Không PII.
    Lead (Pixel/CAPI) giữ nguyên quy tắc cũ (chỉ khi máy chủ cho phép). ?internal=1 không bắn. */
@@ -438,11 +441,15 @@ function veSoDo() {
       td2.appendChild(ip);
     } else td2.textContent = '—';
     const td3 = document.createElement('td'); td3.className = 'so';
-    td3.textContent = m.loai_san === 'mong' ? T('m3.mong_khong_tinh') : tien(m.phi);
+    td3.textContent = m.loai_san === 'mong' ? T('m3.mong_khong_tinh') : (thueOk(g) ? T('phi.cong_thue_moc', { tien: tien(m.phi), thue: g.thue.ten || 'GTGT' }) : tien(m.phi));
     tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3);
     body.appendChild(tr);
   });
-  $('tongPhi').textContent = tien(g.tong_chua_thue);
+  // Giá chưa thuế + thuế = tổng sau thuế: "3.200.000 đ + GTGT 8% = 3.456.000 đ" (Nam chốt 17/10/2026).
+  if (thueOk(g)) {
+    const c = Math.round(Number(g.tong_chua_thue)); const pct = Number(g.thue.ty_le_phan_tram);
+    $('tongPhi').textContent = T('phi.cong_thue', { tien: tien(c), thue: g.thue.ten || 'GTGT', pct: CHU ? CHU.so(pct) : String(pct), tong: tien(c + Math.round(c * pct / 100)) });
+  } else $('tongPhi').textContent = tien(g.tong_chua_thue);
   // PR-5: giá ngay cạnh ô hạng mục ngoài nhà (máy chủ trả, đã nhân hệ số loại công trình).
   document.querySelectorAll('[data-gia-hm]').forEach((el) => {
     const v = g.gia_hang_muc && g.gia_hang_muc[el.dataset.giaHm];

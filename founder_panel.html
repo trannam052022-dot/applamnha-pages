@@ -4764,7 +4764,8 @@ window.fpQltcNhanTien = async function() {
     if (!ds.length) { alert((canhBao ? canhBao + '\n\n' : '') + 'Không có đơn Gói Quản lý Thi công nào đang chờ chuyển khoản.'); return; }
     var vnd = function(n) { return Number(n || 0).toLocaleString('vi-VN') + ' đ'; };
     var luc = function(ms) { return ms ? new Date(ms).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) : '?'; };
-    var dong = ds.map(function(c, i) { return (i + 1) + '. ' + c.ma_ho_so + ' — ' + vnd(c.tong) + ' (chưa thuế ' + vnd(c.chua_thue) + ') — ND "' + c.noi_dung_ck + '" — tạo ' + luc(c.tao_luc_ms); }).join('\n');
+    // Khách bấm "Tôi đã chuyển khoản" (18/10/2026) → đứng đầu danh sách, đánh dấu 🔔.
+    var dong = ds.map(function(c, i) { return (i + 1) + '. ' + (c.khach_bao_luc_ms ? '🔔 KHÁCH BÁO ĐÃ CK ' + luc(c.khach_bao_luc_ms) + ' — ' : '') + c.ma_ho_so + ' — ' + vnd(c.tong) + ' (chưa thuế ' + vnd(c.chua_thue) + ') — ND "' + c.noi_dung_ck + '" — tạo ' + luc(c.tao_luc_ms); }).join('\n');
     var chon = prompt((canhBao ? canhBao + '\n\n' : '') + 'Đơn Gói Quản lý Thi công chờ chuyển khoản:\n\n' + dong + '\n\nĐối chiếu tài khoản ngân hàng (nội dung = mã hồ sơ + số sàn), rồi nhập SỐ THỨ TỰ đơn ĐÃ NHẬN TIỀN. Để trống nếu chỉ xem.', '');
     if (chon === null || !chon.trim()) return;
     var i2 = parseInt(chon.trim(), 10) - 1;
