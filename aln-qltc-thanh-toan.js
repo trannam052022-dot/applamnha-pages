@@ -124,6 +124,9 @@
     if ((them || chuaTra) && tienDo && tienDo.n && !(opts && opts.boTienDo && them)) {
       hop.appendChild(the("p", "qtt-tien-do", T("tt.da_mo", { k: tienDo.k, n: tienDo.n })));
       if (chuaTra) hop.appendChild(the("p", "qtt-ghi", T("tt.mong_da_mo")));
+      // Ưu đãi tặng sàn đầu (17/10/2026): sàn được tặng đã mở cùng móng.
+      var km = kq.khuyen_mai;
+      if (km && km.san_tang > 0 && km.ten_san && km.ten_san.length) hop.appendChild(the("p", "qtt-ghi", T("km.tt_da_mo", { ten: km.ten_san.join(", ") })));
     }
     if (kq.lua_chon_co && kq.lua_chon_co.length) {
       var lcBox = the("div", "qtt-lc-box");

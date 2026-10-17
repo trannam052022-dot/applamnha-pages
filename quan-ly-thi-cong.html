@@ -18,9 +18,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <!-- Trang tự có bảng màu sáng + tối: khai báo để trình duyệt điện thoại (Chrome/Samsung "ép tối") KHÔNG tự đảo màu — tự đảo làm chữ mờ, ô tick thành khối đen. -->
 <meta name="color-scheme" content="light dark">
 <title>Gói Quản lý Thi công | App Làm Nhà</title>
-<meta name="description" content="Chủ nhà tự tạo hồ sơ công trình: nhập các sàn, xem sơ đồ mốc thi công và phí gói, lưu dự toán và bản vẽ vào Không gian Nhà.">
-<!-- Dùng thử (PR-9, 15/10/2026): chưa mở chỉ mục — mở thì đổi robots + thêm vào STATIC_PAGES của tools/gen-sitemap.js -->
-<meta name="robots" content="noindex, follow">
+<meta name="description" content="Chủ nhà tự theo dõi công trình đang xây: mốc thi công từng sàn, việc cần kiểm trước khi đổ sàn, sổ tạm ứng so với dự toán. Trả theo từng sàn, không tính phí phần móng.">
+<!-- Mở chỉ mục 17/10/2026 (cùng đợt quảng cáo Gói Quản lý Thi công) — có trong STATIC_PAGES của tools/gen-sitemap.js -->
+<meta name="robots" content="index, follow">
+<meta property="og:title" content="Gói Quản lý Thi công | App Làm Nhà">
+<meta property="og:description" content="Tự theo dõi từng mốc thi công, biết cần kiểm gì trước khi đổ sàn và đã ứng bao nhiêu so với dự toán.">
+<meta property="og:url" content="https://applamnha.vn/quan-ly-thi-cong.html">
+<meta property="og:type" content="website">
 <link rel="canonical" href="https://applamnha.vn/quan-ly-thi-cong.html">
 <link rel="stylesheet" href="aln-tokens.css">
 <link rel="icon" href="icon-192.png" type="image/png">
@@ -89,6 +93,8 @@ table.moc input{width:68px;min-height:44px;border:2px solid var(--line);border-r
 .gia-hm{font-weight:600;color:var(--muted);white-space:nowrap}
 .tong{display:flex;justify-content:space-between;gap:10px;font-size:1.15rem;font-weight:700;padding:12px 0;border-top:2px solid var(--ink)}
 #tongPhi{text-align:right;margin-left:auto}
+.uu-dai{display:inline-block;margin:.4rem 0 .6rem;padding:.35rem .7rem;border-radius:8px;background:#fff4d6;color:#5a3c00;font-weight:600}
+.km-ghi{color:var(--ok, #1f6b3a);font-weight:600}
 .tong{flex-wrap:wrap}
 .mahs{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1.5rem;font-weight:700;letter-spacing:.02em;background:var(--san);color:var(--san-ink);padding:10px 14px;border-radius:10px;display:inline-block}
 .tai{border:2px dashed var(--line);border-radius:12px;padding:16px;text-align:center;cursor:pointer;display:block}
@@ -127,8 +133,8 @@ fbq('track', 'PageView');
 <script src="aln-tracking.js"></script>
 <script src="aln-pricing.js"></script>
 <script src="aln-dong-y-du-lieu.js?v=2"></script>
-<script src="qltc-chu.vi.js?v=2"></script>
-<script src="aln-qltc-thanh-toan.js?v=2"></script>
+<script src="qltc-chu.vi.js?v=3"></script>
+<script src="aln-qltc-thanh-toan.js?v=3"></script>
 </head>
 <body>
 <!-- Google Tag Manager (noscript) -->
@@ -143,6 +149,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <li data-chu="dau.loi_2">Biết tầng tới cần chuẩn bị gì và bao nhiêu tiền</li>
     <li data-chu="dau.loi_3">Có ảnh và biên bản từng mốc, lưu làm hồ sơ của ngôi nhà.</li>
   </ul>
+  <p class="uu-dai" id="uuDai" data-chu="dau.uu_dai">Ưu đãi đến hết 31/12/2026: miễn phí móng và sàn đầu tiên cho hồ sơ mới.</p>
   <p data-chu="dau.mo_ta">Tạo hồ sơ cho công trình của anh/chị, xem các mốc thi công theo từng sàn và phí gói trước khi quyết định.</p>
 </div></header>
 
@@ -197,6 +204,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <p class="nho" data-chu="m3.tu_kiem">Anh/chị tự kiểm được bằng dự toán của chính nhà mình.</p>
     <p class="nho" data-chu="goi.cach_tra">Không tính phí phần móng. Trả theo từng sàn trước khi đội làm sàn đó, hoặc trả một lần cho cả nhà.</p>
     <p class="nho" id="giamTraHet" hidden></p>
+    <p class="nho km-ghi" id="kmGhi" hidden></p>
     <p class="nho" id="heSoNote" hidden></p>
     <p class="loi" id="m3Loi" hidden></p>
     <p class="canh" data-chu="m3.khong_thay_giam_sat">Gói Quản lý Thi công là công cụ để anh/chị tự theo dõi công trình của mình — không thay thế công tác giám sát thi công.</p>
@@ -425,6 +433,10 @@ function veSoDo() {
   });
   const body = $('mocBody');
   body.textContent = '';
+  // Ưu đãi tặng sàn đầu (17/10/2026): máy chủ trả goi.khuyen_mai {ma_moc, ten_san, tien_tang_chua_thue, den_ngay}.
+  const km = g.khuyen_mai && g.khuyen_mai.san_tang > 0 ? g.khuyen_mai : null;
+  const maTang = (km && km.ma_moc) || [];
+  const tangTien = km ? Math.round(Number(km.tien_tang_chua_thue) || 0) : 0;
   g.moc.forEach((m) => {
     const tr = document.createElement('tr');
     const td1 = document.createElement('td');
@@ -444,15 +456,19 @@ function veSoDo() {
       td2.appendChild(ip);
     } else td2.textContent = '—';
     const td3 = document.createElement('td'); td3.className = 'so';
-    td3.textContent = m.loai_san === 'mong' ? T('m3.mong_khong_tinh') : (thueOk(g) ? T('phi.cong_thue_moc', { tien: tien(m.phi), thue: g.thue.ten || 'GTGT' }) : tien(m.phi));
+    td3.textContent = m.loai_san === 'mong' ? T('m3.mong_khong_tinh') : maTang.includes(m.ma_moc) ? T('km.moc') : (thueOk(g) ? T('phi.cong_thue_moc', { tien: tien(m.phi), thue: g.thue.ten || 'GTGT' }) : tien(m.phi));
     tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3);
     body.appendChild(tr);
   });
   // Giá chưa thuế + thuế = tổng sau thuế: "3.200.000 đ + GTGT 8% = 3.456.000 đ" (Nam chốt 17/10/2026).
   if (thueOk(g)) {
-    const c = Math.round(Number(g.tong_chua_thue)); const pct = Number(g.thue.ty_le_phan_tram);
+    const c = Math.max(0, Math.round(Number(g.tong_chua_thue)) - tangTien); const pct = Number(g.thue.ty_le_phan_tram);
     $('tongPhi').textContent = T('phi.cong_thue', { tien: tien(c), thue: g.thue.ten || 'GTGT', pct: CHU ? CHU.so(pct) : String(pct), tong: tien(c + Math.round(c * pct / 100)) });
-  } else $('tongPhi').textContent = tien(g.tong_chua_thue);
+  } else $('tongPhi').textContent = tien(Math.max(0, Number(g.tong_chua_thue) - tangTien));
+  const kmEl = $('kmGhi');
+  kmEl.hidden = !(tangTien > 0);
+  kmEl.textContent = kmEl.hidden ? '' : T('km.tong_ghi', { ten: (km.ten_san || []).join(', '), tien: tien(tangTien) })
+    + (km.den_ngay ? ' ' + T('km.han', { den: String(km.den_ngay).split('-').reverse().join('/') }) : '');
   // PR-5: giá ngay cạnh ô hạng mục ngoài nhà (máy chủ trả, đã nhân hệ số loại công trình).
   document.querySelectorAll('[data-gia-hm]').forEach((el) => {
     const v = g.gia_hang_muc && g.gia_hang_muc[el.dataset.giaHm];
@@ -475,6 +491,14 @@ function viTriSan(m) {
   const thu = m.loai_san === 'lau' ? Number((/\d+/.exec(m.ten) || ['1'])[0]) : Number((/\d+$/.exec(m.ten) || ['1'])[0]);
   return cung[thu - 1] ? cung[thu - 1].i : -1;
 }
+
+// Ưu đãi tặng sàn đầu: dải ở đầu trang tự ẩn khi qua ngày hết hạn (aln-pricing.js, khớp bang_gia v4).
+(function () {
+  const q = window.ALN_PRICING && window.ALN_PRICING.PRICING && window.ALN_PRICING.PRICING.quan_ly_thi_cong;
+  const homNay = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
+  const el = $('uuDai');
+  if (!q || !q.khuyen_mai_den || homNay > q.khuyen_mai_den || (q.khuyen_mai_tu && homNay < q.khuyen_mai_tu)) el.hidden = true;
+})();
 
 $('m3Nut').addEventListener('click', () => { day('aln_qltc_tao_bat_dau', { buoc_xay: ST.buoc }); hien('m4'); });
 

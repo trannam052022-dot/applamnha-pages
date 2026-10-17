@@ -182,6 +182,13 @@
     // Thẻ gói (Không gian Nhà) + trang gói
     "goi.cach_tra": "Không tính phí phần móng. Trả theo từng sàn trước khi đội làm sàn đó, hoặc trả một lần cho cả nhà.",
     "goi.giam_tra_het": "Trả một lần cho cả nhà: giảm {pct}%",
+    "dau.uu_dai": "Ưu đãi đến hết 31/12/2026: miễn phí móng và sàn đầu tiên cho hồ sơ mới.",
+    "km.the_goi": "Ưu đãi đến hết {den}: miễn phí móng và sàn đầu tiên cho hồ sơ mới.",
+    "km.the_goi_nhieu": "Ưu đãi đến hết {den}: miễn phí móng và {so} sàn đầu tiên cho hồ sơ mới.",
+    "km.moc": "Miễn phí (ưu đãi)",
+    "km.tong_ghi": "Đã trừ ưu đãi miễn phí {ten}: {tien} (chưa thuế).",
+    "km.han": "Ưu đãi cho hồ sơ tạo đến hết {den}.",
+    "km.tt_da_mo": "Ưu đãi: {ten} miễn phí và đã mở cùng móng.",
     "goi.thue_du_toan": "Số dự toán đã gồm thuế {thue} {pct}%.",
     "goi.phi_chua_thue": "Phí gói chưa gồm thuế GTGT.",
     "them.tieu_de": "Thêm",

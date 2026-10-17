@@ -74,6 +74,12 @@
       // có hiệu lực từ giam_tra_het_tu. Chỉ dùng cho thẻ gói khi hồ sơ chưa có bảng phí từ máy chủ.
       giam_tra_het_pct: 10,
       giam_tra_het_tu: "2026-10-17",
+      // bang_gia v4 (scripts/qltc/bang-gia-chu-nha-2026-10-v4.json): hồ sơ chưa trả lần nào, gặp ưu đãi trong
+      // khoảng khuyen_mai_tu → khuyen_mai_den, được miễn phí thêm khuyen_mai_san_tang sàn đầu (sau móng).
+      // Chỉ dùng cho thẻ gói / chu-nha.html khi chưa có bảng phí từ máy chủ — số phải khớp file v4 (test kiểm).
+      khuyen_mai_san_tang: 1,
+      khuyen_mai_tu: "2026-10-17",
+      khuyen_mai_den: "2026-12-31",
     },
   };
 

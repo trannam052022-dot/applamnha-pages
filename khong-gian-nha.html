@@ -999,8 +999,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <script src="scripts/aln-callback.js"></script>
 <script src="aln-founder-xem.js"></script>
 <script src="aln-dong-y-du-lieu.js?v=2"></script>
-<script src="qltc-chu.vi.js?v=2"></script>
-<script src="aln-qltc-thanh-toan.js?v=2"></script>
+<script src="qltc-chu.vi.js?v=3"></script>
+<script src="aln-qltc-thanh-toan.js?v=3"></script>
 <script src="aln-qltc-bang-chung.js"></script>
 <script src="aln-kiem-giup.js"></script>
 <script type="module">
@@ -1231,6 +1231,15 @@ function giamTraHetPct() {
   const q = window.ALN_PRICING && window.ALN_PRICING.PRICING && window.ALN_PRICING.PRICING.quan_ly_thi_cong;
   const homNay = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
   return q && q.giam_tra_het_pct > 0 && q.giam_tra_het_tu && homNay >= q.giam_tra_het_tu ? q.giam_tra_het_pct : 0;
+}
+/** Câu ưu đãi tặng sàn đầu trên thẻ gói: aln-pricing.js trong khoảng ngày ưu đãi; hồ sơ đã trả thì không hiện. */
+function cauKhuyenMaiGoi() {
+  if (currentHouseData && currentHouseData.gia_ap_dung != null && !currentHouseData.khuyen_mai) return '';
+  const q = window.ALN_PRICING && window.ALN_PRICING.PRICING && window.ALN_PRICING.PRICING.quan_ly_thi_cong;
+  const homNay = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
+  if (!q || !(q.khuyen_mai_san_tang > 0) || !q.khuyen_mai_den || homNay > q.khuyen_mai_den || (q.khuyen_mai_tu && homNay < q.khuyen_mai_tu)) return '';
+  const den = q.khuyen_mai_den.split('-').reverse().join('/');
+  return q.khuyen_mai_san_tang === 1 ? T('km.the_goi', { den }) : T('km.the_goi_nhieu', { den, so: String(q.khuyen_mai_san_tang) });
 }
 function fmtDateOnly(ts) {
   try {
@@ -1882,6 +1891,9 @@ function renderMocTc() {
   const goi = dsSan.goi;
   const phiTheoMa = {};
   if (goi && Array.isArray(goi.moc)) goi.moc.forEach((m) => { phiTheoMa[m.ma_moc] = m; });
+  // Ưu đãi tặng sàn đầu (17/10/2026): mốc được tặng ghi "Miễn phí (ưu đãi)", Phí gói đã trừ phần tặng.
+  const km = goi && goi.khuyen_mai && goi.khuyen_mai.san_tang > 0 ? goi.khuyen_mai : null;
+  const maTang = (km && km.ma_moc) || (traSan() && traSan().ma_tang) || [];
   // Mốc từ Firestore (trạng thái thật); chưa có thì dùng danh sách tính phí.
   // 18/10/2026: gói "chưa trả" (đồng ý dữ liệu + có danh sách sàn) dùng được như gói đã bật — Móng mở.
   const daBat = !!(dsSan.goi_mo || dsSan.goi_da_bat);
@@ -1908,7 +1920,7 @@ function renderMocTc() {
       const ten = document.createElement('span'); ten.className = 'mtc-ten'; ten.textContent = m.ten || '';
       const phi = document.createElement('span'); phi.className = 'mtc-phi';
       const p = phiTheoMa[m.id];
-      phi.textContent = m.loai_san === 'mong' ? T('m3.mong_khong_tinh') : (p ? kemCongThue(p.phi) : '');
+      phi.textContent = m.loai_san === 'mong' ? T('m3.mong_khong_tinh') : maTang.includes(m.id) ? T('km.moc') : (p ? kemCongThue(p.phi) : '');
       const sub = document.createElement('span'); sub.className = 'mtc-sub';
       const tt = nhanTtMoc(m);
       const nhanDt = nhanDienTich(p, m);
@@ -1944,8 +1956,14 @@ function renderMocTc() {
   if (goi) {
     const tong = document.createElement('div'); tong.className = 'mtc-tong';
     const a = document.createElement('span'); a.textContent = T('moc.tong');
-    const b = document.createElement('span'); b.textContent = tongCongThue(goi.tong_chua_thue);
+    const tangTien = km ? Math.round(Number(km.tien_tang_chua_thue) || 0) : 0;
+    const b = document.createElement('span'); b.textContent = tongCongThue(Math.max(0, Number(goi.tong_chua_thue) - tangTien));
     tong.appendChild(a); tong.appendChild(b); body.appendChild(tong);
+    if (tangTien > 0) {
+      const p = document.createElement('p'); p.className = 'mtc-note';
+      p.textContent = T('km.tong_ghi', { ten: (km.ten_san || []).join(', '), tien: tien(tangTien) });
+      body.appendChild(p);
+    }
   }
   if (dsSan.loi) { const p = document.createElement('p'); p.className = 'mtc-msg loi'; p.textContent = T('phi.tinh_loi'); body.appendChild(p); }
   if (dsSan.msg) { const p = document.createElement('p'); p.className = 'mtc-msg ok'; p.textContent = dsSan.msg; body.appendChild(p); }
@@ -3246,6 +3264,7 @@ function renderPackages() {
   // toán chưa có danh sách sàn nên không tính ra số ở đây; cách tính ghi ở #pkgQltc.
   const qltcPrice = 'Theo số sàn và diện tích sàn';
   const pctGiam = giamTraHetPct();
+  const kmThe = cauKhuyenMaiGoi();
 
   els.pkgGrid.innerHTML = `
     <div class="pkg-card">
@@ -3279,7 +3298,8 @@ function renderPackages() {
       <ul class="pkg-list">
         <li>Mỗi lần đội thợ xin ứng, so số đã ứng với khối lượng đã làm theo dự toán của chính nhà mình.</li>
         <li>${esc(T('goi.cach_tra'))}</li>${pctGiam > 0 ? `
-        <li>${esc(T('goi.giam_tra_het', { pct: CHU ? CHU.so(pctGiam) : String(pctGiam) }))}</li>` : ''}
+        <li>${esc(T('goi.giam_tra_het', { pct: CHU ? CHU.so(pctGiam) : String(pctGiam) }))}</li>` : ''}${kmThe ? `
+        <li><strong>${esc(kmThe)}</strong></li>` : ''}
         <li>Sổ tạm ứng nhà thầu — đối chiếu mỗi lần tạm ứng với khối lượng đã làm theo dự toán</li>
         <li>Sổ chi so với dự toán</li>
         <li>Bảo lưu tối đa 24 tháng khi phải tạm dừng thi công ngoài ý muốn.</li>
