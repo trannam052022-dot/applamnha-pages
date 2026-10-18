@@ -53,7 +53,6 @@ a{color:var(--focus)}
 .band ul.loi-ich{list-style:none;margin:8px 0 10px;padding:0;color:#fff;font-size:1.02rem;line-height:1.45}
 .band ul.loi-ich li{position:relative;padding-left:1.4em;margin:4px 0}
 .band ul.loi-ich li::before{content:"✓";position:absolute;left:0;color:var(--gold);font-weight:700}
-#m3:not([hidden]) ~ .giam-sat-chung{display:none}
 .wrap{padding:16px}
 .man{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 16px;margin:0 0 16px}
 .man h2{margin:0 0 12px;font-size:1.3rem;line-height:1.3}
@@ -67,6 +66,9 @@ a{color:var(--focus)}
 .nut{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 22px;border-radius:12px;border:0;background:var(--nut);color:#fff;font:inherit;font-weight:700;font-size:1.05rem;cursor:pointer;width:100%;text-decoration:none}
 .nut:hover{background:var(--nut-2)}
 .nut:disabled{opacity:.55;cursor:not-allowed}
+.nut.vien{background:transparent;color:var(--nut);border:2px solid var(--nut)}
+.nut.vien:hover{background:rgba(0,0,0,.04)}
+.hoac{display:flex;align-items:center;gap:10px;margin:14px 0 10px;color:var(--chu-phu,#5b6573);font-size:.95rem}.hoac::before,.hoac::after{content:"";flex:1;border-top:1px solid var(--vien,#d9dee5)}
 .lui{background:none;border:0;color:var(--focus);font:inherit;padding:8px 0;cursor:pointer;text-decoration:underline;margin-bottom:8px}
 .hang{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0}
 .tg{display:inline-flex;gap:0;border:2px solid var(--line);border-radius:12px;overflow:hidden}
@@ -84,6 +86,27 @@ label.ck input{width:22px;height:22px;flex:0 0 22px;margin-top:2px}
 .loi{color:var(--bad);font-weight:600;margin:10px 0}
 .ok{color:var(--good);font-weight:700}
 .canh{border-left:4px solid var(--gold);background:rgba(212,160,23,.1);padding:10px 12px;border-radius:6px;margin:14px 0;font-size:.95rem}
+/* Màn 1 gọn (18/10/2026): kích thước + số lầu trên một hàng, chip bật/tắt, chi tiết gấp lại. */
+#m1 > .tg{margin:0 0 12px}
+.kt{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 10px;margin:0 0 12px}
+.kt label{display:flex;flex-direction:column;gap:4px;font-weight:600;font-size:.95rem}
+.kt input{width:84px;min-height:52px;border:2px solid var(--line);border-radius:10px;padding:0 10px;font:inherit;font-size:1.25rem;font-weight:700;text-align:center;background:var(--surface);color:var(--ink)}
+.kt input:focus{outline:3px solid var(--focus);outline-offset:2px}
+.kt > b{font-size:1.3rem;padding-bottom:12px;color:var(--muted)}
+.kt-lau{display:flex;flex-direction:column;gap:4px;font-weight:600;font-size:.95rem}
+.chip-hang{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 6px}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border:2px solid var(--line);border-radius:999px;cursor:pointer;font-weight:600;background:var(--surface)}
+.chip input{width:20px;height:20px;margin:0}
+.chip:has(input:checked){border-color:var(--nut);background:rgba(154,107,8,.1)}
+.chip:has(input:focus-visible){outline:3px solid var(--focus);outline-offset:2px}
+.da-co{margin:14px 0 6px;font-weight:600}
+.tg-buoc{display:flex;margin:0 0 14px}
+.tg-buoc button{flex:1}
+.tg-buoc.can-chon{border-color:var(--bad)}
+#m1 .lui{display:block;margin:10px auto 0}
+details.them{margin-top:12px;border-top:1px solid var(--line);padding-top:8px}
+details.them summary{cursor:pointer;color:var(--focus);font-weight:600;min-height:44px;display:flex;align-items:center}
+.sodo.dang-tinh text.phi{opacity:.4}
 .sodo{width:100%;max-width:460px;display:block;margin:6px auto 4px}
 .sodo text{font-family:inherit}
 table.moc{width:100%;border-collapse:collapse;margin:8px 0}
@@ -134,7 +157,7 @@ fbq('track', 'PageView');
 <script src="aln-tracking.js"></script>
 <script src="aln-pricing.js"></script>
 <script src="aln-dong-y-du-lieu.js?v=2"></script>
-<script src="qltc-chu.vi.js?v=5"></script>
+<script src="qltc-chu.vi.js?v=7"></script>
 <script src="aln-qltc-thanh-toan.js?v=3"></script>
 </head>
 <body>
@@ -151,84 +174,75 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <li data-chu="dau.loi_3">Có ảnh và biên bản từng mốc, lưu làm hồ sơ của ngôi nhà.</li>
   </ul>
   <p class="uu-dai" id="uuDai" data-chu="dau.uu_dai">Ưu đãi đến hết 31/12/2026: miễn phí móng và sàn đầu tiên cho hồ sơ mới.</p>
-  <p data-chu="dau.mo_ta">Tạo hồ sơ cho công trình của anh/chị, xem các mốc thi công theo từng sàn và phí gói trước khi quyết định.</p>
 </div></header>
 
 <main class="wrap">
-  <!-- Màn 1 -->
+  <!-- Màn 1 (18/10/2026, Nam: khách không thích đọc — nhập kích thước + số tầng ngay khi mở trang,
+       sơ đồ + phí hiện liền, mọi chi tiết khác gấp vào "Sửa diện tích từng sàn"). -->
   <section class="man" id="m1">
-    <h2 data-chu="m1.hoi">Nhà anh/chị đang ở bước nào?</h2>
-    <div class="chon">
-      <button type="button" data-buoc="co_ban_ve_du_toan"><b data-chu="m1.co_ban_ve_du_toan">Đã có bản vẽ và dự toán</b><span data-chu="m1.co_ban_ve_du_toan_mo_ta">Tạo hồ sơ, tải dự toán lên để theo dõi khi xây.</span></button>
-      <button type="button" data-buoc="co_ban_ve"><b data-chu="m1.co_ban_ve">Đã có bản vẽ, chưa có dự toán</b><span data-chu="m1.co_ban_ve_mo_ta">Tạo hồ sơ, tải bản vẽ lên.</span></button>
-      <button type="button" data-buoc="chua_ban_ve"><b data-chu="m1.chua_ban_ve">Chưa có bản vẽ</b><span data-chu="m1.chua_ban_ve_mo_ta">Xem phí thiết kế, để số cho KTS của ALN gọi.</span></button>
+    <div class="tg" role="group" aria-label="Loại công trình">
+      <button type="button" data-loai="nha_pho" aria-pressed="true" data-chu="loai.nha_pho">Nhà phố</button>
+      <button type="button" data-loai="biet_thu" aria-pressed="false" data-chu="loai.biet_thu">Biệt thự</button>
     </div>
-  </section>
-
-  <!-- Lối 1, 2 — câu 1 + câu 2 -->
-  <section class="man" id="m2" hidden>
-    <button type="button" class="lui" data-ve="m1" data-chu="chung.quay_lai">← Quay lại</button>
-    <h2 data-chu="m2.hoi">Nhà anh/chị gồm những sàn nào?</h2>
-    <div class="hang">
-      <div class="tg" role="group" aria-label="Loại công trình">
-        <button type="button" data-loai="nha_pho" aria-pressed="true" data-chu="loai.nha_pho">Nhà phố</button>
-        <button type="button" data-loai="biet_thu" aria-pressed="false" data-chu="loai.biet_thu">Biệt thự</button>
+    <div class="kt">
+      <label><span data-chu="m1.ngang">Ngang (m)</span><input id="ngang" type="text" inputmode="decimal" autocomplete="off" value="5"></label>
+      <b aria-hidden="true">×</b>
+      <label><span data-chu="m1.dai">Dài (m)</span><input id="dai" type="text" inputmode="decimal" autocomplete="off" value="20"></label>
+      <div class="kt-lau"><span data-chu="m1.so_lau">Số lầu</span>
+        <span class="dem"><button type="button" id="lauBot" aria-label="Bớt một lầu">−</button><output id="soLau">2</output><button type="button" id="lauThem" aria-label="Thêm một lầu">+</button></span>
       </div>
     </div>
-    <div class="hang"><span data-chu="m2.so_lau">Số lầu (không tính trệt):</span>
-      <span class="dem"><button type="button" id="lauBot" aria-label="Bớt một lầu">−</button><output id="soLau">2</output><button type="button" id="lauThem" aria-label="Thêm một lầu">+</button></span>
+    <div class="chip-hang">
+      <label class="chip"><input type="checkbox" id="coSanThuong" checked><span data-chu="m1.san_thuong">Sân thượng</span></label>
+      <label class="chip"><input type="checkbox" id="coLung"><span data-chu="m1.lung">Lửng</span></label>
+      <label class="chip"><input type="checkbox" id="coHam"><span data-chu="m1.ham">Hầm</span></label>
+      <label class="chip"><input type="checkbox" id="coMai"><span data-chu="m1.mai">Mái</span></label>
     </div>
-    <label class="ck"><input type="checkbox" id="coHam"><span data-chu="m2.co_ham">Có tầng hầm</span></label>
-    <label class="ck"><input type="checkbox" id="coLung"><span data-chu="m2.co_lung">Có lửng</span></label>
-    <label class="o" id="oLung" hidden><span data-chu="m2.dien_tich_lung">Diện tích lửng (m²) — bỏ trống thì tạm tính 65% diện tích trệt</span>
-      <input id="dtLung" type="text" inputmode="decimal" autocomplete="off" placeholder="VD: 40">
-    </label>
-    <label class="ck"><input type="checkbox" id="coSanThuong" checked><span data-chu="m2.co_san_thuong">Có sân thượng</span></label>
-    <label class="ck"><input type="checkbox" id="coMai"><span data-chu="m2.co_mai">Có mái (mái bê tông hoặc mái ngói đổ sàn)</span></label>
-    <label class="o"><span data-chu="m2.dien_tich">Diện tích mỗi sàn khoảng bao nhiêu m²?</span>
-      <input id="dtSan" type="text" inputmode="decimal" autocomplete="off" placeholder="VD: 80">
-    </label>
-    <p class="nho" id="m2CoBanVe" hidden data-chu="m2.co_ban_ve">Anh/chị đã có bản vẽ / dự toán: lấy diện tích từng sàn trên đó. Chưa có số ngay thì nhập gần đúng, sau khi tạo hồ sơ cập nhật lại trong Không gian Nhà (MyMy chỉ cách lấy số).</p>
-    <p class="nho" data-chu="m2.goi_y">Chưa chắc số nào thì nhập số gần đúng; bước sau sửa được từng sàn. Sàn có ban công thì cộng cả ban công.</p>
-    <p class="loi" id="m2Loi" hidden></p>
-    <button type="button" class="nut" id="m2Nut" data-chu="m2.nut">Xem sơ đồ và phí</button>
-  </section>
-
-  <!-- Lối 1, 2 — sơ đồ + mốc + phí -->
-  <section class="man" id="m3" hidden>
-    <button type="button" class="lui" data-ve="m2" data-chu="m3.quay_lai">← Sửa số sàn</button>
-    <h2 data-chu="m3.tieu_de">Sơ đồ mốc thi công</h2>
+    <p class="nho" id="viDu" data-chu="m1.vi_du">Số đang là ví dụ — sửa theo nhà anh/chị.</p>
     <svg class="sodo" id="sodo" role="img" aria-label="Mặt cắt các sàn của nhà"></svg>
-    <table class="moc"><thead><tr><th data-chu="m3.cot_moc">Mốc</th><th data-chu="m3.cot_m2">m²</th><th class="so" data-chu="m3.cot_phi">Phí</th></tr></thead><tbody id="mocBody"></tbody></table>
-    <h3 data-chu="m3.hang_muc">Hạng mục ngoài nhà</h3>
-    <label class="ck"><input type="checkbox" data-hm="cong_tuong_rao"><span><span data-chu="hm.cong_tuong_rao">Cổng, tường rào</span> <b class="gia-hm" data-gia-hm="cong_tuong_rao"></b></span></label>
-    <label class="ck"><input type="checkbox" data-hm="ho_boi"><span><span data-chu="hm.ho_boi">Hồ bơi</span> <b class="gia-hm" data-gia-hm="ho_boi"></b></span></label>
-    <label class="ck"><input type="checkbox" data-hm="nha_phu"><span><span data-chu="hm.nha_phu">Nhà phụ</span> <b class="gia-hm" data-gia-hm="nha_phu"></b></span></label>
     <div class="tong"><span data-chu="m3.tong">Phí gói</span><span id="tongPhi">—</span></div>
-    <p class="nho" id="cauGia"></p>
-    <p class="nho" data-chu="m3.tu_kiem">Anh/chị tự kiểm được bằng dự toán của chính nhà mình.</p>
-    <p class="nho" data-chu="goi.cach_tra">Không tính phí phần móng. Trả theo từng sàn trước khi đội làm sàn đó, hoặc trả một lần cho cả nhà.</p>
-    <p class="nho" id="giamTraHet" hidden></p>
     <p class="nho km-ghi" id="kmGhi" hidden></p>
-    <p class="nho" id="heSoNote" hidden></p>
     <p class="loi" id="m3Loi" hidden></p>
-    <p class="canh" data-chu="m3.khong_thay_giam_sat">Gói Quản lý Thi công là công cụ để anh/chị tự theo dõi công trình của mình — không thay thế công tác giám sát thi công.</p>
+    <p class="da-co" data-chu="m1.da_co">Anh/chị đã có:</p>
+    <div class="tg tg-buoc" id="chonBuoc" role="group" aria-label="Đã có bản vẽ hay dự toán">
+      <button type="button" data-buoc="co_ban_ve_du_toan" aria-pressed="false" data-chu="m1.buoc_du_toan">Bản vẽ + dự toán</button>
+      <button type="button" data-buoc="co_ban_ve" aria-pressed="false" data-chu="m1.buoc_ban_ve">Chỉ bản vẽ</button>
+    </div>
     <button type="button" class="nut" id="m3Nut" data-chu="m3.nut">Tạo hồ sơ cho nhà tôi</button>
+    <button type="button" class="lui" id="moThietKe" data-chu="m1.link_chua_ban_ve">Chưa có bản vẽ? Xem phí thiết kế →</button>
+    <details class="them" id="themChiTiet">
+      <summary data-chu="m1.them">Sửa diện tích từng sàn · cổng, hồ bơi, nhà phụ</summary>
+      <table class="moc"><thead><tr><th data-chu="m3.cot_moc">Mốc</th><th data-chu="m3.cot_m2">m²</th><th class="so" data-chu="m3.cot_phi">Phí</th></tr></thead><tbody id="mocBody"></tbody></table>
+      <p class="nho" data-chu="m1.ban_cong">Sàn có ban công thì cộng cả ban công.</p>
+      <label class="ck"><input type="checkbox" data-hm="cong_tuong_rao"><span><span data-chu="hm.cong_tuong_rao">Cổng, tường rào</span> <b class="gia-hm" data-gia-hm="cong_tuong_rao"></b></span></label>
+      <label class="ck"><input type="checkbox" data-hm="ho_boi"><span><span data-chu="hm.ho_boi">Hồ bơi</span> <b class="gia-hm" data-gia-hm="ho_boi"></b></span></label>
+      <label class="ck"><input type="checkbox" data-hm="nha_phu"><span><span data-chu="hm.nha_phu">Nhà phụ</span> <b class="gia-hm" data-gia-hm="nha_phu"></b></span></label>
+      <p class="nho" id="cauGia"></p>
+      <p class="nho" data-chu="m3.tu_kiem">Anh/chị tự kiểm được bằng dự toán của chính nhà mình.</p>
+      <p class="nho" data-chu="goi.cach_tra">Không tính phí phần móng. Trả theo từng sàn trước khi đội làm sàn đó, hoặc trả một lần cho cả nhà.</p>
+      <p class="nho" id="giamTraHet" hidden></p>
+      <p class="nho" id="heSoNote" hidden></p>
+    </details>
   </section>
 
   <!-- Lối 1, 2 — họ tên + SĐT + OTP -->
   <section class="man" id="m4" hidden>
-    <button type="button" class="lui" data-ve="m3" data-chu="m4.quay_lai">← Quay lại sơ đồ</button>
-    <h2 data-chu="m4.tieu_de">Xác nhận số điện thoại để tạo hồ sơ</h2>
+    <button type="button" class="lui" data-ve="m1" data-chu="m4.quay_lai">← Quay lại sơ đồ</button>
+    <h2 data-chu="m4.tieu_de">Để lại số để tạo hồ sơ</h2>
     <div id="m4Nhap">
       <label class="o"><span data-chu="o.ho_ten">Họ tên</span><input id="hoTen" type="text" autocomplete="name" maxlength="80"></label>
       <label class="o"><span data-chu="o.sdt">Số điện thoại</span><input id="sdt" type="tel" inputmode="numeric" autocomplete="tel" maxlength="14" placeholder="VD: 0909 123 456"></label>
       <label class="ck"><input type="checkbox" id="dongY"><span id="dongYText"></span></label>
       <label class="ck"><input type="checkbox" id="dongYQc"><span><span id="dongYQcText"></span> <i class="nho" data-chu="o.khong_bat_buoc">Không bắt buộc.</i></span></label>
+      <p class="loi" id="m4Loi" hidden></p>
+      <!-- 18/10/2026: lối Zalo không cần mã đứng trước (phễu dự toán: 16 người mở hộp số, 0 người bấm gửi mã) -->
+      <button type="button" class="nut" id="guiZalo" data-chu="m4.zalo_nut">Nhận link hồ sơ qua Zalo — không cần mã</button>
+      <p class="nho" data-chu="m4.zalo_giai_thich">KTS của ALN gửi link hồ sơ vào Zalo số này. Mở link, xác nhận số một lần là vào được hồ sơ.</p>
+      <div class="hoac" data-chu="m4.hoac">hoặc vào hồ sơ ngay</div>
+      <button type="button" class="nut vien" id="guiMa" data-chu="m4.gui_ma">Gửi mã xác nhận</button>
       <p class="nho"><span data-chu="m4.giai_thich_ma">ALN gửi mã 6 số qua tin nhắn để chắc chắn đúng số của anh/chị.</span> <a href="/chinh-sach-quyen-rieng-tu/" target="_blank" rel="noopener" data-chu="chung.chinh_sach">Chính sách quyền riêng tư</a>.</p>
       <div id="recaptcha-qltc"></div>
-      <p class="loi" id="m4Loi" hidden></p>
-      <button type="button" class="nut" id="guiMa" data-chu="m4.gui_ma">Gửi mã xác nhận</button>
+      <p class="nho" data-aln-quyen>Bạn có thể yêu cầu ngừng liên hệ hoặc xoá dữ liệu bất cứ lúc nào.</p>
     </div>
     <div id="m4Ma" hidden>
       <p><span data-chu="m4.da_gui">Mã đã gửi tới số</span> <b id="sdtHien"></b>.</p>
@@ -237,6 +251,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <button type="button" class="nut" id="xacNhan" data-chu="m4.xac_nhan">Xác nhận và tạo hồ sơ</button>
       <button type="button" class="lui" id="doiSo" data-chu="m4.doi_so">Đổi số điện thoại</button>
     </div>
+  </section>
+
+  <!-- Lối 1, 2 — khách chọn nhận link qua Zalo (18/10/2026) -->
+  <section class="man" id="m4z" hidden>
+    <h2 data-chu="m4z.tieu_de">ALN đã nhận yêu cầu của anh/chị</h2>
+    <p><span data-chu="m5.ma">Mã hồ sơ:</span> <b id="maHsZ"></b></p>
+    <p><span data-chu="m4z.se_gui">KTS của ALN sẽ gửi link hồ sơ qua Zalo số</span> <b id="sdtZ"></b> <span data-chu="m4z.trong_gio">trong giờ làm việc.</span></p>
+    <p class="nho" data-chu="m4z.mo_link">Mở link, xác nhận số điện thoại một lần là vào được hồ sơ: tải dự toán, xem mốc thi công và phí từng sàn.</p>
+    <button type="button" class="nut vien" id="zVaoNgay" data-chu="m4z.vao_ngay">Muốn vào hồ sơ ngay? Nhận mã xác nhận</button>
   </section>
 
   <!-- Lối 1, 2 — đã tạo hồ sơ -->
@@ -249,7 +272,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div id="dydlBox"></div>
     <h3 id="taiTieuDe">2. Tải dự toán lên</h3>
     <p class="nho" id="taiCapNhatDt" hidden data-chu="m5.cap_nhat_dt">Tải xong, vào Không gian Nhà bấm “Cập nhật diện tích theo dự toán / bản vẽ” để ghi diện tích từng sàn theo file này. MyMy trong Không gian Nhà chỉ cách lấy số.</p>
-    <label class="tai" for="taiFile"><input type="file" id="taiFile" accept=".pdf,.jpg,.jpeg,.png,.heic,.xlsx,.xls,.dwg"><span id="taiNhan" data-chu="m5.chon_file">Bấm để chọn file (PDF, ảnh, Excel, DWG — tối đa 50 MB)</span></label>
+    <label class="tai" for="taiFile"><input type="file" id="taiFile" accept=".pdf,.jpg,.jpeg,.png,.heic,.xlsx,.xls,.dwg,.dxf"><span id="taiNhan" data-chu="m5.chon_file">Bấm để chọn file (PDF, ảnh, Excel, DWG, DXF — tối đa 50 MB)</span></label>
     <p class="nho" id="taiGhiSan" hidden data-chu="dtang.ghi_san">Thép, ván khuôn, bê tông của sàn lầu N ghi vào mốc tầng N-1 (mốc đóng khi đổ xong sàn đó). Dòng của sàn mái ghi vào mốc Sân thượng.</p>
     <p class="nho" id="taiTrangThai"></p>
     <h3 data-chu="m5.thanh_toan">3. Thanh toán</h3>
@@ -344,13 +367,13 @@ function soDuong(v) { const n = Number(String(v || '').replace(/\s/g, '').replac
 function chuanSdt(v) { let d = String(v || '').replace(/\D/g, ''); if (/^84\d{9}$/.test(d)) d = '0' + d.slice(2); return /^0\d{9}$/.test(d) ? d : null; }
 /* Màn đang mở. Mỗi lần sang màn mới: ghi lịch sử trình duyệt (nút Quay lại của điện thoại về đúng màn trước)
    và lưu bước đang làm vào máy (tải lại trang vẫn ở đúng màn) — 18/10/2026, Nam chốt. */
-const MAN = ['m1', 'm2', 'm3', 'm4', 'm5', 't1', 't2'];
+const MAN = ['m1', 'm4', 'm4z', 'm5', 't1', 't2'];
 let manHien = 'm1';
 function hien(id, cach) {
   // Đã tạo hồ sơ: không quay lại màn nhập mã/tạo hồ sơ nữa (tránh tạo trùng) — về màn đã xong.
   if (ST.houseId && id === 'm4') id = 'm5';
   for (const m of MAN) $(m).hidden = m !== id;
-  { const co = ST.buoc === 'co_ban_ve' || ST.buoc === 'co_ban_ve_du_toan'; $('m2CoBanVe').hidden = !co; $('taiCapNhatDt').hidden = !co; }
+  { const co = ST.buoc === 'co_ban_ve' || ST.buoc === 'co_ban_ve_du_toan'; $('taiCapNhatDt').hidden = !co; }
   const truoc = manHien;
   manHien = id;
   if (cach !== 'lich_su') {
@@ -384,9 +407,10 @@ function luuBuoc() {
     const hmChon = Array.from(document.querySelectorAll('[data-hm]')).filter((x) => x.checked).map((x) => x.dataset.hm);
     localStorage.setItem(KHOA_NHO, JSON.stringify({
       man: manHien, buoc: ST.buoc, loai: ST.loai, lau: ST.lau, san: ST.san, hm: hmChon, loai3: ST.loai3,
-      houseId: ST.houseId, ma: ST.ma,
+      houseId: ST.houseId, ma: ST.ma, maZ: ST.maZ || null, sdtZ: ST.sdtZ || null,
+      sua: ST.sua, daSua: ST.daSua,
       o: { coHam: $('coHam').checked, coLung: $('coLung').checked, coSanThuong: $('coSanThuong').checked, coMai: $('coMai').checked,
-        dtSan: $('dtSan').value, dtLung: $('dtLung').value, tkDt: $('tkDt').value, tkGio: $('tkGio').value },
+        ngang: $('ngang').value, dai: $('dai').value, tkDt: $('tkDt').value, tkGio: $('tkGio').value },
       luc: Date.now(),
     }));
   } catch (e) { /* trình duyệt chặn lưu → bỏ qua */ }
@@ -399,38 +423,48 @@ function docBuoc() {
   } catch (e) { return null; }
 }
 
-/* ── Màn 1 ── */
-document.querySelectorAll('#m1 [data-buoc]').forEach((b) => b.addEventListener('click', () => {
+/* ── Màn 1: kích thước + số lầu + sơ đồ + phí trên cùng một màn (18/10/2026) ── */
+document.querySelectorAll('#chonBuoc [data-buoc]').forEach((b) => b.addEventListener('click', () => {
   ST.buoc = b.dataset.buoc;
+  chonNhom('#chonBuoc [data-buoc]', 'buoc', ST.buoc);
+  $('chonBuoc').classList.remove('can-chon');
+  bao('m3Loi', '');
   day('aln_qltc_buoc', { buoc_xay: ST.buoc });
-  if (ST.buoc === 'chua_ban_ve') { hien('t1'); veThietKe(); return; }
   datNhanBuoc();
-  hien('m2');
+  luuBuoc();
 }));
+$('moThietKe').addEventListener('click', () => {
+  ST.buoc = 'chua_ban_ve';
+  day('aln_qltc_buoc', { buoc_xay: ST.buoc });
+  hien('t1'); veThietKe();
+});
 
 function datNhanBuoc() {
   $('taiTieuDe').textContent = T(ST.buoc === 'co_ban_ve_du_toan' ? 'm5.tai_du_toan' : 'm5.tai_ban_ve');
   $('taiGhiSan').hidden = ST.buoc !== 'co_ban_ve_du_toan';
 }
 
-/* ── Câu 1 + câu 2 ── */
 function chonNhom(sel, attrName, giaTri) {
   document.querySelectorAll(sel).forEach((x) => x.setAttribute('aria-pressed', String(x.dataset[attrName] === giaTri)));
 }
-document.querySelectorAll('[data-loai]').forEach((b) => b.addEventListener('click', () => { ST.loai = b.dataset.loai; chonNhom('[data-loai]', 'loai', ST.loai); }));
-$('lauBot').addEventListener('click', () => { ST.lau = Math.max(0, ST.lau - 1); $('soLau').textContent = String(ST.lau); });
-$('lauThem').addEventListener('click', () => { ST.lau = Math.min(12, ST.lau + 1); $('soLau').textContent = String(ST.lau); });
-/* Lửng: khách nhập thì dùng số đó; bỏ trống thì tạm tính theo tỷ lệ trong aln-pricing.js (65% trệt). */
+/* Sửa tay diện tích từng sàn (bảng trong "Sửa diện tích từng sàn"): khoá = loại sàn + thứ tự cùng loại.
+   Đổi ngang/dài thì bỏ hết sửa tay (diện tích mới áp cho mọi sàn). */
+ST.sua = {};
+ST.daSua = false; // khách đã tự đổi số nào chưa (để ẩn dòng "Số đang là ví dụ")
+function khoaSan(san, i) { let n = 0; for (let k = 0; k <= i; k++) if (san[k].loai === san[i].loai) n++; return san[i].loai + '#' + n; }
+/* Lửng: tạm tính theo tỷ lệ trong aln-pricing.js (65% trệt); sửa được trong bảng từng sàn. */
 function tyLeLung() {
   const q = window.ALN_PRICING && window.ALN_PRICING.PRICING && window.ALN_PRICING.PRICING.quan_ly_thi_cong;
   const v = q ? Number(q.ty_le_lung_mac_dinh) : NaN;
   return v > 0 && v <= 1 ? v : 0.65;
 }
-function dtLung(dt) {
-  const v = soDuong($('dtLung').value);
-  return v && v <= 10000 ? Math.round(v * 100) / 100 : Math.round(dt * tyLeLung() * 100) / 100;
+function dtLung(dt) { return Math.round(dt * tyLeLung() * 100) / 100; }
+function dienTichSan() {
+  const n = soDuong($('ngang').value); const d = soDuong($('dai').value);
+  if (!n || !d || n > 100 || d > 300) return null;
+  const dt = Math.round(n * d * 100) / 100;
+  return dt <= 10000 ? dt : null;
 }
-$('coLung').addEventListener('change', () => { $('oLung').hidden = !$('coLung').checked; });
 function dungSan(dt) {
   const s = [{ loai: 'mong', dien_tich_m2: dt }];
   if ($('coHam').checked) s.push({ loai: 'ham', dien_tich_m2: dt });
@@ -439,45 +473,57 @@ function dungSan(dt) {
   for (let i = 0; i < ST.lau; i++) s.push({ loai: 'lau', dien_tich_m2: dt });
   if ($('coSanThuong').checked) s.push({ loai: 'san_thuong', dien_tich_m2: dt });
   if ($('coMai').checked) s.push({ loai: 'mai', dien_tich_m2: dt });
+  s.forEach((x, i) => { const v = ST.sua[khoaSan(s, i)]; if (v > 0) x.dien_tich_m2 = v; });
   return s;
 }
-$('m2Nut').addEventListener('click', async () => {
-  const dt = soDuong($('dtSan').value);
-  if (!dt || dt > 10000) { bao('m2Loi', T('m2.loi_dien_tich')); $('dtSan').focus(); return; }
-  const vLung = soDuong($('dtLung').value);
-  if ($('coLung').checked && $('dtLung').value.trim() && (!vLung || vLung > 10000)) {
-    bao('m2Loi', T('m2.loi_dien_tich_lung')); $('dtLung').focus(); return;
-  }
-  bao('m2Loi', '');
+let daBaoSoDo = false;
+function capNhat(nguoiDoi) {
+  if (nguoiDoi) { ST.daSua = true; $('viDu').hidden = true; }
+  const dt = dienTichSan();
+  if (!dt) { ST.san = []; ST.goi = null; veSoDo(); bao('m3Loi', T('m1.loi_kich_thuoc')); return; }
+  bao('m3Loi', '');
   ST.san = dungSan(dt);
-  const ok = await tinhPhi('m2Nut', 'm2Loi');
-  if (ok) { hien('m3'); day('aln_qltc_so_do', { buoc_xay: ST.buoc, so_san: ST.san.length - 1, loai: ST.loai }); }
-});
+  veSoDo();
+  tinhLai(nguoiDoi);
+}
+document.querySelectorAll('[data-loai]').forEach((b) => b.addEventListener('click', () => { ST.loai = b.dataset.loai; chonNhom('[data-loai]', 'loai', ST.loai); capNhat(true); }));
+$('lauBot').addEventListener('click', () => { ST.lau = Math.max(0, ST.lau - 1); $('soLau').textContent = String(ST.lau); capNhat(true); });
+$('lauThem').addEventListener('click', () => { ST.lau = Math.min(12, ST.lau + 1); $('soLau').textContent = String(ST.lau); capNhat(true); });
+['coHam', 'coLung', 'coSanThuong', 'coMai'].forEach((id) => $(id).addEventListener('change', () => capNhat(true)));
+['ngang', 'dai'].forEach((id) => $(id).addEventListener('input', () => { ST.sua = {}; capNhat(true); }));
 
 /* ── Phí từ máy chủ ── */
+const khoaTinh = () => JSON.stringify([ST.loai, ST.san, ST.hm]);
 let tinhSeq = 0;
 async function tinhPhi(nutId, loiId) {
   const seq = ++tinhSeq;
   const nut = nutId ? $(nutId) : null;
   if (nut) nut.disabled = true;
+  const khoa = khoaTinh();
   try {
     await napFb();
     const r = await FB.call('qltcBaoPhi')({ che_do: 'goi', loai_cong_trinh: ST.loai, san: ST.san, hang_muc: ST.hm });
     if (seq !== tinhSeq) return false;
-    ST.goi = r.data.goi;
+    ST.goi = r.data.goi; ST.goiKhoa = khoa;
     veSoDo();
     bao(loiId, '');
     return true;
   } catch (e) {
-    if (seq === tinhSeq) bao(loiId, (e && e.message) || T('phi.tinh_loi'));
+    if (seq === tinhSeq) { bao(loiId, (e && e.message) || T('phi.tinh_loi')); veSoDo(); }
     return false;
   } finally { if (nut) nut.disabled = false; }
 }
 let hen = null;
-function tinhLai() { clearTimeout(hen); hen = setTimeout(() => tinhPhi(null, 'm3Loi'), 400); }
+function tinhLai(nguoiDoi) {
+  clearTimeout(hen);
+  hen = setTimeout(async () => {
+    const ok = await tinhPhi(null, 'm3Loi');
+    if (ok && nguoiDoi && !daBaoSoDo) { daBaoSoDo = true; day('aln_qltc_so_do', { so_san: ST.san.length - 1, loai: ST.loai }); }
+  }, 400);
+}
 document.querySelectorAll('[data-hm]').forEach((c) => c.addEventListener('change', () => {
   ST.hm = Array.from(document.querySelectorAll('[data-hm]')).filter((x) => x.checked).map((x) => x.dataset.hm);
-  tinhLai();
+  capNhat(true);
 }));
 
 /* ── Sơ đồ mặt cắt (SVG dựng bằng createElementNS) + bảng mốc ── */
@@ -488,31 +534,47 @@ function svgEl(tag, at, text) {
   if (text != null) e.textContent = text;
   return e;
 }
+/* Tên sàn vẽ ngay trên máy (không chờ máy chủ) — khớp tên mốc máy chủ trả. */
+function tenSan(san, i) {
+  const x = san[i];
+  if (x.loai === 'lau') return T('san.lau', { n: Number(khoaSan(san, i).split('#')[1]) });
+  return T('san.' + x.loai);
+}
 function veSoDo() {
-  const g = ST.goi;
   const svg = $('sodo');
   while (svg.firstChild) svg.removeChild(svg.firstChild);
-  const nha = g.moc.filter((m) => m.dien_tich_m2 != null);
-  const cao = 34;
-  const H = nha.length * cao + 20;
-  svg.setAttribute('viewBox', '0 0 300 ' + H);
-  // Vẽ từ trên xuống: mốc cuối (mái) ở trên cùng, móng dưới cùng.
-  nha.slice().reverse().forEach((m, i) => {
-    const y = 10 + i * cao;
-    const laMong = m.loai_san === 'mong';
-    const rong = m.loai_san === 'mai' ? 220 : 280;
-    const x = (300 - rong) / 2;
-    svg.appendChild(svgEl('rect', { x, y, width: rong, height: cao - 6, rx: 4, fill: laMong ? 'var(--mong)' : 'var(--san)', stroke: 'var(--line)' }));
-    // PR-5: chỉ tên sàn bằng lời — mã mốc (MONG, L01…) là khoá nội bộ, không hiện cho khách.
-    svg.appendChild(svgEl('text', { x: x + 10, y: y + 19, 'font-size': 15, 'font-weight': 600, fill: 'var(--san-ink)' }, m.ten));
-    if (m.dien_tich_m2 != null) svg.appendChild(svgEl('text', { x: x + rong - 10, y: y + 19, 'font-size': 12, 'text-anchor': 'end', fill: 'var(--san-ink)' }, soVN(m.dien_tich_m2) + ' m²'));
-  });
-  const body = $('mocBody');
-  body.textContent = '';
-  // Ưu đãi tặng sàn đầu (17/10/2026): máy chủ trả goi.khuyen_mai {ma_moc, ten_san, tien_tang_chua_thue, den_ngay}.
-  const km = g.khuyen_mai && g.khuyen_mai.san_tang > 0 ? g.khuyen_mai : null;
+  const san = ST.san;
+  const g = ST.goi && ST.goiKhoa === khoaTinh() ? ST.goi : null; // phí chỉ hiện khi khớp đúng bộ số đang thấy
+  svg.classList.toggle('dang-tinh', !g && san.length > 0);
+  const km = g && g.khuyen_mai && g.khuyen_mai.san_tang > 0 ? g.khuyen_mai : null;
   const maTang = (km && km.ma_moc) || [];
   const tangTien = km ? Math.round(Number(km.tien_tang_chua_thue) || 0) : 0;
+  const phiSan = {};
+  if (g) g.moc.forEach((m) => {
+    if (m.dien_tich_m2 == null) return;
+    const idx = viTriSan(m);
+    if (idx >= 0) phiSan[idx] = m.loai_san === 'mong' ? T('m3.mong_khong_tinh') : maTang.includes(m.ma_moc) ? T('m1.mien_phi') : tien(m.phi);
+  });
+  const cao = 34;
+  svg.setAttribute('viewBox', '0 0 300 ' + (san.length * cao + 20));
+  // Vẽ từ trên xuống: sàn cuối (mái) ở trên cùng, móng dưới cùng.
+  for (let k = san.length - 1, i = 0; k >= 0; k--, i++) {
+    const x0 = san[k];
+    const y = 10 + i * cao;
+    const rong = x0.loai === 'mai' ? 220 : 280;
+    const x = (300 - rong) / 2;
+    svg.appendChild(svgEl('rect', { x, y, width: rong, height: cao - 6, rx: 4, fill: x0.loai === 'mong' ? 'var(--mong)' : 'var(--san)', stroke: 'var(--line)' }));
+    svg.appendChild(svgEl('text', { x: x + 10, y: y + 19, 'font-size': 15, 'font-weight': 600, fill: 'var(--san-ink)' }, tenSan(san, k)));
+    const phai = soVN(x0.dien_tich_m2) + ' m²' + ' · ' + (phiSan[k] || '…');
+    svg.appendChild(svgEl('text', { x: x + rong - 10, y: y + 19, 'font-size': 13, 'text-anchor': 'end', fill: 'var(--san-ink)', class: 'phi' }, phai));
+  }
+  const body = $('mocBody');
+  body.textContent = '';
+  if (!g) {
+    $('tongPhi').textContent = san.length ? T('m1.dang_tinh') : '—';
+    $('kmGhi').hidden = true;
+    return;
+  }
   g.moc.forEach((m) => {
     const tr = document.createElement('tr');
     const td1 = document.createElement('td');
@@ -526,8 +588,8 @@ function veSoDo() {
       ip.addEventListener('change', () => {
         const v = soDuong(ip.value);
         if (!v || v > 10000 || idx < 0) { bao('m3Loi', T('m3.dien_tich_sai', { ten: m.ten })); return; }
-        ST.san[idx].dien_tich_m2 = Math.round(v * 100) / 100;
-        tinhLai();
+        ST.sua[khoaSan(ST.san, idx)] = Math.round(v * 100) / 100;
+        capNhat(true);
       });
       td2.appendChild(ip);
     } else td2.textContent = '—';
@@ -576,8 +638,15 @@ function viTriSan(m) {
   if (!q || !q.khuyen_mai_den || homNay > q.khuyen_mai_den || (q.khuyen_mai_tu && homNay < q.khuyen_mai_tu)) el.hidden = true;
 })();
 
-$('m3Nut').addEventListener('click', () => {
+$('m3Nut').addEventListener('click', async () => {
   if (ST.houseId) { moMan('m5'); return; } // hồ sơ đã tạo → mở lại hồ sơ, không tạo thêm
+  if (!ST.san.length) { bao('m3Loi', T('m1.loi_kich_thuoc')); $('ngang').focus(); return; }
+  if (ST.buoc !== 'co_ban_ve' && ST.buoc !== 'co_ban_ve_du_toan') {
+    bao('m3Loi', T('m1.loi_buoc')); $('chonBuoc').classList.add('can-chon');
+    $('chonBuoc').scrollIntoView({ behavior: 'smooth', block: 'center' }); return;
+  }
+  // Phí chưa khớp bộ số đang thấy (khách vừa gõ) → tính xong rồi mới sang bước để lại số.
+  if (!ST.goi || ST.goiKhoa !== khoaTinh()) { clearTimeout(hen); if (!(await tinhPhi('m3Nut', 'm3Loi'))) return; }
   day('aln_qltc_tao_bat_dau', { buoc_xay: ST.buoc }); hien('m4');
 });
 
@@ -621,6 +690,36 @@ $('guiMa').addEventListener('click', async () => {
   } finally { b.disabled = false; }
 });
 $('doiSo').addEventListener('click', () => { $('m4Ma').hidden = true; $('m4Nhap').hidden = false; });
+/* 18/10/2026: nhận link hồ sơ qua Zalo, không cần mã — qltcGuiZalo tạo hồ sơ (chưa có chủ) + lead. */
+$('guiZalo').addEventListener('click', async () => {
+  const f = kiemForm();
+  if (!f) return;
+  const b = $('guiZalo'); b.disabled = true; $('guiMa').disabled = true;
+  try {
+    await napFb();
+    const sig = tinHieu();
+    const r = await FB.call('qltcGuiZalo')({
+      buoc_xay: ST.buoc, loai_cong_trinh: ST.loai, san: ST.san, hang_muc: ST.hm,
+      name: f.ten, phone: f.sdt, dongY: $('dongY').checked === true, dongYQuangCao: $('dongYQc').checked === true,
+      utm: sig.utm || {}, fbp: sig.fbp || '', fbc: sig.fbc || '', cookieQc: sig.cookieQc === true,
+      attribution: attr(), sourceUrl: location.origin + location.pathname, optout: window.ALN_INTERNAL === true,
+    });
+    const d = r.data || {};
+    ST.goi = d.goi || ST.goi;
+    ST.maZ = d.ma_ho_so || ''; ST.sdtZ = String(d.sdt4 || f.sdt.slice(-4));
+    veZalo();
+    if (!d.dup) {
+      day('aln_qltc_zalo', { buoc_xay: ST.buoc, loai: ST.loai, so_san: ST.san.length - 1 });
+      day('aln_lead_submit', { form_name: 'quan-ly-thi-cong-zalo', buoc_xay: ST.buoc });
+      if (window.fbq && d.pixel_lead === true && d.lead_id) window.fbq('track', 'Lead', { value: 100000, currency: 'VND', content_name: 'quan-ly-thi-cong' }, { eventID: 'lead-' + d.lead_id }); // cùng event_id với CAPI (onLeadCreated)
+    }
+    hien('m4z');
+  } catch (e) {
+    bao('m4Loi', (e && e.message && !/internal|network|fetch/i.test(String(e.code) + e.message)) ? e.message : 'Chưa gửi được — anh/chị thử lại hoặc nhắn Zalo 0909 829 696.');
+  } finally { b.disabled = false; $('guiMa').disabled = false; }
+});
+function veZalo() { $('maHsZ').textContent = ST.maZ || ''; $('sdtZ').textContent = '…' + (ST.sdtZ || ''); }
+$('zVaoNgay').addEventListener('click', () => { hien('m4'); $('m4Ma').hidden = true; $('m4Nhap').hidden = false; $('guiMa').focus(); });
 $('xacNhan').addEventListener('click', async () => {
   const ma = $('ma').value.replace(/\D/g, '');
   if (ma.length !== 6) { bao('m4MaLoi', 'Mã gồm 6 số.'); return; }
@@ -686,13 +785,13 @@ function lamSachTen(name) {
   return (base.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/gi, 'd')
     .replace(/[^a-zA-Z0-9-_]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').slice(0, 80) || 'file') + ext;
 }
-const RE_DUOI = /\.(pdf|jpe?g|png|heic|xlsx?|dwg)$/i;
+const RE_DUOI = /\.(pdf|jpe?g|png|heic|xlsx?|dwg|dxf)$/i;
 $('taiFile').addEventListener('change', async (e) => {
   const file = e.target.files && e.target.files[0];
   e.target.value = '';
   if (!file || !ST.houseId) return;
   const tt = $('taiTrangThai');
-  if (!RE_DUOI.test(file.name)) { tt.textContent = 'File chưa đúng loại — nhận PDF, ảnh, Excel hoặc DWG.'; return; }
+  if (!RE_DUOI.test(file.name)) { tt.textContent = 'File chưa đúng loại — nhận PDF, ảnh, Excel, DWG hoặc DXF.'; return; }
   if (file.size > 50 * 1024 * 1024) { tt.textContent = 'File lớn hơn 50 MB.'; return; }
   tt.textContent = 'Đang tải lên…';
   try {
@@ -764,16 +863,16 @@ $('t1Nut').addEventListener('click', async () => {
 
 /* Mở một màn, nạp lại dữ liệu màn đó cần (phí, phí thiết kế, hồ sơ) — dùng cho nút Quay lại và tải lại trang. */
 async function moMan(id, cach) {
+  if (id === 'm4z') { if (ST.maZ) { veZalo(); hien('m4z', cach); } else hien('m4', cach); return; }
   if (id === 'm5' && ST.houseId) {
     try { await napFb(); } catch (e) { /* vẫn hiện mã hồ sơ */ }
     moXong(cach);
     return;
   }
-  if ((id === 'm3' || id === 'm4') && !ST.goi) {
-    if (!ST.san.length) { hien('m2', cach); return; }
+  if (id === 'm4' && (!ST.goi || !ST.san.length)) {
+    if (!ST.san.length) { hien('m1', cach); return; }
     hien(id, cach);
-    const ok = await tinhPhi(null, id === 'm3' ? 'm3Loi' : 'm4Loi');
-    if (!ok && id === 'm4') hien('m3', 'thay');
+    if (!(await tinhPhi(null, 'm4Loi'))) hien('m1', 'thay');
     return;
   }
   hien(id, cach);
@@ -781,38 +880,47 @@ async function moMan(id, cach) {
 }
 (async function khoiPhuc() {
   const d = docBuoc();
-  if (!d || !MAN.includes(d.man) || d.man === 'm1') { hien('m1', 'thay'); return; }
   dangKhoiPhuc = true;
   try {
-    if (['co_ban_ve_du_toan', 'co_ban_ve', 'chua_ban_ve'].includes(d.buoc)) ST.buoc = d.buoc;
-    if (d.loai === 'nha_pho' || d.loai === 'biet_thu') { ST.loai = d.loai; chonNhom('[data-loai]', 'loai', ST.loai); }
-    if (d.loai3 === 'nha_pho' || d.loai3 === 'biet_thu') { ST.loai3 = d.loai3; chonNhom('[data-loai3]', 'loai3', ST.loai3); }
-    if (Number.isInteger(d.lau) && d.lau >= 0 && d.lau <= 12) { ST.lau = d.lau; $('soLau').textContent = String(ST.lau); }
-    const o = d.o || {};
-    ['coHam', 'coLung', 'coSanThuong', 'coMai'].forEach((k) => { if (typeof o[k] === 'boolean') $(k).checked = o[k]; });
-    $('oLung').hidden = !$('coLung').checked;
-    ['dtSan', 'dtLung', 'tkDt', 'tkGio'].forEach((k) => { if (typeof o[k] === 'string') $(k).value = o[k].slice(0, 20); });
-    if (Array.isArray(d.san)) ST.san = d.san.filter((x) => x && typeof x.loai === 'string').slice(0, 30)
-      .map((x) => ({ loai: x.loai, dien_tich_m2: Number(x.dien_tich_m2) > 0 ? Number(x.dien_tich_m2) : null }));
-    if (Array.isArray(d.hm)) document.querySelectorAll('[data-hm]').forEach((c) => { c.checked = d.hm.includes(c.dataset.hm); });
-    ST.hm = Array.from(document.querySelectorAll('[data-hm]')).filter((x) => x.checked).map((x) => x.dataset.hm);
-    if (typeof d.houseId === 'string' && /^[A-Za-z0-9_-]{1,64}$/.test(d.houseId) && typeof d.ma === 'string' && d.ma) {
-      ST.houseId = d.houseId; ST.ma = d.ma.slice(0, 40);
+    if (d) {
+      if (['co_ban_ve_du_toan', 'co_ban_ve', 'chua_ban_ve'].includes(d.buoc)) ST.buoc = d.buoc;
+      if (ST.buoc && ST.buoc !== 'chua_ban_ve') { chonNhom('#chonBuoc [data-buoc]', 'buoc', ST.buoc); datNhanBuoc(); }
+      if (d.loai === 'nha_pho' || d.loai === 'biet_thu') { ST.loai = d.loai; chonNhom('[data-loai]', 'loai', ST.loai); }
+      if (d.loai3 === 'nha_pho' || d.loai3 === 'biet_thu') { ST.loai3 = d.loai3; chonNhom('[data-loai3]', 'loai3', ST.loai3); }
+      if (Number.isInteger(d.lau) && d.lau >= 0 && d.lau <= 12) { ST.lau = d.lau; $('soLau').textContent = String(ST.lau); }
+      const o = d.o || {};
+      ['coHam', 'coLung', 'coSanThuong', 'coMai'].forEach((k) => { if (typeof o[k] === 'boolean') $(k).checked = o[k]; });
+      ['ngang', 'dai', 'tkDt', 'tkGio'].forEach((k) => { if (typeof o[k] === 'string') $(k).value = o[k].slice(0, 20); });
+      if (d.sua && typeof d.sua === 'object') {
+        for (const [k, v] of Object.entries(d.sua)) if (/^[a-z_]+#\d{1,2}$/.test(k) && Number(v) > 0 && Number(v) <= 10000) ST.sua[k] = Number(v);
+      }
+      if (d.daSua === true) { ST.daSua = true; $('viDu').hidden = true; }
+      if (Array.isArray(d.hm)) document.querySelectorAll('[data-hm]').forEach((c) => { c.checked = d.hm.includes(c.dataset.hm); });
+      ST.hm = Array.from(document.querySelectorAll('[data-hm]')).filter((x) => x.checked).map((x) => x.dataset.hm);
+      if (typeof d.houseId === 'string' && /^[A-Za-z0-9_-]{1,64}$/.test(d.houseId) && typeof d.ma === 'string' && d.ma) {
+        ST.houseId = d.houseId; ST.ma = d.ma.slice(0, 40);
+      }
+      if (typeof d.maZ === 'string' && /^ALN-H-\d{4}-\d{3,6}$/.test(d.maZ)) { ST.maZ = d.maZ; ST.sdtZ = String(d.sdtZ || '').replace(/\D/g, '').slice(-4); }
     }
-    if (ST.buoc && ST.buoc !== 'chua_ban_ve') datNhanBuoc();
+    // Sơ đồ vẽ ngay khi mở trang (bộ số ví dụ hoặc số lần trước), phí theo sau khi máy chủ trả.
+    const dt = dienTichSan();
+    if (dt) ST.san = dungSan(dt);
+    veSoDo();
   } finally { dangKhoiPhuc = false; }
-  // Hồ sơ đã tạo thì mọi màn của lối 1/2 về màn hồ sơ; đang ở màn 4 (nhập mã) mà chưa có hồ sơ thì về sơ đồ.
-  let man = d.man;
-  if (ST.houseId && ['m2', 'm3', 'm4', 'm5'].includes(man)) man = 'm5';
-  else if (man === 'm4') man = 'm3';
-  else if (man === 'm5') man = 'm3';
+  if (ST.san.length) tinhPhi(null, 'm3Loi');
+  // Màn cũ m2/m3 (trước 18/10/2026) đã gộp vào màn 1. Hồ sơ đã tạo → màn hồ sơ; đang nhập mã mà chưa có hồ sơ → màn 1.
+  let man = d && MAN.includes(d.man) ? d.man : 'm1';
+  if (ST.houseId && (!d || ['m2', 'm3', 'm4', 'm5'].includes(d.man))) man = 'm5';
+  else if (man === 'm4' || man === 'm5') man = 'm1';
+  if (man === 'm1') { hien('m1', 'khoi_phuc'); return; }
   await moMan(man, 'thay');
 })();
-// Lưu bước khi khách sửa ô ở các màn (diện tích, số lầu, hạng mục, phí thiết kế).
-['m2', 'm3', 't1'].forEach((id) => {
+// Lưu bước khi khách sửa ô ở các màn (kích thước, số lầu, hạng mục, phí thiết kế).
+['m1', 't1'].forEach((id) => {
   $(id).addEventListener('change', luuBuoc);
   $(id).addEventListener('click', () => setTimeout(luuBuoc, 0));
 });
+$('m1').addEventListener('input', () => { clearTimeout(window.__qltcLuu); window.__qltcLuu = setTimeout(luuBuoc, 500); });
 </script>
 </body>
 </html>

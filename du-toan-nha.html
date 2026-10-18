@@ -142,6 +142,12 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
 .brand{font-family:var(--head);font-weight:600;color:#e8c877;letter-spacing:.04em;font-size:14px}
 h1{font-family:var(--head);font-weight:600;font-size:clamp(26px,4vw,36px);line-height:1.22;margin:6px 0 8px}
 .top p{margin:0;color:#c8cddb;max-width:720px}
+.so-dau{margin:16px 0 4px;padding:14px 16px;border-radius:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);max-width:720px;display:flex;flex-direction:column;gap:4px}
+.so-dau .sd-l{font-size:.9rem;color:#c8cddb}
+.so-dau .sd-v{font-size:2rem;line-height:1.15;font-weight:800;color:#f3d27a;letter-spacing:.01em}
+.so-dau .sd-s{font-size:.95rem;color:#e6e9f1}
+.so-dau .sd-nut{margin-top:6px;color:#fff;font-weight:700;text-decoration:underline;text-underline-offset:3px;align-self:flex-start;padding:6px 0;min-height:24px}
+body.che-do-dn .so-dau{display:none}
 .wrap{max-width:1180px;margin:0 auto;padding:22px 16px 90px;display:grid;gap:20px}
 .gt{max-width:1180px;margin:-56px auto 0;padding:0 16px 96px;color:var(--sub);font-size:15px}
 .gt h2{font-family:var(--head);font-weight:600;color:var(--ink);font-size:22px;line-height:1.3;margin:0 0 10px}
@@ -383,6 +389,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="brand">ALN · APP LÀM NHÀ</div>
   <h1 id="tieuDeTrang">Dự toán xây nhà của bạn</h1>
   <p id="moTaTrang">Nhập kích thước và giá vật tư ở nơi bạn ở. Bảng tính theo khối lượng bóc từ nhà mẫu cùng loại, chia từng phần để bạn biết tiền đi vào đâu — lưu vào Không gian Nhà để xem chi tiết từng hạng mục.</p>
+  <!-- Số tiền ở màn đầu (18/10/2026, Nam duyệt): phễu 14 ngày 1.329 lượt mở từ quảng cáo, 14 người đổi số.
+       Số ví dụ cho bộ mặc định tính sẵn bằng hàm máy chủ (scripts/gen-du-toan-nha-so-dau.js, CI --check) —
+       khách mới vào thấy ngay, không chờ máy chủ. Đổi số thì ô này cập nhật theo kết quả máy chủ. -->
+  <div class="so-dau" id="soDau" aria-live="polite">
+   <span class="sd-l" id="sdNhan">Ước tính phần thô + nhân công, chưa thuế</span>
+   <!--SO-DAU--><b class="sd-v" id="sdTong">2,6 tỷ</b><span class="sd-s" id="sdChu">Ví dụ nhà 5 × 20 m, 4 sàn · khoảng 4,8 triệu/m² quy đổi</span><!--/SO-DAU-->
+   <a class="sd-nut" id="sdNut" href="#w1">Nhà anh/chị khác? Sửa kích thước ngay bên dưới ↓</a>
+  </div>
   <!-- Dòng dẫn nhỏ cho nhà thầu (Nam chốt 01/10/2026): trang vẫn nói với chủ nhà là chính, không chia đôi. -->
   <p class="dan-dn" id="danDn">Nhà thầu / đội thầu lập báo giá cho khách? <a href="doanh-nghiep.html">Bản dành cho doanh nghiệp →</a></p>
 </div></div>
@@ -735,6 +749,22 @@ const K='aln-dutoan-v1';
 // Auth có hồ sơ doanh nghiệp — xem functions/tinhDuToanNha.js duocXemChiTiet).
 const LA_DN=new URLSearchParams(location.search).get('dn')==='1';
 let st=napTuLink()||load(); let prices={}; let showAllT=false; const openRows=new Set();
+/* Số ở màn đầu (18/10/2026): bộ số mặc định → số tính sẵn có trong trang (window.ALN_SO_DAU); khách đã đổi số
+   (localStorage / link #dt=) → số lần trước nếu cùng bộ số, không thì "Đang tính…" tới khi máy chủ trả. */
+const K_SO_DAU='aln_dt_so_dau';
+function laMacDinh(){
+ try{if(Object.keys(st.px||{}).length||Object.keys(st.dg||{}).length)return false;
+  return Object.keys(DEF).every((k)=>String(st.inp[k]??DEF[k])===String(DEF[k]))&&(st.inp.vtdn||'thau')==='thau';}catch(e){return false}
+}
+function chuSoDau(w,l,n,m2){return 'Nhà '+String(w).replace('.',',')+' × '+String(l).replace('.',',')+' m, '+n+' sàn · khoảng '+(Math.round(m2/1e5)/10).toLocaleString('vi-VN')+' triệu/m² quy đổi'}
+function veSoDau(result){
+ const v=$('sdTong'),c=$('sdChu');if(!v||!c)return;
+ if(!result){v.textContent='—';c.textContent='Nhập kích thước để xem ước tính.';return}
+ v.textContent=ty(result.totalChuaVat);
+ c.textContent=chuSoDau(st.inp.w1,st.inp.l1,st.inp.n,result.perM2ChuaVat);
+ try{localStorage.setItem(K_SO_DAU,JSON.stringify({k:JSON.stringify(st.inp)+JSON.stringify(st.px||{}),tong:result.totalChuaVat,m2:result.perM2ChuaVat}))}catch(e){}
+}
+
 const tinhFingerprints=new Set();
 let duToanTinhTimer=null; // debounce aln_du_toan_tinh (P1.5) — run() gọi lại mỗi lần gõ phím, không đẩy dataLayer mỗi keystroke
 // st.dg = đơn giá vật tư từng hạng mục nhà thầu nhập (bản DN, 03/10/2026) — {tên: giá}; state cũ không có thì {}.
@@ -777,6 +807,14 @@ if(st.inp.mongBTV===undefined)st.inp.mongBTV=MONG_MAC_DINH_BIET_THU_VUON;
 if(st.inp.mongBTVTuySua===undefined)st.inp.mongBTVTuySua=false;
 const $=id=>document.getElementById(id);
 const ty=n=>n>=1e9?(n/1e9).toLocaleString('vi-VN',{maximumFractionDigits:2})+' tỷ':(n/1e6).toLocaleString('vi-VN',{maximumFractionDigits:0})+' triệu';
+$('sdNut')&&$('sdNut').addEventListener('click',()=>{try{(window.dataLayer=window.dataLayer||[]).push({event:'aln_dt_so_dau_bam'})}catch(e){}});
+(function soDauLucMo(){
+ const v=$('sdTong'),c=$('sdChu');if(!v||!c)return;
+ if(laMacDinh())return; // số tính sẵn đã có trong HTML
+ try{const s=JSON.parse(localStorage.getItem(K_SO_DAU)||'null');
+  if(s&&s.k===JSON.stringify(st.inp)+JSON.stringify(st.px||{})&&s.tong>0){v.textContent=ty(s.tong);c.textContent=chuSoDau(st.inp.w1,st.inp.l1,st.inp.n,s.m2);return}}catch(e){}
+ v.textContent='Đang tính…';c.textContent=chuSoDau(st.inp.w1,st.inp.l1,st.inp.n,0).replace(/ · khoảng.*$/,'');
+})();
 for(let i=1;i<=9;i++)$('n').insertAdjacentHTML('beforeend',`<option value="${i}">${i} sàn</option>`);
 Object.keys(MAI_LOAI).forEach(k=>$('mai_loai').insertAdjacentHTML('beforeend',`<option value="${eH(k)}">${eH(MAI_LOAI[k].label)} (${Math.round(MAI_LOAI[k].tyLe*100)}% quy đổi)</option>`));
 // "mong" KHÔNG nằm trong danh sách chung — có handler riêng bên dưới (phải
@@ -1111,7 +1149,7 @@ async function runThongThuong(skipPrices,userInitiated){
  const ghiChu=block?null:ghiChuMai(st.inp.mai_loai);
  $('maiNote').hidden=!ghiChu;$('maiNote').textContent=ghiChu||'';
  const lm=st.inp.lm||'khoan';$('fKhoan').hidden=lm!=='khoan';$('fCong').hidden=lm!=='cong';$('fMep').hidden=lm!=='cong';
- save(); if(block){$('dockT').textContent='—';anLoiTinh();daXongLuotDau();return}
+ save(); if(block){$('dockT').textContent='—';veSoDau(null);anLoiTinh();daXongLuotDau();return}
  // Bản DN đang che: không gọi máy chủ TÍNH TIỀN (số tiền không có trong phản
  // hồi mạng), chỉ giữ inputs để "Lưu báo giá" (máy chủ tự tính lại khi lưu).
  // 03/10/2026: vẫn xin BẢNG GIÁ (vật tư + đơn giá hạng mục, không tiền) để nhà
@@ -1129,7 +1167,7 @@ async function runThongThuong(skipPrices,userInitiated){
  $('total').textContent=ty(result.totalChuaVat);$('perM2').textContent=fmt(result.perM2ChuaVat);$('tot2').textContent=fmt(result.totalChuaVat);
  $('vatLine').textContent=`Sau thuế GTGT (${Number(result.vatPct).toLocaleString('vi-VN',{maximumFractionDigits:2})}%): ${ty(result.totalSauVat)}`;
  $('model').textContent='';
- $('dockT').textContent=ty(result.totalChuaVat);
+ $('dockT').textContent=ty(result.totalChuaVat);veSoDau(result);
  draw($('rows'),result.lines,result.totalChuaVat);
  draw($('rowsH'),result.lineHoanThien,result.totalHoanThien);$('totH').textContent=fmt(result.totalHoanThien);
  ghiDauPhanTho(result,kq.res.dauPhanTho);
@@ -1156,7 +1194,7 @@ async function runBietThuVuon(skipPrices,userInitiated){
  if(block){
   $('aTx').textContent='—';$('aQd').textContent='—';$('aKm').textContent='—';
   $('maiDienTichNghieng').textContent='—';$('maiHeSoDoc').textContent='—';$('maiQdHienThi').textContent='—';
-  $('dockT').textContent='—';anLoiTinh();daXongLuotDau();
+  $('dockT').textContent='—';veSoDau(null);anLoiTinh();daXongLuotDau();
   return;
  }
  if(dangChe()){window.__lastEstimate={modelKey:'thi_biet_thu_vuon_mai_thai',nhaMauNhan:'Biệt thự vườn 1 tầng mái Thái',dienTich:null,inputs:{...st.inp},priceOverrides:{...st.px},donGiaHangMuc:{...st.dg},result:null};await xinBangGiaKhiChe(userInitiated);daXongLuotDau();return}
@@ -1182,7 +1220,7 @@ async function runBietThuVuon(skipPrices,userInitiated){
  $('btvMaiThai').textContent=fmt(result.maiThai.thanhTien);
  $('btvTongCong').textContent=fmt(result.totalChuaVat);
  $('btvGhiChuDonGia').textContent='Đơn giá/m² tính trên m² quy đổi thị trường (sàn + móng + 70%×diện tích mái nghiêng) — tính cùng cách báo giá thị trường để bạn so sánh.';
- $('dockT').textContent=ty(result.totalChuaVat);
+ $('dockT').textContent=ty(result.totalChuaVat);veSoDau(result);
  draw($('rows'),result.lines,result.totalChuaVat);
  draw($('rowsH'),result.lineHoanThien,result.totalHoanThien);$('totH').textContent=fmt(result.totalHoanThien);
  ghiDauPhanTho(result,kq.res.dauPhanTho);
