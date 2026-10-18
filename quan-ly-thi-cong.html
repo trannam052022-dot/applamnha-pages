@@ -134,7 +134,7 @@ fbq('track', 'PageView');
 <script src="aln-tracking.js"></script>
 <script src="aln-pricing.js"></script>
 <script src="aln-dong-y-du-lieu.js?v=2"></script>
-<script src="qltc-chu.vi.js?v=3"></script>
+<script src="qltc-chu.vi.js?v=5"></script>
 <script src="aln-qltc-thanh-toan.js?v=3"></script>
 </head>
 <body>
@@ -188,7 +188,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <label class="o"><span data-chu="m2.dien_tich">Diện tích mỗi sàn khoảng bao nhiêu m²?</span>
       <input id="dtSan" type="text" inputmode="decimal" autocomplete="off" placeholder="VD: 80">
     </label>
-    <p class="nho" data-chu="m2.goi_y">Chưa chắc số nào thì nhập số gần đúng; bước sau sửa được từng sàn.</p>
+    <p class="nho" id="m2CoBanVe" hidden data-chu="m2.co_ban_ve">Anh/chị đã có bản vẽ / dự toán: lấy diện tích từng sàn trên đó. Chưa có số ngay thì nhập gần đúng, sau khi tạo hồ sơ cập nhật lại trong Không gian Nhà (MyMy chỉ cách lấy số).</p>
+    <p class="nho" data-chu="m2.goi_y">Chưa chắc số nào thì nhập số gần đúng; bước sau sửa được từng sàn. Sàn có ban công thì cộng cả ban công.</p>
     <p class="loi" id="m2Loi" hidden></p>
     <button type="button" class="nut" id="m2Nut" data-chu="m2.nut">Xem sơ đồ và phí</button>
   </section>
@@ -247,6 +248,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <h3 data-chu="m5.dong_y">1. Đồng ý dữ liệu</h3>
     <div id="dydlBox"></div>
     <h3 id="taiTieuDe">2. Tải dự toán lên</h3>
+    <p class="nho" id="taiCapNhatDt" hidden data-chu="m5.cap_nhat_dt">Tải xong, vào Không gian Nhà bấm “Cập nhật diện tích theo dự toán / bản vẽ” để ghi diện tích từng sàn theo file này. MyMy trong Không gian Nhà chỉ cách lấy số.</p>
     <label class="tai" for="taiFile"><input type="file" id="taiFile" accept=".pdf,.jpg,.jpeg,.png,.heic,.xlsx,.xls,.dwg"><span id="taiNhan" data-chu="m5.chon_file">Bấm để chọn file (PDF, ảnh, Excel, DWG — tối đa 50 MB)</span></label>
     <p class="nho" id="taiGhiSan" hidden data-chu="dtang.ghi_san">Thép, ván khuôn, bê tông của sàn lầu N ghi vào mốc tầng N-1 (mốc đóng khi đổ xong sàn đó). Dòng của sàn mái ghi vào mốc Sân thượng.</p>
     <p class="nho" id="taiTrangThai"></p>
@@ -348,6 +350,7 @@ function hien(id, cach) {
   // Đã tạo hồ sơ: không quay lại màn nhập mã/tạo hồ sơ nữa (tránh tạo trùng) — về màn đã xong.
   if (ST.houseId && id === 'm4') id = 'm5';
   for (const m of MAN) $(m).hidden = m !== id;
+  { const co = ST.buoc === 'co_ban_ve' || ST.buoc === 'co_ban_ve_du_toan'; $('m2CoBanVe').hidden = !co; $('taiCapNhatDt').hidden = !co; }
   const truoc = manHien;
   manHien = id;
   if (cach !== 'lich_su') {
