@@ -893,10 +893,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="upload-zone">
         <button type="button" class="btn btn-gold" id="btnPickBanVe">Tải bản vẽ</button>
         <button type="button" class="btn btn-ghost" id="btnPickBaoGia">Tải báo giá nhà thầu</button>
-        <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png,.heic,.xlsx,.xls,.dwg">
+        <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png,.heic,.xlsx,.xls,.dwg,.dxf">
         <div class="upload-progress" id="uploadProgress"></div>
         <div class="upload-err" id="uploadErr"></div>
-        <p class="upload-hint">pdf · jpg · png · heic · xlsx · dwg · ≤ 50 MB</p>
+        <p class="upload-hint">pdf · jpg · png · heic · xlsx · dwg · dxf · ≤ 50 MB</p>
       </div>
       <div id="uploadListBody"></div>
     </section>
@@ -3666,7 +3666,7 @@ function renderPackages() {
 }
 
 /* ── Khối b3 — Tải bản vẽ / báo giá (P1.4) ── */
-const UPLOAD_EXT_RE = /\.(pdf|jpe?g|png|heic|xlsx?|dwg)$/i;
+const UPLOAD_EXT_RE = /\.(pdf|jpe?g|png|heic|xlsx?|dwg|dxf)$/i;
 const UPLOAD_MAX_BYTES = 50 * 1024 * 1024;
 const UPLOAD_LOAI_TAG = { ban_ve: 'Bản vẽ', bao_gia: 'Báo giá', du_toan: 'Dự toán', phoi_canh: 'Phối cảnh', thong_ke_thep: 'Thống kê thép', khac: 'Khác' };
 
@@ -4325,7 +4325,7 @@ els.fileInput.addEventListener('change', async () => {
   els.uploadErr.classList.remove('show');
 
   if (!UPLOAD_EXT_RE.test(file.name)) {
-    els.uploadErr.textContent = 'Định dạng file không được hỗ trợ (chỉ nhận pdf, jpg, png, heic, xlsx, dwg).';
+    els.uploadErr.textContent = 'Định dạng file không được hỗ trợ (chỉ nhận pdf, jpg, png, heic, xlsx, dwg, dxf).';
     els.uploadErr.classList.add('show');
     return;
   }
