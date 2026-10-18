@@ -340,21 +340,75 @@ const attr = () => { try { return window.alnAttr ? window.alnAttr.forLead() : nu
 function bao(id, msg) { const e = $(id); e.textContent = msg || ''; e.hidden = !msg; }
 function soDuong(v) { const n = Number(String(v || '').replace(/\s/g, '').replace(',', '.')); return Number.isFinite(n) && n > 0 ? n : null; }
 function chuanSdt(v) { let d = String(v || '').replace(/\D/g, ''); if (/^84\d{9}$/.test(d)) d = '0' + d.slice(2); return /^0\d{9}$/.test(d) ? d : null; }
-function hien(id) {
-  for (const m of ['m1', 'm2', 'm3', 'm4', 'm5', 't1', 't2']) $(m).hidden = m !== id;
-  $(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+/* Màn đang mở. Mỗi lần sang màn mới: ghi lịch sử trình duyệt (nút Quay lại của điện thoại về đúng màn trước)
+   và lưu bước đang làm vào máy (tải lại trang vẫn ở đúng màn) — 18/10/2026, Nam chốt. */
+const MAN = ['m1', 'm2', 'm3', 'm4', 'm5', 't1', 't2'];
+let manHien = 'm1';
+function hien(id, cach) {
+  // Đã tạo hồ sơ: không quay lại màn nhập mã/tạo hồ sơ nữa (tránh tạo trùng) — về màn đã xong.
+  if (ST.houseId && id === 'm4') id = 'm5';
+  for (const m of MAN) $(m).hidden = m !== id;
+  const truoc = manHien;
+  manHien = id;
+  if (cach !== 'lich_su') {
+    try {
+      if (cach === 'thay' || truoc === id) history.replaceState({ qltc: id }, '');
+      else history.pushState({ qltc: id, truoc }, '');
+    } catch (e) { /* bỏ qua */ }
+  }
+  luuBuoc();
+  if (cach !== 'khoi_phuc') $(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
-document.querySelectorAll('[data-ve]').forEach((b) => b.addEventListener('click', () => hien(b.dataset.ve)));
+// Nút "← Quay lại" trên trang: nếu màn trước trong lịch sử đúng là màn đích thì lùi lịch sử (giữ khớp nút Quay lại
+// của điện thoại), không thì mở thẳng màn đích.
+document.querySelectorAll('[data-ve]').forEach((b) => b.addEventListener('click', () => {
+  const st = history.state;
+  if (st && st.qltc === manHien && st.truoc === b.dataset.ve) history.back();
+  else hien(b.dataset.ve);
+}));
+window.addEventListener('popstate', (e) => {
+  const id = e.state && e.state.qltc;
+  if (id && MAN.includes(id)) moMan(id, 'lich_su');
+});
+
+/* ── Nhớ bước đang làm (chỉ trên máy này; không lưu họ tên, SĐT, mã OTP) ── */
+const KHOA_NHO = 'aln_qltc_buoc_v1';
+const HAN_NHO = 30 * 864e5;
+let dangKhoiPhuc = false;
+function luuBuoc() {
+  if (dangKhoiPhuc) return;
+  try {
+    const hmChon = Array.from(document.querySelectorAll('[data-hm]')).filter((x) => x.checked).map((x) => x.dataset.hm);
+    localStorage.setItem(KHOA_NHO, JSON.stringify({
+      man: manHien, buoc: ST.buoc, loai: ST.loai, lau: ST.lau, san: ST.san, hm: hmChon, loai3: ST.loai3,
+      houseId: ST.houseId, ma: ST.ma,
+      o: { coHam: $('coHam').checked, coLung: $('coLung').checked, coSanThuong: $('coSanThuong').checked, coMai: $('coMai').checked,
+        dtSan: $('dtSan').value, dtLung: $('dtLung').value, tkDt: $('tkDt').value, tkGio: $('tkGio').value },
+      luc: Date.now(),
+    }));
+  } catch (e) { /* trình duyệt chặn lưu → bỏ qua */ }
+}
+function docBuoc() {
+  try {
+    const d = JSON.parse(localStorage.getItem(KHOA_NHO) || 'null');
+    if (!d || typeof d !== 'object' || !(Date.now() - Number(d.luc) < HAN_NHO)) return null;
+    return d;
+  } catch (e) { return null; }
+}
 
 /* ── Màn 1 ── */
 document.querySelectorAll('#m1 [data-buoc]').forEach((b) => b.addEventListener('click', () => {
   ST.buoc = b.dataset.buoc;
   day('aln_qltc_buoc', { buoc_xay: ST.buoc });
   if (ST.buoc === 'chua_ban_ve') { hien('t1'); veThietKe(); return; }
-  $('taiTieuDe').textContent = T(ST.buoc === 'co_ban_ve_du_toan' ? 'm5.tai_du_toan' : 'm5.tai_ban_ve');
-  $('taiGhiSan').hidden = ST.buoc !== 'co_ban_ve_du_toan';
+  datNhanBuoc();
   hien('m2');
 }));
+
+function datNhanBuoc() {
+  $('taiTieuDe').textContent = T(ST.buoc === 'co_ban_ve_du_toan' ? 'm5.tai_du_toan' : 'm5.tai_ban_ve');
+  $('taiGhiSan').hidden = ST.buoc !== 'co_ban_ve_du_toan';
+}
 
 /* ── Câu 1 + câu 2 ── */
 function chonNhom(sel, attrName, giaTri) {
@@ -519,7 +573,10 @@ function viTriSan(m) {
   if (!q || !q.khuyen_mai_den || homNay > q.khuyen_mai_den || (q.khuyen_mai_tu && homNay < q.khuyen_mai_tu)) el.hidden = true;
 })();
 
-$('m3Nut').addEventListener('click', () => { day('aln_qltc_tao_bat_dau', { buoc_xay: ST.buoc }); hien('m4'); });
+$('m3Nut').addEventListener('click', () => {
+  if (ST.houseId) { moMan('m5'); return; } // hồ sơ đã tạo → mở lại hồ sơ, không tạo thêm
+  day('aln_qltc_tao_bat_dau', { buoc_xay: ST.buoc }); hien('m4');
+});
 
 /* ── OTP + tạo hồ sơ ── */
 const LOI_OTP = {
@@ -588,10 +645,13 @@ async function taoHoSo() {
   if (d.house_id) suKienGoi('aln_qltc_tao_ho_so', { buoc_xay: ST.buoc, loai: ST.loai, so_san: ST.san.length - 1 }, 'qltchs-' + d.house_id);
   moXong();
 }
-function moXong() {
+let daGanXong = false;
+function moXong(cach) {
   $('maHs').textContent = ST.ma;
   $('moKgn').href = 'khong-gian-nha.html?ma=' + encodeURIComponent(ST.ma);
-  hien('m5');
+  hien('m5', cach);
+  if (daGanXong || !FB) return; // chưa nạp được Firebase (mất mạng) → vẫn hiện mã hồ sơ + link Không gian Nhà
+  daGanXong = true;
   const ctl = window.alnDongYDuLieu && window.alnDongYDuLieu.mount($('dydlBox'), {
     goi: (data) => FB.call('khDongYDuLieu')(Object.assign({ houseId: ST.houseId }, data)),
   });
@@ -697,6 +757,58 @@ $('t1Nut').addEventListener('click', async () => {
   } catch (e) {
     bao('t1Loi', (e && e.message) || 'Chưa gửi được — anh/chị thử lại hoặc nhắn Zalo 0909 829 696.');
   } finally { b.disabled = false; }
+});
+
+/* Mở một màn, nạp lại dữ liệu màn đó cần (phí, phí thiết kế, hồ sơ) — dùng cho nút Quay lại và tải lại trang. */
+async function moMan(id, cach) {
+  if (id === 'm5' && ST.houseId) {
+    try { await napFb(); } catch (e) { /* vẫn hiện mã hồ sơ */ }
+    moXong(cach);
+    return;
+  }
+  if ((id === 'm3' || id === 'm4') && !ST.goi) {
+    if (!ST.san.length) { hien('m2', cach); return; }
+    hien(id, cach);
+    const ok = await tinhPhi(null, id === 'm3' ? 'm3Loi' : 'm4Loi');
+    if (!ok && id === 'm4') hien('m3', 'thay');
+    return;
+  }
+  hien(id, cach);
+  if (id === 't1') veThietKe();
+}
+(async function khoiPhuc() {
+  const d = docBuoc();
+  if (!d || !MAN.includes(d.man) || d.man === 'm1') { hien('m1', 'thay'); return; }
+  dangKhoiPhuc = true;
+  try {
+    if (['co_ban_ve_du_toan', 'co_ban_ve', 'chua_ban_ve'].includes(d.buoc)) ST.buoc = d.buoc;
+    if (d.loai === 'nha_pho' || d.loai === 'biet_thu') { ST.loai = d.loai; chonNhom('[data-loai]', 'loai', ST.loai); }
+    if (d.loai3 === 'nha_pho' || d.loai3 === 'biet_thu') { ST.loai3 = d.loai3; chonNhom('[data-loai3]', 'loai3', ST.loai3); }
+    if (Number.isInteger(d.lau) && d.lau >= 0 && d.lau <= 12) { ST.lau = d.lau; $('soLau').textContent = String(ST.lau); }
+    const o = d.o || {};
+    ['coHam', 'coLung', 'coSanThuong', 'coMai'].forEach((k) => { if (typeof o[k] === 'boolean') $(k).checked = o[k]; });
+    $('oLung').hidden = !$('coLung').checked;
+    ['dtSan', 'dtLung', 'tkDt', 'tkGio'].forEach((k) => { if (typeof o[k] === 'string') $(k).value = o[k].slice(0, 20); });
+    if (Array.isArray(d.san)) ST.san = d.san.filter((x) => x && typeof x.loai === 'string').slice(0, 30)
+      .map((x) => ({ loai: x.loai, dien_tich_m2: Number(x.dien_tich_m2) > 0 ? Number(x.dien_tich_m2) : null }));
+    if (Array.isArray(d.hm)) document.querySelectorAll('[data-hm]').forEach((c) => { c.checked = d.hm.includes(c.dataset.hm); });
+    ST.hm = Array.from(document.querySelectorAll('[data-hm]')).filter((x) => x.checked).map((x) => x.dataset.hm);
+    if (typeof d.houseId === 'string' && /^[A-Za-z0-9_-]{1,64}$/.test(d.houseId) && typeof d.ma === 'string' && d.ma) {
+      ST.houseId = d.houseId; ST.ma = d.ma.slice(0, 40);
+    }
+    if (ST.buoc && ST.buoc !== 'chua_ban_ve') datNhanBuoc();
+  } finally { dangKhoiPhuc = false; }
+  // Hồ sơ đã tạo thì mọi màn của lối 1/2 về màn hồ sơ; đang ở màn 4 (nhập mã) mà chưa có hồ sơ thì về sơ đồ.
+  let man = d.man;
+  if (ST.houseId && ['m2', 'm3', 'm4', 'm5'].includes(man)) man = 'm5';
+  else if (man === 'm4') man = 'm3';
+  else if (man === 'm5') man = 'm3';
+  await moMan(man, 'thay');
+})();
+// Lưu bước khi khách sửa ô ở các màn (diện tích, số lầu, hạng mục, phí thiết kế).
+['m2', 'm3', 't1'].forEach((id) => {
+  $(id).addEventListener('change', luuBuoc);
+  $(id).addEventListener('click', () => setTimeout(luuBuoc, 0));
 });
 </script>
 </body>
