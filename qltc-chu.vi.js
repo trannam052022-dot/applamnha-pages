@@ -133,7 +133,7 @@
     "viec.tai_du_toan.mo_ta": "File Excel có khối lượng chi tiết dùng được ngay; PDF hoặc ảnh cũng nhận.",
     "viec.tai_du_toan.nut": "Chọn file dự toán",
     "viec.tai_ban_ve.ten": "Tải bản vẽ lên",
-    "viec.tai_ban_ve.mo_ta": "ALN xem bản vẽ và gọi lại trong 1–2 ngày làm việc.",
+    "viec.tai_ban_ve.mo_ta": "Bản vẽ lưu trong hồ sơ của anh/chị, dùng để lấy đúng diện tích từng sàn và đối chiếu khi đội làm từng mốc.",
     "viec.tai_ban_ve.nut": "Chọn file bản vẽ",
     "viec.kiem_san.ten": "Kiểm lại các sàn của nhà",
     "viec.kiem_san.mo_ta": "Phí gói tính theo từng sàn. Sàn nào chưa đúng thì sửa trước khi ALN bật gói.",

@@ -1027,7 +1027,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <script src="scripts/aln-callback.js"></script>
 <script src="aln-founder-xem.js"></script>
 <script src="aln-dong-y-du-lieu.js?v=2"></script>
-<script src="qltc-chu.vi.js?v=7"></script>
+<script src="qltc-chu.vi.js?v=8"></script>
 <script src="aln-qltc-thanh-toan.js?v=3"></script>
 <script src="aln-qltc-bang-chung.js"></script>
 <script src="aln-kiem-giup.js"></script>
@@ -2236,6 +2236,7 @@ async function napDanhSachSan(houseId) {
   if (els.pkgBlock && !els.pkgBlock.hidden) renderPackages(); // dòng giảm trả trọn gói theo bảng phí của hồ sơ
   renderMocTc();
   renderViec(); // Việc tiếp theo phụ thuộc danh sách sàn + trạng thái trả theo sàn
+  napSoUng(); // gói chưa trả: chỉ biết gói đã mở sau khi đọc danh sách sàn
 }
 
 function tenTheoThu(ds) {
@@ -2812,7 +2813,13 @@ function doNguoiKiem(g) {
    thấy mốc. Ghi lần ứng qua máy chủ (so_chi loai 'ung_tho'); sửa/xoá ở Sổ chi như mọi khoản chi. */
 let soUng = null; let soUngFor = null; let soUngHen = null;
 let ungMsg = null; let ungBan = false; let ungNhap = null;
-function goiDaBatH(h) { return !!(h && h.trang_thai === 'truoc_c1' && laHoSoGoi(h) && h.gia_ap_dung != null); }
+// 19/10/2026: gói "chưa trả" (đồng ý dữ liệu + có mốc, máy chủ trả goi_mo) cũng mở sổ ứng cho Móng —
+// trước đây chỉ xét gia_ap_dung nên ô Tiền kẹt "Đang tải…" và khối sổ ứng không hiện.
+function goiDaBatH(h) {
+  if (!(h && h.trang_thai === 'truoc_c1' && laHoSoGoi(h))) return false;
+  if (h.gia_ap_dung != null) return true;
+  return !!(dsSanFor === currentHouseId && dsSan && !dsSan.loi && dsSan.goi_mo);
+}
 /** Tải lại tổng hợp (gom các lần đổi liền nhau: mốc, sổ chi, dự toán, hồ sơ). */
 function napSoUng() {
   if (!goiDaBatH(currentHouseData)) return;
@@ -4091,7 +4098,7 @@ function renderKpi() {
   const xemTien = !XEM_FOUNDER && (!su || su.loi || su.la_chu_nha);
   const tienSo = (n) => (CHU ? CHU.tien(n, h.gia_ap_dung && h.gia_ap_dung.tien_te) : fmtMoney(n));
   if (!xemTien) { set('kpiTien', '—'); set('kpiTienSub', T('so.chi_chu_nha')); }
-  else if (!su || su.loi) { set('kpiTien', '—'); set('kpiTienSub', su ? '' : 'Đang tải…'); }
+  else if (!su || su.loi) { set('kpiTien', '—'); set('kpiTienSub', su || !goiDaBatH(h) ? '' : 'Đang tải…'); }
   else {
     set('kpiTien', `Đã chi ${tienSo(su.da_chi)}`);
     const cl = su.hop_dong ? su.hop_dong.con_lai : su.con_lai;
