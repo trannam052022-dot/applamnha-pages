@@ -435,7 +435,7 @@ $('dangXuat').addEventListener('click', async () => {
 let daChay = false;
 onAuthStateChanged(auth, (user) => {
   if (!isPhoneAuthed(user)) {
-    location.href = alnUrl(window.alnEstimateFunnel.preserve('dang-nhap-chu-nha.html?next=' + encodeURIComponent('kiem-giup.html' + location.search)));
+    location.replace(alnUrl(window.alnEstimateFunnel.preserve('dang-nhap-chu-nha.html?next=' + encodeURIComponent('kiem-giup.html' + location.search))));
     return;
   }
   if (daChay) return;

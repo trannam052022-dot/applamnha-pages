@@ -215,7 +215,7 @@ onAuthStateChanged(auth, async (user) => {
   if (xemFounder) window.alnFounderXem.hienThanh('chữ chìm ghi "Founder ALN"');
   if (!isPhoneAuthed(user) && !xemFounder) {
     const tiep = 'ho-so-mau-xem.html' + location.search;
-    window.location.href = alnUrl(window.alnEstimateFunnel.preserve('dang-nhap-chu-nha.html?next=' + encodeURIComponent(tiep)));
+    window.location.replace(alnUrl(window.alnEstimateFunnel.preserve('dang-nhap-chu-nha.html?next=' + encodeURIComponent(tiep))));
     return;
   }
   if (daBatDau) return;

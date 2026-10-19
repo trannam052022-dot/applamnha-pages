@@ -548,7 +548,7 @@ async function handleVerify() {
     await confirmationResult.confirm(code);
     doLuongOtp("aln_otp_xac_thuc_ok");
     goToStep(3);
-    window.location.href = resolveNextUrl();
+    window.location.replace(resolveNextUrl());
   } catch (err) {
     console.warn("[dang-nhap-chu-nha] xác nhận mã thất bại");
     doLuongOtp("aln_otp_xac_thuc_loi", { ma_loi: maLoiOtp(err) });
@@ -595,7 +595,7 @@ function isPhoneAuthed(user) {
 }
 onAuthStateChanged(auth, (user) => {
   if (isPhoneAuthed(user) && els.step1.hidden === false && !confirmationResult) {
-    window.location.href = resolveNextUrl();
+    window.location.replace(resolveNextUrl());
   }
 });
 

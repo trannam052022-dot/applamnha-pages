@@ -858,7 +858,7 @@ onAuthStateChanged(auth, (user) => {
   if (XEM_FOUNDER) window.alnFounderXem.hienThanh('phiếu của khách');
   if (!isPhoneAuthed(user) && !XEM_FOUNDER) {
     const tiep = 'phieu-yeu-cau.html' + location.search;
-    window.location.href = alnUrl(window.alnEstimateFunnel.preserve('dang-nhap-chu-nha.html?next=' + encodeURIComponent(tiep)));
+    window.location.replace(alnUrl(window.alnEstimateFunnel.preserve('dang-nhap-chu-nha.html?next=' + encodeURIComponent(tiep))));
     return;
   }
   if (!houseId) batDau();

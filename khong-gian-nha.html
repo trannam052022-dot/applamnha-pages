@@ -4662,7 +4662,7 @@ onAuthStateChanged(auth, (user) => {
     const quayLai = (THAM_SO.get('ma') || THAM_SO.get('h'))
       ? 'dang-nhap-chu-nha.html?next=' + encodeURIComponent('khong-gian-nha.html' + location.search)
       : 'dang-nhap-chu-nha.html';
-    window.location.href = window.alnEstimateFunnel.preserve(quayLai);
+    window.location.replace(window.alnEstimateFunnel.preserve(quayLai));
     return;
   }
   init();

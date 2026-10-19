@@ -699,7 +699,7 @@ onAuthStateChanged(auth, (user) => {
   XEM_FOUNDER = !!(window.alnFounderXem && window.alnFounderXem.la(user));
   if (XEM_FOUNDER) window.alnFounderXem.hienThanh('Founder dùng thử, xuất không cần thanh toán');
   if (!isPhoneAuthed(user) && !XEM_FOUNDER) {
-    window.location.href = alnUrl('dang-nhap-chu-nha.html?next=' + encodeURIComponent('doanh-nghiep.html' + location.search));
+    window.location.replace(alnUrl('dang-nhap-chu-nha.html?next=' + encodeURIComponent('doanh-nghiep.html' + location.search)));
     return;
   }
   if (daBatDau) return;

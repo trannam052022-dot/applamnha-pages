@@ -541,7 +541,7 @@ onAuthStateChanged(auth, (user) => {
   if (xemFounder) window.alnFounderXem.hienThanh('xuất thử không cần thanh toán');
   if (!isPhoneAuthed(user) && !xemFounder) {
     const tiep = 'in-bao-gia-dn.html' + location.search;
-    window.location.href = alnUrl('dang-nhap-chu-nha.html?next=' + encodeURIComponent(tiep));
+    window.location.replace(alnUrl('dang-nhap-chu-nha.html?next=' + encodeURIComponent(tiep)));
     return;
   }
   if (daBatDau) return;
