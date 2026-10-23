@@ -67,6 +67,15 @@ svg{display:block}
 .nut-anh{position:absolute;right:12px;top:12px;display:flex;align-items:center;gap:6px;height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--line2);background:#fff;color:var(--text);font:600 .88rem/1 inherit;box-shadow:0 2px 8px rgba(10,18,36,.08);cursor:pointer}
 .nut-anh svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .nut-anh-to{margin-bottom:14px}
+.thanh-nhanh{position:absolute;z-index:6;display:flex;gap:2px;padding:4px;background:#0f1d33;border-radius:12px;box-shadow:0 8px 24px rgba(10,18,36,.28)}
+.tn-nut{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:52px;height:48px;padding:4px 8px;border:0;border-radius:9px;background:transparent;color:#fff;font:600 .72rem/1.1 inherit;cursor:pointer;white-space:nowrap}
+.tn-nut svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tn-nut:hover:not(:disabled),.tn-nut:focus-visible{background:rgba(255,255,255,.14);outline:none}
+.tn-nut.xoa{color:#ffb4a8}
+.tn-nut:disabled{opacity:.4;cursor:not-allowed}
+.bong-tv{position:fixed;z-index:50;transform:translate(-50%,-110%);display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 10px;background:#fff;border:2px solid #1f5fa8;border-radius:12px;box-shadow:0 12px 28px rgba(10,18,36,.25);font-size:.8rem;font-weight:600;pointer-events:none}
+.bong-tv svg{width:56px;height:44px}
+.tv-the{touch-action:pan-y}
 .nut-anh-to .nut{width:100%;justify-content:center}
 .hang-thanh{display:flex;align-items:center;gap:10px}
 .hang-thanh input[type=range]{flex:1;min-width:0;height:32px;accent-color:#1f5fa8}
