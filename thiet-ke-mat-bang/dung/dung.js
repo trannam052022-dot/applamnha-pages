@@ -153,7 +153,7 @@
       seg([0, 6], [2, 6], I, false), seg([2, 4], [2, 8], I, false), seg([5, 4], [5, 8], I, false), seg([6.5, 4], [6.5, 5.7], I, false),
       seg([5, 5.7], [9, 5.7], I, false), seg([9, 4], [9, 5.7], I, false)
     ]);
-    var p = { phien_ban: 1, ten: 'Nhà 12 × 8 m — dựng từ bản phác 23/10', nodes: g.nodes, walls: g.walls, seq: g.seq, ops: [], items: [], phong: [], ghi: [], ranh: [[0, -1], [12, -1], [12, 8], [0, 8]] };
+    var p = { phien_ban: 1, mau_wc: 2, ten: 'Nhà 12 × 8 m — dựng từ bản phác 23/10', nodes: g.nodes, walls: g.walls, seq: g.seq, ops: [], items: [], phong: [], ghi: [], ranh: [[0, -1], [12, -1], [12, 8], [0, 8]] };
     [
       { ma: 'D1', p1: [1.6, 3], p2: [2.4, 3], banLe: [2.4, 3], huong: [2, 2.5] },
       { ma: 'D1', p1: [6.5, 0.9], p2: [6.5, 1.7], banLe: [6.5, 0.9], huong: [6, 1.3] },
@@ -175,14 +175,10 @@
     ].forEach(function (c) { themCuaToaDo(p, c); });
     themDo(p, 'GD', 0.1, 0.1, 1.6, 2.0, 0);
     themDo(p, 'BL', 1.8, 0.1, 1.1, 0.55, 0);
-    themDo(p, 'G', 2.55, 1.4, 0.4, 1.55, 0);
     themDo(p, 'BA', 3.95, 0.65, 1.6, 1.9, 90);
-    themDo(p, 'G', 1.5, 4.05, 0.45, 1.9, 0);
     themDo(p, 'GD', 3.35, 6.0, 1.6, 1.9, 180);
     themDo(p, 'BL', 2.1, 7.3, 1.2, 0.55, 180);
-    themDo(p, 'G', 5.05, 4.05, 0.4, 1.6, 0);
     themDo(p, 'GN', 5.95, 6.3, 1.2, 1.95, 90);
-    themDo(p, 'G', 8.1, 5.75, 0.55, 1.7, 0);
     themDo(p, 'GD', 10.3, 5.5, 1.6, 1.9, 180);
     themDo(p, 'BL', 9.05, 6.85, 1.1, 0.5, 180);
     themDo(p, 'BC', 6.6, -0.95, 5.3, 0.85, 0);
@@ -193,7 +189,6 @@
       ['WC1', 0.75, 5.0], ['WC2', 1.0, 7.0], ['PN2', 3.55, 5.0], ['Sảnh', 5.95, 5.1], ['Khu mở (bếp?)', 7.75, 4.95], ['PN4', 6.2, 7.75], ['PN3', 10.1, 5.0]]
       .forEach(function (r) { p.phong.push({ id: 'p' + (++p.seq), ten: r[0], x: r[1], y: r[2] }); });
     [[4.2, 2.8, 'Sọc dọc ở phòng ăn và hành lang trên bản phác: sàn gỗ, lam trần hay giếng trời? (chờ KTS xác nhận)'],
-      [8.4, 6.6, 'Bốn khối gạch chéo hẹp sát tường: hộp gen hay tủ âm? (chờ KTS xác nhận)'],
       [7.75, 4.45, 'Trên bản phác chưa thấy bếp. Khu này có phải bếp không? (chờ KTS xác nhận)']]
       .forEach(function (g2) { p.ghi.push({ id: 'g' + (++p.seq), x: g2[0], y: g2[1], nd: g2[2] }); });
     return p;
@@ -204,6 +199,31 @@
       { a: [W, D], b: [0, D], t: 0.2, khoa: true }, { a: [0, D], b: [0, 0], t: 0.2, khoa: true }
     ]);
     return { phien_ban: 1, ten: 'Lô ' + so(W, 1) + ' × ' + so(D, 1) + ' m', nodes: g.nodes, walls: g.walls, seq: g.seq, ops: [], items: [], phong: [], ghi: [], ranh: null };
+  }
+
+  /* Nam 23/10/2026: phòng WC trong bản mẫu có sẵn khối WC tự bố trí; hộp gen nằm gọn trong khối (0,6 × 0,4 m),
+     không còn dải gạch chéo dài sát tường. Chạy khi plan đã là bản mẫu (cần plan toàn cục để đo lọt lòng). */
+  var TEN_MAU = 'Nhà 12 × 8 m — dựng từ bản phác 23/10';
+  function xepWCVaoPhong() {
+    var them = 0;
+    plan.phong.forEach(function (r) {
+      if (!/^WC/i.test(r.ten)) return;
+      var b = lotLongQuanh(r.x, r.y); if (!isFinite(b.x0 + b.x1 + b.y0 + b.y1)) return;
+      var coRoi = plan.items.some(function (o) { var B = hopDo(o); return (o.ma === 'WC' || o.ma === 'BX') && B.x1 > b.x0 + 0.05 && B.x0 < b.x1 - 0.05 && B.y1 > b.y0 + 0.05 && B.y0 < b.y1 - 0.05; });
+      if (coRoi) return;
+      var it = { id: idMoi('i'), ma: 'WC', cx: r.x, cy: r.y, w: 1.5, h: 2.4, rot: 0, lat: false, khoa: false, sen: 'kinh', gd: 0.6, gs: 0.4 };
+      if (!vuaKhitPhong(it, r.x, r.y)) return;
+      plan.items.push(it); tuXepWC(it); them++;
+    });
+    return them;
+  }
+  // bản mẫu đã lưu từ trước 23/10/2026 (3): bỏ dải gen 0,4–0,55 × 1,6–1,9 m và câu hỏi kèm theo, thêm khối WC
+  function nangCapBanMau() {
+    if (plan.ten !== TEN_MAU || plan.mau_wc >= 2) return false;
+    plan.items = plan.items.filter(function (o) { return !(o.ma === 'G' && o.w * o.h > 0.5); });
+    plan.ghi = plan.ghi.filter(function (g) { return g.nd.indexOf('Bốn khối gạch chéo') < 0; });
+    xepWCVaoPhong(); plan.mau_wc = 2;
+    return true;
   }
 
   /* ================= hình học tường / cửa / đồ ================= */
@@ -2210,7 +2230,7 @@
     else if (l === 'xuat_anh') xuatAnh();
     else if (l === 'in') inBan();
     else if (l === 'xuat_dxf') xuatDxf();
-    else if (l === 'mau') { ghiLai(); plan = matBangMau(); sel = null; $('tenBan').value = plan.ten; xong(); vuaKhung(); baoDong('Đã nạp mặt bằng mẫu. Bấm "Quay lại" nếu muốn về bản trước.'); }
+    else if (l === 'mau') { ghiLai(); plan = matBangMau(); xepWCVaoPhong(); sel = null; $('tenBan').value = plan.ten; xong(); vuaKhung(); baoDong('Đã nạp mặt bằng mẫu. Bấm "Quay lại" nếu muốn về bản trước.'); }
     else if (l === 'moi') {
       hopThoai('Bắt đầu lô mới', function (nd) {
         var iw = h('input', { type: 'text', inputmode: 'decimal', value: '5', 'aria-label': 'Bề ngang lô (m)' }), id = h('input', { type: 'text', inputmode: 'decimal', value: '20', 'aria-label': 'Chiều sâu lô (m)' });
@@ -2234,6 +2254,7 @@
     var cu = null;
     try { cu = JSON.parse(localStorage.getItem(KHOA_LUU) || 'null'); } catch (e) { cu = null; }
     plan = hopLe(cu) ? chuanHoa(cu) : matBangMau();
+    if (!hopLe(cu)) xepWCVaoPhong(); else if (nangCapBanMau()) { try { localStorage.setItem(KHOA_LUU, JSON.stringify(plan)); } catch (e) {} }
     try { var a = JSON.parse(localStorage.getItem(KHOA_ANH) || 'null'); if (a && typeof a.src === 'string' && alnUrl(a.src) !== '#' && isFinite(a.cx) && a.w > 0 && a.h > 0) anh = a; } catch (e) { anh = null; }
     $('tenBan').value = plan.ten || '';
     datCong('chon');
