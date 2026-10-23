@@ -213,3 +213,6 @@ svg{display:block}
   .khung-ten{display:flex;justify-content:space-between;align-items:flex-end;border-top:1.5px solid #1a2634;padding-top:6px;margin-top:6px;font-size:11pt;font-family:var(--f-ui)}
   .khung-ten b{font-family:var(--f-tieu-de);font-weight:500;font-size:14pt;letter-spacing:.04em}
 }
+.tv-cad{border-top:1px solid var(--line);padding-top:12px;margin-top:4px}
+.tv-cad-ds{display:flex;flex-direction:column;gap:12px}
+.tv-cad .truong input[type=search]{width:100%}

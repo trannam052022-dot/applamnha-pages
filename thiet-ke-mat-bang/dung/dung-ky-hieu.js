@@ -130,11 +130,12 @@
      Co giãn khối là tự xếp lại. Toạ độ (u dọc tường ướt từ đầu xa, v vuông góc từ tường ướt). Khối đứng (h ≥ w):
      tường ướt là cạnh trái, cửa ở cạnh dưới; khối nằm: tường ướt là cạnh trên. lat (của đồ vật) đổi tường ướt
      sang cạnh đối diện; dao đảo đầu (khu tắm về phía cạnh kia). */
+  var TAM_VAT = 0.35, KINH_DAY = 0.03;
   var BX_W = 0.45, BX_S = 0.7, LV_W = 0.6, LV_S = 0.45, CACH_BX = 0.4, TRONG_TRUOC = 0.6;
   function so2(x) { return (Math.round(x * 100) / 100).toString().replace('.', ','); }
   function wcBoTri(o) {
     var w = Math.max(0.5, o.w || 1.5), h = Math.max(0.5, o.h || 2.4), doc = o.truc === 'doc' ? true : (o.truc === 'ngang' ? false : h >= w), L = doc ? h : w, D = doc ? w : h, dao = !!o.dao;
-    var sen = ['kinh', 'tu_do', 'bon', 'khong'].indexOf(o.sen) >= 0 ? o.sen : 'kinh';
+    var sen = ['kinh', 'vat', 'tu_do', 'bon', 'khong'].indexOf(o.sen) >= 0 ? o.sen : 'kinh';
     var parts = [], thieu = [], u = 0;
     var hop = function (u0, v0, du, dv) { // ô (u,v) → ô (x,y) trong khối
       var ua = dao ? L - u0 - du : u0;
@@ -144,7 +145,12 @@
     // Nam 23/10/2026: khối WC không có hộp gen; KTS tự thêm hộp gen (G) đúng chỗ khi cần
     var vTam = 0;
     if (sen === 'bon' && D - vTam < 1.4 - 1e-6) { thieu.push('Bồn tắm cần phòng rộng ít nhất ' + so2(1.4 + vTam) + ' m (đang ' + so2(D) + ' m). Đã đổi sang tắm đứng.'); sen = 'kinh'; }
-    if (sen !== 'khong') {
+    // tắm vát góc: góc 0,9 × 0,9 m sát tường ướt, vách kính hai cạnh + cạnh vát; phòng hẹp dưới 1,2 m thì vách thẳng
+    if (sen === 'vat' && D < 1.2 - 1e-6) { thieu.push('Tắm vát góc cần phòng rộng ít nhất 1,2 m (đang ' + so2(D) + ' m). Đã đổi sang vách kính thẳng.'); sen = 'kinh'; }
+    if (sen === 'vat') {
+      parts.push({ ma: 'TD', vat: TAM_VAT, u0: 0, v0: 0, du: 0.9, dv: 0.9, hop: hop(0, 0, 0.9, 0.9) });
+      u = 0.9;
+    } else if (sen !== 'khong') {
       var s = sen === 'bon' ? 0.75 : 0.9;
       if (sen !== 'bon' && D - vTam < 0.8 - 1e-6) thieu.push('Khu tắm cần rộng ít nhất 0,8 m (đang ' + so2(D - vTam) + ' m).');
       parts.push({ ma: sen === 'bon' ? 'BT' : (sen === 'tu_do' ? 'SEN' : 'TD'), u0: 0, v0: vTam, du: s, dv: D - vTam, hop: hop(0, vTam, s, D - vTam) });
@@ -187,6 +193,13 @@
     b.parts.forEach(function (p) {
       var H = p.hop;
       if (p.ma === 'G') { out = out.concat(doiNet(hopGen({ w: H.w, h: H.h }), function (x, y) { return [H.x + x, H.y + y]; })); return; }
+      if (p.ma === 'TD' && p.vat) { // tắm vát góc: tường ở u = 0 và v = 0, kính ở u = du, v = dv và cạnh vát
+        var c = p.vat, d = KINH_DAY, k2 = d * (Math.SQRT2 - 1), mp = function (pts) { return pts.map(function (q) { return uvXy(q[0], q[1]); }); };
+        out.push(P(mp([[0, 0], [p.du, 0], [p.du, p.dv - c], [p.du - c, p.dv], [0, p.dv]]), true, 'nuoc'));
+        out.push(P(mp([[p.du - d, 0], [p.du - d, p.dv - c - k2], [p.du - c - k2, p.dv - d], [0, p.dv - d]]), false, 'nuoc'));
+        var tv = uvXy(p.du * 0.4, p.dv * 0.4); out.push(C(tv[0], tv[1], 0.04, 'nuoc', true));
+        return;
+      }
       if (p.ma === 'TD') { // tắm đứng: vách kính ở ranh khu tắm, ga thoát giữa
         out.push(R(H.x, H.y, H.w, H.h, 'nuoc'));
         var g0 = uvXy(p.du, p.v0), g1 = uvXy(p.du, p.v0 + p.dv);
@@ -203,6 +216,67 @@
       out = out.concat(doiNet(hinh, function (fx, fy) { return uvXy(p.u0 + fx, p.sv > 0 ? p.v0 + fy : p.v0 + p.dv - fy); }, b.doc));
     });
     return out;
+  }
+
+  /* ---------- Tắm đứng vát góc (đồ rời) ----------
+     Tường ở cạnh trên (y = 0) và cạnh trái (x = 0); vách kính ở cạnh phải, cạnh dưới và cạnh vát góc
+     dưới-phải (cửa kính ở cạnh vát). o.vat = độ vát (m, mặc định 0,35). */
+  function tamVatGoc(o) {
+    var w = o.w, h = o.h, c = Math.max(0.15, Math.min(o.vat || TAM_VAT, Math.min(w, h) - 0.2)), d = KINH_DAY, k2 = d * (Math.SQRT2 - 1);
+    return [P([[0, 0], [w, 0], [w, h - c], [w - c, h], [0, h]], true, 'nuoc'),
+      P([[w - d, 0], [w - d, h - c - k2], [w - c - k2, h - d], [0, h - d]], false, 'nuoc'),
+      C(w * 0.4, h * 0.4, 0.04, 'nuoc', true)];
+  }
+  /* ---------- Vách kính (có thể kèm cửa kính) ----------
+     Dài theo o.w, dày cố định 0,10 m (khung + kính). o.cua: 'khong' | 'mo' (cửa kính mở quay) | 'lua' (cửa kính lùa);
+     o.rc: bề rộng cửa (0,6–1,2 m); o.vt: 'dau' (cửa ở đầu trái) | 'giua'. Cánh mở về phía y > 0 (mặt trước). */
+  var VK_DAY = 0.1;
+  function vachKinh(o) {
+    var w = o.w, h = VK_DAY, y1 = h * 0.35, y2 = h * 0.65, out = [];
+    var cua = o.cua === 'mo' || o.cua === 'lua' ? o.cua : 'khong', rc = Math.max(0.5, Math.min(o.rc || 0.7, w - 0.2));
+    var x0 = cua === 'khong' ? w : (o.vt === 'giua' ? (w - rc) / 2 : 0.05), x1 = x0 + (cua === 'khong' ? 0 : rc);
+    var doan = function (a, b) { if (b - a > 0.01) out.push(L(a, y1, b, y1, 'nuoc'), L(a, y2, b, y2, 'nuoc'), L(a, y1, a, y2, 'nuoc'), L(b, y1, b, y2, 'nuoc')); };
+    doan(0, x0); doan(x1, w);
+    if (cua === 'mo') {
+      out.push(L(x0, h / 2, x0, h / 2 + rc, 'cua'), A(x0, h / 2, rc, 0, 90, 'cua'), C(x0, h / 2, 0.015, 'cua', true));
+    } else if (cua === 'lua') { // tấm kính lùa chạy sát mặt trước, chồng lên phần kính cố định 5 cm
+      var lx0 = x0 - 0.05 < 0 ? 0 : x0 - 0.05;
+      out.push(R(lx0, h * 0.72, Math.min(w, x1 + 0.05) - lx0, h * 0.2, 'cua'), L(x0 + rc * 0.25, h + 0.08, x0 + rc * 0.75, h + 0.08, 'mui_ten'),
+        L(x0 + rc * 0.75, h + 0.08, x0 + rc * 0.68, h + 0.05, 'mui_ten'), L(x0 + rc * 0.75, h + 0.08, x0 + rc * 0.68, h + 0.11, 'mui_ten'));
+    }
+    return out;
+  }
+  /* ---------- Kệ tivi: sâu 0,45 m, tivi đặt trên kệ (sát lưng kệ) ---------- */
+  function tivi(x, y, w) { return [R(x, y, w, 0.06, 'muc', true), R(x + w * 0.38, y + 0.06, w * 0.24, 0.12, 'muc')]; }
+  function keTivi(o) {
+    var out = [R(0, 0, o.w, o.h, 'go'), L(0.04, o.h - 0.04, o.w - 0.04, o.h - 0.04, 'go')];
+    if (o.tivi !== false) { var tw = Math.min(o.w - 0.1, TIVI_MAC_DINH); out = out.concat(tivi((o.w - tw) / 2, 0.06, tw)); }
+    return out;
+  }
+  var TIVI_MAC_DINH = 1.25; // tivi 55 inch ngang khoảng 1,23 m
+
+  /* ---------- Khối CAD (thư viện mở rộng, nạp từ thu-vien-cad.json khi KTS mở) ---------- */
+  var CAD = {};
+  function veCad(o) {
+    var k = CAD[o.cad];
+    if (!k) return [R(0, 0, o.w, o.h, 'nhan', false, true), T(o.w / 2, o.h / 2 + 0.05, Math.min(0.15, o.w * 0.3), 'CAD', 'nhan')];
+    var sx = o.w / (k.w / 1000), sy = o.h / (k.h / 1000);
+    return k.p.map(function (fl) {
+      var pts = [];
+      for (var i = 0; i < fl.length; i += 2) pts.push([fl[i] / 1000 * sx, fl[i + 1] / 1000 * sy]);
+      return P(pts, false, 'muc');
+    });
+  }
+  function napCad(d) {
+    var ds = [];
+    (d && d.khoi || []).forEach(function (k) {
+      if (!k || typeof k.ma !== 'string' || !Array.isArray(k.p) || !(k.w > 0) || !(k.h > 0)) return;
+      CAD[k.ma] = k;
+      LIB['CAD:' + k.ma] = { ten: String(k.ten || k.ma), nhom: 'CAD', nhom_cad: String(k.nhom || 'Khác'), w: k.w / 1000, h: k.h / 1000, cad: k.ma,
+        tao: { ma: 'CAD', cad: k.ma }, ve: (function (ma) { return function (o) { return veCad({ w: o.w, h: o.h, cad: ma }); }; })(k.ma) };
+      ds.push('CAD:' + k.ma);
+    });
+    return ds;
   }
 
   var LIB = {
@@ -234,6 +308,10 @@
     TD: { ten: 'Tắm đứng', nhom: 'Vệ sinh', w: 0.9, h: 0.9, ve: function (o) {
       return [R(0, 0, o.w, o.h, 'nuoc'), L(0, 0, o.w, o.h, 'nuoc'), L(o.w, 0, 0, o.h, 'nuoc'), C(o.w / 2, o.h / 2, 0.04, 'nuoc', true)];
     } },
+    TDV: { ten: 'Tắm đứng vát góc', nhom: 'Vệ sinh', w: 0.9, h: 0.9, bam: true, ve: tamVatGoc,
+      mo: 'Đặt vào góc phòng tắm: hai cạnh sát tường, vách kính hai cạnh còn lại, cửa kính ở cạnh vát.' },
+    VK: { ten: 'Vách kính, cửa kính', nhom: 'Vệ sinh', w: 1.5, h: VK_DAY, sau: VK_DAY, ve: vachKinh, vach: true,
+      mo: 'Vách kính dày 0,10 m, kéo dài theo thiết kế. Chọn cửa kính mở quay hoặc lùa ngay trên bảng.' },
     BT: { ten: 'Bồn tắm', nhom: 'Vệ sinh', w: 1.6, h: 0.75, bam: true, ve: function (o) {
       return [R(0, 0, o.w, o.h, 'nuoc'), R(0.08, 0.08, o.w - 0.16, o.h - 0.16, 'nuoc'), C(0.25, o.h / 2, 0.035, 'nuoc', true)];
     } },
@@ -260,9 +338,12 @@
     GN: { ten: 'Giường đơn', nhom: 'Nội thất', w: 1.2, h: 2.0, bam: true, ve: function (o) {
       return [R(0, 0, o.w, o.h, 'go'), R(0.15, 0.08, o.w - 0.3, 0.32, 'go'), L(0, 0.6, o.w, 0.6, 'go')];
     } },
-    TA: { ten: 'Tủ áo', nhom: 'Nội thất', w: 1.8, h: 0.6, bam: true, ve: function (o) {
-      return [R(0, 0, o.w, o.h, 'go'), L(0, o.h, o.w, 0, 'go')];
-    } },
+    TA: { ten: 'Tủ áo', nhom: 'Nội thất', w: 1.8, h: 0.6, sau: 0.6, bam: true, ve: function (o) {
+      return [R(0, 0, o.w, o.h, 'go'), L(0.05, o.h / 2, o.w - 0.05, o.h / 2, 'go', true), L(0, o.h, o.w, 0, 'go')];
+    }, mo: 'Tủ áo luôn sâu 0,60 m. Kéo góc chỉ đổi chiều dài theo thiết kế.' },
+    TDG: { ten: 'Tab đầu giường', nhom: 'Nội thất', w: 0.45, h: 0.4, bam: true, ve: function (o) {
+      return [R(0, 0, o.w, o.h, 'go'), C(o.w / 2, o.h / 2, Math.min(o.w, o.h) * 0.22, 'go'), L(o.w / 2 - 0.05, o.h / 2, o.w / 2 + 0.05, o.h / 2, 'go'), L(o.w / 2, o.h / 2 - 0.05, o.w / 2, o.h / 2 + 0.05, 'go')];
+    }, mo: 'Đặt hai bên đầu giường, lưng sát tường.' },
     SF: { ten: 'Sofa', nhom: 'Nội thất', w: 2.2, h: 0.9, bam: true, ve: function (o) {
       var t = 0.18;
       return [P([[0, 0], [o.w, 0], [o.w, o.h], [o.w - t, o.h], [o.w - t, t + 0.12], [t, t + 0.12], [t, o.h], [0, o.h]], true, 'go'), L(t, o.h, o.w - t, o.h, 'go')];
@@ -278,14 +359,18 @@
     BL: { ten: 'Bàn làm việc', nhom: 'Nội thất', w: 1.2, h: 0.6, bam: true, ve: function (o) {
       return [R(0, 0, o.w, o.h, 'go'), C(o.w / 2, o.h + 0.28, 0.22, 'go')];
     } },
-    TV: { ten: 'Kệ tivi', nhom: 'Nội thất', w: 1.8, h: 0.4, bam: true, ve: function (o) {
-      return [R(0, 0, o.w, o.h, 'go'), L(o.w * 0.15, o.h + 0.06, o.w * 0.85, o.h + 0.06, 'muc')];
-    } },
+    TV: { ten: 'Kệ tivi', nhom: 'Nội thất', w: 1.8, h: 0.45, sau: 0.45, bam: true, ve: keTivi,
+      mo: 'Kệ sâu 0,45 m, tivi đặt trên kệ sát lưng. Kéo góc chỉ đổi chiều dài kệ.' },
+    TVR: { ten: 'Tivi rời', nhom: 'Nội thất', w: 1.25, h: 0.18, sau: 0.18, bam: true, ve: function (o) { return tivi(0, 0, o.w); },
+      mo: 'Tivi treo tường hoặc đặt lên kệ, tủ có sẵn. Bề ngang mặc định 1,25 m (tivi 55 inch).' },
     BC: { ten: 'Bồn cây', nhom: 'Nội thất', w: 1.2, h: 0.5, ve: function (o) {
       var out = [R(0, 0, o.w, o.h, 'cay')], r = Math.min(o.h, 0.6) * 0.32;
       for (var x = r + 0.08; x < o.w - r; x += r * 2.6) out.push(C(x, o.h / 2, r, 'cay'));
       return out;
     } },
+
+    /* khối CAD đã đặt lên bản vẽ (it.cad = tên block); món chọn được nằm trong LIB['CAD:<tên>'] sau khi nạp */
+    CAD: { ten: 'Khối CAD', nhom: 'CAD_GOC', w: 1, h: 1, ve: veCad },
 
     /* ---- ghi chú ---- */
     VAO: { ten: 'Lối vào chính', nhom: 'Ghi chú', w: 0.6, h: 0.9, ve: function (o) {
@@ -313,5 +398,5 @@
 
   var NHOM = ['Vệ sinh', 'Bếp', 'Nội thất', 'Lên xuống & kỹ thuật', 'Ghi chú'];
 
-  window.ALNKyHieu = { LIB: LIB, CUA: CUA, NHOM: NHOM, thangBoTri: thangBoTri, thangKichThuoc: thangKichThuoc, wcBoTri: wcBoTri, MAT_BAC_ALN: MAT_BAC_ALN, ve: function (ma, o) { var s = LIB[ma]; return s ? s.ve(o) : []; } };
+  window.ALNKyHieu = { LIB: LIB, CAD: CAD, napCad: napCad, VK_DAY: VK_DAY, CUA: CUA, NHOM: NHOM, thangBoTri: thangBoTri, thangKichThuoc: thangKichThuoc, wcBoTri: wcBoTri, MAT_BAC_ALN: MAT_BAC_ALN, ve: function (ma, o) { var s = LIB[ma]; return s ? s.ve(o) : []; } };
 })();
