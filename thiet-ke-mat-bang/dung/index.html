@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM (xem scripts/aln-optout.js) -->
+<script src="../../scripts/aln-optout.js"></script>
+<script src="/aln-consent.js?v=4"></script>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MB7VRGR5');</script>
+<!-- End Google Tag Manager -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Dựng mặt bằng — kéo tường, thêm cửa và thiết bị | ALN</title>
+<meta name="description" content="Tự chỉnh mặt bằng nhà: kéo tường, thêm bớt cửa, đặt thiết bị vệ sinh, bếp, giường, tủ. Máy tự tính diện tích từng phòng và nhắc chỗ chưa hợp lý. Bản dùng thử của ALN.">
+<!-- Bản dùng thử (23/10/2026): chưa cho Google lập chỉ mục tới khi Founder duyệt. -->
+<meta name="robots" content="noindex, follow">
+<link rel="canonical" href="https://applamnha.vn/thiet-ke-mat-bang/dung/">
+<link rel="icon" href="../../icon-192.png" type="image/png">
+<meta name="theme-color" content="#0a1224">
+<script src="../../aln-esc.js"></script>
+<link rel="stylesheet" href="../../aln-tokens.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Oswald:wght@500;600&display=swap">
+<link rel="stylesheet" href="dung.css?v=1">
+
+<!-- Google Analytics 4 (ALN — G-5CSL1TF0RC, tách riêng khỏi property TK.HOUSE) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-5CSL1TF0RC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-5CSL1TF0RC');
+</script>
+<!-- End GA4 -->
+<script>window.ALN_PAGE_LABEL = 'dung-mat-bang';</script>
+<script src="../../aln-tracking.js"></script>
+<script src="../../error-monitor.js"></script>
+</head>
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MB7VRGR5" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+<div class="app" id="app">
+  <header class="dau">
+    <a class="logo" href="/" aria-label="Về trang chủ App Làm Nhà">ALN</a>
+    <div class="ten-ban">
+      <span class="nhan-trang">Dựng mặt bằng</span>
+      <input id="tenBan" class="o-ten" maxlength="60" aria-label="Tên bản vẽ" value="Bản vẽ của tôi">
+    </div>
+    <div class="dau-nut">
+      <button class="nut-dau" id="nutHoanTac" type="button" title="Quay lại bước trước (Ctrl+Z)" aria-label="Quay lại bước trước">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg><span>Quay lại</span>
+      </button>
+      <button class="nut-dau" id="nutLamLai" type="button" title="Làm lại bước vừa bỏ (Ctrl+Y)" aria-label="Làm lại">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 14 5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/></svg><span>Làm lại</span>
+      </button>
+      <span class="vach" aria-hidden="true"></span>
+      <button class="nut-dau" id="nutTep" type="button" aria-haspopup="true" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h10l4 4v12H5z"/><path d="M15 4v4h4"/><path d="M9 13h6M9 17h6"/></svg><span>Lưu &amp; xuất</span>
+      </button>
+      <button class="nut-che-do" id="nutCheDo" type="button" aria-pressed="false" aria-label="Đang ở chế độ Chủ nhà, bấm để chuyển sang chế độ KTS" title="Chế độ KTS mở khoá tường ngoài, cầu thang, thang máy, hộp gen">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span id="chuCheDo">Chủ nhà</span>
+      </button>
+      <button class="nut-dau tron" id="nutHuongDan" type="button" aria-label="Hướng dẫn">?</button>
+    </div>
+    <div class="menu-tep" id="menuTep" hidden>
+      <button type="button" data-lenh="luu_pb"><b>Lưu phiên bản</b><span>Giữ lại bản này để so sánh hoặc quay lại sau</span></button>
+      <button type="button" data-lenh="ds_pb"><b>Các phiên bản đã lưu</b><span>Xem, mở lại, xoá</span></button>
+      <hr>
+      <button type="button" data-lenh="tai_file"><b>Tải file mặt bằng (.aln.json)</b><span>Gửi cho KTS hoặc mở lại trên máy khác</span></button>
+      <button type="button" data-lenh="mo_file"><b>Mở file mặt bằng</b><span>File .aln.json đã tải trước đó</span></button>
+      <hr>
+      <button type="button" data-lenh="xuat_anh"><b>Xuất ảnh PNG</b><span>Gửi qua Zalo</span></button>
+      <button type="button" data-lenh="in"><b>In hoặc lưu PDF</b><span>Khổ A3 ngang, có khung tên</span></button>
+      <button type="button" data-lenh="xuat_dxf"><b>Xuất DXF cho KTS</b><span>Mở được trong AutoCAD</span></button>
+      <hr>
+      <button type="button" data-lenh="mau"><b>Mặt bằng mẫu</b><span>Nạp lại bản 12 × 8 m dựng từ bản phác</span></button>
+      <button type="button" data-lenh="moi"><b>Bắt đầu lô mới</b><span>Nhập bề ngang, chiều sâu lô</span></button>
+    </div>
+    <input type="file" id="oMoFile" accept=".json,application/json" hidden>
+  </header>
+
+  <nav class="cong-cu" id="congCu" aria-label="Công cụ">
+    <button type="button" class="cc" data-cc="chon" aria-pressed="true" title="Chọn và kéo (V)">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3l14 8-6 2-3 6z"/></svg><span>Chọn &amp; kéo</span>
+    </button>
+    <button type="button" class="cc" data-cc="tuong" aria-pressed="false" title="Vẽ tường (W)">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="9" width="18" height="6" fill="currentColor" stroke="none"/><path d="M3 5v14M21 5v14"/></svg><span>Vẽ tường</span>
+    </button>
+    <button type="button" class="cc" data-cc="cua" aria-pressed="false" title="Thêm cửa đi (D)">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 20h5M17 20h5"/><path d="M7 20V6"/><path d="M7 6a14 14 0 0 1 10 14"/></svg><span>Cửa đi</span>
+    </button>
+    <button type="button" class="cc" data-cc="so" aria-pressed="false" title="Thêm cửa sổ (S)">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12h3M19 12h3"/><path d="M5 9h14M5 12h14M5 15h14M12 9v6"/></svg><span>Cửa sổ</span>
+    </button>
+    <button type="button" class="cc" data-cc="thu_vien" aria-pressed="false" title="Thêm thiết bị, đồ đạc (T)">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M8 5v5"/></svg><span>Thiết bị</span>
+    </button>
+    <button type="button" class="cc" data-cc="phong" aria-pressed="false" title="Đặt tên phòng (P)">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7V4h16v3M12 4v16M9 20h6"/></svg><span>Tên phòng</span>
+    </button>
+    <button type="button" class="cc" data-cc="ghi_chu" aria-pressed="false" title="Ghim ghi chú (N)">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Ghi chú</span>
+    </button>
+  </nav>
+
+  <main class="giay" id="giay">
+    <svg id="banVe" class="ban-ve" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bản vẽ mặt bằng"></svg>
+    <div class="goi-y-dong" id="goiYDong" role="status" aria-live="polite"></div>
+    <div class="zoom" aria-label="Thu phóng">
+      <button type="button" id="zoomCong" aria-label="Phóng to">+</button>
+      <button type="button" id="zoomTru" aria-label="Thu nhỏ">−</button>
+      <button type="button" id="zoomVua" aria-label="Vừa khung" class="chu">Vừa khung</button>
+    </div>
+    <div class="the-nho" id="theNho" hidden></div>
+  </main>
+
+  <aside class="bang" id="bang" aria-label="Bảng chỉnh">
+    <div class="keo-bang" id="keoBang" aria-hidden="true"></div>
+    <div class="the-bang" role="tablist">
+      <button type="button" role="tab" data-the="chon" aria-selected="true">Đang chọn</button>
+      <button type="button" role="tab" data-the="thu_vien" aria-selected="false">Thư viện</button>
+      <button type="button" role="tab" data-the="dien_tich" aria-selected="false">Diện tích</button>
+      <button type="button" role="tab" data-the="kiem" aria-selected="false">Kiểm tra <span class="dem" id="demLoi" hidden>0</span></button>
+    </div>
+    <section class="noi-dung-bang" id="ndChon" role="tabpanel"></section>
+    <section class="noi-dung-bang" id="ndThuVien" role="tabpanel" hidden></section>
+    <section class="noi-dung-bang" id="ndDienTich" role="tabpanel" hidden></section>
+    <section class="noi-dung-bang" id="ndKiem" role="tabpanel" hidden></section>
+  </aside>
+</div>
+
+<div class="hop-thoai" id="hopThoai" hidden role="dialog" aria-modal="true" aria-labelledby="htTieuDe">
+  <div class="hop">
+    <h2 id="htTieuDe"></h2>
+    <div id="htNoiDung"></div>
+    <div class="hop-nut" id="htNut"></div>
+  </div>
+</div>
+
+<div class="ban-in" id="banIn" aria-hidden="true"></div>
+
+<script src="dung-ky-hieu.js?v=1"></script>
+<script src="dung.js?v=1"></script>
+<!-- ALN-PHAP-NHAN --><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"><style id="alnpn-css">.alnpn,.alnpn *{box-sizing:border-box;margin:0;padding:0;border:0;font:inherit;letter-spacing:normal;text-transform:none;text-shadow:none;float:none;background:none;min-width:0}.alnpn{display:block;width:100%;clear:both;position:relative;z-index:0;background:#0b1428;border-top:2px solid #d4a017;color:#cbd5e1;font-family:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:15px;font-weight:400;line-height:1.5;text-align:left;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;padding:28px 20px 88px}.alnpn-in{max-width:1280px;margin:0 auto;display:grid;gap:22px}.alnpn-brand{display:flex;align-items:center;gap:14px}.alnpn-brand img{display:block;flex:none;width:44px;height:44px;border-radius:10px}.alnpn-ten{font-weight:700;font-size:17px;line-height:1.3;letter-spacing:.03em;color:#fff}.alnpn-sub{margin-top:2px;font-size:13px;line-height:1.4;color:#9fb0c8}.alnpn-muc dt{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;line-height:1.3;letter-spacing:.08em;text-transform:uppercase;color:#e0b43a;margin-bottom:6px}.alnpn-muc dt svg{display:block;flex:none;width:16px;height:16px;fill:none;stroke:#e0b43a;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.alnpn-muc dd{font-size:15px;font-weight:500;line-height:1.45;color:#f1f5f9}.alnpn-mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:600;letter-spacing:.02em}.alnpn a{color:#fff;text-decoration:none}.alnpn a:hover,.alnpn a:focus-visible{color:#e0b43a;outline:none}.alnpn-note{font-size:13px;font-weight:400;color:#9fb0c8;margin-left:8px;white-space:nowrap}@media (min-width:768px){.alnpn{padding:26px 28px}.alnpn-in{grid-template-columns:auto auto auto auto;justify-content:space-between;align-items:stretch;gap:0}.alnpn-brand{align-self:center}.alnpn-muc{padding:0 0 0 28px;margin-left:28px;border-left:1px solid rgba(224,180,58,.22)}}@media (min-width:768px) and (max-width:1099px){.alnpn-in{grid-template-columns:auto minmax(0,1fr) auto;justify-content:stretch;row-gap:20px}.alnpn-brand{grid-column:1/-1;align-self:start}.alnpn-muc:nth-child(2){border-left:0;margin-left:0;padding-left:0}}</style><section class="alnpn" aria-label="Thông tin doanh nghiệp"><div class="alnpn-in"><div class="alnpn-brand"><img src="/icon-192.png" alt="" width="44" height="44" loading="lazy"><div><div class="alnpn-ten">CÔNG TY TNHH ALN</div><div class="alnpn-sub">Đơn vị chủ quản website applamnha.vn</div></div></div><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M10 12h5M10 16h5"/></svg>Mã số thuế</dt><dd class="alnpn-mono">3502593013</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-6-5.3-6-11a6 6 0 1 1 12 0c0 5.7-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/></svg>Địa chỉ</dt><dd>Khu TTTM Sonadezi 536 Trung Sơn, Ngãi Giao, TP. Hồ Chí Minh</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 5 5L14 13l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>Hotline</dt><dd><a class="alnpn-mono" href="tel:0909829696">0909 829 696</a><span class="alnpn-note">KTS Trần Long</span></dd></dl></div></section>
+</body>
+</html>

@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://applamnha.vn/</loc>
-    <lastmod>2026-10-22</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
@@ -20,7 +20,7 @@
   </url>
   <url>
     <loc>https://applamnha.vn/cam-nang/</loc>
-    <lastmod>2026-10-22</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -110,7 +110,7 @@
   </url>
   <url>
     <loc>https://applamnha.vn/cam-nang/cach-chon-doi-thi-cong-khi-da-co-ban-ve/</loc>
-    <lastmod>2026-10-22</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -151,14 +151,20 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://applamnha.vn/cam-nang/chup-anh-tung-moc-thi-cong-lam-can-cu-bao-hanh/</loc>
+    <lastmod>2026-10-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://applamnha.vn/cam-nang/dien-tich-xay-dung-quy-doi/</loc>
-    <lastmod>2026-10-22</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://applamnha.vn/cam-nang/dinh-muc-nha-nuoc-va-thuc-te/</loc>
-    <lastmod>2026-10-22</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -194,7 +200,7 @@
   </url>
   <url>
     <loc>https://applamnha.vn/cam-nang/kinh-nghiem-xay-nha-lan-dau/</loc>
-    <lastmod>2026-10-22</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -212,19 +218,19 @@
   </url>
   <url>
     <loc>https://applamnha.vn/cam-nang/nha-cap-4-hay-nha-pho-dien-tich-han-che/</loc>
-    <lastmod>2026-10-22</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://applamnha.vn/cam-nang/nhan-vat-tu-tai-cong-trinh-kiem-cat-da-xi-mang-thep/</loc>
-    <lastmod>2026-10-22</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://applamnha.vn/cam-nang/pham-vi-goi-thau-xay-nha/</loc>
-    <lastmod>2026-10-22</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -242,7 +248,7 @@
   </url>
   <url>
     <loc>https://applamnha.vn/cam-nang/quy-trinh-thiet-ke-nha-o-tung-buoc/</loc>
-    <lastmod>2026-10-22</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -254,7 +260,7 @@
   </url>
   <url>
     <loc>https://applamnha.vn/cam-nang/thuat-ngu-xay-nha/</loc>
-    <lastmod>2026-10-22</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -266,19 +272,19 @@
   </url>
   <url>
     <loc>https://applamnha.vn/cam-nang/truoc-khi-do-be-tong-san-chu-nha-nen-nhin-gi/</loc>
-    <lastmod>2026-10-22</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://applamnha.vn/cam-nang/ung-tien-cho-doi-tho-theo-moc-ghi-so-ung/</loc>
-    <lastmod>2026-10-22</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://applamnha.vn/cam-nang/vi-sao-nen-duyet-phuong-an-thiet-ke-theo-giai-doan/</loc>
-    <lastmod>2026-10-22</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -440,7 +446,7 @@
   </url>
   <url>
     <loc>https://applamnha.vn/cam-nang/xem-huong-nha-theo-tuoi-bat-trach/</loc>
-    <lastmod>2026-10-22</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

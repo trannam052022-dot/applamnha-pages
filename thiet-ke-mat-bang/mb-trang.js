@@ -186,7 +186,8 @@
         rc.appendChild(el('title', null, 'Bấm để đổi công năng phòng này'));
       }
       svg.appendChild(rc);
-      if (q.t === 'shaft' || q.t === 'void') svg.appendChild(el('path', { 'class': q.t === 'void' ? 'p-x' : 'p-thin', d: 'M' + nn(q.x) + ' ' + nn(q.y) + 'L' + nn(q.x + q.w) + ' ' + nn(q.y + q.h) + 'M' + nn(q.x + q.w) + ' ' + nn(q.y) + 'L' + nn(q.x) + ' ' + nn(q.y + q.h) }));
+      if (q.t === 'shaft' && q.key === 'tm' && !/phòng máy/i.test(q.lb || '')) veCabin(svg, q); // Nam 23/10: thang máy phải có cabin
+      else if (q.t === 'shaft' || q.t === 'void') svg.appendChild(el('path', { 'class': q.t === 'void' ? 'p-x' : 'p-thin', d: 'M' + nn(q.x) + ' ' + nn(q.y) + 'L' + nn(q.x + q.w) + ' ' + nn(q.y + q.h) + 'M' + nn(q.x + q.w) + ' ' + nn(q.y) + 'L' + nn(q.x) + ' ' + nn(q.y + q.h) }));
     });
     var wp = '';
     (fl.walls || []).forEach(function (w) { wp += w.o === 'h' ? 'M' + nn(w.a0) + ' ' + nn(w.at) + 'H' + nn(w.a1) : 'M' + nn(w.at) + ' ' + nn(w.a0) + 'V' + nn(w.a1); });
@@ -237,6 +238,11 @@
       else svg.appendChild(el('circle', { 'class': cls, cx: nn(p.cx), cy: nn(p.cy), r: nn(p.r) }));
     });
   }
+  function veCabin(svg, q) { /* hố thang máy: cabin lùi 0,15 m vào trong hố, gạch chéo trong cabin */
+    var k = Math.min(0.15, q.w * 0.12, q.h * 0.12), x = q.x + k, y = q.y + k, w = q.w - 2 * k, h = q.h - 2 * k;
+    svg.appendChild(el('rect', { 'class': 'p-cabin', x: nn(x), y: nn(y), width: nn(w), height: nn(h) }));
+    svg.appendChild(el('path', { 'class': 'p-thin', d: 'M' + nn(x) + ' ' + nn(y) + 'L' + nn(x + w) + ' ' + nn(y + h) + 'M' + nn(x + w) + ' ' + nn(y) + 'L' + nn(x) + ' ' + nn(y + h) }));
+  }
   function veThang(svg, s, id, fs, nho) {
     if (s.kind === 'U') { // thang hai vế: lên ở vế trái, chiếu nghỉ phía sau, xuống vế phải
       var x0 = s.x, y0 = s.y, w0 = s.w, h0 = s.h, ve = (w0 - 0.1) / 2, cn = Math.min(1.1, h0 * 0.3), pp = '';
@@ -244,7 +250,7 @@
       for (var yy2 = y0 + 0.27; yy2 < y0 + h0 - cn - 0.05; yy2 += 0.27) pp += 'M' + nn(x0) + ' ' + nn(yy2) + 'H' + nn(x0 + ve) + 'M' + nn(x0 + ve + 0.1) + ' ' + nn(yy2) + 'H' + nn(x0 + w0);
       pp += 'M' + nn(x0) + ' ' + nn(y0 + h0 - cn) + 'H' + nn(x0 + w0) + 'M' + nn(x0 + ve) + ' ' + nn(y0) + 'V' + nn(y0 + h0 - cn) + 'M' + nn(x0 + ve + 0.1) + ' ' + nn(y0) + 'V' + nn(y0 + h0 - cn);
       svg.appendChild(el('path', { 'class': 'p-thin', d: pp }));
-      if (!nho) svg.appendChild(el('polyline', { 'class': 'p-arrow', points: nn(x0 + ve / 2) + ',' + nn(y0 + 0.2) + ' ' + nn(x0 + ve / 2) + ',' + nn(y0 + h0 - cn / 2) + ' ' + nn(x0 + w0 - ve / 2) + ',' + nn(y0 + h0 - cn / 2) + ' ' + nn(x0 + w0 - ve / 2) + ',' + nn(y0 + 0.5), 'marker-end': 'url(#' + id + ')' }));
+      if (!nho) svg.appendChild(el('polyline', { 'class': 'p-arrow', points: nn(x0 + ve / 2) + ',' + nn(y0) + ' ' + nn(x0 + ve / 2) + ',' + nn(y0 + h0 - cn / 2) + ' ' + nn(x0 + w0 - ve / 2) + ',' + nn(y0 + h0 - cn / 2) + ' ' + nn(x0 + w0 - ve / 2) + ',' + nn(y0), /* Nam 23/10: đuôi và mũi tên chạm mép thang */ 'marker-end': 'url(#' + id + ')' }));
       return;
     }
     if (s.kind !== 'doc') { svg.appendChild(el('rect', { 'class': 'p-stair', x: nn(s.x), y: nn(s.y), width: nn(s.w || 1), height: nn(s.h || 1) })); return; }
@@ -256,7 +262,7 @@
     svg.appendChild(el('path', { 'class': 'p-thin', d: p }));
     if (nho) return;
     var ax = x + w / 2;
-    svg.appendChild(el('polyline', { 'class': 'p-arrow', points: nn(ax) + ',' + nn(y + h - 0.2) + ' ' + nn(ax) + ',' + nn(y + 0.25), 'marker-end': 'url(#' + id + ')' }));
+    svg.appendChild(el('polyline', { 'class': 'p-arrow', points: nn(ax) + ',' + nn(y + h) + ' ' + nn(ax) + ',' + nn(y), /* chạm mép đầu và mép cuối */ 'marker-end': 'url(#' + id + ')' }));
   }
   function veNhan(svg, q, fs) {
     var cx = q.x + q.w / 2, cy = q.y + q.h / 2, isC = q.t === 'corr';
