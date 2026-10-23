@@ -264,7 +264,108 @@
   }
   function netDo(it) {
     var s = LIB[it.ma]; if (!s) return [];
-    return s.ve({ w: it.w, h: it.h, n: it.n, kieu: it.kieu, dao: it.dao });
+    return s.ve(thamSoDo(it));
+  }
+  function thamSoDo(it) { return { w: it.w, h: it.h, n: it.n, kieu: it.kieu, dao: it.dao, ve: it.ve, sen: it.sen, gd: it.gd, gs: it.gs, gen: it.gen, lv: it.lv, truc: it.truc }; }
+  /* Ô từng thiết bị của khối WC, toạ độ bản vẽ (để kiểm cánh cửa vướng, đồ chồng nhau) */
+  function hopPhanWC(it) {
+    var f = doiDiem(it);
+    return KH.wcBoTri(thamSoDo(it)).parts.map(function (q) {
+      var H = q.hop, a = f(H.x, H.y), b = f(H.x + H.w, H.y + H.h);
+      return { ma: q.ma, x0: Math.min(a.x, b.x), y0: Math.min(a.y, b.y), x1: Math.max(a.x, b.x), y1: Math.max(a.y, b.y) };
+    });
+  }
+  function cacHop(it) { return it.ma === 'WC' ? hopPhanWC(it) : [hopDo(it)]; }
+  /* Lọt lòng phòng quanh một điểm: mặt tường gần nhất 4 phía (tường thẳng trục) */
+  function lotLongQuanh(x, y) {
+    var r = { x0: -Infinity, x1: Infinity, y0: -Infinity, y1: Infinity };
+    plan.walls.forEach(function (w) {
+      var q = khungTuong(w), bx0 = Infinity, by0 = Infinity, bx1 = -Infinity, by1 = -Infinity;
+      q.forEach(function (z) { bx0 = Math.min(bx0, z[0]); by0 = Math.min(by0, z[1]); bx1 = Math.max(bx1, z[0]); by1 = Math.max(by1, z[1]); });
+      if (y > by0 + 1e-6 && y < by1 - 1e-6) { if (bx0 >= x - 1e-6) r.x1 = Math.min(r.x1, bx0); if (bx1 <= x + 1e-6) r.x0 = Math.max(r.x0, bx1); }
+      if (x > bx0 + 1e-6 && x < bx1 - 1e-6) { if (by0 >= y - 1e-6) r.y1 = Math.min(r.y1, by0); if (by1 <= y + 1e-6) r.y0 = Math.max(r.y0, by1); }
+    });
+    return r;
+  }
+  /* Đặt khối WC vừa khít lọt lòng phòng chứa điểm (cx, cy). Trả true nếu vừa được. */
+  function vuaKhitPhong(it, cx, cy) {
+    var r = lotLongQuanh(cx, cy), W = r.x1 - r.x0, H = r.y1 - r.y0;
+    if (!isFinite(W) || !isFinite(H) || W < 0.6 || H < 0.6 || W > 6 || H > 6) return false;
+    // phòng đã có hộp gen dạng dải sát một tường: khối WC chừa dải đó ra, dùng hộp gen có sẵn
+    var coGen = false;
+    plan.items.forEach(function (o) {
+      if (o.ma !== 'G' || o === it) return;
+      var B = hopDo(o), e = 0.06;
+      if (B.x0 > r.x1 - e || B.x1 < r.x0 + e || B.y0 > r.y1 - e || B.y1 < r.y0 + e) return;
+      var dai = B.y1 - B.y0 >= 0.7 * (r.y1 - r.y0), ngang = B.x1 - B.x0 >= 0.7 * (r.x1 - r.x0);
+      if (dai && Math.abs(B.x1 - r.x1) < e) { r.x1 = B.x0; coGen = true; }
+      else if (dai && Math.abs(B.x0 - r.x0) < e) { r.x0 = B.x1; coGen = true; }
+      else if (ngang && Math.abs(B.y1 - r.y1) < e) { r.y1 = B.y0; coGen = true; }
+      else if (ngang && Math.abs(B.y0 - r.y0) < e) { r.y0 = B.y1; coGen = true; }
+      else if (B.x1 - B.x0 < 1.2 && B.y1 - B.y0 < 1.2) coGen = true;
+    });
+    if (coGen) it.gen = false;
+    W = r.x1 - r.x0; H = r.y1 - r.y0;
+    it.cx = (r.x0 + r.x1) / 2; it.cy = (r.y0 + r.y1) / 2;
+    if (((it.rot % 180) + 180) % 180 === 0) { it.w = W; it.h = H; } else { it.w = H; it.h = W; }
+    return true;
+  }
+  /* Vùng phải để trống quanh cửa đi: cánh mở (cửa 1 cánh) + lối qua cửa 0,5 m hai bên */
+  function vungCua() {
+    var ds = [];
+    plan.ops.forEach(function (op) {
+      var hc = hinhCua(op), c = CUA[op.ma]; if (!hc || !c || c.loai === 'so') return;
+      var g = hc.g, hop = function (pts) { var xs = pts.map(function (q) { return q.x; }), ys = pts.map(function (q) { return q.y; }); return { x0: Math.min.apply(null, xs), y0: Math.min.apply(null, ys), x1: Math.max.apply(null, xs), y1: Math.max.apply(null, ys) }; };
+      [1, -1].forEach(function (sg) { ds.push(hop([hc.P0, hc.P1, { x: hc.P1.x + g.nx * sg * 0.5, y: hc.P1.y + g.ny * sg * 0.5 }, { x: hc.P0.x + g.nx * sg * 0.5, y: hc.P0.y + g.ny * sg * 0.5 }])); });
+      if (c.canh === 1) {
+        var hl = op.ban_le === 'a' ? hc.P0 : hc.P1, dau = op.ban_le === 'a' ? hc.P1 : hc.P0, sx = g.nx * op.phia, sy = g.ny * op.phia;
+        ds.push(hop([hl, dau, { x: hl.x + sx * op.rong, y: hl.y + sy * op.rong }, { x: dau.x + sx * op.rong, y: dau.y + sy * op.rong }]));
+      }
+      ds[ds.length - 1].C = hc.C;
+    });
+    return ds;
+  }
+  function dtChong(A, B) { var ox = Math.min(A.x1, B.x1) - Math.max(A.x0, B.x0), oy = Math.min(A.y1, B.y1) - Math.max(A.y0, B.y0); return ox > 0 && oy > 0 ? ox * oy : 0; }
+  /* Khối WC tự chọn hướng theo cửa: thử 8 cách đặt (xoay 4 hướng × lật), chọn cách thiết bị không vướng cửa,
+     khu tắm xa cửa nhất, lavabo gần cửa, bồn cầu gần hộp gen có sẵn. Chủ nhà bấm Xoay/Lật/Đảo đầu thì giữ tay. */
+  function tuXepWC(it) {
+    if (!it || it.ma !== 'WC' || it.tay) return;
+    var b0 = hopDo(it), W = b0.x1 - b0.x0, H = b0.y1 - b0.y0, rong = { x0: b0.x0 - 0.3, y0: b0.y0 - 0.3, x1: b0.x1 + 0.3, y1: b0.y1 + 0.3 };
+    var cua = vungCua(), tamCua = [];
+    cua.forEach(function (z) { if (z.C && z.C.x > rong.x0 && z.C.x < rong.x1 && z.C.y > rong.y0 && z.C.y < rong.y1) tamCua.push(z.C); });
+    var vatCan = [], genCo = [];
+    plan.items.forEach(function (o) {
+      if (o === it || o.ma === 'VAO' || o.ma === 'BAC') return;
+      var B = hopDo(o);
+      if (o.ma === 'G' && dtChong(B, rong) > 0) genCo.push({ x: (B.x0 + B.x1) / 2, y: (B.y0 + B.y1) / 2 });
+      if (dtChong(B, b0) > 0.01) vatCan.push(B);
+    });
+    var tot = null;
+    [0, 90, 180, 270].forEach(function (r) { [false, true].forEach(function (lat) { (Math.abs(W - H) < 0.45 ? ['doc', 'ngang'] : ['']).forEach(function (truc) { ['', 0, 0.25, 0.5, 0.75, 1].forEach(function (lv) {
+        var t = {}; for (var k in it) t[k] = it[k];
+        t.rot = r; t.lat = lat; t.dao = false; t.lv = lv; t.truc = truc;
+        if (r % 180 === 0) { t.w = W; t.h = H; } else { t.w = H; t.h = W; }
+        var bt = KH.wcBoTri(thamSoDo(t)), parts = hopPhanWC(t), diem = bt.thieu.length * 5;
+        var tam = function (q) { return { x: (q.x0 + q.x1) / 2, y: (q.y0 + q.y1) / 2 }; };
+        parts.forEach(function (q) {
+          cua.forEach(function (z) { diem += dtChong(q, z) * 40; });
+          vatCan.forEach(function (z) { diem += dtChong(q, z) * 40; });
+          var c = tam(q);
+          tamCua.forEach(function (d) {
+            var kc = Math.hypot(c.x - d.x, c.y - d.y);
+            if (q.ma === 'TD' || q.ma === 'SEN' || q.ma === 'BT') diem -= kc;
+            else if (q.ma === 'LV') diem += kc * 0.3;
+          });
+          if (q.ma === 'BX' && genCo.length && t.gen === false) diem += Math.min.apply(null, genCo.map(function (g) { return Math.hypot(c.x - g.x, c.y - g.y); })) * 0.8;
+        });
+        if (!tot || diem < tot.diem - 1e-9) tot = { diem: diem, r: r, lat: lat, lv: lv, truc: truc, w: t.w, h: t.h };
+    }); }); }); });
+    if (tot) { it.rot = tot.r; it.lat = tot.lat; it.dao = false; it.lv = tot.lv; it.truc = tot.truc; it.w = tot.w; it.h = tot.h; }
+  }
+  /* Thang về kích thước gọn nhất theo số bậc, kiểu, bề rộng vế; giữ tâm */
+  function coThang(it) {
+    var ve = it.ve || KH.thangBoTri(thamSoDo(it)).ve || 1.0, g = KH.thangKichThuoc(it.kieu, it.n || 21, ve);
+    it.w = g.w; it.h = g.h;
   }
 
   /* ================= phân tích: tô loang tính diện tích, kiểm tra ================= */
@@ -418,6 +519,7 @@
     plan.items.forEach(function (it) {
       if (BO_QUA[it.ma] || KET_CAU[it.ma]) return;
       var b = hopDo(it), dem = 0;
+      if (it.ma === 'WC') b = { x0: b.x0 + 0.05, y0: b.y0 + 0.05, x1: b.x1 - 0.05, y1: b.y1 - 0.05 }; // khối WC áp sát mặt tường
       for (var y = b.y0 + O / 2; y < b.y1; y += O) for (var x = b.x0 + O / 2; x < b.x1; x += O) {
         var c = pt.o(x, y); if (c >= 0 && pt.ran[c] && !pt.ngoaiT[c]) dem++;
       }
@@ -426,9 +528,15 @@
     for (var i = 0; i < plan.items.length; i++) for (var j = i + 1; j < plan.items.length; j++) {
       var a = plan.items[i], b2 = plan.items[j];
       if (BO_QUA[a.ma] || BO_QUA[b2.ma] || a.ma === 'BC' || b2.ma === 'BC') continue;
-      var A = hopDo(a), B = hopDo(b2), ox = Math.min(A.x1, B.x1) - Math.max(A.x0, B.x0), oy = Math.min(A.y1, B.y1) - Math.max(A.y0, B.y0);
-      if (ox > 0.05 && oy > 0.05 && ox * oy > 0.04) them('vang', (LIB[a.ma] || {}).ten + ' chồng lên ' + ((LIB[b2.ma] || {}).ten || '').toLowerCase() + '.', { k: 'i', id: a.id }, (Math.max(A.x0, B.x0) + Math.min(A.x1, B.x1)) / 2, (Math.max(A.y0, B.y0) + Math.min(A.y1, B.y1)) / 2);
+      var chong = null;
+      cacHop(a).forEach(function (A) { cacHop(b2).forEach(function (B) { var ox = Math.min(A.x1, B.x1) - Math.max(A.x0, B.x0), oy = Math.min(A.y1, B.y1) - Math.max(A.y0, B.y0); if (!chong && ox > 0.05 && oy > 0.05 && ox * oy > 0.04) chong = { A: A, B: B }; }); });
+      if (chong) { var A = chong.A, B = chong.B; them('vang', (LIB[a.ma] || {}).ten + ' chồng lên ' + ((LIB[b2.ma] || {}).ten || '').toLowerCase() + '.', { k: 'i', id: a.id }, (Math.max(A.x0, B.x0) + Math.min(A.x1, B.x1)) / 2, (Math.max(A.y0, B.y0) + Math.min(A.y1, B.y1)) / 2); }
     }
+    // khối WC: thiếu chỗ
+    plan.items.forEach(function (it) {
+      if (it.ma !== 'WC') return;
+      KH.wcBoTri(thamSoDo(it)).thieu.forEach(function (t) { them('vang', 'Khối WC: ' + t, { k: 'i', id: it.id }, it.cx, it.cy); });
+    });
     // cửa
     plan.ops.forEach(function (op) {
       var hc = hinhCua(op), c = CUA[op.ma]; if (!hc || !c) return;
@@ -440,24 +548,27 @@
         var q0y = Math.min(hl.y, dau.y, hl.y + sy * op.rong), q1y = Math.max(hl.y, dau.y, hl.y + sy * op.rong);
         plan.items.forEach(function (it) {
           if (BO_QUA[it.ma] || it.ma === 'BC') return;
-          var B2 = hopDo(it), ox2 = Math.min(q1x, B2.x1) - Math.max(q0x, B2.x0), oy2 = Math.min(q1y, B2.y1) - Math.max(q0y, B2.y0);
-          if (ox2 > 0.08 && oy2 > 0.08) them('vang', 'Cánh cửa ' + op.ma + ' mở vướng ' + ((LIB[it.ma] || {}).ten || '').toLowerCase() + '.', { k: 'o', id: op.id }, hc.C.x, hc.C.y);
+          var vuong = null;
+          cacHop(it).forEach(function (B2) { var ox2 = Math.min(q1x, B2.x1) - Math.max(q0x, B2.x0), oy2 = Math.min(q1y, B2.y1) - Math.max(q0y, B2.y0); if (!vuong && ox2 > 0.08 && oy2 > 0.08) vuong = B2; });
+          if (vuong) them('vang', 'Cánh cửa ' + op.ma + ' mở vướng ' + (it.ma === 'WC' ? ((LIB[vuong.ma] || {}).ten || 'thiết bị').toLowerCase() + ' trong khối WC' : ((LIB[it.ma] || {}).ten || '').toLowerCase()) + '.', { k: 'o', id: op.id }, hc.C.x, hc.C.y);
         });
         // Nam 03/10/2026: cửa đặt sát tường trái hoặc phải
         var ghc = gioiHanCua(hc.w, op.rong), tuGoc = Math.min(op.s - op.rong / 2 - ghc.fa, ghc.g.len - ghc.fb - op.s - op.rong / 2);
         if (tuGoc > 0.4) them('goi_y', 'Cửa ' + op.ma + ' cách tường ' + so(tuGoc) + ' m. Đặt sát tường trái hoặc phải (cách 10 cm) sẽ đỡ tốn chỗ.', { k: 'o', id: op.id }, hc.C.x, hc.C.y, { nhan: 'Dời sát góc', lam: function () { chon({ k: 'o', id: op.id }); doiSatGoc(op); } });
       }
     });
-    // cầu thang
+    // cầu thang (một vế / hai vế / ba vế): dùng chung cách chia bậc với hình vẽ
     plan.items.forEach(function (it) {
       if (it.ma !== 'TH') return;
-      var n = it.n || 21, kieu = it.kieu === 'U' && it.w >= 1.5 ? 'U' : 'I';
+      var t = KH.thangBoTri(thamSoDo(it)), n = t.n, ten = { I: 'Thang một vế', U: 'Thang hai vế', U3: 'Thang ba vế' }[t.kieu];
       if (n < 17 || n > 22) them('vang', 'Cầu thang ' + n + ' bậc; thường 17–22 bậc mỗi tầng.', { k: 'i', id: it.id }, it.cx, it.cy);
-      var ve = kieu === 'U' ? (it.w - 0.1) / 2 : it.w, land = kieu === 'U' ? Math.min(Math.max(ve, 1.0), it.h * 0.5) : 0;
-      var b = kieu === 'U' ? (it.h - land) / Math.max(1, Math.ceil(n / 2) - 1) : it.h / (n - 1);
-      if (b < 0.25 - 0.005 || b > 0.30 + 0.005) them('vang', 'Mặt bậc thang đang ' + so(b) + ' m; nên 0,25–0,30 m. Đổi số bậc hoặc chiều dài thang.', { k: 'i', id: it.id }, it.cx, it.cy);
-      if (ve < 0.9 - 0.005) them('vang', 'Vế thang rộng ' + so(ve) + ' m; cần lọt lòng 0,90 m.', { k: 'i', id: it.id }, it.cx, it.cy);
-      if (kieu === 'I' && n >= 21) them('goi_y', 'Thang một vế ' + n + ' bậc khá dài, nên cân nhắc chiếu nghỉ.', { k: 'i', id: it.id }, it.cx, it.cy);
+      t.vế.forEach(function (v, i) {
+        if (v.b < 0.25 - 0.005 || v.b > 0.30 + 0.005) them('vang', ten + (t.vế.length > 1 ? ', vế ' + (i + 1) : '') + ': mặt bậc ' + so(v.b) + ' m; nên 0,25–0,30 m. Bấm "Tự co theo số bậc" hoặc đổi số bậc.', { k: 'i', id: it.id }, it.cx, it.cy);
+      });
+      if (t.ve < 0.9 - 0.005) them('vang', ten + ': vế rộng ' + so(t.ve) + ' m; cần lọt lòng 0,90 m.', { k: 'i', id: it.id }, it.cx, it.cy);
+      if (t.kieu !== 'I' && t.land < t.ve - 0.005) them('vang', ten + ': chiếu nghỉ sâu ' + so(t.land) + ' m, nên ít nhất bằng bề rộng vế (' + so(t.ve) + ' m).', { k: 'i', id: it.id }, it.cx, it.cy);
+      if (t.kieu === 'U3' && it.w - 2 * t.ve < 0.25) them('vang', 'Thang ba vế cần rộng hơn: vế giữa đang chỉ còn ' + so(Math.max(0, it.w - 2 * t.ve)) + ' m.', { k: 'i', id: it.id }, it.cx, it.cy);
+      if (t.kieu === 'I' && n >= 21) them('goi_y', 'Thang một vế ' + n + ' bậc khá dài; thang hai vế hoặc ba vế sẽ có chiếu nghỉ.', { k: 'i', id: it.id }, it.cx, it.cy);
     });
     var bac = { do: 0, vang: 1, goi_y: 2 };
     loi.sort(function (p, q) { return bac[p.muc] - bac[q.muc]; });
@@ -1232,28 +1343,56 @@
   }
   function bangDo(nd, it) {
     if (!it) return;
-    var s = LIB[it.ma] || {}, k = khoa(it);
-    nd.append(h('div', { cls: 'tieu' }, [h('h3', { text: s.ten || it.ma }), h('span', { cls: 'ma', text: it.ma })]));
-    if (k) nd.append(baoKhoa((s.ten || 'Mục này') + ' đã khoá vì liên quan kết cấu và kỹ thuật. Chỉ KTS chỉnh được.'));
+    var s = LIB[it.ma] || {}, k = khoa(it), tenIt = it.ma === 'TH' ? 'Cầu thang ' + { I: 'một vế', U: 'hai vế', U3: 'ba vế' }[KH.thangBoTri(thamSoDo(it)).kieu] : (s.ten || it.ma);
+    nd.append(h('div', { cls: 'tieu' }, [h('h3', { text: tenIt }), h('span', { cls: 'ma', text: it.ma })]));
+    if (k) nd.append(baoKhoa(tenIt + ' đã khoá vì liên quan kết cấu và kỹ thuật. Chỉ KTS chỉnh được.'));
     else if (s.mo) nd.append(h('p', { cls: 'mo-ta', text: s.mo }));
     else nd.append(h('p', { cls: 'mo-ta', text: 'Kéo để dời. Thả gần tường thì tự áp sát tường.' }));
     nd.append(oSo('Rộng', it.w, 0.05, 0.1, 30, function (v) { ghiLai(); it.w = v; xong(true); }, null, k));
     nd.append(oSo(it.ma === 'TH' ? 'Dài' : 'Sâu', it.h, 0.05, 0.1, 30, function (v) { ghiLai(); it.h = v; xong(true); }, null, k));
     if (it.ma === 'TH') {
-      var n = it.n || 21;
+      var n = it.n || 21, tb = KH.thangBoTri(thamSoDo(it));
+      nd.append(h('div', { cls: 'truong' }, [h('label', { text: 'Kiểu thang' }), chipChon([['I', 'Một vế'], ['U', 'Hai vế'], ['U3', 'Ba vế']], tb.kieu, function (v) {
+        if (k) { baoDong('Cầu thang đã khoá. Chỉ KTS đổi được.'); return; }
+        ghiLai(); it.ve = Math.max(0.9, tb.ve); it.kieu = v; coThang(it); xong(true);
+        baoDong('Đã đổi sang thang ' + { I: 'một vế', U: 'hai vế', U3: 'ba vế' }[v] + ' và tự co kích thước theo ' + (it.n || 21) + ' bậc, mặt bậc 0,27 m.');
+      })]));
       nd.append(h('div', { cls: 'truong' }, [h('label', { text: 'Số bậc mỗi tầng' }), h('div', { cls: 'hang-so' }, [
         h('button', { type: 'button', text: '−', 'aria-label': 'Bớt một bậc', onclick: function () { if (k) return; ghiLai(); it.n = Math.max(15, n - 1); xong(true); } }),
         h('input', { type: 'text', value: String(n), readonly: 'readonly', 'aria-label': 'Số bậc' }),
         h('span', { cls: 'dv', text: 'bậc' }),
         h('button', { type: 'button', text: '+', 'aria-label': 'Thêm một bậc', onclick: function () { if (k) return; ghiLai(); it.n = Math.min(24, n + 1); xong(true); } })
       ]), h('div', { cls: 'goi-y-truong', text: 'Thường 17–22 bậc, mặc định 21. Mặt bậc 25–30 cm.' })]));
-      nd.append(h('div', { cls: 'truong' }, [h('label', { text: 'Kiểu thang' }), chipChon([['I', 'Một vế'], ['U', 'Hai vế']], it.kieu === 'U' ? 'U' : 'I', function (v) {
-        if (k) { baoDong('Cầu thang đã khoá. Chỉ KTS đổi được.'); return; }
-        ghiLai(); it.kieu = v; if (v === 'U' && it.w < 1.9) it.w = 1.9; xong(true);
-      })]));
+      nd.append(oSo('Bề rộng vế', Math.round(tb.ve * 100) / 100, 0.05, 0.6, 2.0, function (v) { ghiLai(); it.ve = v; coThang(it); xong(true); }, 'Lọt lòng mỗi vế, ít nhất 0,90 m. Đổi là thang tự co lại.', k));
+      nd.append(h('div', { cls: 'o-tong' }, tb.vế.map(function (v, i) {
+        return h('div', null, [h('span', { text: (tb.vế.length > 1 ? 'Vế ' + (i + 1) : 'Vế thang') + ' · mặt ' + so(v.b) + ' m' }), h('b', { text: v.so_bac + ' bậc' })]);
+      })));
+      if (tb.kieu !== 'I') nd.append(h('p', { cls: 'chu-thich', text: 'Chiếu nghỉ sâu ' + so(tb.land) + ' m' + (tb.kieu === 'U3' ? ', giếng thang rộng ' + so(Math.max(0, tb.gieng)) + ' m.' : '.') + ' Kéo giãn khung thang là bậc tự chia lại.' }));
+      nd.append(h('div', { cls: 'nhom-nut' }, [nut2('Tự co theo số bậc', 'thuoc', function () { ghiLai(); it.ve = Math.max(0.9, tb.ve); coThang(it); xong(true); baoDong('Đã co thang về mặt bậc 0,27 m, vế ' + so(it.ve) + ' m.'); }, 'rong', k)]));
     }
-    var ds = [nut2('Xoay 90°', 'xoay', function () { ghiLai(); it.rot = (it.rot + 90) % 360; xong(true); }, null, k),
-      nut2('Lật', 'lat', function () { ghiLai(); if (it.ma === 'TH') it.dao = !it.dao; else it.lat = !it.lat; xong(true); }, null, k),
+    if (it.ma === 'WC') {
+      var wb = KH.wcBoTri(thamSoDo(it));
+      nd.append(h('div', { cls: 'truong' }, [h('label', { text: 'Khu tắm' }), chipChon([['kinh', 'Tắm đứng vách kính'], ['tu_do', 'Sen không vách'], ['bon', 'Bồn tắm'], ['khong', 'Không']], it.sen || 'kinh', function (v) {
+        ghiLai(); it.sen = v; tuXepWC(it); xong(true);
+      })]));
+      if (wb.thieu.length) nd.append(h('div', { cls: 'khoa-bao' }, [h('span', { text: wb.thieu.join(' ') })]));
+      var bxH = hopPhanWC(it).filter(function (q) { return q.ma === 'BX'; })[0], hk = hopDo(it), canh = 'trái';
+      if (bxH) { var kc = [['trái', bxH.x0 - hk.x0], ['phải', hk.x1 - bxH.x1], ['trên', bxH.y0 - hk.y0], ['dưới', hk.y1 - bxH.y1]]; kc.sort(function (p1, p2) { return p1[1] - p2[1]; }); canh = kc[0][0]; }
+      nd.append(h('p', { cls: 'chu-thich', text: (it.tay ? 'Đang xếp tay. ' : 'Đang tự xếp theo cửa phòng. ') + 'Bồn cầu và lavabo đặt theo tường ' + (canh === 'trên' || canh === 'dưới' ? 'phía ' : 'bên ') + canh + ' của phòng. Muốn đổi sang cạnh kia bấm "Lật"; muốn khu tắm về đầu kia bấm "Đảo đầu".' }));
+      var kGen = cheDo !== 'kts';
+      if (it.gen === false) nd.append(h('p', { cls: 'chu-thich', text: 'Phòng đã có hộp gen riêng nên khối không vẽ thêm hộp gen.' }));
+      if (cheDo === 'kts') nd.append(h('div', { cls: 'truong' }, [h('label', { text: 'Hộp gen trong khối' }), chipChon([['co', 'Có'], ['khong', 'Không (dùng hộp gen có sẵn)']], it.gen === false ? 'khong' : 'co', function (v) { ghiLai(); it.gen = v === 'co'; tuXepWC(it); xong(true); })]));
+      if (it.gen !== false) nd.append(oSo('Hộp gen dài', it.gd || 0.6, 0.05, 0.2, 1.2, function (v) { ghiLai(); it.gd = v; xong(true); }, null, kGen));
+      if (it.gen !== false) nd.append(oSo('Hộp gen sâu', it.gs || 0.4, 0.05, 0.2, 0.8, function (v) { ghiLai(); it.gs = v; xong(true); }, kGen ? 'Hộp gen đi ống thoát và đường kỹ thuật, chỉ KTS đổi kích thước.' : 'Sát tường ướt, ngay cạnh bồn cầu.', kGen));
+      nd.append(h('div', { cls: 'nhom-nut' }, [
+        nut2('Vừa khít phòng', 'thuoc', function () { ghiLai(); if (vuaKhitPhong(it, it.cx, it.cy)) { tuXepWC(it); xong(true); baoDong('Khối WC đã vừa khít lọt lòng phòng.'); } else { lichSu.pop(); baoDong('Chưa tìm thấy phòng bao quanh khối (cần 4 phía có tường).'); } }),
+        nut2('Đảo đầu', 'xoay', function () { ghiLai(); it.dao = !it.dao; it.tay = true; xong(true); }),
+        it.tay ? nut2('Tự xếp theo cửa', 'cua', function () { ghiLai(); it.tay = false; tuXepWC(it); xong(true); baoDong('Khối WC đã tự xếp lại: khu tắm xa cửa, thiết bị không vướng cánh cửa.'); }) : null,
+        nut2('Tách thành từng thiết bị', 'keo', function () { tachKhoiWC(it); }, 'rong')
+      ]));
+    }
+    var ds = [nut2('Xoay 90°', 'xoay', function () { ghiLai(); it.rot = (it.rot + 90) % 360; if (it.ma === 'WC') it.tay = true; xong(true); }, null, k),
+      nut2('Lật', 'lat', function () { ghiLai(); if (it.ma === 'TH') it.dao = !it.dao; else it.lat = !it.lat; if (it.ma === 'WC') it.tay = true; xong(true); }, null, k),
       nut2('Nhân bản', 'nhan', function () { ghiLai(); var m = JSON.parse(JSON.stringify(it)); m.id = idMoi('i'); m.cx += 0.3; m.cy += 0.3; plan.items.push(m); sel = { k: 'i', id: m.id }; xong(true); }, null, k && cheDo !== 'kts')];
     if (cheDo === 'kts') ds.push(nut2(it.khoa ? 'Mở khoá' : 'Khoá', 'khoa', function () { ghiLai(); it.khoa = !it.khoa; xong(true); }));
     ds.push(nut2('Xoá', 'xoa', function () { xoaChon(); }, 'xoa' + (cheDo === 'kts' ? '' : ' rong'), k));
@@ -1435,8 +1574,8 @@
       ds.push(nutNhanh('Xoá', 'xoa', xoaChon, false, 'xoa'));
     } else if (sel.k === 'i') {
       var it = timTheo(plan.items, sel.id), k = khoa(it);
-      ds.push(nutNhanh('Xoay', 'xoay', function () { ghiLai(); it.rot = (it.rot + 90) % 360; bamTuong(it, false); xong(true); }, k));
-      ds.push(nutNhanh('Lật', 'lat', function () { ghiLai(); if (it.ma === 'TH') it.dao = !it.dao; else it.lat = !it.lat; xong(true); }, k));
+      ds.push(nutNhanh('Xoay', 'xoay', function () { ghiLai(); it.rot = (it.rot + 90) % 360; if (it.ma === 'WC') it.tay = true; bamTuong(it, false); xong(true); }, k));
+      ds.push(nutNhanh('Lật', 'lat', function () { ghiLai(); if (it.ma === 'TH') it.dao = !it.dao; else it.lat = !it.lat; if (it.ma === 'WC') it.tay = true; xong(true); }, k));
       ds.push(nutNhanh('Nhân bản', 'nhan', function () { ghiLai(); var m = JSON.parse(JSON.stringify(it)); m.id = idMoi('i'); m.cx += 0.3; m.cy += 0.3; plan.items.push(m); sel = { k: 'i', id: m.id }; xong(true); }, k && cheDo !== 'kts'));
       ds.push(nutNhanh('Xoá', 'xoa', xoaChon, k, 'xoa'));
     } else if (sel.k === 'p') {
@@ -1500,13 +1639,35 @@
   document.addEventListener('pointercancel', function (e) { xongKeoTv(e, true); });
   function datDo(ma, p) {
     var s = LIB[ma]; ghiLai();
-    var it2 = { id: idMoi('i'), ma: ma, cx: tron(p.x), cy: tron(p.y), w: s.w, h: s.h, rot: 0, lat: false, khoa: !!s.khoa };
-    if (ma === 'TH') { it2.n = 21; it2.kieu = 'I'; }
+    var maLuu = s.tao ? s.tao.ma : ma;
+    var it2 = { id: idMoi('i'), ma: maLuu, cx: tron(p.x), cy: tron(p.y), w: s.w, h: s.h, rot: 0, lat: false, khoa: !!s.khoa };
+    if (maLuu === 'TH') { it2.n = 21; it2.kieu = s.tao ? s.tao.kieu : 'I'; it2.ve = 1.0; coThang(it2); }
+    var vua = false;
+    if (maLuu === 'WC') { it2.sen = 'kinh'; it2.gd = 0.6; it2.gs = 0.4; vua = vuaKhitPhong(it2, p.x, p.y); tuXepWC(it2); }
     bamTuong(it2, true);
     plan.items.push(it2); sel = { k: 'i', id: it2.id };
     ga('aln_dmb_them', { loai: ma });
     datMa = null; datCong('chon'); xong(true); moTheBang('chon');
-    baoDong('Đã đặt ' + s.ten.toLowerCase() + '. Kéo để dời, kéo góc vuông để đổi kích thước.');
+    baoDong(maLuu === 'WC' ? (vua ? 'Đã đặt khối WC vừa khít phòng. Kéo góc vuông để co giãn, thiết bị tự xếp lại.' : 'Đã đặt khối WC. Thả vào trong phòng WC (có tường 4 phía) để tự vừa khít, hoặc kéo góc vuông.') : 'Đã đặt ' + s.ten.toLowerCase() + '. Kéo để dời, kéo góc vuông để đổi kích thước.');
+  }
+
+  /* Tách khối WC thành từng thiết bị rời (hộp gen, bồn cầu, lavabo, khu tắm) để chỉnh tay */
+  function tachKhoiWC(it) {
+    var b = KH.wcBoTri(thamSoDo(it)), f = doiDiem(it), moi = [];
+    var gocLung = { tren: 0, phai: 90, duoi: 180, trai: 270 };
+    var quay = function (r) { return it.lat ? ((it.rot + 360 - r) % 360) : ((it.rot + r) % 360); };
+    b.parts.forEach(function (q) {
+      var H = q.hop, c = f(H.x + H.w / 2, H.y + H.h / 2), o = { id: idMoi('i'), cx: tron(c.x), cy: tron(c.y), rot: it.rot, lat: false, khoa: false };
+      if (q.ma === 'G') { o.ma = 'G'; o.w = H.w; o.h = H.h; o.khoa = true; }
+      else if (q.ma === 'TD' || q.ma === 'SEN') { o.ma = 'TD'; o.w = H.w; o.h = H.h; }
+      else if (q.ma === 'BT') { o.ma = 'BT'; if (b.doc) { o.w = H.w; o.h = H.h; } else { o.w = H.h; o.h = H.w; o.rot = quay(90); } }
+      else { o.ma = q.ma; o.w = q.du; o.h = q.dv; o.rot = quay(gocLung[q.lung] || 0); }
+      moi.push(o);
+    });
+    ghiLai();
+    plan.items = plan.items.filter(function (x) { return x.id !== it.id; }).concat(moi);
+    sel = null; xong(true);
+    baoDong('Đã tách thành ' + moi.length + ' thiết bị rời. Hộp gen vẫn khoá với chủ nhà.');
   }
 
   function datCong(ten) {
@@ -1706,7 +1867,8 @@
     var p = diemChuot(e);
     if (k.daDi) {
       if (k.loai === 'anh') { luuAnh(); return; }
-      if (k.loai === 'do') { var it = timTheo(plan.items, sel.id); bamTuong(it, false); }
+      if (k.loai === 'do') { var it = timTheo(plan.items, sel.id); bamTuong(it, false); if (it.ma === 'WC') tuXepWC(it); }
+      if (k.loai === 'co') { var itw = timTheo(plan.items, sel.id); if (itw && itw.ma === 'WC') tuXepWC(itw); }
       if (k.daGhi && (k.loai === 'tuong' || k.loai === 'nut')) {
         var baoCua = chotCuaSauKeo(k), ho = 0, them = 0;
         if (k.loai === 'tuong') { var kq = chotNoiSauKeo(k); ho = kq.ho; them = kq.them; ho += donSauKeo([], k.ch); }
