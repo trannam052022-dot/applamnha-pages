@@ -135,23 +135,21 @@
   function wcBoTri(o) {
     var w = Math.max(0.5, o.w || 1.5), h = Math.max(0.5, o.h || 2.4), doc = o.truc === 'doc' ? true : (o.truc === 'ngang' ? false : h >= w), L = doc ? h : w, D = doc ? w : h, dao = !!o.dao;
     var sen = ['kinh', 'tu_do', 'bon', 'khong'].indexOf(o.sen) >= 0 ? o.sen : 'kinh';
-    var coGen = o.gen !== false, gd = Math.max(0.2, Math.min(1.2, o.gd || 0.6)), gs = Math.max(0.2, Math.min(0.8, o.gs || 0.4));
     var parts = [], thieu = [], u = 0;
     var hop = function (u0, v0, du, dv) { // ô (u,v) → ô (x,y) trong khối
       var ua = dao ? L - u0 - du : u0;
       return doc ? { x: v0, y: ua, w: dv, h: du } : { x: ua, y: v0, w: du, h: dv };
     };
     var lung = function (sv) { return doc ? (sv > 0 ? 'trai' : 'phai') : (sv > 0 ? 'tren' : 'duoi'); };
-    // hộp gen sát tường ướt, ngay cạnh bồn cầu: có khu tắm thì nằm ở góc khu tắm (không tốn thêm chiều dài)
-    var vTam = coGen && sen !== 'khong' ? gs : 0;
+    // Nam 23/10/2026: khối WC không có hộp gen; KTS tự thêm hộp gen (G) đúng chỗ khi cần
+    var vTam = 0;
     if (sen === 'bon' && D - vTam < 1.4 - 1e-6) { thieu.push('Bồn tắm cần phòng rộng ít nhất ' + so2(1.4 + vTam) + ' m (đang ' + so2(D) + ' m). Đã đổi sang tắm đứng.'); sen = 'kinh'; }
     if (sen !== 'khong') {
       var s = sen === 'bon' ? 0.75 : 0.9;
-      if (sen !== 'bon' && D - vTam < 0.8 - 1e-6) thieu.push('Khu tắm cần rộng ít nhất 0,8 m (đang ' + so2(D - vTam) + ' m sau hộp gen).');
+      if (sen !== 'bon' && D - vTam < 0.8 - 1e-6) thieu.push('Khu tắm cần rộng ít nhất 0,8 m (đang ' + so2(D - vTam) + ' m).');
       parts.push({ ma: sen === 'bon' ? 'BT' : (sen === 'tu_do' ? 'SEN' : 'TD'), u0: 0, v0: vTam, du: s, dv: D - vTam, hop: hop(0, vTam, s, D - vTam) });
-      if (coGen) { var g0 = Math.max(0, s - gd); parts.push({ ma: 'G', u0: g0, v0: 0, du: s - g0, dv: gs, hop: hop(g0, 0, s - g0, gs) }); }
       u = s;
-    } else if (coGen) { parts.push({ ma: 'G', u0: 0, v0: 0, du: gd, dv: gs, hop: hop(0, 0, gd, gs) }); u = gd; }
+    }
     var cT = u + CACH_BX;
     parts.push({ ma: 'BX', u0: cT - BX_W / 2, v0: 0, du: BX_W, dv: BX_S, sv: 1, lung: lung(1), hop: hop(cT - BX_W / 2, 0, BX_W, BX_S) });
     var canDai = cT + CACH_BX;

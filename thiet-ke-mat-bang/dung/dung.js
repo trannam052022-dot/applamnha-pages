@@ -201,8 +201,8 @@
     return { phien_ban: 1, ten: 'Lô ' + so(W, 1) + ' × ' + so(D, 1) + ' m', nodes: g.nodes, walls: g.walls, seq: g.seq, ops: [], items: [], phong: [], ghi: [], ranh: null };
   }
 
-  /* Nam 23/10/2026: phòng WC trong bản mẫu có sẵn khối WC tự bố trí; hộp gen nằm gọn trong khối (0,6 × 0,4 m),
-     không còn dải gạch chéo dài sát tường. Chạy khi plan đã là bản mẫu (cần plan toàn cục để đo lọt lòng). */
+  /* Nam 23/10/2026: phòng WC trong bản mẫu có sẵn khối WC tự bố trí; khối không có hộp gen (KTS tự thêm
+     hộp gen đúng chỗ khi cần), không còn dải gạch chéo dài sát tường. Chạy khi plan đã là bản mẫu (cần plan toàn cục để đo lọt lòng). */
   var TEN_MAU = 'Nhà 12 × 8 m — dựng từ bản phác 23/10';
   function xepWCVaoPhong() {
     var them = 0;
@@ -211,7 +211,7 @@
       var b = lotLongQuanh(r.x, r.y); if (!isFinite(b.x0 + b.x1 + b.y0 + b.y1)) return;
       var coRoi = plan.items.some(function (o) { var B = hopDo(o); return (o.ma === 'WC' || o.ma === 'BX') && B.x1 > b.x0 + 0.05 && B.x0 < b.x1 - 0.05 && B.y1 > b.y0 + 0.05 && B.y0 < b.y1 - 0.05; });
       if (coRoi) return;
-      var it = { id: idMoi('i'), ma: 'WC', cx: r.x, cy: r.y, w: 1.5, h: 2.4, rot: 0, lat: false, khoa: false, sen: 'kinh', gd: 0.6, gs: 0.4 };
+      var it = { id: idMoi('i'), ma: 'WC', cx: r.x, cy: r.y, w: 1.5, h: 2.4, rot: 0, lat: false, khoa: false, sen: 'kinh' };
       if (!vuaKhitPhong(it, r.x, r.y)) return;
       plan.items.push(it); tuXepWC(it); them++;
     });
@@ -286,7 +286,7 @@
     var s = LIB[it.ma]; if (!s) return [];
     return s.ve(thamSoDo(it));
   }
-  function thamSoDo(it) { return { w: it.w, h: it.h, n: it.n, kieu: it.kieu, dao: it.dao, ve: it.ve, sen: it.sen, gd: it.gd, gs: it.gs, gen: it.gen, lv: it.lv, truc: it.truc }; }
+  function thamSoDo(it) { return { w: it.w, h: it.h, n: it.n, kieu: it.kieu, dao: it.dao, ve: it.ve, sen: it.sen, lv: it.lv, truc: it.truc }; }
   /* Ô từng thiết bị của khối WC, toạ độ bản vẽ (để kiểm cánh cửa vướng, đồ chồng nhau) */
   function hopPhanWC(it) {
     var f = doiDiem(it);
@@ -312,19 +312,16 @@
     var r = lotLongQuanh(cx, cy), W = r.x1 - r.x0, H = r.y1 - r.y0;
     if (!isFinite(W) || !isFinite(H) || W < 0.6 || H < 0.6 || W > 6 || H > 6) return false;
     // phòng đã có hộp gen dạng dải sát một tường: khối WC chừa dải đó ra, dùng hộp gen có sẵn
-    var coGen = false;
     plan.items.forEach(function (o) {
       if (o.ma !== 'G' || o === it) return;
       var B = hopDo(o), e = 0.06;
       if (B.x0 > r.x1 - e || B.x1 < r.x0 + e || B.y0 > r.y1 - e || B.y1 < r.y0 + e) return;
       var dai = B.y1 - B.y0 >= 0.7 * (r.y1 - r.y0), ngang = B.x1 - B.x0 >= 0.7 * (r.x1 - r.x0);
-      if (dai && Math.abs(B.x1 - r.x1) < e) { r.x1 = B.x0; coGen = true; }
-      else if (dai && Math.abs(B.x0 - r.x0) < e) { r.x0 = B.x1; coGen = true; }
-      else if (ngang && Math.abs(B.y1 - r.y1) < e) { r.y1 = B.y0; coGen = true; }
-      else if (ngang && Math.abs(B.y0 - r.y0) < e) { r.y0 = B.y1; coGen = true; }
-      else if (B.x1 - B.x0 < 1.2 && B.y1 - B.y0 < 1.2) coGen = true;
+      if (dai && Math.abs(B.x1 - r.x1) < e) { r.x1 = B.x0; }
+      else if (dai && Math.abs(B.x0 - r.x0) < e) { r.x0 = B.x1; }
+      else if (ngang && Math.abs(B.y1 - r.y1) < e) { r.y1 = B.y0; }
+      else if (ngang && Math.abs(B.y0 - r.y0) < e) { r.y0 = B.y1; }
     });
-    if (coGen) it.gen = false;
     W = r.x1 - r.x0; H = r.y1 - r.y0;
     it.cx = (r.x0 + r.x1) / 2; it.cy = (r.y0 + r.y1) / 2;
     if (((it.rot % 180) + 180) % 180 === 0) { it.w = W; it.h = H; } else { it.w = H; it.h = W; }
@@ -376,7 +373,7 @@
             if (q.ma === 'TD' || q.ma === 'SEN' || q.ma === 'BT') diem -= kc;
             else if (q.ma === 'LV') diem += kc * 0.3;
           });
-          if (q.ma === 'BX' && genCo.length && t.gen === false) diem += Math.min.apply(null, genCo.map(function (g) { return Math.hypot(c.x - g.x, c.y - g.y); })) * 0.8;
+          if (q.ma === 'BX' && genCo.length) diem += Math.min.apply(null, genCo.map(function (g) { return Math.hypot(c.x - g.x, c.y - g.y); })) * 0.8;
         });
         if (!tot || diem < tot.diem - 1e-9) tot = { diem: diem, r: r, lat: lat, lv: lv, truc: truc, w: t.w, h: t.h };
     }); }); }); });
@@ -1399,11 +1396,7 @@
       var bxH = hopPhanWC(it).filter(function (q) { return q.ma === 'BX'; })[0], hk = hopDo(it), canh = 'trái';
       if (bxH) { var kc = [['trái', bxH.x0 - hk.x0], ['phải', hk.x1 - bxH.x1], ['trên', bxH.y0 - hk.y0], ['dưới', hk.y1 - bxH.y1]]; kc.sort(function (p1, p2) { return p1[1] - p2[1]; }); canh = kc[0][0]; }
       nd.append(h('p', { cls: 'chu-thich', text: (it.tay ? 'Đang xếp tay. ' : 'Đang tự xếp theo cửa phòng. ') + 'Bồn cầu và lavabo đặt theo tường ' + (canh === 'trên' || canh === 'dưới' ? 'phía ' : 'bên ') + canh + ' của phòng. Muốn đổi sang cạnh kia bấm "Lật"; muốn khu tắm về đầu kia bấm "Đảo đầu".' }));
-      var kGen = cheDo !== 'kts';
-      if (it.gen === false) nd.append(h('p', { cls: 'chu-thich', text: 'Phòng đã có hộp gen riêng nên khối không vẽ thêm hộp gen.' }));
-      if (cheDo === 'kts') nd.append(h('div', { cls: 'truong' }, [h('label', { text: 'Hộp gen trong khối' }), chipChon([['co', 'Có'], ['khong', 'Không (dùng hộp gen có sẵn)']], it.gen === false ? 'khong' : 'co', function (v) { ghiLai(); it.gen = v === 'co'; tuXepWC(it); xong(true); })]));
-      if (it.gen !== false) nd.append(oSo('Hộp gen dài', it.gd || 0.6, 0.05, 0.2, 1.2, function (v) { ghiLai(); it.gd = v; xong(true); }, null, kGen));
-      if (it.gen !== false) nd.append(oSo('Hộp gen sâu', it.gs || 0.4, 0.05, 0.2, 0.8, function (v) { ghiLai(); it.gs = v; xong(true); }, kGen ? 'Hộp gen đi ống thoát và đường kỹ thuật, chỉ KTS đổi kích thước.' : 'Sát tường ướt, ngay cạnh bồn cầu.', kGen));
+      nd.append(h('p', { cls: 'chu-thich', text: 'Khối WC không có hộp gen. Cần hộp gen thì KTS thêm từ Thư viện (mục Lên xuống & kỹ thuật) rồi kéo góc cho vừa chỗ.' }));
       nd.append(h('div', { cls: 'nhom-nut' }, [
         nut2('Vừa khít phòng', 'thuoc', function () { ghiLai(); if (vuaKhitPhong(it, it.cx, it.cy)) { tuXepWC(it); xong(true); baoDong('Khối WC đã vừa khít lọt lòng phòng.'); } else { lichSu.pop(); baoDong('Chưa tìm thấy phòng bao quanh khối (cần 4 phía có tường).'); } }),
         nut2('Đảo đầu', 'xoay', function () { ghiLai(); it.dao = !it.dao; it.tay = true; xong(true); }),
@@ -1663,7 +1656,7 @@
     var it2 = { id: idMoi('i'), ma: maLuu, cx: tron(p.x), cy: tron(p.y), w: s.w, h: s.h, rot: 0, lat: false, khoa: !!s.khoa };
     if (maLuu === 'TH') { it2.n = 21; it2.kieu = s.tao ? s.tao.kieu : 'I'; it2.ve = 1.0; coThang(it2); }
     var vua = false;
-    if (maLuu === 'WC') { it2.sen = 'kinh'; it2.gd = 0.6; it2.gs = 0.4; vua = vuaKhitPhong(it2, p.x, p.y); tuXepWC(it2); }
+    if (maLuu === 'WC') { it2.sen = 'kinh'; vua = vuaKhitPhong(it2, p.x, p.y); tuXepWC(it2); }
     bamTuong(it2, true);
     plan.items.push(it2); sel = { k: 'i', id: it2.id };
     ga('aln_dmb_them', { loai: ma });
@@ -1671,15 +1664,14 @@
     baoDong(maLuu === 'WC' ? (vua ? 'Đã đặt khối WC vừa khít phòng. Kéo góc vuông để co giãn, thiết bị tự xếp lại.' : 'Đã đặt khối WC. Thả vào trong phòng WC (có tường 4 phía) để tự vừa khít, hoặc kéo góc vuông.') : 'Đã đặt ' + s.ten.toLowerCase() + '. Kéo để dời, kéo góc vuông để đổi kích thước.');
   }
 
-  /* Tách khối WC thành từng thiết bị rời (hộp gen, bồn cầu, lavabo, khu tắm) để chỉnh tay */
+  /* Tách khối WC thành từng thiết bị rời (bồn cầu, lavabo, khu tắm) để chỉnh tay */
   function tachKhoiWC(it) {
     var b = KH.wcBoTri(thamSoDo(it)), f = doiDiem(it), moi = [];
     var gocLung = { tren: 0, phai: 90, duoi: 180, trai: 270 };
     var quay = function (r) { return it.lat ? ((it.rot + 360 - r) % 360) : ((it.rot + r) % 360); };
     b.parts.forEach(function (q) {
       var H = q.hop, c = f(H.x + H.w / 2, H.y + H.h / 2), o = { id: idMoi('i'), cx: tron(c.x), cy: tron(c.y), rot: it.rot, lat: false, khoa: false };
-      if (q.ma === 'G') { o.ma = 'G'; o.w = H.w; o.h = H.h; o.khoa = true; }
-      else if (q.ma === 'TD' || q.ma === 'SEN') { o.ma = 'TD'; o.w = H.w; o.h = H.h; }
+      if (q.ma === 'TD' || q.ma === 'SEN') { o.ma = 'TD'; o.w = H.w; o.h = H.h; }
       else if (q.ma === 'BT') { o.ma = 'BT'; if (b.doc) { o.w = H.w; o.h = H.h; } else { o.w = H.h; o.h = H.w; o.rot = quay(90); } }
       else { o.ma = q.ma; o.w = q.du; o.h = q.dv; o.rot = quay(gocLung[q.lung] || 0); }
       moi.push(o);
@@ -1687,7 +1679,7 @@
     ghiLai();
     plan.items = plan.items.filter(function (x) { return x.id !== it.id; }).concat(moi);
     sel = null; xong(true);
-    baoDong('Đã tách thành ' + moi.length + ' thiết bị rời. Hộp gen vẫn khoá với chủ nhà.');
+    baoDong('Đã tách thành ' + moi.length + ' thiết bị rời.');
   }
 
   function datCong(ten) {
