@@ -58,11 +58,18 @@ svg{display:block}
 .giay{grid-area:giay;position:relative;overflow:hidden;background:#fff;touch-action:none}
 .ban-ve{width:100%;height:100%;user-select:none;-webkit-user-select:none}
 .ban-ve.dang-keo{cursor:grabbing}
-.ban-ve.cc-tuong,.ban-ve.cc-cua,.ban-ve.cc-so,.ban-ve.cc-phong,.ban-ve.cc-ghi_chu,.ban-ve.cc-dat{cursor:crosshair}
+.ban-ve.cc-tuong,.ban-ve.cc-cua,.ban-ve.cc-so,.ban-ve.cc-phong,.ban-ve.cc-ghi_chu,.ban-ve.cc-dat,.ban-ve.cc-anh_do{cursor:crosshair}
+.ban-ve.cc-anh_keo{cursor:move}
 .ban-ve [data-k]{cursor:pointer}
 .ban-ve [data-khoa="1"]{cursor:not-allowed}
 .goi-y-dong{position:absolute;left:12px;top:12px;max-width:min(560px,calc(100% - 24px));background:rgba(10,18,36,.88);color:#fff;font-size:.88rem;line-height:1.45;border-radius:10px;padding:8px 12px;pointer-events:none}
 .goi-y-dong:empty{display:none}
+.nut-anh{position:absolute;right:12px;top:12px;display:flex;align-items:center;gap:6px;height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--line2);background:#fff;color:var(--text);font:600 .88rem/1 inherit;box-shadow:0 2px 8px rgba(10,18,36,.08);cursor:pointer}
+.nut-anh svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nut-anh-to{margin-bottom:14px}
+.nut-anh-to .nut{width:100%;justify-content:center}
+.hang-thanh{display:flex;align-items:center;gap:10px}
+.hang-thanh input[type=range]{flex:1;min-width:0;height:32px;accent-color:#1f5fa8}
 .zoom{position:absolute;right:12px;bottom:12px;display:flex;gap:6px}
 .zoom button{min-width:48px;height:48px;border-radius:12px;border:1px solid var(--line2);background:#fff;font-size:1.35rem;font-weight:600;color:var(--text);box-shadow:0 2px 8px rgba(10,18,36,.08)}
 .zoom button.chu{font-size:.85rem;padding:0 12px}
@@ -181,6 +188,7 @@ svg{display:block}
   .keo-bang{display:block;width:44px;height:5px;border-radius:99px;background:var(--line2);margin:8px auto 0;flex:none}
   .the-bang button{padding:10px 2px 9px;min-height:44px;font-size:.8rem}
   .zoom{bottom:76px}
+  .nut-anh{top:auto;right:auto;left:12px;bottom:76px;height:48px}
   .zoom button.chu{display:none}
   .goi-y-dong{font-size:.82rem}
 }
