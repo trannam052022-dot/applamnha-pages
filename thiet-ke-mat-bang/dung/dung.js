@@ -2307,6 +2307,13 @@
     p.phong.forEach(function (r) { r.ten = String(r.ten || '').slice(0, 30); });
     p.ghi.forEach(function (g) { g.nd = String(g.nd || '').slice(0, 400); });
     p.ten = String(p.ten || 'Bản vẽ').slice(0, 60);
+    // vật liệu chọn ở phần xem 3D: { khoá vùng: { san, tuong } }, chỉ giữ chữ thường/số
+    var vl = {}, ok = /^[a-z0-9_]{1,24}$/;
+    if (p.vat_lieu && typeof p.vat_lieu === 'object') Object.keys(p.vat_lieu).slice(0, 200).forEach(function (k) {
+      var v = p.vat_lieu[k]; if (!/^[a-z0-9:_.-]{1,40}$/.test(k) || !v || typeof v !== 'object') return;
+      var o = {}; if (ok.test(v.san)) o.san = v.san; if (ok.test(v.tuong)) o.tuong = v.tuong; if (o.san || o.tuong) vl[k] = o;
+    });
+    if (Object.keys(vl).length) p.vat_lieu = vl; else delete p.vat_lieu;
     return p;
   }
   function moFile(f) {
@@ -2381,6 +2388,28 @@
   $('oAnh').addEventListener('change', function () { var f = this.files && this.files[0]; if (f) napAnh(f); this.value = ''; });
   $('nutAnh').addEventListener('click', function () { chon({ k: 'anh' }); if (laDienThoai()) moBangDienThoai(true); });
   $('oMoFile').addEventListener('change', function () { var f = this.files && this.files[0]; if (f) moFile(f); this.value = ''; });
+  /* ================= xem 3D (nạp lười dung-3d.js + three.js khi bấm) ================= */
+  var dang3D = false;
+  function mo3D() {
+    if (dang3D) return;
+    if (!plan.walls.length) { baoDong('Chưa có tường để dựng 3D. Vẽ tường hoặc nạp mặt bằng mẫu trước.'); return; }
+    dang3D = true; $('x3dCho').hidden = false;
+    var api = {
+      lay: function () { return plan; },
+      phanTich: function () { phanTichCache = null; return phanTich(); },
+      hinh: hinh, dauNoi: dauNoi, doiDiem: doiDiem, thamSoDo: thamSoDo, KH: KH, CUA: CUA,
+      luuVatLieu: function (fn) { ghiLai(); fn(plan); xong(true); },
+      tenTep: tenTep, ga: ga,
+      khiDong: function () { dang3D = false; phanTichCache = null; ve(); veBang(); }
+    };
+    import('./dung-3d.js?v=2').then(function (m) { return m.mo(api); }).then(function () {
+      $('x3dCho').hidden = true;
+    }).catch(function (e) {
+      dang3D = false; $('x3dCho').hidden = true;
+      baoDong(e && e.message === 'webgl' ? 'Trình duyệt này chưa hiển thị được 3D (WebGL bị tắt). Thử Chrome hoặc Safari bản mới.' : 'Chưa tải được phần xem 3D. Kiểm tra mạng rồi bấm lại.', true);
+    });
+  }
+  $('nut3D').addEventListener('click', mo3D);
   window.addEventListener('resize', function () { ve(); });
   window.addEventListener('pagehide', function () { if (henLuu) { clearTimeout(henLuu); henLuu = null; luuTuDong(); } });
 
