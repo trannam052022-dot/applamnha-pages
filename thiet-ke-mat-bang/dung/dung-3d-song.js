@@ -459,12 +459,12 @@ export function taoSong(ctx) {
   function dongBangGio() { bangGio.hidden = true; huy.hidden = false; refBang = null; ctx.ve(); }
   huy.addEventListener('click', moBangGio);
 
-  function denGio(g, theoGio) {
-    moTiengNeuCan();
+  function denGio(g, theoGio, imLang) {
+    if (!imLang) moTiengNeuCan();
     if (giamDong) { S.gio = g; S.canTroi = true; } else S.tw = { g0: S.gio, g1: g, t0: performance.now(), ms: 1300 };
     if (theoGio) denTheoGio(g);
-    ctx.bao(buoi(g) + ', ' + gioChu(g) + (theoGio ? ' — đèn bật tắt theo giờ.' : '.'));
-    ctx.ve();
+    if (!imLang) ctx.bao(buoi(g) + ', ' + gioChu(g) + (theoGio ? ' — đèn bật tắt theo giờ.' : '.'));
+    capNhatBang(); ctx.ve();
   }
   function datMua(k) {
     if (S.mua === k) return; S.mua = k; moTiengNeuCan();
@@ -546,6 +546,15 @@ export function taoSong(ctx) {
     if (k > 0) return [dx, dz]; // đang lùi ra khỏi tường
     h = thu(mx, mz); if (h) return [0, 0];
     return [mx, mz];
+  }
+
+  // Hai điểm có nhìn thấy nhau không (không vướng tường, cửa đóng) — tham quan tự động dùng để chọn bay hay chuyển cảnh.
+  function thayDuoc(a, b) {
+    if (!nha) return false;
+    const ve = vatChan(), d = Math.hypot(b.x - a.x, b.z - a.z); if (d < 0.05) return true;
+    huongDi.set((b.x - a.x) / d, 0, (b.z - a.z) / d);
+    for (const y of [0.5, 1.4]) { goc0.set(a.x, y, a.z); ray.set(goc0, huongDi); ray.far = d; const h = ray.intersectObjects(ve, false)[0]; ray.far = Infinity; if (h) return false; }
+    return true;
   }
 
   /* ---- mỗi khung hình ---- */
@@ -632,5 +641,5 @@ export function taoSong(ctx) {
   function dangMoBang() { return !bangGio.hidden; }
 
   apDungTroi();
-  return { ganNha, capNhat, sauVe, bam, chan, datCheDo, nutDenPhong, dong, dongBangGio, dangMoBang, moBangGio, denGio, datMua, S, ds: () => ds, be, doi, am: A };
+  return { ganNha, capNhat, sauVe, bam, chan, thayDuoc, datCheDo, nutDenPhong, dong, dongBangGio, dangMoBang, moBangGio, denGio, datMua, S, ds: () => ds, be, doi, am: A };
 }

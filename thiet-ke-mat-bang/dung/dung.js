@@ -2314,6 +2314,17 @@
       var o = {}; if (ok.test(v.san)) o.san = v.san; if (ok.test(v.tuong)) o.tuong = v.tuong; if (o.san || o.tuong) vl[k] = o;
     });
     if (Object.keys(vl).length) p.vat_lieu = vl; else delete p.vat_lieu;
+    // tông nội thất { go, vai, da } và điểm nhìn tham quan 3D
+    var nt = {}; if (p.noi_that && typeof p.noi_that === 'object') ['go', 'vai', 'da'].forEach(function (k) { if (ok.test(p.noi_that[k])) nt[k] = p.noi_that[k]; });
+    if (Object.keys(nt).length) p.noi_that = nt; else delete p.noi_that;
+    var so = function (v, lo, hi) { return typeof v === 'number' && isFinite(v) && v >= lo && v <= hi; };
+    var dn = p.tham_quan && Array.isArray(p.tham_quan.diem) ? p.tham_quan.diem.filter(function (d) {
+      return d && so(d.x, -500, 500) && so(d.y, -5, 300) && so(d.z, -500, 500) && so(d.yaw, -7, 7) && so(d.pitch, -1.6, 1.6) && so(d.fov, 20, 100);
+    }).map(function (d) {
+      return { ten: String(d.ten || 'Điểm nhìn').slice(0, 40), x: d.x, y: d.y, z: d.z, yaw: d.yaw, pitch: d.pitch, fov: d.fov, trong: !!d.trong,
+        giay: [3, 5, 8, 12].indexOf(d.giay) >= 0 ? d.giay : 5, gio: so(d.gio, 5, 24) ? d.gio : null };
+    }).slice(0, 20) : [];
+    if (dn.length) p.tham_quan = { diem: dn }; else delete p.tham_quan;
     return p;
   }
   function moFile(f) {
@@ -2399,10 +2410,11 @@
       phanTich: function () { phanTichCache = null; return phanTich(); },
       hinh: hinh, dauNoi: dauNoi, doiDiem: doiDiem, thamSoDo: thamSoDo, KH: KH, CUA: CUA,
       luuVatLieu: function (fn) { ghiLai(); fn(plan); xong(true); },
+      luu3D: function (fn) { fn(plan); chuanHoa(plan); xong(true); },
       tenTep: tenTep, ga: ga,
       khiDong: function () { dang3D = false; phanTichCache = null; ve(); veBang(); }
     };
-    import('./dung-3d.js?v=2').then(function (m) { return m.mo(api); }).then(function () {
+    import('./dung-3d.js?v=4').then(function (m) { return m.mo(api); }).then(function () {
       $('x3dCho').hidden = true;
     }).catch(function (e) {
       dang3D = false; $('x3dCho').hidden = true;
@@ -2427,6 +2439,6 @@
     var daXem = false; try { daXem = !!localStorage.getItem(KHOA_HD); localStorage.setItem(KHOA_HD, '1'); } catch (e) { daXem = true; }
     if (!daXem) huongDan();
     window.ALNDungMB = { lay: function () { return plan; }, phanTich: function () { phanTichCache = null; return phanTich(); }, matBangMau: matBangMau,
-      thu: { satTuong: satTuong, coTheoTuong: coTheoTuong, hopDo: hopDo, netDo: netDo, tachKhoiWC: tachKhoiWC, ve: function () { phanTichCache = null; ve(); veBang(); } } };
+      thu: { satTuong: satTuong, coTheoTuong: coTheoTuong, hopDo: hopDo, netDo: netDo, tachKhoiWC: tachKhoiWC, chuanHoa: chuanHoa, ve: function () { phanTichCache = null; ve(); veBang(); } } };
   })();
 })();
