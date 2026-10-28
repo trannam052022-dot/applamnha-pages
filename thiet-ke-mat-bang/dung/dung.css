@@ -194,6 +194,7 @@ svg{display:block}
   .cc svg{width:24px;height:24px}
   .bang{position:fixed;left:0;right:0;bottom:calc(72px + env(safe-area-inset-bottom,0px));height:min(46vh,440px);border-left:0;border-top:1px solid var(--line);border-radius:18px 18px 0 0;box-shadow:0 -16px 40px rgba(10,18,36,.18);transform:translateY(calc(100% - 64px));transition:transform .22s ease}
   .bang.mo{transform:none}
+  .cong-cu{z-index:21} /* bảng thu gọn dời xuống bằng transform, đè lên thanh công cụ nếu cùng lớp (27/10/2026) */
   .keo-bang{display:block;width:44px;height:5px;border-radius:99px;background:var(--line2);margin:8px auto 0;flex:none}
   .the-bang button{padding:10px 2px 9px;min-height:44px;font-size:.8rem}
   .zoom{bottom:76px}
@@ -284,7 +285,7 @@ svg{display:block}
 @media (prefers-reduced-motion:reduce){.x3d-xoay{animation:none}}
 
 /* Đang xem 3D: ẩn thông báo cookie và nút nổi của trang để không che bản 3D */
-body.x3d-mo #alnCk, body.x3d-mo .aln-zalo, body.x3d-mo #mymy-btn { display: none !important; }
+body.x3d-mo #alnCk, body.x3d-mo .aln-zalo, body.x3d-mo #mymy-btn, body.x3d-mo #mymy-win, body.x3d-mo #mymy-moi { display: none !important; }
 
 /* Sống trong nhà: giờ & mùa, nút bật tắt thiết bị (25/10/2026) */
 .x3d-gio-nhanh{position:fixed;z-index:66;right:max(12px,env(safe-area-inset-right,0px));top:calc(var(--cao-dau) + env(safe-area-inset-top,0px) + 12px);display:flex;align-items:center;gap:8px;min-height:44px;padding:0 14px 0 10px;border-radius:999px;border:1px solid rgba(10,18,36,.12);background:rgba(255,255,255,.94);color:var(--text);box-shadow:0 4px 16px rgba(10,18,36,.16);backdrop-filter:blur(6px)}
@@ -400,3 +401,24 @@ body.x3d-mo #alnCk, body.x3d-mo .aln-zalo, body.x3d-mo #mymy-btn { display: none
   .x3d-tq-dieu{left:12px;right:12px;transform:none;justify-content:space-between}
 }
 @media (prefers-reduced-motion:reduce){.x3d-tq-ten.hien{animation:none;opacity:1;transform:none}.x3d-tq-rec::before{animation:none}}
+
+/* MyMy (27/10/2026): trang này là ứng dụng toàn màn hình — nút MyMy đứng cạnh vùng vẽ, không đè bảng bên phải
+   (máy tính) hay thanh công cụ + bảng kéo dưới (điện thoại). Chọn bằng body để thắng #mymy-btn của widget. */
+body #mymy-btn{right:calc(var(--rong-bang) + 16px);bottom:72px;width:56px;height:56px}
+body #mymy-win{right:calc(var(--rong-bang) + 16px);bottom:138px;max-height:min(520px,calc(100vh - 220px))}
+body #mymy-moi{right:calc(var(--rong-bang) + 82px)!important;bottom:76px!important}
+.mm-to-sang{outline:3px solid #e0aa3e!important;outline-offset:3px;border-radius:10px;animation:mmToSang 1.2s ease-in-out 3}
+@keyframes mmToSang{50%{outline-color:rgba(224,170,62,.25)}}
+@media (prefers-reduced-motion:reduce){.mm-to-sang{animation:none}}
+@media (max-width:899px){
+  body #mymy-btn{right:10px;top:calc(var(--cao-dau) + env(safe-area-inset-top,0px) + 10px);bottom:auto;width:50px;height:50px}
+  body #mymy-btn i{font-size:22px}
+  body #mymy-win{left:10px;right:10px;width:auto;top:calc(var(--cao-dau) + env(safe-area-inset-top,0px) + 68px);bottom:auto;max-height:calc(100vh - var(--cao-dau) - 72px - 64px - 90px)}
+  body #mymy-moi{right:68px!important;left:auto!important;top:calc(var(--cao-dau) + env(safe-area-inset-top,0px) + 12px)!important;bottom:auto!important}
+  body.co-mymy .goi-y-dong{max-width:calc(100% - 84px)}
+}
+.menu-cookie{border-top:1px solid var(--line);margin-top:6px}.menu-cookie .aln-ck-cd-dong{padding:6px 8px 2px!important;text-align:left}
+/* gửi bản vẽ qua link (28/10/2026) */
+.menu-tep .muc-gui{background:var(--xanh-bg)}
+.menu-tep .muc-gui b{color:var(--xanh)}
+.o-link{display:block;width:100%;box-sizing:border-box;border:1.5px solid var(--line2);border-radius:10px;padding:10px 12px;font-size:.9rem;background:#fff;margin:10px 0;color:var(--sub,#555);text-overflow:ellipsis}

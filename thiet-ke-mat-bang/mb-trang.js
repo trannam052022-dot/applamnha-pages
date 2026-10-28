@@ -702,7 +702,9 @@
     $('loai').addEventListener('change', doiLoai);
     ['mt', 'sau'].forEach(function (id) { $(id).addEventListener('input', function () { $('mt').dataset.da = '1'; }); });
     doiLoai();
+    var tuUrl = napTuUrl();
     $('mbForm').addEventListener('submit', function (e) { e.preventDefault(); chay(); });
+    $('nutSangDung').addEventListener('click', sangDung);
     $('tangTruoc').addEventListener('click', function () { if (TANG > 0) { TANG--; veTangLon(); capNhatTab(); } });
     $('tangSau').addEventListener('click', function () { var n = tangHienThi(CUR.r).length; if (TANG < n - 1) { TANG++; veTangLon(); capNhatTab(); } });
     $('btnLat').addEventListener('click', function () {
@@ -744,7 +746,42 @@
     $('ldGui').addEventListener('click', guiLead);
     ['ldTen', 'ldSdt'].forEach(function (id) { $(id).addEventListener('focus', function () { if (DA_MO_LEAD) return; DA_MO_LEAD = true; ga('aln_mb_lead_bat_dau', {}); may('ghiBuoc', { buoc: 'mo_lead' }); }); });
     may('ghiBuoc', { buoc: 'mo_trang' });
+    if (tuUrl) { ga('aln_mb_tu_url', { tu: tuUrl }); chay(); }
+  }
+  /* Lô gửi sang từ trang khác (?loai=&w=&d=&n=, vd từ bảng dự toán): điền sẵn form rồi tự vẽ.
+     Số ngoài khoảng của loại nhà thì bỏ, để kiemForm báo như khách tự nhập. */
+  function napTuUrl() {
+    var q = {}; location.search.replace(/^\?/, '').split('&').forEach(function (c) { var i = c.indexOf('='); if (i > 0) { try { q[c.slice(0, i)] = decodeURIComponent(c.slice(i + 1)); } catch (e) { /* bỏ qua */ } } });
+    var w = parseFloat(String(q.w || '').replace(',', '.')), d = parseFloat(String(q.d || '').replace(',', '.'));
+    if (!(w > 0 && d > 0)) return '';
+    if (LOAI_NHA[q.loai]) { $('loai').value = q.loai; doiLoai(); }
+    $('mt').value = String(Math.round(w * 100) / 100).replace('.', ','); $('sau').value = String(Math.round(d * 100) / 100).replace('.', ',');
+    $('mt').dataset.da = '1';
+    var n = parseInt(q.n, 10), L = LOAI_NHA[$('loai').value] || LOAI_NHA.pho;
+    if (L.tang.indexOf(n) >= 0) $('tang').value = n;
+    return /^[a-z_]{1,20}$/.test(q.tu || '') ? q.tu : 'khac';
+  }
+  /* "Chỉnh tiếp tầng này & xem 3D": gửi tầng đang xem sang trình dựng (/thiet-ke-mat-bang/dung/) qua bộ nhớ máy */
+  function sangDung() {
+    if (!CUR || !CUR.r) return;
+    var r = CUR.r, fls = tangHienThi(r), fl = fls[TANG]; if (!fl) return;
+    var ten = (fl.name + ' · Phương án ' + (CHON + 1) + ' · lô ' + fmt(r.g.w1, 1) + ' × ' + fmt(r.g.d, 1) + ' m').slice(0, 60);
+    var d = { ten: ten, g: r.g, fl: fl, vien: r.P.vien ? r.P.vien[fl.idx] || null : null, yard: fl.ground ? r.P.yard || null : null, ts: Date.now() };
+    try { localStorage.setItem('aln_dung_nhap_mb', JSON.stringify(d)); }
+    catch (e) { baoXong('Trình duyệt không cho lưu tạm (chế độ riêng tư?). Thử mở trang bằng trình duyệt thường.'); return; }
+    ga('aln_mb_sang_dung', { thu_tu: CHON + 1, tang: fl.idx, mau: laTV(r) ? r.v.mau : 'goc' });
+    location.href = 'dung/?tu=mb';
   }
   window.alnMbMaPhien = function () { return MA_PHIEN; };
+  /* Cho MyMy (mymy-mat-bang.js): trạng thái trang, không có họ tên/SĐT */
+  window.alnMbTrangThai = function () {
+    var f = null; try { f = docForm(); } catch (e) { f = null; }
+    var o = { co_pa: !!(CUR && CUR.r), loai_nha: f ? f.loai : '', w: f && f.w > 0 ? f.w : 0, d: f && f.d > 0 ? f.d : 0, so_tang: f ? f.n : 0, tang: '', phong: [] };
+    if (o.co_pa) {
+      var fl = tangHienThi(CUR.r)[TANG];
+      if (fl) { o.tang = fl.name; fl.rooms.forEach(function (q) { if (q.lb && !q.khong && o.phong.indexOf(q.lb) < 0 && o.phong.length < 12) o.phong.push(q.lb); }); }
+    }
+    return o;
+  };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', khoiDong); else khoiDong();
 })();

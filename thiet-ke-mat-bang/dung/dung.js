@@ -202,6 +202,133 @@
     return { phien_ban: 1, ten: 'Lô ' + so(W, 1) + ' × ' + so(D, 1) + ' m', nodes: g.nodes, walls: g.walls, seq: g.seq, ops: [], items: [], phong: [], ghi: [], ranh: null };
   }
 
+  /* ================= nhận một tầng từ trang Thiết kế mặt bằng (/thiet-ke-mat-bang/) =================
+     d = { ten, g: {w1,w2,d,B,f,Db}, fl: tầng máy chủ trả (rooms, walls, doors, windows, stairs, furn…), vien: tường bao mẫu thư viện | null }
+     Tường máy chủ là đường tim, chưa cắt ở chỗ giao nhau; tường bao lẫn trong đó → tách ra theo đường bao. */
+  var DO_MB = { // loại đồ bên trang mặt bằng → mã đồ ở đây (cùng quy ước: x,y = góc trên-trái khung đã xoay, lưng đồ ở y = 0)
+    giuong_doi: 'GD', giuong_16: 'GD', giuong_don: 'GN', ke_tv: 'TV', tu_ao: 'TA', sofa: 'SF', ban_an: 'BA', ban_an_hep: 'BA',
+    bep_i: 'TB', bep_i18: 'TB', tu_lanh: 'TL', ban_lam_viec: 'BL', bon_cau: 'BX', lavabo: 'LV', lavabo_doi: 'LV',
+    sen_tam: 'TD', tam_dung: 'TD', bon_tam: 'BT'
+  };
+  function danhDauMb(p) { var o = p.ops[p.ops.length - 1]; if (o && !o.tu_mb) o.tu_mb = 1; } // bề rộng lấy theo phương án → không nhắc "ký hiệu thường …"
+  function tuMatBang(d) {
+    var g = d && d.g, fl = d && d.fl;
+    if (!g || !fl || !Array.isArray(fl.walls) || !isFinite(g.B) || !isFinite(g.f) || !isFinite(g.Db)) return null;
+    var E = 0.2, I = 0.1, EPS = 0.02, r2 = function (v) { return Math.round(v * 1000) / 1000; };
+    var chuan = function (w, t, khoa) { var a0 = Math.min(w.a0, w.a1), a1 = Math.max(w.a0, w.a1); return { o: w.o, at: r2(w.at), a0: r2(a0), a1: r2(a1), t: t, khoa: khoa }; };
+    var ngoai = [];
+    if (fl.tum) { var T = fl.tum; ngoai.push({ o: 'h', at: T.y, a0: T.x, a1: T.x + T.w }, { o: 'h', at: T.y + T.h, a0: T.x, a1: T.x + T.w }, { o: 'v', at: T.x, a0: T.y, a1: T.y + T.h }, { o: 'v', at: T.x + T.w, a0: T.y, a1: T.y + T.h }); }
+    else if (Array.isArray(d.vien) && d.vien.length) ngoai = d.vien.slice();
+    else ngoai.push({ o: 'h', at: g.f, a0: 0, a1: g.B }, { o: 'h', at: g.f + g.Db, a0: 0, a1: g.B }, { o: 'v', at: 0, a0: g.f, a1: g.f + g.Db }, { o: 'v', at: g.B, a0: g.f, a1: g.f + g.Db });
+    ngoai = ngoai.map(function (w) { return chuan(w, E, true); });
+    // gộp các khoảng trùng nhau trên cùng một đường, rồi bỏ phần tường trong đã nằm trên tường bao
+    function gopDuong(ds) {
+      var nhom = {}, ra = [];
+      ds.forEach(function (w) { var k = w.o + ':' + Math.round(w.at / EPS); (nhom[k] = nhom[k] || []).push(w); });
+      Object.keys(nhom).forEach(function (k) {
+        var l = nhom[k].sort(function (p, q) { return p.a0 - q.a0; }), cur = null;
+        l.forEach(function (w) { if (cur && w.a0 <= cur.a1 + 1e-6) cur.a1 = Math.max(cur.a1, w.a1); else { if (cur) ra.push(cur); cur = { o: w.o, at: w.at, a0: w.a0, a1: w.a1, t: w.t, khoa: w.khoa }; } });
+        if (cur) ra.push(cur);
+      });
+      return ra;
+    }
+    function truDi(w, ds) { // phần của w không nằm trên các đoạn ds cùng đường
+      var con = [[w.a0, w.a1]];
+      ds.forEach(function (o) {
+        if (o.o !== w.o || Math.abs(o.at - w.at) > EPS) return;
+        var moi = []; con.forEach(function (c) { if (o.a1 <= c[0] + 1e-6 || o.a0 >= c[1] - 1e-6) moi.push(c); else { if (o.a0 > c[0] + 1e-6) moi.push([c[0], o.a0]); if (o.a1 < c[1] - 1e-6) moi.push([o.a1, c[1]]); } });
+        con = moi;
+      });
+      return con.filter(function (c) { return c[1] - c[0] > 0.05; }).map(function (c) { return { o: w.o, at: w.at, a0: c[0], a1: c[1], t: w.t, khoa: w.khoa }; });
+    }
+    ngoai = gopDuong(ngoai);
+    var trong = [];
+    gopDuong(fl.walls.filter(function (w) { return w && (w.o === 'h' || w.o === 'v') && isFinite(w.at + w.a0 + w.a1); }).map(function (w) { return chuan(w, I, false); }))
+      .forEach(function (w) { trong = trong.concat(truDi(w, ngoai)); });
+    var tat = ngoai.concat(trong);
+    // cắt ở mọi chỗ giao (kể cả chữ thập), để tường kéo được từng đoạn
+    var doan = [];
+    tat.forEach(function (w) {
+      var cat = [w.a0, w.a1];
+      tat.forEach(function (o) {
+        if (o.o === w.o) return;
+        if (o.at > w.a0 + 1e-6 && o.at < w.a1 - 1e-6 && w.at >= o.a0 - EPS && w.at <= o.a1 + EPS) cat.push(o.at);
+      });
+      cat.sort(function (p, q) { return p - q; });
+      for (var i = 0; i < cat.length - 1; i++) {
+        if (cat[i + 1] - cat[i] < 0.03) continue;
+        var a = w.o === 'h' ? [cat[i], w.at] : [w.at, cat[i]], b = w.o === 'h' ? [cat[i + 1], w.at] : [w.at, cat[i + 1]];
+        doan.push({ a: a, b: b, t: w.t, khoa: w.khoa });
+      }
+    });
+    if (!doan.length) return null;
+    var gg = taoTuDoan(doan);
+    var p = { phien_ban: 1, mau_wc: 2, ten: String(d.ten || 'Mặt bằng').slice(0, 60), nodes: gg.nodes, walls: gg.walls, seq: gg.seq, ops: [], items: [], phong: [], ghi: [],
+      ranh: [[0, 0], [g.w1 || g.B, 0], [g.w2 || g.B, g.d || (g.f + g.Db)], [0, g.d || (g.f + g.Db)]], tu_mb: 1 };
+    // cửa đi: khe cửa + cánh (đường bản lề → mũi cánh), cửa cuốn chỉ có nét gạch
+    (fl.doors || []).forEach(function (c) {
+      var G = c && c.gap; if (!G) return;
+      var ngang = G.w >= G.h, p1 = ngang ? [G.x, G.y + G.h / 2] : [G.x + G.w / 2, G.y], p2 = ngang ? [G.x + G.w, G.y + G.h / 2] : [G.x + G.w / 2, G.y + G.h];
+      var rong = ngang ? G.w : G.h, l = c.lines || [], ma;
+      if (!l.length) ma = (c.dashes && c.dashes.length) ? 'D4' : 'LM';
+      else if (l.length >= 4) ma = 'D4';
+      else if (l.length >= 2) ma = 'D2';
+      else ma = rong < 0.85 ? 'Dw' : 'D1';
+      var o = { ma: ma, p1: p1, p2: p2 };
+      if (l.length === 1) { o.banLe = [l[0][0], l[0][1]]; o.huong = [l[0][2], l[0][3]]; }
+      else if (l.length) o.huong = [l[0][2], l[0][3]];
+      themCuaToaDo(p, o); danhDauMb(p);
+    });
+    var tamX = g.B / 2, tamY = g.f + g.Db / 2;
+    (fl.windows || []).forEach(function (s) {
+      if (!s || !(s.w > 0)) return;
+      var ma = s.w <= 0.8 ? 'S1' : (s.w < 1.6 ? 'S2' : 'S4');
+      var p1 = s.o === 'h' ? [s.a, s.at] : [s.at, s.a], p2 = s.o === 'h' ? [s.a + s.w, s.at] : [s.at, s.a + s.w];
+      var mx = (p1[0] + p2[0]) / 2, my = (p1[1] + p2[1]) / 2;
+      danhDauMb(p, themCuaToaDo(p, { ma: ma, p1: p1, p2: p2, huong: s.o === 'h' ? [mx, my + (my < tamY ? -0.5 : 0.5)] : [mx + (mx < tamX ? -0.5 : 0.5), my] }));
+    });
+    // cầu thang: U hai vế (bên kia lên từ cạnh trên → đảo đầu), thẳng một vế
+    (fl.stairs || []).forEach(function (s) {
+      if (!s || !(s.w > 0 && s.h > 0)) return;
+      var kieu = s.kind === 'U' ? 'U' : 'I', nTot = 21, lech = Infinity;
+      for (var n = 17; n <= 22; n++) { // số bậc 17–22 cho mặt bậc gần 0,27 m nhất
+        var b = KH.thangBoTri({ kieu: kieu, n: n, w: s.w, h: s.h }).vế[0].b, l = Math.abs(b - KH.MAT_BAC_ALN);
+        if (l < lech - 1e-9) { lech = l; nTot = n; }
+      }
+      if (kieu === 'U') themDo(p, 'TH', s.x, s.y, s.w, s.h, 0, { kieu: 'U', dao: true, n: nTot });
+      else {
+        themDo(p, 'TH', s.x, s.y, s.w, s.h, 0, { kieu: 'I', n: nTot });
+        if (s.kind === 'doc') p.ghi.push({ id: 'g' + (++p.seq), x: s.x + s.w / 2, y: s.y + s.h + 0.35, nd: 'Phương án gốc có bậc rẻ quạt ở hai đầu thang. Ở đây vẽ tạm thành thang thẳng — KTS chỉnh lại số bậc khi triển khai.' });
+      }
+    });
+    // phòng: giếng trời, thang máy thành khối; còn lại thành tên phòng (diện tích tự đo theo tường)
+    (fl.rooms || []).forEach(function (q) {
+      if (!q || q.khong || !(q.w > 0 && q.h > 0)) return;
+      var lb = String(q.lb || '').slice(0, 30);
+      if (q.t === 'void') { themDo(p, 'GT', q.x, q.y, q.w, q.h, 0); return; }
+      if (q.t === 'shaft' && (q.key === 'tm' || /thang máy/i.test(lb)) && !/phòng máy/i.test(lb)) { themDo(p, 'TM', q.x, q.y, q.w, q.h, 0); return; }
+      if (lb) p.phong.push({ id: 'p' + (++p.seq), ten: lb, x: r2(q.x + q.w / 2), y: r2(q.y + q.h / 2) });
+    });
+    if (fl.bal && fl.bal.w > 0) p.phong.push({ id: 'p' + (++p.seq), ten: 'Ban công', x: r2(fl.bal.x + fl.bal.w / 2), y: r2(fl.bal.y + fl.bal.h / 2) });
+    if (fl.ground && d.yard && d.yard.h > 0) p.phong.push({ id: 'p' + (++p.seq), ten: String(d.yard.label || 'Sân trước').slice(0, 30), x: r2(g.B / 2), y: r2(d.yard.y + d.yard.h / 2) });
+    // đồ đạc: cùng quy ước khung + chiều xoay; bàn làm việc bên kia gồm cả ghế (sâu 1,05) → ở đây chỉ mặt bàn 0,6
+    var boQua = 0;
+    (fl.furn || []).forEach(function (f) {
+      var ma = f && DO_MB[f.t];
+      if (!ma || !(f.w > 0 && f.h > 0) || !isFinite(f.x + f.y)) { if (f && f.t) boQua++; return; }
+      var r = [0, 90, 180, 270].indexOf(f.rot) >= 0 ? f.rot : 0, quay = r % 180 !== 0, W = f.w, H = f.h;
+      var cx = f.x + (quay ? H : W) / 2, cy = f.y + (quay ? W : H) / 2;
+      if (ma === 'BL' && H > 0.6) { // dời tâm về giữa mặt bàn (mặt bàn ở 0..0,6 theo chiều sâu)
+        var dy = 0.3 - H / 2, rad = r * Math.PI / 180; cx += -dy * Math.sin(rad); cy += dy * Math.cos(rad); H = 0.6;
+      }
+      var sau = LIB[ma] && LIB[ma].sau; if (sau) H = sau;
+      var ww = quay ? H : W, hh = quay ? W : H;
+      themDo(p, ma, cx - ww / 2, cy - hh / 2, W, H, r);
+    });
+    if (fl.ground) themDo(p, 'VAO', g.B / 2 - 0.3, g.f - 1.05, 0.6, 0.9, 0);
+    return { plan: p, boQua: boQua };
+  }
+
   /* Nam 23/10/2026: phòng WC trong bản mẫu có sẵn khối WC tự bố trí; khối không có hộp gen (KTS tự thêm
      hộp gen đúng chỗ khi cần), không còn dải gạch chéo dài sát tường. Chạy khi plan đã là bản mẫu (cần plan toàn cục để đo lọt lòng). */
   var TEN_MAU = 'Nhà 12 × 8 m — dựng từ bản phác 23/10';
@@ -514,7 +641,7 @@
         giapCua[m][c.loai === 'so' ? 'so' : 'di']++;
       });
     });
-    var MIEN_CUA = /hiên|sân|ban công|giếng|bồn|thông tầng|hộp gen/i;
+    var MIEN_CUA = /hiên|sân|ban công|giếng|bồn|thông tầng|hộp gen|thang máy/i;
     pt.vungs.forEach(function (v) {
       if (!v.phong.length) return;
       var ten = v.ten.join(' + '), p0 = v.phong[0], cua = giapCua[v.ma] || { di: 0, so: 0 };
@@ -560,7 +687,7 @@
     // cửa
     plan.ops.forEach(function (op) {
       var hc = hinhCua(op), c = CUA[op.ma]; if (!hc || !c) return;
-      if (op.rong < c.min - 0.005 || op.rong > c.max + 0.005) them('goi_y', op.ma + ' rộng ' + so(op.rong) + ' m; ký hiệu ' + op.ma + ' thường ' + so(c.min) + '–' + so(c.max) + ' m.', { k: 'o', id: op.id }, hc.C.x, hc.C.y);
+      if (!op.tu_mb && (op.rong < c.min - 0.005 || op.rong > c.max + 0.005)) them('goi_y', op.ma + ' rộng ' + so(op.rong) + ' m; ký hiệu ' + op.ma + ' thường ' + so(c.min) + '–' + so(c.max) + ' m.', { k: 'o', id: op.id }, hc.C.x, hc.C.y);
       if (c.canh === 1) {
         var hl = op.ban_le === 'a' ? hc.P0 : hc.P1, sx = hc.g.nx * op.phia, sy = hc.g.ny * op.phia;
         var dau = op.ban_le === 'a' ? hc.P1 : hc.P0;
@@ -2374,7 +2501,8 @@
     var b = e.target.closest('button'); if (!b) return;
     menu.hidden = true; nutTep.setAttribute('aria-expanded', 'false');
     var l = b.getAttribute('data-lenh');
-    if (l === 'luu_pb') luuPhienBan();
+    if (l === 'gui_link') guiLink();
+    else if (l === 'luu_pb') luuPhienBan();
     else if (l === 'ds_pb') moDsPhienBan();
     else if (l === 'tai_file') { taiFile(tenTep('aln.json'), JSON.stringify(plan, function (k, v) { return k.charAt(0) === '_' ? undefined : v; }, 1), 'application/json'); ga('aln_dmb_xuat', { dang: 'json' }); }
     else if (l === 'mo_file') $('oMoFile').click();
@@ -2425,6 +2553,158 @@
   window.addEventListener('resize', function () { ve(); });
   window.addEventListener('pagehide', function () { if (henLuu) { clearTimeout(henLuu); henLuu = null; luuTuDong(); } });
 
+  /* ================= nhận tầng gửi từ trang Thiết kế mặt bằng (?tu=mb) =================
+     Trang kia ghi localStorage 'aln_dung_nhap_mb' rồi chuyển sang đây. Bản đang làm dở (không phải bản mẫu) được cất
+     thành một phiên bản trước khi thay, để không mất. Trả câu báo cho khách, hoặc '' nếu không có gì để nhận. */
+  var KHOA_NHAP = 'aln_dung_nhap_mb';
+  function hoanThienNhan() {
+    // đồ bên kia đặt theo mặt phòng tính tới tim tường → đẩy ra khỏi bề dày tường (không xoay lại)
+    plan.items.forEach(function (it) { if (KHONG_SAT[it.ma]) return; dayKhoiTuong(it); hutSatTuong(it); dayKhoiTuong(it); });
+    phanTichCache = null;
+    var pt = phanTich(), them = 0;
+    pt.trong.forEach(function (v) {
+      if (!v.trongNha || v.dt < 1.5) return;
+      var TEN = { TH: 'Cầu thang', TM: 'Thang máy', GT: 'Giếng trời' };
+      var it = plan.items.filter(function (o) { return TEN[o.ma] && vungTai(pt, o.cx, o.cy) === v.ma; })[0];
+      if (it) { plan.phong.push({ id: idMoi('p'), ten: TEN[it.ma], x: tron(it.cx), y: tron(it.cy) }); them++; }
+    });
+    phanTichCache = null;
+    return them;
+  }
+  function nhanTuMatBang(giuBanCu) {
+    if (!/[?&]tu=mb(&|$)/.test(location.search)) return '';
+    var d = null;
+    try { d = JSON.parse(localStorage.getItem(KHOA_NHAP) || 'null'); localStorage.removeItem(KHOA_NHAP); } catch (e) { d = null; }
+    try { history.replaceState(null, '', location.pathname + location.search.replace(/([?&])tu=mb(&|$)/, '$1').replace(/[?&]$/, '') + location.hash); } catch (e) { /* bỏ qua */ }
+    if (!d || !d.fl || (d.ts && Date.now() - d.ts > 24 * 3600 * 1000)) return '';
+    var kq = null; try { kq = tuMatBang(d); } catch (e) { kq = null; }
+    if (!kq || !hopLe(kq.plan)) { ga('aln_dmb_nhan_mb', { ok: 0 }); return 'Chưa nhận được tầng vừa chọn. Quay lại trang Thiết kế mặt bằng và bấm lại nút "Chỉnh tiếp tầng này".'; }
+    if (giuBanCu) {
+      try {
+        var ds = dsPhienBan(), luc = new Date();
+        ds.unshift({ ten: ('Bản trước khi nhận tầng mới ' + luc.getDate() + '/' + (luc.getMonth() + 1)).slice(0, 40), luc: Date.now(), plan: plan });
+        localStorage.setItem(KHOA_PB, JSON.stringify(ds.slice(0, 20)));
+      } catch (e) { /* đầy bộ nhớ: vẫn nhận, bản cũ còn lấy lại bằng "Quay lại" */ }
+    }
+    ghiLai(); plan = chuanHoa(kq.plan); sel = null;
+    try { hoanThienNhan(); } catch (e) { /* bản vẽ vẫn dùng được */ }
+    try { localStorage.setItem(KHOA_LUU, JSON.stringify(plan)); } catch (e) { /* bỏ qua */ }
+    ga('aln_dmb_nhan_mb', { ok: 1, so_do: plan.items.length });
+    return 'Đã nhận "' + plan.ten + '". Kéo tường để đổi cỡ phòng, bấm "Xem 3D" để đi trong nhà.' +
+      (giuBanCu ? ' Bản anh/chị làm trước đó đã cất ở "Các phiên bản đã lưu".' : '') +
+      (kq.boQua ? ' ' + kq.boQua + ' món (bàn trà, bàn thờ, xe máy…) chưa có ký hiệu ở đây nên chưa đưa sang.' : '');
+  }
+
+
+  /* ================= gửi bản vẽ bằng link (bước 2/4, 28/10/2026) =================
+   * Cả bản vẽ nằm trong phần # của link (nén deflate-raw, base64url) — không gửi lên máy chủ nào,
+   * phần sau # cũng không đi kèm khi Zalo tải xem trước link. Ảnh nền đồ lại KHÔNG đi theo (ảnh riêng
+   * của khách, nằm ở khoá khác). Trình duyệt chưa có CompressionStream (Safari < 16.4) dùng fflate. */
+  var TIEN_TO_LINK = '#b1=', TRAN_LINK = 60000, TRAN_GIAI_NEN = 1500000;
+  function banGon(p) {
+    return JSON.stringify(p, function (k, v) {
+      if (k.charAt(0) === '_') return undefined;
+      return typeof v === 'number' && isFinite(v) && Math.round(v) !== v ? Math.round(v * 1000) / 1000 : v;
+    });
+  }
+  function b64u(u8) {
+    var s = ''; for (var i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000));
+    return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+  function tuB64u(s) {
+    if (!/^[A-Za-z0-9_-]+$/.test(s)) throw new Error('ky_tu');
+    s = s.replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '=';
+    var t = atob(s), u = new Uint8Array(t.length); for (var i = 0; i < t.length; i++) u[i] = t.charCodeAt(i); return u;
+  }
+  var fflateHua = null;
+  function napFflate() { return fflateHua || (fflateHua = import('https://cdn.jsdelivr.net/npm/fflate@0.8.2/esm/browser.js')); }
+  function nenChuoi(s) {
+    var u8 = new TextEncoder().encode(s);
+    if (window.CompressionStream) return new Response(new Blob([u8]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer().then(function (b) { return new Uint8Array(b); });
+    return napFflate().then(function (f) { return f.deflateSync(u8, { level: 9 }); });
+  }
+  function giaiNenChuoi(u8) {
+    if (window.DecompressionStream) {
+      var r = new Blob([u8]).stream().pipeThrough(new DecompressionStream('deflate-raw')).getReader(), phan = [], tong = 0;
+      var doc = function () {
+        return r.read().then(function (x) {
+          if (x.done) { var o = new Uint8Array(tong), vt = 0; phan.forEach(function (c) { o.set(c, vt); vt += c.length; }); return new TextDecoder().decode(o); }
+          tong += x.value.length; if (tong > TRAN_GIAI_NEN) { try { r.cancel(); } catch (e) { /* bỏ qua */ } throw new Error('qua_lon'); }
+          phan.push(x.value); return doc();
+        });
+      };
+      return doc();
+    }
+    return napFflate().then(function (f) { var o = f.inflateSync(u8); if (o.length > TRAN_GIAI_NEN) throw new Error('qua_lon'); return new TextDecoder().decode(o); });
+  }
+  function linkBanVe() { return nenChuoi(banGon(plan)).then(function (u8) { return location.origin + location.pathname + TIEN_TO_LINK + b64u(u8); }); }
+  /** Kiểm chặt hơn hopLe: số phần tử có trần, toạ độ là số — link có thể do ai đó tự sửa. */
+  function hopLeLink(p) {
+    if (!hopLe(p)) return false;
+    var ks = Object.keys(p.nodes);
+    if (ks.length > 5000 || p.walls.length > 3000 || p.ops.length > 1000 || p.items.length > 2000) return false;
+    if ((p.phong && (!Array.isArray(p.phong) || p.phong.length > 300)) || (p.ghi && (!Array.isArray(p.ghi) || p.ghi.length > 200))) return false;
+    var so = function (v) { return typeof v === 'number' && isFinite(v) && Math.abs(v) < 1000; };
+    return ks.every(function (k) { var n = p.nodes[k]; return n && so(n.x) && so(n.y); })
+      && p.items.every(function (it) { return it && so(it.cx) && so(it.cy); });
+  }
+  function saoChep(chu) {
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(chu);
+    return new Promise(function (ok, loi) {
+      var t = h('textarea', { readonly: '', 'aria-hidden': 'true', style: 'position:fixed;left:-9999px;top:0' }); t.value = chu; document.body.appendChild(t); t.select();
+      var duoc = false; try { duoc = document.execCommand('copy'); } catch (e) { duoc = false; } t.remove(); if (duoc) ok(); else loi(new Error('copy'));
+    });
+  }
+  function guiLink() {
+    if (!plan.walls.length) { baoDong('Chưa có tường nào để gửi. Vẽ tường hoặc nạp mặt bằng mẫu trước.'); return; }
+    linkBanVe().then(function (url) {
+      if (url.length > TRAN_LINK) { baoDong('Bản vẽ này quá lớn để gửi bằng link. Dùng "Tải file mặt bằng" rồi gửi file qua Zalo.', true); ga('aln_dmb_gui_link', { ket_qua: 'qua_lon' }); return; }
+      var ten = plan.ten || 'Bản vẽ', loiNhan = 'Mặt bằng "' + ten + '" — bấm link để xem và đi trong nhà bằng 3D:';
+      hopThoai('Gửi bản vẽ qua Zalo', function (nd) {
+        var o = h('input', { type: 'text', readonly: '', cls: 'o-link', 'aria-label': 'Link bản vẽ' }); o.value = url;
+        var nutGui = navigator.share ? h('button', { type: 'button', cls: 'nut chinh', text: 'Gửi qua Zalo / ứng dụng khác', onclick: function () {
+          navigator.share({ title: ten, text: loiNhan, url: url }).then(function () { ga('aln_dmb_gui_link', { ket_qua: 'chia_se' }); dongHop(); }).catch(function () { /* khách bấm huỷ */ });
+        } }) : null;
+        var nutChep = h('button', { type: 'button', cls: 'nut' + (nutGui ? '' : ' chinh'), text: 'Sao chép link', onclick: function () {
+          saoChep(loiNhan + '\n' + url).then(function () { nutChep.textContent = 'Đã chép — dán vào Zalo'; ga('aln_dmb_gui_link', { ket_qua: 'sao_chep' }); })
+            .catch(function () { o.focus(); o.select(); baoDong('Chưa chép được, anh/chị giữ vào ô link để chép tay.'); });
+        } });
+        nd.append(
+          h('p', { cls: 'mo-ta', text: 'Người nhận bấm link là mở đúng bản vẽ này trên điện thoại hoặc máy tính và xem được 3D. Họ chỉnh trên máy họ thì bản của anh/chị không đổi.' }),
+          o, h('div', { cls: 'nhom-nut' }, [nutGui, nutChep]),
+          h('p', { cls: 'chu-thich', text: 'Link chứa cả tên phòng và ghi chú trên bản vẽ, không chứa ảnh nền đồ lại. Bản vẽ đổi sau khi gửi thì gửi lại link mới.' }));
+        return null;
+      }, null, 'Đóng');
+      ga('aln_dmb_gui_link', { ket_qua: 'mo', do_dai: url.length });
+    }).catch(function () { baoDong('Chưa tạo được link. Kiểm tra mạng rồi bấm lại.', true); ga('aln_dmb_gui_link', { ket_qua: 'loi' }); });
+  }
+  /** Mở trang bằng link #b1=… → nạp bản vẽ được gửi; bản đang làm dở cất thành phiên bản. */
+  function nhanTuLink(giuBanCu) {
+    if (location.hash.indexOf(TIEN_TO_LINK) !== 0) return;
+    var ma = location.hash.slice(TIEN_TO_LINK.length);
+    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* bỏ qua */ }
+    if (!ma || ma.length > TRAN_LINK) { baoDong('Link bản vẽ không đầy đủ. Nhờ người gửi chép lại cả link.', true); return; }
+    var u8; try { u8 = tuB64u(ma); } catch (e) { baoDong('Link bản vẽ không đầy đủ. Nhờ người gửi chép lại cả link.', true); ga('aln_dmb_mo_link', { ok: 0 }); return; }
+    giaiNenChuoi(u8).then(function (s) {
+      var p = JSON.parse(s);
+      if (!hopLeLink(p)) throw new Error('sai');
+      if (giuBanCu) {
+        try {
+          var ds = dsPhienBan(), luc = new Date();
+          ds.unshift({ ten: ('Bản trước khi mở link ' + luc.getDate() + '/' + (luc.getMonth() + 1)).slice(0, 40), luc: Date.now(), plan: JSON.parse(JSON.stringify(plan)) });
+          localStorage.setItem(KHOA_PB, JSON.stringify(ds.slice(0, 20)));
+        } catch (e) { /* đầy bộ nhớ: vẫn mở, bản cũ còn lấy lại bằng "Quay lại" */ }
+      }
+      ghiLai(); plan = chuanHoa(p); sel = null; $('tenBan').value = plan.ten || '';
+      if (plan.items.some(function (it) { return it.ma === 'CAD'; })) napThuVienCad();
+      try { localStorage.setItem(KHOA_LUU, JSON.stringify(plan)); } catch (e) { /* bỏ qua */ }
+      xong(); vuaKhung(); dongHop();
+      baoDong('Đang xem bản vẽ "' + plan.ten + '" được gửi qua link. Bấm "Xem 3D" để đi trong nhà. Chỉnh ở đây không làm đổi bản của người gửi.' +
+        (giuBanCu ? ' Bản anh/chị làm trước đó đã cất ở "Các phiên bản đã lưu".' : ''), true);
+      ga('aln_dmb_mo_link', { ok: 1 });
+    }).catch(function () { baoDong('Link bản vẽ bị hỏng hoặc thiếu. Nhờ người gửi chép lại cả link.', true); ga('aln_dmb_mo_link', { ok: 0 }); });
+  }
+
   /* ================= khởi động ================= */
   (function batDau() {
     var cu = null;
@@ -2432,13 +2712,17 @@
     plan = hopLe(cu) ? chuanHoa(cu) : matBangMau();
     if (!hopLe(cu)) xepWCVaoPhong(); else if (nangCapBanMau()) { try { localStorage.setItem(KHOA_LUU, JSON.stringify(plan)); } catch (e) {} }
     try { var a = JSON.parse(localStorage.getItem(KHOA_ANH) || 'null'); if (a && typeof a.src === 'string' && alnUrl(a.src) !== '#' && isFinite(a.cx) && a.w > 0 && a.h > 0) anh = a; } catch (e) { anh = null; }
+    var nhan = nhanTuMatBang(hopLe(cu) && cu.ten !== TEN_MAU);
     $('tenBan').value = plan.ten || '';
     if (plan.items.some(function (it) { return it.ma === 'CAD'; })) napThuVienCad();
     datCong('chon');
     requestAnimationFrame(function () { vuaKhung(); veBang(); });
     var daXem = false; try { daXem = !!localStorage.getItem(KHOA_HD); localStorage.setItem(KHOA_HD, '1'); } catch (e) { daXem = true; }
-    if (!daXem) huongDan();
+    var coLink = location.hash.indexOf(TIEN_TO_LINK) === 0;
+    if (nhan) baoDong(nhan);
+    else if (!daXem && !coLink) huongDan();
+    if (coLink) nhanTuLink(!nhan && hopLe(cu) && cu.ten !== TEN_MAU);
     window.ALNDungMB = { lay: function () { return plan; }, phanTich: function () { phanTichCache = null; return phanTich(); }, matBangMau: matBangMau,
-      thu: { satTuong: satTuong, coTheoTuong: coTheoTuong, hopDo: hopDo, netDo: netDo, tachKhoiWC: tachKhoiWC, chuanHoa: chuanHoa, ve: function () { phanTichCache = null; ve(); veBang(); } } };
+      thu: { tuMatBang: tuMatBang, linkBanVe: linkBanVe, hopLeLink: hopLeLink, satTuong: satTuong, coTheoTuong: coTheoTuong, hopDo: hopDo, netDo: netDo, tachKhoiWC: tachKhoiWC, chuanHoa: chuanHoa, ve: function () { phanTichCache = null; ve(); veBang(); } } };
   })();
 })();

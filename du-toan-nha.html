@@ -234,6 +234,8 @@ body.che-do-dn #secDonGia{display:block}
 .tot span:last-child{font-family:var(--mono)}
 .h2{font-family:var(--head);font-weight:500;font-size:17px;margin:22px 0 2px}
 .fine{font-size:12.5px;color:var(--muted);margin-top:14px;line-height:1.6}
+.mb-goi{margin-top:12px;font-size:14.5px;line-height:1.55;color:var(--muted)}.mb-goi a{font-weight:700}
+body.che-do-dn .mb-goi{display:none}
 .cta{display:block;text-align:center;margin-top:16px;background:var(--navy2);color:#fff;text-decoration:none;border-radius:10px;padding:12px;font-weight:600}
 /* Form "Nhờ KTS xem giúp dự toán này" (30/09/2026) — nút chính ngay dưới kết quả;
    Lưu vào Không gian Nhà thành nút phụ (cần OTP). */
@@ -624,6 +626,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div id="recaptcha-dt"></div>
    </div>
    <div class="fine">Chưa gồm: ép cọc, thiết bị thang máy (hai phần này chủ nhà ký riêng), nội thất rời, chi phí thiết kế và xin phép.<br>Đây là ước tính theo nhà mẫu cùng loại, chưa phải dự toán chính thức cho công trình của bạn. Dự toán đúng cho nhà bạn phải bóc từ chính bản vẽ của bạn.</div>
+   <!-- 27/10/2026: lối sang trang Thiết kế mặt bằng (mang theo kích thước lô) → trình dựng + xem 3D. -->
+   <p class="mb-goi" id="mbGoi">Muốn xem căn nhà này chia phòng thế nào? <a href="/thiet-ke-mat-bang/" id="mbGoiLink">Xem 3 phương án mặt bằng cho lô này, rồi đi trong nhà bằng 3D</a></p>
    <!-- Khung bản doanh nghiệp LUÔN hiện (Nam 02/10/2026): trước đó chỉ hiện khi chọn
         "Công trình của khách" nên nhà thầu khó thấy. Form bên dưới vẫn mặc định "Nhà của tôi". -->
    <aside class="dn-the" id="dnThe" aria-labelledby="dnTheTitle">
@@ -2470,6 +2474,20 @@ if (new URLSearchParams(location.search).get('dn') !== '1') {
     window.open('in-du-toan.html?tu_trang=1', '_blank', 'noopener');
   });
 }
+</script>
+<script>
+/* Link "Xem 3 phương án mặt bằng": mang kích thước lô + số tầng (trang kia đếm cả sân thượng) sang /thiet-ke-mat-bang/ */
+(function () {
+  var a = document.getElementById('mbGoiLink'); if (!a) return;
+  a.addEventListener('click', function () {
+    var so = function (id) { var e = document.getElementById(id); return e ? parseFloat(String(e.value).replace(',', '.')) : NaN; };
+    var w = so('w1'), d = so('l1'), n = parseInt((document.getElementById('n') || {}).value, 10), st = so('st') || 0, q = '?loai=pho&tu=du_toan';
+    if (w > 0 && w < 100 && d > 0 && d < 200) q += '&w=' + Math.round(w * 100) / 100 + '&d=' + Math.round(d * 100) / 100;
+    var t = n + (st > 0 ? 1 : 0); if (t >= 2 && t <= 8) q += '&n=' + t;
+    a.href = alnUrl('/thiet-ke-mat-bang/' + q);
+    try { if (window.gtag) window.gtag('event', 'aln_dt_sang_mb', { so_tang: t || 0 }); } catch (e) { /* bỏ qua */ }
+  });
+})();
 </script>
 <!-- ALN-PHAP-NHAN --><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"><style id="alnpn-css">.alnpn,.alnpn *{box-sizing:border-box;margin:0;padding:0;border:0;font:inherit;letter-spacing:normal;text-transform:none;text-shadow:none;float:none;background:none;min-width:0}.alnpn{display:block;width:100%;clear:both;position:relative;z-index:0;background:#0b1428;border-top:2px solid #d4a017;color:#cbd5e1;font-family:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:15px;font-weight:400;line-height:1.5;text-align:left;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;padding:28px 20px 88px}.alnpn-in{max-width:1280px;margin:0 auto;display:grid;gap:22px}.alnpn-brand{display:flex;align-items:center;gap:14px}.alnpn-brand img{display:block;flex:none;width:44px;height:44px;border-radius:10px}.alnpn-ten{font-weight:700;font-size:17px;line-height:1.3;letter-spacing:.03em;color:#fff}.alnpn-sub{margin-top:2px;font-size:13px;line-height:1.4;color:#9fb0c8}.alnpn-muc dt{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;line-height:1.3;letter-spacing:.08em;text-transform:uppercase;color:#e0b43a;margin-bottom:6px}.alnpn-muc dt svg{display:block;flex:none;width:16px;height:16px;fill:none;stroke:#e0b43a;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.alnpn-muc dd{font-size:15px;font-weight:500;line-height:1.45;color:#f1f5f9}.alnpn-mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:600;letter-spacing:.02em}.alnpn a{color:#fff;text-decoration:none}.alnpn a:hover,.alnpn a:focus-visible{color:#e0b43a;outline:none}.alnpn-note{font-size:13px;font-weight:400;color:#9fb0c8;margin-left:8px;white-space:nowrap}@media (min-width:768px){.alnpn{padding:26px 28px}.alnpn-in{grid-template-columns:auto auto auto auto;justify-content:space-between;align-items:stretch;gap:0}.alnpn-brand{align-self:center}.alnpn-muc{padding:0 0 0 28px;margin-left:28px;border-left:1px solid rgba(224,180,58,.22)}}@media (min-width:768px) and (max-width:1099px){.alnpn-in{grid-template-columns:auto minmax(0,1fr) auto;justify-content:stretch;row-gap:20px}.alnpn-brand{grid-column:1/-1;align-self:start}.alnpn-muc:nth-child(2){border-left:0;margin-left:0;padding-left:0}}</style><section class="alnpn" aria-label="Thông tin doanh nghiệp"><div class="alnpn-in"><div class="alnpn-brand"><img src="/icon-192.png" alt="" width="44" height="44" loading="lazy"><div><div class="alnpn-ten">CÔNG TY TNHH ALN</div><div class="alnpn-sub">Đơn vị chủ quản website applamnha.vn</div></div></div><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M10 12h5M10 16h5"/></svg>Mã số thuế</dt><dd class="alnpn-mono">3502593013</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-6-5.3-6-11a6 6 0 1 1 12 0c0 5.7-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/></svg>Địa chỉ</dt><dd>Khu TTTM Sonadezi 536 Trung Sơn, Ngãi Giao, TP. Hồ Chí Minh</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 5 5L14 13l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>Hotline</dt><dd><a class="alnpn-mono" href="tel:0909829696">0909 829 696</a><span class="alnpn-note">KTS Trần Long</span></dd></dl></div></section>
 </body>
