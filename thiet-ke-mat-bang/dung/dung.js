@@ -143,57 +143,12 @@
     p.items.push(it);
   }
 
-  /* Mặt bằng mẫu: nhà 12 × 8 m (+1 m khối giữa) dựng lại từ bản phác tay của KTS Trần Long ngày 23/10/2026. */
-  function matBangMau() {
-    var E = 0.2, I = 0.1, seg = function (a, b, t, k) { return { a: a, b: b, t: t, khoa: k }; };
-    var g = taoTuDoan([
-      seg([0, 0], [0, 8], E, true), seg([0, 0], [3, 0], E, true), seg([3, -1], [3, 0], E, true), seg([3, -1], [6.5, -1], E, true),
-      seg([6.5, -1], [6.5, 0], E, true), seg([6.5, 0], [11, 0], E, true), seg([11, 0], [11, 4], E, true), seg([9, 4], [12, 4], E, true),
-      seg([12, 4], [12, 7.5], E, true), seg([8, 7.5], [12, 7.5], E, true), seg([8, 5.7], [8, 8], E, true), seg([0, 8], [8, 8], E, true),
-      seg([6.5, 0], [6.5, 4], I, false), seg([3, 0], [3, 3], I, false), seg([0, 3], [3, 3], I, false), seg([0, 4], [6.5, 4], I, false),
-      seg([0, 6], [2, 6], I, false), seg([2, 4], [2, 8], I, false), seg([5, 4], [5, 8], I, false), seg([6.5, 4], [6.5, 5.7], I, false),
-      seg([5, 5.7], [9, 5.7], I, false), seg([9, 4], [9, 5.7], I, false)
-    ]);
-    var p = { phien_ban: 1, mau_wc: 2, ten: 'Nhà 12 × 8 m — dựng từ bản phác 23/10', nodes: g.nodes, walls: g.walls, seq: g.seq, ops: [], items: [], phong: [], ghi: [], ranh: [[0, -1], [12, -1], [12, 8], [0, 8]] };
-    [
-      { ma: 'D1', p1: [1.6, 3], p2: [2.4, 3], banLe: [2.4, 3], huong: [2, 2.5] },
-      { ma: 'D1', p1: [6.5, 0.9], p2: [6.5, 1.7], banLe: [6.5, 0.9], huong: [6, 1.3] },
-      { ma: 'D1', p1: [0, 3.1], p2: [0, 3.9], banLe: [0, 3.9], huong: [0.5, 3.5] },
-      { ma: 'Dw', p1: [0.9, 4], p2: [1.6, 4], banLe: [0.9, 4], huong: [1.2, 4.5] },
-      { ma: 'D1', p1: [2.2, 4], p2: [3.0, 4], banLe: [2.2, 4], huong: [2.6, 4.5] },
-      { ma: 'Dw', p1: [2, 6.15], p2: [2, 6.85], banLe: [2, 6.85], huong: [1.5, 6.5] },
-      { ma: 'D1', p1: [5.6, 4], p2: [6.4, 4], banLe: [6.4, 4], huong: [6, 4.5] },
-      { ma: 'D1', p1: [5.5, 5.7], p2: [6.3, 5.7], banLe: [5.5, 5.7], huong: [5.9, 6.2] },
-      { ma: 'D1', p1: [9, 4.1], p2: [9, 4.9], banLe: [9, 4.1], huong: [9.5, 4.5] },
-      { ma: 'D4', p1: [11, 1.0], p2: [11, 3.4], huong: [11.5, 2] },
-      { ma: 'S2', p1: [1.6, 0], p2: [2.8, 0], huong: [2, -0.5] },
-      { ma: 'S2', p1: [4.0, -1], p2: [5.4, -1], huong: [4.7, -1.5] },
-      { ma: 'S4', p1: [7.9, 0], p2: [9.9, 0], huong: [8.9, -0.5] },
-      { ma: 'S2', p1: [2.6, 8], p2: [3.9, 8], huong: [3, 8.5] },
-      { ma: 'S1', p1: [0.6, 8], p2: [1.2, 8], huong: [1, 8.5] },
-      { ma: 'S2', p1: [6.0, 8], p2: [7.2, 8], huong: [6.6, 8.5] },
-      { ma: 'S2', p1: [9.6, 7.5], p2: [10.8, 7.5], huong: [10, 8] }
-    ].forEach(function (c) { themCuaToaDo(p, c); });
-    themDo(p, 'GD', 0.1, 0.1, 1.6, 2.0, 0);
-    themDo(p, 'BL', 1.8, 0.1, 1.1, 0.55, 0);
-    themDo(p, 'BA', 3.95, 0.65, 1.6, 1.9, 90);
-    themDo(p, 'GD', 3.35, 6.0, 1.6, 1.9, 180);
-    themDo(p, 'BL', 2.1, 7.3, 1.2, 0.55, 180);
-    themDo(p, 'GN', 5.95, 6.3, 1.2, 1.95, 90);
-    themDo(p, 'GD', 10.3, 5.5, 1.6, 1.9, 180);
-    themDo(p, 'BL', 9.05, 6.85, 1.1, 0.5, 180);
-    themDo(p, 'BC', 6.6, -0.95, 5.3, 0.85, 0);
-    themDo(p, 'BC', 8.1, 7.62, 3.85, 0.33, 0);
-    themDo(p, 'VAO', 12.15, 1.85, 0.6, 0.9, 90);
-    themDo(p, 'BAC', 12.6, -2.1, 0.9, 0.9, 0);
-    [['PN1', 2.2, 2.45], ['Phòng ăn', 4.75, -0.45], ['Hành lang', 1.05, 3.5], ['Phòng khách', 8.75, 2.1], ['Hiên', 11.5, 0.45],
-      ['WC1', 0.75, 5.0], ['WC2', 1.0, 7.0], ['PN2', 3.55, 5.0], ['Sảnh', 5.95, 5.1], ['Khu mở (bếp?)', 7.75, 4.95], ['PN4', 6.2, 7.75], ['PN3', 10.1, 5.0]]
-      .forEach(function (r) { p.phong.push({ id: 'p' + (++p.seq), ten: r[0], x: r[1], y: r[2] }); });
-    [[4.2, 2.8, 'Sọc dọc ở phòng ăn và hành lang trên bản phác: sàn gỗ, lam trần hay giếng trời? (chờ KTS xác nhận)'],
-      [7.75, 4.45, 'Trên bản phác chưa thấy bếp. Khu này có phải bếp không? (chờ KTS xác nhận)']]
-      .forEach(function (g2) { p.ghi.push({ id: 'g' + (++p.seq), x: g2[0], y: g2[1], nd: g2[2] }); });
-    return p;
-  }
+  /* Mặt bằng mẫu: nhà 12 × 8 m (+1 m khối giữa) dựng từ bản phác tay của KTS Trần Long ngày 23/10/2026.
+     28/10/2026: thay bằng bản KTS Trần Long tự chỉnh trên trình dựng (applamnha.vn, máy của Nam) — chép nguyên dữ liệu,
+     chỉ thêm mau_ban: 2. Sửa mẫu: chỉnh trên trang, chép localStorage aln_dung_mb_v1 vào đây, tăng mau_ban. */
+  var MAU_BAN = 2;
+  var MAU_DUNG = {"phien_ban":1,"ten":"Nhà 12 × 8 m — dựng từ bản phác 23/10","nodes":{"n1":{"x":0,"y":0},"n2":{"x":0,"y":8},"n3":{"x":2.95,"y":0},"n4":{"x":3,"y":-1},"n5":{"x":6.5,"y":-1},"n6":{"x":6.5,"y":-0.05},"n7":{"x":11,"y":0},"n8":{"x":11,"y":4},"n9":{"x":6.45,"y":3.95},"n10":{"x":12,"y":4},"n11":{"x":12,"y":7.5},"n12":{"x":8,"y":7.5},"n13":{"x":8,"y":5.45},"n14":{"x":8,"y":8},"n16":{"x":2.95,"y":3},"n17":{"x":0,"y":3},"n18":{"x":0,"y":4},"n19":{"x":0,"y":5.95},"n20":{"x":1.95,"y":5.95},"n21":{"x":1.95,"y":4},"n22":{"x":1.95,"y":8},"n23":{"x":4.85,"y":4},"n24":{"x":4.85,"y":8},"n117":{"x":6.5,"y":3.1},"n132":{"x":8,"y":5.7},"n148":{"x":9,"y":3.95},"n152":{"x":4.9,"y":5.45},"n155":{"x":6.45,"y":7.95},"n159":{"x":6.45,"y":5.45},"n173":{"x":9,"y":4}},"walls":[{"id":"w28","a":"n1","b":"n17","t":0.2,"khoa":true},{"id":"w29","a":"n17","b":"n18","t":0.2,"khoa":true},{"id":"w30","a":"n18","b":"n19","t":0.2,"khoa":true},{"id":"w31","a":"n19","b":"n2","t":0.2,"khoa":true},{"id":"w32","a":"n1","b":"n3","t":0.2,"khoa":true},{"id":"w33","a":"n4","b":"n3","t":0.2,"khoa":true},{"id":"w34","a":"n4","b":"n5","t":0.2,"khoa":true},{"id":"w35","a":"n5","b":"n6","t":0.2,"khoa":true},{"id":"w36","a":"n6","b":"n7","t":0.2,"khoa":true},{"id":"w37","a":"n7","b":"n8","t":0.2,"khoa":true},{"id":"w38","a":"n173","b":"n8","t":0.2,"khoa":true},{"id":"w39","a":"n8","b":"n10","t":0.2,"khoa":true},{"id":"w40","a":"n10","b":"n11","t":0.2,"khoa":true},{"id":"w41","a":"n12","b":"n11","t":0.2,"khoa":true},{"id":"w42","a":"n132","b":"n12","t":0.2,"khoa":true},{"id":"w43","a":"n12","b":"n14","t":0.2,"khoa":true},{"id":"w44","a":"n2","b":"n22","t":0.2,"khoa":true},{"id":"w45","a":"n22","b":"n24","t":0.2,"khoa":true},{"id":"w46","a":"n24","b":"n14","t":0.2,"khoa":true},{"id":"w48","a":"n3","b":"n16","t":0.1,"khoa":false},{"id":"w49","a":"n17","b":"n16","t":0.1,"khoa":false},{"id":"w50","a":"n18","b":"n21","t":0.1,"khoa":false},{"id":"w51","a":"n21","b":"n23","t":0.1,"khoa":false},{"id":"w53","a":"n19","b":"n20","t":0.1,"khoa":false},{"id":"w54","a":"n21","b":"n20","t":0.1,"khoa":false},{"id":"w55","a":"n20","b":"n22","t":0.1,"khoa":false},{"id":"w56","a":"n23","b":"n24","t":0.1,"khoa":false},{"id":"w61","a":"n159","b":"n152","t":0.1,"khoa":false},{"id":"w62","a":"n9","b":"n159","t":0.1,"khoa":false},{"id":"w118","a":"n6","b":"n117","t":0.1,"khoa":false},{"id":"w133","a":"n132","b":"n13","t":0.1,"khoa":false},{"id":"w149","a":"n148","b":"n9","t":0.1,"khoa":false},{"id":"w160","a":"n159","b":"n155","t":0.1,"khoa":false},{"id":"w174","a":"n173","b":"n148","t":0.1,"khoa":false}],"seq":174,"ops":[{"id":"o63","w":"w49","s":2.4,"rong":0.8,"ma":"D1","ban_le":"b","phia":-1},{"id":"o65","w":"w29","s":0.5,"rong":0.8,"ma":"D1","ban_le":"b","phia":-1},{"id":"o66","w":"w50","s":1.45,"rong":0.7,"ma":"Dw","ban_le":"b","phia":1},{"id":"o67","w":"w51","s":0.55,"rong":0.8,"ma":"D1","ban_le":"a","phia":1},{"id":"o68","w":"w55","s":1.5,"rong":0.7,"ma":"Dw","ban_le":"b","phia":1},{"id":"o71","w":"w62","s":0.55,"rong":0.8,"ma":"D1","ban_le":"a","phia":-1},{"id":"o72","w":"w37","s":1.95,"rong":2.4,"ma":"D4","ban_le":"a","phia":-1},{"id":"o73","w":"w32","s":2.3,"rong":1.2,"ma":"S2","ban_le":"a","phia":-1},{"id":"o74","w":"w34","s":1.65,"rong":2,"ma":"S4","ban_le":"a","phia":-1},{"id":"o75","w":"w36","s":2.4,"rong":2,"ma":"S4","ban_le":"a","phia":-1},{"id":"o76","w":"w45","s":0.8,"rong":1.3,"ma":"S2","ban_le":"a","phia":1},{"id":"o77","w":"w44","s":0.5,"rong":0.6,"ma":"S1","ban_le":"a","phia":1},{"id":"o78","w":"w46","s":0.75,"rong":1.2,"ma":"S2","ban_le":"a","phia":1},{"id":"o121","w":"w30","s":0.45,"rong":0.6,"ma":"S1","ban_le":"a","phia":1},{"id":"o135","w":"w40","s":1.75,"rong":2,"ma":"S4","ban_le":"a","phia":1},{"id":"o161","w":"w160","s":0.555,"rong":0.81,"ma":"Dw","ban_le":"a","phia":1}],"items":[{"id":"i80","ma":"GD","cx":0.9,"cy":1.1,"w":1.6,"h":2,"rot":0,"lat":false,"khoa":false},{"id":"i81","ma":"BL","cx":2.3,"cy":0.4,"w":1.2,"h":0.6,"rot":0,"lat":false,"khoa":false},{"id":"i83","ma":"BA","cx":5.65,"cy":1.45,"w":1.6,"h":1.9,"rot":180,"lat":false,"khoa":false},{"id":"i85","ma":"GD","cx":3.85,"cy":5.95,"w":1.6,"h":1.9,"rot":90,"lat":false,"khoa":false},{"id":"i90","ma":"GD","cx":9.85,"cy":6.45,"w":1.6,"h":1.9,"rot":180,"lat":false,"khoa":false},{"id":"i92","ma":"BC","cx":9.25,"cy":-0.525,"w":5.3,"h":0.85,"rot":0,"lat":false,"khoa":false},{"id":"i93","ma":"BC","cx":10.025,"cy":7.785,"w":3.85,"h":0.33,"rot":0,"lat":false,"khoa":false},{"id":"i94","ma":"VAO","cx":12.6,"cy":1.95,"w":0.6,"h":0.9,"rot":90,"lat":false,"khoa":false},{"id":"i95","ma":"BAC","cx":13.05,"cy":-1.65,"w":0.9,"h":0.9,"rot":0,"lat":false,"khoa":false},{"id":"i111","ma":"TB","cx":3.3,"cy":1.35,"w":3.3,"h":0.6,"rot":90,"lat":false,"khoa":false},{"id":"i112","ma":"BN","cx":3.3,"cy":2.1,"w":0.75,"h":0.6,"rot":90,"lat":false,"khoa":false},{"id":"i113","ma":"CR","cx":3.3,"cy":0.8,"w":0.8,"h":0.6,"rot":270,"lat":true,"khoa":false},{"id":"i127","ma":"TA","cx":3.95,"cy":4.35,"w":1.8,"h":0.6,"rot":0,"lat":false,"khoa":false},{"id":"i128","ma":"TA","cx":0.9,"cy":2.7,"w":1.6,"h":0.6,"rot":180,"lat":false,"khoa":false},{"id":"i129","ma":"BL","cx":4.525,"cy":7.3,"w":1.2,"h":0.55,"rot":90,"lat":false,"khoa":false},{"id":"i134","ma":"TV","cx":9.8,"cy":4.325,"w":1.7,"h":0.45,"rot":180,"lat":false,"khoa":false},{"id":"i137","ma":"LV","cx":0.4,"cy":7.45,"w":0.9,"h":0.6,"rot":270,"lat":false,"khoa":false},{"id":"i138","ma":"BX","cx":1.45,"cy":6.35,"w":0.45,"h":0.7,"rot":0,"lat":false,"khoa":false},{"id":"i139","ma":"TL","cx":3.3,"cy":-0.6,"w":0.6,"h":0.6,"rot":90,"lat":false,"khoa":false},{"id":"i156","ma":"TA","cx":7.225,"cy":7.6,"w":1.45,"h":0.6,"rot":0,"lat":true,"khoa":false},{"id":"i157","ma":"TA","cx":7.6,"cy":6.4,"w":1.85,"h":0.6,"rot":90,"lat":false,"khoa":false},{"id":"i162","ma":"LV","cx":5.2,"cy":5.85,"w":0.9,"h":0.6,"rot":270,"lat":false,"khoa":false},{"id":"i163","ma":"BX","cx":5.25,"cy":6.7,"w":0.45,"h":0.7,"rot":270,"lat":false,"khoa":false},{"id":"i164","ma":"TD","cx":5.65,"cy":7.55,"w":1.45,"h":0.8,"rot":0,"lat":false,"khoa":false},{"id":"i167","ma":"TDV","cx":0.55,"cy":6.45,"w":0.9,"h":0.9,"rot":0,"lat":false,"khoa":false},{"id":"i168","ma":"LV","cx":1.45,"cy":5.6,"w":0.9,"h":0.6,"rot":180,"lat":false,"khoa":false},{"id":"i169","ma":"BX","cx":0.45,"cy":4.55,"w":0.45,"h":0.7,"rot":270,"lat":false,"khoa":false},{"id":"i170","ma":"TDV","cx":0.55,"cy":5.45,"w":0.9,"h":0.9,"rot":270,"lat":false,"khoa":false},{"id":"i171","ma":"SF","cx":8.9,"cy":0.55,"w":2.2,"h":0.9,"rot":0,"lat":false,"khoa":false},{"id":"i172","ma":"TV","cx":8.8,"cy":3.675,"w":1.8,"h":0.45,"rot":0,"lat":false,"khoa":false}],"phong":[{"id":"p96","ten":"PN1","x":2.35,"y":1.6},{"id":"p97","ten":"Phòng ăn","x":4.75,"y":-0.45},{"id":"p98","ten":"Hành lang","x":1.05,"y":3.5},{"id":"p99","ten":"Phòng khách","x":8.75,"y":2.1},{"id":"p100","ten":"Hiên","x":11.5,"y":0.45},{"id":"p101","ten":"WC1","x":0.75,"y":5},{"id":"p102","ten":"WC2","x":1,"y":7},{"id":"p103","ten":"PN2","x":3.55,"y":5},{"id":"p105","ten":"Khu mở (bếp?)","x":5.7,"y":1.55},{"id":"p107","ten":"PN3","x":10.1,"y":5}],"ghi":[],"ranh":[[0,-1],[12,-1],[12,8],[0,8]],"mau_wc":2,"vat_lieu":{"p:p97":{"san":"da_marble"}},"mau_ban":2};
+  function matBangMau() { return JSON.parse(JSON.stringify(MAU_DUNG)); }
   function matBangTrong(W, D) {
     var g = taoTuDoan([
       { a: [0, 0], b: [W, 0], t: 0.2, khoa: true }, { a: [W, 0], b: [W, D], t: 0.2, khoa: true },
@@ -345,12 +300,16 @@
     });
     return them;
   }
-  // bản mẫu đã lưu từ trước 23/10/2026 (3): bỏ dải gen 0,4–0,55 × 1,6–1,9 m và câu hỏi kèm theo, thêm khối WC
+  // Bản mẫu cũ đang lưu trên máy khách (tên mẫu, chưa có mau_ban mới) → thay bằng mẫu hiện hành (28/10/2026).
+  // Bản cũ cất vào "Các phiên bản đã lưu" để ai đã chỉnh trên bản mẫu cũ không mất gì.
   function nangCapBanMau() {
-    if (plan.ten !== TEN_MAU || plan.mau_wc >= 2) return false;
-    plan.items = plan.items.filter(function (o) { return !(o.ma === 'G' && o.w * o.h > 0.5); });
-    plan.ghi = plan.ghi.filter(function (g) { return g.nd.indexOf('Bốn khối gạch chéo') < 0; });
-    xepWCVaoPhong(); plan.mau_wc = 2;
+    if (plan.ten !== TEN_MAU || plan.mau_ban >= MAU_BAN) return false;
+    try {
+      var ds = dsPhienBan(), luc = new Date();
+      ds.unshift({ ten: ('Bản mẫu trước khi cập nhật ' + luc.getDate() + '/' + (luc.getMonth() + 1)).slice(0, 40), luc: Date.now(), plan: plan });
+      localStorage.setItem(KHOA_PB, JSON.stringify(ds.slice(0, 20)));
+    } catch (e) { /* đầy bộ nhớ: vẫn đổi sang mẫu mới */ }
+    plan = chuanHoa(matBangMau());
     return true;
   }
 
@@ -2710,7 +2669,8 @@
     var cu = null;
     try { cu = JSON.parse(localStorage.getItem(KHOA_LUU) || 'null'); } catch (e) { cu = null; }
     plan = hopLe(cu) ? chuanHoa(cu) : matBangMau();
-    if (!hopLe(cu)) xepWCVaoPhong(); else if (nangCapBanMau()) { try { localStorage.setItem(KHOA_LUU, JSON.stringify(plan)); } catch (e) {} }
+    var daNangMau = false;
+    if (!hopLe(cu)) xepWCVaoPhong(); else if (nangCapBanMau()) { daNangMau = true; try { localStorage.setItem(KHOA_LUU, JSON.stringify(plan)); } catch (e) {} }
     try { var a = JSON.parse(localStorage.getItem(KHOA_ANH) || 'null'); if (a && typeof a.src === 'string' && alnUrl(a.src) !== '#' && isFinite(a.cx) && a.w > 0 && a.h > 0) anh = a; } catch (e) { anh = null; }
     var nhan = nhanTuMatBang(hopLe(cu) && cu.ten !== TEN_MAU);
     $('tenBan').value = plan.ten || '';
@@ -2719,6 +2679,7 @@
     requestAnimationFrame(function () { vuaKhung(); veBang(); });
     var daXem = false; try { daXem = !!localStorage.getItem(KHOA_HD); localStorage.setItem(KHOA_HD, '1'); } catch (e) { daXem = true; }
     var coLink = location.hash.indexOf(TIEN_TO_LINK) === 0;
+    if (!nhan && daNangMau) nhan = 'Mặt bằng mẫu vừa được cập nhật. Bản anh/chị mở trước đó đã cất ở "Các phiên bản đã lưu".';
     if (nhan) baoDong(nhan);
     else if (!daXem && !coLink) huongDan();
     if (coLink) nhanTuLink(!nhan && hopLe(cu) && cu.ten !== TEN_MAU);
