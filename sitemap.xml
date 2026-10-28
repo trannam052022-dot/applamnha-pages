@@ -463,6 +463,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://applamnha.vn/cam-nang/xem-tuoi-lam-nha-kim-lau-hoang-oc-tam-tai/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://applamnha.vn/mau/biet-thu-pho.html</loc>
     <lastmod>2026-10-16</lastmod>
     <changefreq>monthly</changefreq>
