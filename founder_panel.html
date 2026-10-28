@@ -9332,6 +9332,8 @@ function ldctVe(el, l, dep){
       var ten = mk('div', 'font-weight:700;font-size:13px;color:var(--text1)', it.name || '—');
       if(it.la_test) ten.appendChild(mk('span', 'font-size:10px;font-weight:700;color:var(--amber);border:1px solid var(--amber);border-radius:4px;padding:0 5px;margin-left:4px', 'TEST'));
       td2.appendChild(ten);
+      // Tên khách ghi ở form khác (28/10/2026) — gọi điện xưng đúng tên.
+      if(it.ten_khac && it.ten_khac.length) td2.appendChild(mk('div', 'font-size:11px;color:var(--sub)', 'Tên khác: ' + it.ten_khac.join(' · ')));
       td2.appendChild(mk('div', 'font-family:var(--mono);font-size:12px;color:var(--blue)', it.phone_normalized || ''));
       tr.appendChild(td2);
       var td3 = mk('td', 'padding:10px 11px;font-size:12px;font-weight:700', dep.loaiLabel(it.loai_lien_he));
@@ -9347,7 +9349,13 @@ function ldctVe(el, l, dep){
       sel.addEventListener('change', function(){ dep.onStatus(it.id, sel.value); });
       td4.appendChild(sel); tr.appendChild(td4);
       tr.appendChild(mk('td', 'padding:10px 11px;font-size:12.5px;color:var(--text2)', (it.nguon || '—') + (it.campaign_tag ? ' · ' + it.campaign_tag : '')));
-      tr.appendChild(mk('td', 'padding:10px 11px;font-family:var(--mono);font-size:11.5px;color:var(--dim)', dep.fmtDate(lastTouch ? lastTouch.thoi_gian : it.updated_at)));
+      // Giờ khách gửi thật (luc_khach_gui) thắng giờ máy chủ ghi — lead nhập bù/Make trễ (28/10/2026).
+      var tdCham = mk('td', 'padding:10px 11px;font-family:var(--mono);font-size:11.5px;color:var(--dim)');
+      var lucGui = lastTouch && lastTouch.luc_khach_gui ? lastTouch.luc_khach_gui : null;
+      tdCham.appendChild(mk('div', null, dep.fmtDate(lucGui || (lastTouch ? lastTouch.thoi_gian : it.updated_at))));
+      if(lucGui) tdCham.appendChild(mk('div', 'font-size:10px;color:var(--sub)', 'giờ khách gửi'));
+      if(!it.phan_hoi_dau_luc && !it.la_test) tdCham.appendChild(mk('div', 'font-family:var(--sans);font-size:10.5px;font-weight:700;color:var(--red)', 'Chưa gọi'));
+      tr.appendChild(tdCham);
       var td7 = mk('td', 'padding:10px 11px');
       var bt = mk('button', 'padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:var(--raised);color:var(--sub);font-weight:600;font-size:11px;cursor:pointer;font-family:var(--sans);white-space:nowrap');
       var ic = document.createElement('i'); ic.className = 'ph-duotone ph-clock-counter-clockwise';
