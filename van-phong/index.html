@@ -62,11 +62,11 @@ body{font-family:var(--body);font-size:15px;-webkit-font-smoothing:antialiased;
 button,input{font:inherit}
 a{color:var(--brass-2)}
 ::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:rgba(255,255,255,.09);border-radius:8px}::-webkit-scrollbar-track{background:transparent}
-.app{height:100%;display:grid;gap:14px;grid-template-columns:292px minmax(0,1fr) 312px;grid-template-rows:auto minmax(0,1fr);grid-template-areas:"top top top" "left stage right"}
+.app{height:100%;display:grid;gap:12px;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);grid-template-areas:"top" "stage"}
 .glass{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
 
 /* --- thanh đầu --- */
-.top{grid-area:top;display:flex;align-items:center;flex-wrap:wrap;gap:10px 22px;padding:12px 18px;position:relative;overflow:hidden}
+.top{grid-area:top;display:flex;align-items:center;flex-wrap:wrap;gap:10px 20px;padding:9px 16px;position:relative;overflow:hidden}
 .top::after{content:"";position:absolute;left:18px;right:18px;bottom:0;height:1px;background:linear-gradient(90deg,transparent,var(--line2),transparent)}
 .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text)}
 .mono-mark{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;font:700 13px var(--display);letter-spacing:.06em;color:var(--brass-2);
@@ -84,15 +84,32 @@ a{color:var(--brass-2)}
 .clock::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--live);margin:0 9px 3px 0;box-shadow:0 0 0 4px rgba(95,204,162,.15);animation:nhip 2.4s ease-in-out infinite}
 @keyframes nhip{50%{box-shadow:0 0 0 7px rgba(95,204,162,0)}}
 .daystate{font-size:12.5px;color:var(--muted)}
-.kpis{display:flex;gap:10px;margin-left:auto}
+.kpis{display:flex;gap:10px}
+.mo-ngan{display:flex;gap:6px;margin-left:auto}
+.nut-ngan{display:inline-flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:999px;padding:8px 15px;font-weight:600;font-size:13px;cursor:pointer;transition:border-color .2s,background .2s}
+.nut-ngan:hover{border-color:var(--line2)}.nut-ngan[aria-expanded="true"]{border-color:var(--brass);background:rgba(201,163,91,.14);color:var(--brass-2)}
+.nut-ngan .ic{color:var(--brass)}
+.huy{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--brass);color:#1b150a;font:700 10.5px var(--body);display:inline-grid;place-items:center}
+.nut-ngan:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 .kpi{display:grid;line-height:1.15;padding:6px 14px;border:1px solid var(--line);border-radius:12px;background:var(--panel2);min-width:118px}
 .kpi b{font:700 20px var(--mono);color:var(--brass-2)}.kpi small{font-size:11px;color:var(--muted)}
 
 /* --- cột trái, phải --- */
-.left,.right{min-height:0;display:flex;flex-direction:column;overflow:hidden}
-.left{grid-area:left}.right{grid-area:right}
+/* ngăn kéo nổi trên mô hình (thay 2 cột chữ cũ) */
+.ngan{position:absolute;z-index:5;top:12px;bottom:12px;width:min(330px,calc(100% - 24px));min-height:0;display:flex;flex-direction:column;overflow:hidden;background:rgba(18,19,23,.9);animation:keoTrai .28s cubic-bezier(.2,.8,.2,1)}
+.ngan-trai{left:12px}.ngan-phai{right:12px;animation-name:keoPhai}
+@keyframes keoTrai{from{opacity:0;transform:translateX(-18px)}}@keyframes keoPhai{from{opacity:0;transform:translateX(18px)}}
+.ph .x{background:none;border:0;color:var(--muted);font-size:22px;line-height:1;cursor:pointer;padding:0 2px;margin-left:8px}.ph .x:hover{color:var(--text)}
+.ph small{margin-left:auto}
+/* thẻ phòng đang chọn nổi góc dưới trái */
+.noi{position:absolute;z-index:3;left:14px;bottom:14px;width:min(340px,calc(100% - 28px));display:grid;gap:10px;pointer-events:none}
+.noi>*{pointer-events:auto}
+.noi .detail,.noi .hen{margin:0;box-shadow:0 20px 50px -20px rgba(0,0,0,.8);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.noi .detail{max-height:none;background:linear-gradient(160deg,rgba(201,163,91,.14),rgba(201,163,91,.02) 55%),rgba(20,21,25,.88)}
+.noi .hen{background:linear-gradient(160deg,rgba(95,204,162,.14),rgba(95,204,162,.03)),rgba(20,21,25,.88)}
+body.co-phong .can-gi,body.co-phong .lo-trinh,body.co-phong .noi,body.co-phong .hint,body.co-phong .toolbar,body.co-phong .ngan{display:none}
 .ph,.detail,.hen,.tabs{flex:none}
-.ph{padding:16px 18px 10px;display:flex;align-items:flex-end;justify-content:space-between;gap:8px}
+.ph{padding:16px 16px 10px;display:flex;align-items:center;gap:8px}
 .ph h2{font:700 17px var(--display);margin:0;letter-spacing:.01em}
 .ph small{font:600 10px var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .scroll{overflow:auto;min-height:0;padding:0 12px 14px}
@@ -167,7 +184,7 @@ canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
 .empty{font-size:12.5px;color:var(--muted);padding:6px 2px}
 
 /* --- khung phòng: trang thật mở bên trong văn phòng --- */
-.room{position:absolute;z-index:3;top:14px;right:14px;bottom:14px;width:min(62%,780px);display:flex;flex-direction:column;background:#fff;border-radius:14px;overflow:hidden;
+.room{position:absolute;z-index:6;top:10px;right:10px;bottom:10px;left:clamp(240px,26%,380px);display:flex;flex-direction:column;background:#fff;border-radius:14px;overflow:hidden;
   box-shadow:0 30px 80px -20px rgba(0,0,0,.8),0 0 0 1px var(--line2);animation:vao .35s cubic-bezier(.2,.8,.2,1)}
 @keyframes vao{from{opacity:0;transform:translateX(24px)}}
 .room-h{display:flex;align-items:center;gap:8px;padding:9px 10px 9px 16px;background:linear-gradient(180deg,#1c1d22,#15161a);border-bottom:1px solid var(--line2)}
@@ -190,26 +207,71 @@ canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
 .vai-card b{font:700 19px var(--display)}.vai-card span{font-size:13px;color:var(--muted);line-height:1.5}
 .picker-x{float:right;background:none;border:0;color:var(--muted);font-size:22px;cursor:pointer}
 
-@media (max-width:1280px){.app{grid-template-columns:260px minmax(0,1fr) 280px}}
+
+/* "Bạn cần gì?" — lối vào theo nhu cầu, nổi trên đầu mô hình */
+.can-gi{position:absolute;z-index:4;top:14px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;max-width:calc(100% - 28px);
+  background:rgba(14,15,18,.8);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:999px;padding:6px 6px 6px 16px;box-shadow:0 14px 34px -14px rgba(0,0,0,.8)}
+.cg-t{font:700 13px var(--display);color:var(--brass-2);white-space:nowrap}
+.cg-ds{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}.cg-ds::-webkit-scrollbar{display:none}
+.cg{white-space:nowrap;background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--text);font-weight:600;font-size:12.5px;padding:7px 13px;border-radius:999px;cursor:pointer;transition:background .18s,border-color .18s}
+.cg:hover{border-color:var(--line2);background:rgba(201,163,91,.1)}
+.cg.chinh{background:linear-gradient(180deg,#e2c084,#bf9549);border-color:#d6b072;color:#1b150a}
+.cg:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+body[data-vai="chu-nha"] .hint{display:none}
+
+/* Đang diễn ra ở ALN — hoạt động thật, ẩn danh */
+.dang-dien{border-radius:14px;padding:10px 14px;background:rgba(20,21,25,.88);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid rgba(95,204,162,.25);box-shadow:0 20px 50px -20px rgba(0,0,0,.8);display:grid;gap:4px}
+.dd-nhan{display:flex;align-items:center;gap:7px;font:700 9.5px var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--live)}
+.dd-nhan i{width:6px;height:6px;border-radius:50%;background:var(--live);animation:nhip 2.4s ease-in-out infinite}
+.dd-nd{all:unset;cursor:pointer;display:grid;gap:2px;font-size:13px;line-height:1.45;color:var(--text)}
+.dd-nd:focus-visible{outline:2px solid var(--brass);outline-offset:3px;border-radius:4px}
+.dd-nd.hien{animation:ddVao .45s ease}@keyframes ddVao{from{opacity:0;transform:translateY(5px)}}
+.dd-nd time{font-size:11.5px;color:var(--muted)}
+.dang-dien small{font-size:11.5px;color:var(--text2);border-top:1px solid var(--line);padding-top:6px;margin-top:2px}
+/* Lộ trình tới C4 */
+.lo-trinh{position:absolute;z-index:3;right:14px;bottom:14px;width:236px;padding:14px 14px 12px;border-radius:14px;background:rgba(20,21,25,.88);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid var(--line2);box-shadow:0 20px 50px -20px rgba(0,0,0,.8)}
+.lt-t{margin:0 0 8px;font:700 15px var(--display);color:var(--brass-2)}
+.lo-trinh ol{list-style:none;margin:0;padding:0;display:grid;gap:2px;position:relative}
+.lo-trinh ol::before{content:"";position:absolute;left:13px;top:12px;bottom:12px;width:1px;background:var(--line2)}
+.lt{all:unset;cursor:pointer;display:grid;grid-template-columns:27px 1fr;align-items:center;gap:8px;width:100%;box-sizing:border-box;padding:4px 6px 4px 0;border-radius:8px;position:relative}
+.lt:hover{background:rgba(255,255,255,.04)}.lt:focus-visible{outline:2px solid var(--brass)}
+.lt b{width:27px;height:27px;border-radius:50%;display:grid;place-items:center;font:700 10px var(--body);background:#1c1d22;border:1px solid var(--line2);color:var(--brass-2)}
+.lt span{font-size:12.5px;color:var(--text2)}
+.lt.dau b{background:linear-gradient(180deg,#e2c084,#bf9549);color:#1b150a;border-color:#d6b072;font-size:11px}
+.lt.dau span{color:var(--text);font-weight:600}
+.lt-g{margin:8px 0 10px;font-size:11.5px;color:var(--muted);line-height:1.45}
+.lt-cta{width:100%}
+body:not([data-vai="chu-nha"]) .lo-trinh,body[data-vai="quan-tri"] .dang-dien{display:none}
 @media (max-width:1000px){
+  .lo-trinh{display:none}
+  .dang-dien{padding:8px 12px}.dang-dien small{display:none}
+  .can-gi{top:8px;left:8px;right:8px;transform:none;max-width:none;border-radius:16px;flex-direction:column;align-items:stretch;gap:6px;padding:8px}
+  .cg-t{padding-left:4px}
   html,body{height:auto}
-  body{padding:10px}
-  .app{height:auto;gap:10px;grid-template-columns:minmax(0,1fr);grid-template-areas:"top" "stage" "left" "right"}
-  .top{padding:10px 14px;gap:8px 14px}
+  body{padding:8px}
+  .app{height:auto;gap:8px}
+  .top{padding:8px 12px;gap:8px 12px}
   .sep{display:none}.mono-mark{width:34px;height:34px;font-size:11px}.brand b{font-size:19px}
-  .time{margin-left:auto}.clock{font-size:16px}.daystate{display:none}
-  .stage{height:68vh;min-height:420px}
-  .kpis{margin-left:0;width:100%}.kpi{flex:1}
-  .right .scroll{max-height:380px}
-  .room{left:8px;right:8px;top:8px;bottom:8px;width:auto}
-  body.co-phong .toolbar{display:none}
+  .clock{font-size:16px}.daystate{display:none}
+  .mo-ngan{order:5;width:100%;margin-left:0}.nut-ngan{flex:1;justify-content:center}
+  .stage{height:calc(100svh - 150px);min-height:460px}
+  .kpis{width:100%;order:6}.kpi{flex:1}
+  .toolbar{left:50%;bottom:10px}
+  .noi{left:8px;right:8px;bottom:62px;width:auto}
+  .noi .detail{padding:12px 14px}.noi .detail h3{font-size:18px;margin-top:6px}
+  .noi .detail ul,.noi .detail .who+.who{display:none}
+  .noi .detail .btn{margin-top:10px}
+  .ngan{top:8px;bottom:8px;width:auto;left:8px;right:8px}
+  /* vào phòng: khung công cụ chiếm trọn màn hình */
+  .room{position:fixed;inset:0;border-radius:0;z-index:50}
 }
 @media (max-width:640px){
   .vai-grid{grid-template-columns:1fr}.picker-box{padding:20px}.picker-box h2{font-size:22px}
   .hint{display:none}
   .vai .lbl,.vai .doi{display:none}
   .tb{padding:8px 11px;font-size:12px}
-  .top{flex-wrap:nowrap}.brand-t>span{display:none}.vai{padding:6px 11px}
+  .brand-t>span{display:none}.vai{padding:6px 11px}
+  .noi .detail .who{display:none}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -224,18 +286,15 @@ canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
     <span class="sep" aria-hidden="true"></span>
     <button class="vai" id="doiVai" type="button"><span class="lbl">Vai</span><span id="vaiTen">Chủ nhà</span><span class="doi">· đổi</span></button>
     <div class="time"><span class="clock" id="clock">--:--</span><span class="daystate" id="dayState"></span></div>
+    <div class="mo-ngan">
+      <button class="nut-ngan" id="nutPhong" type="button" aria-controls="nganPhong" aria-expanded="false"><span class="ic" aria-hidden="true">☰</span>Các phòng</button>
+      <button class="nut-ngan" id="nutHd" type="button" aria-controls="nganHd" aria-expanded="false">Hoạt động<span class="huy" id="hdMoi" hidden>0</span></button>
+    </div>
     <div class="kpis" id="adminKpis" hidden>
       <div class="kpi"><b id="kMoi">—</b><small>khách mới hôm nay</small></div>
       <div class="kpi"><b id="kCho">—</b><small>đang chờ gọi</small></div>
     </div>
   </header>
-
-  <aside class="left glass">
-    <div class="ph"><h2>Các phòng</h2><small>bấm để đi tới</small></div>
-    <div class="detail" id="detail"></div>
-    <div class="hen" id="hen" hidden></div>
-    <div class="scroll" id="zones"></div>
-  </aside>
 
   <main class="stage" id="stage">
     <canvas id="cv" aria-label="Văn phòng ALN nhìn từ trên xuống. Bấm vào một phòng để đi tới và mở công cụ của phòng đó."></canvas>
@@ -253,17 +312,43 @@ canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
       <div class="room-toast" id="roomToast" hidden></div>
       <iframe id="roomFrame" title="Công cụ của phòng" src="about:blank"></iframe>
     </section>
+    <nav class="can-gi" id="canGi" aria-label="Bạn cần gì?" hidden></nav>
+    <aside class="lo-trinh" id="loTrinh" aria-label="Từ tư vấn đến bàn giao hồ sơ">
+      <p class="lt-t">Làm nhà với ALN</p>
+      <ol>
+        <li><button type="button" class="lt dau" data-z="gd" data-buoc="tu_van"><b aria-hidden="true">★</b><span>Tư vấn miễn phí</span></button></li>
+        <li><button type="button" class="lt" data-z="ceo" data-buoc="c1"><b>C1</b><span>Chốt việc</span></button></li>
+        <li><button type="button" class="lt" data-z="ceo" data-buoc="c2"><b>C2</b><span>Chốt phương án</span></button></li>
+        <li><button type="button" class="lt" data-z="ceo" data-buoc="c3"><b>C3</b><span>Chốt triển khai</span></button></li>
+        <li><button type="button" class="lt" data-z="ceo" data-buoc="c4"><b>C4</b><span>Nghiệm thu &amp; bàn giao</span></button></li>
+      </ol>
+      <p class="lt-g">Nghiệm thu, hài lòng rồi mới trả cho bước đó.</p>
+      <button type="button" class="btn pri lt-cta" data-z="gd" data-buoc="cta">Nhận tư vấn thiết kế</button>
+    </aside>
+    <div class="noi" id="noi">
+      <div class="dang-dien" id="dangDien" hidden>
+        <span class="dd-nhan"><i></i>Đang diễn ra ở ALN</span>
+        <button type="button" class="dd-nd" id="ddNd"><span id="ddCau"></span><time id="ddLuc"></time></button>
+        <small id="ddTuan" hidden></small>
+      </div>
+      <div class="hen" id="hen" hidden></div>
+      <div class="detail" id="detail"></div>
+    </div>
+    <aside class="ngan ngan-trai glass" id="nganPhong" aria-label="Các phòng" hidden>
+      <div class="ph"><h2>Các phòng</h2><button class="x" type="button" data-dong aria-label="Đóng">×</button></div>
+      <div class="scroll" id="zones"></div>
+    </aside>
+    <aside class="ngan ngan-phai glass" id="nganHd" aria-label="Hoạt động" hidden>
+      <div class="ph"><h2>Hoạt động</h2><small id="evCount">0 hoạt động</small><button class="x" type="button" data-dong aria-label="Đóng">×</button></div>
+      <div class="tabs">
+        <button class="tab on" data-f="all" type="button">Tất cả</button>
+        <button class="tab" data-f="can" id="tabCan" type="button" hidden>Cần anh xử lý</button>
+      </div>
+      <div class="scroll"><div class="feed" id="feed"></div></div>
+    </aside>
     <div class="gate" id="gate" hidden></div>
   </main>
 
-  <aside class="right glass">
-    <div class="ph"><h2>Hoạt động</h2><small id="evCount">0 hoạt động</small></div>
-    <div class="tabs">
-      <button class="tab on" data-f="all" type="button">Tất cả</button>
-      <button class="tab" data-f="can" id="tabCan" type="button" hidden>Cần anh xử lý</button>
-    </div>
-    <div class="scroll"><div class="feed" id="feed"></div></div>
-  </aside>
 </div>
 
 <div class="picker" id="picker" hidden>
@@ -280,7 +365,7 @@ canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
 </div>
 
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.min.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script>
-<script type="module" src="van-phong.js?v=3"></script>
+<script type="module" src="van-phong.js?v=8"></script>
 <!-- ALN-PHAP-NHAN --><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"><style id="alnpn-css">.alnpn,.alnpn *{box-sizing:border-box;margin:0;padding:0;border:0;font:inherit;letter-spacing:normal;text-transform:none;text-shadow:none;float:none;background:none;min-width:0}.alnpn{display:block;width:100%;clear:both;position:relative;z-index:0;background:#0b1428;border-top:2px solid #d4a017;color:#cbd5e1;font-family:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:15px;font-weight:400;line-height:1.5;text-align:left;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;padding:28px 20px 88px}.alnpn-in{max-width:1280px;margin:0 auto;display:grid;gap:22px}.alnpn-brand{display:flex;align-items:center;gap:14px}.alnpn-brand img{display:block;flex:none;width:44px;height:44px;border-radius:10px}.alnpn-ten{font-weight:700;font-size:17px;line-height:1.3;letter-spacing:.03em;color:#fff}.alnpn-sub{margin-top:2px;font-size:13px;line-height:1.4;color:#9fb0c8}.alnpn-muc dt{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;line-height:1.3;letter-spacing:.08em;text-transform:uppercase;color:#e0b43a;margin-bottom:6px}.alnpn-muc dt svg{display:block;flex:none;width:16px;height:16px;fill:none;stroke:#e0b43a;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.alnpn-muc dd{font-size:15px;font-weight:500;line-height:1.45;color:#f1f5f9}.alnpn-mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:600;letter-spacing:.02em}.alnpn a{color:#fff;text-decoration:none}.alnpn a:hover,.alnpn a:focus-visible{color:#e0b43a;outline:none}.alnpn-note{font-size:13px;font-weight:400;color:#9fb0c8;margin-left:8px;white-space:nowrap}@media (min-width:768px){.alnpn{padding:26px 28px}.alnpn-in{grid-template-columns:auto auto auto auto;justify-content:space-between;align-items:stretch;gap:0}.alnpn-brand{align-self:center}.alnpn-muc{padding:0 0 0 28px;margin-left:28px;border-left:1px solid rgba(224,180,58,.22)}}@media (min-width:768px) and (max-width:1099px){.alnpn-in{grid-template-columns:auto minmax(0,1fr) auto;justify-content:stretch;row-gap:20px}.alnpn-brand{grid-column:1/-1;align-self:start}.alnpn-muc:nth-child(2){border-left:0;margin-left:0;padding-left:0}}</style><section class="alnpn" aria-label="Thông tin doanh nghiệp"><div class="alnpn-in"><div class="alnpn-brand"><img src="/icon-192.png" alt="" width="44" height="44" loading="lazy"><div><div class="alnpn-ten">CÔNG TY TNHH ALN</div><div class="alnpn-sub">Đơn vị chủ quản website applamnha.vn</div></div></div><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M10 12h5M10 16h5"/></svg>Mã số thuế</dt><dd class="alnpn-mono">3502593013</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-6-5.3-6-11a6 6 0 1 1 12 0c0 5.7-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/></svg>Địa chỉ</dt><dd>Khu TTTM Sonadezi 536 Trung Sơn, Ngãi Giao, TP. Hồ Chí Minh</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 5 5L14 13l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>Hotline</dt><dd><a class="alnpn-mono" href="tel:0909829696">0909 829 696</a><span class="alnpn-note">KTS Trần Long</span></dd></dl></div></section>
 </body>
 </html>

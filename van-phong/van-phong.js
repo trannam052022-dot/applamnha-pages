@@ -32,7 +32,7 @@ const ADMIN=()=>MODE==="quan-tri";
 const Z=[
  {id:"gd",x0:0,y0:0,x1:8,y1:6,c:"#c9a35b",
   pub:{name:"Phòng KTS Trần Long",st:"live",who:"Kiến trúc sư phụ trách hồ sơ thiết kế",
-   items:["Gặp KTS, trao đổi nhu cầu và hiện trạng khu đất","Bàn giao trọn bộ hồ sơ có chữ ký KTS","Muốn KTS gọi lại: lập dự toán, lưu bảng rồi chọn giờ nghe máy"],go:"/du-toan-nha.html",cta:"Lập dự toán để KTS gọi lại"},
+   items:["Gặp KTS, trao đổi nhu cầu và hiện trạng khu đất","Bàn giao trọn bộ hồ sơ có chữ ký KTS","Gửi thông tin khu đất, nhận phương án và báo giá"],go:"/chu-nha.html#tuvan",cta:"Nhận tư vấn thiết kế"},
   adm:{name:"Phòng Giám đốc",st:"live",who:"Nam (KTS Trần Long), Phó Giám đốc",
    items:["Gọi lại khách khi có lead mới, bấm “Đã gọi” để dừng SLA","Duyệt đề xuất của Trưởng phòng","Ký hợp đồng thiết kế TUQ. Giám đốc"],go:"/founder_panel.html",cta:"Mở trang quản trị",tab:1}},
  {id:"ceo",x0:8,y0:0,x1:16,y1:6,c:"#8fb3ff",
@@ -66,7 +66,7 @@ const Z=[
    items:["Phương án mặt bằng + phối cảnh khoảng 7 ngày","Kiến trúc, kết cấu, điện nước khoảng 15 ngày; giao hồ sơ 3 ngày"],go:"/thiet-ke-mat-bang/",cta:"Mở công cụ mặt bằng"}},
  {id:"sanh",x0:0,y0:13,x1:10,y1:19,c:"#e2a3b8",
   pub:{name:"Sảnh · Lễ tân MyMy",st:"live",who:"MyMy, trợ lý của ALN",
-   items:["Hỏi về phí thiết kế, quy trình, dự toán","Không rành điền bảng? MyMy điền giúp","Bạn bấm đồng ý thì MyMy mới lưu số điện thoại"],go:"/du-toan-nha.html?mymy=1",cta:"Trò chuyện với MyMy"},
+   items:["Hỏi về phí thiết kế, quy trình, dự toán","Bạn bấm đồng ý thì MyMy mới lưu số điện thoại"],go:"/?mymy=1",cta:"Trò chuyện với MyMy"},
   adm:{name:"Sảnh · Lễ tân MyMy",st:"live",who:"MyMy, trợ lý chat trên applamnha.vn",
    items:["Đón khách ở trang dự toán, diễn đàn, Kho Mẫu","Khách bấm đồng ý rồi mới lưu số điện thoại"],go:"/du-toan-nha.html?mymy=1",cta:"Thử MyMy"}},
  {id:"tt",x0:10,y0:13,x1:16,y1:19,c:"#f07a5a",
@@ -400,7 +400,7 @@ const KHUNG={sang:"Sáng (8–11h)",trua:"Trưa (11–14h)",chieu:"Chiều (14�
 
 /* ---------- nhật ký ---------- */
 const EV=[];let feedFilter="all";
-function log(zone,text,kind){EV.unshift({zone,text,kind:kind||"",t:vn().hm});if(EV.length>80)EV.pop();ZM[zone].act=text;const a=document.getElementById("act-"+zone);if(a)a.textContent=text;renderFeed()}
+function log(zone,text,kind){EV.unshift({zone,text,kind:kind||"",t:vn().hm});if($("#nganHd").hidden){hdMoi++;capHuy()}if(EV.length>80)EV.pop();ZM[zone].act=text;const a=document.getElementById("act-"+zone);if(a)a.textContent=text;renderFeed()}
 function renderFeed(){const box=$("#feed");if(!box)return;clear(box);const list=EV.filter(e=>feedFilter==="all"||e.kind==="can");$("#evCount").textContent=EV.length+" hoạt động";
   if(!list.length){box.appendChild(el("div","empty",feedFilter==="can"?"Chưa có việc nào cần anh xử lý.":"Văn phòng vừa mở cửa."));return}
   // gộp các dòng trùng nhau (lời chào lặp lại): giữ lần mới nhất, ghi số lần
@@ -417,11 +417,28 @@ const home=c=>moveTo(c,c.hx,c.hy).then(()=>{c.facing=!!c.faceViewer});
 function say(c,text,ms,kind){ms=ms||3600;c.say=text;c.sayUntil=now+ms;log(c.zone,cname(c)+": "+text,kind);return sleep(ms)}
 const visible=c=>!c.hidden&&!(c.adminOnly&&!ADMIN())&&!(c.me&&ADMIN());
 
+/* ---------- "Bạn cần gì?": chủ nhà vào trang với nhiều lý do, mỗi lý do đi thẳng tới đúng phòng ---------- */
+const NHU_CAU=[["gd","Tư vấn thiết kế",1],["ceo","Phí & quy trình"],["dt","Dự toán xây nhà"],["kho","Hồ sơ mẫu"],["tk","Thử mặt bằng"],["sanh","Hỏi MyMy"],["kgn","Không gian Nhà"]];
+function veNhuCau(){const box=$("#canGi");if(!box)return;clear(box);const vai=document.body.dataset.vai;box.hidden=vai!=="chu-nha";if(box.hidden)return;
+  box.appendChild(el("span","cg-t","Bạn cần gì?"));const ds=el("div","cg-ds");
+  NHU_CAU.forEach(([id,ten,chinh])=>{const z=ZM[id];if(!z||!view(z).go)return;const b=el("button","cg"+(chinh?" chinh":""),ten);b.type="button";b.dataset.z=id;
+    b.addEventListener("click",()=>{try{(window.dataLayer=window.dataLayer||[]).push({event:"aln_vp_nhu_cau",phong:id})}catch(e){}goRoom(id)});ds.appendChild(b)});
+  box.appendChild(ds)}
+
+/* ---------- ngăn kéo: Các phòng, Hoạt động (nổi trên mô hình) ---------- */
+let hdMoi=0;function capHuy(){const b=$("#hdMoi");if(!b)return;b.hidden=!hdMoi;b.textContent=hdMoi>99?"99+":String(hdMoi)}
+function moNgan(id,mo){const n=$("#"+id),nut=document.querySelector('[aria-controls="'+id+'"]');if(mo==null)mo=n.hidden;
+  if(mo)document.querySelectorAll(".ngan").forEach(x=>{if(x.id!==id){x.hidden=true;const k=document.querySelector('[aria-controls="'+x.id+'"]');if(k)k.setAttribute("aria-expanded","false")}});
+  n.hidden=!mo;if(nut)nut.setAttribute("aria-expanded",String(mo));if(mo&&id==="nganHd"){hdMoi=0;capHuy()}}
+$("#nutPhong").addEventListener("click",()=>moNgan("nganPhong"));$("#nutHd").addEventListener("click",()=>moNgan("nganHd"));
+document.querySelectorAll(".ngan [data-dong]").forEach(b=>b.addEventListener("click",()=>moNgan(b.closest(".ngan").id,false)));
+document.addEventListener("keydown",e=>{if(e.key==="Escape")document.querySelectorAll(".ngan").forEach(x=>{if(!x.hidden)moNgan(x.id,false)})});
+
 /* ---------- panel trái: danh sách phòng ---------- */
 const zonesEl=$("#zones"),detailEl=$("#detail");
 function renderZones(){clear(zonesEl);Z.forEach(z=>{const v=view(z);const b=el("button","zone"+(sel===z.id?" sel":"")+(v.st==="noi"?" noi":""));b.type="button";b.dataset.z=z.id;
   b.style.setProperty("--zc",z.c);const dot=el("span","dot");dot.style.background=z.c;b.appendChild(dot);b.appendChild(el("span","nm",v.name));const pill=el("span","pill "+v.st);pill.appendChild(el("i"));pill.appendChild(document.createTextNode(ST[v.st]));b.appendChild(pill);
-  const act=el("span","act",z.act||v.who);act.id="act-"+z.id;b.appendChild(act);b.addEventListener("click",()=>select(z.id,true));zonesEl.appendChild(b)})}
+  const act=el("span","act",z.act||v.who);act.id="act-"+z.id;b.appendChild(act);b.addEventListener("click",()=>{select(z.id,true);moNgan("nganPhong",false)});zonesEl.appendChild(b)})}
 function select(id,move){sel=id;const z=ZM[id],v=view(z);clear(detailEl);
   const pill=el("span","pill "+v.st);pill.appendChild(el("i"));pill.appendChild(document.createTextNode(ST[v.st]));detailEl.appendChild(pill);
   detailEl.appendChild(el("h3","",v.name));detailEl.appendChild(el("div","who",v.who));
@@ -434,7 +451,7 @@ function select(id,move){sel=id;const z=ZM[id],v=view(z);clear(detailEl);
 const DOOR={gd:[5.9,5.2],ceo:[12,5.3],kho:[21.6,5.2],kd:[3.6,11.3],pl:[9.6,10.9],dt:[14.6,11.3],tk:[21,11.2],sanh:[7.1,15.3],tt:[11.4,16.6],kgn:[18.6,17],cho:[23,18.4]};
 const AGENT={gd:"N",ceo:"CEO",kho:"DB",kd:"TP",pl:"ML",dt:"DT",tk:"KTV",sanh:"MM",tt:"BAN",kgn:"BAN"};
 const CHAO={
- gd:"Chào anh/chị! Lập dự toán rồi chọn giờ, tôi gọi lại trao đổi.",
+ gd:"Chào anh/chị! Anh/chị gửi thông tin khu đất, tôi liên hệ tư vấn trong 24 giờ làm việc.",
  ceo:"Bốn bước, nghiệm thu bước nào trả bước đó.",
  kho:"Mời anh/chị xem hồ sơ mẫu 4 bộ môn.",
  pl:"Hợp đồng ký trực tiếp với ALN, thanh toán theo 4 bước.",
@@ -454,15 +471,24 @@ async function goRoom(id){const z=ZM[id],v=view(z);if(!v.go)return;
   openPanel(id)}
 
 /* ---------- khung trang thật + nghe sự kiện thật trong khung ---------- */
-const panel=$("#room"),frame=$("#roomFrame");let watchTimer=null,dlSeen=0,curRoom=null,lastTinh=0,tinhTimer=null;
+const panel=$("#room"),frame=$("#roomFrame");let frameNeo="",watchTimer=null,dlSeen=0,curRoom=null,lastTinh=0,tinhTimer=null;
 function openPanel(id){const v=view(ZM[id]);curRoom=id;$("#roomName").textContent=v.name;const full=$("#roomFull");full.href=alnUrl(v.go);
-  panel.hidden=false;document.body.classList.add("co-phong");frame.src=alnUrl(v.go);$("#roomToast").hidden=true;
+  panel.hidden=false;document.body.classList.add("co-phong");const u=alnUrl(v.go),h=u.indexOf("#");frameNeo=h>=0?u.slice(h+1):"";frame.src=h>=0?u.slice(0,h):u;$("#roomToast").hidden=true;
+  document.querySelectorAll(".ngan").forEach(x=>moNgan(x.id,false));canhMoHinh();
   log(id,(ADMIN()?"Mở ":"Bạn vào ")+v.name,"")}
-function closePanel(){panel.hidden=true;document.body.classList.remove("co-phong");clearInterval(watchTimer);watchTimer=null;frame.src="about:blank";curRoom=null;
+// Khi khung phòng mở, phần mô hình còn lộ bên trái là "cửa sổ nhìn vào phòng": dời tâm hình về đó.
+function canhMoHinh(){if(!V3||!V3.lech)return;if(panel.hidden){V3.lech(0);return}
+  const r=panel.getBoundingClientRect(),sr=stage.getBoundingClientRect(),con=r.left-sr.left;
+  if(getComputedStyle(panel).position==="fixed"||con<160){V3.lech(0);return}
+  V3.lech(sr.width/2-con/2);if(curRoom)V3.focus(curRoom)}
+window.addEventListener("resize",()=>{if(!panel.hidden)canhMoHinh()});
+function closePanel(){panel.hidden=true;document.body.classList.remove("co-phong");if(V3&&V3.lech)V3.lech(0);clearInterval(watchTimer);watchTimer=null;frame.src="about:blank";curRoom=null;
   if(!ADMIN()&&!C.BAN.hidden)moveTo(C.BAN,7.5,18.4)}
 $("#roomClose").addEventListener("click",closePanel);
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!panel.hidden)closePanel()});
 frame.addEventListener("load",()=>{dlSeen=0;let w=null;try{w=frame.contentWindow;dlSeen=(w&&w.dataLayer)?w.dataLayer.length:0}catch(e){w=null}
+  if(w&&frameNeo){const neo=frameNeo;let lan=0;const cuon=()=>{try{const d=w.document.getElementById(neo);if(d)w.scrollTo({top:d.getBoundingClientRect().top+w.scrollY-8,behavior:"instant"})}catch(e){}if(++lan<4)setTimeout(cuon,500)};cuon()}
+  if(window.innerWidth>1000)window.scrollTo(0,0);
   clearInterval(watchTimer);if(!w||frame.src==="about:blank")return;
   watchTimer=setInterval(()=>{let dl;try{dl=frame.contentWindow&&frame.contentWindow.dataLayer}catch(e){return}if(!dl)return;
     for(;dlSeen<dl.length;dlSeen++){const ev=dl[dlSeen];if(ev&&typeof ev==="object"&&typeof ev.event==="string")onFrameEvent(ev)}},400)});
@@ -617,7 +643,7 @@ function renderHenAdmin(){const box=$("#hen");if(!ADMIN()||!box)return;clear(box
 /* ---------- vai ---------- */
 const KEY_VAI="aln_vp_vai";
 function setMode(m,initial){if(!["chu-nha","ctv","quan-tri"].includes(m))m="chu-nha";const was=MODE;MODE=m;try{localStorage.setItem(KEY_VAI,m)}catch(e){}
-  document.body.dataset.vai=m;$("#vaiTen").textContent={"chu-nha":"Chủ nhà","ctv":"Cộng tác viên","quan-tri":"Quản trị"}[m];
+  document.body.dataset.vai=m;setTimeout(veNhuCau,0);$("#vaiTen").textContent={"chu-nha":"Chủ nhà","ctv":"Cộng tác viên","quan-tri":"Quản trị"}[m];
   $("#adminKpis").hidden=m!=="quan-tri";$("#tabCan").hidden=m!=="quan-tri";if(m!=="quan-tri"&&feedFilter==="can"){feedFilter="all";document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x.dataset.f==="all"))}
   cacheS=0;if(V3)V3.capNhatVai();if(!panel.hidden)closePanel();
   if(was==="quan-tri"&&m!=="quan-tri"){stopAdmin();setGate(null)}
@@ -645,8 +671,25 @@ function nut3D(){const b=$("#nut3d");b.textContent=V3?"Xem 2D":"Xem 3D";b.classL
 async function bat3D(on){
   if(!on){if(V3){V3.dong();V3=null}cv.hidden=false;try{localStorage.setItem(KEY_3D,"0")}catch(e){}cacheS=0;nut3D();return}
   if(V3||dang3D)return;const b=$("#nut3d");b.disabled=true;b.textContent="Đang dựng 3D…";
-  dang3D=(async()=>{try{const m=await import("./van-phong-3d.js?v=1");V3=await m.mo(stage,API3);cv.hidden=true;try{localStorage.setItem(KEY_3D,"1")}catch(e){}}
+  dang3D=(async()=>{try{const m=await import("./van-phong-3d.js?v=2");V3=await m.mo(stage,API3);cv.hidden=true;try{localStorage.setItem(KEY_3D,"1")}catch(e){}}
     catch(e){V3=null;cv.hidden=false;log("sanh","Máy này chưa mở được bản 3D, đang xem bản 2D.","")}finally{dang3D=null;b.disabled=false;nut3D()}})();return dang3D}
+/* ---------- hoạt động thật, ẩn danh (hoatDongVanPhong) + lộ trình tới C4 ---------- */
+const URL_HD="https://asia-southeast1-aln-platform.cloudfunctions.net/hoatDongVanPhong";
+const HD={muc:[],i:0,t:null,daLog:new Set()};
+function truoc(ms){const p=Math.max(0,Math.round((Date.now()-ms)/60000));if(p<10)return"vừa xong";if(p<60)return p+" phút trước";const g=Math.round(p/60);if(g<24)return g+" giờ trước";const n=Math.round(g/24);return n===1?"hôm qua":n+" ngày trước"}
+async function taiHoatDong(){if(ADMIN())return;let r=null;
+  try{const res=await fetch(URL_HD,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({data:{}})});if(res.ok)r=(await res.json()).result}catch(e){r=null}
+  if(!r||!Array.isArray(r.muc))return;HD.muc=r.muc.filter(m=>m&&ZM[m.phong]&&typeof m.cau==="string");HD.i=0;
+  HD.muc.slice().reverse().forEach(m=>{const k=m.luc_ms+m.cau;if(HD.daLog.has(k))return;HD.daLog.add(k);EV.unshift({zone:m.phong,text:m.cau+" · "+truoc(m.luc_ms),kind:"that",t:vn(new Date(m.luc_ms)).hm})});
+  if(EV.length>80)EV.length=80;renderFeed();veTuan(r.tuan);veDangDien()}
+function veTuan(t){const b=$("#ddTuan");if(!b)return;const a=t&&t.du_toan>=3?t.du_toan+" lượt tính dự toán":"",c=t&&t.nho_kts>=3?t.nho_kts+" chủ nhà nhờ KTS":"";
+  b.textContent=a||c?"7 ngày qua: "+[a,c].filter(Boolean).join(" · "):"";b.hidden=!(a||c)}
+function veDangDien(){const box=$("#dangDien");if(!box)return;clearTimeout(HD.t);
+  if(!HD.muc.length||ADMIN()){box.hidden=true;return}box.hidden=false;const m=HD.muc[HD.i%HD.muc.length];
+  const nd=$("#ddNd");nd.classList.remove("hien");void nd.offsetWidth;$("#ddCau").textContent=m.cau;$("#ddLuc").textContent=truoc(m.luc_ms);nd.dataset.z=m.phong;nd.classList.add("hien");
+  HD.i++;HD.t=setTimeout(veDangDien,6500)}
+$("#ddNd").addEventListener("click",e=>{const z=e.currentTarget.dataset.z;if(z){select(z,true)}});
+document.querySelectorAll("#loTrinh [data-z]").forEach(b=>b.addEventListener("click",()=>{try{(window.dataLayer=window.dataLayer||[]).push({event:"aln_vp_lo_trinh",buoc:b.dataset.buoc})}catch(e){}goRoom(b.dataset.z)}));
 $("#nut3d").addEventListener("click",()=>bat3D(!V3));
 window.ALNVanPhong={bat3D,get V3(){return V3},C,ZM};
 
@@ -654,7 +697,7 @@ window.ALNVanPhong={bat3D,get V3(){return V3},C,ZM};
 function start(){resize();presence(true);
   let vai=null;try{vai=localStorage.getItem(KEY_VAI)}catch(e){vai=null}
   const q=new URLSearchParams(location.search).get("vai");if(q)vai=q;
-  setMode(vai||"chu-nha",true);if(!vai&&!q)$("#picker").hidden=false;
+  setMode(vai||"chu-nha",true);
   hienGoiY();log("sanh","Văn phòng mở cửa · "+dayState(vn()),"");requestAnimationFrame(frameLoop);ambient();setInterval(presence,20000);
-  if(muon3D())bat3D(true)}
+  if(muon3D())bat3D(true);taiHoatDong();setInterval(()=>{if(!document.hidden)taiHoatDong()},180000)}
 (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(start,start);

@@ -531,9 +531,12 @@ export async function mo(stage, api) {
   let W = 0, H = 0, DPR = 1;
   function resize() {
     const r = stage.getBoundingClientRect(); W = Math.max(1, r.width); H = Math.max(1, r.height); DPR = Math.min(2, window.devicePixelRatio || 1);
-    renderer.setSize(W, H, false); cam.aspect = W / H; cam.updateProjectionMatrix();
+    renderer.setSize(W, H, false); cam.aspect = W / H; datLech();
     ov.width = Math.round(W * DPR); ov.height = Math.round(H * DPR);
   }
+  // lệch tâm hình (px) khi khung phòng che phần phải: phòng đang mở hiện ở phần mô hình còn lộ
+  let lechX = 0;
+  function datLech() { if (lechX) cam.setViewOffset(W, H, lechX, 0, W, H); else cam.clearViewOffset(); cam.updateProjectionMatrix(); }
   const ro = new ResizeObserver(resize); ro.observe(stage); resize();
 
   /* --- chữ nổi --- */
@@ -554,7 +557,7 @@ export async function mo(stage, api) {
   function loop(t) {
     if (!chay) return; requestAnimationFrame(loop);
     const dt = Math.min(0.05, (t - last) / 1000); last = t; frameN++;
-    if (document.hidden || (api.phongMo() && frameN % 4)) return;
+    if (document.hidden || (api.phongMo() && (phone || !lechX) && frameN % 4)) return;
     if (bayTw) { bayTw.k = Math.min(1, bayTw.k + dt * 1.6); const e = 1 - Math.pow(1 - bayTw.k, 3);
       controls.target.lerpVectors(bayTw.t0, bayTw.t1, e); cam.position.lerpVectors(bayTw.p0, bayTw.p1, e); if (bayTw.k >= 1) bayTw = null; }
     const me = api.C.BAN;
@@ -575,6 +578,7 @@ export async function mo(stage, api) {
 
   return {
     focus, dem, capNhatVai, vuaKhung: () => datMacDinh(false),
+    lech(px) { lechX = Math.round(px) || 0; datLech(); },
     dong() { chay = false; ro.disconnect(); controls.dispose(); renderer.dispose(); gl.remove(); ov.remove(); },
     hien(on) { const dang = chay; gl.hidden = !on; ov.hidden = !on; chay = on; if (on) { resize(); if (!dang) { last = performance.now(); requestAnimationFrame(loop); } } },
     _scene: scene, _cam: cam, _controls: controls, _renderer: renderer, _ng: NG
