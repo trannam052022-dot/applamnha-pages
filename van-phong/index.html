@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<!-- ALN opt-out guard — PHẢI nạp trước Pixel/gtag/GTM (xem scripts/aln-optout.js) -->
+<script src="../scripts/aln-optout.js"></script>
+<script src="/aln-consent.js?v=4"></script>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MB7VRGR5');</script>
+<!-- End Google Tag Manager -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Văn phòng ALN — đi vào từng phòng, làm việc với ALN ngay trên web | App Làm Nhà</title>
+<meta name="description" content="Văn phòng ảo của ALN: trò chuyện với MyMy, lập dự toán, xem hồ sơ mẫu, thử mặt bằng và chọn giờ để KTS gọi lại — mỗi phòng là một công cụ thật.">
+<!-- Bản dùng thử (01/11/2026): chưa cho Google lập chỉ mục tới khi Founder duyệt câu chữ công khai.
+     Mở chỉ mục: đổi thành "index, follow" và thêm /van-phong/ vào STATIC_PAGES (tools/gen-sitemap.js). -->
+<meta name="robots" content="noindex, follow">
+<link rel="canonical" href="https://applamnha.vn/van-phong/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://applamnha.vn/van-phong/">
+<meta property="og:title" content="Văn phòng ALN">
+<meta property="og:description" content="Đi vào từng phòng: MyMy, dự toán, hồ sơ mẫu, mặt bằng, Không gian Nhà.">
+<meta property="og:site_name" content="App Làm Nhà">
+<meta property="og:locale" content="vi_VN">
+<link rel="icon" href="../icon-192.png" type="image/png">
+<meta name="theme-color" content="#0f1114">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap">
+<!-- Google Analytics 4 (ALN — G-5CSL1TF0RC, tách riêng khỏi property TK.HOUSE) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-5CSL1TF0RC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-5CSL1TF0RC');
+</script>
+<!-- End GA4 -->
+<!-- Không gắn Meta Pixel ở trang này: trang khung không bắn Lead; Lead bắn từ trang thật mở bên trong (du-toan-nha...). -->
+<script src="../aln-esc.js"></script>
+<style>
+/* Ứng dụng 3 cột (phòng | văn phòng | hoạt động), xếp dọc trên điện thoại. Tối, đá + gỗ + đồng thau. */
+:root{
+  --bg:#0f1114;--panel:#171a1f;--panel2:#1d2127;--line:#2a2f37;--text:#efe9df;--muted:#a39e94;
+  --brass:#c9a35b;--brass-2:#e2c48a;--live:#52c49a;--trial:#d9b25a;--pause:#80858e;
+  --display:"Playfair Display",Georgia,serif;--body:"Be Vietnam Pro",system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--text)}
+body{font-family:var(--body);font-size:15px;padding:10px max(10px,env(safe-area-inset-right,0px)) 10px max(10px,env(safe-area-inset-left,0px))}
+button,input{font:inherit}
+a{color:var(--brass-2)}
+.app{height:100%;display:grid;gap:10px;grid-template-columns:280px minmax(0,1fr) 300px;grid-template-rows:auto minmax(0,1fr);grid-template-areas:"top top top" "left stage right"}
+.top{grid-area:top;display:flex;align-items:center;flex-wrap:wrap;gap:8px 16px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 14px}
+.brand{display:flex;align-items:baseline;gap:10px;text-decoration:none;color:var(--text)}
+.brand b{font:700 21px var(--display)}
+.brand span{font:600 10px var(--mono);letter-spacing:.14em;color:var(--brass);text-transform:uppercase}
+.vai{display:inline-flex;align-items:center;gap:8px;background:#2a2318;border:1px solid #5b4a2a;color:var(--brass-2);border-radius:20px;padding:5px 12px;font-weight:600;font-size:13px;cursor:pointer}
+.clock{font:600 15px var(--mono);font-variant-numeric:tabular-nums}
+.daystate{font-size:12px;color:var(--muted)}
+.kpis{display:flex;gap:16px;margin-left:auto}
+.kpi{display:grid;line-height:1.1}.kpi b{font:700 18px var(--mono);color:var(--brass-2)}.kpi small{font-size:11px;color:var(--muted)}
+.left,.right{background:var(--panel);border:1px solid var(--line);border-radius:10px;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.left{grid-area:left}.right{grid-area:right}
+.ph{padding:12px 14px 8px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ph h2{font:700 15px var(--body);margin:0}.ph small{font-size:11px;color:var(--muted)}
+.scroll{overflow:auto;min-height:0;padding:0 10px 12px}
+.detail{margin:0 10px 10px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:12px}
+.detail h3{font:700 19px var(--display);margin:6px 0 0;line-height:1.25}
+.detail .who{font-size:12.5px;color:var(--muted);margin:3px 0 6px}
+.detail ul{margin:6px 0 0;padding-left:18px;display:grid;gap:4px;font-size:13px;line-height:1.45}
+.detail .btn{margin-top:12px;width:100%}
+.pill{display:inline-flex;align-items:center;gap:5px;font:600 10px var(--mono);letter-spacing:.04em;padding:2px 7px;border-radius:20px;white-space:nowrap}
+.pill i{width:6px;height:6px;border-radius:50%;background:currentColor}
+.pill.live{color:var(--live);background:#173027}.pill.trial{color:var(--trial);background:#2e2715}.pill.pause,.pill.noi{color:var(--pause);background:#22252a}
+.zone{width:100%;text-align:left;display:grid;grid-template-columns:10px minmax(0,1fr) auto;gap:3px 10px;align-items:center;background:none;border:0;border-bottom:1px solid var(--line);color:inherit;padding:10px 4px;cursor:pointer}
+.zone:hover,.zone.sel{background:#20242b}.zone.noi{opacity:.6}
+.zone .dot{width:10px;height:10px;border-radius:3px}.zone .nm{font-weight:600;font-size:13.5px}
+.zone .act{grid-column:2 / 4;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hen{margin:0 10px 10px;border:1px solid #245a45;background:#132a21;border-radius:8px;padding:10px 12px}
+.hen h4{margin:0 0 4px;font-size:13px;color:var(--live)}.hen p{margin:2px 0;font-size:13px}
+.hen-list{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:5px;font-size:12.5px}
+.hen-list li{display:grid;grid-template-columns:auto 1fr auto;gap:8px}.hen-list time{font:11px var(--mono);color:var(--muted)}
+.note{font-size:12px;color:var(--muted)}
+.stage{grid-area:stage;position:relative;min-height:0;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:radial-gradient(120% 90% at 50% 30%,#1b1f26 0%,#0f1114 70%)}
+canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
+.hint{position:absolute;left:12px;top:12px;max-width:min(420px,calc(100% - 24px));background:rgba(18,20,24,.88);border:1px solid #4a3d24;border-radius:8px;padding:8px 12px;font-size:13px;pointer-events:none}
+.toolbar{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:flex;gap:4px;align-items:center;background:rgba(18,20,24,.92);border:1px solid var(--line);border-radius:10px;padding:5px}
+.tb{background:none;border:1px solid transparent;color:var(--text);font-weight:600;font-size:13px;padding:7px 10px;border-radius:7px;cursor:pointer;min-width:34px}
+.tb:hover{background:#262a31}.tb.on{border-color:#5b4a2a;background:#2a2318;color:var(--brass-2)}
+.zl{font:600 12px var(--mono);color:var(--muted);min-width:44px;text-align:center}
+.btn{display:inline-block;text-align:center;text-decoration:none;background:#262a31;border:1px solid var(--line);color:var(--text);font-weight:600;font-size:13.5px;padding:9px 12px;border-radius:8px;cursor:pointer}
+.btn.pri{background:var(--brass);border-color:var(--brass);color:#1a150c}
+.btn:focus-visible,.tb:focus-visible,.zone:focus-visible,.tab:focus-visible,.vai:focus-visible,.vai-card:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+.tabs{display:flex;gap:6px;padding:0 12px 8px}
+.tab{background:var(--panel2);border:1px solid var(--line);color:var(--muted);font-weight:600;font-size:12px;padding:6px 10px;border-radius:7px;cursor:pointer}
+.tab.on{color:var(--brass-2);border-color:#5b4a2a;background:#2a2318}
+.feed{display:grid;gap:6px}
+.ev{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.ev .h{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600}
+.ev .h i{width:8px;height:8px;border-radius:2px}.ev .h time{margin-left:auto;font:11px var(--mono);color:var(--muted)}
+.ev p{margin:3px 0 0;font-size:13px;color:#ddd7cc;line-height:1.4}
+.chip{font:600 9px var(--mono);border-radius:4px;padding:0 4px;letter-spacing:.04em}
+.chip.real{color:var(--live);border:1px solid #245a45}.chip.can{color:var(--brass);border:1px solid #5b4a2a}
+.empty{font-size:12.5px;color:var(--muted);padding:6px 2px}
+/* khung phòng: trang thật mở bên trong văn phòng */
+.room{position:absolute;top:10px;right:10px;bottom:10px;width:min(62%,760px);display:flex;flex-direction:column;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.5);border:1px solid #4a3d24}
+.room-h{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#171a1f;border-bottom:1px solid #4a3d24}
+.room-h b{flex:1;min-width:0;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.room-h a,.room-h button{font-size:12.5px}
+.room-toast{background:#132a21;color:#e9f6ef;border-bottom:1px solid #245a45;padding:8px 12px;font-size:13px}
+.room-toast b{color:var(--live)}
+.room iframe{flex:1;width:100%;border:0;background:#fff}
+.gate{position:absolute;inset:0;display:grid;place-content:center;gap:10px;text-align:center;background:rgba(12,14,18,.9);padding:20px}
+.gate p{margin:0;max-width:40ch}
+/* chọn vai */
+.picker{position:fixed;inset:0;z-index:60;display:grid;place-items:center;background:rgba(8,10,14,.82);padding:16px}
+.picker-box{background:var(--panel);border:1px solid #4a3d24;border-radius:14px;padding:20px;max-width:760px;width:100%;max-height:100%;overflow:auto}
+.picker-box h2{font:700 24px var(--display);margin:0 0 4px}.picker-box>p{margin:0 0 14px;color:var(--muted);font-size:14px}
+.vai-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.vai-card{text-align:left;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:14px;color:var(--text);cursor:pointer;display:grid;gap:6px;align-content:start}
+.vai-card:hover{border-color:var(--brass)}.vai-card b{font-size:16px}.vai-card span{font-size:13px;color:var(--muted);line-height:1.45}
+.picker-x{float:right;background:none;border:0;color:var(--muted);font-size:20px;cursor:pointer}
+@media (max-width:1000px){
+  html,body{height:auto}
+  .app{height:auto;grid-template-columns:minmax(0,1fr);grid-template-areas:"top" "stage" "left" "right"}
+  .stage{height:70vh;min-height:420px}
+  .kpis{margin-left:0;width:100%}
+  .right .scroll{max-height:360px}
+  .room{left:6px;right:6px;top:6px;bottom:6px;width:auto}
+  body.co-phong .toolbar{display:none}
+}
+@media (max-width:640px){.vai-grid{grid-template-columns:1fr}.hint{display:none}}
+</style>
+</head>
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MB7VRGR5" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+<div class="app">
+  <header class="top">
+    <a class="brand" href="/"><b>Văn phòng ALN</b><span>App Làm Nhà</span></a>
+    <button class="vai" id="doiVai" type="button">Vai: <span id="vaiTen">Chủ nhà</span> · đổi</button>
+    <span class="clock" id="clock">--:--</span><span class="daystate" id="dayState"></span>
+    <div class="kpis" id="adminKpis" hidden>
+      <div class="kpi"><b id="kMoi">—</b><small>khách mới hôm nay</small></div>
+      <div class="kpi"><b id="kCho">—</b><small>đang chờ gọi</small></div>
+    </div>
+  </header>
+
+  <aside class="left">
+    <div class="ph"><h2>Các phòng</h2><small>bấm để đi tới</small></div>
+    <div class="detail" id="detail"></div>
+    <div class="hen" id="hen" hidden></div>
+    <div class="scroll" id="zones"></div>
+  </aside>
+
+  <main class="stage" id="stage">
+    <canvas id="cv" aria-label="Văn phòng ALN nhìn từ trên xuống. Bấm vào một phòng để đi tới và mở công cụ của phòng đó."></canvas>
+    <div class="hint">Bấm vào một phòng: nhân vật của bạn đi tới và mở công cụ thật của phòng đó.</div>
+    <div class="toolbar">
+      <button class="tb" id="zout" type="button" aria-label="Thu nhỏ">−</button>
+      <span class="zl" id="zl">100%</span>
+      <button class="tb" id="zin" type="button" aria-label="Phóng to">+</button>
+      <button class="tb" id="fit" type="button">Vừa khung</button>
+      <button class="tb" id="night" type="button">Đêm</button>
+    </div>
+    <section class="room" id="room" hidden aria-label="Phòng đang mở">
+      <div class="room-h"><b id="roomName"></b><a class="btn" id="roomFull" href="/" target="_blank" rel="noopener">Mở toàn trang ↗</a><button class="btn pri" id="roomClose" type="button">Về văn phòng</button></div>
+      <div class="room-toast" id="roomToast" hidden></div>
+      <iframe id="roomFrame" title="Công cụ của phòng" src="about:blank"></iframe>
+    </section>
+    <div class="gate" id="gate" hidden></div>
+  </main>
+
+  <aside class="right">
+    <div class="ph"><h2>Hoạt động</h2><small id="evCount">0 hoạt động</small></div>
+    <div class="tabs">
+      <button class="tab on" data-f="all" type="button">Tất cả</button>
+      <button class="tab" data-f="can" id="tabCan" type="button" hidden>Cần anh xử lý</button>
+    </div>
+    <div class="scroll"><div class="feed" id="feed"></div></div>
+  </aside>
+</div>
+
+<div class="picker" id="picker" hidden>
+  <div class="picker-box" role="dialog" aria-labelledby="pickerTitle">
+    <button class="picker-x" id="pickerClose" type="button" aria-label="Đóng">×</button>
+    <h2 id="pickerTitle">Bạn vào văn phòng với vai nào?</h2>
+    <p>Mỗi phòng là một công cụ thật của ALN. Bạn đổi vai lúc nào cũng được.</p>
+    <div class="vai-grid">
+      <button class="vai-card" data-vai="chu-nha" type="button"><b>Chủ nhà</b><span>Trò chuyện với MyMy, lập dự toán, xem hồ sơ mẫu, thử mặt bằng, chọn giờ để KTS gọi lại.</span></button>
+      <button class="vai-card" data-vai="ctv" type="button"><b>Cộng tác viên</b><span>Vào phòng Cộng tác viên: làm nhiệm vụ, tích Gạch, giới thiệu chủ nhà.</span></button>
+      <button class="vai-card" data-vai="quan-tri" type="button"><b>Quản trị ALN</b><span>Chỉ tài khoản Founder. Xem khách mới, lịch hẹn gọi, đã gọi, đổi giai đoạn theo dữ liệu thật.</span></button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="van-phong.js?v=1"></script>
+<!-- ALN-PHAP-NHAN --><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"><style id="alnpn-css">.alnpn,.alnpn *{box-sizing:border-box;margin:0;padding:0;border:0;font:inherit;letter-spacing:normal;text-transform:none;text-shadow:none;float:none;background:none;min-width:0}.alnpn{display:block;width:100%;clear:both;position:relative;z-index:0;background:#0b1428;border-top:2px solid #d4a017;color:#cbd5e1;font-family:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:15px;font-weight:400;line-height:1.5;text-align:left;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;padding:28px 20px 88px}.alnpn-in{max-width:1280px;margin:0 auto;display:grid;gap:22px}.alnpn-brand{display:flex;align-items:center;gap:14px}.alnpn-brand img{display:block;flex:none;width:44px;height:44px;border-radius:10px}.alnpn-ten{font-weight:700;font-size:17px;line-height:1.3;letter-spacing:.03em;color:#fff}.alnpn-sub{margin-top:2px;font-size:13px;line-height:1.4;color:#9fb0c8}.alnpn-muc dt{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;line-height:1.3;letter-spacing:.08em;text-transform:uppercase;color:#e0b43a;margin-bottom:6px}.alnpn-muc dt svg{display:block;flex:none;width:16px;height:16px;fill:none;stroke:#e0b43a;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.alnpn-muc dd{font-size:15px;font-weight:500;line-height:1.45;color:#f1f5f9}.alnpn-mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:600;letter-spacing:.02em}.alnpn a{color:#fff;text-decoration:none}.alnpn a:hover,.alnpn a:focus-visible{color:#e0b43a;outline:none}.alnpn-note{font-size:13px;font-weight:400;color:#9fb0c8;margin-left:8px;white-space:nowrap}@media (min-width:768px){.alnpn{padding:26px 28px}.alnpn-in{grid-template-columns:auto auto auto auto;justify-content:space-between;align-items:stretch;gap:0}.alnpn-brand{align-self:center}.alnpn-muc{padding:0 0 0 28px;margin-left:28px;border-left:1px solid rgba(224,180,58,.22)}}@media (min-width:768px) and (max-width:1099px){.alnpn-in{grid-template-columns:auto minmax(0,1fr) auto;justify-content:stretch;row-gap:20px}.alnpn-brand{grid-column:1/-1;align-self:start}.alnpn-muc:nth-child(2){border-left:0;margin-left:0;padding-left:0}}</style><section class="alnpn" aria-label="Thông tin doanh nghiệp"><div class="alnpn-in"><div class="alnpn-brand"><img src="/icon-192.png" alt="" width="44" height="44" loading="lazy"><div><div class="alnpn-ten">CÔNG TY TNHH ALN</div><div class="alnpn-sub">Đơn vị chủ quản website applamnha.vn</div></div></div><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M10 12h5M10 16h5"/></svg>Mã số thuế</dt><dd class="alnpn-mono">3502593013</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-6-5.3-6-11a6 6 0 1 1 12 0c0 5.7-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/></svg>Địa chỉ</dt><dd>Khu TTTM Sonadezi 536 Trung Sơn, Ngãi Giao, TP. Hồ Chí Minh</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 5 5L14 13l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>Hotline</dt><dd><a class="alnpn-mono" href="tel:0909829696">0909 829 696</a><span class="alnpn-note">KTS Trần Long</span></dd></dl></div></section>
+</body>
+</html>
