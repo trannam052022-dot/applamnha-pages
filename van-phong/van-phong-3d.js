@@ -179,23 +179,26 @@ export async function mo(stage, api) {
   function sanDa(x0, y0, x1, y1, base, vein, seed, slab) { const t = tex(marbleTex(base, vein, seed, slab), [(x1 - x0) / 2, (y1 - y0) / 2]); san(x0, y0, x1, y1, new THREE.MeshStandardMaterial({ map: t, roughness: 0.16 })); }
   function tham(x0, y0, x1, y1, c, b) { san(x0, y0, x1, y1, new THREE.MeshStandardMaterial({ map: tex(rugTex(c, b)), roughness: 0.95 }), 0.006); }
   function vien(y, x0, x1) { tinh.add(bx(x1 - x0, 0.004, 0.035, brass(), (x0 + x1) / 2, 0.003, y)); }
-  sanGo(0, 0, 8, 6, "#6a4126", "#5c3820", 1); tham(1.3, 1.4, 6.9, 5.3, "#1f5c4a", BRASS);
-  sanDa(8, 0, 16, 6, "#efebe4", "#9d9488", 2);
-  sanGo(16, 0, 26, 6, "#5d3a22", "#4f311c", 3); tham(16.6, 3.6, 19.2, 5.6, "#6b2d2d", BRASS);
+  // bố cục 01/11/2026 — khớp buildStatic() trong van-phong.js
+  sanGo(0, 0, 5, 6, "#b98c5e", "#a87d52", 1);
+  sanGo(5, 0, 10, 6, "#5d3a22", "#4f311c", 3); tham(5.4, 3.6, 7.6, 5.7, "#6b2d2d", BRASS);
+  sanDa(10, 0, 16, 6, "#efebe4", "#9d9488", 2);
+  sanGo(16, 0, 21, 6, "#6a4126", "#5c3820", 11);
+  san(21, 0, 26, 6, std("#7d7a74", 0.85));
   sanDa(0, 6, 26, 7, "#e8e3da", "#a59c8f", 4, 1); vien(6.1, 0, 26); vien(6.9, 0, 26);
-  sanGo(0, 7, 26, 12, "#b98c5e", "#a87d52", 5);
+  sanGo(0, 7, 8, 12, "#b98c5e", "#a87d52", 5);
+  sanGo(8, 7, 13, 12, "#6a4126", "#5c3820", 12); tham(8.2, 7.4, 12.8, 11.7, "#1f5c4a", BRASS);
+  sanDa(13, 7, 18, 12, "#f1ede6", "#a39888", 13); tham(14.1, 8.4, 16.9, 10.6, "#d9cfc0", "#8a5232");
+  sanGo(18, 7, 26, 12, "#b98c5e", "#a87d52", 14);
   sanDa(0, 12, 26, 13, "#e8e3da", "#a59c8f", 6, 1); vien(12.1, 0, 26); vien(12.9, 0, 26);
-  sanDa(0, 13, 10, 19, "#f1ede6", "#a39888", 7);
-  for (let x = 2; x < 10; x += 2) for (let y = 14; y < 19; y += 2) {
-    const d = new THREE.Mesh(new THREE.PlaneGeometry(0.4, 0.4), std("#1f1d1c", 0.2)); d.rotation.set(-Math.PI / 2, 0, Math.PI / 4); d.position.set(x, 0.003, y); d.receiveShadow = true; root.add(d);
-  }
-  tham(6.1, 18.2, 9, 19, "#2b2723", BRASS);
-  sanGo(10, 13, 16, 19, "#b98c5e", "#a87d52", 8);
-  sanGo(16, 13, 22, 19, "#6a4126", "#5c3820", 9); tham(16.8, 15.9, 20.3, 18.4, "#d9cfc0", "#8a5232");
-  san(22, 13, 26, 19, std("#7d7a74", 0.85));
+  sanGo(0, 13, 8, 19, "#b98c5e", "#a87d52", 8);
+  sanDa(8, 13, 18, 19, "#f1ede6", "#a39888", 7);
+  { const kc = std("#1f1d1c", 0.3); for (let x = 10; x < 18; x += 2) for (let y = 14; y < 19; y += 2) { if (x > 10 && x < 16 && y > 15) continue; const m = new THREE.Mesh(new THREE.PlaneGeometry(0.4, 0.4), kc); m.rotation.set(-Math.PI / 2, 0, Math.PI / 4); m.position.set(x, 0.004, y); root.add(m); } }
+  tham(11.6, 18.2, 14.4, 19, "#2b2723", BRASS);
+  sanGo(18, 13, 26, 19, "#6a4126", "#5c3820", 9); tham(18.8, 15.9, 22.3, 18.4, "#d9cfc0", "#8a5232");
   // thềm cửa chính
-  root.add(bx(4, 0.22, 1.4, std("#d8d2c7", 0.4), 7.5, -0.11 + 0.0, 19.7));
-  tinh.add(bx(3.8, 0.01, 0.05, brass(), 7.5, 0.005, 19.02));
+  root.add(bx(4, 0.22, 1.4, std("#d8d2c7", 0.4), 13, -0.11 + 0.0, 19.7));
+  tinh.add(bx(3.8, 0.01, 0.05, brass(), 13, 0.005, 19.02));
 
   /* --- tường sau (2 mặt) --- */
   const vua = std("#e6e0d6", 0.92), vuaB = std("#e1dbd0", 0.92), goTuong = std("#5a3720", 0.55), goTuongB = std("#4f301c", 0.55);
@@ -249,9 +252,9 @@ export async function mo(stage, api) {
     root.add(p); bang.push({ m, key });
     if (truc === "x") tinh.add(bx(w + 0.08, h + 0.08, 0.04, std("#1c1c1e", 0.4), c, cy, 0.035)); else tinh.add(bx(0.04, h + 0.08, w + 0.08, std("#1c1c1e", 0.4), 0.035, cy, c));
   }
-  cuaSoA(1, 2.7, 11); keSach(3.2, 5.4, 26, 80, 12, "x"); cuaSoA(5.8, 7.5, 13);
-  bangTuong(9.3, 14.7, 32, 74, "x", "a");
-  keSach(16.3, 20, 24, 82, 21, "x"); cuaSoA(20.3, 21.9, 22); keSach(22.2, 25.8, 24, 82, 23, "x");
+  cuaSoA(1, 2.7, 11); cuaSoA(3, 4.6, 13); keSach(5.4, 9.6, 24, 82, 12, "x");
+  bangTuong(10.6, 15.4, 32, 74, "x", "a");
+  cuaSoA(16.8, 18.6, 22); keSach(22.2, 25.8, 24, 82, 23, "x");
   { const p = new THREE.Mesh(new THREE.PlaneGeometry(5.2, 58 * WK), new THREE.MeshStandardMaterial({ map: tex(logoTex()), roughness: 0.5 }));
     p.rotation.y = Math.PI / 2; p.position.set(0.05, 51 * WK, 16); root.add(p); }
   bangTuong(7.4, 11.6, 30, 72, "z", "b");

@@ -30,31 +30,36 @@ const ADMIN=()=>MODE==="quan-tri";
    pub: cách phòng hiện với chủ nhà/CTV (null = khu nội bộ, không mở).
    adm: cách phòng hiện với quản trị. go = trang thật mở trong khung. */
 const Z=[
- {id:"gd",x0:0,y0:0,x1:8,y1:6,c:"#c9a35b",
+ {id:"gd",x0:8,y0:7,x1:13,y1:12,c:"#c9a35b",
   pub:{name:"Phòng KTS Trần Long",st:"live",who:"Kiến trúc sư phụ trách hồ sơ thiết kế",
-   items:["Gặp KTS, trao đổi nhu cầu và hiện trạng khu đất","Bàn giao trọn bộ hồ sơ có chữ ký KTS","Gửi thông tin khu đất, nhận phương án và báo giá"],go:"/chu-nha.html#tuvan",cta:"Nhận tư vấn thiết kế"},
+   items:["Hồ sơ do kiến trúc sư có chứng chỉ hành nghề ký, đủ điều kiện xin phép xây dựng","Đơn giá thiết kế niêm yết sẵn theo m², anh chị tự tính được ngay"],go:"/chu-nha.html#tinhngay",cta:"Tính phí cho nhà của tôi"},
   adm:{name:"Phòng Giám đốc",st:"live",who:"Nam (KTS Trần Long), Phó Giám đốc",
    items:["Gọi lại khách khi có lead mới, bấm “Đã gọi” để dừng SLA","Duyệt đề xuất của Trưởng phòng","Ký hợp đồng thiết kế TUQ. Giám đốc"],go:"/founder_panel.html",cta:"Mở trang quản trị",tab:1}},
- {id:"ceo",x0:8,y0:0,x1:16,y1:6,c:"#8fb3ff",
+ {id:"tiep",x0:13,y0:7,x1:18,y1:12,c:"#e6c27a",
+  pub:{name:"Phòng tiếp khách",st:"live",who:"Nơi chủ nhà gặp KTS, trao đổi nhu cầu",
+   items:["Gửi thông tin khu đất, nhận phương án và báo giá","KTS sẽ liên hệ trong 24 giờ làm việc"],go:"/chu-nha.html#tuvan",cta:"Nhận tư vấn thiết kế"},
+  adm:{name:"Phòng tiếp khách",st:"live",who:"KTS gặp chủ nhà, chốt phiếu thống nhất yêu cầu",
+   items:["Brief buổi gặp: nút Brief ở tab Pipeline / Hồ sơ dự toán","Phiếu thống nhất yêu cầu thiết kế trước khi ký"],go:"/founder_panel.html",cta:"Mở trang quản trị",tab:1}},
+ {id:"ceo",x0:10,y0:0,x1:16,y1:6,c:"#8fb3ff",
   pub:{name:"Phòng họp · Quy trình 4 bước",st:"live",who:"Thanh toán theo Quy trình 4 bước đảm bảo",
    items:["C1 Chốt việc · 10%","C2 Chốt phương án · 20%","C3 Chốt triển khai, hồ sơ kỹ thuật · 60%","C4 Nghiệm thu & bàn giao hồ sơ · 10%","Nghiệm thu, hài lòng rồi mới trả cho bước đó"],go:"/chu-nha.html",cta:"Xem quy trình và phí thiết kế"},
   adm:{name:"Phòng Chiến lược",st:"live",who:"CEO Agent v2.3, chạy khi Nam gõ lệnh",
    items:["CEO TODAY: đọc state.md + assumptions.md, trả 5 dòng việc","CEO LOG: ghi quyết định mới với mã DEC","Chỉ tạo việc nối được tới doanh thu"],go:null}},
- {id:"kho",x0:16,y0:0,x1:26,y1:6,c:"#b07cc6",
+ {id:"kho",x0:5,y0:0,x1:10,y1:6,c:"#b07cc6",
   pub:{name:"Thư viện hồ sơ mẫu",st:"live",who:"Bộ hồ sơ thiết kế mẫu 4 bộ môn",
    items:["Xem trước công khai","Xem đủ bộ sau khi xác thực số điện thoại"],go:"/ho-so-mau.html",cta:"Vào thư viện"},
   adm:{name:"Thư viện · Bộ não ALN",st:"live",who:"Bộ não ALN, kho bản vẽ, HOUSE DNA",
    items:["Một bản đồ nguồn sự thật trong repo ALN (docs/INDEX.md)","Bài học sau mỗi công trình vào docs/bai-hoc/","HOUSE DNA: quy tắc thiết kế nhà Việt dạng máy đọc được"],go:"/ho-so-mau.html",cta:"Xem thư viện công khai"}},
- {id:"kd",x0:0,y0:7,x1:7,y1:12,c:"#52c49a",
+ {id:"kd",x0:0,y0:0,x1:5,y1:6,c:"#52c49a",
   pub:null,
   adm:{name:"Phòng Kinh doanh",st:"live",who:"Trưởng phòng AI (24/7) và Linh gọi khách",
    items:["Báo lead mới vào nhóm Telegram, chỉ hiện 4 số cuối","7:30 báo cáo ngày, 17:00 thứ Sáu báo cáo tuần","Đề xuất cách xử lý, chờ Nam duyệt"],go:"/founder_panel.html",cta:"Mở Pipeline (tab Pipeline)",tab:1}},
- {id:"pl",x0:7,y0:7,x1:12,y1:12,c:"#e08f6a",
+ {id:"pl",x0:16,y0:0,x1:21,y1:6,c:"#e08f6a",
   pub:{name:"Phòng hợp đồng",st:"live",who:"Hợp đồng tư vấn thiết kế ký trực tiếp với ALN",
    items:["ALN là nhà thầu tư vấn thiết kế, chịu trách nhiệm toàn bộ hồ sơ thiết kế","Thanh toán theo Quy trình 4 bước đảm bảo (C1–C4)"],go:"/chu-nha.html",cta:"Xem quy trình và phí thiết kế"},
   adm:{name:"Hành chính · Pháp lý",st:"live",who:"Lý Mỹ Linh, Giám đốc, người đại diện pháp luật",
    items:["GPKD, giấy ủy quyền ký hợp đồng","Hợp đồng tư vấn thiết kế mẫu, phiếu thống nhất yêu cầu","Thu theo mốc C1 10% · C2 20% · C3 60% · C4 10%"],go:null}},
- {id:"dt",x0:12,y0:7,x1:18,y1:12,c:"#5fb7d4",
+ {id:"dt",x0:0,y0:7,x1:8,y1:12,c:"#5fb7d4",
   pub:{name:"Phòng Dự toán",st:"live",who:"Bảng dự toán phần thô theo kích thước lô",
    items:["Nhập kích thước lô và số tầng, có số tiền ngay","Lưu bảng chi tiết, chọn giờ để KTS gọi lại"],go:"/du-toan-nha.html",cta:"Lập dự toán"},
   adm:{name:"Phòng Dự toán",st:"live",who:"Công cụ dự toán trên applamnha.vn",
@@ -64,22 +69,22 @@ const Z=[
    items:["Nhập kích thước lô và nhu cầu gia đình","Xem 3 phương án mặt bằng từng tầng (bản dùng thử)"],go:"/thiet-ke-mat-bang/",cta:"Xem thử mặt bằng"},
   adm:{name:"Xưởng Thiết kế",st:"live",who:"Nam làm phương án; KTV, KS, điện nước theo hồ sơ",
    items:["Phương án mặt bằng + phối cảnh khoảng 7 ngày","Kiến trúc, kết cấu, điện nước khoảng 15 ngày; giao hồ sơ 3 ngày"],go:"/thiet-ke-mat-bang/",cta:"Mở công cụ mặt bằng"}},
- {id:"sanh",x0:0,y0:13,x1:10,y1:19,c:"#e2a3b8",
+ {id:"sanh",x0:8,y0:13,x1:18,y1:19,c:"#e2a3b8",
   pub:{name:"Sảnh · Lễ tân MyMy",st:"live",who:"MyMy, trợ lý của ALN",
    items:["Hỏi về phí thiết kế, quy trình, dự toán","Bạn bấm đồng ý thì MyMy mới lưu số điện thoại"],go:"/?mymy=1",cta:"Trò chuyện với MyMy"},
   adm:{name:"Sảnh · Lễ tân MyMy",st:"live",who:"MyMy, trợ lý chat trên applamnha.vn",
    items:["Đón khách ở trang dự toán, diễn đàn, Kho Mẫu","Khách bấm đồng ý rồi mới lưu số điện thoại"],go:"/du-toan-nha.html?mymy=1",cta:"Thử MyMy"}},
- {id:"tt",x0:10,y0:13,x1:16,y1:19,c:"#f07a5a",
+ {id:"tt",x0:0,y0:13,x1:8,y1:19,c:"#f07a5a",
   pub:{name:"Phòng Cộng tác viên",st:"live",who:"Đồng hành cùng ALN, tích Gạch",
    items:["Làm nhiệm vụ đơn giản, không cần tài khoản","Giới thiệu chủ nhà sắp xây nhà, nhận thưởng giới thiệu"],go:"/ctv_dashboard.html",cta:"Vào phòng CTV"},
   adm:{name:"Tiếp thị · CTV",st:"live",who:"Quảng cáo Meta, Google Ads, SEO, Zalo OA, game CTV",
    items:["Trước Tết chỉ đẩy quảng cáo Gói Quản lý Thi công","Game CTV công khai, không cần tài khoản"],go:"/ctv_dashboard.html",cta:"Xem phòng CTV"}},
- {id:"kgn",x0:16,y0:13,x1:22,y1:19,c:"#7fd18b",
+ {id:"kgn",x0:18,y0:13,x1:26,y1:19,c:"#7fd18b",
   pub:{name:"Không gian Nhà",st:"trial",who:"Nơi chủ nhà theo dõi hồ sơ nhà của mình",
    items:["Đăng nhập bằng mã OTP số điện thoại","Theo dõi các mốc, tài liệu và sổ chi"],go:"/khong-gian-nha.html",cta:"Vào Không gian Nhà"},
   adm:{name:"Showroom Không gian Nhà",st:"trial",who:"Cổng chủ nhà, đăng nhập bằng OTP",
    items:["Theo dõi 4 mốc C1–C4, tài liệu, nhật ký, sổ chi","Gói Quản lý Thi công: công cụ tự quản, không có người giám sát"],go:"/khong-gian-nha.html",cta:"Mở Không gian Nhà"}},
- {id:"cho",x0:22,y0:13,x1:26,y1:19,c:"#80858e",
+ {id:"cho",x0:21,y0:0,x1:26,y1:6,c:"#80858e",
   pub:null,
   adm:{name:"Phòng chờ mở",st:"pause",who:"Dự án đang tạm dừng",
    items:["Công ty MMT: tạm dừng từ 18/10","Radar tăng trưởng: tạm dừng từ 27/09"],go:null}}
@@ -171,44 +176,50 @@ function glassSeg(g,ax,ay,bx,by){const h=44;poly(g,[P(ax,ay,0),P(bx,by,0),P(bx,b
   line(g,P(ax,ay,h),P(bx,by,h),BRASS,1.6);line(g,P(ax,ay,0),P(bx,by,0),"#1c1c1e",1.2);line(g,P(ax,ay,0),P(ax,ay,h),"rgba(40,40,44,.8)",.8);
   g.save();g.globalAlpha=.35;line(g,P(ax+(bx-ax)*.2,ay+(by-ay)*.2,h-6),P(ax+(bx-ax)*.5,ay+(by-ay)*.5,8),"#ffffff",.7);g.restore()}
 
-/* ---------- bố trí ---------- */
-// Giám đốc
-desk(3.2,2.3,2.6,1.05,{mons:[.9],lamp:1,top:"#5a3720"}); chair(4.15,3.55,"#3b2a20");
-sofa(.55,1.1,1.05,2.8,"#1f5c4a","x"); table(1.9,1.7,.9,1.4,9,"#ece6dc");
-olive(7,.35); lamp(7.3,4.7); plant(.4,4.8,.9);
-// Chiến lược
-table(10.1,1.9,3.8,1.6,14,"#f1ece4");
-[10.4,11.6,12.8].forEach(x=>chair(x,1.15,"#1f3a5c")); [10.4,13.1].forEach(x=>chair(x,3.65,"#1f3a5c"));
-plant(8.5,.5,1); plant(15.0,.5,1); lamp(15.3,4.9);
-glassX(8,0,6); glassX(16,0,6); glassY(6,8,16,[[11,13]]);
-// Thư viện
-table(16.8,1.3,1.9,1,13,"#5a3720"); chair(17.3,2.35,"#7a4a2a");
-desk(19.6,3,2,0.9,{mons:[.6],top:"#4a2e1b"}); chair(20.25,4.05,"#2c2a28");
-server(23.5,1.1); server(24.55,1.1); sofa(17,4.4,1.6,.9,"#8a5232","y"); plant(25.3,5.1,.9);
-// Kinh doanh
-desk(1.4,8,2.2,.9,{mons:[.65],tint:"#5fcf9a"}); chair(2.15,9.05);
-desk(4.2,8,2.2,.9,{mons:[.65],paper:1}); chair(4.95,9.05);
-plant(6.2,11.2,.9); glassX(7,7,12);
-// Pháp lý
-desk(8.4,8,2.2,.9,{mons:[.7],paper:1,lamp:1}); chair(9.15,9.05);
-cabinet(11.0,7.25,.8,.6,32,"#4a2e1b"); plant(7.4,11.2,.8); glassX(12,7,12);
+/* ---------- bố trí ----------
+   Theo hành trình chủ nhà (01/11/2026): cửa chính giữa → Sảnh MyMy → TRUNG TÂM (Phòng KTS + Phòng tiếp khách)
+   → sau lưng là Phòng họp quy trình 4 bước + Phòng hợp đồng. Hai bên trung tâm: Dự toán, Thư viện (trái);
+   Xưởng thiết kế, Không gian Nhà (phải). Cộng tác viên cạnh cửa vào. Khu nội bộ ở 2 góc trong cùng. */
+// Kinh doanh (nội bộ, góc trái trong cùng)
+desk(.8,1.3,2.2,.9,{mons:[.65],tint:"#5fcf9a"}); chair(1.55,2.35);
+desk(.8,3.6,2.2,.9,{mons:[.65],paper:1}); chair(1.55,4.65);
+plant(4.1,.5,.8); glassX(5,0,6);
+// Thư viện hồ sơ mẫu
+table(5.8,1.2,1.9,1,13,"#5a3720"); chair(6.3,2.25,"#7a4a2a");
+desk(7.6,3.1,2,.9,{mons:[.6],top:"#4a2e1b"}); chair(8.25,4.1,"#2c2a28");
+sofa(5.5,4.6,1.6,.9,"#8a5232","y"); plant(9.3,.5,.8); glassX(10,0,6);
+// Phòng họp · Quy trình 4 bước (ngay sau khu trung tâm)
+table(11.1,1.9,3.8,1.6,14,"#f1ece4");
+[11.4,12.6,13.8].forEach(x=>chair(x,1.15,"#1f3a5c")); [11.4,14.1].forEach(x=>chair(x,3.65,"#1f3a5c"));
+plant(10.5,.5,1); plant(15,.5,1); lamp(15.3,4.9);
+glassX(16,0,6); glassY(6,10,16,[[12,14]]);
+// Phòng hợp đồng
+desk(16.9,1.6,2.2,.9,{mons:[.7],paper:1,lamp:1}); chair(17.65,2.65);
+cabinet(19.8,.45,.8,.6,32,"#4a2e1b"); plant(16.5,5.1,.8); glassX(21,0,6);
+// Chờ mở (nội bộ, góc phải trong cùng)
+server(23.5,.9); server(24.55,.9); sheet(21.8,2.6,1.7,1,14); sheet(22,4.4,2.2,.9,18); sign(25.2,5.4,"TẠM DỪNG");
 // Dự toán
-desk(13.3,8,2.8,.9,{mons:[.4,1.4],tint:"#6fb8e0"}); chair(14.35,9.05);
-table(16.3,10.3,1.3,.8,12,"#e9e2d6"); plant(17.3,7.3,.8); glassX(18,7,12);
-// Thiết kế
+desk(1.3,8,2.8,.9,{mons:[.4,1.4],tint:"#6fb8e0"}); chair(2.35,9.05);
+table(4.8,10.3,1.3,.8,12,"#e9e2d6"); plant(7.2,7.3,.8); glassX(8,7,12);
+// TRUNG TÂM — Phòng KTS Trần Long
+desk(9.7,8,2.6,1.05,{mons:[.9],lamp:1,top:"#5a3720"}); chair(10.65,9.25,"#3b2a20");
+sofa(8.35,8.2,1.0,2.4,"#1f5c4a","x"); olive(12.1,11.0); lamp(8.5,11.5);
+glassX(13,7,12,[[9,11]]);
+// TRUNG TÂM — Phòng tiếp khách (cửa thông sang phòng KTS)
+table(14.6,8.9,1.8,1.2,12,"#ece6dc");
+[14.9,15.8].forEach(x=>chair(x,8.1,"#1f5c4a")); [14.9,15.8].forEach(x=>chair(x,10.2,"#1f5c4a"));
+plant(17.2,7.3,.8); lamp(17.4,11.5); glassX(18,7,12);
+// Xưởng thiết kế
 [18.8,21.1,23.4].forEach(x=>drafting(x,8,1.8,.95)); plant(25.4,11.3,.9);
-// Sảnh
-counter(2.6,14.6,4,.9); espresso(.35,16.4); rec("khoi",[.25,16.1,.85,2.4,15,"#4a2e1b"]); add(.7+17.3,g=>{box(g,.25,16.1,.85,2.4,15,0,"#4a2e1b","#e9e2d6")},[.25,16.1,.85,2.4]);
-sofa(2.6,17.6,2.6,.9,"#1f5c4a","y"); table(3.1,16.6,1.6,.6,8,"#ece6dc");
-olive(8.9,13.35); plant(9.3,18.2,.9); lamp(1.6,13.5);
-glassX(10,13,19);
-// Tiếp thị
-desk(11.3,14.4,2.8,.9,{mons:[.4,1.4],tint:"#f0a074"}); chair(12.35,15.45);
-sofa(13.6,17.4,1.8,.9,"#6b2d2d","y"); plant(15.3,13.4,.8); glassX(16,13,19);
+// Cộng tác viên (cạnh cửa vào)
+desk(1.3,14.4,2.8,.9,{mons:[.4,1.4],tint:"#f0a074"}); chair(2.35,15.45);
+sofa(3.6,17.4,1.8,.9,"#6b2d2d","y"); plant(7.2,13.4,.8); glassX(8,13,19);
+// Sảnh · Lễ tân MyMy (cửa chính ở giữa, đi thẳng vào trung tâm)
+counter(11,14.6,4,.9); rec("khoi",[8.3,15.6,.85,2.4,15,"#4a2e1b"]); add(8.72+16.8,g=>{box(g,8.3,15.6,.85,2.4,15,0,"#4a2e1b","#e9e2d6")},[8.3,15.6,.85,2.4]); espresso(8.45,15.9);
+sofa(15.4,15.8,2.3,.9,"#1f5c4a","y"); table(15.7,17.1,1.6,.6,8,"#ece6dc");
+olive(17,13.35); plant(8.5,18.2,.9); lamp(17.4,18.4); glassX(18,13,19);
 // Không gian Nhà
-maquette(17.4,14.3); sofa(20.6,15,.9,2.4,"#8a5232","x"); lamp(21.5,13.5); plant(16.4,18.2,.8); glassX(22,13,19);
-// Chờ mở
-sheet(22.8,14.1,1.7,1,14); sheet(23,16.3,2.2,.9,18); sign(24.9,13.6,"TẠM DỪNG");
+maquette(19.4,14.3); sofa(22.8,15,.9,2.4,"#8a5232","x"); lamp(23.6,13.5); plant(18.4,18.2,.8);
 
 /* ---------- lớp tĩnh: sàn + tường ---------- */
 const cache=document.createElement("canvas"); let cacheS=0, lastBuild=0;
@@ -253,9 +264,9 @@ function wallA(g){g.save();g.transform(1,.5,0,1,OX,OY);const L=16*GW;
   for(let u=0;u<L;u+=32){g.fillStyle="rgba(0,0,0,.03)";g.fillRect(u,-WALLH,1,WALLH-22)}
   g.fillStyle="#5a3720";g.fillRect(0,-22,L,22);for(let u=8;u<L;u+=24){g.strokeStyle="rgba(0,0,0,.25)";g.lineWidth=.6;g.strokeRect(u,-19,18,15)}
   g.fillStyle=BRASS;g.fillRect(0,-23,L,1.4);g.fillStyle="#1d1712";g.fillRect(0,-3,L,3);
-  windowPane(g,16*1,16*2.7,-80,-28,11);shelf(g,16*3.2,16*5.4,-80,-26,12);windowPane(g,16*5.8,16*7.5,-80,-28,13);
-  {const b=bangTuong().a;screenPanel(g,16*9.3,16*14.7,-74,-32,b.title,b.lines,b.accent)}
-  shelf(g,16*16.3,16*20,-82,-24,21);windowPane(g,16*20.3,16*21.9,-80,-28,22);shelf(g,16*22.2,16*25.8,-82,-24,23);
+  windowPane(g,16*1,16*2.7,-80,-28,11);windowPane(g,16*3,16*4.6,-80,-28,13);shelf(g,16*5.4,16*9.6,-82,-24,12);
+  {const b=bangTuong().a;screenPanel(g,16*10.6,16*15.4,-74,-32,b.title,b.lines,b.accent)}
+  windowPane(g,16*16.8,16*18.6,-80,-28,22);shelf(g,16*22.2,16*25.8,-82,-24,23);
   g.restore();
   poly(g,[P(0,0,WALLH),P(GW,0,WALLH),P(GW,-.35,WALLH),P(0,-.35,WALLH)],"#2a2522");
   poly(g,[P(GW,0,0),P(GW,0,WALLH),P(GW,-.35,WALLH),P(GW,-.35,0)],"#3a332d")}
@@ -278,30 +289,34 @@ function wallB(g){g.save();g.transform(1,-.5,0,1,OX-16*GH,OY+8*GH);const L=16*GH
 
 function buildStatic(S){cacheS=S;lastBuild=performance.now();cache.width=Math.ceil(worldW*S);cache.height=Math.ceil(worldH*S);const g=cache.getContext("2d");g.setTransform(S,0,0,S,0,0);
   // bậc thềm + bệ sàn
-  box(g,5.5,19,4,1.4,4,-4,"#d8d2c7","#ebe6dd");
+  box(g,11,19,4,1.4,4,-4,"#d8d2c7","#ebe6dd");
   box(g,0,0,GW,GH,12,-12,"#2b2723");
   g.save();floorT(g);
-  wood(g,0,0,8,6,"#6a4126","#5c3820",1); rug(g,1.3,1.4,6.9,5.3,"#1f5c4a","#c9a35b");
-  marble(g,8,0,16,6,"#efebe4","#9d9488",2);
-  wood(g,16,0,26,6,"#5d3a22","#4f311c",3); rug(g,16.6,3.6,19.2,5.6,"#6b2d2d","#c9a35b");
+  wood(g,0,0,5,6,"#b98c5e","#a87d52",1);
+  wood(g,5,0,10,6,"#5d3a22","#4f311c",3); rug(g,5.4,3.6,7.6,5.7,"#6b2d2d","#c9a35b");
+  marble(g,10,0,16,6,"#efebe4","#9d9488",2);
+  wood(g,16,0,21,6,"#6a4126","#5c3820",11);
+  g.fillStyle="#7d7a74";g.fillRect(21,0,5,6);{const r=rng(10);for(let i=0;i<220;i++){g.fillStyle=r()>.5?"rgba(255,255,255,.08)":"rgba(0,0,0,.1)";g.fillRect(21+r()*5,r()*6,.05,.05)}}
   marble(g,0,6,26,7,"#e8e3da","#a59c8f",4,1); inlay(g,6.1,0,26); inlay(g,6.9,0,26);
-  wood(g,0,7,26,12,"#b98c5e","#a87d52",5);
+  wood(g,0,7,8,12,"#b98c5e","#a87d52",5);
+  wood(g,8,7,13,12,"#6a4126","#5c3820",12); rug(g,8.2,7.4,12.8,11.7,"#1f5c4a","#c9a35b");
+  marble(g,13,7,18,12,"#f1ede6","#a39888",13); rug(g,14.1,8.4,16.9,10.6,"#d9cfc0","#8a5232");
+  wood(g,18,7,26,12,"#b98c5e","#a87d52",14);
   marble(g,0,12,26,13,"#e8e3da","#a59c8f",6,1); inlay(g,12.1,0,26); inlay(g,12.9,0,26);
-  marble(g,0,13,10,19,"#f1ede6","#a39888",7);
-  for(let x=2;x<10;x+=2)for(let y=14;y<19;y+=2){g.beginPath();g.moveTo(x,y-.28);g.lineTo(x+.28,y);g.lineTo(x,y+.28);g.lineTo(x-.28,y);g.closePath();g.fillStyle="#1f1d1c";g.fill();g.strokeStyle=BRASS;g.lineWidth=.025;g.stroke()}
-  rug(g,6.1,18.2,9,19,"#2b2723","#c9a35b");
-  wood(g,10,13,16,19,"#b98c5e","#a87d52",8);
-  wood(g,16,13,22,19,"#6a4126","#5c3820",9); rug(g,16.8,15.9,20.3,18.4,"#d9cfc0","#8a5232");
-  g.fillStyle="#7d7a74";g.fillRect(22,13,4,6);const r=rng(10);for(let i=0;i<220;i++){g.fillStyle=r()>.5?"rgba(255,255,255,.08)":"rgba(0,0,0,.1)";g.fillRect(22+r()*4,13+r()*6,.05,.05)}
+  wood(g,0,13,8,19,"#b98c5e","#a87d52",8);
+  marble(g,8,13,18,19,"#f1ede6","#a39888",7);
+  for(let x=10;x<18;x+=2)for(let y=14;y<19;y+=2){if(x>10&&x<16&&y>15)continue;g.beginPath();g.moveTo(x,y-.28);g.lineTo(x+.28,y);g.lineTo(x,y+.28);g.lineTo(x-.28,y);g.closePath();g.fillStyle="#1f1d1c";g.fill();g.strokeStyle=BRASS;g.lineWidth=.025;g.stroke()}
+  rug(g,11.6,18.2,14.4,19,"#2b2723","#c9a35b");
+  wood(g,18,13,26,19,"#6a4126","#5c3820",9); rug(g,18.8,15.9,22.3,18.4,"#d9cfc0","#8a5232");
   g.restore();
   wallA(g);wallB(g);
   // cửa chính
-  const a=P(5.6,19.02,0),b=P(9.4,19.02,0);line(g,a,b,BRASS,2);
+  const a=P(11.1,19.02,0),b=P(14.9,19.02,0);line(g,a,b,BRASS,2);
 }
 
 /* ---------- lưới đi bộ ---------- */
 const RES=2, GCOLS=GW*RES, GROWS=(GH+2)*RES; const grid=new Uint8Array(GCOLS*GROWS);
-for(let j=0;j<GROWS;j++)for(let i=0;i<GCOLS;i++){const cx=(i+.5)/RES,cy=(j+.5)/RES;if(cy>19&&!(cx>5.6&&cx<9.4))grid[j*GCOLS+i]=1;if(cx<.3||cy<.3)grid[j*GCOLS+i]=1}
+for(let j=0;j<GROWS;j++)for(let i=0;i<GCOLS;i++){const cx=(i+.5)/RES,cy=(j+.5)/RES;if(cy>19&&!(cx>11.1&&cx<14.9))grid[j*GCOLS+i]=1;if(cx<.3||cy<.3)grid[j*GCOLS+i]=1}
 BLOCK.forEach(([x,y,w,d])=>{for(let j=0;j<GROWS;j++)for(let i=0;i<GCOLS;i++){const cx=(i+.5)/RES,cy=(j+.5)/RES;if(cx>x-.12&&cx<x+w+.12&&cy>y-.12&&cy<y+d+.12)grid[j*GCOLS+i]=1}});
 const free=(i,j)=>i>=0&&j>=0&&i<GCOLS&&j<GROWS&&!grid[j*GCOLS+i];
 function nearestFree(i,j){if(free(i,j))return[i,j];for(let r=1;r<8;r++)for(let dj=-r;dj<=r;dj++)for(let di=-r;di<=r;di++)if(free(i+di,j+dj))return[i+di,j+dj];return[i,j]}
@@ -319,20 +334,20 @@ function findPath(sx,sy,tx,ty){let [si,sj]=nearestFree(Math.floor(sx*RES),Math.f
    name = tên với quản trị; pn = tên với chủ nhà/CTV; adminOnly = chỉ hiện ở quản trị. */
 function mk(id,o){return Object.assign({id,x:o.hx,y:o.hy,path:[],res:null,say:"",sayUntil:0,busy:false,facing:!!o.fv,seed:Math.random()*6,hidden:false},o)}
 const C={
- N:mk("N",{name:"Nam",pn:"KTS Trần Long",zone:"gd",hx:4.5,hy:3.95,seated:1,shirt:"#efe8dc",pants:"#2b2f3a",hair:"#1b1714",skin:"#e9bf97"}),
- L:mk("L",{name:"Linh",pn:"Chăm sóc khách",zone:"kd",hx:5.3,hy:9.4,seated:1,shirt:"#a94c4c",pants:"#2a2a30",hair:"#3a2418",skin:"#f0c8a2",long:1}),
- ML:mk("ML",{name:"Lý Mỹ Linh",pn:"Hành chính",zone:"pl",hx:9.5,hy:9.4,seated:1,shirt:"#2f3a56",pants:"#1f2228",hair:"#20160f",skin:"#f2cba6",long:1}),
- CEO:mk("CEO",{name:"CEO Agent",pn:"Trợ lý quy trình",zone:"ceo",hx:12,hy:4.45,ai:1,shirt:"#2d4f80",pants:"#1d2433",glow:"#8fb3ff"}),
- DB:mk("DB",{name:"Bộ não",pn:"Thủ thư",zone:"kho",hx:20.6,hy:4.4,ai:1,seated:1,shirt:"#5d3f78",pants:"#1d1a24",glow:"#c99bea"}),
- TP:mk("TP",{name:"Trưởng phòng",pn:"Trợ lý vận hành",zone:"kd",hx:2.5,hy:9.4,ai:1,seated:1,shirt:"#1f6b52",pants:"#1a2420",glow:"#52e0a8"}),
- DT:mk("DT",{name:"Dự toán",pn:"Dự toán",zone:"dt",hx:14.7,hy:9.4,ai:1,seated:1,shirt:"#25627d",pants:"#1a2228",glow:"#6fd0f0"}),
+ N:mk("N",{name:"Nam",pn:"KTS Trần Long",zone:"gd",hx:11.0,hy:9.65,seated:1,shirt:"#efe8dc",pants:"#2b2f3a",hair:"#1b1714",skin:"#e9bf97"}),
+ L:mk("L",{name:"Linh",pn:"Chăm sóc khách",zone:"kd",hx:1.9,hy:5.0,seated:1,shirt:"#a94c4c",pants:"#2a2a30",hair:"#3a2418",skin:"#f0c8a2",long:1}),
+ ML:mk("ML",{name:"Lý Mỹ Linh",pn:"Hành chính",zone:"pl",hx:18.0,hy:3.0,seated:1,shirt:"#2f3a56",pants:"#1f2228",hair:"#20160f",skin:"#f2cba6",long:1}),
+ CEO:mk("CEO",{name:"CEO Agent",pn:"Trợ lý quy trình",zone:"ceo",hx:13,hy:4.45,ai:1,shirt:"#2d4f80",pants:"#1d2433",glow:"#8fb3ff"}),
+ DB:mk("DB",{name:"Bộ não",pn:"Thủ thư",zone:"kho",hx:8.6,hy:4.45,ai:1,seated:1,shirt:"#5d3f78",pants:"#1d1a24",glow:"#c99bea"}),
+ TP:mk("TP",{name:"Trưởng phòng",pn:"Trợ lý vận hành",zone:"kd",hx:1.9,hy:2.7,ai:1,seated:1,shirt:"#1f6b52",pants:"#1a2420",glow:"#52e0a8"}),
+ DT:mk("DT",{name:"Dự toán",pn:"Dự toán",zone:"dt",hx:2.7,hy:9.4,ai:1,seated:1,shirt:"#25627d",pants:"#1a2228",glow:"#6fd0f0"}),
  KTV:mk("KTV",{name:"KTV",pn:"Kỹ thuật viên",zone:"tk",hx:19.7,hy:9.45,ghost:1,shirt:"#8a7a5c",pants:"#2a2a2a",hair:"#2a1d14",skin:"#ecc39c"}),
  KS:mk("KS",{name:"Kỹ sư KC",pn:"Kỹ sư kết cấu",zone:"tk",hx:22,hy:9.45,ghost:1,shirt:"#5f6f7d",pants:"#2a2a2a",hair:"#151210",skin:"#e2b48c"}),
  DN:mk("DN",{name:"Điện nước",pn:"Kỹ sư điện nước",zone:"tk",hx:24.3,hy:9.45,ghost:1,shirt:"#7d5f4f",pants:"#2a2a2a",hair:"#231a12",skin:"#e8bd95"}),
- MM:mk("MM",{name:"MyMy",pn:"MyMy",zone:"sanh",hx:4.6,hy:14.05,ai:1,fv:1,faceViewer:1,shirt:"#a24f72",pants:"#2a1d24",glow:"#ff9cc6"}),
- ADS:mk("ADS",{name:"Quảng cáo",pn:"Quảng cáo",adminOnly:1,zone:"tt",hx:12.7,hy:15.85,ai:1,seated:1,shirt:"#9a4a33",pants:"#2a1f1a",glow:"#ffaa80"}),
- BAN:mk("BAN",{name:"Bạn",pn:"Bạn",me:1,zone:"sanh",hx:7.5,hy:18.4,shirt:"#d9b25a",pants:"#3b3f4a",hair:"#2c2018",skin:"#e8bc93",hidden:true}),
- KH:mk("KH",{name:"Chủ nhà",pn:"Chủ nhà",zone:"sanh",hx:7.5,hy:20.6,shirt:"#6fa3c9",pants:"#3b3f4a",hair:"#2c2018",skin:"#e8bc93",hidden:true})
+ MM:mk("MM",{name:"MyMy",pn:"MyMy",zone:"sanh",hx:13,hy:14.05,ai:1,fv:1,faceViewer:1,shirt:"#a24f72",pants:"#2a1d24",glow:"#ff9cc6"}),
+ ADS:mk("ADS",{name:"Quảng cáo",pn:"Quảng cáo",adminOnly:1,zone:"tt",hx:2.7,hy:15.85,ai:1,seated:1,shirt:"#9a4a33",pants:"#2a1f1a",glow:"#ffaa80"}),
+ BAN:mk("BAN",{name:"Bạn",pn:"Bạn",me:1,zone:"sanh",hx:13,hy:18.4,shirt:"#d9b25a",pants:"#3b3f4a",hair:"#2c2018",skin:"#e8bc93",hidden:true}),
+ KH:mk("KH",{name:"Chủ nhà",pn:"Chủ nhà",zone:"sanh",hx:13,hy:20.6,shirt:"#6fa3c9",pants:"#3b3f4a",hair:"#2c2018",skin:"#e8bc93",hidden:true})
 };
 const CH=Object.values(C);
 const atHome=c=>Math.abs(c.x-c.hx)<.05&&Math.abs(c.y-c.hy)<.05;
@@ -412,13 +427,13 @@ document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{fee
 
 /* ---------- hành vi ---------- */
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-function moveTo(c,x,y){return new Promise(res=>{c.path=findPath(c.x,c.y,x,y);c.res=res;if(!c.path.length)res()})}
+function moveTo(c,x,y,ep){if(c.tiep&&!ep)return Promise.resolve();return new Promise(res=>{c.path=findPath(c.x,c.y,x,y);c.res=res;if(!c.path.length)res()})}
 const home=c=>moveTo(c,c.hx,c.hy).then(()=>{c.facing=!!c.faceViewer});
 function say(c,text,ms,kind){ms=ms||3600;c.say=text;c.sayUntil=now+ms;log(c.zone,cname(c)+": "+text,kind);return sleep(ms)}
 const visible=c=>!c.hidden&&!(c.adminOnly&&!ADMIN())&&!(c.me&&ADMIN());
 
 /* ---------- "Bạn cần gì?": chủ nhà vào trang với nhiều lý do, mỗi lý do đi thẳng tới đúng phòng ---------- */
-const NHU_CAU=[["gd","Tư vấn thiết kế",1],["ceo","Phí & quy trình"],["dt","Dự toán xây nhà"],["kho","Hồ sơ mẫu"],["tk","Thử mặt bằng"],["sanh","Hỏi MyMy"],["kgn","Không gian Nhà"]];
+const NHU_CAU=[["tiep","Tư vấn thiết kế",1],["gd","Tính phí thiết kế"],["ceo","Quy trình 4 bước"],["dt","Dự toán xây nhà"],["kho","Hồ sơ mẫu"],["tk","Thử mặt bằng"],["sanh","Hỏi MyMy"],["kgn","Không gian Nhà"]];
 function veNhuCau(){const box=$("#canGi");if(!box)return;clear(box);const vai=document.body.dataset.vai;box.hidden=vai!=="chu-nha";if(box.hidden)return;
   box.appendChild(el("span","cg-t","Bạn cần gì?"));const ds=el("div","cg-ds");
   NHU_CAU.forEach(([id,ten,chinh])=>{const z=ZM[id];if(!z||!view(z).go)return;const b=el("button","cg"+(chinh?" chinh":""),ten);b.type="button";b.dataset.z=id;
@@ -448,10 +463,11 @@ function select(id,move){sel=id;const z=ZM[id],v=view(z);clear(detailEl);
   zonesEl.querySelectorAll(".zone").forEach(b=>b.classList.toggle("sel",b.dataset.z===id));if(move)focus(id)}
 
 /* ---------- đi vào phòng: nhân vật "Bạn" đi tới, rồi mở trang thật ---------- */
-const DOOR={gd:[5.9,5.2],ceo:[12,5.3],kho:[21.6,5.2],kd:[3.6,11.3],pl:[9.6,10.9],dt:[14.6,11.3],tk:[21,11.2],sanh:[7.1,15.3],tt:[11.4,16.6],kgn:[18.6,17],cho:[23,18.4]};
-const AGENT={gd:"N",ceo:"CEO",kho:"DB",kd:"TP",pl:"ML",dt:"DT",tk:"KTV",sanh:"MM",tt:"BAN",kgn:"BAN"};
+const DOOR={gd:[11.6,11.2],tiep:[14.9,10.95],ceo:[13,5.4],kho:[7.4,5.6],kd:[2.5,5.6],pl:[18.4,5.2],dt:[4,11.3],tk:[21,11.2],sanh:[13,16.4],tt:[5.4,16.4],kgn:[20.6,17],cho:[23,5.6]};
+const AGENT={gd:"N",tiep:"N",ceo:"CEO",kho:"DB",kd:"TP",pl:"ML",dt:"DT",tk:"KTV",sanh:"MM",tt:"BAN",kgn:"BAN"};
 const CHAO={
- gd:"Chào anh/chị! Anh/chị gửi thông tin khu đất, tôi liên hệ tư vấn trong 24 giờ làm việc.",
+ gd:"Đơn giá thiết kế niêm yết theo m², anh/chị tự tính được ngay.",
+ tiep:"Chào anh/chị! Anh/chị gửi thông tin khu đất, tôi liên hệ tư vấn trong 24 giờ làm việc.",
  ceo:"Bốn bước, nghiệm thu bước nào trả bước đó.",
  kho:"Mời anh/chị xem hồ sơ mẫu 4 bộ môn.",
  pl:"Hợp đồng ký trực tiếp với ALN, thanh toán theo 4 bước.",
@@ -465,9 +481,14 @@ let goingTo=null;
 async function goRoom(id){const z=ZM[id],v=view(z);if(!v.go)return;
   if(ADMIN()&&v.tab){window.open(alnUrl(v.go),"_blank","noopener");log(id,"Mở "+v.name+" ở tab mới","");return}
   select(id,false);
-  if(!ADMIN()){const me=C.BAN;if(me.hidden){me.hidden=false;me.x=7.5;me.y=20.6}goingTo=id;
+  if(id!=="tiep"&&C.N.tiep){C.N.tiep=false;home(C.N).finally(()=>{C.N.busy=false})}
+  if(!ADMIN()){const me=C.BAN;if(me.hidden){me.hidden=false;me.x=13;me.y=20.6}goingTo=id;
+    const ag=C[AGENT[id]];
+    // Phòng tiếp khách: KTS ra bàn tư vấn ngay khi khách bắt đầu đi tới (khách tới là KTS đã chờ sẵn)
+    const ktsRa=id==="tiep"&&ag&&visible(ag)?(ag.busy=true,ag.tiep=true,moveTo(ag,14.15,9.45,true).then(()=>{ag.facing=true})):null;
     const[dx,dy]=DOOR[id];await moveTo(me,dx,dy);if(goingTo!==id)return;
-    const ag=C[AGENT[id]];if(ag&&visible(ag)&&CHAO[id])say(ag,CHAO[id],3800);}
+    if(ktsRa)ktsRa.then(()=>{if(goingTo==="tiep"&&CHAO.tiep)say(ag,CHAO.tiep,4200)});
+    else if(ag&&visible(ag)&&CHAO[id])say(ag,CHAO[id],3800);}
   openPanel(id)}
 
 /* ---------- khung trang thật + nghe sự kiện thật trong khung ---------- */
@@ -483,7 +504,8 @@ function canhMoHinh(){if(!V3||!V3.lech)return;if(panel.hidden){V3.lech(0);return
   V3.lech(sr.width/2-con/2);if(curRoom)V3.focus(curRoom)}
 window.addEventListener("resize",()=>{if(!panel.hidden)canhMoHinh()});
 function closePanel(){panel.hidden=true;document.body.classList.remove("co-phong");if(V3&&V3.lech)V3.lech(0);clearInterval(watchTimer);watchTimer=null;frame.src="about:blank";curRoom=null;
-  if(!ADMIN()&&!C.BAN.hidden)moveTo(C.BAN,7.5,18.4)}
+  if(!ADMIN()&&!C.BAN.hidden)moveTo(C.BAN,13,18.4);
+  if(C.N.tiep){C.N.tiep=false;home(C.N).finally(()=>{C.N.busy=false})}}
 $("#roomClose").addEventListener("click",closePanel);
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!panel.hidden)closePanel()});
 frame.addEventListener("load",()=>{dlSeen=0;let w=null;try{w=frame.contentWindow;dlSeen=(w&&w.dataLayer)?w.dataLayer.length:0}catch(e){w=null}
@@ -499,7 +521,7 @@ function onFrameEvent(ev){const n=ev.event;
   if(n==="aln_lead_submit"||n==="aln_luu_zalo"){
     phanHoi(C.TP,ADMIN()?"Lead mới vừa vào danh bạ (chính anh vừa gửi thử).":"Đã nhận thông tin, em báo KTS Trần Long ngay.","that");
     if(!ADMIN()){setTimeout(()=>{const n2=C.N;if(visible(n2))phanHoi(n2,"Tôi sẽ gọi lại từ số 0909 829 696.","that");else phanHoi(C.TP,"KTS Trần Long sẽ gọi lại trong giờ làm việc, từ số 0909 829 696.","that")},5600);
-      if(visible(C.TP)&&!C.TP.busy&&visible(C.N)){C.TP.busy=true;moveTo(C.TP,6.3,4.2).then(()=>sleep(2500)).then(()=>home(C.TP)).finally(()=>{C.TP.busy=false})}}
+      if(visible(C.TP)&&!C.TP.busy&&visible(C.N)){C.TP.busy=true;moveTo(C.TP,12.4,10.6).then(()=>sleep(2500)).then(()=>home(C.TP)).finally(()=>{C.TP.busy=false})}}
     return}
   if(n==="aln_khung_gio_chon"){const k=KHUNG[ev.khung_gio]||"khung giờ bạn chọn";phanHoi(visible(C.N)?C.N:C.TP,"Đã ghi lịch: gọi lại buổi "+k+".","that");if(!ADMIN())luuHen(k);return}
   if(n==="aln_otp_nho_kts"){phanHoi(visible(C.N)?C.N:C.TP,"Đã nhận yêu cầu nhờ KTS xem giúp bảng dự toán.","that");return}}
@@ -524,14 +546,14 @@ const AMB_PUB=[
  [["KTV"],()=>say(C.KTV,"Đang triển khai hồ sơ kỹ thuật.")],
  [["DB"],()=>say(C.DB,"Thư viện có hồ sơ mẫu 4 bộ môn.")],
  [["CEO"],()=>say(C.CEO,"Nghiệm thu, hài lòng rồi mới trả cho bước đó.")],
- [["N"],async()=>{await moveTo(C.N,1.7,15.1);await say(C.N,"Pha cà phê trước buổi gặp chủ nhà.",2600);await home(C.N)}]
+ [["N"],async()=>{await moveTo(C.N,9.6,16.6);await say(C.N,"Pha cà phê trước buổi gặp chủ nhà.",2600);await home(C.N)}]
 ];
 const AMB_ADM=[
  [["TP"],()=>say(C.TP,"Đang theo dõi lead và SLA.")],
  [["CEO"],()=>say(C.CEO,"Gõ CEO TODAY để lấy 5 dòng việc.")],
  [["MM"],()=>say(C.MM,"Đang trực web, đồng ý mới lưu số.")],
  [["KTV"],()=>say(C.KTV,"Triển khai theo phương án đã chốt.")],
- [["N"],async()=>{await moveTo(C.N,1.7,15.1);await say(C.N,"Cà phê rồi gọi khách.",2600);await home(C.N)}]
+ [["N"],async()=>{await moveTo(C.N,9.6,16.6);await say(C.N,"Cà phê rồi gọi khách.",2600);await home(C.N)}]
 ];
 async function ambient(){await sleep(1500);for(;;){await sleep(3200+Math.random()*3800);if(document.hidden)continue;
   const pool=(ADMIN()?AMB_ADM:AMB_PUB).filter(([ids])=>ids.every(i=>!C[i].busy&&visible(C[i])));if(!pool.length)continue;
@@ -587,8 +609,8 @@ function dayState(t){if(t.dow===0)return"Chủ nhật · MyMy và các trợ lý
 function presence(initial){const t=vn();HUMANS.forEach(id=>{const c=C[id];const want=shouldBeIn(id,t);
     if(initial){c.hidden=!want;c.x=c.hx;c.y=c.hy;return}
     if(c.busy)return;
-    if(want&&c.hidden){c.hidden=false;c.x=7.5;c.y=20.6;c.busy=true;home(c).finally(()=>{c.busy=false})}
-    else if(!want&&!c.hidden){c.busy=true;moveTo(c,7.5,20.8).then(()=>{c.hidden=true;c.x=c.hx;c.y=c.hy}).finally(()=>{c.busy=false})}});
+    if(want&&c.hidden){c.hidden=false;c.x=13;c.y=20.6;c.busy=true;home(c).finally(()=>{c.busy=false})}
+    else if(!want&&!c.hidden){c.busy=true;moveTo(c,13,20.8).then(()=>{c.hidden=true;c.x=c.hx;c.y=c.hy}).finally(()=>{c.busy=false})}});
   $("#dayState").textContent=dayState(t);
   if(!nightManual){const n=t.min>=18*60||t.min<6*60;if(n!==night)setNight(n)}}
 
@@ -632,7 +654,7 @@ async function pollContacts(){const fb=LIVE.fb;let items=[];
   if(first)log("kd","Đã đọc danh bạ thật: "+items.length+" khách, "+choGoi+" đang chờ gọi.","that")}
 function suKien(zone,c,text,can){if(visible(c))say(c,text,5200,can?"can":"that");else log(zone,text,can?"can":"that")}
 async function khachMoi(it){const nguon=it.nguon||"không rõ nguồn";const K=C.KH;suKien("kd",C.TP,"Khách mới "+duoi4(it.phone_normalized)+" từ "+nguon+". Anh gọi sớm nhé.",true);
-  if(K.busy)return;K.busy=true;K.hidden=false;K.x=7.5;K.y=20.6;try{await moveTo(K,7.1,15.3);await sleep(2500);await moveTo(K,7.5,20.8)}finally{K.hidden=true;K.busy=false}}
+  if(K.busy)return;K.busy=true;K.hidden=false;K.x=13;K.y=20.6;try{await moveTo(K,13,16.4);await sleep(2500);await moveTo(K,13,20.8)}finally{K.hidden=true;K.busy=false}}
 function renderHenAdmin(){const box=$("#hen");if(!ADMIN()||!box)return;clear(box);
   const list=Object.entries(LIVE.houses).filter(([,h])=>h.khung_gio_goi).map(([id,h])=>({id,h,at:h.khung_gio_goi_at&&h.khung_gio_goi_at.toMillis?h.khung_gio_goi_at.toMillis():0})).sort((a,b)=>b.at-a.at).slice(0,8);
   box.hidden=false;box.appendChild(el("h4","","Lịch hẹn gọi (chủ nhà tự chọn)"));
@@ -647,7 +669,7 @@ function setMode(m,initial){if(!["chu-nha","ctv","quan-tri"].includes(m))m="chu-
   $("#adminKpis").hidden=m!=="quan-tri";$("#tabCan").hidden=m!=="quan-tri";if(m!=="quan-tri"&&feedFilter==="can"){feedFilter="all";document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x.dataset.f==="all"))}
   cacheS=0;if(V3)V3.capNhatVai();if(!panel.hidden)closePanel();
   if(was==="quan-tri"&&m!=="quan-tri"){stopAdmin();setGate(null)}
-  if(m==="quan-tri")startAdmin();else{C.BAN.hidden=true;C.BAN.x=7.5;C.BAN.y=20.6}
+  if(m==="quan-tri")startAdmin();else{C.BAN.hidden=true;C.BAN.x=13;C.BAN.y=20.6}
   renderZones();select(m==="ctv"?"tt":m==="quan-tri"?"kd":"sanh",!initial);renderHen();renderFeed();
   $("#picker").hidden=true;
   if(m==="ctv"&&!initial)goRoom("tt");}
@@ -671,7 +693,7 @@ function nut3D(){const b=$("#nut3d");b.textContent=V3?"Xem 2D":"Xem 3D";b.classL
 async function bat3D(on){
   if(!on){if(V3){V3.dong();V3=null}cv.hidden=false;try{localStorage.setItem(KEY_3D,"0")}catch(e){}cacheS=0;nut3D();return}
   if(V3||dang3D)return;const b=$("#nut3d");b.disabled=true;b.textContent="Đang dựng 3D…";
-  dang3D=(async()=>{try{const m=await import("./van-phong-3d.js?v=4");V3=await m.mo(stage,API3);cv.hidden=true;try{localStorage.setItem(KEY_3D,"1")}catch(e){}}
+  dang3D=(async()=>{try{const m=await import("./van-phong-3d.js?v=5");V3=await m.mo(stage,API3);cv.hidden=true;try{localStorage.setItem(KEY_3D,"1")}catch(e){}}
     catch(e){V3=null;cv.hidden=false;log("sanh","Máy này chưa mở được bản 3D, đang xem bản 2D.","")}finally{dang3D=null;b.disabled=false;nut3D()}})();return dang3D}
 /* ---------- hoạt động thật, ẩn danh (hoatDongVanPhong) + lộ trình tới C4 ---------- */
 const URL_HD="https://asia-southeast1-aln-platform.cloudfunctions.net/hoatDongVanPhong";
