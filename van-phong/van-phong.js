@@ -444,7 +444,7 @@ function select(id,move){sel=id;const z=ZM[id],v=view(z);clear(detailEl);
   detailEl.appendChild(el("h3","",v.name));detailEl.appendChild(el("div","who",v.who));
   const people=CH.filter(c=>c.zone===id&&visible(c)&&c.id!=="KH"&&!c.me).map(cname);if(people.length)detailEl.appendChild(el("div","who","Trong phòng: "+people.join(" · ")));
   if(v.items.length){const ul=el("ul");v.items.forEach(i=>ul.appendChild(el("li","",i)));detailEl.appendChild(ul)}
-  if(v.go){const b=el("button","btn pri",(ADMIN()?"":"Đi tới phòng · ")+v.cta);b.type="button";b.addEventListener("click",()=>goRoom(id));detailEl.appendChild(b)}
+  if(v.go){const b=el("button","btn pri");if(!ADMIN())b.appendChild(el("span","pre","Đi tới phòng · "));b.appendChild(document.createTextNode(v.cta));b.type="button";b.addEventListener("click",()=>goRoom(id));detailEl.appendChild(b)}
   zonesEl.querySelectorAll(".zone").forEach(b=>b.classList.toggle("sel",b.dataset.z===id));if(move)focus(id)}
 
 /* ---------- đi vào phòng: nhân vật "Bạn" đi tới, rồi mở trang thật ---------- */
