@@ -140,11 +140,22 @@ export async function mo(stage, api) {
   const cam = new THREE.PerspectiveCamera(38, 1, 0.1, 200);
   const controls = new OrbitControls(cam, gl);
   controls.enableDamping = true; controls.dampingFactor = 0.08;
-  controls.minDistance = 4; controls.maxDistance = 48; controls.maxPolarAngle = Math.PI * 0.47; controls.minPolarAngle = 0.15;
+  controls.minDistance = 4; controls.maxDistance = 70; controls.maxPolarAngle = Math.PI * 0.47; controls.minPolarAngle = 0.15;
   controls.screenSpacePanning = false;
   const CEN = new THREE.Vector3(13, 0, 10);
+  // Màn hình dọc (điện thoại): nhìn gần thẳng từ trên xuống, tòa nhà xoay dọc (cạnh dài 26 m theo chiều cao màn hình),
+  // canh vừa bề ngang 20 m — thấy đủ mọi phòng. Màn hình ngang giữ góc phối cảnh chéo.
+  function gocDoc() {
+    const a = cam.aspect || 1, tanV = Math.tan(THREE.MathUtils.degToRad(cam.fov / 2));
+    const d = Math.min(70, Math.max((GH / 2 + 1.5) / (tanV * a), (GW / 2 + 0.6) / tanV));
+    const goc = 0.16; return { t: tamDoc(), p: tamDoc().add(new THREE.Vector3(Math.sin(goc) * d, Math.cos(goc) * d, 0)) };
+  }
+  // dời tâm xuống phía dưới màn hình một chút: thanh "Bạn cần gì?" ở trên mỏng hơn cụm thẻ phòng ở dưới
+  const tamDoc = () => new THREE.Vector3(CEN.x + 1.4, 0, GH / 2);
   function datMacDinh(nhanh) {
-    const t = CEN.clone(), p = new THREE.Vector3(13 + 17, phone ? 32 : 26, 10 + 28);
+    const doc = (cam.aspect || 1) < 0.9;
+    const g = doc ? gocDoc() : null;
+    const t = g ? g.t : CEN.clone(), p = g ? g.p : new THREE.Vector3(13 + 17, phone ? 32 : 26, 10 + 28);
     if (nhanh) { controls.target.copy(t); cam.position.copy(p); controls.update(); } else bay(t, p);
   }
 
