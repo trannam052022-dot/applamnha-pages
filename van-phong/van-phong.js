@@ -489,6 +489,7 @@ async function goRoom(id){const z=ZM[id],v=view(z);if(!v.go)return;
     const[dx,dy]=DOOR[id];await moveTo(me,dx,dy);if(goingTo!==id)return;
     if(ktsRa)ktsRa.then(()=>{if(goingTo==="tiep"&&CHAO.tiep)say(ag,CHAO.tiep,4200)});
     else if(ag&&visible(ag)&&CHAO[id])say(ag,CHAO[id],3800);}
+  if(id==="sanh"&&!ADMIN()&&typeof window.alnMyMyMo==="function"){window.alnMyMyMo();return}
   openPanel(id)}
 
 /* ---------- khung trang thật + nghe sự kiện thật trong khung ---------- */
@@ -713,7 +714,19 @@ function veDangDien(){const box=$("#dangDien");if(!box)return;clearTimeout(HD.t)
 $("#ddNd").addEventListener("click",e=>{const z=e.currentTarget.dataset.z;if(z){select(z,true)}});
 document.querySelectorAll("#loTrinh [data-z]").forEach(b=>b.addEventListener("click",()=>{try{(window.dataLayer=window.dataLayer||[]).push({event:"aln_vp_lo_trinh",buoc:b.dataset.buoc})}catch(e){}goRoom(b.dataset.z)}));
 $("#nut3d").addEventListener("click",()=>bat3D(!V3));
-window.ALNVanPhong={bat3D,get V3(){return V3},C,ZM};
+window.ALNVanPhong={bat3D,get V3(){return V3},C,ZM,vaoPhong:id=>goRoom(id)};
+
+/* ---------- MyMy chủ động chào khách (Nam chốt 01/11/2026) ----------
+   Chủ nhà vào văn phòng: MyMy chào bằng bong bóng, rồi tự mở khung trò chuyện MỘT lần mỗi phiên
+   (mymy-van-phong.js soạn lời mở đầu + nút đưa tới đúng phòng). Không mở khi đang ở trong phòng. */
+const KEY_CHAO="aln_vp_mymy_chao";
+function chaoKhach(){if(ADMIN())return;let da=false;try{da=sessionStorage.getItem(KEY_CHAO)==="1"}catch(e){da=false}
+  setTimeout(()=>{if(!ADMIN()&&visible(C.MM)&&!C.MM.busy)say(C.MM,"Chào anh/chị! Em là MyMy, cần gì cứ hỏi em nhé.",4200)},2200);
+  if(da)return;
+  setTimeout(()=>{if(ADMIN()||!panel.hidden||typeof window.alnMyMyMo!=="function")return;
+    try{sessionStorage.setItem(KEY_CHAO,"1")}catch(e){}
+    try{(window.dataLayer=window.dataLayer||[]).push({event:"aln_mymy_vp",buoc:"tu_chao"})}catch(e){}
+    window.alnMyMyMo(true)},4800)}
 
 /* ---------- khởi động ---------- */
 function start(){resize();presence(true);
@@ -721,5 +734,5 @@ function start(){resize();presence(true);
   const q=new URLSearchParams(location.search).get("vai");if(q)vai=q;
   setMode(vai||"chu-nha",true);
   hienGoiY();log("sanh","Văn phòng mở cửa · "+dayState(vn()),"");requestAnimationFrame(frameLoop);ambient();setInterval(presence,20000);
-  if(muon3D())bat3D(true);taiHoatDong();setInterval(()=>{if(!document.hidden)taiHoatDong()},180000)}
+  if(muon3D())bat3D(true);taiHoatDong();chaoKhach();setInterval(()=>{if(!document.hidden)taiHoatDong()},180000)}
 (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(start,start);
