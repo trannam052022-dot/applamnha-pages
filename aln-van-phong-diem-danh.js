@@ -35,7 +35,9 @@ function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.
 let S = null, nhipT = null, goc = null;
 
 async function nhip() {
-  if (!S || !S.bat || document.hidden) return;
+  // Báo cả khi tab đang ẩn: đối tác thường mở trang làm việc ở một tab rồi làm ở tab khác
+  // (trình duyệt giãn hẹn giờ của tab ẩn xuống ~1 lần/phút, vẫn trong ngưỡng 3 phút).
+  if (!S || !S.bat) return;
   try { await goi({ hanh_dong: "nhip" }); } catch (e) { /* mạng chập chờn: lần sau báo lại */ }
 }
 function chayNhip() { clearInterval(nhipT); if (S && S.bat) { nhip(); nhipT = setInterval(nhip, 60000); } }
@@ -51,7 +53,7 @@ function moKhung() {
   const cu = goc.querySelector(".vp-khung"); if (cu) { cu.remove(); veNut(); return; }
   const k = el("div", "vp-khung"); k.setAttribute("role", "dialog"); k.setAttribute("aria-label", "Hiện tôi trong Văn phòng ALN");
   k.appendChild(el("h4", "", "Hiện tôi trong Văn phòng ALN"));
-  k.appendChild(el("p", "", "Chủ nhà vào applamnha.vn/van-phong sẽ thấy nghề và họ tên của anh/chị tại bàn làm việc: đang mở trang này thì hiện nhân vật, vắng thì hiện bảng tên. Không hiện số điện thoại hay email; khách liên hệ qua ALN."));
+  k.appendChild(el("p", "", "Chủ nhà vào applamnha.vn/van-phong sẽ thấy nghề và họ tên của anh/chị tại bàn làm việc: còn mở trang này (kể cả ở tab khác) thì hiện nhân vật, đóng trang thì hiện bảng tên. Không hiện số điện thoại hay email; khách liên hệ qua ALN."));
   const a = el("a", "", "Xem văn phòng"); a.href = "/van-phong/"; a.target = "_blank"; a.rel = "noopener"; k.appendChild(a);
   let chonNghe = null;
   if (S.bat) {
