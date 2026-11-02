@@ -220,6 +220,7 @@ sofa(15.4,15.8,2.3,.9,"#1f5c4a","y"); table(15.7,17.1,1.6,.6,8,"#ece6dc");
 olive(17,13.35); plant(8.5,18.2,.9); lamp(17.4,18.4); glassX(18,13,19);
 // Không gian Nhà
 maquette(19.4,14.3); sofa(22.8,15,.9,2.4,"#8a5232","x"); lamp(23.6,13.5); plant(18.4,18.2,.8);
+desk(24.1,17.75,1.6,.8,{mons:[.4],tint:"#c99bea"}); chair(24.55,16.9,"#5d3f78"); // bàn designer nội thất
 
 /* ---------- lớp tĩnh: sàn + tường ---------- */
 const cache=document.createElement("canvas"); let cacheS=0, lastBuild=0;
@@ -344,6 +345,7 @@ const C={
  KTV:mk("KTV",{name:"KTV",pn:"Kỹ thuật viên",zone:"tk",hx:19.7,hy:9.45,ghost:1,shirt:"#8a7a5c",pants:"#2a2a2a",hair:"#2a1d14",skin:"#ecc39c"}),
  KS:mk("KS",{name:"Kỹ sư KC",pn:"Kỹ sư kết cấu",zone:"tk",hx:22,hy:9.45,ghost:1,shirt:"#5f6f7d",pants:"#2a2a2a",hair:"#151210",skin:"#e2b48c"}),
  DN:mk("DN",{name:"Điện nước",pn:"Kỹ sư điện nước",zone:"tk",hx:24.3,hy:9.45,ghost:1,shirt:"#7d5f4f",pants:"#2a2a2a",hair:"#231a12",skin:"#e8bd95"}),
+ DS:mk("DS",{name:"Designer nội thất",pn:"Designer nội thất",zone:"kgn",hx:24.9,hy:17.25,seated:1,hidden:true,shirt:"#6d4d86",pants:"#2a2430",hair:"#1d1410",skin:"#efc6a0",long:1}),
  MM:mk("MM",{name:"MyMy",pn:"MyMy",zone:"sanh",hx:13,hy:14.05,ai:1,fv:1,faceViewer:1,shirt:"#a24f72",pants:"#2a1d24",glow:"#ff9cc6"}),
  ADS:mk("ADS",{name:"Quảng cáo",pn:"Quảng cáo",adminOnly:1,zone:"tt",hx:2.7,hy:15.85,ai:1,seated:1,shirt:"#9a4a33",pants:"#2a1f1a",glow:"#ffaa80"}),
  BAN:mk("BAN",{name:"Bạn",pn:"Bạn",me:1,zone:"sanh",hx:13,hy:18.4,shirt:"#d9b25a",pants:"#3b3f4a",hair:"#2c2018",skin:"#e8bc93",hidden:true}),
@@ -459,6 +461,10 @@ function select(id,move){sel=id;const z=ZM[id],v=view(z);clear(detailEl);
   detailEl.appendChild(el("h3","",v.name));detailEl.appendChild(el("div","who",v.who));
   const people=CH.filter(c=>c.zone===id&&visible(c)&&c.id!=="KH"&&!c.me).map(cname);if(people.length)detailEl.appendChild(el("div","who","Trong phòng: "+people.join(" · ")));
   if(v.items.length){const ul=el("ul");v.items.forEach(i=>ul.appendChild(el("li","",i)));detailEl.appendChild(ul)}
+  const doi=GHE.map(g=>C[g.id]).filter(c=>c.zone===id&&c.doiTac);
+  if(doi.length){const ul=el("ul","doi-ngu");doi.forEach(c=>{const n=c.doiTac,li=el("li");li.appendChild(el("b","",n.nhan+" · "+n.ten));li.appendChild(el("span","dn-tt",n.dang_lam?" · đang làm việc":" · đang vắng"));
+    const a=el("a","dn-hs","Xem hồ sơ");a.href=alnUrl("/profile.html?uid="+encodeURIComponent(n.uid));a.target="_blank";a.rel="noopener";li.appendChild(a);ul.appendChild(li)});
+    if(id==="tk"&&DU_DOI_TAC>0)ul.appendChild(el("li","","Cùng "+DU_DOI_TAC+" đối tác khác của ALN"));detailEl.appendChild(ul)}
   if(v.go){const b=el("button","btn pri");if(!ADMIN())b.appendChild(el("span","pre","Đi tới phòng · "));b.appendChild(document.createTextNode(v.cta));b.type="button";b.addEventListener("click",()=>goRoom(id));detailEl.appendChild(b)}
   zonesEl.querySelectorAll(".zone").forEach(b=>b.classList.toggle("sel",b.dataset.z===id));if(move)focus(id)}
 
@@ -600,12 +606,13 @@ function frameLoop(t){const dt=Math.min(.2,(t-last)/1000);last=t;now=t;const sec
     GLOW.forEach(o=>{const[x,y]=P(o.x,o.y,o.z);const gr=ctx.createRadialGradient(x,y,0,x,y,o.r);gr.addColorStop(0,"rgba("+o.c+",.38)");gr.addColorStop(1,"rgba("+o.c+",0)");ctx.fillStyle=gr;ctx.fillRect(x-o.r,y-o.r,o.r*2,o.r*2)});ctx.restore()}
   ctx.setTransform(DPR,0,0,DPR,0,0);
   Z.forEach(z=>zlabel(ctx,z));
+  bangTen().forEach(b=>{const[wx,wy]=P(b.x,b.y,30);veBangTen(ctx,wx*zoom+panX,wy*zoom+panY,b.text)});
   CH.forEach(c=>{if(!visible(c))return;const[wx,wy]=P(c.x,c.y,40);const sx=wx*zoom+panX,sy=wy*zoom+panY;if(c.sayUntil>now)bubble(ctx,c,sx,sy);else if(zoom>.8||c.me)tag(ctx,c,sx,sy)});
   requestAnimationFrame(frameLoop)}
 
 /* ---------- giờ làm việc thật: ai có mặt ---------- */
-const HUMANS=["N","L","ML","KTV","KS","DN"];
-function shouldBeIn(id,t){if(t.dow===0)return false;if(["KTV","KS","DN"].includes(id))return t.dow<=5&&t.min>=8*60&&t.min<17*60;return t.min>=7*60+30&&t.min<18*60}
+const HUMANS=["N","L","ML","KTV","KS","DN","DS"];
+function shouldBeIn(id,t){const c=C[id];if(c.doiTac)return c.doiTac.dang_lam;if(id==="DS")return false;if(t.dow===0)return false;if(["KTV","KS","DN"].includes(id))return t.dow<=5&&t.min>=8*60&&t.min<17*60;return t.min>=7*60+30&&t.min<18*60}
 function dayState(t){if(t.dow===0)return"Chủ nhật · MyMy và các trợ lý vẫn trực";if(t.min<7*60+30)return"Trước giờ làm · MyMy vẫn trực";if(t.min>=18*60)return"Ngoài giờ · MyMy vẫn trực";if(t.min>=12*60&&t.min<13*60)return"Nghỉ trưa";return DOWVN[t.dow]+" · giờ làm việc"}
 function presence(initial){const t=vn();HUMANS.forEach(id=>{const c=C[id];const want=shouldBeIn(id,t);
     if(initial){c.hidden=!want;c.x=c.hx;c.y=c.hy;return}
@@ -686,7 +693,7 @@ const KEY_3D="aln_vp_3d";
 function coWebGL(){try{const c=document.createElement("canvas");return!!(c.getContext("webgl2")||c.getContext("webgl"))}catch(e){return false}}
 function muon3D(){let v=null;try{v=localStorage.getItem(KEY_3D)}catch(e){v=null}const q=new URLSearchParams(location.search).get("che");if(q==="2d")return false;if(q==="3d")return coWebGL();return v!=="0"&&coWebGL()}
 function chonPhong(id){const z=ZM[id];if(!ADMIN()&&view(z).go)goRoom(id);else select(id,false)}
-const API3={Z,ZM,C,CH,L3,DOOR,view,visible,cname,atHome,chonPhong,bubble,tag,nhanPhong,bangTuong,
+const API3={Z,ZM,C,CH,L3,DOOR,view,visible,cname,atHome,chonPhong,bubble,tag,nhanPhong,bangTuong,bangTen,veBangTen,
   phongMo:()=>!panel.hidden,get now(){return now},get night(){return night},get sel(){return sel}};
 function hienGoiY(){const h=$("#hint");h.classList.remove("an");clearTimeout(hienGoiY._t);hienGoiY._t=setTimeout(()=>h.classList.add("an"),8000)}
 function nut3D(){const b=$("#nut3d");b.textContent=V3?"Xem 2D":"Xem 3D";b.classList.toggle("on",!!V3);stage.classList.toggle("che-3d",!!V3);
@@ -694,7 +701,7 @@ function nut3D(){const b=$("#nut3d");b.textContent=V3?"Xem 2D":"Xem 3D";b.classL
 async function bat3D(on){
   if(!on){if(V3){V3.dong();V3=null}cv.hidden=false;try{localStorage.setItem(KEY_3D,"0")}catch(e){}cacheS=0;nut3D();return}
   if(V3||dang3D)return;const b=$("#nut3d");b.disabled=true;b.textContent="Đang dựng 3D…";
-  dang3D=(async()=>{try{const m=await import("./van-phong-3d.js?v=7");V3=await m.mo(stage,API3);cv.hidden=true;try{localStorage.setItem(KEY_3D,"1")}catch(e){}}
+  dang3D=(async()=>{try{const m=await import("./van-phong-3d.js?v=8");V3=await m.mo(stage,API3);cv.hidden=true;try{localStorage.setItem(KEY_3D,"1")}catch(e){}}
     catch(e){V3=null;cv.hidden=false;log("sanh","Máy này chưa mở được bản 3D, đang xem bản 2D.","")}finally{dang3D=null;b.disabled=false;nut3D()}})();return dang3D}
 /* ---------- hoạt động thật, ẩn danh (hoatDongVanPhong) + lộ trình tới C4 ---------- */
 const URL_HD="https://asia-southeast1-aln-platform.cloudfunctions.net/hoatDongVanPhong";
@@ -715,6 +722,29 @@ $("#ddNd").addEventListener("click",e=>{const z=e.currentTarget.dataset.z;if(z){
 document.querySelectorAll("#loTrinh [data-z]").forEach(b=>b.addEventListener("click",()=>{try{(window.dataLayer=window.dataLayer||[]).push({event:"aln_vp_lo_trinh",buoc:b.dataset.buoc})}catch(e){}goRoom(b.dataset.z)}));
 $("#nut3d").addEventListener("click",()=>bat3D(!V3));
 window.ALNVanPhong={bat3D,get V3(){return V3},C,ZM,vaoPhong:id=>goRoom(id)};
+
+/* ---------- Đối tác chuyên môn thật (Nam chốt 02/11/2026) ----------
+   Đối tác đã duyệt tự bật "Hiện tôi trong Văn phòng ALN" ở trang làm việc (aln-van-phong-diem-danh.js).
+   Văn phòng đọc nhanSuVanPhong (công khai, chỉ nghề + họ tên + đang làm/vắng + uid hồ sơ) và xếp chỗ:
+   3 bàn vẽ Xưởng thiết kế (KTS → kỹ sư → KTV) + 1 bàn designer ở Không gian Nhà. Đang làm việc: nhân vật
+   thật tại bàn, nhãn "nghề · họ tên". Vắng: bảng tên tại bàn. Bàn chưa có ai bật: người mờ minh hoạ như cũ. */
+const GHE=[{id:"KTV",ban:[19.7,8.45]},{id:"KS",ban:[22,8.45]},{id:"DN",ban:[24.3,8.45]},{id:"DS",ban:[24.9,18.15],designer:1}];
+const MAC_DINH={};["KTV","KS","DN","DS"].forEach(id=>{const c=C[id];MAC_DINH[id]={name:c.name,pn:c.pn,ghost:c.ghost,shirt:c.shirt}});
+const URL_NS="https://asia-southeast1-aln-platform.cloudfunctions.net/nhanSuVanPhong";
+let DOI_TAC=[],DU_DOI_TAC=0;
+async function taiDoiTac(){let r=null;try{const res=await fetch(URL_NS,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({data:{}})});if(res.ok)r=(await res.json()).result}catch(e){r=null}
+  if(!r||!Array.isArray(r.nguoi))return;DOI_TAC=r.nguoi.filter(n=>n&&typeof n.ten==="string"&&typeof n.nhan==="string"&&typeof n.uid==="string");xepCho()}
+function xepCho(){const ds=DOI_TAC.filter(n=>n.nghe!=="designer"),des=DOI_TAC.filter(n=>n.nghe==="designer");let i=0;
+  DU_DOI_TAC=Math.max(0,ds.length-3)+Math.max(0,des.length-1);
+  GHE.forEach(g=>{const c=C[g.id],n=g.designer?des[0]:ds[i++],cu=c.doiTac;const md=MAC_DINH[g.id];
+    if(n){c.doiTac=n;c.name=c.pn=n.nhan+" · "+n.ten;c.ghost=0;c.shirt=g.designer?md.shirt:["#2f4a6b","#3d5a4a","#5a4a3a"][GHE.indexOf(g)%3]}
+    else{c.doiTac=null;c.name=md.name;c.pn=md.pn;c.ghost=md.ghost;c.shirt=md.shirt}
+    const doiDang=(!!cu)!==(!!n)||(cu&&n&&cu.uid!==n.uid);if(doiDang){c.hidden=!shouldBeIn(g.id,vn());c.x=c.hx;c.y=c.hy;c.path=[];c.res=null;c.busy=false;if(V3&&V3.dungLaiNguoi)V3.dungLaiNguoi(g.id)}});
+  presence();if(sel)select(sel,false)}
+function bangTen(){const out=[];GHE.forEach(g=>{const c=C[g.id];if(c.doiTac&&!c.doiTac.dang_lam)out.push({x:g.ban[0],y:g.ban[1],text:c.doiTac.nhan+" · "+c.doiTac.ten+" · Đang vắng"})});return out}
+function veBangTen(g,sx,sy,text){g.save();g.font="600 9px 'Be Vietnam Pro',sans-serif";const w=g.measureText(text).width+16;
+  rr(g,sx-w/2,sy-9,w,17,4);g.fillStyle="rgba(28,24,18,.9)";g.fill();g.strokeStyle="rgba(214,179,112,.55)";g.lineWidth=1;g.stroke();
+  g.fillStyle="#e7cc93";g.textAlign="center";g.fillText(text,sx,sy+3);g.restore()}
 
 /* ---------- MyMy chủ động chào khách (Nam chốt 01/11/2026) ----------
    Chủ nhà vào văn phòng: MyMy chào bằng bong bóng, rồi tự mở khung trò chuyện MỘT lần mỗi phiên
@@ -741,5 +771,5 @@ function start(){resize();presence(true);
   const q=new URLSearchParams(location.search).get("vai");if(q)vai=q;
   setMode(vai||"chu-nha",true);
   hienGoiY();log("sanh","Văn phòng mở cửa · "+dayState(vn()),"");requestAnimationFrame(frameLoop);ambient();setInterval(presence,20000);
-  if(muon3D())bat3D(true);taiHoatDong();chaoKhach();setInterval(()=>{if(!document.hidden)taiHoatDong()},180000)}
+  if(muon3D())bat3D(true);taiHoatDong();chaoKhach();taiDoiTac();setInterval(()=>{if(!document.hidden)taiDoiTac()},60000);setInterval(()=>{if(!document.hidden)taiHoatDong()},180000)}
 (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(start,start);
