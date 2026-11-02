@@ -584,7 +584,7 @@ function nhanPhong(g,z,sx,sy,gon){const v=view(z);g.save();g.font="600 10px 'Be 
 
 /* ---------- vòng vẽ ---------- */
 let last=performance.now(),lastSec=-1;
-function frameLoop(t){const dt=Math.min(.05,(t-last)/1000);last=t;now=t;const sec=Math.floor(t/1000);if(sec!==lastSec){lastSec=sec;$("#clock").textContent=vn().hm}
+function frameLoop(t){const dt=Math.min(.2,(t-last)/1000);last=t;now=t;const sec=Math.floor(t/1000);if(sec!==lastSec){lastSec=sec;$("#clock").textContent=vn().hm}
   CH.forEach(c=>{if(!c.path.length)return;const[tx,ty]=c.path[0];const dx=tx-c.x,dy=ty-c.y,d=Math.hypot(dx,dy),st=(c.me?3.2:2.4)*dt;
     if(d<=st){c.x=tx;c.y=ty;c.path.shift();if(!c.path.length&&c.res){const r=c.res;c.res=null;r()}}else{c.x+=dx/d*st;c.y+=dy/d*st;c.facing=(dx+dy)>.05}});
   if(V3){requestAnimationFrame(frameLoop);return} // bản 3D tự vẽ (van-phong-3d.js); ở đây chỉ chạy người đi lại
@@ -694,7 +694,7 @@ function nut3D(){const b=$("#nut3d");b.textContent=V3?"Xem 2D":"Xem 3D";b.classL
 async function bat3D(on){
   if(!on){if(V3){V3.dong();V3=null}cv.hidden=false;try{localStorage.setItem(KEY_3D,"0")}catch(e){}cacheS=0;nut3D();return}
   if(V3||dang3D)return;const b=$("#nut3d");b.disabled=true;b.textContent="Đang dựng 3D…";
-  dang3D=(async()=>{try{const m=await import("./van-phong-3d.js?v=5");V3=await m.mo(stage,API3);cv.hidden=true;try{localStorage.setItem(KEY_3D,"1")}catch(e){}}
+  dang3D=(async()=>{try{const m=await import("./van-phong-3d.js?v=7");V3=await m.mo(stage,API3);cv.hidden=true;try{localStorage.setItem(KEY_3D,"1")}catch(e){}}
     catch(e){V3=null;cv.hidden=false;log("sanh","Máy này chưa mở được bản 3D, đang xem bản 2D.","")}finally{dang3D=null;b.disabled=false;nut3D()}})();return dang3D}
 /* ---------- hoạt động thật, ẩn danh (hoatDongVanPhong) + lộ trình tới C4 ---------- */
 const URL_HD="https://asia-southeast1-aln-platform.cloudfunctions.net/hoatDongVanPhong";
@@ -723,10 +723,17 @@ const KEY_CHAO="aln_vp_mymy_chao";
 function chaoKhach(){if(ADMIN())return;let da=false;try{da=sessionStorage.getItem(KEY_CHAO)==="1"}catch(e){da=false}
   setTimeout(()=>{if(!ADMIN()&&visible(C.MM)&&!C.MM.busy)say(C.MM,"Chào anh/chị! Em là MyMy, cần gì cứ hỏi em nhé.",4200)},2200);
   if(da)return;
-  setTimeout(()=>{if(ADMIN()||!panel.hidden||typeof window.alnMyMyMo!=="function")return;
+  setTimeout(()=>{if(ADMIN()||!panel.hidden)return;
+    const dt=window.matchMedia("(max-width:640px)").matches;
+    if(!dt&&typeof window.alnMyMyMo!=="function")return;
     try{sessionStorage.setItem(KEY_CHAO,"1")}catch(e){}
-    try{(window.dataLayer=window.dataLayer||[]).push({event:"aln_mymy_vp",buoc:"tu_chao"})}catch(e){}
-    window.alnMyMyMo(true)},4800)}
+    try{(window.dataLayer=window.dataLayer||[]).push({event:"aln_mymy_vp",buoc:dt?"the_chao":"tu_chao"})}catch(e){}
+    // Điện thoại: thẻ chào nhỏ ở cuối mô hình (khung chat đầy đủ che hết mô hình). Máy tính: mở khung chat.
+    if(dt)theChao(true);else window.alnMyMyMo(true)},4800)}
+function theChao(mo){const t=$("#theChao");if(!t)return;t.hidden=!mo;$("#noi").classList.toggle("co-chao",!!mo)}
+$("#theChao .tc-x").addEventListener("click",()=>theChao(false));
+document.querySelectorAll("#theChao [data-z]").forEach(b=>b.addEventListener("click",()=>{theChao(false);try{(window.dataLayer=window.dataLayer||[]).push({event:"aln_mymy_vp",buoc:"the_"+b.dataset.z})}catch(e){}goRoom(b.dataset.z)}));
+$("#theChao [data-hoi]").addEventListener("click",()=>{theChao(false);try{(window.dataLayer=window.dataLayer||[]).push({event:"aln_mymy_vp",buoc:"the_hoi"})}catch(e){}if(typeof window.alnMyMyMo==="function")window.alnMyMyMo()});
 
 /* ---------- khởi động ---------- */
 function start(){resize();presence(true);
