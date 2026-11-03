@@ -601,7 +601,7 @@ export async function mo(stage, api) {
     api.CH.forEach(c => { if (!api.visible(c)) return; const n = NG.get(c.id); const y = n.pelvis.position.y + 0.95; const p = chieu(c.x, y, c.y); if (!p) return;
       const d = cam.position.distanceTo(new THREE.Vector3(c.x, y, c.y)); ds.push({ c, p, d }); });
     (api.bangTen ? api.bangTen() : []).forEach(b => { const p = chieu(b.x, 1.05, b.y); if (p) api.veBangTen(g2, p[0], p[1], b.text); });
-    ds.sort((a, b) => b.d - a.d).forEach(({ c, p, d }) => { if (c.sayUntil > api.now) api.bubble(g2, c, p[0], p[1]); else if (d < 22 || c.me) api.tag(g2, c, p[0], p[1]); });
+    ds.sort((a, b) => b.d - a.d).forEach(({ c, p, d }) => { if (c.sayUntil > api.now) api.bubble(g2, c, p[0], p[1]); else if (d < 22 || c.me) api.tag(g2, c, p[0], p[1]); else if (c.doiTac) api.tag(g2, c, p[0], p[1], true); });
   }
 
   /* --- vòng vẽ --- */

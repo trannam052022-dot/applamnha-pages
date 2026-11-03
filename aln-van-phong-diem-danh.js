@@ -53,11 +53,12 @@ function moKhung() {
   const cu = goc.querySelector(".vp-khung"); if (cu) { cu.remove(); veNut(); return; }
   const k = el("div", "vp-khung"); k.setAttribute("role", "dialog"); k.setAttribute("aria-label", "Hiện tôi trong Văn phòng ALN");
   k.appendChild(el("h4", "", "Hiện tôi trong Văn phòng ALN"));
-  k.appendChild(el("p", "", "Chủ nhà vào applamnha.vn/van-phong sẽ thấy nghề và họ tên của anh/chị tại bàn làm việc: còn mở trang này (kể cả ở tab khác) thì hiện nhân vật, đóng trang thì hiện bảng tên. Không hiện số điện thoại hay email; khách liên hệ qua ALN."));
+  k.appendChild(el("p", "", "Chủ nhà vào applamnha.vn/van-phong sẽ thấy nghề, họ tên và ảnh đại diện của anh/chị tại bàn làm việc: còn mở trang này (kể cả ở tab khác) thì hiện nhân vật kèm thẻ tên có ảnh, đóng trang thì hiện bảng tên. Không hiện số điện thoại hay email; khách liên hệ qua ALN."));
   const a = el("a", "", "Xem văn phòng"); a.href = "/van-phong/"; a.target = "_blank"; a.rel = "noopener"; k.appendChild(a);
   let chonNghe = null;
   if (S.bat) {
     k.appendChild(el("p", "", "Đang hiện: " + (S.nhan || "") + " · " + (S.ten || "")));
+    if (S.can_dong_y_lai) k.appendChild(el("p", "", "Câu đồng ý mới có thêm ảnh đại diện. Chưa đồng ý câu mới thì văn phòng chỉ hiện nghề và họ tên, không hiện ảnh."));
   } else {
     if (S.nghe_chon.length > 1) {
       k.appendChild(el("p", "", "Chuyên môn hiện cho khách:"));
@@ -67,10 +68,21 @@ function moKhung() {
     }
     if (!S.ten) k.appendChild(el("p", "vp-loi", "Hồ sơ chưa có họ tên. Cập nhật họ tên trước khi bật."));
   }
+  if (!S.co_anh && (!S.bat || S.can_dong_y_lai)) k.appendChild(el("p", "", "Hồ sơ chưa có ảnh đại diện: văn phòng sẽ hiện chữ cái đầu tên thay cho ảnh. Tải ảnh ở mục hồ sơ cá nhân."));
   const lb = el("label"); const cb = document.createElement("input"); cb.type = "checkbox"; lb.appendChild(cb); lb.appendChild(el("span", "", S.cau_dong_y));
-  if (!S.bat) k.appendChild(lb);
+  if (!S.bat || S.can_dong_y_lai) k.appendChild(lb);
   const loi = el("p", "vp-loi"); loi.hidden = true;
   const hd = el("div", "vp-hd");
+  if (S.bat && S.can_dong_y_lai) {
+    const them = el("button", "", "Đồng ý câu mới"); them.type = "button"; them.disabled = true;
+    cb.addEventListener("change", () => { them.disabled = !cb.checked; });
+    them.addEventListener("click", async () => {
+      them.disabled = true; loi.hidden = true;
+      try { await goi({ hanh_dong: "bat", dong_y: true, phien_ban: S.phien_ban, nghe: S.nghe }); S.can_dong_y_lai = false; k.remove(); veNut(); }
+      catch (e) { loi.textContent = "Chưa lưu được: " + ((e && e.message) || "lỗi mạng") + ". Thử lại."; loi.hidden = false; them.disabled = false; }
+    });
+    hd.appendChild(them);
+  }
   const dong = el("button", "", "Đóng"); dong.type = "button"; dong.addEventListener("click", () => { k.remove(); veNut(); });
   const chinh = el("button", "chinh", S.bat ? "Tắt hiển thị" : "Bật hiển thị"); chinh.type = "button";
   if (!S.bat) { chinh.disabled = true; cb.addEventListener("change", () => { chinh.disabled = !cb.checked || !S.ten; }); }

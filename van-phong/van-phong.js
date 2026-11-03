@@ -576,7 +576,31 @@ function bubble(g,c,sx,sy){const a=Math.min(1,(c.sayUntil-now)/300);if(a<=0)retu
   g.fillStyle=ZM[c.zone].c;rr(g,x+10,y+9,5,5,1.5);g.fill();
   g.fillStyle="#8a6a2f";g.font="700 9px 'JetBrains Mono',monospace";g.textAlign="left";g.fillText(nm.toUpperCase(),x+20,y+15);
   g.fillStyle="#1d1b17";g.font="500 11.5px 'Be Vietnam Pro',sans-serif";lines.forEach((l,i)=>g.fillText(l,x+12,y+31+i*15));g.restore()}
-function tag(g,c,sx,sy){g.save();g.font="600 9.5px 'Be Vietnam Pro',sans-serif";const t=cname(c);const w=g.measureText(t).width+18;
+/* Thẻ tên có ảnh cho đối tác đang làm việc (Nam chốt 03/11/2026): ảnh tròn + "nghề · họ tên" + chấm xanh.
+   Xa (gon): chỉ ảnh tròn + chấm xanh. Chưa có ảnh/ảnh lỗi: chữ cái đầu tên. */
+const ANH={};
+function anhDoiTac(n){if(!n||typeof n.anh!=="string"||n.anh.indexOf("https://firebasestorage.googleapis.com/")!==0)return null;
+  let a=ANH[n.uid];if(a&&a.src===n.anh)return a.ok?a.img:null;
+  const img=new Image();img.crossOrigin="anonymous";img.decoding="async";a=ANH[n.uid]={src:n.anh,img,ok:false};
+  img.onload=()=>{a.ok=true;if(V3&&V3.veLai)V3.veLai()};img.onerror=()=>{a.ok=false};img.src=alnUrl(n.anh);return null}
+function chuDau(t){const w=String(t||"").trim().split(/\s+/);return (w[w.length-1]||"?").charAt(0).toUpperCase()}
+function veAnhTron(g,n,x,y,r){g.save();g.beginPath();g.arc(x,y,r,0,7);g.closePath();const img=anhDoiTac(n);
+  if(img){g.clip();const s=Math.min(img.naturalWidth,img.naturalHeight)||1;g.drawImage(img,(img.naturalWidth-s)/2,(img.naturalHeight-s)/2,s,s,x-r,y-r,r*2,r*2)}
+  else{g.fillStyle="#3a3126";g.fill();g.fillStyle="#e7cc93";g.font="700 "+Math.round(r*1.05)+"px 'Be Vietnam Pro',sans-serif";g.textAlign="center";g.textBaseline="middle";g.fillText(chuDau(n.ten),x,y+.5)}
+  g.restore();g.save();g.beginPath();g.arc(x,y,r,0,7);g.strokeStyle="rgba(214,179,112,.95)";g.lineWidth=1.6;g.stroke();g.restore()}
+function chamXanh(g,x,y,r){g.save();g.beginPath();g.arc(x,y,r,0,7);g.fillStyle="#5fcca2";g.fill();g.strokeStyle="rgba(14,15,18,.9)";g.lineWidth=1.5;g.stroke();g.restore()}
+function tagDoiTac(g,c,sx,sy,gon){const n=c.doiTac;g.save();
+  if(gon){const r=11,cy=sy-r-8;g.shadowColor="rgba(0,0,0,.45)";g.shadowBlur=8;g.shadowOffsetY=2;
+    g.beginPath();g.moveTo(sx-4,cy+r-1);g.lineTo(sx,cy+r+5);g.lineTo(sx+4,cy+r-1);g.closePath();g.fillStyle="rgba(214,179,112,.95)";g.fill();g.shadowColor="transparent";
+    g.restore();veAnhTron(g,n,sx,cy,r);chamXanh(g,sx+r*.72,cy+r*.72,3.4);return}
+  g.font="600 10px 'Be Vietnam Pro',sans-serif";let t=n.nhan+" · "+n.ten;while(g.measureText(t).width>210&&t.length>8)t=t.slice(0,-2);if(t!==n.nhan+" · "+n.ten)t+="…";
+  const h=26,r=10,w=g.measureText(t).width+h+22,x=sx-w/2,y=sy-h-6;
+  g.shadowColor="rgba(0,0,0,.45)";g.shadowBlur=10;g.shadowOffsetY=3;rr(g,x,y,w,h,h/2);g.fillStyle="rgba(14,15,18,.86)";g.fill();g.shadowColor="transparent";
+  g.strokeStyle="rgba(214,179,112,.45)";g.lineWidth=1;g.stroke();
+  g.beginPath();g.moveTo(sx-5,y+h-.5);g.lineTo(sx,y+h+5);g.lineTo(sx+5,y+h-.5);g.closePath();g.fillStyle="rgba(14,15,18,.86)";g.fill();
+  g.fillStyle="#f3eee5";g.textAlign="left";g.textBaseline="middle";g.fillText(t,x+h+3,y+h/2+.5);g.restore();
+  veAnhTron(g,n,x+h/2,y+h/2,r);chamXanh(g,x+w-10,y+h/2,3.2)}
+function tag(g,c,sx,sy,gon){if(c.doiTac&&c.doiTac.dang_lam&&!c.me)return tagDoiTac(g,c,sx,sy,gon);if(gon)return;g.save();g.font="600 9.5px 'Be Vietnam Pro',sans-serif";const t=cname(c);const w=g.measureText(t).width+18;
   g.shadowColor="rgba(0,0,0,.4)";g.shadowBlur=8;g.shadowOffsetY=2;rr(g,sx-w/2,sy-17,w,16,8);g.fillStyle=c.me?"rgba(226,192,132,.97)":"rgba(14,15,18,.78)";g.fill();g.shadowColor="transparent";
   if(!c.me){g.strokeStyle="rgba(255,255,255,.12)";g.lineWidth=1;g.stroke()}
   g.beginPath();g.arc(sx-w/2+8,sy-9,2.4,0,7);g.fillStyle=c.ai?c.glow:(c.ghost?"#9b968c":"#f1c7a0");g.fill();g.fillStyle=c.me?"#1b150a":"#f3eee5";g.textAlign="left";g.fillText(t,sx-w/2+13,sy-5.5);g.restore()}
@@ -607,7 +631,7 @@ function frameLoop(t){const dt=Math.min(.2,(t-last)/1000);last=t;now=t;const sec
   ctx.setTransform(DPR,0,0,DPR,0,0);
   Z.forEach(z=>zlabel(ctx,z));
   bangTen().forEach(b=>{const[wx,wy]=P(b.x,b.y,30);veBangTen(ctx,wx*zoom+panX,wy*zoom+panY,b.text)});
-  CH.forEach(c=>{if(!visible(c))return;const[wx,wy]=P(c.x,c.y,40);const sx=wx*zoom+panX,sy=wy*zoom+panY;if(c.sayUntil>now)bubble(ctx,c,sx,sy);else if(zoom>.8||c.me)tag(ctx,c,sx,sy)});
+  CH.forEach(c=>{if(!visible(c))return;const[wx,wy]=P(c.x,c.y,40);const sx=wx*zoom+panX,sy=wy*zoom+panY;if(c.sayUntil>now)bubble(ctx,c,sx,sy);else if(zoom>.8||c.me)tag(ctx,c,sx,sy);else if(c.doiTac)tag(ctx,c,sx,sy,true)});
   requestAnimationFrame(frameLoop)}
 
 /* ---------- giờ làm việc thật: ai có mặt ---------- */
@@ -701,7 +725,7 @@ function nut3D(){const b=$("#nut3d");b.textContent=V3?"Xem 2D":"Xem 3D";b.classL
 async function bat3D(on){
   if(!on){if(V3){V3.dong();V3=null}cv.hidden=false;try{localStorage.setItem(KEY_3D,"0")}catch(e){}cacheS=0;nut3D();return}
   if(V3||dang3D)return;const b=$("#nut3d");b.disabled=true;b.textContent="Đang dựng 3D…";
-  dang3D=(async()=>{try{const m=await import("./van-phong-3d.js?v=8");V3=await m.mo(stage,API3);cv.hidden=true;try{localStorage.setItem(KEY_3D,"1")}catch(e){}}
+  dang3D=(async()=>{try{const m=await import("./van-phong-3d.js?v=9");V3=await m.mo(stage,API3);cv.hidden=true;try{localStorage.setItem(KEY_3D,"1")}catch(e){}}
     catch(e){V3=null;cv.hidden=false;log("sanh","Máy này chưa mở được bản 3D, đang xem bản 2D.","")}finally{dang3D=null;b.disabled=false;nut3D()}})();return dang3D}
 /* ---------- hoạt động thật, ẩn danh (hoatDongVanPhong) + lộ trình tới C4 ---------- */
 const URL_HD="https://asia-southeast1-aln-platform.cloudfunctions.net/hoatDongVanPhong";
