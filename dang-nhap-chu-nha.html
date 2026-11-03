@@ -178,6 +178,18 @@ input::placeholder{color:var(--dim)}
 
 .foot-note{position:relative;z-index:1;max-width:26rem;width:100%;text-align:center;margin-top:1.25rem;font-size:var(--text-sm);color:var(--text-3);line-height:1.7}
 
+/* Đồng ý dữ liệu gộp vào bước nhập số (03/11/2026, Nam duyệt) — chỉ hiện khi đi tới Không gian Nhà
+   từ link hồ sơ (?next=khong-gian-nha.html?ma=…). Ô KHÔNG tick sẵn; nút gửi mã khoá tới khi tick. */
+.kgn-dy{margin:0 0 1rem;padding:.85rem .9rem;border:1px solid var(--border-soft);border-radius:var(--r-sm);background:var(--surface)}
+.kgn-dy[hidden]{display:none}
+.kgn-dy label{display:flex;gap:.7rem;align-items:flex-start;cursor:pointer;font-size:var(--text-sm);color:var(--text-1);line-height:1.6}
+.kgn-dy input[type=checkbox]{-webkit-appearance:none;appearance:none;width:22px;height:22px;flex:0 0 22px;margin-top:2px;border:2px solid var(--text-3);border-radius:5px;background:var(--card);cursor:pointer}
+.kgn-dy input[type=checkbox]:checked{background:var(--gold) center/16px 16px no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='%23fff' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");border-color:var(--gold)}
+.kgn-dy input[type=checkbox]:focus-visible{outline:3px solid var(--gold-dim);outline-offset:2px}
+.kgn-dy .kgn-dy-nho{font-size:var(--text-sm);color:var(--text-3);margin-top:.5rem;line-height:1.6}
+.kgn-dy a{color:var(--gold);text-decoration:underline;text-underline-offset:2px}
+.kgn-ma{font-family:var(--f-mono);font-size:var(--text-sm);color:var(--gold);letter-spacing:.06em;margin-top:.5rem}
+.kgn-ma[hidden]{display:none}
 #recaptcha-container{position:fixed;bottom:0;left:0}
 </style>
 </head>
@@ -194,7 +206,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <span class="ey-line ey-line-r"></span>
   </div>
   <h1 class="brand-title">Đăng nhập bằng số điện thoại</h1>
-  <p class="brand-sub">Nhận mã qua SMS để lưu dự toán và xem Không gian Nhà của bạn</p>
+  <p class="brand-sub" id="brandSub">Nhận mã qua SMS để lưu dự toán và xem Không gian Nhà của bạn</p>
+  <p class="kgn-ma" id="kgnMa" hidden></p>
 </div>
 
 <div class="card">
@@ -225,6 +238,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <div class="field-hint">Số điện thoại của bạn — dùng để lưu hồ sơ và để ALN liên hệ khi bạn cần</div>
     </div>
 
+    <div class="kgn-dy" id="kgnDongY" hidden>
+      <label for="kgnDongYO">
+        <input type="checkbox" id="kgnDongYO">
+        <span id="kgnDongYChu"></span>
+      </label>
+      <p class="kgn-dy-nho">Xem <a href="/chinh-sach-quyen-rieng-tu/" target="_blank" rel="noopener">Chính sách quyền riêng tư</a>. Anh/chị rút lại đồng ý được bất cứ lúc nào trong Không gian Nhà.</p>
+    </div>
     <button id="sendBtn" class="btn btn-gold" type="button">
       <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
       Gửi mã xác nhận
@@ -282,6 +302,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 import {
   auth, RecaptchaVerifier, signInWithPhoneNumber, onAuthStateChanged
 } from './firebase-config.js';
+import { CONSENT_TEXTS, CONSENT_VERSIONS } from './consent-constants.js';
 
 // Trang Không Gian Nhà thật — đăng nhập xong mặc định chuyển tới đây (đọc
 // houses/moc/nhat_ky/tai_lieu/so_chi qua onSnapshot, xem khong-gian-nha.html).
@@ -327,6 +348,25 @@ function formatVNDisplay(localPhone) {
   return localPhone.replace(/^(\d{3})(\d{3})(\d+)$/, "$1 $2 $3");
 }
 
+/* ── Đồng ý dữ liệu gộp vào bước OTP (03/11/2026, Nam duyệt) ──
+   Đi tới Không gian Nhà bằng link hồ sơ (?next=khong-gian-nha.html?ma=… hoặc ?h=…) → hiện ô đồng ý
+   (câu GIỐNG HỆT ô trong Không gian Nhà — CONSENT_TEXTS.du_lieu_nha). Ô không tick sẵn; nút gửi mã
+   khoá tới khi tick. Xác thực xong → ghi cờ sessionStorage; Không gian Nhà đọc cờ và ghi đồng ý qua
+   khDongYDuLieu (máy chủ vẫn kiểm phiên OTP + đúng chủ nhà + đúng phiên bản điều khoản).
+   Không tick được ở đây thì Không gian Nhà vẫn hiện ô đồng ý như cũ. */
+const KHOA_CO_DONG_Y = "aln_kgn_dong_y_otp";
+function nextLaKhongGianNha() {
+  try {
+    const raw = new URLSearchParams(location.search).get("next") || "";
+    const trang = raw.split("?")[0].split("#")[0];
+    if (trang !== "khong-gian-nha.html") return null;
+    const q = new URLSearchParams(raw.split("?")[1] || "");
+    const ma = q.get("ma") || "";
+    if (!ma && !q.get("h")) return null;
+    return { ma: /^ALN-H-\d{4}-\d{3,6}$/i.test(ma.trim()) ? ma.trim().toUpperCase() : "" };
+  } catch (e) { return null; }
+}
+const DI_KGN = nextLaKhongGianNha();
 const els = {
   step1: document.getElementById("step-phone"),
   step2: document.getElementById("step-otp"),
@@ -346,6 +386,23 @@ let confirmationResult = null;
 let recaptchaVerifier = null;
 let resendTimer = null;
 let sendInFlight = false;
+const dyEls = {
+  box: document.getElementById("kgnDongY"),
+  o: document.getElementById("kgnDongYO"),
+  chu: document.getElementById("kgnDongYChu"),
+};
+function canDongY() { return !!DI_KGN; }
+function daTickDongY() { return !canDongY() || dyEls.o.checked; }
+function capNhatNutGui() {
+  if (!canDongY()) return;
+  els.sendBtn.disabled = sendInFlight || !dyEls.o.checked;
+}
+function ghiCoDongY() {
+  if (!canDongY() || !dyEls.o.checked) return;
+  try {
+    sessionStorage.setItem(KHOA_CO_DONG_Y, JSON.stringify({ phien_ban: CONSENT_VERSIONS.du_lieu_nha, luc: Date.now() }));
+  } catch (e) { /* trình duyệt chặn bộ nhớ: Không gian Nhà vẫn hiện ô đồng ý như cũ */ }
+}
 
 /* ── Chặn lạm dụng SMS (lớp phòng thủ phía client, BỔ SUNG cho hạn mức
    1000/ngày CỦA DỰ ÁN ở tầng Firebase/App Check — không thay thế) ──
@@ -484,6 +541,11 @@ function doLuongOtp(ten, thamSo) {
 async function handleSend() {
   if (sendInFlight) return;
   clearError();
+  if (!daTickDongY()) {
+    showPlainError("Anh/chị đánh dấu ô đồng ý để mở hồ sơ nhà.");
+    dyEls.o.focus();
+    return;
+  }
   const norm = normalizePhone(els.phoneInput.value);
   if (!norm) { showError("auth/invalid-phone-number"); return; }
 
@@ -526,6 +588,7 @@ async function handleSend() {
     els.resendBtn.disabled = sent || resendWasDisabled;
     els.sendBtn.disabled = false;
     els.sendBtn.textContent = prevLabel;
+    capNhatNutGui();
   }
 }
 
@@ -546,6 +609,7 @@ async function handleVerify() {
   els.verifyBtn.textContent = "Đang xác nhận...";
   try {
     await confirmationResult.confirm(code);
+    ghiCoDongY();
     doLuongOtp("aln_otp_xac_thuc_ok");
     goToStep(3);
     window.location.replace(resolveNextUrl());
@@ -599,6 +663,18 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
+if (DI_KGN) {
+  dyEls.chu.textContent = CONSENT_TEXTS.du_lieu_nha;
+  dyEls.box.hidden = false;
+  document.getElementById("brandSub").textContent = "Xác nhận số điện thoại để mở hồ sơ nhà của anh/chị";
+  if (DI_KGN.ma) {
+    const m = document.getElementById("kgnMa");
+    m.textContent = "Hồ sơ " + DI_KGN.ma;
+    m.hidden = false;
+  }
+  dyEls.o.addEventListener("change", () => { clearError(); capNhatNutGui(); });
+  capNhatNutGui();
+}
 goToStep(1);
 </script>
 <!-- ALN-PHAP-NHAN --><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"><style id="alnpn-css">.alnpn,.alnpn *{box-sizing:border-box;margin:0;padding:0;border:0;font:inherit;letter-spacing:normal;text-transform:none;text-shadow:none;float:none;background:none;min-width:0}.alnpn{display:block;width:100%;clear:both;position:relative;z-index:0;background:#0b1428;border-top:2px solid #d4a017;color:#cbd5e1;font-family:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:15px;font-weight:400;line-height:1.5;text-align:left;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;padding:28px 20px 88px}.alnpn-in{max-width:1280px;margin:0 auto;display:grid;gap:22px}.alnpn-brand{display:flex;align-items:center;gap:14px}.alnpn-brand img{display:block;flex:none;width:44px;height:44px;border-radius:10px}.alnpn-ten{font-weight:700;font-size:17px;line-height:1.3;letter-spacing:.03em;color:#fff}.alnpn-sub{margin-top:2px;font-size:13px;line-height:1.4;color:#9fb0c8}.alnpn-muc dt{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;line-height:1.3;letter-spacing:.08em;text-transform:uppercase;color:#e0b43a;margin-bottom:6px}.alnpn-muc dt svg{display:block;flex:none;width:16px;height:16px;fill:none;stroke:#e0b43a;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.alnpn-muc dd{font-size:15px;font-weight:500;line-height:1.45;color:#f1f5f9}.alnpn-mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:600;letter-spacing:.02em}.alnpn a{color:#fff;text-decoration:none}.alnpn a:hover,.alnpn a:focus-visible{color:#e0b43a;outline:none}.alnpn-note{font-size:13px;font-weight:400;color:#9fb0c8;margin-left:8px;white-space:nowrap}@media (min-width:768px){.alnpn{padding:26px 28px}.alnpn-in{grid-template-columns:auto auto auto auto;justify-content:space-between;align-items:stretch;gap:0}.alnpn-brand{align-self:center}.alnpn-muc{padding:0 0 0 28px;margin-left:28px;border-left:1px solid rgba(224,180,58,.22)}}@media (min-width:768px) and (max-width:1099px){.alnpn-in{grid-template-columns:auto minmax(0,1fr) auto;justify-content:stretch;row-gap:20px}.alnpn-brand{grid-column:1/-1;align-self:start}.alnpn-muc:nth-child(2){border-left:0;margin-left:0;padding-left:0}}</style><section class="alnpn" aria-label="Thông tin doanh nghiệp"><div class="alnpn-in"><div class="alnpn-brand"><img src="/icon-192.png" alt="" width="44" height="44" loading="lazy"><div><div class="alnpn-ten">CÔNG TY TNHH ALN</div><div class="alnpn-sub">Đơn vị chủ quản website applamnha.vn</div></div></div><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M10 12h5M10 16h5"/></svg>Mã số thuế</dt><dd class="alnpn-mono">3502593013</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-6-5.3-6-11a6 6 0 1 1 12 0c0 5.7-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/></svg>Địa chỉ</dt><dd>Khu TTTM Sonadezi 536 Trung Sơn, Ngãi Giao, TP. Hồ Chí Minh</dd></dl><dl class="alnpn-muc"><dt><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 5 5L14 13l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>Hotline</dt><dd><a class="alnpn-mono" href="tel:0909829696">0909 829 696</a><span class="alnpn-note">KTS Trần Long</span></dd></dl></div></section>
