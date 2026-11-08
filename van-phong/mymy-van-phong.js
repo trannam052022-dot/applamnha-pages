@@ -36,10 +36,36 @@
     ]);
   }
 
+  /* Khu chờ (08/11/2026, Nam: khách chờ KTS ở khu chờ, MyMy tư vấn và hướng dẫn dịch vụ).
+     van-phong.js gọi window.alnMyMyKhuCho khi "Bạn" ngồi xuống khu chờ. Nút đưa tới đúng phòng;
+     khách tự gõ câu hỏi thì đi alnChat như thường. */
+  var apiDaCo = null, choKhuCho = null;
+  function khuCho(api, sauHen) {
+    ga(sauHen ? 'khu_cho_sau_hen' : 'khu_cho');
+    noi(api, sauHen
+      ? 'Dạ, KTS Trần Long sẽ gọi anh/chị theo giờ đã hẹn. Trong lúc chờ, anh/chị muốn xem gì, em đưa tới đúng phòng ạ.'
+      : 'Dạ, anh/chị đang cần việc gì, em đưa tới đúng phòng ạ. Anh/chị cũng có thể gõ câu hỏi, em tư vấn ngay.');
+    api.nut([
+      { nhan: 'Phòng Dự toán', lam: vao(api, 'dt', 'kc_du_toan') },
+      { nhan: 'Phòng Nội thất', lam: vao(api, 'nt', 'kc_noi_that') },
+      { nhan: 'Xưởng thiết kế · thử mặt bằng', lam: vao(api, 'tk', 'kc_mat_bang') },
+      { nhan: 'Phòng Phong thủy', lam: vao(api, 'pt', 'kc_phong_thuy') },
+      { nhan: 'Không gian Nhà · Quản lý thi công', lam: vao(api, 'kgn', 'kc_qltc') },
+      { nhan: 'Thư viện hồ sơ mẫu', lam: vao(api, 'kho', 'kc_ho_so_mau') },
+      { nhan: 'Tôi muốn hỏi', lam: function () { ga('kc_hoi'); noi(api, 'Dạ, anh/chị gõ câu hỏi bên dưới, em trả lời ngay ạ.'); } },
+    ]);
+  }
+  window.alnMyMyKhuCho = function (sauHen) {
+    if (apiDaCo) khuCho(apiDaCo, sauHen); else choKhuCho = { sauHen: !!sauHen };
+    if (typeof window.alnMyMyMo === 'function') window.alnMyMyMo(true);
+  };
+
   window.ALN_MYMY_TRANG = {
     loiMoi: 'Em là MyMy, anh/chị cần gì cứ hỏi em nhé.',
     khongMoiChung: true, // văn phòng tự chào (van-phong.js), không cần bóng chat mời chung
     moDau: function (api) {
+      apiDaCo = api;
+      if (choKhuCho) { var k = choKhuCho; choKhuCho = null; khuCho(api, k.sauHen); try { api.hienTuDau(); } catch (e) { /* widget cũ */ } return true; }
       ga('mo');
       noi(api, 'Dạ, em chào anh/chị! Em là MyMy, lễ tân của ALN. Anh/chị đang cần gì ạ? Em đưa anh/chị tới đúng phòng, hoặc anh/chị gõ câu hỏi, em trả lời ngay, cả ngoài giờ làm việc.');
       nutChinh(api);

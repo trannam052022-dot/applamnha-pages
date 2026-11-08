@@ -76,8 +76,8 @@ const Z=[
   adm:{name:"Sảnh · Lễ tân MyMy",st:"live",who:"MyMy, trợ lý chat trên applamnha.vn",
    items:["Đón khách ở trang dự toán, diễn đàn, Kho Mẫu","Khách bấm đồng ý rồi mới lưu số điện thoại"],go:"/du-toan-nha.html?mymy=1",cta:"Thử MyMy"}},
  {id:"tt",
-  pub:{name:"Khu chờ · Cộng tác viên",st:"live",who:"Đồng hành cùng ALN, tích Gạch",
-   items:["Làm nhiệm vụ đơn giản, không cần tài khoản","Giới thiệu chủ nhà sắp xây nhà, nhận thưởng giới thiệu"],go:"/ctv_dashboard.html",cta:"Vào phòng CTV"},
+  pub:{name:"Khu chờ · Cộng tác viên",st:"live",who:"Ngồi chờ gặp KTS, MyMy hướng dẫn các dịch vụ",
+   items:[],go:"/ctv_dashboard.html",cta:"Vào phòng Cộng tác viên"},
   adm:{name:"Khu chờ · Tiếp thị · CTV",st:"live",who:"Quảng cáo Meta, Google Ads, SEO, Zalo OA, game CTV",
    items:["Trước Tết chỉ đẩy quảng cáo Gói Quản lý Thi công","Game CTV công khai, không cần tài khoản","Lõi thang dự phòng lên tầng 2 (mở rộng sau)"],go:"/ctv_dashboard.html",cta:"Xem phòng CTV"}}
 ];
@@ -404,7 +404,7 @@ cv.addEventListener("pointerdown",e=>{cv.setPointerCapture(e.pointerId);ptr.set(
 cv.addEventListener("pointermove",e=>{if(!ptr.has(e.pointerId))return;const p=ptr.get(e.pointerId);const dx=e.offsetX-p[0],dy=e.offsetY-p[1];
   if(ptr.size===1){panX+=dx;panY+=dy;dragMoved+=Math.abs(dx)+Math.abs(dy)}ptr.set(e.pointerId,[e.offsetX,e.offsetY]);
   if(ptr.size===2&&pinch0){const[a,b]=[...ptr.values()];const d=Math.hypot(a[0]-b[0],a[1]-b[1]);const mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2;zoomAt(pinch0.z*d/pinch0.d/zoom,mx,my);dragMoved=99}});
-function up(e){if(ptr.size===1&&dragMoved<6){const[x,y]=toWorld(e.offsetX,e.offsetY);const z=Z.find(z=>x>=z.x0&&x<z.x1&&y>=z.y0&&y<z.y1);if(z){if(!ADMIN()&&view(z).go)goRoom(z.id);else select(z.id,false)}}
+function up(e){if(ptr.size===1&&dragMoved<6){const[x,y]=toWorld(e.offsetX,e.offsetY);const z=Z.find(z=>x>=z.x0&&x<z.x1&&y>=z.y0&&y<z.y1);if(z){if(z.id==="tt"&&MODE==="chu-nha")khuCho(false);else if(!ADMIN()&&view(z).go)goRoom(z.id);else select(z.id,false)}}
   ptr.delete(e.pointerId);if(ptr.size<2)pinch0=null;if(!ptr.size)cv.classList.remove("drag")}
 cv.addEventListener("pointerup",up);cv.addEventListener("pointercancel",e=>{ptr.delete(e.pointerId);pinch0=null;cv.classList.remove("drag")});
 cv.addEventListener("wheel",e=>{e.preventDefault();zoomAt(Math.exp(-e.deltaY*.0015),e.offsetX,e.offsetY)},{passive:false});
@@ -524,7 +524,8 @@ function canhMoHinh(){if(!V3||!V3.lech)return;if(panel.hidden){V3.lech(0);return
   V3.lech(sr.width/2-con/2);if(curRoom)V3.focus(curRoom)}
 window.addEventListener("resize",()=>{if(!panel.hidden)canhMoHinh()});
 function closePanel(){panel.hidden=true;document.body.classList.remove("co-phong");if(V3&&V3.lech)V3.lech(0);clearInterval(watchTimer);watchTimer=null;frame.src="about:blank";curRoom=null;
-  if(!ADMIN()&&!C.BAN.hidden)moveTo(C.BAN,C.BAN.hx,C.BAN.hy);
+  if(henMoi&&!ADMIN()){henMoi=false;setTimeout(()=>khuCho(true),200)}
+  else if(!ADMIN()&&!C.BAN.hidden)moveTo(C.BAN,C.BAN.hx,C.BAN.hy);
   if(C.N.tiep){C.N.tiep=false;home(C.N).finally(()=>{C.N.busy=false})}}
 $("#roomClose").addEventListener("click",closePanel);
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!panel.hidden)closePanel()});
@@ -552,11 +553,13 @@ function baoDuToan(){let e=null;try{e=frame.contentWindow.__lastEstimate}catch(x
 
 /* lịch hẹn của chính người xem — chỉ nằm trên trình duyệt của họ */
 const KEY_HEN="aln_vp_hen";
-function luuHen(k){const h={k,luc:new Date().toISOString()};try{localStorage.setItem(KEY_HEN,JSON.stringify(h))}catch(e){}renderHen()}
+let henMoi=false;
+function luuHen(k){henMoi=!ADMIN();const h={k,luc:new Date().toISOString()};try{localStorage.setItem(KEY_HEN,JSON.stringify(h))}catch(e){}renderHen()}
 function renderHen(){const box=$("#hen");if(!box)return;clear(box);if(ADMIN()){box.hidden=true;return}let h=null;try{h=JSON.parse(localStorage.getItem(KEY_HEN)||"null")}catch(e){h=null}
   if(!h){box.hidden=true;return}box.hidden=false;box.appendChild(el("h4","","Lịch hẹn của bạn"));
   box.appendChild(el("p","","KTS Trần Long gọi lại buổi "+h.k+", từ số 0909 829 696."));
-  const d=new Date(h.luc);box.appendChild(el("p","note","Bạn chọn lúc "+vn(d).hm+" ngày "+vn(d).date.split("-").reverse().join("/")+"."))}
+  const d=new Date(h.luc);box.appendChild(el("p","note","Bạn chọn lúc "+vn(d).hm+" ngày "+vn(d).date.split("-").reverse().join("/")+"."));
+  if(MODE==="chu-nha"){const b=el("button","btn","Ngồi khu chờ · MyMy hướng dẫn");b.type="button";b.addEventListener("click",()=>khuCho(false));box.appendChild(b)}}
 
 /* ---------- hoạt động nền (chỉ câu đúng sự thật, không có số liệu bịa) ---------- */
 const AMB_PUB=[
@@ -736,7 +739,15 @@ let V3=null, dang3D=null;
 const KEY_3D="aln_vp_3d";
 function coWebGL(){try{const c=document.createElement("canvas");return!!(c.getContext("webgl2")||c.getContext("webgl"))}catch(e){return false}}
 function muon3D(){let v=null;try{v=localStorage.getItem(KEY_3D)}catch(e){v=null}const q=new URLSearchParams(location.search).get("che");if(q==="2d")return false;if(q==="3d")return coWebGL();return v!=="0"&&coWebGL()}
-function chonPhong(id){const z=ZM[id];if(!ADMIN()&&view(z).go)goRoom(id);else select(id,false)}
+function chonPhong(id){const z=ZM[id];if(id==="tt"&&MODE==="chu-nha"){khuCho(false);return}if(!ADMIN()&&view(z).go)goRoom(id);else select(id,false)}
+/* Khu chờ (08/11/2026, Nam: khách có hẹn với KTS thì chờ ở khu chờ; MyMy tư vấn, hướng dẫn dịch vụ).
+   "Bạn" ra ngồi khu chờ rồi MyMy mở khung trò chuyện với các nút đưa tới đúng phòng
+   (mymy-van-phong.js alnMyMyKhuCho). sauHen: vừa chọn giờ KTS gọi lại. */
+function khuCho(sauHen){if(ADMIN())return;if(!panel.hidden)closePanel();select("tt",false);goingTo=null;
+  const me=C.BAN;if(me.hidden){me.hidden=false;me.x=DIEM.vao[0];me.y=DIEM.vao[1]}
+  if(visible(C.MM)&&!C.MM.busy)say(C.MM,"Mời anh/chị ngồi khu chờ, em hướng dẫn trong lúc chờ nhé.",4200);
+  moveTo(me,DIEM.cho_khach[0],DIEM.cho_khach[1]).then(()=>{me.facing=true;if(typeof window.alnMyMyKhuCho==="function")window.alnMyMyKhuCho(!!sauHen)});
+  try{(window.dataLayer=window.dataLayer||[]).push({event:"aln_vp_khu_cho",sau_hen:sauHen?1:0})}catch(e){}}
 const API3={MB,Z,ZM,C,CH,L3,DOOR,view,visible,cname,atHome,chonPhong,bubble,tag,hienTen,nhanPhong,bangTuong,bangTen,veBangTen,
   phongMo:()=>!panel.hidden,get now(){return now},get night(){return night},get sel(){return sel}};
 function hienGoiY(){const h=$("#hint");h.classList.remove("an");clearTimeout(hienGoiY._t);hienGoiY._t=setTimeout(()=>h.classList.add("an"),8000)}
@@ -765,7 +776,7 @@ function veDangDien(){const box=$("#dangDien");if(!box)return;clearTimeout(HD.t)
 $("#ddNd").addEventListener("click",e=>{const z=e.currentTarget.dataset.z;if(z){select(z,true)}});
 document.querySelectorAll("#loTrinh [data-z]").forEach(b=>b.addEventListener("click",()=>{try{(window.dataLayer=window.dataLayer||[]).push({event:"aln_vp_lo_trinh",buoc:b.dataset.buoc})}catch(e){}goRoom(b.dataset.z)}));
 $("#nut3d").addEventListener("click",()=>bat3D(!V3));
-window.ALNVanPhong={bat3D,get V3(){return V3},C,ZM,vaoPhong:id=>goRoom(id)};
+window.ALNVanPhong={bat3D,get V3(){return V3},C,ZM,vaoPhong:id=>goRoom(id),khuCho};
 
 /* ---------- Đối tác chuyên môn thật (Nam chốt 02/11/2026) ----------
    Đối tác đã duyệt tự bật "Hiện tôi trong Văn phòng ALN" ở trang làm việc (aln-van-phong-diem-danh.js).
