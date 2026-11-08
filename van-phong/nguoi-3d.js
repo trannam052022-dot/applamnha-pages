@@ -17,9 +17,34 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 const GOC = new URL("../mo-hinh-3d/nguoi/", import.meta.url).href;
 const DONG_TAC = GOC + "dong-tac.glb?v=1";
 // id nhân vật trong van-phong.js → mô hình. gioi chọn dáng đứng/đi; cao = chiều cao trong văn phòng (m)
-export const NHAN_VAT = {
-  MM: { ma: "mymy", tep: "mymy.glb?v=1", gioi: "nu", cao: 1.6, luon: true } // lễ tân ở sảnh: khách thấy đầu tiên, nạp ngay
+// 4 nhân vật chủ nhà (08/11/2026): 2 cặp trẻ / lớn tuổi, hình minh hoạ, không đội tên người thật
+const CHU_NHA = {
+  cn_tre_nam: { ma: "cn_tre_nam", tep: "cn_tre_nam.glb?v=1", gioi: "nam", cao: 1.7 },
+  cn_tre_nu: { ma: "cn_tre_nu", tep: "cn_tre_nu.glb?v=1", gioi: "nu", cao: 1.6 },
+  cn_lon_nam: { ma: "cn_lon_nam", tep: "cn_lon_nam.glb?v=1", gioi: "nam", cao: 1.66 },
+  cn_lon_nu: { ma: "cn_lon_nu", tep: "cn_lon_nu.glb?v=1", gioi: "nu", cao: 1.55 }
 };
+export const NHAN_VAT = {
+  MM: { ma: "mymy", tep: "mymy.glb?v=1", gioi: "nu", cao: 1.6, luon: true }, // lễ tân ở sảnh: khách thấy đầu tiên, nạp ngay
+  // "Bạn" (khách đang xem): một trong 4 chủ nhà, giữ cố định theo máy (đợt 4 cho khách tự chọn)
+  BAN: { chon: Object.keys(CHU_NHA), nho: "aln_vp_ban_mh", luon: true },
+  // khách mới đến (chế độ quản trị): mỗi lần mở trang một chủ nhà, khác "Bạn" nếu được
+  KH: { chon: Object.keys(CHU_NHA) }
+};
+// mục có "chon" → chọn một chủ nhà; "nho" = khoá localStorage để giữ lựa chọn qua các lần mở
+const DA_CHON = {};
+function cauHinh(id) {
+  const cf = NHAN_VAT[id]; if (!cf || !cf.chon) return cf;
+  if (DA_CHON[id]) return DA_CHON[id];
+  let ma = null;
+  try { if (cf.nho) ma = localStorage.getItem(cf.nho); } catch (e) { /* bỏ qua */ }
+  if (!CHU_NHA[ma]) {
+    const khac = cf.chon.filter(m => !Object.values(DA_CHON).some(d => d.ma === m));
+    const ds = khac.length ? khac : cf.chon; ma = ds[Math.floor(Math.random() * ds.length)];
+    try { if (cf.nho) localStorage.setItem(cf.nho, ma); } catch (e) { /* bỏ qua */ }
+  }
+  return (DA_CHON[id] = Object.assign({ luon: cf.luon }, CHU_NHA[ma]));
+}
 // ?nguoi=1: ép nạp để kiểm thử (bỏ qua kiểm máy yếu, chờ lâu hơn)
 const EP = /[?&]nguoi=1\b/.test(location.search);
 const BAN_KINH = 16, HET_GIO = EP ? 90000 : 20000, FPS = 30;
@@ -111,7 +136,7 @@ export function taoNguoi3D(o) {
   function gan(id) { const m = MOI.get(id), n = NG.get(id); if (!m || m.trang !== "xong" || !n) return;
     if (m.mh.goc.parent !== n.g) n.g.add(m.mh.goc); n.body.visible = false; }
   async function napNV(c) {
-    const cf = NHAN_VAT[c.id]; MOI.set(c.id, { trang: "dang" });
+    const cf = cauHinh(c.id); MOI.set(c.id, { trang: "dang" });
     try {
       const [src, g] = await Promise.all([napNguon(), nap(GOC + cf.tep)]);
       const nguon = moTa(src.scene, true);
@@ -164,7 +189,7 @@ export function taoNguoi3D(o) {
     soat() {
       const bay = performance.now(); if (tat || bay - lanSoat < 1000) return; lanSoat = bay;
       if (!EP && cl && cl.muc >= 2) return; // máy đã tự hạ hết mức: không nạp thêm
-      api.CH.forEach(c => { if (NHAN_VAT[c.id] && !MOI.has(c.id) && api.visible(c) && (NHAN_VAT[c.id].luon || ganDo(c))) napNV(c); });
+      api.CH.forEach(c => { if (NHAN_VAT[c.id] && !MOI.has(c.id) && api.visible(c) && (cauHinh(c.id).luon || ganDo(c))) napNV(c); });
     },
     gan, // gọi lại sau khi người dựng bằng code được dựng lại (dungLaiNguoi)
     trang: id => (MOI.get(id) || {}).trang || (tat ? "tat" : "chua"),

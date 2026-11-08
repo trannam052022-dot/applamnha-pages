@@ -34,6 +34,10 @@ gốc toạ độ ở chân cây.
   | Mã | Nhân vật | Tam giác | Dung lượng |
   |---|---|---|---|
   | `mymy` | MyMy, lễ tân sảnh | 18.511 | 1,1 MB |
+  | `cn_tre_nam` | Chủ nhà trẻ (nam) | 18.490 | 1,1 MB |
+  | `cn_tre_nu` | Chủ nhà trẻ (nữ) | 19.151 | 1,1 MB |
+  | `cn_lon_nam` | Chủ nhà lớn tuổi (nam) | 18.185 | 1,0 MB |
+  | `cn_lon_nu` | Chủ nhà lớn tuổi (nữ) | 18.625 | 1,1 MB |
 - **`nguoi/<ma>/`** — ảnh tĩnh `anh.webp` (cắt từ ảnh 2D gốc) và clip biểu cảm Kling `<bieu_cam>.mp4`.
 - **`nguoi/dong-tac.glb`** — 9 động tác tải từ Mixamo (Adobe; được dùng trong sản phẩm thương mại,
   không được phân phối lại riêng lẻ dưới dạng thư viện động tác): dung_nu (Female Idle), dung_nam

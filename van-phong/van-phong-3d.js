@@ -16,7 +16,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { taoNguoi3D } from "./nguoi-3d.js?v=1";
+import { taoNguoi3D } from "./nguoi-3d.js?v=2";
 
 const K = 0.058, WH = 3.2, WK = WH / 86; let GW = 26, GH = 19; // GW, GH lấy từ mat-bang.js khi mở
 const BRASS = "#c9a35b";
