@@ -91,6 +91,11 @@
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://applamnha.vn/cam-nang/ban-tho-nha-pho-nhieu-tang-dat-tang-nao-huong-nao/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://applamnha.vn/cam-nang/ban-ve-xin-phep-xay-dung-gom-gi/</loc>
     <lastmod>2026-10-16</lastmod>
     <changefreq>monthly</changefreq>

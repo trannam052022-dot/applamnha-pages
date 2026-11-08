@@ -708,6 +708,41 @@ export async function mo(stage, api) {
     const dist = phone ? 14 : 11.5; bay(c, c.clone().add(dir.multiplyScalar(dist * 0.72)).add(new THREE.Vector3(0, dist * 0.72, 0)));
   }
 
+  /* --- đi dạo: khi "Bạn" đang đi tới một phòng, máy quay theo sau lưng ngang tầm mắt, nhìn về phía trước
+     như cảnh phim (dải đen trên dưới); tới nơi thì bay về khung nhìn của phòng. Khách kéo/xoay là nhả máy quay.
+     Tắt được bằng nút "Đi dạo"; máy bật giảm chuyển động thì mặc định tắt. --- */
+  let diDao = true, dangDao = false, daoK = 0;
+  const huong = new THREE.Vector3(0, 0, 1), hTam = new THREE.Vector3(), pMuon = new THREE.Vector3(), tMuon = new THREE.Vector3();
+  const DAO = phone ? { lui: 3.5, cao: 2.2, toi: 2.4 } : { lui: 3.0, cao: 1.85, toi: 2.8 };
+  function diDaoBuoc(dt) {
+    const me = api.C.BAN, diBo = api.visible(me) && me.path.length > 0, tuDo = performance.now() - chamLuc > 2500;
+    if (diBo && tuDo && diDao) {
+      bayTw = null; // đang bay về khung nhìn khác thì nhường cho máy quay đi dạo
+      const [tx, ty] = me.path[0], hx = tx - me.x, hy = ty - me.y, hd = Math.hypot(hx, hy);
+      if (!dangDao) { dangDao = true; controls.minDistance = 1; stage.classList.add("dang-dao"); if (hd > 0.05) huong.set(hx / hd, 0, hy / hd); }
+      else if (hd > 0.05) huong.lerp(hTam.set(hx / hd, 0, hy / hd), 1 - Math.exp(-dt * 3)).normalize();
+      const a = 1 - Math.exp(-dt * (cam.position.y < 4 ? 4.5 : 2.8)); // từ trên cao hạ xuống êm, xuống tới tầm mắt thì bám sát
+      pMuon.set(me.x - huong.x * DAO.lui, DAO.cao, me.y - huong.z * DAO.lui);
+      tMuon.set(me.x + huong.x * DAO.toi, 1.15, me.y + huong.z * DAO.toi);
+      cam.position.lerp(pMuon, a); controls.target.lerp(tMuon, a);
+      daoK = Math.min(1, daoK + dt * 1.4); return;
+    }
+    daoK = Math.max(0, daoK - dt * 1.4);
+    if (dangDao) {
+      dangDao = false; stage.classList.remove("dang-dao");
+      // tới nơi (khách không chạm máy quay): bay về khung nhìn phòng đang chọn
+      if (!diBo && tuDo && !bayTw) { if (api.sel && api.ZM[api.sel]) focus(api.sel); else datMacDinh(false); }
+    }
+    if (controls.minDistance < 4 && cam.position.distanceTo(controls.target) >= 4) controls.minDistance = 4;
+    if (!diDao && !bayTw && diBo && tuDo) {
+      const d = hTam.set(me.x, 0, me.y).sub(controls.target).multiplyScalar(0.05); controls.target.add(d); cam.position.add(d);
+    }
+  }
+  function veDaiPhim() {
+    if (daoK <= 0) return; const e = daoK * daoK * (3 - 2 * daoK), h = Math.round(H * (phone ? 0.07 : 0.09) * e);
+    g2.fillStyle = "#000"; g2.fillRect(0, 0, W, h); g2.fillRect(0, H - h, W, h);
+  }
+
   /* --- bấm chuột --- */
   const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), mat0 = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), hit = new THREE.Vector3();
   function phongTai(ev) {
@@ -745,7 +780,8 @@ export async function mo(stage, api) {
     api.CH.forEach(c => { if (!api.visible(c)) return; const n = NG.get(c.id); const y = n.pelvis.position.y + 0.95; const p = chieu(c.x, y, c.y); if (!p) return;
       const d = cam.position.distanceTo(new THREE.Vector3(c.x, y, c.y)); ds.push({ c, p, d }); });
     (api.bangTen ? api.bangTen() : []).forEach(b => { const p = chieu(b.x, 1.05, b.y); if (p) api.veBangTen(g2, p[0], p[1], b.text); });
-    ds.sort((a, b) => b.d - a.d).forEach(({ c, p, d }) => { if (c.sayUntil > api.now) api.bubble(g2, c, p[0], p[1]); else if (c.me || d < 7 || api.hienTen(c) && d < 30) api.tag(g2, c, p[0], p[1]); else if (c.doiTac) api.tag(g2, c, p[0], p[1], d >= 22); });
+    veDaiPhim();
+    ds.sort((a, b) => b.d - a.d).forEach(({ c, p, d }) => { if (c.sayUntil > api.now) api.bubble(g2, c, p[0], p[1]); else if (c.me && dangDao) return; else if (c.me || d < 7 || api.hienTen(c) && d < 30) api.tag(g2, c, p[0], p[1]); else if (c.doiTac) api.tag(g2, c, p[0], p[1], d >= 22); });
   }
 
   /* --- vòng vẽ --- */
@@ -768,10 +804,7 @@ export async function mo(stage, api) {
     if (document.hidden || (api.phongMo() && (phone || !lechX) && frameN % 4)) { truocVe = 0; return; }
     if (bayTw) { bayTw.k = Math.min(1, bayTw.k + dt * 1.6); const e = 1 - Math.pow(1 - bayTw.k, 3);
       controls.target.lerpVectors(bayTw.t0, bayTw.t1, e); cam.position.lerpVectors(bayTw.p0, bayTw.p1, e); if (bayTw.k >= 1) bayTw = null; }
-    const me = api.C.BAN;
-    if (!bayTw && api.visible(me) && me.path.length && performance.now() - chamLuc > 2500) {
-      const tg = new THREE.Vector3(me.x, 0, me.y), d = tg.clone().sub(controls.target).multiplyScalar(0.05); controls.target.add(d); cam.position.add(d);
-    }
+    diDaoBuoc(dt);
     controls.update();
     vienChon.datPhong(api.sel ? api.ZM[api.sel] : null);
     capNhatNguoi(dt, t / 1000); N3.soat();
@@ -787,11 +820,12 @@ export async function mo(stage, api) {
 
   return {
     focus, dem, capNhatVai, vuaKhung: () => datMacDinh(false),
+    datDiDao(on) { diDao = !!on; },
     lech(px) { lechX = Math.round(px) || 0; datLech(); },
     // dựng lại 1 nhân vật (đối tác thật thay người mờ minh hoạ: đổi độ trong suốt, màu áo)
     dungLaiNguoi(id) { const c = api.CH.find(x => x.id === id), cu = NG.get(id); if (!c || !cu) return; root.remove(cu.g);
       cu.g.traverse(o => { if (o.isMesh && o.material && o.material.dispose) o.material.dispose(); }); NG.set(id, nguoi(c)); N3.gan(id); },
-    dong() { chay = false; ro.disconnect(); controls.dispose(); renderer.dispose(); gl.remove(); ov.remove(); },
+    dong() { chay = false; stage.classList.remove("dang-dao"); ro.disconnect(); controls.dispose(); renderer.dispose(); gl.remove(); ov.remove(); },
     hien(on) { const dang = chay; gl.hidden = !on; ov.hidden = !on; chay = on; if (on) { resize(); if (!dang) { last = performance.now(); truocVe = 0; requestAnimationFrame(loop); } } },
     cl, apMuc, cayMoHinh: rung.coMoHinh,
     // nhân vật mô hình thật: trạng thái nạp + cho làm 1 động tác ngắn (chao, chi_tay, gat_dau)

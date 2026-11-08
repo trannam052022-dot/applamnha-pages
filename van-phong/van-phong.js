@@ -638,7 +638,7 @@ function nhanPhong(g,z,sx,sy,gon){const v=view(z);g.save();g.font="600 10px 'Be 
 /* ---------- vòng vẽ ---------- */
 let last=performance.now(),lastSec=-1;
 function frameLoop(t){const dt=Math.min(.2,(t-last)/1000);last=t;now=t;const sec=Math.floor(t/1000);if(sec!==lastSec){lastSec=sec;$("#clock").textContent=vn().hm}
-  CH.forEach(c=>{if(!c.path.length)return;const[tx,ty]=c.path[0];const dx=tx-c.x,dy=ty-c.y,d=Math.hypot(dx,dy),st=(c.me?3.2:2.4)*dt;
+  CH.forEach(c=>{if(!c.path.length)return;const[tx,ty]=c.path[0];const dx=tx-c.x,dy=ty-c.y,d=Math.hypot(dx,dy),st=(c.me?(V3&&DAO_BAT?2.1:3.2):2.4)*dt;
     if(d<=st){c.x=tx;c.y=ty;c.path.shift();if(!c.path.length&&c.res){const r=c.res;c.res=null;r()}}else{c.x+=dx/d*st;c.y+=dy/d*st;c.facing=(dx+dy)>.05}});
   if(V3){requestAnimationFrame(frameLoop);return} // bản 3D tự vẽ (van-phong-3d.js); ở đây chỉ chạy người đi lại
   if(tween){const k=1-Math.pow(.001,dt);zoom+=(tween.z-zoom)*k;panX+=(tween.x-panX)*k;panY+=(tween.y-panY)*k;updZ();if(Math.abs(tween.x-panX)<.5&&Math.abs(tween.z-zoom)<.002)tween=null}
@@ -737,6 +737,11 @@ $("#pickerClose").addEventListener("click",()=>{$("#picker").hidden=true});
    Không có WebGL hoặc tải lỗi → giữ bản 2D. Nhớ lựa chọn ở localStorage aln_vp_3d. */
 let V3=null, dang3D=null;
 const KEY_3D="aln_vp_3d";
+// "Đi dạo": khi nhân vật của bạn đi tới phòng, máy quay 3D đi theo sau lưng như cảnh phim. Mặc định bật (tắt nếu máy bật giảm chuyển động).
+const KEY_DAO="aln_vp_di_dao";
+function diDaoBat(){try{const v=localStorage.getItem(KEY_DAO);if(v==="1"||v==="0")return v==="1"}catch(e){}return!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)}
+let DAO_BAT=false;
+function nutDiDao(){const b=$("#didao");if(!b)return;const on=diDaoBat();DAO_BAT=on;b.hidden=!V3;b.classList.toggle("on",on);b.setAttribute("aria-pressed",on?"true":"false");if(V3&&V3.datDiDao)V3.datDiDao(on)}
 function coWebGL(){try{const c=document.createElement("canvas");return!!(c.getContext("webgl2")||c.getContext("webgl"))}catch(e){return false}}
 function muon3D(){let v=null;try{v=localStorage.getItem(KEY_3D)}catch(e){v=null}const q=new URLSearchParams(location.search).get("che");if(q==="2d")return false;if(q==="3d")return coWebGL();return v!=="0"&&coWebGL()}
 function chonPhong(id){const z=ZM[id];if(id==="tt"&&MODE==="chu-nha"){khuCho(false);return}if(!ADMIN()&&view(z).go)goRoom(id);else select(id,false)}
@@ -751,12 +756,12 @@ function khuCho(sauHen){if(ADMIN())return;if(!panel.hidden)closePanel();select("
 const API3={MB,Z,ZM,C,CH,L3,DOOR,view,visible,cname,atHome,chonPhong,bubble,tag,hienTen,nhanPhong,bangTuong,bangTen,veBangTen,
   phongMo:()=>!panel.hidden,get now(){return now},get night(){return night},get sel(){return sel}};
 function hienGoiY(){const h=$("#hint");h.classList.remove("an");clearTimeout(hienGoiY._t);hienGoiY._t=setTimeout(()=>h.classList.add("an"),8000)}
-function nut3D(){const b=$("#nut3d");b.textContent=V3?"Xem 2D":"Xem 3D";b.classList.toggle("on",!!V3);stage.classList.toggle("che-3d",!!V3);
+function nut3D(){const b=$("#nut3d");b.textContent=V3?"Xem 2D":"Xem 3D";b.classList.toggle("on",!!V3);stage.classList.toggle("che-3d",!!V3);nutDiDao();
   hienGoiY();$("#hint").textContent=V3?"Kéo để xoay, cuộn hoặc chụm hai ngón để phóng to. Bấm vào một phòng để đi tới.":"Bấm vào một phòng: nhân vật của bạn đi tới và mở công cụ thật của phòng đó."}
 async function bat3D(on){
   if(!on){if(V3){V3.dong();V3=null}cv.hidden=false;try{localStorage.setItem(KEY_3D,"0")}catch(e){}cacheS=0;nut3D();return}
   if(V3||dang3D)return;const b=$("#nut3d");b.disabled=true;b.textContent="Đang dựng 3D…";
-  dang3D=(async()=>{try{const m=await import("./van-phong-3d.js?v=18");V3=await m.mo(stage,API3);cv.hidden=true;try{localStorage.setItem(KEY_3D,"1")}catch(e){}}
+  dang3D=(async()=>{try{const m=await import("./van-phong-3d.js?v=19");V3=await m.mo(stage,API3);cv.hidden=true;try{localStorage.setItem(KEY_3D,"1")}catch(e){}}
     catch(e){V3=null;cv.hidden=false;log("sanh","Máy này chưa mở được bản 3D, đang xem bản 2D.","")}finally{dang3D=null;b.disabled=false;nut3D()}})();return dang3D}
 /* ---------- hoạt động thật, ẩn danh (hoatDongVanPhong) + lộ trình tới C4 ---------- */
 const URL_HD="https://asia-southeast1-aln-platform.cloudfunctions.net/hoatDongVanPhong";
@@ -776,6 +781,8 @@ function veDangDien(){const box=$("#dangDien");if(!box)return;clearTimeout(HD.t)
 $("#ddNd").addEventListener("click",e=>{const z=e.currentTarget.dataset.z;if(z){select(z,true)}});
 document.querySelectorAll("#loTrinh [data-z]").forEach(b=>b.addEventListener("click",()=>{try{(window.dataLayer=window.dataLayer||[]).push({event:"aln_vp_lo_trinh",buoc:b.dataset.buoc})}catch(e){}goRoom(b.dataset.z)}));
 $("#nut3d").addEventListener("click",()=>bat3D(!V3));
+$("#didao").addEventListener("click",()=>{const on=!diDaoBat();try{localStorage.setItem(KEY_DAO,on?"1":"0")}catch(e){}nutDiDao();
+  try{(window.dataLayer=window.dataLayer||[]).push({event:"aln_vp_di_dao",bat:on?1:0})}catch(e){}});
 window.ALNVanPhong={bat3D,get V3(){return V3},C,ZM,vaoPhong:id=>goRoom(id),khuCho};
 
 /* ---------- Đối tác chuyên môn thật (Nam chốt 02/11/2026) ----------
