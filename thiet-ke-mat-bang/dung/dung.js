@@ -2501,7 +2501,7 @@
       tenTep: tenTep, ga: ga,
       khiDong: function () { dang3D = false; phanTichCache = null; ve(); veBang(); }
     };
-    import('./dung-3d.js?v=4').then(function (m) { return m.mo(api); }).then(function () {
+    import('./dung-3d.js?v=5').then(function (m) { return m.mo(api); }).then(function () {
       $('x3dCho').hidden = true;
     }).catch(function (e) {
       dang3D = false; $('x3dCho').hidden = true;

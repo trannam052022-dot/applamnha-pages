@@ -14,6 +14,7 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { GTAOPass } from 'three/addons/postprocessing/GTAOPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { taoSong } from './dung-3d-song.js?v=2';
 import { taoThamQuan } from './dung-3d-tham-quan.js?v=1';
 
@@ -429,12 +430,46 @@ function tivi(g, M, x, y, z, rong, deChan) {
   hop(d, M.manHinh, x + 0.01, yy + 0.01, z + 0.035, x + rong - 0.01, yy + cao - 0.01, z + 0.037);
   if (deChan) { hop(g, M.denNham, x + rong / 2 - 0.15, y, z - 0.02, x + rong / 2 + 0.15, y + 0.012, z + 0.12); hop(g, M.denNham, x + rong / 2 - 0.03, y, z + 0.01, x + rong / 2 + 0.03, yy + 0.05, z + 0.03); }
 }
+/* ---- cây mô hình 3D (08/11/2026): bụi cây Quaternius (CC0) cho bồn cây, cùng file với Văn phòng ALN.
+   Mở 3D vẫn dựng ngay bằng cây code; tải xong mô hình (≤ 8 giây) thì dựng lại một lần. Bật "Nhẹ máy",
+   tiết kiệm dữ liệu, ?cay=0 hoặc tải lỗi → giữ cây code. Hình học giải nén về Float32 vì bước gộp khối
+   (nuong) nhân ma trận vào toạ độ. ---- */
+const CAY_URL = new URL('../../mo-hinh-3d/cay.glb?v=1', import.meta.url).href;
+let cayMau = null, cayHua = null;
+function sangFloat(geo) {
+  const g = new THREE.BufferGeometry();
+  ['position', 'normal', 'uv'].forEach((k) => { const a = geo.getAttribute(k); if (!a) return; const n = a.count, d = a.itemSize, f = new Float32Array(n * d);
+    for (let i = 0; i < n; i++) for (let j = 0; j < d; j++) f[i * d + j] = a.getComponent(i, j); g.setAttribute(k, new THREE.BufferAttribute(f, d)); });
+  if (geo.index) g.setIndex(Array.from(geo.index.array)); return g;
+}
+function napCay() {
+  if (cayHua) return cayHua;
+  const tat = /[?&]cay=0\b/.test(location.search) || (navigator.connection && navigator.connection.saveData);
+  cayHua = tat ? Promise.resolve(null) : new Promise((res) => {
+    const t = setTimeout(() => res(null), 8000);
+    new GLTFLoader().load(CAY_URL, (gl) => { clearTimeout(t); const mau = new Map(); gl.scene.updateMatrixWorld(true);
+      gl.scene.children.forEach((goc) => { const inv = goc.matrixWorld.clone().invert(), ps = [];
+        goc.traverse((m) => { if (m.isMesh) { const geo = sangFloat(m.geometry); geo.applyMatrix4(new THREE.Matrix4().multiplyMatrices(inv, m.matrixWorld)); geo.computeBoundingBox(); ps.push({ geo, mat: m.material }); } });
+        if (ps.length) mau.set(goc.name, ps); });
+      cayMau = mau; res(mau); }, undefined, () => { clearTimeout(t); res(null); });
+  });
+  return cayHua;
+}
+// đặt mẫu "ten" tại (x, y, z) trong nhóm g, đường kính tán ≈ rong (m)
+function datCay(g, ten, x, y, z, rong, quay) {
+  const ps = cayMau && cayMau.get(ten); if (!ps) return false;
+  let w = 0; ps.forEach((p) => { const b = p.geo.boundingBox; w = Math.max(w, b.max.x - b.min.x, b.max.z - b.min.z); });
+  const s = rong / (w || 1);
+  ps.forEach((p) => { const m = luoi(p.geo.clone(), p.mat); m.scale.setScalar(s); m.rotation.y = quay; m.position.set(x, y, z); g.add(m); });
+  return true;
+}
 function bonCay(g, M, w, h, r) {
   hopBo(g, M.chau, 0, 0, 0, w, 0.42, h, 0.015);
   hop(g, M.datTrong, 0.03, 0.42, 0.03, w - 0.03, 0.425, h - 0.03);
   const R = Math.min(h, 0.7) * 0.42, buoc = Math.max(0.3, R * 1.5);
   for (let x = R * 0.7 + 0.04, i = 0; x < w - R * 0.5; x += buoc, i++) {
     const cao = 0.5 + r() * 0.5, ban = R * (0.85 + r() * 0.35);
+    if (cayMau && datCay(g, r() > 0.5 ? 'bui_hoa' : 'bui', x, 0.42, h / 2 + (r() - 0.5) * Math.max(0, h - 2 * ban) * 0.6, ban * 2.0, r() * 6.28)) continue;
     for (let k = 0; k < 3; k++) {
       const geo = new THREE.IcosahedronGeometry(ban * (1 - k * 0.22), 1); geo.scale(1, 0.85, 1);
       geo.translate(x + (r() - 0.5) * 0.12, 0.42 + cao * (0.45 + k * 0.28), h / 2 + (r() - 0.5) * Math.max(0, h - 2 * ban) * 0.6);
@@ -1455,6 +1490,8 @@ export async function mo(api) {
   if (cl.nhe) { chipNhe.setAttribute('aria-pressed', 'true'); apMuc(MUC_CL.length - 1); } else apMuc(0);
   M.datNoiThat(plan.noi_that);
   dungLai();
+  // cây mô hình: tải nền, xong thì dựng lại một lần nếu bản vẽ có bồn cây / giếng trời
+  if (!cl.nhe) napCay().then((m) => { if (m && dangMo && api.lay().items.some((it) => it.ma === 'BC' || it.ma === 'GT')) dungLai(); });
   const v0 = viTriTong(); camera.position.copy(v0.p); ctl.target.copy(v0.t); camera.lookAt(v0.t); ctl.update();
   capGoiY();
   raf = requestAnimationFrame(vongLap);
