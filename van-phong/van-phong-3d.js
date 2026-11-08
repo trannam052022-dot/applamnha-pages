@@ -7,7 +7,8 @@
    quản trị); module này chỉ VẼ và nhận bấm chuột.
    - 1 ô = 1 m. Chiều cao đồ đạc đổi từ đơn vị isometric: K = 0,058 m.
    - Người dựng bằng code (khớp nối hông, gối, vai, khuỷu): đi, ngồi gõ phím,
-     đứng thở, nói. Chưa dùng mô hình người có sẵn.
+     đứng thở, nói. Từ 08/11/2026 nhân vật có mô hình thật (nguoi-3d.js, đợt 0: MyMy) thay
+     người dựng bằng code khi nạp xong; nạp lỗi/máy yếu thì giữ người dựng bằng code.
    - Không ghi gì, không dùng innerHTML: chữ vẽ lên canvas.
    ═══════════════════════════════════════════════════════════════ */
 import * as THREE from "three";
@@ -15,6 +16,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { taoNguoi3D } from "./nguoi-3d.js?v=1";
 
 const K = 0.058, WH = 3.2, WK = WH / 86; let GW = 26, GH = 19; // GW, GH lấy từ mat-bang.js khi mở
 const BRASS = "#c9a35b";
@@ -641,6 +643,7 @@ export async function mo(stage, api) {
     return { g, body, pelvis, spine, head, L, R, AL, AR, huong, rot: huong, seed: c.seed || Math.random() * 6 };
   }
   const NG = new Map(); api.CH.forEach(c => NG.set(c.id, nguoi(c)));
+  const N3 = taoNguoi3D({ NG, api, phone, cl, layTam: () => controls.target });
   const lerpA = (a, b, k) => { let d = b - a; while (d > Math.PI) d -= Math.PI * 2; while (d < -Math.PI) d += Math.PI * 2; return a + d * k; };
   function capNhatNguoi(dt, t) {
     api.CH.forEach(c => {
@@ -675,6 +678,7 @@ export async function mo(stage, api) {
         else n.head.rotation.set(0, Math.sin(t * 0.4 + s) * 0.3, 0);
       }
       n.pelvis.rotation.y = moving ? Math.sin(t * 8.5 + s) * 0.06 : 0;
+      N3.capNhat(c, moving, seated, noi, dt);
     });
   }
 
@@ -770,7 +774,7 @@ export async function mo(stage, api) {
     }
     controls.update();
     vienChon.datPhong(api.sel ? api.ZM[api.sel] : null);
-    capNhatNguoi(dt, t / 1000);
+    capNhatNguoi(dt, t / 1000); N3.soat();
     const k = Math.floor(t / 400); leds.forEach(l => { const on = ((l.k + k) % 5) !== 0; l.m.color.copy(on ? l.on : LED_TAT); });
     renderer.render(scene, cam); veChu();
     doToc(t);
@@ -786,10 +790,12 @@ export async function mo(stage, api) {
     lech(px) { lechX = Math.round(px) || 0; datLech(); },
     // dựng lại 1 nhân vật (đối tác thật thay người mờ minh hoạ: đổi độ trong suốt, màu áo)
     dungLaiNguoi(id) { const c = api.CH.find(x => x.id === id), cu = NG.get(id); if (!c || !cu) return; root.remove(cu.g);
-      cu.g.traverse(o => { if (o.isMesh && o.material && o.material.dispose) o.material.dispose(); }); NG.set(id, nguoi(c)); },
+      cu.g.traverse(o => { if (o.isMesh && o.material && o.material.dispose) o.material.dispose(); }); NG.set(id, nguoi(c)); N3.gan(id); },
     dong() { chay = false; ro.disconnect(); controls.dispose(); renderer.dispose(); gl.remove(); ov.remove(); },
     hien(on) { const dang = chay; gl.hidden = !on; ov.hidden = !on; chay = on; if (on) { resize(); if (!dang) { last = performance.now(); truocVe = 0; requestAnimationFrame(loop); } } },
     cl, apMuc, cayMoHinh: rung.coMoHinh,
+    // nhân vật mô hình thật: trạng thái nạp + cho làm 1 động tác ngắn (chao, chi_tay, gat_dau)
+    nguoi3D: id => N3.trang(id), dongTac: (id, ten) => N3.dongTac(id, ten),
     _scene: scene, _cam: cam, _controls: controls, _renderer: renderer, _ng: NG
   };
 }

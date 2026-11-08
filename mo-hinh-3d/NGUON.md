@@ -24,3 +24,21 @@ Mỗi mẫu là một node gốc mang tên ở cột 1; con của nó là phần
 gốc toạ độ ở chân cây.
 
 **Dựng lại file:** xem `scripts/mo-hinh-3d/README.md`.
+
+## nguoi/ — nhân vật văn phòng (08/11/2026, đợt 0: MyMy)
+
+- **`nguoi/<ma>.glb`** — nhân vật hình minh hoạ / trợ lý AI, không đội tên người thật. Ảnh 2D Nam
+  làm bằng ChatGPT (chính diện + lưng, tư thế chữ T), dựng 3D + gắn xương (Người hình người, bộ xương
+  Mixamo) bằng Tripo3D Pro — gói trả phí, mô hình riêng tư, được dùng thương mại. Lưới làm lại
+  bằng Retopo của Tripo (tứ giác), rồi nén: ảnh bề mặt 1024 px WebP, KHR_mesh_quantization.
+  | Mã | Nhân vật | Tam giác | Dung lượng |
+  |---|---|---|---|
+  | `mymy` | MyMy, lễ tân sảnh | 18.511 | 1,1 MB |
+- **`nguoi/<ma>/`** — ảnh tĩnh `anh.webp` (cắt từ ảnh 2D gốc) và clip biểu cảm Kling `<bieu_cam>.mp4`.
+- **`nguoi/dong-tac.glb`** — 9 động tác tải từ Mixamo (Adobe; được dùng trong sản phẩm thương mại,
+  không được phân phối lại riêng lẻ dưới dạng thư viện động tác): dung_nu (Female Idle), dung_nam
+  (Breathing Idle), di_nu (Female Normal Walk), di_nam (Male Standard Walk), ngoi_go_phim (Typing),
+  noi (Having A Chat At The Watercooler, lấy 12 giây đầu), chao (Waving), chi_tay (Aj Pointing Gesture),
+  gat_dau (Nodding Head Yes). Bỏ xương ngón tay.
+
+**Dựng lại / thêm nhân vật:** xem `scripts/mo-hinh-3d/nguoi/README.md`.
