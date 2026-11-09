@@ -20,7 +20,7 @@
     try { var d = { event: 'aln_vp_phong', phong: 'dt', buoc: buoc }; for (var k in them || {}) d[k] = them[k]; (window.dataLayer = window.dataLayer || []).push(d); } catch (e) { /* bỏ qua */ }
   }
   var MM = null, mo = false, dl = {}, kqCuoi = null;
-  var lead = { daGui: false, dangGui: false, dongY: '', sdt: '' };
+  var lead = { daGui: false, zalo: false, dangGui: false, dongY: '', sdt: '', buoi: '' };
   var VP = function () { return window.ALNVanPhong || {}; };
 
   /* ── khung ẩn chạy trang dự toán ── */
@@ -148,10 +148,13 @@
       docKetQua({ tong: 0, chan: 'chưa kết nối được máy chủ tính' });
     });
   }
+  /* Cách chủ phòng chốt (Nam 09/11/2026, áp cho mọi chủ phòng về sau): báo miệng con số → mời nhận
+     BẢNG CHI TIẾT qua Zalo (cần số + bấm đồng ý) → chưa muốn để số thì đưa BẢNG SƠ BỘ ngay trong chat
+     (từng phần lớn, đúng như trang công khai) → giữ chân: đặt giờ KTS gọi, lưu Không gian Nhà, các phòng khác. */
   function docKetQua(kq) {
     if (!kq.tong) {
       MM.bot('Dạ em đã ghi ' + moTaNha() + ', nhưng bảng chưa tính được: ' + (kq.chan || 'có ô cần sửa') + '\nAnh/chị để lại số, KTS Trần Long tính trực tiếp cho mình nha.');
-      MM.nut([{ nhan: 'Để lại số cho KTS gọi', lam: moiDeLaiSo }, { nhan: 'Tính lại từ đầu', lam: batDauHoi }]);
+      MM.nut([{ nhan: 'Để lại số cho KTS gọi', lam: function () { moiSo('goi'); } }, { nhan: 'Tính lại từ đầu', lam: batDauHoi }]);
       return;
     }
     if (VP().chuPhongNoi) VP().chuPhongNoi('Nhà anh/chị khoảng ' + kq.tongChu + ' ạ.', 1);
@@ -160,15 +163,54 @@
       + (kq.moiM2 && kq.moiM2 !== '—' ? ', tức khoảng ' + kq.moiM2 + ' đ/m² quy đổi' : '') + '.\n'
       + 'Đây là ước tính theo nhà mẫu cùng loại, chưa phải dự toán chính thức cho nhà anh/chị.'
       + (kq.ghiChu ? '\nLưu ý: ' + kq.ghiChu : ''));
-    MM.bot('Anh/chị muốn KTS Trần Long xem giúp con số này không ạ? Anh/chị để lại số, KTS gọi trong 1–2 ngày làm việc, không ràng buộc gì.');
-    nutChot();
+    moiBang();
   }
+  function moiBang() {
+    if (lead.zalo) { MM.bot('Dạ bảng chi tiết em đã chuyển để gửi qua Zalo số …' + lead.sdt.slice(-4) + ' rồi ạ.'); giuChan(); return; }
+    MM.bot('Bảng dự toán chi tiết từng hạng mục (khối lượng, đơn giá, thành tiền) em gửi qua Zalo cho anh/chị. Anh/chị cho em số Zalo nhé. Chưa tiện thì em gửi bảng sơ bộ ngay đây ạ.');
+    MM.nut([
+      { nhan: 'Nhận bảng chi tiết qua Zalo', lam: function () { moiSo('zalo'); } },
+      { nhan: 'Xem bảng sơ bộ ngay', lam: bangSoBo },
+      { nhan: 'Tính lại nhà khác', lam: batDauHoi },
+    ]);
+  }
+  // bảng sơ bộ = các phần lớn (dòng tổng) đúng như trang dự toán công khai, không có hạng mục chi tiết
+  function fmtD(v) { return Math.round(Number(v) || 0).toLocaleString('vi-VN') + ' đ'; }
+  function bangSoBo() {
+    ga('so_bo');
+    var r = null; try { var e = khung && khung.contentWindow && khung.contentWindow.__lastEstimate; r = e && e.result; } catch (x) { r = null; }
+    var nhom = (r && (r.lines || [])) || [], ht = (r && (r.lineHoanThien || [])) || [];
+    if (!nhom.length) { MM.bot('Dạ em chưa lấy được bảng sơ bộ, anh/chị để em gửi bảng chi tiết qua Zalo nhé.'); MM.nut([{ nhan: 'Nhận bảng chi tiết qua Zalo', lam: function () { moiSo('zalo'); } }]); return; }
+    var dong = nhom.filter(function (x) { return Number(x.v) > 0; }).map(function (x) { return x.n + ': ' + fmtD(x.v); });
+    var tongHt = ht.reduce(function (a, x) { return a + (Number(x.v) || 0); }, 0);
+    MM.bot('**Bảng dự toán sơ bộ** — ' + moTaNha() + '\n' + dong.join('\n')
+      + '\n**Cộng phần xây dựng: ' + (kqCuoi ? kqCuoi.tongChu : '') + '** (chưa thuế GTGT)'
+      + (tongHt > 0 ? '\nPhần chủ nhà tự mua (gạch ốp lát, thiết bị vệ sinh, cửa…): khoảng ' + fmtD(tongHt) + ', tính riêng.' : ''));
+    MM.bot('Bảng sơ bộ chỉ có từng phần lớn. Muốn xem từng hạng mục với khối lượng và đơn giá thì em gửi bảng chi tiết qua Zalo cho anh/chị ạ.');
+    MM.nut([
+      { nhan: 'Nhận bảng chi tiết qua Zalo', lam: function () { moiSo('zalo'); } },
+      { nhan: 'Lưu vào Không gian Nhà', lam: luuKhongGianNha },
+      { nhan: 'Tôi muốn hỏi thêm', lam: function () { MM.boCho(); MM.bot('Dạ anh/chị gõ câu hỏi bên dưới, em trả lời ngay ạ.'); } },
+    ]);
+  }
+  // giữ chân sau khi đã nhận yêu cầu: các việc tiếp theo trong văn phòng
+  function giuChan() {
+    MM.bot('Trong lúc chờ, anh/chị có thể làm tiếp mấy việc này ngay trong văn phòng ạ:');
+    var ds = [];
+    if (!lead.buoi) ds.push({ nhan: 'Hẹn giờ KTS gọi tư vấn', lam: function () { if (lead.sdt) { MM.bot('Dạ anh/chị tiện nghe máy buổi nào ạ?'); chonBuoi(lead.sdt); } else moiSo('goi'); } });
+    ds.push({ nhan: 'Lưu vào Không gian Nhà', lam: luuKhongGianNha });
+    ds.push({ nhan: 'Hướng nhà hợp tuổi', lam: function () { sangPhong('pt'); } });
+    ds.push({ nhan: 'Ước chi phí nội thất', lam: function () { sangPhong('nt'); } });
+    ds.push({ nhan: 'Gói quản lý thi công', lam: function () { sangPhong('kgn'); } });
+    MM.nut(ds);
+  }
+  function sangPhong(id) { ga('sang_phong', { toi: id }); MM.dong(); if (VP().vaoPhong) VP().vaoPhong(id); }
   function nutChot() {
     var ds = [];
-    if (!lead.daGui) ds.push({ nhan: 'Để lại số cho KTS gọi', lam: moiDeLaiSo });
+    if (!lead.zalo) ds.push({ nhan: 'Nhận bảng chi tiết qua Zalo', lam: function () { moiSo('zalo'); } });
+    ds.push({ nhan: 'Xem bảng sơ bộ ngay', lam: bangSoBo });
     ds.push({ nhan: 'Lưu vào Không gian Nhà', lam: luuKhongGianNha });
     ds.push({ nhan: 'Tính lại nhà khác', lam: batDauHoi });
-    ds.push({ nhan: 'Tôi muốn hỏi thêm', lam: function () { MM.boCho(); MM.bot('Dạ anh/chị gõ câu hỏi bên dưới, em trả lời ngay ạ.'); } });
     MM.nut(ds);
   }
 
@@ -189,10 +231,12 @@
     if (!m) return ''; var ten = m[1].replace(/\s+(số|sđt|sdt|điện thoại|dt|đt)\b.*$/i, '').trim();
     return (ten.match(/\p{L}/gu) || []).length >= 2 ? ten.slice(0, 40) : '';
   }
-  function moiDeLaiSo() {
-    ga('bam_de_lai_so');
-    if (lead.daGui) { MM.bot('Dạ em đã gửi yêu cầu rồi ạ, KTS Trần Long sẽ gọi số anh/chị đã đồng ý trước đó.'); return; }
-    MM.bot('Dạ anh/chị gõ số điện thoại vào ô bên dưới giúp em nhé.');
+  // muc: 'zalo' = gửi bảng chi tiết qua Zalo (mặc định khi khách tự gõ số); 'goi' = KTS gọi
+  var mucCho = 'zalo';
+  function moiSo(muc) {
+    mucCho = muc; ga(muc === 'zalo' ? 'bam_zalo' : 'bam_de_lai_so');
+    if (lead.sdt && (muc === 'zalo' ? lead.zalo : lead.daGui)) { MM.bot('Dạ em đã nhận yêu cầu rồi ạ (số …' + lead.sdt.slice(-4) + ').'); giuChan(); return; }
+    MM.bot(muc === 'zalo' ? 'Dạ anh/chị gõ số Zalo vào ô bên dưới giúp em nhé.' : 'Dạ anh/chị gõ số điện thoại vào ô bên dưới giúp em nhé.');
     MM.cho(function (text) {
       if (coSdt(text)) return true;
       MM.bot('Dạ em chưa thấy số điện thoại trong tin nhắn. Anh/chị gõ lại số giúp em (VD: 0909 123 456) nhé.'); return true;
@@ -202,23 +246,48 @@
     if (!MM || typeof MM.laySdt !== 'function') return false;
     var sdt = MM.laySdt(text); if (!sdt) return false;
     MM.ghiLichSu('user', anSdt(text));
-    if (lead.daGui) { MM.bot('Dạ em đã gửi yêu cầu rồi ạ, KTS Trần Long sẽ gọi số anh/chị đã đồng ý trước đó. Muốn đổi số thì anh/chị nhắn Zalo 0909 829 696 giúp em nhé.'); return true; }
-    var ten = docTen(text); lead.dongY = 'chua'; ga('moi_dong_y');
-    MM.bot('Dạ, nếu anh/chị muốn KTS Trần Long liên hệ số …' + sdt.slice(-4) + ' thì bấm nút đồng ý dưới đây nhé. Chưa bấm thì ALN chưa lưu số này.');
-    hienNutDongY(sdt, ten, true);
+    var muc = mucCho;
+    if (muc === 'zalo' ? lead.zalo : lead.daGui) { MM.bot('Dạ em đã nhận yêu cầu rồi ạ. Muốn đổi số thì anh/chị nhắn Zalo 0909 829 696 giúp em nhé.'); return true; }
+    var ten = docTen(text); lead.dongY = 'chua'; ga('moi_dong_y', { muc: muc });
+    MM.bot(muc === 'zalo'
+      ? 'Dạ, nếu anh/chị muốn nhận bảng dự toán chi tiết qua Zalo số …' + sdt.slice(-4) + ' thì bấm nút đồng ý dưới đây nhé. Chưa bấm thì ALN chưa lưu số này.'
+      : 'Dạ, nếu anh/chị muốn KTS Trần Long liên hệ số …' + sdt.slice(-4) + ' thì bấm nút đồng ý dưới đây nhé. Chưa bấm thì ALN chưa lưu số này.');
+    hienNutDongY(sdt, ten, true, muc);
     return true;
   }
-  function hienNutDongY(sdt, ten, coDeSau) {
+  function hienNutDongY(sdt, ten, coDeSau, muc) {
+    muc = muc || 'goi';
     napCauPhapLy().then(function () {
-      if (lead.daGui) return;
+      if (muc === 'zalo' ? lead.zalo : lead.daGui) return;
       if (!cauPhapLy) { MM.bot('Dạ anh/chị nhắn Zalo 0909 829 696 giúp em để KTS liên hệ nhé.'); return; }
-      var ds = [{ nhan: 'Đồng ý để KTS Trần Long liên hệ', lam: function () { guiLead(sdt, ten); } }];
+      var ds = [muc === 'zalo'
+        ? { nhan: 'Đồng ý — gửi bảng qua Zalo cho tôi', lam: function () { guiZalo(sdt); } }
+        : { nhan: 'Đồng ý để KTS Trần Long liên hệ', lam: function () { guiLead(sdt, ten); } }];
       if (coDeSau) ds.push({ nhan: 'Để sau', lam: function () {
         ga('de_sau'); var c = 'Dạ, khi nào cần KTS xem giúp thì anh/chị bấm nút này nhé.';
         MM.bot(c); MM.ghiLichSu('assistant', c + ' (Khách CHƯA đồng ý để KTS liên hệ — không nói KTS sẽ gọi, không xin số lại.)');
-        hienNutDongY(sdt, ten, false);
+        if (muc === 'zalo') { MM.bot('Em gửi anh/chị bảng sơ bộ trước nhé.'); bangSoBo(); }
+        hienNutDongY(sdt, ten, false, muc);
       } });
       MM.nut(ds, ghiChuDongY());
+    });
+  }
+  // gửi bảng chi tiết qua Zalo: cùng đường với nút "Nhận bảng chi tiết qua Zalo" trên trang dự toán
+  // (submitDuToanLead kênh zalo → máy chủ dựng PDF gửi nhóm KTS để chuyển qua Zalo khách)
+  function guiZalo(sdt) {
+    if (lead.zalo || lead.dangGui) return; lead.dangGui = true; ga('dong_y', { muc: 'zalo' });
+    trangDuToan().then(function (w) { return w.alnDuToanGuiZalo({ phone: sdt, dongY: true }); }).then(function (kq) {
+      lead.dangGui = false; if (!kq || !kq.id) throw new Error('khong_co_ma_lead');
+      lead.zalo = true; lead.dongY = 'da'; lead.sdt = sdt; ga('da_gui', { muc: 'zalo', trung: kq.dup ? 1 : 0 });
+      if (VP().chuPhongDongTac) VP().chuPhongDongTac('gat_dau');
+      var cam = 'Dạ em cảm ơn anh/chị. KTS Trần Long sẽ gửi bảng dự toán chi tiết qua Zalo số …' + sdt.slice(-4) + ' trong giờ làm việc ạ.';
+      MM.bot(cam); MM.ghiLichSu('assistant', cam + ' (Khách đã để số và bấm đồng ý — không xin liên hệ nữa.)');
+      giuChan();
+    }).catch(function (err) {
+      lead.dangGui = false; var code = (err && err.code) || ''; ga('loi', { muc: 'zalo', ma_loi: String(code || 'khong_ro').slice(0, 60) });
+      if (/invalid-argument/.test(code) && err.message) MM.bot('Dạ ' + err.message);
+      else { if (window.alnBaoLoiNeuCan) window.alnBaoLoiNeuCan('van-phong phong-du-toan zalo', err); MM.bot('Dạ em chưa gửi được, anh/chị bấm lại giúp em nhé.'); }
+      hienNutDongY(sdt, '', false, 'zalo');
     });
   }
   function guiLead(sdt, ten) {
@@ -243,7 +312,7 @@
   function chonBuoi(sdt) {
     MM.nut(BUOI.map(function (b) {
       return { nhan: b[1], lam: function () {
-        ga('chon_buoi', { buoi: b[0] });
+        ga('chon_buoi', { buoi: b[0] }); lead.buoi = b[0];
         MM.ghiLienHe(sdt, 'MyMy (Văn phòng ALN, phòng Dự toán) — buổi tiện nghe máy: ' + b[1].toLowerCase(), 'mymy_du_toan');
         if (VP().luuHen) VP().luuHen(b[0] === 'bat_ky' ? 'lúc nào cũng được' : b[1].toLowerCase());
         MM.bot('Dạ em đã ghi buổi ' + b[1].toLowerCase() + ' ạ. Anh/chị lưu dự toán này vào Không gian Nhà để xem chi tiết từng hạng mục và mở lại khi KTS gọi nhé.');
@@ -261,6 +330,15 @@
     MM.dong();
   }
 
+  // khách tự gõ: hỏi bảng dự toán / gửi Zalo / file → trả lời ngay, không đi AI (AI không biết đã tính xong)
+  function yDinh(text) {
+    var t = String(text || '').toLowerCase();
+    if (!/(bảng|file|pdf|zalo|gửi|chi tiết|báo giá|dự toán)/.test(t)) return false;
+    ga('y_dinh_bang');
+    if (!kqCuoi || !kqCuoi.tong) { MM.bot('Dạ em hỏi nhanh 5 câu về căn nhà rồi lập bảng cho anh/chị ngay ạ.'); batDauHoi(); return true; }
+    if (/sơ bộ|xem (luôn|ngay|trước)|ở đây|trên này/.test(t)) { bangSoBo(); return true; }
+    moiBang(); return true;
+  }
   function batDauHoi() { dl = {}; kqCuoi = null; ga('bat_dau'); hoiNgang(); }
 
   window.ALNPhongDuToan = {
@@ -276,7 +354,7 @@
     chuanBi: function () { trangDuToan().catch(function () { /* báo lúc tính */ }); },
     ketThuc: function () { mo = false; if (MM) try { MM.boCho(); } catch (e) { /* bỏ qua */ } },
     dangMo: function () { return mo; },
-    xuLyTin: function (text, api) { MM = api; if (coSdt(text)) return true; return dienTuCau(text); },
+    xuLyTin: function (text, api) { MM = api; if (coSdt(text)) return true; if (dienTuCau(text)) return true; return yDinh(text); },
     xuLySdt: function (text, api) { MM = api; return coSdt(text); },
     // ngữ cảnh gửi alnChat: như trang dự toán (máy chủ tự quyết lúc xin liên hệ)
     nguCanh: function () {
