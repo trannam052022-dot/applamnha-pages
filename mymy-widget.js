@@ -333,7 +333,10 @@ if (!document.getElementById('mymy-btn')) {
     });
   }
   // trang biết khách là anh hay chị (vd Văn phòng ALN: khách tự chọn nhân vật) → MyMy xưng đúng, khỏi hỏi lại
-  window.alnMyMyXungHo = function (g) { if (g === 'anh' || g === 'chị') S.addr = g === 'chị' ? 'chị' : 'anh'; }; // chỉ 2 giá trị hằng
+  // trang biết tuổi khách (Văn phòng ALN): khách từ 50 tuổi gọi cô/chú — chỉ nhận 4 giá trị hằng
+  window.alnMyMyXungHo = function (g) { S.addr = g === 'chị' ? 'chị' : g === 'cô' ? 'cô' : g === 'chú' ? 'chú' : g === 'anh' ? 'anh' : S.addr; };
+  // trang đổi người đang nói trong khung chat (vd chủ phòng ở Văn phòng ALN); chữ gán bằng textContent
+  window.alnMyMyTen = function (ten) { const n = document.querySelector('#mymy-win .mm-name'); if (n && typeof ten === 'string') n.textContent = ten.slice(0, 60); };
   function setGender(chon){
     const g = chon === 'chị' ? 'chị' : 'anh'; // chỉ 2 giá trị từ nút data-g
     markChatted();
@@ -493,7 +496,8 @@ if (!document.getElementById('mymy-btn')) {
     showTyping();
     callAlnChat(text, S.history).then((res) => {
       removeTyping();
-      addBot(mmHtml(res.reply || '')); // escape rồi mới định dạng (**đậm**, xuống dòng)
+      const lt = window.ALN_MYMY_TRANG && window.ALN_MYMY_TRANG.locTraLoi;
+      addBot(mmHtml(typeof lt === 'function' ? String(lt(res.reply || '') || '') : (res.reply || ''))); // escape rồi mới định dạng (**đậm**, xuống dòng)
       S.history.push({ role: 'assistant', content: res.reply || '' });
       renderSuggestion(res.suggestion);
       // Trang có ngữ cảnh riêng (nguCanh) để máy chủ tự quyết lúc xin liên hệ —

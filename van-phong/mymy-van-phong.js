@@ -65,8 +65,35 @@
      chuyển cho bộ hội thoại của phòng (phong-du-toan.js); rời phòng thì gỡ ra, trở lại như lễ tân. */
   var CP = function (id) { return function () { return window.ALNChuPhong && window.ALNChuPhong[id]; }; };
   var PHONG = { dt: function () { return window.ALNPhongDuToan; }, pt: CP('pt'), nt: CP('nt'), tk: CP('tk'), kho: CP('kho'), kgn: CP('kgn') }, choPhong = null;
+  /* Xưng hô theo phòng (Nam duyệt 09/11/2026). Khách tự chọn nhân vật (giới tính, dưới/từ 50 tuổi):
+     - MyMy + chủ phòng trẻ: xưng "em", gọi khách anh/chị (dưới 50) hoặc cô/chú (từ 50).
+     - Chủ phòng Phong thủy (lớn tuổi): xưng "tôi", gọi khách anh/chị ở mọi tuổi.
+     - Khung chat ghi tên vai ("Trợ lý Dự toán · ALN"), không đặt tên người (chủ phòng là trợ lý tự động).
+     Chưa chọn nhân vật: giữ "anh/chị". */
+  var VAI = { dt: 'Trợ lý Dự toán', pt: 'Trợ lý Phong thủy', nt: 'Trợ lý Nội thất', kgn: 'Trợ lý Quản lý thi công', tk: 'Trợ lý Xưởng thiết kế', kho: 'Thủ thư Hồ sơ mẫu' };
+  var XUNG_TOI = { pt: 1 }, phongNoi = null;
+  function goiKhach() {
+    var k = window.alnKhachVP && window.alnKhachVP(); if (!k) return null;
+    if (k.tuoi === 'tu_50' && !XUNG_TOI[phongNoi]) return k.gioi === 'nu' ? 'cô' : 'chú';
+    return k.gioi === 'nu' ? 'chị' : 'anh';
+  }
+  var hoa = function (x) { return x.charAt(0).toUpperCase() + x.slice(1); };
+  var RE_EM = /(^|[^\p{L}])(em|Em)(?=[^\p{L}]|$)/gu;
+  function loi(t) {
+    if (typeof t !== 'string') return t;
+    var x = goiKhach(); if (x) t = t.replace(/anh\/chị/g, x).replace(/Anh\/chị/g, hoa(x));
+    if (XUNG_TOI[phongNoi]) t = t.replace(RE_EM, function (m, a, e) { return a + (e === 'Em' ? 'Tôi' : 'tôi'); });
+    return t;
+  }
+  window.alnVpLoi = loi; // van-phong.js: lời chủ phòng trong bong bóng 3D
+  function datNguoiNoi(id) {
+    phongNoi = id || null;
+    if (window.alnMyMyTen) window.alnMyMyTen(id && VAI[id] ? VAI[id] + ' · ALN' : 'MyMy · ALN');
+    var x = goiKhach(); if (x && window.alnMyMyXungHo) window.alnMyMyXungHo(x);
+  }
   function vaoPhongNoi(api, id) {
     var p = PHONG[id] && PHONG[id](); if (!p) return false;
+    datNguoiNoi(id);
     var T = window.ALN_MYMY_TRANG;
     T.xuLyTin = function (text, a) { return p.xuLyTin(text, a); };
     // phòng không tự xử lý số (xuLySdt) → widget tự hỏi đồng ý chung (mymy_chat)
@@ -79,20 +106,21 @@
     if (typeof window.alnMyMyMo === 'function') window.alnMyMyMo(true);
   };
   window.alnMyMyRoiPhong = function () {
-    choPhong = null; var T = window.ALN_MYMY_TRANG; if (!T || !T.xuLyTin) return;
+    choPhong = null; datNguoiNoi(null); var T = window.ALN_MYMY_TRANG; if (!T || !T.xuLyTin) return;
     delete T.xuLyTin; delete T.xuLySdt; delete T.nguCanh;
     Object.keys(PHONG).forEach(function (k) { var p = PHONG[k](); if (p && p.dangMo()) p.ketThuc(); });
   };
 
   window.ALN_MYMY_TRANG = {
     loiMoi: 'Em là MyMy, anh/chị cần gì cứ hỏi em nhé.',
-    khongMoiChung: true, // văn phòng tự chào (van-phong.js), không cần bóng chat mời chung
+    khongMoiChung: true,
+    locTraLoi: function (t) { return loi(t); }, // câu trả lời của AI cũng theo xưng hô của phòng // văn phòng tự chào (van-phong.js), không cần bóng chat mời chung
     moDau: function (api) {
       apiDaCo = api;
-      // khách đã chọn nhân vật (nam/nữ) → câu soạn sẵn xưng "anh" hoặc "chị" thay cho "anh/chị"
+      // khách đã chọn nhân vật → câu soạn sẵn đổi "anh/chị" theo khách, "em" → "tôi" ở phòng xưng tôi
       if (!api._xungHo) { api._xungHo = 1; var botGoc = api.bot;
-        api.bot = function (t) { var k = window.alnKhachVP && window.alnKhachVP(); if (k && typeof t === 'string') { var x = k.gioi === 'nu' ? 'chị' : 'anh'; t = t.replace(/anh\/chị/g, x).replace(/Anh\/chị/g, x.charAt(0).toUpperCase() + x.slice(1)); } return botGoc.apply(this, arguments.length > 1 ? [t].concat([].slice.call(arguments, 1)) : [t]); };
-        var k0 = window.alnKhachVP && window.alnKhachVP(); if (k0 && window.alnMyMyXungHo) window.alnMyMyXungHo(k0.gioi === 'nu' ? 'chị' : 'anh'); }
+        api.bot = function (t) { return botGoc.apply(this, [loi(t)].concat([].slice.call(arguments, 1))); };
+        datNguoiNoi(phongNoi); }
       if (choPhong) { var ph = choPhong; choPhong = null; if (vaoPhongNoi(api, ph)) return true; }
       if (choKhuCho) { var k = choKhuCho; choKhuCho = null; khuCho(api, k.sauHen); try { api.hienTuDau(); } catch (e) { /* widget cũ */ } return true; }
       ga('mo');

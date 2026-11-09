@@ -525,7 +525,7 @@ function roiPhongNoi(){if(!ngoiO)return;const id=ngoiO,ag=C[AGENT[id]],me=C.BAN;
   if(ag){ag.nhin=null;ag.ngoi=false;home(ag).finally(()=>{ag.busy=false})}
   if(typeof window.alnMyMyRoiPhong==="function")window.alnMyMyRoiPhong()}
 // bộ hội thoại phòng gọi qua window.ALNVanPhong: chủ phòng nói (bóng chữ) + động tác; lịch hẹn; mở trang đầy đủ của phòng
-function chuPhongNoi(text,kieu){const ag=ngoiO&&C[AGENT[ngoiO]];if(!ag||!visible(ag))return;say(ag,text,4200);if(kieu===1&&V3&&V3.dongTac)V3.dongTac(ag.id,"chi_tay")}
+function chuPhongNoi(text,kieu){const ag=ngoiO&&C[AGENT[ngoiO]];if(!ag||!visible(ag))return;if(typeof window.alnVpLoi==="function")text=window.alnVpLoi(text);say(ag,text,4200);if(kieu===1&&V3&&V3.dongTac)V3.dongTac(ag.id,"chi_tay")}
 function chuPhongDongTac(ten){const ag=ngoiO&&C[AGENT[ngoiO]];if(ag&&V3&&V3.dongTac)V3.dongTac(ag.id,ten)}
 function moTrangPhong(id,sauKhiMo,goKhac){openPanel(id,goKhac);if(typeof sauKhiMo!=="function")return;const bd=Date.now();
   (function cho(){let w=null;try{w=frame.contentWindow}catch(e){w=null}
@@ -798,9 +798,9 @@ function chonNhanVat(ma,tuChon){const x=NV_KHACH.find(v=>v[0]===ma);if(!x)return
   try{localStorage.setItem(KEY_NV,ma);localStorage.setItem(KEY_NV_CHON,tuChon?"1":"0")}catch(e){}
   $("#chonNv").hidden=true;if(V3&&V3.doiNguoi)V3.doiNguoi("BAN",ma);
   vaoSanh();select("sanh",true); // đưa sảnh (chỗ khách đứng) vào giữa màn hình, cả 2D lẫn 3D
-  if(tuChon){const xh=x[1]==="nu"?"chị":"anh";say(C.MM,"Em chào "+xh+", "+xh+" đang ở sảnh tiếp khách. "+xh[0].toUpperCase()+xh.slice(1)+" bấm phòng nào em dẫn đi ạ.",5500);
+  if(tuChon){const xh=x[2]==="tu_50"?(x[1]==="nu"?"cô":"chú"):(x[1]==="nu"?"chị":"anh");say(C.MM,"Em chào "+xh+", "+xh+" đang ở sảnh tiếp khách. "+xh[0].toUpperCase()+xh.slice(1)+" bấm phòng nào em dẫn đi ạ.",5500);
     try{(window.dataLayer=window.dataLayer||[]).push({event:"aln_vp_chon_nv",buoc:"chon",gioi:x[1],tuoi:x[2]})}catch(e){}
-    if(typeof window.alnMyMyXungHo==="function")window.alnMyMyXungHo(x[1]==="nu"?"chị":"anh")}}
+    if(typeof window.alnMyMyXungHo==="function")window.alnMyMyXungHo(xh)}}
 $("#nvBoQua")&&$("#nvBoQua").addEventListener("click",()=>{$("#chonNv").hidden=true;noiBatBan();select("sanh",true);
   try{(window.dataLayer=window.dataLayer||[]).push({event:"aln_vp_chon_nv",buoc:"bo_qua"})}catch(e){}});
 document.querySelectorAll("[data-vai]").forEach(b=>b.addEventListener("click",()=>setMode(b.dataset.vai,false)));
