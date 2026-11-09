@@ -39,7 +39,7 @@ gốc toạ độ ở chân cây.
   | `cn_lon_nam` | Chủ nhà lớn tuổi (nam) | 18.185 | 1,0 MB |
   | `cn_lon_nu` | Chủ nhà lớn tuổi (nữ) | 18.625 | 1,1 MB |
 - **`nguoi/<ma>/`** — ảnh tĩnh `anh.webp` (cắt từ ảnh 2D gốc) và clip biểu cảm Kling `<bieu_cam>.mp4`.
-- **`nguoi/dong-tac.glb`** — 9 động tác tải từ Mixamo (Adobe; được dùng trong sản phẩm thương mại,
+- **`nguoi/dong-tac.alnm`** (khoá từ `dong-tac.glb`, xem `scripts/mo-hinh-3d/nguoi/khoa-mo-hinh.mjs`) — 9 động tác tải từ Mixamo (Adobe; được dùng trong sản phẩm thương mại,
   không được phân phối lại riêng lẻ dưới dạng thư viện động tác): dung_nu (Female Idle), dung_nam
   (Breathing Idle), di_nu (Female Normal Walk), di_nam (Male Standard Walk), ngoi_go_phim (Typing),
   noi (Having A Chat At The Watercooler, lấy 12 giây đầu), chao (Waving), chi_tay (Aj Pointing Gesture),

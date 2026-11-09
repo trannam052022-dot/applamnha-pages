@@ -1,9 +1,9 @@
 /* ═══════════════════════════════════════════════════════════════
    Văn phòng ALN 3D — nhân vật mô hình thật (đợt 0: MyMy, 08/11/2026)
 
-   - Mỗi nhân vật: mo-hinh-3d/nguoi/<ma>.glb (Tripo3D, gắn xương kiểu Mixamo, ~15–20 nghìn tam giác,
+   - Mỗi nhân vật: mo-hinh-3d/nguoi/<ma>.alnm (Tripo3D, khoá bằng scripts/mo-hinh-3d/nguoi/khoa-mo-hinh.mjs, gắn xương kiểu Mixamo, ~15–20 nghìn tam giác,
      ảnh bề mặt 1024 px, dưới 1,5 MB). Thêm nhân vật mới = thêm file + 1 dòng trong NHAN_VAT.
-   - Động tác dùng chung: mo-hinh-3d/nguoi/dong-tac.glb (bộ xương nguồn Mixamo + 9 động tác).
+   - Động tác dùng chung: mo-hinh-3d/nguoi/dong-tac.alnm (bộ xương nguồn Mixamo + 9 động tác).
      Lúc nạp, mỗi động tác được CHUYỂN sang xương của từng nhân vật theo góc quay thế giới
      (so với tư thế chữ T của hai bên), nên tư thế nghỉ của từng mô hình Tripo lệch nhau vẫn đúng.
    - Chỉ nạp nhân vật ở gần chỗ đang xem (phòng đang mở hoặc tâm camera trong BAN_KINH m);
@@ -15,36 +15,36 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 const GOC = new URL("../mo-hinh-3d/nguoi/", import.meta.url).href;
-const DONG_TAC = GOC + "dong-tac.glb?v=2"; // v2 (09/11/2026): có ngón tay
+const DONG_TAC = GOC + "dong-tac.alnm?v=3"; // v2 (09/11/2026): có ngón tay; v3: khoá .alnm
 // id nhân vật trong van-phong.js → mô hình. gioi chọn dáng đứng/đi; cao = chiều cao trong văn phòng (m)
 // 4 nhân vật chủ nhà (08/11/2026): 2 cặp trẻ / lớn tuổi, hình minh hoạ, không đội tên người thật
 const CHU_NHA = {
-  cn_tre_nam: { ma: "cn_tre_nam", tep: "cn_tre_nam.glb?v=1", gioi: "nam", cao: 1.7 },
-  cn_tre_nu: { ma: "cn_tre_nu", tep: "cn_tre_nu.glb?v=1", gioi: "nu", cao: 1.6 },
-  cn_lon_nam: { ma: "cn_lon_nam", tep: "cn_lon_nam.glb?v=1", gioi: "nam", cao: 1.66 },
-  cn_lon_nu: { ma: "cn_lon_nu", tep: "cn_lon_nu.glb?v=1", gioi: "nu", cao: 1.55 }
+  cn_tre_nam: { ma: "cn_tre_nam", tep: "cn_tre_nam.alnm?v=2", gioi: "nam", cao: 1.7 },
+  cn_tre_nu: { ma: "cn_tre_nu", tep: "cn_tre_nu.alnm?v=2", gioi: "nu", cao: 1.6 },
+  cn_lon_nam: { ma: "cn_lon_nam", tep: "cn_lon_nam.alnm?v=2", gioi: "nam", cao: 1.66 },
+  cn_lon_nu: { ma: "cn_lon_nu", tep: "cn_lon_nu.alnm?v=2", gioi: "nu", cao: 1.55 }
 };
 export const NHAN_VAT = {
-  MM: { ma: "mymy", tep: "mymy.glb?v=1", hd: "mymy-hd.glb?v=1", gioi: "nu", cao: 1.6, luon: true }, // lễ tân ở sảnh: khách thấy đầu tiên, nạp ngay
+  MM: { ma: "mymy", tep: "mymy.alnm?v=2", hd: "mymy-hd.alnm?v=2", gioi: "nu", cao: 1.6, luon: true }, // lễ tân ở sảnh: khách thấy đầu tiên, nạp ngay
   // "Bạn" (khách đang xem): một trong 4 chủ nhà, giữ cố định theo máy (đợt 4 cho khách tự chọn)
   // chủ phòng Dự toán (09/11/2026, Nam: tạm dùng MyMy cho mọi phòng tới khi có nhân vật riêng); nạp khi khách tới gần
   // nhân viên văn phòng (09/11/2026, Nam gửi 10 nhân viên + 1 leader; chỗ còn trống nhân bản nhân vật hợp lý)
-  N: { ma: "nv_leader", tep: "nv_leader.glb?v=1", gioi: "nam", cao: 1.72 },
-  TP: { ma: "nv_tp", tep: "nv_tp.glb?v=1", gioi: "nu", cao: 1.6 },
-  L: { ma: "nv_linh", tep: "nv_linh.glb?v=1", gioi: "nu", cao: 1.6 },
-  ML: { ma: "nv_ml", tep: "nv_ml.glb?v=1", gioi: "nu", cao: 1.58 },
-  ADS: { ma: "nv_ads", tep: "nv_ads.glb?v=1", gioi: "nu", cao: 1.6 },
-  DT: { ma: "nv_dt", tep: "nv_dt.glb?v=1", gioi: "nam", cao: 1.7 },
-  PT: { ma: "nv_pt", tep: "nv_pt.glb?v=1", gioi: "nam", cao: 1.68 },
-  NTA: { ma: "nv_nt", tep: "nv_nt.glb?v=1", gioi: "nam", cao: 1.72 },
-  QL: { ma: "nv_ql", tep: "nv_ql.glb?v=1", gioi: "nam", cao: 1.7 },
+  N: { ma: "nv_leader", tep: "nv_leader.alnm?v=2", gioi: "nam", cao: 1.72 },
+  TP: { ma: "nv_tp", tep: "nv_tp.alnm?v=2", gioi: "nu", cao: 1.6 },
+  L: { ma: "nv_linh", tep: "nv_linh.alnm?v=2", gioi: "nu", cao: 1.6 },
+  ML: { ma: "nv_ml", tep: "nv_ml.alnm?v=2", gioi: "nu", cao: 1.58 },
+  ADS: { ma: "nv_ads", tep: "nv_ads.alnm?v=2", gioi: "nu", cao: 1.6 },
+  DT: { ma: "nv_dt", tep: "nv_dt.alnm?v=2", gioi: "nam", cao: 1.7 },
+  PT: { ma: "nv_pt", tep: "nv_pt.alnm?v=2", gioi: "nam", cao: 1.68 },
+  NTA: { ma: "nv_nt", tep: "nv_nt.alnm?v=2", gioi: "nam", cao: 1.72 },
+  QL: { ma: "nv_ql", tep: "nv_ql.alnm?v=2", gioi: "nam", cao: 1.7 },
   // bàn đối tác chuyên môn: nhân vật minh hoạ khi chưa có đối tác thật bật hiện (có đối tác thì dùng người dựng bằng code — không gán khuôn mặt, giới tính cho người thật)
-  KS: { ma: "nv_ks", tep: "nv_ks.glb?v=1", gioi: "nam", cao: 1.72, minhHoa: true },
-  KTV: { ma: "nv_dt", tep: "nv_dt.glb?v=1", gioi: "nam", cao: 1.7, minhHoa: true }, // nhân bản
-  DN: { ma: "nv_nt", tep: "nv_nt.glb?v=1", gioi: "nam", cao: 1.72, minhHoa: true }, // nhân bản
-  DS: { ma: "nv_ds", tep: "nv_ds.glb?v=1", gioi: "nu", cao: 1.62, minhHoa: true },
-  CEO: { ma: "nv_ks", tep: "nv_ks.glb?v=1", gioi: "nam", cao: 1.72 }, // nhân bản
-  DB: { ma: "nv_ds", tep: "nv_ds.glb?v=1", gioi: "nu", cao: 1.62 }, // nhân bản (thủ thư phòng Hồ sơ mẫu)
+  KS: { ma: "nv_ks", tep: "nv_ks.alnm?v=2", gioi: "nam", cao: 1.72, minhHoa: true },
+  KTV: { ma: "nv_dt", tep: "nv_dt.alnm?v=2", gioi: "nam", cao: 1.7, minhHoa: true }, // nhân bản
+  DN: { ma: "nv_nt", tep: "nv_nt.alnm?v=2", gioi: "nam", cao: 1.72, minhHoa: true }, // nhân bản
+  DS: { ma: "nv_ds", tep: "nv_ds.alnm?v=2", gioi: "nu", cao: 1.62, minhHoa: true },
+  CEO: { ma: "nv_ks", tep: "nv_ks.alnm?v=2", gioi: "nam", cao: 1.72 }, // nhân bản
+  DB: { ma: "nv_ds", tep: "nv_ds.alnm?v=2", gioi: "nu", cao: 1.62 }, // nhân bản (thủ thư phòng Hồ sơ mẫu)
   BAN: { chon: Object.keys(CHU_NHA), nho: "aln_vp_ban_mh", luon: true },
   // khách mới đến (chế độ quản trị): mỗi lần mở trang một chủ nhà, khác "Bạn" nếu được
   KH: { chon: Object.keys(CHU_NHA) }
@@ -68,16 +68,32 @@ const EP = /[?&]nguoi=1\b/.test(location.search);
 const BAN_KINH = 16, HET_GIO = EP ? 90000 : 20000, FPS = 30;
 
 /* ---------- nạp ---------- */
+/* Mô hình khoá dạng .alnm (09/11/2026, chống tải nhanh — xem scripts/mo-hinh-3d/nguoi/khoa-mo-hinh.mjs):
+   "ALNM" + phiên bản + dữ liệu GLB đã trộn byte. Tải về, gỡ trộn trong bộ nhớ rồi đưa cho GLTFLoader.
+   Không phải mã hoá: chỉ chặn tải bằng công cụ có sẵn; bản quyền ALN ghi trong asset.copyright của mô hình. */
+function goTron(u8) {
+  let s = (0x9e3779b9 ^ u8.length) >>> 0 || 1;
+  for (let i = 0; i < u8.length; i++) { s ^= s << 13; s >>>= 0; s ^= s >>> 17; s ^= s << 5; s >>>= 0; u8[i] ^= s & 0xff; }
+  return u8;
+}
 let loader = null;
 function nap(url) {
   loader = loader || new GLTFLoader();
+  const ctl = typeof AbortController === "function" ? new AbortController() : null;
   return new Promise((res, rej) => {
-    const t = setTimeout(() => rej(new Error("quá giờ " + url)), HET_GIO);
-    loader.load(url, g => { clearTimeout(t); res(g); }, undefined, e => { clearTimeout(t); rej(e); });
+    const t = setTimeout(() => { if (ctl) ctl.abort(); rej(new Error("quá giờ " + url)); }, HET_GIO);
+    fetch(url, ctl ? { signal: ctl.signal } : undefined)
+      .then(r => { if (!r.ok) throw new Error("HTTP " + r.status + " " + url); return r.arrayBuffer(); })
+      .then(ab => {
+        const v = new DataView(ab); let buf = ab;
+        if (ab.byteLength > 8 && v.getUint32(0) === 0x414c4e4d) buf = goTron(new Uint8Array(ab, 8)).slice().buffer;
+        loader.parse(buf, "", g => { clearTimeout(t); res(g); }, e => { clearTimeout(t); rej(e); });
+      })
+      .catch(e => { clearTimeout(t); rej(e); });
   });
 }
 let nguonHua = null;
-function napNguon() { return nguonHua || (nguonHua = nap(DONG_TAC)); }
+function napNguon() { return nguonHua || (nguonHua = nap(DONG_TAC).catch(e => { nguonHua = null; throw e; })); }
 
 /* ---------- chuyển động tác sang xương nhân vật ---------- */
 const UP = new THREE.Vector3(0, 1, 0);
@@ -168,17 +184,21 @@ function canTuThe(nguon, dich) {
 export function taoNguoi3D(o) {
   const { NG, api, layTam, phone, cl, layCam } = o;
   // ảnh bề mặt nét (2048) cho người khách nhìn gần (lễ tân, chủ phòng): máy đủ bộ nhớ, không tiết kiệm dữ liệu, chưa tự hạ chất lượng
-  const hdDuoc = () => EP || (!(navigator.deviceMemory && navigator.deviceMemory < 4) && !(cl && cl.muc >= 1));
+  const hdDuoc = () => EP || (!phone && !(navigator.deviceMemory && navigator.deviceMemory < 4) && !(cl && cl.muc >= 1));
   const qs = location.search, conn = navigator.connection;
   const tat = !EP && (/[?&]nguoi=0\b/.test(qs) || (conn && conn.saveData) || (navigator.deviceMemory && navigator.deviceMemory <= 2));
   const MOI = new Map(); // id → { trang: 'dang'|'xong'|'loi', mh }
+  // nạp lần lượt (đo 4G 09/11/2026: nạp ~10 nhân vật cùng lúc làm lễ tân hiện sau 25 giây, mạng yếu quá giờ cả loạt):
+  // lễ tân + "Bạn" trước, rồi nhân vật gần chỗ đang xem nhất; điện thoại / mạng chậm 1 file một lúc, máy tính 2
+  const cham = !!(conn && (/(^|-)2g|3g/.test(conn.effectiveType || "") || (conn.downlink && conn.downlink < 3)));
+  const TOI_DA = phone || cham ? 1 : 2; let dangNap = 0;
   let lanSoat = 0;
   const coDoiTac = id => { const c = api.CH.find(x => x.id === id); return !!(c && c.doiTac && (NHAN_VAT[id] || {}).minhHoa); };
   function gan(id) { const m = MOI.get(id), n = NG.get(id); if (!m || m.trang !== "xong" || !n) return;
     if (coDoiTac(id)) { if (m.mh.goc.parent) m.mh.goc.parent.remove(m.mh.goc); n.body.visible = true; return; }
     if (m.mh.goc.parent !== n.g) n.g.add(m.mh.goc); n.body.visible = false; }
   async function napNV(c) {
-    const cf = cauHinh(c.id); MOI.set(c.id, { trang: "dang" });
+    const cf = cauHinh(c.id); MOI.set(c.id, { trang: "dang" }); dangNap++;
     try {
       const tep = cf.hd && hdDuoc() ? cf.hd : cf.tep;
       const [src, g] = await Promise.all([napNguon(), nap(GOC + tep).catch(e => tep !== cf.tep ? nap(GOC + cf.tep) : Promise.reject(e))]);
@@ -213,7 +233,7 @@ export function taoNguoi3D(o) {
       console.warn("Nhân vật 3D " + cf.ma + " nạp lỗi, dùng người dựng bằng code:", e);
       MOI.set(c.id, { trang: "loi" });
       try { (window.dataLayer = window.dataLayer || []).push({ event: "aln_vp_nguoi_3d", ma: cf.ma, kq: "loi" }); } catch (e2) { /* bỏ qua */ }
-    }
+    } finally { dangNap--; lanSoat = 0; }
   }
   function ganDo(c) {
     const tam = layTam(); if (Math.hypot(c.x - tam.x, c.y - tam.z) < BAN_KINH) return true;
@@ -307,7 +327,11 @@ export function taoNguoi3D(o) {
     soat() {
       const bay = performance.now(); if (tat || bay - lanSoat < 1000) return; lanSoat = bay;
       if (!EP && cl && cl.muc >= 2) return; // máy đã tự hạ hết mức: không nạp thêm
-      api.CH.forEach(c => { if (NHAN_VAT[c.id] && !MOI.has(c.id) && api.visible(c) && (cauHinh(c.id).luon || ganDo(c))) napNV(c); });
+      if (dangNap >= TOI_DA) return;
+      const tam = layTam();
+      const ds = api.CH.filter(c => NHAN_VAT[c.id] && !MOI.has(c.id) && api.visible(c) && (cauHinh(c.id).luon || ganDo(c)))
+        .sort((a, b) => (cauHinh(b.id).luon ? 1 : 0) - (cauHinh(a.id).luon ? 1 : 0) || Math.hypot(a.x - tam.x, a.y - tam.z) - Math.hypot(b.x - tam.x, b.y - tam.z));
+      ds.slice(0, TOI_DA - dangNap).forEach(napNV);
     },
     // khách tự chọn nhân vật của mình (09/11/2026): ghi lựa chọn, bỏ mô hình đang có, lần soát sau nạp mô hình mới
     doi(id, ma) {
