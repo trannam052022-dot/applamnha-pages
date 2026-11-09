@@ -16,7 +16,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { taoNguoi3D } from "./nguoi-3d.js?v=2";
+import { taoNguoi3D } from "./nguoi-3d.js?v=3";
 
 const K = 0.058, WH = 3.2, WK = WH / 86; let GW = 26, GH = 19; // GW, GH lấy từ mat-bang.js khi mở
 const BRASS = "#c9a35b";
@@ -648,9 +648,10 @@ export async function mo(stage, api) {
   function capNhatNguoi(dt, t) {
     api.CH.forEach(c => {
       const n = NG.get(c.id), vis = api.visible(c); n.g.visible = vis; if (!vis) return;
-      const moving = c.path.length > 0, seated = !moving && c.seated && api.atHome(c), noi = c.sayUntil > api.now;
+      const moving = c.path.length > 0, seated = !moving && (c.seated && api.atHome(c) || !!c.ngoi), noi = c.sayUntil > api.now;
       n.g.position.set(c.x, 0, c.y);
       if (moving) { const [tx, ty] = c.path[0]; if (Math.hypot(tx - c.x, ty - c.y) > 0.01) n.huong = Math.atan2(tx - c.x, ty - c.y); }
+      else if (c.nhin) n.huong = Math.atan2(c.nhin[0] - c.x, c.nhin[1] - c.y); // đang nói chuyện: quay về phía người kia
       else if (api.atHome(c)) { const b = ganBan(c.hx, c.hy); n.huong = c.faceViewer ? 0 : (b ? Math.atan2(b[0] - c.hx, b[1] - c.hy) : n.huong); }
       n.rot = lerpA(n.rot, n.huong, Math.min(1, dt * 9)); n.g.rotation.y = n.rot;
       const s = n.seed;

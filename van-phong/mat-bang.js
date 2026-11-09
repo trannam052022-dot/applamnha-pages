@@ -195,7 +195,9 @@
     },
     diem: {
       vao: [12.6, 37.6], ra: [12.6, 37.8], tu_van: [14.4, 8.8], tp_ghe: [14.6, 9.6],
-      ca_phe: [18.2, 34.3], cho_khach: [21.1, 32.6], khach_dung: [12.6, 32.4], ghe_vuon: [12.6, 23.6]
+      ca_phe: [18.2, 34.3], cho_khach: [21.1, 32.6], khach_dung: [12.6, 32.4], ghe_vuon: [12.6, 23.6],
+      // phòng Dự toán: ghế khách ở bàn trao đổi, chỗ chủ phòng đứng nói chuyện cạnh bàn (09/11/2026)
+      ghe_dt: [4.5, 24.55], dung_dt: [5.75, 23.9]
     },
     /* Bàn của đối tác chuyên môn thật (nhanSuVanPhong): 3 bàn vẽ Xưởng + 1 bàn designer. */
     ghe: [

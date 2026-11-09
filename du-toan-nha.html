@@ -1279,7 +1279,8 @@ window.alnDuToanDienGiup=async function(gt){
  await run(false,true); // 02/10/2026: tính trên máy chủ — trả Promise, mymy-du-toan-nha.js chờ
  const ghiChu=$('blocked').hidden?'':$('blocked').textContent.trim();
  if($('out').hidden)return {tong:0,tongChu:'',moiM2:'',chan:ghiChu||'Chưa tính được.'};
- const chu=(!$('btvTong').hidden?$('btvTongCong'):$('total')).textContent||'';
+ // số đầy đủ (fmt) — KHÔNG đọc ô #total: ô đó ghi "1,43 tỷ", bỏ ký tự ra 143 → "0 triệu" (sửa 09/11/2026)
+ const chu=(!$('btvTong').hidden?$('btvTongCong'):$('tot2')).textContent||'';
  const so=Number(chu.replace(/[^\d]/g,''))||0;
  return {tong:so,tongChu:so?ty(so):'',moiM2:$('perM2').textContent.trim(),chan:'',ghiChu:ghiChu};
 };

@@ -368,7 +368,7 @@ const atHome=c=>Math.abs(c.x-c.hx)<.05&&Math.abs(c.y-c.hy)<.05;
 const cname=c=>ADMIN()?c.name:c.pn;
 
 function drawChar(g,c){const[sx,sy]=P(c.x,c.y,0);const t=now/1000;g.save();if(c.ghost)g.globalAlpha=.5;
-  const moving=c.path.length>0, seated=!moving&&c.seated&&atHome(c);
+  const moving=c.path.length>0, seated=!moving&&(c.seated&&atHome(c)||c.ngoi);
   g.fillStyle="rgba(0,0,0,.25)";g.beginPath();g.ellipse(sx,sy,7.5,3.6,0,0,7);g.fill();
   const ph=moving?Math.sin(t*13+c.seed):0, bob=moving?Math.abs(ph)*1.3:Math.sin(t*2+c.seed)*.4, lift=seated?4:0;
   if(!seated){g.fillStyle=c.pants;g.fillRect(sx-4,sy-8+(ph>0?-1.2:0),3,8);g.fillRect(sx+1,sy-8+(ph<0?-1.2:0),3,8)}
@@ -497,8 +497,38 @@ const CHAO={
  kgn:"Đăng nhập bằng mã OTP số điện thoại để theo dõi hồ sơ nhà của mình."
 };
 let goingTo=null;
+/* ---------- phòng có chủ phòng nói chuyện (09/11/2026, thử ở phòng Dự toán) ----------
+   Nam: khách tới phòng ngồi vào ghế, chủ phòng nói chuyện và trả kết quả như 2 người nói chuyện thật,
+   thay vì mở cả trang phải điền; chủ phòng chốt luôn. "Bạn" ngồi ghế khách ở bàn trao đổi, chủ phòng
+   (tạm là MyMy) đứng cạnh bàn quay về phía khách; khung trò chuyện mở bằng bộ hội thoại của phòng
+   (phong-du-toan.js qua window.alnMyMyPhong). Bấm phòng khác / khu chờ là rời bàn. */
+const PHONG_NOI={dt:{ghe:MB.diem.ghe_dt,dung:MB.diem.dung_dt,co:()=>!!(window.ALNPhongDuToan&&window.alnMyMyPhong)}};
+let ngoiO=null;
+async function ngoiPhong(id){const P=PHONG_NOI[id],me=C.BAN,ag=C[AGENT[id]];if(!P||!P.ghe)return;
+  if(me.hidden){me.hidden=false;me.x=DIEM.vao[0];me.y=DIEM.vao[1]}goingTo=id;ngoiO=id;
+  try{if(window.ALNPhongDuToan&&window.ALNPhongDuToan.chuanBi)window.ALNPhongDuToan.chuanBi()}catch(e){}
+  const agRa=ag&&visible(ag)?(ag.busy=true,moveTo(ag,P.dung[0],P.dung[1],true)):null;
+  const[dx,dy]=DOOR[id];await moveTo(me,dx,dy);if(goingTo!==id)return;
+  await moveTo(me,P.ghe[0],P.ghe[1]);if(goingTo!==id)return;
+  me.ngoi=true;if(ag&&visible(ag)){me.nhin=[ag.x,ag.y];await agRa;if(ngoiO!==id)return;ag.nhin=[me.x,me.y];me.nhin=[ag.x,ag.y];
+    say(ag,"Mời anh/chị ngồi, em tính chi phí cho nhà mình nhé.",4200);if(V3&&V3.dongTac)V3.dongTac(ag.id,"chao")}
+  try{(window.dataLayer=window.dataLayer||[]).push({event:"aln_vp_ngoi_phong",phong:id})}catch(e){}
+  window.alnMyMyPhong(id)}
+function roiPhongNoi(){if(!ngoiO)return;const id=ngoiO,ag=C[AGENT[id]],me=C.BAN;ngoiO=null;me.ngoi=false;me.nhin=null;
+  if(ag){ag.nhin=null;home(ag).finally(()=>{ag.busy=false})}
+  if(typeof window.alnMyMyRoiPhong==="function")window.alnMyMyRoiPhong()}
+// bộ hội thoại phòng gọi qua window.ALNVanPhong: chủ phòng nói (bóng chữ) + động tác; lịch hẹn; mở trang đầy đủ của phòng
+function chuPhongNoi(text,kieu){const ag=ngoiO&&C[AGENT[ngoiO]];if(!ag||!visible(ag))return;say(ag,text,4200);if(kieu===1&&V3&&V3.dongTac)V3.dongTac(ag.id,"chi_tay")}
+function chuPhongDongTac(ten){const ag=ngoiO&&C[AGENT[ngoiO]];if(ag&&V3&&V3.dongTac)V3.dongTac(ag.id,ten)}
+function moTrangPhong(id,sauKhiMo){openPanel(id);if(typeof sauKhiMo!=="function")return;const bd=Date.now();
+  (function cho(){let w=null;try{w=frame.contentWindow}catch(e){w=null}
+    if(w&&w.location&&w.location.pathname!=="blank"&&w.alnLuuChiTiet){try{sauKhiMo(w)}catch(e){console.error(e)}return}
+    if(Date.now()-bd<20000&&!panel.hidden)setTimeout(cho,300)})()}
+
 async function goRoom(id){const z=ZM[id],v=view(z);if(!v.go)return;
   if(ADMIN()&&v.tab){window.open(alnUrl(v.go),"_blank","noopener");log(id,"Mở "+v.name+" ở tab mới","");return}
+  roiPhongNoi();
+  if(!ADMIN()&&PHONG_NOI[id]&&PHONG_NOI[id].co()){select(id,false);if(!panel.hidden)closePanel();ngoiPhong(id);return}
   select(id,false);
   if(id!=="tiep"&&C.N.tiep){C.N.tiep=false;home(C.N).finally(()=>{C.N.busy=false})}
   if(!ADMIN()){const me=C.BAN;if(me.hidden){me.hidden=false;me.x=DIEM.vao[0];me.y=DIEM.vao[1]}goingTo=id;
@@ -748,7 +778,7 @@ function chonPhong(id){const z=ZM[id];if(id==="tt"&&MODE==="chu-nha"){khuCho(fal
 /* Khu chờ (08/11/2026, Nam: khách có hẹn với KTS thì chờ ở khu chờ; MyMy tư vấn, hướng dẫn dịch vụ).
    "Bạn" ra ngồi khu chờ rồi MyMy mở khung trò chuyện với các nút đưa tới đúng phòng
    (mymy-van-phong.js alnMyMyKhuCho). sauHen: vừa chọn giờ KTS gọi lại. */
-function khuCho(sauHen){if(ADMIN())return;if(!panel.hidden)closePanel();select("tt",false);goingTo=null;
+function khuCho(sauHen){if(ADMIN())return;roiPhongNoi();if(!panel.hidden)closePanel();select("tt",false);goingTo=null;
   const me=C.BAN;if(me.hidden){me.hidden=false;me.x=DIEM.vao[0];me.y=DIEM.vao[1]}
   if(visible(C.MM)&&!C.MM.busy)say(C.MM,"Mời anh/chị ngồi khu chờ, em hướng dẫn trong lúc chờ nhé.",4200);
   moveTo(me,DIEM.cho_khach[0],DIEM.cho_khach[1]).then(()=>{me.facing=true;if(typeof window.alnMyMyKhuCho==="function")window.alnMyMyKhuCho(!!sauHen)});
@@ -761,7 +791,7 @@ function nut3D(){const b=$("#nut3d");b.textContent=V3?"Xem 2D":"Xem 3D";b.classL
 async function bat3D(on){
   if(!on){if(V3){V3.dong();V3=null}cv.hidden=false;try{localStorage.setItem(KEY_3D,"0")}catch(e){}cacheS=0;nut3D();return}
   if(V3||dang3D)return;const b=$("#nut3d");b.disabled=true;b.textContent="Đang dựng 3D…";
-  dang3D=(async()=>{try{const m=await import("./van-phong-3d.js?v=19");V3=await m.mo(stage,API3);cv.hidden=true;try{localStorage.setItem(KEY_3D,"1")}catch(e){}}
+  dang3D=(async()=>{try{const m=await import("./van-phong-3d.js?v=20");V3=await m.mo(stage,API3);cv.hidden=true;try{localStorage.setItem(KEY_3D,"1")}catch(e){}}
     catch(e){V3=null;cv.hidden=false;log("sanh","Máy này chưa mở được bản 3D, đang xem bản 2D.","")}finally{dang3D=null;b.disabled=false;nut3D()}})();return dang3D}
 /* ---------- hoạt động thật, ẩn danh (hoatDongVanPhong) + lộ trình tới C4 ---------- */
 const URL_HD="https://asia-southeast1-aln-platform.cloudfunctions.net/hoatDongVanPhong";
@@ -783,7 +813,7 @@ document.querySelectorAll("#loTrinh [data-z]").forEach(b=>b.addEventListener("cl
 $("#nut3d").addEventListener("click",()=>bat3D(!V3));
 $("#didao").addEventListener("click",()=>{const on=!diDaoBat();try{localStorage.setItem(KEY_DAO,on?"1":"0")}catch(e){}nutDiDao();
   try{(window.dataLayer=window.dataLayer||[]).push({event:"aln_vp_di_dao",bat:on?1:0})}catch(e){}});
-window.ALNVanPhong={bat3D,get V3(){return V3},C,ZM,vaoPhong:id=>goRoom(id),khuCho};
+window.ALNVanPhong={bat3D,get V3(){return V3},C,ZM,vaoPhong:id=>goRoom(id),khuCho,chuPhongNoi,chuPhongDongTac,luuHen,moTrangPhong,roiPhongNoi};
 
 /* ---------- Đối tác chuyên môn thật (Nam chốt 02/11/2026) ----------
    Đối tác đã duyệt tự bật "Hiện tôi trong Văn phòng ALN" ở trang làm việc (aln-van-phong-diem-danh.js).

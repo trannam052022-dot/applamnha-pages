@@ -27,6 +27,8 @@ const CHU_NHA = {
 export const NHAN_VAT = {
   MM: { ma: "mymy", tep: "mymy.glb?v=1", gioi: "nu", cao: 1.6, luon: true }, // lễ tân ở sảnh: khách thấy đầu tiên, nạp ngay
   // "Bạn" (khách đang xem): một trong 4 chủ nhà, giữ cố định theo máy (đợt 4 cho khách tự chọn)
+  // chủ phòng Dự toán (09/11/2026, Nam: tạm dùng MyMy cho mọi phòng tới khi có nhân vật riêng); nạp khi khách tới gần
+  DT: { ma: "mymy", tep: "mymy.glb?v=1", gioi: "nu", cao: 1.6 },
   BAN: { chon: Object.keys(CHU_NHA), nho: "aln_vp_ban_mh", luon: true },
   // khách mới đến (chế độ quản trị): mỗi lần mở trang một chủ nhà, khác "Bạn" nếu được
   KH: { chon: Object.keys(CHU_NHA) }
