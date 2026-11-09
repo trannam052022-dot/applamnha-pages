@@ -28,7 +28,23 @@ export const NHAN_VAT = {
   MM: { ma: "mymy", tep: "mymy.glb?v=1", hd: "mymy-hd.glb?v=1", gioi: "nu", cao: 1.6, luon: true }, // lễ tân ở sảnh: khách thấy đầu tiên, nạp ngay
   // "Bạn" (khách đang xem): một trong 4 chủ nhà, giữ cố định theo máy (đợt 4 cho khách tự chọn)
   // chủ phòng Dự toán (09/11/2026, Nam: tạm dùng MyMy cho mọi phòng tới khi có nhân vật riêng); nạp khi khách tới gần
-  DT: { ma: "mymy", tep: "mymy.glb?v=1", hd: "mymy-hd.glb?v=1", gioi: "nu", cao: 1.6 },
+  // nhân viên văn phòng (09/11/2026, Nam gửi 10 nhân viên + 1 leader; chỗ còn trống nhân bản nhân vật hợp lý)
+  N: { ma: "nv_leader", tep: "nv_leader.glb?v=1", gioi: "nam", cao: 1.72 },
+  TP: { ma: "nv_tp", tep: "nv_tp.glb?v=1", gioi: "nu", cao: 1.6 },
+  L: { ma: "nv_linh", tep: "nv_linh.glb?v=1", gioi: "nu", cao: 1.6 },
+  ML: { ma: "nv_ml", tep: "nv_ml.glb?v=1", gioi: "nu", cao: 1.58 },
+  ADS: { ma: "nv_ads", tep: "nv_ads.glb?v=1", gioi: "nu", cao: 1.6 },
+  DT: { ma: "nv_dt", tep: "nv_dt.glb?v=1", gioi: "nam", cao: 1.7 },
+  PT: { ma: "nv_pt", tep: "nv_pt.glb?v=1", gioi: "nam", cao: 1.68 },
+  NTA: { ma: "nv_nt", tep: "nv_nt.glb?v=1", gioi: "nam", cao: 1.72 },
+  QL: { ma: "nv_ql", tep: "nv_ql.glb?v=1", gioi: "nam", cao: 1.7 },
+  // bàn đối tác chuyên môn: nhân vật minh hoạ khi chưa có đối tác thật bật hiện (có đối tác thì dùng người dựng bằng code — không gán khuôn mặt, giới tính cho người thật)
+  KS: { ma: "nv_ks", tep: "nv_ks.glb?v=1", gioi: "nam", cao: 1.72, minhHoa: true },
+  KTV: { ma: "nv_dt", tep: "nv_dt.glb?v=1", gioi: "nam", cao: 1.7, minhHoa: true }, // nhân bản
+  DN: { ma: "nv_nt", tep: "nv_nt.glb?v=1", gioi: "nam", cao: 1.72, minhHoa: true }, // nhân bản
+  DS: { ma: "nv_ds", tep: "nv_ds.glb?v=1", gioi: "nu", cao: 1.62, minhHoa: true },
+  CEO: { ma: "nv_ks", tep: "nv_ks.glb?v=1", gioi: "nam", cao: 1.72 }, // nhân bản
+  DB: { ma: "nv_ds", tep: "nv_ds.glb?v=1", gioi: "nu", cao: 1.62 }, // nhân bản (thủ thư phòng Hồ sơ mẫu)
   BAN: { chon: Object.keys(CHU_NHA), nho: "aln_vp_ban_mh", luon: true },
   // khách mới đến (chế độ quản trị): mỗi lần mở trang một chủ nhà, khác "Bạn" nếu được
   KH: { chon: Object.keys(CHU_NHA) }
@@ -94,7 +110,7 @@ function chuyenClip(clip, nguon, dich) {
       let w;
       if (Ws.has(b.name)) { // Δ thế giới của nguồn, xoay sang hệ mặt của nhân vật, áp lên tư thế nghỉ của nhân vật
         d.copy(Ws.get(b.name)).multiply(nguon.QwInv.get(b.name)); d.premultiply(R).multiply(Ri);
-        w = d.clone().multiply(dich.Qw.get(b.name));
+        w = d.clone().multiply(dich.QwC.get(b.name) || dich.Qw.get(b.name));
       } else w = cw.clone().multiply(b.quaternion); // xương nguồn không có (ngón tay): giữ tư thế nghỉ
       Wt.set(b.name, w);
       q.copy(cw).invert().multiply(w); q.toArray(qOut.get(b.name), i * 4);
@@ -128,6 +144,26 @@ function moTa(goc, laNguon) {
   return o;
 }
 
+/* Mô hình Tripo dựng từ ảnh đứng xuôi tay (không phải chữ T) có tư thế nghỉ tay xuôi, trong khi động tác Mixamo
+   tính từ chữ T: cộng thẳng góc quay vào làm tay vặn ra sau lưng (cn_tre_nam, Nam báo 09/11/2026).
+   Sửa: với tay, chân, ngón — xoay tư thế nghỉ của nhân vật cho hướng xương trùng hướng xương nguồn (đã đổi sang
+   hệ mặt nhân vật) trước khi cộng động tác. Mô hình vốn đã chữ T thì lệch < 4° nên giữ nguyên. */
+const CHI = /(Shoulder|Arm|ForeArm|Hand|UpLeg|Leg|Foot)$|Hand(Thumb|Index|Middle|Ring|Pinky)\d$/;
+function canTuThe(nguon, dich) {
+  dich.QwC = new Map();
+  const vtS = new Map(), vtT = new Map(), a = new THREE.Vector3(), b = new THREE.Vector3();
+  nguon.ds.forEach(x => vtS.set(x.name, x.getWorldPosition(new THREE.Vector3())));
+  dich.ds.forEach(x => vtT.set(x.name, x.getWorldPosition(new THREE.Vector3())));
+  dich.ds.forEach(x => {
+    if (!CHI.test(x.name) || !vtS.has(x.name)) return;
+    const con = x.children.find(c => vtT.has(c.name) && vtS.has(c.name)); if (!con) return;
+    a.copy(vtT.get(con.name)).sub(vtT.get(x.name)); b.copy(vtS.get(con.name)).sub(vtS.get(x.name)).applyQuaternion(dich.R);
+    if (a.lengthSq() < 1e-10 || b.lengthSq() < 1e-10) return;
+    a.normalize(); b.normalize(); if (a.dot(b) > Math.cos(4 * Math.PI / 180)) return;
+    dich.QwC.set(x.name, new THREE.Quaternion().setFromUnitVectors(a, b).multiply(dich.Qw.get(x.name)));
+  });
+}
+
 /* ---------- quản lý nhân vật trong văn phòng ---------- */
 export function taoNguoi3D(o) {
   const { NG, api, layTam, phone, cl, layCam } = o;
@@ -137,7 +173,9 @@ export function taoNguoi3D(o) {
   const tat = !EP && (/[?&]nguoi=0\b/.test(qs) || (conn && conn.saveData) || (navigator.deviceMemory && navigator.deviceMemory <= 2));
   const MOI = new Map(); // id → { trang: 'dang'|'xong'|'loi', mh }
   let lanSoat = 0;
+  const coDoiTac = id => { const c = api.CH.find(x => x.id === id); return !!(c && c.doiTac && (NHAN_VAT[id] || {}).minhHoa); };
   function gan(id) { const m = MOI.get(id), n = NG.get(id); if (!m || m.trang !== "xong" || !n) return;
+    if (coDoiTac(id)) { if (m.mh.goc.parent) m.mh.goc.parent.remove(m.mh.goc); n.body.visible = true; return; }
     if (m.mh.goc.parent !== n.g) n.g.add(m.mh.goc); n.body.visible = false; }
   async function napNV(c) {
     const cf = cauHinh(c.id); MOI.set(c.id, { trang: "dang" });
@@ -150,6 +188,7 @@ export function taoNguoi3D(o) {
       const dich = moTa(sc, false);
       dich.tiLe = dich.chieuCaoHong / nguon.chieuCaoHong;
       dich.R = new THREE.Quaternion().setFromUnitVectors(nguon.mat, dich.mat); // hệ mặt nguồn → hệ mặt nhân vật
+      canTuThe(nguon, dich);
       const clips = {}; src.animations.forEach(a => { clips[a.name] = chuyenClip(a, nguon, dich); });
       // đặt vào văn phòng: chân chạm sàn, cao đúng cf.cao, mặt quay về +Z như người dựng bằng code
       const goc = new THREE.Group(); goc.name = "nv_" + cf.ma; goc.add(sc);
@@ -161,7 +200,7 @@ export function taoNguoi3D(o) {
       ["chao", "chi_tay", "gat_dau"].forEach(k => { if (act[k]) { act[k].setLoop(THREE.LoopRepeat, k === "chao" ? 3 : 1); act[k].clampWhenFinished = false; } });
       const xg = ten => sc.getObjectByName("mixamorig" + ten) || sc.getObjectByName("mixamorig:" + ten);
       const mh = { goc, mixer, act, gioi: cf.gioi, dang: null, motLan: null, daChao: false, noiTruoc: false,
-        x: { dau: xg("Head"), co: xg("Neck"), nguc: xg("Spine2"), vaiT: xg("LeftShoulder"), vaiP: xg("RightShoulder"), tayT: xg("LeftArm"), tayP: xg("RightArm") },
+        x: { hong: xg("Hips"), dau: xg("Head"), co: xg("Neck"), nguc: xg("Spine2"), vaiT: xg("LeftShoulder"), vaiP: xg("RightShoulder"), tayT: xg("LeftArm"), tayP: xg("RightArm") },
         yaw: 0, pitch: 0, w: 0, pha: Math.random() * 10 };
       // da và tóc mềm hơn dưới ánh sáng môi trường (bản Tripo hay khô, mặt tối)
       sc.traverse(m => { if (m.isMesh && m.material) { const mt = m.material; mt.envMapIntensity = 1.25; if (mt.roughness !== undefined) mt.roughness = Math.max(0.55, mt.roughness); mt.needsUpdate = true; } });
@@ -236,6 +275,19 @@ export function taoNguoi3D(o) {
     if (!moving && !seated && !mot) { xoay(X.tayT, _f, -0.07); xoay(X.tayP, _f, 0.07); }
   }
 
+  /* Ngồi đúng trên ghế (09/11/2026, Nam: nhân vật có lúc ngồi ngoài ghế). Động tác ngồi lấy từ Mixamo dời hông
+     theo tỉ lệ nhân vật nên mỗi mô hình ngồi lệch một khác. Mỗi khung, sau mixer: đo hông trong hệ của người
+     (gốc = tâm ghế, mặt quay +Z về phía bàn) rồi dời cả mô hình cho hông nằm đúng trên mặt ngồi.
+     Đứng / đi: trả về 0. Dời mềm để lúc đứng lên ngồi xuống không giật. */
+  const GHE_HONG = new THREE.Vector3(0, 0.6, -0.05), _h = new THREE.Vector3(), _d = new THREE.Vector3();
+  function datLenGhe(mh, seated, dt) {
+    const goc = mh.goc, cha = goc.parent;
+    if (!seated || !mh.x.hong || !cha) { goc.position.lerp(_d.set(0, 0, 0), Math.min(1, dt * 8)); return; }
+    cha.updateMatrixWorld(true); mh.x.hong.getWorldPosition(_h); cha.worldToLocal(_h);
+    _d.copy(GHE_HONG).sub(_h).add(goc.position); // độ dời cần có để hông đúng chỗ
+    goc.position.lerp(_d, Math.min(1, dt * 10));
+  }
+
   return {
     // gọi mỗi khung từ capNhatNguoi: chọn động tác theo việc nhân vật đang làm
     capNhat(c, moving, seated, noi, dt) {
@@ -245,6 +297,7 @@ export function taoNguoi3D(o) {
       mh.noiTruoc = noi;
       if (!mh.motLan) datDongTac(mh, moving ? "di_" + mh.gioi : seated ? "ngoi_go_phim" : noi ? "noi" : "dung_" + mh.gioi);
       mh.mixer.update(dt);
+      datLenGhe(mh, seated, dt);
       lopMem(c, mh, moving, seated, noi, dt);
     },
     // một động tác ngắn rồi trở về động tác nền: chao, chi_tay, gat_dau

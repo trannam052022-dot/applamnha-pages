@@ -197,11 +197,12 @@
       vao: [12.6, 37.6], ra: [12.6, 37.8], tu_van: [14.4, 8.8], tp_ghe: [14.6, 9.6],
       ca_phe: [18.2, 34.3], cho_khach: [21.1, 32.6], khach_dung: [12.6, 32.4], ghe_vuon: [12.6, 23.6],
       // phòng Dự toán: ghế khách ở bàn trao đổi, chỗ chủ phòng đứng nói chuyện cạnh bàn (09/11/2026)
-      ghe_dt: [4.5, 24.55], dung_dt: [5.75, 23.9],
+      ghe_dt: [4.86, 24.91], dung_dt: [5.75, 23.9],
+      // tâm ghế = góc ghế + 0,36 m (ghế 0,72 m), người ngồi đúng giữa ghế
       // các phòng khác (09/11/2026): ghế khách / chỗ khách đứng, chỗ chủ phòng ngồi/đứng nói chuyện
-      ghe_pt: [4.75, 17.15], chu_pt: [2.4, 17.15],
+      ghe_pt: [5.11, 17.51], chu_pt: [2.76, 17.51],
       dung_nt: [20.3, 15.3],
-      ghe_kgn: [22.4, 25.05], dung_kgn: [20.85, 24.3],
+      ghe_kgn: [22.76, 25.41], dung_kgn: [20.85, 24.3],
       dung_tk: [2.9, 3.7],
       dung_kho: [6.8, 32.95]
     },
