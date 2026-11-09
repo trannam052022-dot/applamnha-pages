@@ -166,6 +166,8 @@ export function taoNguoi3D(o) {
       // da và tóc mềm hơn dưới ánh sáng môi trường (bản Tripo hay khô, mặt tối)
       sc.traverse(m => { if (m.isMesh && m.material) { const mt = m.material; mt.envMapIntensity = 1.25; if (mt.roughness !== undefined) mt.roughness = Math.max(0.55, mt.roughness); mt.needsUpdate = true; } });
       mixer.addEventListener("finished", e => { if (mh.motLan && e.action === mh.motLan) mh.motLan = null; });
+      const cu = MOI.get(c.id);
+      if (cu && cu.doiSau) { MOI.delete(c.id); return; } // khách vừa chọn nhân vật khác trong lúc nạp
       MOI.set(c.id, { trang: "xong", mh }); gan(c.id);
       try { (window.dataLayer = window.dataLayer || []).push({ event: "aln_vp_nguoi_3d", ma: cf.ma, kq: "xong" }); } catch (e) { /* bỏ qua */ }
     } catch (e) {
@@ -253,6 +255,19 @@ export function taoNguoi3D(o) {
       const bay = performance.now(); if (tat || bay - lanSoat < 1000) return; lanSoat = bay;
       if (!EP && cl && cl.muc >= 2) return; // máy đã tự hạ hết mức: không nạp thêm
       api.CH.forEach(c => { if (NHAN_VAT[c.id] && !MOI.has(c.id) && api.visible(c) && (cauHinh(c.id).luon || ganDo(c))) napNV(c); });
+    },
+    // khách tự chọn nhân vật của mình (09/11/2026): ghi lựa chọn, bỏ mô hình đang có, lần soát sau nạp mô hình mới
+    doi(id, ma) {
+      const cf = NHAN_VAT[id]; if (!cf || !cf.chon || !CHU_NHA[ma]) return false;
+      try { if (cf.nho) localStorage.setItem(cf.nho, ma); } catch (e) { /* bỏ qua */ }
+      if (DA_CHON[id] && DA_CHON[id].ma === ma) return true;
+      delete DA_CHON[id];
+      const m = MOI.get(id), n = NG.get(id);
+      if (m && m.mh && m.mh.goc.parent) m.mh.goc.parent.remove(m.mh.goc);
+      if (n) n.body.visible = true;
+      if (!m || m.trang !== "dang") MOI.delete(id); // đang nạp dở thì để nạp xong rồi đổi ở lần gọi sau
+      else m.doiSau = ma;
+      lanSoat = 0; return true;
     },
     gan, // gọi lại sau khi người dựng bằng code được dựng lại (dungLaiNguoi)
     trang: id => (MOI.get(id) || {}).trang || (tat ? "tat" : "chua"),

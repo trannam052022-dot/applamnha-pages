@@ -332,6 +332,8 @@ if (!document.getElementById('mymy-btn')) {
       btn.addEventListener('click', () => setGender(btn.getAttribute('data-g')));
     });
   }
+  // trang biết khách là anh hay chị (vd Văn phòng ALN: khách tự chọn nhân vật) → MyMy xưng đúng, khỏi hỏi lại
+  window.alnMyMyXungHo = function (g) { if (g === 'anh' || g === 'chị') S.addr = g === 'chị' ? 'chị' : 'anh'; }; // chỉ 2 giá trị hằng
   function setGender(chon){
     const g = chon === 'chị' ? 'chị' : 'anh'; // chỉ 2 giá trị từ nút data-g
     markChatted();

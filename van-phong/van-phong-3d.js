@@ -16,7 +16,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { taoNguoi3D } from "./nguoi-3d.js?v=4";
+import { taoNguoi3D } from "./nguoi-3d.js?v=5";
 
 const K = 0.058, WH = 3.2, WK = WH / 86; let GW = 26, GH = 19; // GW, GH lấy từ mat-bang.js khi mở
 const BRASS = "#c9a35b";
@@ -830,7 +830,7 @@ export async function mo(stage, api) {
     hien(on) { const dang = chay; gl.hidden = !on; ov.hidden = !on; chay = on; if (on) { resize(); if (!dang) { last = performance.now(); truocVe = 0; requestAnimationFrame(loop); } } },
     cl, apMuc, cayMoHinh: rung.coMoHinh,
     // nhân vật mô hình thật: trạng thái nạp + cho làm 1 động tác ngắn (chao, chi_tay, gat_dau)
-    nguoi3D: id => N3.trang(id), dongTac: (id, ten) => N3.dongTac(id, ten),
+    nguoi3D: id => N3.trang(id), dongTac: (id, ten) => N3.dongTac(id, ten), doiNguoi: (id, ma) => N3.doi(id, ma),
     _scene: scene, _cam: cam, _controls: controls, _renderer: renderer, _ng: NG
   };
 }

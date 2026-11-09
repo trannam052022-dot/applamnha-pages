@@ -658,7 +658,14 @@ function tagDoiTac(g,c,sx,sy,gon){const n=c.doiTac;g.save();
   g.beginPath();g.moveTo(sx-5,y+h-.5);g.lineTo(sx,y+h+5);g.lineTo(sx+5,y+h-.5);g.closePath();g.fillStyle="rgba(14,15,18,.86)";g.fill();
   g.fillStyle="#f3eee5";g.textAlign="left";g.textBaseline="middle";g.fillText(t,x+h+3,y+h/2+.5);g.restore();
   veAnhTron(g,n,x+h/2,y+h/2,r);chamXanh(g,x+w-10,y+h/2,3.2)}
-function tag(g,c,sx,sy,gon){if(c.doiTac&&c.doiTac.dang_lam&&!c.me)return tagDoiTac(g,c,sx,sy,gon);if(gon)return;g.save();g.font="600 9.5px 'Be Vietnam Pro',sans-serif";const t=cname(c);const w=g.measureText(t).width+18;
+// "Bạn đang ở đây": thẻ vàng nhấp nháy + mũi tên chỉ xuống trong vài giây đầu (vào trang, vừa chọn nhân vật)
+function tagNoiBat(g,c,sx,sy){const con=c.noiBat-performance.now(),k=Math.min(1,con/1500),nh=(Math.sin(performance.now()/260)+1)/2;g.save();g.globalAlpha=Math.max(0,k);
+  g.font="700 12px 'Be Vietnam Pro',sans-serif";const t="Bạn đang ở đây",w=g.measureText(t).width+26,h=26,x=sx-w/2,y=sy-48-nh*5;
+  g.shadowColor="rgba(232,197,111,.9)";g.shadowBlur=10+nh*14;g.fillStyle="#e8c56f";g.beginPath();g.roundRect(x,y,w,h,13);g.fill();g.shadowBlur=0;
+  g.beginPath();g.moveTo(sx-7,y+h);g.lineTo(sx+7,y+h);g.lineTo(sx,y+h+9);g.closePath();g.fill();
+  g.fillStyle="#1c1407";g.textAlign="center";g.textBaseline="middle";g.fillText(t,sx,y+h/2+.5);
+  const r=4+nh*8;g.strokeStyle="rgba(232,197,111,"+(0.8-nh*0.6)+")";g.lineWidth=2;g.beginPath();g.roundRect(x-r,y-r,w+r*2,h+r*2,13+r);g.stroke();g.restore()}
+function tag(g,c,sx,sy,gon){if(c.me&&c.noiBat>performance.now()&&!c.hidden)return tagNoiBat(g,c,sx,sy);if(c.doiTac&&c.doiTac.dang_lam&&!c.me)return tagDoiTac(g,c,sx,sy,gon);if(gon)return;g.save();g.font="600 9.5px 'Be Vietnam Pro',sans-serif";const t=cname(c);const w=g.measureText(t).width+18;
   g.shadowColor="rgba(0,0,0,.4)";g.shadowBlur=8;g.shadowOffsetY=2;rr(g,sx-w/2,sy-17,w,16,8);g.fillStyle=c.me?"rgba(226,192,132,.97)":"rgba(14,15,18,.78)";g.fill();g.shadowColor="transparent";
   if(!c.me){g.strokeStyle="rgba(255,255,255,.12)";g.lineWidth=1;g.stroke()}
   g.beginPath();g.arc(sx-w/2+8,sy-9,2.4,0,7);g.fillStyle=c.ai?c.glow:(c.ghost?"#9b968c":"#f1c7a0");g.fill();g.fillStyle=c.me?"#1b150a":"#f3eee5";g.textAlign="left";g.fillText(t,sx-w/2+13,sy-5.5);g.restore()}
@@ -762,10 +769,40 @@ function setMode(m,initial){if(!["chu-nha","ctv","quan-tri"].includes(m))m="chu-
   $("#adminKpis").hidden=m!=="quan-tri";$("#tabCan").hidden=m!=="quan-tri";if(m!=="quan-tri"&&feedFilter==="can"){feedFilter="all";document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x.dataset.f==="all"))}
   cacheS=0;if(V3)V3.capNhatVai();if(!panel.hidden)closePanel();
   if(was==="quan-tri"&&m!=="quan-tri"){stopAdmin();setGate(null)}
-  if(m==="quan-tri")startAdmin();else{C.BAN.hidden=true;C.BAN.x=13;C.BAN.y=20.6}
+  if(m==="quan-tri")startAdmin();else if(m==="chu-nha")vaoSanh();else{C.BAN.hidden=true;C.BAN.x=13;C.BAN.y=20.6}
   renderZones();select(m==="ctv"?"tt":m==="quan-tri"?"kd":"sanh",!initial);renderHen();renderFeed();
   $("#picker").hidden=true;
-  if(m==="ctv"&&!initial)goRoom("tt");}
+  if(m==="ctv"&&!initial)goRoom("tt");
+  if(m==="chu-nha")setTimeout(moiChonNhanVat,initial?600:200);}
+
+/* ---------- chủ nhà vào trang: đứng ở sảnh tiếp khách, nổi bật vị trí, chọn nhân vật (09/11/2026) ----------
+   Nam: "khi khách vào trang thì làm nổi bật vị trí của khách đang ở phòng tiếp khách và cho khách chọn nhân vật
+   luôn — mục đích là biết giới tính và độ tuổi của khách". 4 nhân vật = 2 giới × 2 nhóm tuổi.
+   Lựa chọn chỉ lưu trên máy (localStorage) + GA4 (không kèm thông tin cá nhân), và để MyMy xưng anh/chị cho đúng.
+   CHƯA ghi vào hồ sơ khách (contacts): muốn ghi phải sửa câu đồng ý (mức B). */
+const NV_KHACH=[["cn_tre_nam","nam","duoi_50","Nam · dưới 50 tuổi"],["cn_tre_nu","nu","duoi_50","Nữ · dưới 50 tuổi"],["cn_lon_nam","nam","tu_50","Nam · từ 50 tuổi"],["cn_lon_nu","nu","tu_50","Nữ · từ 50 tuổi"]];
+const KEY_NV="aln_vp_ban_mh",KEY_NV_CHON="aln_vp_ban_chon";
+function nvDaChon(){try{return localStorage.getItem(KEY_NV_CHON)==="1"&&NV_KHACH.find(x=>x[0]===localStorage.getItem(KEY_NV))||null}catch(e){return null}}
+window.alnKhachVP=()=>{const x=nvDaChon();return x?{gioi:x[1],tuoi:x[2]}:null};
+function noiBatBan(ms){C.BAN.noiBat=performance.now()+(ms||14000)}
+function vaoSanh(){const me=C.BAN;me.hidden=false;me.path=[];me.x=me.hx;me.y=me.hy;me.ngoi=false;noiBatBan()}
+function moiChonNhanVat(){if(MODE!=="chu-nha")return;const hop=$("#chonNv");if(!hop)return;
+  if(nvDaChon()){noiBatBan();return}
+  if(!$("#picker").hidden){setTimeout(moiChonNhanVat,800);return}
+  const ds=$("#nvDs");ds.textContent="";
+  NV_KHACH.forEach(([ma,gioi,tuoi,nhan])=>{const b=el("button","nv-the");b.type="button";b.dataset.ma=ma;
+    const im=document.createElement("img");im.alt="";im.loading="lazy";im.src=alnUrl("../mo-hinh-3d/nguoi/"+ma+"/anh.webp?v=2");
+    b.appendChild(im);b.appendChild(el("b","",nhan));b.addEventListener("click",()=>chonNhanVat(ma,true));ds.appendChild(b)});
+  hop.hidden=false;try{(window.dataLayer=window.dataLayer||[]).push({event:"aln_vp_chon_nv",buoc:"mo"})}catch(e){}}
+function chonNhanVat(ma,tuChon){const x=NV_KHACH.find(v=>v[0]===ma);if(!x)return;
+  try{localStorage.setItem(KEY_NV,ma);localStorage.setItem(KEY_NV_CHON,tuChon?"1":"0")}catch(e){}
+  $("#chonNv").hidden=true;if(V3&&V3.doiNguoi)V3.doiNguoi("BAN",ma);
+  vaoSanh();select("sanh",true); // đưa sảnh (chỗ khách đứng) vào giữa màn hình, cả 2D lẫn 3D
+  if(tuChon){const xh=x[1]==="nu"?"chị":"anh";say(C.MM,"Em chào "+xh+", "+xh+" đang ở sảnh tiếp khách. "+xh[0].toUpperCase()+xh.slice(1)+" bấm phòng nào em dẫn đi ạ.",5500);
+    try{(window.dataLayer=window.dataLayer||[]).push({event:"aln_vp_chon_nv",buoc:"chon",gioi:x[1],tuoi:x[2]})}catch(e){}
+    if(typeof window.alnMyMyXungHo==="function")window.alnMyMyXungHo(x[1]==="nu"?"chị":"anh")}}
+$("#nvBoQua")&&$("#nvBoQua").addEventListener("click",()=>{$("#chonNv").hidden=true;noiBatBan();select("sanh",true);
+  try{(window.dataLayer=window.dataLayer||[]).push({event:"aln_vp_chon_nv",buoc:"bo_qua"})}catch(e){}});
 document.querySelectorAll("[data-vai]").forEach(b=>b.addEventListener("click",()=>setMode(b.dataset.vai,false)));
 $("#doiVai").addEventListener("click",()=>{$("#picker").hidden=false});
 $("#pickerClose").addEventListener("click",()=>{$("#picker").hidden=true});
@@ -799,7 +836,7 @@ function nut3D(){const b=$("#nut3d");b.textContent=V3?"Xem 2D":"Xem 3D";b.classL
 async function bat3D(on){
   if(!on){if(V3){V3.dong();V3=null}cv.hidden=false;try{localStorage.setItem(KEY_3D,"0")}catch(e){}cacheS=0;nut3D();return}
   if(V3||dang3D)return;const b=$("#nut3d");b.disabled=true;b.textContent="Đang dựng 3D…";
-  dang3D=(async()=>{try{const m=await import("./van-phong-3d.js?v=21");V3=await m.mo(stage,API3);cv.hidden=true;try{localStorage.setItem(KEY_3D,"1")}catch(e){}}
+  dang3D=(async()=>{try{const m=await import("./van-phong-3d.js?v=22");V3=await m.mo(stage,API3);cv.hidden=true;try{localStorage.setItem(KEY_3D,"1")}catch(e){}}
     catch(e){V3=null;cv.hidden=false;log("sanh","Máy này chưa mở được bản 3D, đang xem bản 2D.","")}finally{dang3D=null;b.disabled=false;nut3D()}})();return dang3D}
 /* ---------- hoạt động thật, ẩn danh (hoatDongVanPhong) + lộ trình tới C4 ---------- */
 const URL_HD="https://asia-southeast1-aln-platform.cloudfunctions.net/hoatDongVanPhong";

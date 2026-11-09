@@ -89,6 +89,10 @@
     khongMoiChung: true, // văn phòng tự chào (van-phong.js), không cần bóng chat mời chung
     moDau: function (api) {
       apiDaCo = api;
+      // khách đã chọn nhân vật (nam/nữ) → câu soạn sẵn xưng "anh" hoặc "chị" thay cho "anh/chị"
+      if (!api._xungHo) { api._xungHo = 1; var botGoc = api.bot;
+        api.bot = function (t) { var k = window.alnKhachVP && window.alnKhachVP(); if (k && typeof t === 'string') { var x = k.gioi === 'nu' ? 'chị' : 'anh'; t = t.replace(/anh\/chị/g, x).replace(/Anh\/chị/g, x.charAt(0).toUpperCase() + x.slice(1)); } return botGoc.apply(this, arguments.length > 1 ? [t].concat([].slice.call(arguments, 1)) : [t]); };
+        var k0 = window.alnKhachVP && window.alnKhachVP(); if (k0 && window.alnMyMyXungHo) window.alnMyMyXungHo(k0.gioi === 'nu' ? 'chị' : 'anh'); }
       if (choPhong) { var ph = choPhong; choPhong = null; if (vaoPhongNoi(api, ph)) return true; }
       if (choKhuCho) { var k = choKhuCho; choKhuCho = null; khuCho(api, k.sauHen); try { api.hienTuDau(); } catch (e) { /* widget cũ */ } return true; }
       ga('mo');
