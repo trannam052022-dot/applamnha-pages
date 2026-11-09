@@ -63,12 +63,14 @@
   /* Phòng có chủ phòng nói chuyện (09/11/2026, thử ở phòng Dự toán): van-phong.js gọi
      window.alnMyMyPhong('dt') khi "Bạn" ngồi xuống bàn. Trong lúc ngồi phòng, xuLyTin/xuLySdt/nguCanh
      chuyển cho bộ hội thoại của phòng (phong-du-toan.js); rời phòng thì gỡ ra, trở lại như lễ tân. */
-  var PHONG = { dt: function () { return window.ALNPhongDuToan; } }, choPhong = null;
+  var CP = function (id) { return function () { return window.ALNChuPhong && window.ALNChuPhong[id]; }; };
+  var PHONG = { dt: function () { return window.ALNPhongDuToan; }, pt: CP('pt'), nt: CP('nt'), tk: CP('tk'), kho: CP('kho'), kgn: CP('kgn') }, choPhong = null;
   function vaoPhongNoi(api, id) {
     var p = PHONG[id] && PHONG[id](); if (!p) return false;
     var T = window.ALN_MYMY_TRANG;
     T.xuLyTin = function (text, a) { return p.xuLyTin(text, a); };
-    T.xuLySdt = function (text, a) { return p.xuLySdt(text, a); };
+    // phòng không tự xử lý số (xuLySdt) → widget tự hỏi đồng ý chung (mymy_chat)
+    if (typeof p.xuLySdt === 'function') T.xuLySdt = function (text, a) { return p.xuLySdt(text, a); }; else delete T.xuLySdt;
     T.nguCanh = function () { return p.nguCanh(); };
     p.batDau(api); return true;
   }
@@ -77,7 +79,7 @@
     if (typeof window.alnMyMyMo === 'function') window.alnMyMyMo(true);
   };
   window.alnMyMyRoiPhong = function () {
-    choPhong = null; var T = window.ALN_MYMY_TRANG; if (!T || !T.xuLySdt) return;
+    choPhong = null; var T = window.ALN_MYMY_TRANG; if (!T || !T.xuLyTin) return;
     delete T.xuLyTin; delete T.xuLySdt; delete T.nguCanh;
     Object.keys(PHONG).forEach(function (k) { var p = PHONG[k](); if (p && p.dangMo()) p.ketThuc(); });
   };

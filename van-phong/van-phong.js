@@ -502,25 +502,32 @@ let goingTo=null;
    thay vì mở cả trang phải điền; chủ phòng chốt luôn. "Bạn" ngồi ghế khách ở bàn trao đổi, chủ phòng
    (tạm là MyMy) đứng cạnh bàn quay về phía khách; khung trò chuyện mở bằng bộ hội thoại của phòng
    (phong-du-toan.js qua window.alnMyMyPhong). Bấm phòng khác / khu chờ là rời bàn. */
-const PHONG_NOI={dt:{ghe:MB.diem.ghe_dt,dung:MB.diem.dung_dt,co:()=>!!(window.ALNPhongDuToan&&window.alnMyMyPhong)}};
+// ghe = chỗ khách (ngoi: ngồi ghế; không thì đứng); dung = chỗ chủ phòng (chuNgoi: ngồi ghế đó; null = ở chỗ làm việc)
+const coCP=id=>()=>!!(window.ALNChuPhong&&window.ALNChuPhong[id]&&window.alnMyMyPhong);
+const PHONG_NOI={dt:{ghe:MB.diem.ghe_dt,ngoi:1,dung:MB.diem.dung_dt,co:()=>!!(window.ALNPhongDuToan&&window.alnMyMyPhong)},
+  pt:{ghe:MB.diem.ghe_pt,ngoi:1,dung:MB.diem.chu_pt,chuNgoi:1,co:coCP("pt")},
+  nt:{ghe:MB.diem.dung_nt,dung:null,co:coCP("nt")},
+  kgn:{ghe:MB.diem.ghe_kgn,ngoi:1,dung:MB.diem.dung_kgn,co:coCP("kgn")},
+  tk:{ghe:MB.diem.dung_tk,dung:null,co:coCP("tk")},
+  kho:{ghe:MB.diem.dung_kho,dung:null,co:coCP("kho")}};
 let ngoiO=null;
 async function ngoiPhong(id){const P=PHONG_NOI[id],me=C.BAN,ag=C[AGENT[id]];if(!P||!P.ghe)return;
   if(me.hidden){me.hidden=false;me.x=DIEM.vao[0];me.y=DIEM.vao[1]}goingTo=id;ngoiO=id;
   try{if(window.ALNPhongDuToan&&window.ALNPhongDuToan.chuanBi)window.ALNPhongDuToan.chuanBi()}catch(e){}
-  const agRa=ag&&visible(ag)?(ag.busy=true,moveTo(ag,P.dung[0],P.dung[1],true)):null;
+  const agRa=ag&&visible(ag)?(ag.busy=true,P.dung?moveTo(ag,P.dung[0],P.dung[1],true):Promise.resolve()):null;
   const[dx,dy]=DOOR[id];await moveTo(me,dx,dy);if(goingTo!==id)return;
   await moveTo(me,P.ghe[0],P.ghe[1]);if(goingTo!==id)return;
-  me.ngoi=true;if(ag&&visible(ag)){me.nhin=[ag.x,ag.y];await agRa;if(ngoiO!==id)return;ag.nhin=[me.x,me.y];me.nhin=[ag.x,ag.y];
-    say(ag,"Mời anh/chị ngồi, em tính chi phí cho nhà mình nhé.",4200);if(V3&&V3.dongTac)V3.dongTac(ag.id,"chao")}
+  me.ngoi=!!P.ngoi;if(ag&&visible(ag)){me.nhin=[ag.x,ag.y];await agRa;if(ngoiO!==id)return;if(P.chuNgoi)ag.ngoi=true;ag.nhin=[me.x,me.y];me.nhin=[ag.x,ag.y];
+    say(ag,id==="dt"?"Mời anh/chị ngồi, em tính chi phí cho nhà mình nhé.":P.ngoi?"Mời anh/chị ngồi ạ.":"Em chào anh/chị ạ.",4200);if(V3&&V3.dongTac)V3.dongTac(ag.id,"chao")}
   try{(window.dataLayer=window.dataLayer||[]).push({event:"aln_vp_ngoi_phong",phong:id})}catch(e){}
   window.alnMyMyPhong(id)}
 function roiPhongNoi(){if(!ngoiO)return;const id=ngoiO,ag=C[AGENT[id]],me=C.BAN;ngoiO=null;me.ngoi=false;me.nhin=null;
-  if(ag){ag.nhin=null;home(ag).finally(()=>{ag.busy=false})}
+  if(ag){ag.nhin=null;ag.ngoi=false;home(ag).finally(()=>{ag.busy=false})}
   if(typeof window.alnMyMyRoiPhong==="function")window.alnMyMyRoiPhong()}
 // bộ hội thoại phòng gọi qua window.ALNVanPhong: chủ phòng nói (bóng chữ) + động tác; lịch hẹn; mở trang đầy đủ của phòng
 function chuPhongNoi(text,kieu){const ag=ngoiO&&C[AGENT[ngoiO]];if(!ag||!visible(ag))return;say(ag,text,4200);if(kieu===1&&V3&&V3.dongTac)V3.dongTac(ag.id,"chi_tay")}
 function chuPhongDongTac(ten){const ag=ngoiO&&C[AGENT[ngoiO]];if(ag&&V3&&V3.dongTac)V3.dongTac(ag.id,ten)}
-function moTrangPhong(id,sauKhiMo){openPanel(id);if(typeof sauKhiMo!=="function")return;const bd=Date.now();
+function moTrangPhong(id,sauKhiMo,goKhac){openPanel(id,goKhac);if(typeof sauKhiMo!=="function")return;const bd=Date.now();
   (function cho(){let w=null;try{w=frame.contentWindow}catch(e){w=null}
     if(w&&w.location&&w.location.pathname!=="blank"&&w.alnLuuChiTiet){try{sauKhiMo(w)}catch(e){console.error(e)}return}
     if(Date.now()-bd<20000&&!panel.hidden)setTimeout(cho,300)})()}
@@ -543,8 +550,9 @@ async function goRoom(id){const z=ZM[id],v=view(z);if(!v.go)return;
 
 /* ---------- khung trang thật + nghe sự kiện thật trong khung ---------- */
 const panel=$("#room"),frame=$("#roomFrame");let frameNeo="",watchTimer=null,dlSeen=0,curRoom=null,lastTinh=0,tinhTimer=null;
-function openPanel(id){const v=view(ZM[id]);curRoom=id;$("#roomName").textContent=v.name;const full=$("#roomFull");full.href=alnUrl(v.go);
-  panel.hidden=false;document.body.classList.add("co-phong");const u=alnUrl(v.go),h=u.indexOf("#");frameNeo=h>=0?u.slice(h+1):"";frame.src=h>=0?u.slice(0,h):u;$("#roomToast").hidden=true;
+// goKhac: chủ phòng mở công cụ kèm dữ liệu khách vừa nói (vd /bat-trach.html#nap=…, /thiet-ke-mat-bang/?w=…) — giữ nguyên cả phần #
+function openPanel(id,goKhac){const v=view(ZM[id]);curRoom=id;$("#roomName").textContent=v.name;const full=$("#roomFull");full.href=alnUrl(goKhac||v.go);
+  panel.hidden=false;document.body.classList.add("co-phong");const u=alnUrl(goKhac||v.go),h=goKhac?-1:u.indexOf("#");frameNeo=h>=0?u.slice(h+1):"";frame.src=h>=0?u.slice(0,h):u;$("#roomToast").hidden=true;
   document.querySelectorAll(".ngan").forEach(x=>moNgan(x.id,false));canhMoHinh();
   log(id,(ADMIN()?"Mở ":"Bạn vào ")+v.name,"")}
 // Khi khung phòng mở, phần mô hình còn lộ bên trái là "cửa sổ nhìn vào phòng": dời tâm hình về đó.
