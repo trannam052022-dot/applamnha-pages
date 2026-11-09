@@ -88,12 +88,13 @@
     'border:1px solid var(--ck-line);border-radius:14px;box-shadow:0 8px 28px rgba(10,18,36,.16);font-family:"Be Vietnam Pro",Arial,sans-serif;font-size:15px;line-height:1.5;max-height:40vh;overflow:auto}' +
     '.aln-ck-in{padding:14px 16px;display:flex;flex-direction:column;gap:10px}' +
     '.aln-ck p{margin:0;color:var(--ck-sub)}.aln-ck p b{color:var(--ck-ink);font-weight:600}' +
-    '@media (max-width:719px){.aln-ck{left:8px;bottom:8px;width:auto;right:8px;max-height:28vh;font-size:14px}.aln-ck-in{padding:10px 12px;gap:8px}.aln-ck .ck-chinh,.aln-ck .ck-phu{min-width:96px}}' +
+    '@media (max-width:719px){.aln-ck{left:8px;bottom:8px;width:auto;right:8px;max-height:28vh;font-size:14px}.aln-ck-in{padding:10px 12px;gap:8px}.aln-ck .ck-chinh,.aln-ck .ck-phu{min-width:124px}}' +
     '.aln-ck-nut{display:flex;flex-wrap:wrap;align-items:center;gap:8px}' +
     '.aln-ck button,.aln-ckd button{font:inherit;font-size:16px;cursor:pointer;border-radius:10px;min-height:44px}' +
-    // Từ chối (trái) là nút thường, Đồng ý (phải) nổi bật — cùng cỡ chữ, cùng cỡ nút, bấm một lần là xong (16/10/2026).
-    '.aln-ck-nut .ck-lk{margin-right:auto}' +
-    '.aln-ck .ck-chinh,.aln-ck .ck-phu{min-width:104px;padding:8px 16px;font-weight:600}' +
+    // Nam chốt 09/11/2026: thanh chỉ 2 nút — Tuỳ chỉnh (trái, nút thường) và Đồng ý (phải, nổi bật), cùng cỡ.
+    // Từ chối tất cả nằm trong hộp Tuỳ chỉnh (và link "Cài đặt cookie" ở chân trang).
+    '.aln-ck-nut .ck-lk{margin-right:auto}.aln-ck-nut .ck-phu{margin-right:auto}' +
+    '.aln-ck .ck-chinh,.aln-ck .ck-phu{min-width:124px;padding:8px 16px;font-weight:600}' +
     '.aln-ck .ck-chinh{background:var(--ck-navy);color:#fff;border:1.5px solid var(--ck-navy)}' +
     '.aln-ck .ck-phu{background:var(--ck-bg);color:var(--ck-ink);border:1.5px solid var(--ck-ink)}' +
     '.aln-ck .ck-lk,.aln-ckd .ck-lk{background:none;border:0;padding:8px 6px;color:var(--ck-ink);text-decoration:underline;text-underline-offset:3px}' +
@@ -147,12 +148,10 @@
     p.appendChild(el('b', null, 'ALN sẽ nhắc lại bảng dự toán cho bạn trên Facebook.'));
     var nut = el('div', { 'class': 'aln-ck-nut' });
     var dy = el('button', { type: 'button', 'class': 'ck-chinh', 'data-ck': 'dong_y' }, 'Đồng ý');
-    var tc = el('button', { type: 'button', 'class': 'ck-phu', 'data-ck': 'tu_choi' }, 'Từ chối');
-    var tu = el('button', { type: 'button', 'class': 'ck-lk', 'data-ck': 'tuy_chinh', 'aria-haspopup': 'dialog' }, 'Tuỳ chỉnh');
+    var tu = el('button', { type: 'button', 'class': 'ck-phu', 'data-ck': 'tuy_chinh', 'aria-haspopup': 'dialog' }, 'Tuỳ chỉnh');
     dy.onclick = function () { apDung({ do_luong: true, quang_cao: true }, 'dong_y'); anThanh(); };
-    tc.onclick = function () { apDung({ do_luong: false, quang_cao: false }, 'tu_choi'); anThanh(); };
     tu.onclick = function () { moHop(tu); };
-    nut.appendChild(tu); nut.appendChild(tc); nut.appendChild(dy);
+    nut.appendChild(tu); nut.appendChild(dy);
     vao.appendChild(p); vao.appendChild(nut); thanh.appendChild(vao);
     return thanh;
   }
@@ -211,8 +210,10 @@
       dongHop(true);
     };
     nutDong.onclick = function () { dongHop(false); };
+    var tuChoi = el('button', { type: 'button', 'class': 'ck-lk', 'data-ck': 'tu_choi' }, 'Từ chối tất cả');
+    tuChoi.onclick = function () { apDung({ do_luong: false, quang_cao: false }, 'tu_choi'); dongHop(true); };
     var phai = el('div', { 'class': 'aln-ck-nut' });
-    phai.appendChild(nutDong); phai.appendChild(luu);
+    phai.appendChild(nutDong); phai.appendChild(tuChoi); phai.appendChild(luu);
     chan.appendChild(cs); chan.appendChild(phai);
     h.appendChild(chan);
     nen.appendChild(h);
