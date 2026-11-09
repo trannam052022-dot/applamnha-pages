@@ -818,7 +818,9 @@ function diDaoBat(){try{const v=localStorage.getItem(KEY_DAO);if(v==="1"||v==="0
 let DAO_BAT=false;
 function nutDiDao(){const b=$("#didao");if(!b)return;const on=diDaoBat();DAO_BAT=on;b.hidden=!V3;b.classList.toggle("on",on);b.setAttribute("aria-pressed",on?"true":"false");if(V3&&V3.datDiDao)V3.datDiDao(on)}
 function coWebGL(){try{const c=document.createElement("canvas");return!!(c.getContext("webgl2")||c.getContext("webgl"))}catch(e){return false}}
-function muon3D(){let v=null;try{v=localStorage.getItem(KEY_3D)}catch(e){v=null}const q=new URLSearchParams(location.search).get("che");if(q==="2d")return false;if(q==="3d")return coWebGL();return v!=="0"&&coWebGL()}
+// iPhone/iPad còn ở iOS 15 trở xuống (iPhone 6s, 7 không lên được iOS 16): mặc định bản 2D, khách vẫn bấm "Xem 3D" được
+function iosCu(){const m=navigator.userAgent.match(/iP(hone|od|ad).* OS (\d+)_/);return!!(m&&+m[2]<16)}
+function muon3D(){let v=null;try{v=localStorage.getItem(KEY_3D)}catch(e){v=null}const q=new URLSearchParams(location.search).get("che");if(q==="2d")return false;if(q==="3d")return coWebGL();if(v===null&&iosCu())return false;return v!=="0"&&coWebGL()}
 function chonPhong(id){const z=ZM[id];if(id==="tt"&&MODE==="chu-nha"){khuCho(false);return}if(!ADMIN()&&view(z).go)goRoom(id);else select(id,false)}
 /* Khu chờ (08/11/2026, Nam: khách có hẹn với KTS thì chờ ở khu chờ; MyMy tư vấn, hướng dẫn dịch vụ).
    "Bạn" ra ngồi khu chờ rồi MyMy mở khung trò chuyện với các nút đưa tới đúng phòng
@@ -829,14 +831,17 @@ function khuCho(sauHen){if(ADMIN())return;roiPhongNoi();if(!panel.hidden)closePa
   moveTo(me,DIEM.cho_khach[0],DIEM.cho_khach[1]).then(()=>{me.facing=true;if(typeof window.alnMyMyKhuCho==="function")window.alnMyMyKhuCho(!!sauHen)});
   try{(window.dataLayer=window.dataLayer||[]).push({event:"aln_vp_khu_cho",sau_hen:sauHen?1:0})}catch(e){}}
 const API3={MB,Z,ZM,C,CH,L3,DOOR,view,visible,cname,atHome,chonPhong,bubble,tag,hienTen,nhanPhong,bangTuong,bangTen,veBangTen,
-  phongMo:()=>!panel.hidden,get now(){return now},get night(){return night},get sel(){return sel}};
+  phongMo:()=>!panel.hidden,
+  // 3D đứng hình / quá chậm (09/11/2026, Nam thử iPhone 7 Plus): tự về bản 2D, báo một câu
+  mat3D:ly=>{if(!V3)return;bat3D(false);log("sanh","Máy này chạy bản 3D chậm, văn phòng chuyển sang bản 2D cho mượt. Vẫn bấm “Xem 3D” được.","");
+    try{(window.dataLayer=window.dataLayer||[]).push({event:"aln_vp_3d_tu_giam",muc:"2d",ly_do:ly==="cham"?"cham":"mat_ngu_canh"})}catch(e){}},get now(){return now},get night(){return night},get sel(){return sel}};
 function hienGoiY(){const h=$("#hint");h.classList.remove("an");clearTimeout(hienGoiY._t);hienGoiY._t=setTimeout(()=>h.classList.add("an"),8000)}
 function nut3D(){const b=$("#nut3d");b.textContent=V3?"Xem 2D":"Xem 3D";b.classList.toggle("on",!!V3);stage.classList.toggle("che-3d",!!V3);nutDiDao();
   hienGoiY();$("#hint").textContent=V3?"Kéo để xoay, cuộn hoặc chụm hai ngón để phóng to. Bấm vào một phòng để đi tới.":"Bấm vào một phòng: nhân vật của bạn đi tới và mở công cụ thật của phòng đó."}
 async function bat3D(on){
   if(!on){if(V3){V3.dong();V3=null}cv.hidden=false;try{localStorage.setItem(KEY_3D,"0")}catch(e){}cacheS=0;nut3D();return}
   if(V3||dang3D)return;const b=$("#nut3d");b.disabled=true;b.textContent="Đang dựng 3D…";
-  dang3D=(async()=>{try{const m=await import("./van-phong-3d.js?v=25");V3=await m.mo(stage,API3);cv.hidden=true;try{localStorage.setItem(KEY_3D,"1")}catch(e){}}
+  dang3D=(async()=>{try{const m=await import("./van-phong-3d.js?v=26");V3=await m.mo(stage,API3);cv.hidden=true;try{localStorage.setItem(KEY_3D,"1")}catch(e){}}
     catch(e){V3=null;cv.hidden=false;log("sanh","Máy này chưa mở được bản 3D, đang xem bản 2D.","")}finally{dang3D=null;b.disabled=false;nut3D()}})();return dang3D}
 /* ---------- hoạt động thật, ẩn danh (hoatDongVanPhong) + lộ trình tới C4 ---------- */
 const URL_HD="https://asia-southeast1-aln-platform.cloudfunctions.net/hoatDongVanPhong";

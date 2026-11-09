@@ -167,6 +167,8 @@ export async function mo(stage, api) {
   try {
     renderer = new THREE.WebGLRenderer({ canvas: gl, antialias: !phone, alpha: true, powerPreference: "high-performance" });
   } catch (e) { gl.remove(); ov.remove(); throw e; }
+  // máy hết bộ nhớ đồ hoạ (hay gặp trên iPhone đời cũ): khung 3D đứng hình — chuyển sang bản 2D thay vì treo
+  gl.addEventListener("webglcontextlost", e => { e.preventDefault(); if (api.mat3D) setTimeout(() => api.mat3D("mat_ngu_canh"), 0); });
   /* Mức chất lượng (03/11/2026, Nam: máy tính bị giật nhiều): bắt đầu ở tỷ lệ điểm ảnh 1,5, máy vẽ chậm
      thì tự hạ dần xuống 1. Chỉ hạ, không tự nâng (tránh nhấp nháy lên xuống). */
   const MUC = [1.5, 1.25, 1];
@@ -799,6 +801,8 @@ export async function mo(stage, api) {
     if (truocVe && t - truocVe < 250) cl.mau.push(t - truocVe); truocVe = t;
     if (cl.mau.length < 40) return;
     const s = cl.mau.slice().sort((a, b) => a - b), tv = s[s.length >> 1]; cl.mau = [];
+    // đã ở mức nhẹ nhất mà vẫn dưới ~8 khung/giây 2 lần liền (máy đời cũ, vd iPhone 7): chuyển sang bản 2D
+    if (cl.muc === MUC.length - 1 && tv > 125) { cl.cham = (cl.cham || 0) + 1; if (cl.cham >= 2 && api.mat3D) setTimeout(() => api.mat3D("cham"), 0); } else cl.cham = 0;
     if (tv > 30 && cl.muc < MUC.length - 1 && t - cl.hoiLuc > 3000) {
       cl.hoiLuc = t; apMuc(cl.muc + 1);
       try { (window.dataLayer = window.dataLayer || []).push({ event: "aln_vp_3d_tu_giam", muc: cl.muc }); } catch (e) { /* bỏ qua */ }

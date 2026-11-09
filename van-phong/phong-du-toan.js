@@ -346,7 +346,7 @@
     batDau: function (api) {
       MM = api; mo = true; ga('ngoi');
       trangDuToan().catch(function () { /* báo lúc tính */ });
-      api.bot('Dạ em chào anh/chị, em là MyMy phụ trách phòng Dự toán. Em hỏi anh/chị 5 câu ngắn rồi báo ngay chi phí xây nhà, khỏi điền bảng ạ.');
+      api.bot('Dạ em chào anh/chị, em phụ trách phòng Dự toán. Em hỏi anh/chị 5 câu ngắn rồi báo ngay chi phí xây nhà, khỏi điền bảng ạ.');
       if (kqCuoi && kqCuoi.tong) { api.bot('Lần trước em tính cho ' + moTaNha() + ': khoảng **' + kqCuoi.tongChu + '**.'); nutChot(); }
       else batDauHoi();
       try { api.hienTuDau(); } catch (e) { /* widget cũ */ }

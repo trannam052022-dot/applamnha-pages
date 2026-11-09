@@ -335,7 +335,7 @@
 
   /* ════════ HỒ SƠ MẪU (kho) ════════ */
   function khoBatDau(P) {
-    P.MM.bot('Dạ em chào anh/chị, em là MyMy phụ trách Thư viện hồ sơ mẫu. Ở đây có một bộ hồ sơ thiết kế thật đủ 4 bộ môn: kiến trúc, kết cấu, điện nước, nội thất.');
+    P.MM.bot('Dạ em chào anh/chị, em phụ trách Thư viện hồ sơ mẫu. Ở đây có một bộ hồ sơ thiết kế thật đủ 4 bộ môn: kiến trúc, kết cấu, điện nước, nội thất.');
     P.MM.bot('Anh/chị xem thử 8 tờ ngay, hoặc xem đủ bộ sau khi nhập mã xác nhận số điện thoại ạ.');
     P.MM.nut([
       { nhan: 'Xem 8 tờ mẫu', lam: function () { ga('kho', 'mo_trang'); if (VP().moTrangPhong) VP().moTrangPhong('kho'); P.MM.dong(); } },
@@ -346,7 +346,7 @@
 
   /* ════════ QUẢN LÝ THI CÔNG (kgn) ════════ */
   function kgnBatDau(P) {
-    P.MM.bot('Dạ em chào anh/chị, em là MyMy phụ trách Không gian Nhà và Gói quản lý thi công. Gói giúp anh/chị theo dõi từng mốc thi công, việc cần kiểm trước khi đổ sàn, ảnh kiểm và sổ tạm ứng so với dự toán.');
+    P.MM.bot('Dạ em chào anh/chị, em phụ trách Không gian Nhà và Gói quản lý thi công. Gói giúp anh/chị theo dõi từng mốc thi công, việc cần kiểm trước khi đổ sàn, ảnh kiểm và sổ tạm ứng so với dự toán.');
     P.MM.bot('Anh/chị muốn xem phí gói cho nhà mình, hay nhờ KTS tư vấn ạ?');
     P.MM.nut([
       { nhan: 'Xem phí gói cho nhà tôi', lam: function () { ga('kgn', 'mo_trang'); if (VP().moTrangPhong) VP().moTrangPhong('kgn', null, '/quan-ly-thi-cong.html'); P.MM.dong(); } },
@@ -358,7 +358,7 @@
   window.ALNChuPhong = {
     pt: phong('pt', {
       batDau: function (P) {
-        P.MM.bot('Dạ em chào anh/chị, em là MyMy phụ trách phòng Phong thủy. Em hỏi 4 câu ngắn rồi xem hướng nhà hợp tuổi cho anh/chị ngay ạ.');
+        P.MM.bot('Dạ em chào anh/chị, em phụ trách phòng Phong thủy. Em hỏi 4 câu ngắn rồi xem hướng nhà hợp tuổi cho anh/chị ngay ạ.');
         if (pt.r) { P.MM.bot('Lần trước em xem cho gia chủ ' + pt.r.canchi + ', cung ' + pt.r.Q.n + '.'); ptMoiBang(P); } else ptBatDauHoi(P);
       },
       moiBang: ptMoiBang,
@@ -368,7 +368,7 @@
     }),
     nt: phong('nt', {
       batDau: function (P) {
-        P.MM.bot('Dạ em chào anh/chị, em là MyMy phụ trách phòng Nội thất. Em hỏi 3 câu ngắn rồi báo khoảng chi phí nội thất cho nhà mình ngay ạ.');
+        P.MM.bot('Dạ em chào anh/chị, em phụ trách phòng Nội thất. Em hỏi 3 câu ngắn rồi báo khoảng chi phí nội thất cho nhà mình ngay ạ.');
         if (nt.r) { ntBao(P); } else ntBatDauHoi(P);
       },
       moiBang: ntMoiBang,
@@ -376,7 +376,7 @@
     }),
     tk: phong('tk', {
       batDau: function (P) {
-        P.MM.bot('Dạ em chào anh/chị, em là MyMy ở Xưởng thiết kế. Em hỏi 3 câu về lô đất rồi vẽ thử phương án chia phòng cho anh/chị xem ngay ạ.');
+        P.MM.bot('Dạ em chào anh/chị, em phụ trách Xưởng thiết kế. Em hỏi 3 câu về lô đất rồi vẽ thử phương án chia phòng cho anh/chị xem ngay ạ.');
         tk.dl = {}; tkHoi(P);
       },
       moiBang: tkMoiBang,

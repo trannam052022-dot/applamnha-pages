@@ -46,7 +46,11 @@
       dai.appendChild(vid);
     }
     dau.parentNode.insertBefore(dai, dau.nextSibling);
+    if (an) dai.style.display = 'none';
   }
+  // chủ phòng không phải MyMy đang nói (Văn phòng ALN, 09/11/2026): ẩn mặt MyMy để khung chat khỏi lệch người
+  var an = false;
+  window.alnBieuCamAn = function (v) { an = !!v; if (dai && anh) dai.style.display = an ? 'none' : ''; if (an && vid) { try { vid.pause(); } catch (e) { /* bỏ qua */ } } };
   function dat(ten, giu) {
     clearTimeout(henVe);
     if (giu) henVe = setTimeout(function () { dat('nghe'); }, giu);

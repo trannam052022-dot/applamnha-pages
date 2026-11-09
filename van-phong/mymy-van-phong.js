@@ -89,6 +89,7 @@
   function datNguoiNoi(id) {
     phongNoi = id || null;
     if (window.alnMyMyTen) window.alnMyMyTen(id && VAI[id] ? VAI[id] + ' · ALN' : 'MyMy · ALN');
+    if (window.alnBieuCamAn) window.alnBieuCamAn(!!(id && VAI[id])); // mặt MyMy chỉ hiện khi MyMy nói
     var x = goiKhach(); if (x && window.alnMyMyXungHo) window.alnMyMyXungHo(x);
   }
   function vaoPhongNoi(api, id) {
