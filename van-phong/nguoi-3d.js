@@ -15,7 +15,7 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 const GOC = new URL("../mo-hinh-3d/nguoi/", import.meta.url).href;
-const DONG_TAC = GOC + "dong-tac.glb?v=1";
+const DONG_TAC = GOC + "dong-tac.glb?v=2"; // v2 (09/11/2026): có ngón tay
 // id nhân vật trong van-phong.js → mô hình. gioi chọn dáng đứng/đi; cao = chiều cao trong văn phòng (m)
 // 4 nhân vật chủ nhà (08/11/2026): 2 cặp trẻ / lớn tuổi, hình minh hoạ, không đội tên người thật
 const CHU_NHA = {
@@ -25,10 +25,10 @@ const CHU_NHA = {
   cn_lon_nu: { ma: "cn_lon_nu", tep: "cn_lon_nu.glb?v=1", gioi: "nu", cao: 1.55 }
 };
 export const NHAN_VAT = {
-  MM: { ma: "mymy", tep: "mymy.glb?v=1", gioi: "nu", cao: 1.6, luon: true }, // lễ tân ở sảnh: khách thấy đầu tiên, nạp ngay
+  MM: { ma: "mymy", tep: "mymy.glb?v=1", hd: "mymy-hd.glb?v=1", gioi: "nu", cao: 1.6, luon: true }, // lễ tân ở sảnh: khách thấy đầu tiên, nạp ngay
   // "Bạn" (khách đang xem): một trong 4 chủ nhà, giữ cố định theo máy (đợt 4 cho khách tự chọn)
   // chủ phòng Dự toán (09/11/2026, Nam: tạm dùng MyMy cho mọi phòng tới khi có nhân vật riêng); nạp khi khách tới gần
-  DT: { ma: "mymy", tep: "mymy.glb?v=1", gioi: "nu", cao: 1.6 },
+  DT: { ma: "mymy", tep: "mymy.glb?v=1", hd: "mymy-hd.glb?v=1", gioi: "nu", cao: 1.6 },
   BAN: { chon: Object.keys(CHU_NHA), nho: "aln_vp_ban_mh", luon: true },
   // khách mới đến (chế độ quản trị): mỗi lần mở trang một chủ nhà, khác "Bạn" nếu được
   KH: { chon: Object.keys(CHU_NHA) }
@@ -130,7 +130,9 @@ function moTa(goc, laNguon) {
 
 /* ---------- quản lý nhân vật trong văn phòng ---------- */
 export function taoNguoi3D(o) {
-  const { NG, api, layTam, phone, cl } = o;
+  const { NG, api, layTam, phone, cl, layCam } = o;
+  // ảnh bề mặt nét (2048) cho người khách nhìn gần (lễ tân, chủ phòng): máy đủ bộ nhớ, không tiết kiệm dữ liệu, chưa tự hạ chất lượng
+  const hdDuoc = () => EP || (!(navigator.deviceMemory && navigator.deviceMemory < 4) && !(cl && cl.muc >= 1));
   const qs = location.search, conn = navigator.connection;
   const tat = !EP && (/[?&]nguoi=0\b/.test(qs) || (conn && conn.saveData) || (navigator.deviceMemory && navigator.deviceMemory <= 2));
   const MOI = new Map(); // id → { trang: 'dang'|'xong'|'loi', mh }
@@ -140,7 +142,8 @@ export function taoNguoi3D(o) {
   async function napNV(c) {
     const cf = cauHinh(c.id); MOI.set(c.id, { trang: "dang" });
     try {
-      const [src, g] = await Promise.all([napNguon(), nap(GOC + cf.tep)]);
+      const tep = cf.hd && hdDuoc() ? cf.hd : cf.tep;
+      const [src, g] = await Promise.all([napNguon(), nap(GOC + tep).catch(e => tep !== cf.tep ? nap(GOC + cf.tep) : Promise.reject(e))]);
       const nguon = moTa(src.scene, true);
       const sc = g.scene, bo = new THREE.Box3().setFromObject(sc), cao = bo.max.y - bo.min.y;
       if (!(cao > 0.1)) throw new Error("mô hình không có kích thước");
@@ -156,7 +159,12 @@ export function taoNguoi3D(o) {
       const mixer = new THREE.AnimationMixer(sc), act = {};
       Object.keys(clips).forEach(k => { act[k] = mixer.clipAction(clips[k]); });
       ["chao", "chi_tay", "gat_dau"].forEach(k => { if (act[k]) { act[k].setLoop(THREE.LoopRepeat, k === "chao" ? 3 : 1); act[k].clampWhenFinished = false; } });
-      const mh = { goc, mixer, act, gioi: cf.gioi, dang: null, motLan: null, daChao: false, noiTruoc: false };
+      const xg = ten => sc.getObjectByName("mixamorig" + ten) || sc.getObjectByName("mixamorig:" + ten);
+      const mh = { goc, mixer, act, gioi: cf.gioi, dang: null, motLan: null, daChao: false, noiTruoc: false,
+        x: { dau: xg("Head"), co: xg("Neck"), nguc: xg("Spine2"), vaiT: xg("LeftShoulder"), vaiP: xg("RightShoulder"), tayT: xg("LeftArm"), tayP: xg("RightArm") },
+        yaw: 0, pitch: 0, w: 0, pha: Math.random() * 10 };
+      // da và tóc mềm hơn dưới ánh sáng môi trường (bản Tripo hay khô, mặt tối)
+      sc.traverse(m => { if (m.isMesh && m.material) { const mt = m.material; mt.envMapIntensity = 1.25; if (mt.roughness !== undefined) mt.roughness = Math.max(0.55, mt.roughness); mt.needsUpdate = true; } });
       mixer.addEventListener("finished", e => { if (mh.motLan && e.action === mh.motLan) mh.motLan = null; });
       MOI.set(c.id, { trang: "xong", mh }); gan(c.id);
       try { (window.dataLayer = window.dataLayer || []).push({ event: "aln_vp_nguoi_3d", ma: cf.ma, kq: "xong" }); } catch (e) { /* bỏ qua */ }
@@ -172,8 +180,60 @@ export function taoNguoi3D(o) {
   }
   function datDongTac(mh, ten, mo) {
     if (mh.dang === ten || !mh.act[ten]) return; const moi = mh.act[ten], cu = mh.dang && mh.act[mh.dang];
-    moi.reset().setEffectiveWeight(1).play(); if (cu) cu.crossFadeTo(moi, mo === undefined ? 0.3 : mo, false); mh.dang = ten;
+    // nữ: chuyển động tác chậm và êm hơn, đứng/nói nhịp chậm lại một chút cho dịu
+    moi.timeScale = mh.gioi === "nu" && /^(dung_|noi)/.test(ten) ? 0.88 : 1;
+    moi.reset().setEffectiveWeight(1).play(); if (cu) cu.crossFadeTo(moi, mo === undefined ? (mh.gioi === "nu" ? 0.45 : 0.3) : mo, false); mh.dang = ten;
   }
+  /* Lớp mềm (09/11/2026, Nam: "khuôn mặt và dáng nhẹ nhàng dịu dàng như đúng người phụ nữ").
+     Chạy SAU mixer mỗi khung, chỉ cộng thêm góc nhỏ lên xương (không cộng dồn vì mixer đặt lại mỗi khung):
+     - quay đầu nhìn người đang nói chuyện (c.nhin) hoặc nhìn máy quay khi khách xem gần — cổ 40%, đầu 60%;
+     - nữ: nghiêng đầu nhẹ khi nghe/nói, thở (ngực, vai), hai cánh tay khép sát người hơn khi đứng. */
+  const _v = new THREE.Vector3(), _f = new THREE.Vector3(), _a = new THREE.Vector3(), _q = new THREE.Quaternion(), _pw = new THREE.Quaternion(), _t = new THREE.Quaternion();
+  function xoay(bone, truc, goc) { // xoay thêm quanh trục THẾ GIỚI
+    if (!bone || !bone.parent || Math.abs(goc) < 1e-4) return;
+    bone.parent.getWorldQuaternion(_pw); _q.setFromAxisAngle(truc, goc);
+    _t.copy(_pw).invert().multiply(_q).multiply(_pw); bone.quaternion.premultiply(_t);
+  }
+  const LEN = new THREE.Vector3(0, 1, 0);
+  function lopMem(c, mh, moving, seated, noi, dt) {
+    const X = mh.x; if (!X.dau || !mh.goc.parent) return;
+    mh.pha += dt; const nu = mh.gioi === "nu", mot = !!mh.motLan;
+    mh.goc.parent.getWorldDirection(_f); _f.y = 0; _f.normalize(); // hướng mặt người
+    // điểm nhìn
+    let dich = null;
+    if (c.nhin) dich = _v.set(c.nhin[0], seated ? 1.35 : 1.25, c.nhin[1]);
+    else if (layCam && !moving) { const cp = layCam(); if (Math.hypot(cp.x - c.x, cp.z - c.y) < 7) dich = _v.copy(cp); }
+    let yaw = 0, pitch = 0, muon = 0;
+    if (dich) {
+      X.dau.getWorldPosition(_a); const dx = dich.x - _a.x, dy = dich.y - _a.y, dz = dich.z - _a.z, ngang = Math.hypot(dx, dz);
+      yaw = Math.atan2(dx, dz) - Math.atan2(_f.x, _f.z); yaw = Math.atan2(Math.sin(yaw), Math.cos(yaw));
+      pitch = Math.atan2(dy, ngang);
+      if (Math.abs(yaw) < 1.5) { muon = 1; yaw = Math.max(-0.9, Math.min(0.9, yaw)); pitch = Math.max(-0.35, Math.min(0.3, pitch)); }
+    }
+    if (moving || mot) muon = 0;
+    const k = 1 - Math.exp(-dt * 3);
+    mh.w += (muon - mh.w) * k; mh.yaw += (yaw - mh.yaw) * k; mh.pitch += (pitch - mh.pitch) * k;
+    const w = mh.w;
+    if (w > 0.01) {
+      xoay(X.co, LEN, mh.yaw * 0.4 * w); xoay(X.dau, LEN, mh.yaw * 0.6 * w);
+      _a.set(_f.x, 0, _f.z).applyAxisAngle(LEN, mh.yaw * w).cross(LEN).normalize(); // trục ngang của đầu
+      xoay(X.co, _a, -mh.pitch * 0.4 * w); xoay(X.dau, _a, -mh.pitch * 0.6 * w);
+    }
+    if (!nu) return;
+    const t = mh.pha;
+    // nghiêng đầu dịu khi nghe/nói (quanh hướng nhìn), lắc rất chậm
+    const nghieng = (noi ? 0.07 : 0.05) * (0.6 + 0.4 * w) + Math.sin(t * 0.55) * 0.025;
+    _a.set(_f.x, 0, _f.z).applyAxisAngle(LEN, mh.yaw * w);
+    if (!moving) xoay(X.dau, _a, nghieng);
+    // thở: ngực phồng nhẹ, vai lên xuống
+    const tho = Math.sin(t * 1.5);
+    _a.copy(_f).cross(LEN).normalize();
+    xoay(X.nguc, _a, -tho * 0.018);
+    if (!mot) { xoay(X.vaiT, _f, tho * 0.012); xoay(X.vaiP, _f, -tho * 0.012); }
+    // đứng: hai tay khép sát người hơn (dáng dịu, không dang tay như dáng chung)
+    if (!moving && !seated && !mot) { xoay(X.tayT, _f, -0.07); xoay(X.tayP, _f, 0.07); }
+  }
+
   return {
     // gọi mỗi khung từ capNhatNguoi: chọn động tác theo việc nhân vật đang làm
     capNhat(c, moving, seated, noi, dt) {
@@ -183,6 +243,7 @@ export function taoNguoi3D(o) {
       mh.noiTruoc = noi;
       if (!mh.motLan) datDongTac(mh, moving ? "di_" + mh.gioi : seated ? "ngoi_go_phim" : noi ? "noi" : "dung_" + mh.gioi);
       mh.mixer.update(dt);
+      lopMem(c, mh, moving, seated, noi, dt);
     },
     // một động tác ngắn rồi trở về động tác nền: chao, chi_tay, gat_dau
     dongTac(id, ten) { const m = MOI.get(id); if (!m || m.trang !== "xong" || !m.mh.act[ten]) return false;

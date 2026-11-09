@@ -16,7 +16,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { taoNguoi3D } from "./nguoi-3d.js?v=3";
+import { taoNguoi3D } from "./nguoi-3d.js?v=4";
 
 const K = 0.058, WH = 3.2, WK = WH / 86; let GW = 26, GH = 19; // GW, GH lấy từ mat-bang.js khi mở
 const BRASS = "#c9a35b";
@@ -643,7 +643,7 @@ export async function mo(stage, api) {
     return { g, body, pelvis, spine, head, L, R, AL, AR, huong, rot: huong, seed: c.seed || Math.random() * 6 };
   }
   const NG = new Map(); api.CH.forEach(c => NG.set(c.id, nguoi(c)));
-  const N3 = taoNguoi3D({ NG, api, phone, cl, layTam: () => controls.target });
+  const N3 = taoNguoi3D({ NG, api, phone, cl, layTam: () => controls.target, layCam: () => cam.position });
   const lerpA = (a, b, k) => { let d = b - a; while (d > Math.PI) d -= Math.PI * 2; while (d < -Math.PI) d += Math.PI * 2; return a + d * k; };
   function capNhatNguoi(dt, t) {
     api.CH.forEach(c => {
